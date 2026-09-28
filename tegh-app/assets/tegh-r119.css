@@ -126,6 +126,9 @@ html[data-tegh-shell] .tegh-output-live{top:auto!important;bottom:20px!important
     overflow:visible!important;
   }
   html[data-tegh-shell] .srp-page:has(.r23-table-host) .r23-table-host{display:block!important}
+  /* Legacy tables (products, bank reconciliation history, notes) scroll inside their own box. */
+  html[data-tegh-shell] .srp-page .srp-table-wrap:not(.r23-scroll),
+  html[data-tegh-shell] .srp-page .srp-table-wrap.r27-native-scroll:not(.r23-scroll){max-width:100%!important;overflow-x:auto!important;overflow-y:visible!important}
 
   /* Match & Post Transactions: the two panels were 2px tall and drew on top of
      each other. Stack them; the transaction list keeps its own scroller. */

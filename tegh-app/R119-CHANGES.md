@@ -48,7 +48,7 @@
 ## Report generation
 
 - **Exports blocked the next export.** Every export showed a "Download ready" card for two minutes in the top-right corner, and several exports stacked. The cards covered the report's Actions → Export menu, and on a phone they spanned the whole top of the screen.
-  - `assets/tegh-downloads-r15.js`: keeps at most two notices and closes each after 20 seconds. The saved copy remains under Settings → Requested Downloads.
+  - `assets/tegh-downloads-r15.js`: shows only the latest notice (two stacked notices still covered the menu on a phone) and closes it after 20 seconds. The saved copy remains under Settings → Requested Downloads.
   - `assets/tegh-r119.css`: notices sit at the bottom, above the phone's bottom navigation.
 - **Register PDFs were not tables.** Any view with more than 6 columns printed as one "Field / Value" block per record.
   - `assets/tegh-registers-r23.js`: views of up to 12 columns now print as a landscape table (the Invoice & Note Register has 11). Wider views still use record details.
@@ -78,6 +78,7 @@ Report exports were unreachable on these pages because the table and its Actions
 - Page heads put the title on one row and page actions on the next. "New Customer / New Invoice" no longer covers the From/To filters.
 - Registers stay a real table that scrolls sideways instead of R30's record cards. Day Book keeps its own layout.
 - The invoice/note tabs become three equal buttons.
+- Older-style tables (Products and Services, Bank Reconciliation Report history) scroll inside their own box instead of running off the right edge.
 
 Checked with Playwright (Chromium) at 390×844 against a local PHP 8.4 + MariaDB copy with seeded invoices, bills and notes:
 
@@ -115,5 +116,4 @@ Upload them together. The gate, portal and workflow scripts are served `immutabl
 ## Not changed / still open
 
 - Credit and debit notes still have no PDF of their own (none existed before).
-- Bank Reconciliation Report and Products and Services draw their empty-state row slightly wider than a phone. It is clipped, not scrollable, and there is no content loss.
 - The R118 open items (Clarity disclosure, hard-coded tax account codes, staging robots/sitemap) are unchanged.

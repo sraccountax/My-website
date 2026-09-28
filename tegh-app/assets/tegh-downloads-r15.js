@@ -16,10 +16,11 @@
     const status=document.createElement('small');item.append(title,caption,link,button,status);region.append(item);
     // R119: notices used to stay two minutes each and stack over the report's
     // Actions menu, so the next export could not be started (worst on phones).
-    // Keep at most two, and close each after 20s; the saved copy stays in
-    // Settings → Requested Downloads.
+    // Show only the latest notice and close it after 20s; the saved copy stays
+    // in Settings → Requested Downloads.
+    [...notices].forEach(old=>old.close());
     const record={close:()=>{item.remove();URL.revokeObjectURL(url);notices.delete(record)}};notices.add(record);button.onclick=record.close;link.click();
-    [...notices].slice(0,-2).forEach(old=>old.close());setTimeout(record.close,20000);return status;
+    setTimeout(record.close,20000);return status;
   }
   async function save(blob,name){
     if(!(blob instanceof Blob)||!blob.size)throw Error('The generated file is empty.');
