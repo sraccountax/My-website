@@ -14,7 +14,12 @@
     const link=document.createElement('a');link.href=url;link.download=filename;link.textContent='Save file';link.className='tegh-download-link';
     const button=document.createElement('button');button.type='button';button.textContent='×';button.className='r15-download-close';button.setAttribute('aria-label','Dismiss download notification');
     const status=document.createElement('small');item.append(title,caption,link,button,status);region.append(item);
-    const record={close:()=>{item.remove();URL.revokeObjectURL(url);notices.delete(record)}};notices.add(record);button.onclick=record.close;link.click();setTimeout(record.close,120000);return status;
+    // R119: notices used to stay two minutes each and stack over the report's
+    // Actions menu, so the next export could not be started (worst on phones).
+    // Keep at most two, and close each after 20s; the saved copy stays in
+    // Settings → Requested Downloads.
+    const record={close:()=>{item.remove();URL.revokeObjectURL(url);notices.delete(record)}};notices.add(record);button.onclick=record.close;link.click();
+    [...notices].slice(0,-2).forEach(old=>old.close());setTimeout(record.close,20000);return status;
   }
   async function save(blob,name){
     if(!(blob instanceof Blob)||!blob.size)throw Error('The generated file is empty.');

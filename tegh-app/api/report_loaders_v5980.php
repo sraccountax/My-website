@@ -156,9 +156,56 @@ function tegh_report_documents_5980(array $company,array $d,array $p): array
         if($ar){$r['termsDays']=null;if(!empty($r['date'])&&!empty($r['dueDate'])){try{$r['termsDays']=(int)(new DateTimeImmutable($r['date']))->diff(new DateTimeImmutable($r['dueDate']))->format('%r%a');}catch(Throwable $e){$r['termsDays']=null;}}}
         elseif($r['termsDays']!==null)$r['termsDays']=(int)$r['termsDays'];
         $r['termsSource']=$ar?'Invoice / Due Dates':'Saved Invoice Terms';$r['displayStatus']=$ar&&$r['foreignBalanceCents']>0&&!empty($r['dueDate'])&&$r['dueDate']<canadian_today()&&in_array($r['status'],['sent','open'],true)?'Overdue':ucwords(str_replace('_',' ',(string)$r['status']));}unset($r);
+    // R119: one register per side for invoices, credit notes and debit notes.
+    $rows=tegh_report_documents_with_notes_r119($company,$ar,$p,$rows,$overdueOnly);
+    $totals=['subtotalCents'=>0,'taxCents'=>0,'totalCents'=>0,'balanceCents'=>0];$active=['subtotalCents'=>0,'taxCents'=>0,'totalCents'=>0,'balanceCents'=>0];
+    foreach($rows as $row)foreach($totals as $key=>$unused){$totals[$key]+=$row[$key];if(in_array($row['status'],$ar?['sent','paid','posted']:['open','paid','posted'],true))$active[$key]+=$row[$key];}
     if($overdueOnly){$rows=array_values(array_filter($rows,static fn(array $row): bool=>$row['displayStatus']==='Overdue'));$totals=['subtotalCents'=>0,'taxCents'=>0,'totalCents'=>0,'balanceCents'=>0];$active=['subtotalCents'=>0,'taxCents'=>0,'totalCents'=>0,'balanceCents'=>0];foreach($rows as $row)foreach($totals as $key=>$unused){$totals[$key]+=$row[$key];if(in_array($row['status'],['sent','paid'],true))$active[$key]+=$row[$key];}}
-    $m=tegh_report_model_5980($d,$company,$p,tegh_report_columns_5980([['date','Date','date',12],['number',$ar?'Invoice':'Bill','identifier',16],['party',$ar?'Customer':'Vendor','text',27],['dueDate','Due Date','date',12],['reference','Reference','text',20],['displayStatus','Status','text',16],['foreignSubtotalCents','Subtotal','money',15],['foreignTaxCents','Tax Amount','money',14],['foreignTotalCents','Total Amount','money',15],['foreignBalanceCents','Outstanding','money',16],['foreignCurrency','Currency','text',12],['termsDays',$ar?'Terms (Days From Dates)':'Terms (Days)','integer',15],['termsSource','Terms Source','text',20],['documentKind','Document Type','text',18],['subtotalCents','Subtotal (Base)','money',15],['taxCents','Tax (Base)','money',14],['totalCents','Total (Base)','money',15],['balanceCents','Outstanding (Base)','money',16]]),$rows,$totals);
-    $m['totalsLabel']='All selected register rows, including selected draft/void history';$m['controlTotals']['issuedNonvoid']=$active;$m['postingScope']='Invoice dates · Outstanding is current · Draft/void rows are not posted totals.';$m['foreignColumns']=['foreignSubtotalCents','foreignTaxCents','foreignTotalCents','foreignBalanceCents'];$m['rowCurrencyKey']='foreignCurrency';return $m;
+    $m=tegh_report_model_5980($d,$company,$p,tegh_report_columns_5980([['date','Date','date',12],['number',$ar?'Document':'Bill / Note','identifier',16],['documentKind','Document Type','text',18],['originalNumber','Original Document','identifier',16],['party',$ar?'Customer':'Vendor','text',27],['dueDate','Due Date','date',12],['reference','Reference','text',20],['displayStatus','Status','text',16],['foreignSubtotalCents','Subtotal','money',15],['foreignTaxCents','Tax Amount','money',14],['foreignTotalCents','Total Amount','money',15],['foreignBalanceCents','Outstanding','money',16],['foreignCurrency','Currency','text',12],['termsDays',$ar?'Terms (Days From Dates)':'Terms (Days)','integer',15],['termsSource','Terms Source','text',20],['subtotalCents','Subtotal (Base)','money',15],['taxCents','Tax (Base)','money',14],['totalCents','Total (Base)','money',15],['balanceCents','Outstanding (Base)','money',16]]),$rows,$totals);
+    $m['title']=$ar?'Customer Invoice & Note Register':'Vendor Invoice & Note Register';
+    $m['totalsLabel']='All selected register rows, net of credit notes, including selected draft/void history';$m['controlTotals']['issuedNonvoid']=$active;$m['postingScope']='Invoice dates · Outstanding is current · Draft/void rows are not posted totals.';$m['foreignColumns']=['foreignSubtotalCents','foreignTaxCents','foreignTotalCents','foreignBalanceCents'];$m['rowCurrencyKey']='foreignCurrency';return $m;
+}
+/* R119: merge accounting notes into the invoice/bill register.
+   Credit notes (and supplier debit notes, which also reduce what is owed) are
+   shown as negative amounts so register totals are net. A posted customer debit
+   note already exists as its own receivable invoice row; that row is relabelled
+   and the note itself is not listed twice. */
+function tegh_report_documents_with_notes_r119(array $company,bool $ar,array $p,array $rows,bool $overdueOnly): array
+{
+    foreach($rows as &$r){$r['originalNumber']=null;}unset($r);
+    if(!function_exists('schema_table_exists')||!schema_table_exists('accounting_notes'))return $rows;
+    $companyId=(string)$company['id'];$sourceType=$ar?'invoice':'bill';$sourceTable=$ar?'invoices':'bills';$party=$ar?'customers':'vendors';
+    $q=db()->prepare("SELECT n.*,src.number source_number,pp.name party_name FROM accounting_notes n JOIN `$sourceTable` src ON src.id=n.source_id AND src.company_id=n.company_id JOIN `$party` pp ON pp.id=n.party_id AND pp.company_id=n.company_id WHERE n.company_id=? AND n.source_type=? ORDER BY n.note_date,n.number");
+    $q->execute([$companyId,$sourceType]);$notes=$q->fetchAll(PDO::FETCH_ASSOC);if(!$notes)return $rows;
+    $debitDocs=[];foreach($notes as $n)if(!empty($n['debit_document_id']))$debitDocs[(string)$n['debit_document_id']]=$n;
+    foreach($rows as &$r)if(isset($debitDocs[(string)$r['id']])){$n=$debitDocs[(string)$r['id']];$r['documentKind']='Debit Note';$r['originalNumber']=(string)$n['source_number'];$r['noteId']=(string)$n['id'];}unset($r);
+    if($overdueOnly)return $rows;
+    $statusMap=['draft'=>'draft','void'=>'void','sent'=>'posted','open'=>'posted'];
+    if($p['status']!==''&&$p['status']!=='all'&&!isset($statusMap[$p['status']]))return $rows;
+    $wanted=($p['status']===''||$p['status']==='all')?null:$statusMap[$p['status']];
+    $needle=mb_strtolower(trim((string)$p['q']));
+    $labels=['customer_credit'=>'Credit Note','customer_debit'=>'Debit Note','vendor_credit'=>'Supplier Credit Note','vendor_debit'=>'Supplier Debit Note'];
+    foreach($notes as $n){
+        if(!empty($n['debit_document_id']))continue;
+        $date=(string)$n['note_date'];if($date<$p['start']||$date>$p['end'])continue;
+        if($wanted!==null&&$n['status']!==$wanted)continue;
+        if($p['partyId']!==''&&(string)$n['party_id']!==$p['partyId'])continue;
+        $kind=(string)$n['note_kind'];
+        if($needle!==''&&!str_contains(mb_strtolower(implode(' ',[(string)$n['number'],(string)$n['party_name'],(string)$n['source_number'],(string)$n['memo'],$labels[$kind]??''])),$needle))continue;
+        $sign=$kind==='customer_debit'?1:-1;
+        $open=0;$foreignOpen=0;
+        if($n['status']==='posted'&&$kind!=='customer_debit'&&function_exists('note_remaining_amounts')&&function_exists('tegh_notes_r70_settlements_ready')&&tegh_notes_r70_settlements_ready()){
+            try{$left=note_remaining_amounts($companyId,$n);$open=-(int)$left['remainingCents'];$foreignOpen=-(int)$left['foreignRemainingCents'];}catch(Throwable $e){$open=0;$foreignOpen=0;}
+        }
+        $rows[]=['termsDays'=>null,'isOpeningDocument'=>false,'id'=>(string)$n['id'],'noteId'=>(string)$n['id'],'number'=>(string)$n['number'],'date'=>$date,'dueDate'=>null,'party'=>(string)$n['party_name'],'reference'=>(string)$n['memo'],
+            'status'=>(string)$n['status'],'foreignCurrency'=>(string)$n['currency'],
+            'subtotalCents'=>$sign*(int)$n['subtotal_cents'],'taxCents'=>$sign*(int)$n['tax_cents'],'totalCents'=>$sign*(int)$n['total_cents'],'balanceCents'=>$open,
+            'foreignSubtotalCents'=>$sign*(int)$n['foreign_subtotal_cents'],'foreignTaxCents'=>$sign*(int)$n['foreign_tax_cents'],'foreignTotalCents'=>$sign*(int)$n['foreign_total_cents'],'foreignBalanceCents'=>$foreignOpen,
+            'journalId'=>$n['journal_entry_id']?(string)$n['journal_entry_id']:null,'documentDefinition'=>'accounting-note','noteKind'=>$kind,'documentKind'=>$labels[$kind]??'Note','originalNumber'=>(string)$n['source_number'],
+            'termsSource'=>'Not applicable','displayStatus'=>ucwords((string)$n['status'])];
+    }
+    usort($rows,static fn(array $a,array $b): int=>[(string)$a['date'],(string)$a['number'],(string)$a['id']]<=>[(string)$b['date'],(string)$b['number'],(string)$b['id']]);
+    return $rows;
 }
 function tegh_report_expenses_5980(array $company,array $d,array $p): array
 {

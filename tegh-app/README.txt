@@ -18,3 +18,5 @@ root, not the ZIP's containing folder. Preserve private config and runtime data.
 This is not an accepted production release.
 
 R118: server-side account guard, metadata denied by .htaccess, integrity lists refreshed. See R118-CHANGES.md.
+
+R119: invoice/note tabs, one Invoice & Note Register per side, invoice tax-split repair (notes and sign-in), scrolling report tables, mobile layout and export fixes. No migration. See R119-CHANGES.md.

@@ -143,6 +143,10 @@ function tegh_notes_r69_invoice_tax_columns_ready(): bool
 function tegh_notes_r69_unclassified_invoice_tax_count(): int
 {
     if(!tegh_notes_r69_invoice_tax_columns_ready())return -1;
+    // R119: invoices issued after the upgrade were saved without a split. The
+    // backfill is deterministic (from each invoice's own posting) and
+    // idempotent, so heal them here instead of blocking every sign-in.
+    tegh_notes_r69_backfill_invoice_tax_split();
     $q=db()->query("SELECT COUNT(*) FROM invoices i JOIN companies c ON c.id=i.company_id WHERE c.accounting_basis='accrual' AND i.status IN ('sent','paid') AND i.tax_cents>0 AND i.gst_hst_cents+i.pst_cents<>i.tax_cents");
     return (int)$q->fetchColumn();
 }
@@ -152,8 +156,15 @@ function tegh_notes_r69_repair_invoice_tax_columns(): void
     schema_add_column('invoices','gst_hst_cents','BIGINT NOT NULL DEFAULT 0 AFTER `subtotal_cents`');
     schema_add_column('invoices','pst_cents','BIGINT NOT NULL DEFAULT 0 AFTER `gst_hst_cents`');
     schema_add_column('invoices','tax_entry_mode',"ENUM('none','exclusive','inclusive') NOT NULL DEFAULT 'none' AFTER `tax_cents`");
+    tegh_notes_r69_backfill_invoice_tax_split();
+}
+
+function tegh_notes_r69_backfill_invoice_tax_split(): void
+{
     // Recover the historic split from each issued invoice's own posting. Do not
     // guess a province or silently classify an unknown PST amount as GST/HST.
+    $pending=db()->query("SELECT 1 FROM invoices WHERE tax_cents>0 AND gst_hst_cents=0 AND pst_cents=0 AND issued_journal_entry_id IS NOT NULL LIMIT 1")->fetchColumn();
+    if($pending===false)return;
     db()->exec("UPDATE invoices i JOIN (
         SELECT jl.journal_entry_id,
             SUM(CASE WHEN a.code='2100' THEN jl.credit_cents-jl.debit_cents ELSE 0 END) gst,

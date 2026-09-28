@@ -32,6 +32,25 @@ function note_source(string $companyId,string $sourceType,string $sourceId,bool 
     $sql="SELECT * FROM `$table` WHERE company_id=? AND id=?".($lock?' FOR UPDATE':'');
     $q=db()->prepare($sql);$q->execute([$companyId,$sourceId]);$row=$q->fetch();
     if(!$row)fail('The original invoice is unavailable in this company.',404,'note_source_missing');
+    if($sourceType==='invoice')$row=note_repair_invoice_tax_split($companyId,$row);
+    return $row;
+}
+
+/* R119: invoices created after the Schema 46 upgrade were saved without their
+   GST/HST and PST split, so every taxed note against them failed with
+   note_source_tax_unclassified. Recover the split from the invoice's own posted
+   journal (the same rule the R69 upgrade used) and persist it. Never guess. */
+function note_repair_invoice_tax_split(string $companyId,array $row): array
+{
+    $tax=(int)($row['tax_cents']??0);
+    if($tax<=0||!array_key_exists('gst_hst_cents',$row)||(int)$row['gst_hst_cents']+(int)$row['pst_cents']===$tax||empty($row['issued_journal_entry_id']))return $row;
+    $q=db()->prepare("SELECT SUM(CASE WHEN a.code='2100' THEN jl.credit_cents-jl.debit_cents ELSE 0 END) gst,SUM(CASE WHEN a.code='2110' THEN jl.credit_cents-jl.debit_cents ELSE 0 END) pst FROM journal_lines jl JOIN accounts a ON a.id=jl.account_id WHERE jl.journal_entry_id=? AND a.company_id=? AND a.code IN ('2100','2110')");
+    $q->execute([(string)$row['issued_journal_entry_id'],$companyId]);$posted=$q->fetch(PDO::FETCH_ASSOC)?:[];
+    $gst=(int)($posted['gst']??0);$pst=(int)($posted['pst']??0);
+    if($gst<0||$pst<0||$gst+$pst!==$tax)return $row;
+    db()->prepare("UPDATE invoices SET gst_hst_cents=?,pst_cents=?,tax_entry_mode=IF(tax_entry_mode='none','exclusive',tax_entry_mode) WHERE company_id=? AND id=? AND tax_cents=?")
+        ->execute([$gst,$pst,$companyId,(string)$row['id'],$tax]);
+    $row['gst_hst_cents']=$gst;$row['pst_cents']=$pst;if(($row['tax_entry_mode']??'none')==='none')$row['tax_entry_mode']='exclusive';
     return $row;
 }
 

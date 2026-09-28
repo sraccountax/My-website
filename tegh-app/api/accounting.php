@@ -855,6 +855,16 @@ function handle_customers(): never
     json_response(['customer'=>['id'=>$id,'status'=>$values['status']]],200);
 }
 
+/* R119: invoice_posting_lines() credits all sales tax to 2100 GST/HST, so the
+   saved split must say the same. Credit and debit notes refuse to post against
+   an invoice whose GST/HST + PST does not equal its tax. */
+function invoice_record_tax_split(string $companyId, string $invoiceId, int $tax): void
+{
+    if (!schema_column_exists('invoices', 'gst_hst_cents') || !schema_column_exists('invoices', 'pst_cents') || !schema_column_exists('invoices', 'tax_entry_mode')) return;
+    db()->prepare("UPDATE invoices SET gst_hst_cents=?, pst_cents=0, tax_entry_mode=? WHERE company_id=? AND id=?")
+        ->execute([max(0, $tax), $tax > 0 ? 'exclusive' : 'none', $companyId, $invoiceId]);
+}
+
 function invoice_posting_lines(string $companyId, int $subtotal, int $tax, int $total, ?array $calculatedLines = null, ?string $invoiceId = null): array
 {
     $revenue=[];
@@ -1032,6 +1042,7 @@ db_transaction_retry(function () use (
             json_encode($templateSnapshot, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
             json_encode($customerSnapshot, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
             $entryId, $isRecurring ? 1 : 0]);
+    invoice_record_tax_split($companyId, $id, $tax);
     $lineStmt = db()->prepare('INSERT INTO invoice_lines
         (id,invoice_id,product_service_id,income_account_id,description,quantity_milli,unit_price_cents,tax_rate_bps,amount_cents,tax_cents,
          foreign_unit_price_cents,foreign_amount_cents,foreign_tax_cents,sort_order)

@@ -17,7 +17,7 @@
       ],
       Reports: [
         ['Customers', () => portal()?.invokeMenuAction?.('Receivables','Customers'), ['customers']],
-        ['Customer Invoice Register', () => portal()?.invokeMenuAction?.('Receivables','Customer Invoice Register'), ['invoices']],
+        ['Customer Invoice & Note Register', () => portal()?.invokeMenuAction?.('Receivables','Customer Invoice & Note Register'), ['invoices']],
         ['Customer Ledgers', () => portal()?.invokeMenuAction?.('Receivables','Customer Ledgers'), ['ledger-customer']],
         ['Receivable Ageing', () => portal()?.invokeMenuAction?.('Receivables','Receivable Ageing'), ['aging-receivable']],
         ['Period Trial Balance', () => portal()?.invokeMenuAction?.('Receivables','Period Trial Balance'), ['trial-balance-receivables']],
@@ -32,7 +32,7 @@
       ],
       Reports: [
         ['Vendors', () => portal()?.invokeMenuAction?.('Payables','Vendors'), ['vendors']],
-        ['Vendor Invoice Register', () => portal()?.invokeMenuAction?.('Payables','Vendor Invoice Register'), ['report-bill-register']],
+        ['Vendor Invoice & Note Register', () => portal()?.invokeMenuAction?.('Payables','Vendor Invoice & Note Register'), ['report-bill-register']],
         ['Vendor Ledgers', () => portal()?.invokeMenuAction?.('Payables','Vendor Ledgers'), ['ledger-vendor']],
         ['Payable Ageing', () => portal()?.invokeMenuAction?.('Payables','Payable Ageing'), ['aging-payable']],
         ['Period Trial Balance', () => portal()?.invokeMenuAction?.('Payables','Period Trial Balance'), ['trial-balance-payables']],
@@ -82,12 +82,12 @@
     Receivables: [
       ['Receivable Ageing', () => openReport('Receivable Ageing'), ['aging-receivable']],
       ['Customer Balances', () => openReport('Customer Balances'), ['report-customer-balances']],
-      ['Customer Invoice Register', () => openReport('Customer Invoice Register'), ['report-invoice-register','invoices']],
+      ['Customer Invoice & Note Register', () => openReport('Customer Invoice & Note Register'), ['report-invoice-register','invoices']],
     ],
     'Payables and Expenses': [
       ['Payable Ageing', () => openReport('Payable Ageing'), ['aging-payable']],
       ['Vendor Balances', () => openReport('Vendor Balances'), ['report-vendor-balances']],
-      ['Vendor Invoice Register', () => openReport('Vendor Invoice Register'), ['report-bill-register']],
+      ['Vendor Invoice & Note Register', () => openReport('Vendor Invoice & Note Register'), ['report-bill-register']],
       ['Expense Register', () => openReport('Expense Register'), ['report-expense-register','expense-vouchers']],
     ],
     'Accounting': [
