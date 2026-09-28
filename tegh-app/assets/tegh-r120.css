@@ -1,0 +1,189 @@
+/* Tegh R120 — layout polish, navigation scrolling, dropdowns, note documents.
+   Loaded after tegh-r119.css. Selectors carry html[data-tegh-shell] so they
+   outrank the earlier R22–R32 layers without editing them. */
+
+/* 1. Sidebar: one scroller for the whole menu.
+   The open module's submenu was capped at 420px (often ~280px) with its own
+   hidden scrollbar, so its last reports were cut off ("GIFI Report", Payroll
+   "Reports"). The submenu now takes its natural height and the menu as a whole
+   scrolls. Long labels wrap instead of being cut ("Products and Servic…"). */
+html[data-tegh-shell] .sidebar>nav{align-content:start!important;grid-auto-rows:max-content!important;overflow-y:auto!important;overscroll-behavior:contain}
+html[data-tegh-shell] .sidebar .srp-subnav.is-open{max-height:none!important;overflow:visible!important;height:auto!important}
+html[data-tegh-shell] .sidebar .srp-subnav button{
+  white-space:normal!important;overflow:visible!important;text-overflow:clip!important;
+  height:auto!important;min-height:32px!important;line-height:1.3!important;
+  letter-spacing:0!important;text-align:left!important;
+}
+
+/* 2. Form labels: text, then the required dot, then the control. */
+html[data-tegh-shell] .srp-page label>.srp-required-marker,
+html[data-tegh-shell] .srp-page .srp-required-marker{
+  position:static!important;display:inline!important;inset:auto!important;
+  margin:0 0 0 4px!important;color:#c2410c!important;font-weight:800!important;line-height:inherit!important;
+}
+
+/* 3. Floating filter panels. The ageing "Ageing periods" filters opened inline
+   and pushed the whole toolbar down; they now float under their button. */
+html[data-tegh-shell] details.tegh-popover{position:relative!important;display:inline-block!important}
+html[data-tegh-shell] details.tegh-popover>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:6px 12px;border:1px solid var(--tegh-border,#cad9d1);border-radius:8px;background:var(--tegh-surface,#fff);font-weight:650;white-space:nowrap}
+html[data-tegh-shell] details.tegh-popover>summary::-webkit-details-marker{display:none}
+html[data-tegh-shell] details.tegh-popover>summary::after{content:"▾";font-size:.8em;opacity:.7}
+html[data-tegh-shell] details.tegh-popover>.tegh-popover-panel{
+  position:absolute;z-index:2100;top:calc(100% + 6px);right:0;min-width:260px;max-width:min(360px,calc(100vw - 24px));
+  display:grid;gap:10px;padding:14px;border:1px solid var(--tegh-border,#cad9d1);border-radius:10px;
+  background:var(--tegh-surface,#fff);box-shadow:0 14px 34px rgba(8,39,30,.16);
+}
+html[data-tegh-shell] details.tegh-popover>.tegh-popover-panel label{display:grid;gap:4px;margin:0}
+html[data-tegh-shell] details.tegh-popover>.tegh-popover-panel input{width:100%}
+
+/* 4. The custom drag-scrollbar layer is appended last to <body>, so its rails
+   were drawn above the search window and other modals. Hide it while any
+   modal, dialog or the phone navigation drawer is open. */
+body:has(.srp-modal-scrim) #tegh-drag-scrollbar-layer,
+body:has(dialog[open]) #tegh-drag-scrollbar-layer,
+body.r19-drawer-open #tegh-drag-scrollbar-layer{display:none!important}
+
+@media (max-width:820px){
+  /* Column chooser: a bottom sheet above the phone navigation bar, so its
+     "Show All Columns" / close buttons are never hidden behind the nav. */
+  html[data-tegh-shell] .srp-columns-panel{
+    position:fixed!important;top:auto!important;left:10px!important;right:10px!important;width:auto!important;
+    bottom:calc(var(--r30-mobile-nav,64px) + 8px + env(safe-area-inset-bottom,0px))!important;
+    max-height:calc(100dvh - var(--r30-mobile-nav,64px) - 90px)!important;overflow-y:auto!important;z-index:2150!important;
+  }
+}
+/* The column panel lives inside .srp-column-controls (z-index 7), which kept
+   it under the page head. Lift the controls while their panel is open. */
+html[data-tegh-shell] .srp-column-controls:has(.srp-columns-panel:not([hidden])){z-index:2150!important}
+
+@media (max-width:820px){
+  /* Day Book on a phone: rows were 42px grids whose cells were squeezed to
+     0px and clipped, so every entry showed as an empty box. Each entry is now
+     a compact card: date · status, reference, party/memo, account, amounts. */
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row{
+    display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto!important;grid-template-rows:none!important;grid-auto-rows:auto!important;
+    height:auto!important;min-height:0!important;max-height:none!important;gap:4px 10px!important;padding:10px 12px!important;align-items:center!important;
+  }
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td{
+    display:block!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;
+    padding:0!important;border:0!important;width:auto!important;min-width:0!important;
+  }
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r28-daybook-date{grid-column:1/3;grid-row:1;font-weight:650}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td:nth-child(8){grid-column:3;grid-row:1;justify-self:end}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r28-daybook-ref-cell{grid-column:1/3;grid-row:2}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td:nth-child(3){grid-column:3;grid-row:2;justify-self:end}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r28-daybook-memo,
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r28-daybook-account{grid-column:1/-1;overflow-wrap:anywhere}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r23-num{text-align:left!important}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td:is(.r28-daybook-date,.r28-daybook-ref-cell,.r28-daybook-memo,.r28-daybook-account,.r23-row-actions,:nth-child(3),:nth-child(8))::before{content:none!important;display:none!important}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r23-num::before{display:inline!important;margin-right:4px}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r28-daybook-memo :is(small,strong){display:block;white-space:normal!important;overflow-wrap:anywhere}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row .r28-daybook-ref{padding:0!important;justify-content:flex-start!important}
+  html[data-tegh-shell] .r28-daybook-table>thead{display:none!important}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r23-row-actions{grid-column:3;justify-self:end}
+}
+
+/* 5. Credit / debit note document — same structure as the invoice page:
+   header fields, item lines, a summary panel and one action bar. */
+html[data-tegh-shell] .tegh-note-doc{display:block!important;margin:0 0 16px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+html[data-tegh-shell] .tegh-note-doc-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,320px);gap:16px;align-items:start}
+html[data-tegh-shell] .tegh-note-doc-main{display:grid;gap:16px;min-width:0}
+html[data-tegh-shell] .tegh-note-doc-card{background:var(--tegh-surface,#fff);border:1px solid var(--tegh-border,#d8e2de);border-radius:12px;padding:18px 20px;box-shadow:0 1px 2px rgba(8,39,30,.04)}
+html[data-tegh-shell] .tegh-note-doc-card h3{margin:0;font-size:1rem;font-weight:700;color:var(--tegh-text,#132f27)}
+html[data-tegh-shell] .tegh-note-doc-card header p{margin:3px 0 0;color:var(--tegh-muted,#58706a);font-size:.86rem}
+html[data-tegh-shell] .tegh-note-doc-title{margin:0 0 14px;padding:0 0 12px;border-bottom:1px solid var(--tegh-line,#e3ece8)}
+html[data-tegh-shell] .tegh-note-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 16px}
+html[data-tegh-shell] .tegh-note-fields>label{display:grid!important;gap:6px;margin:0!important;font-size:.84rem;font-weight:650;color:var(--tegh-text,#132f27);min-width:0}
+html[data-tegh-shell] .tegh-note-fields :is(input,select){width:100%!important;min-height:40px}
+html[data-tegh-shell] .tegh-note-fields .tegh-span-2{grid-column:span 2}
+html[data-tegh-shell] .tegh-note-fields .tegh-span-4{grid-column:1/-1}
+html[data-tegh-shell] .tegh-note-lines-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 12px}
+html[data-tegh-shell] .tegh-note-lines-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+html[data-tegh-shell] .tegh-note-lines-wrap{overflow-x:auto;margin:0 -4px}
+html[data-tegh-shell] table.tegh-note-lines{width:100%;min-width:560px;border-collapse:separate;border-spacing:0;table-layout:fixed}
+html[data-tegh-shell] table.tegh-note-lines th{padding:8px 8px;font-size:.74rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--tegh-muted,#58706a);background:var(--tegh-surface-mist,#f1f6f3);border-bottom:1px solid var(--tegh-line,#e3ece8);text-align:left}
+html[data-tegh-shell] table.tegh-note-lines th:first-child{border-radius:8px 0 0 0;width:auto}
+html[data-tegh-shell] table.tegh-note-lines th:nth-child(2){width:96px}
+html[data-tegh-shell] table.tegh-note-lines th:nth-child(3){width:140px}
+html[data-tegh-shell] table.tegh-note-lines th:nth-child(4){width:120px}
+html[data-tegh-shell] table.tegh-note-lines th:last-child{width:44px;border-radius:0 8px 0 0}
+html[data-tegh-shell] table.tegh-note-lines td{padding:8px;border-bottom:1px solid var(--tegh-line,#e3ece8);vertical-align:top}
+html[data-tegh-shell] table.tegh-note-lines .num{text-align:right}
+html[data-tegh-shell] table.tegh-note-lines td input{width:100%;min-height:38px;box-sizing:border-box}
+html[data-tegh-shell] table.tegh-note-lines td.num input{text-align:right}
+html[data-tegh-shell] table.tegh-note-lines td input[readonly]{background:var(--tegh-surface-mist,#f4f8f6);color:var(--tegh-text,#132f27)}
+html[data-tegh-shell] table.tegh-note-lines td small{display:block;margin-top:4px;color:var(--tegh-muted,#58706a);font-size:.76rem}
+html[data-tegh-shell] table.tegh-note-lines td[data-line-amount]{padding-top:17px;font-weight:650;font-variant-numeric:tabular-nums}
+html[data-tegh-shell] .tegh-note-line-remove{width:32px;height:32px;margin-top:3px;border:1px solid var(--tegh-border,#d8e2de);border-radius:8px;background:transparent;color:var(--tegh-muted,#58706a);font-size:18px;line-height:1;cursor:pointer}
+html[data-tegh-shell] .tegh-note-line-remove:hover{color:#b42318;border-color:#e7b2ac;background:#fff5f4}
+html[data-tegh-shell] .tegh-note-lines-empty td{padding:22px 8px!important;text-align:center;color:var(--tegh-muted,#58706a)}
+html[data-tegh-shell] .tegh-note-doc-summary{position:sticky;top:12px;display:grid;gap:14px}
+html[data-tegh-shell] .tegh-note-doc-summary dl{display:grid;gap:8px;margin:0}
+html[data-tegh-shell] .tegh-note-doc-summary dl>div{display:flex;justify-content:space-between;gap:12px;font-size:.88rem}
+html[data-tegh-shell] .tegh-note-doc-summary dt{color:var(--tegh-muted,#58706a)}
+html[data-tegh-shell] .tegh-note-doc-summary dd{margin:0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+html[data-tegh-shell] .tegh-note-source{padding:0 0 12px;border-bottom:1px solid var(--tegh-line,#e3ece8)}
+html[data-tegh-shell] .tegh-note-grand{margin-top:4px;padding-top:10px;border-top:1px solid var(--tegh-line,#e3ece8)}
+html[data-tegh-shell] .tegh-note-grand :is(dt,dd){font-size:1.02rem;font-weight:750;color:var(--tegh-text,#132f27)}
+html[data-tegh-shell] .tegh-note-effect,html[data-tegh-shell] .tegh-note-summary-empty{margin:0;font-size:.8rem;color:var(--tegh-muted,#58706a);line-height:1.45}
+html[data-tegh-shell] .tegh-note-doc-actions{display:flex!important;justify-content:flex-end!important;gap:8px!important;margin-top:16px!important;padding:12px 0 0!important;border-top:1px solid var(--tegh-line,#e3ece8)}
+@media (max-width:1100px){
+  html[data-tegh-shell] .tegh-note-doc-grid{grid-template-columns:minmax(0,1fr)}
+  html[data-tegh-shell] .tegh-note-doc-summary{position:static}
+}
+@media (max-width:820px){
+  html[data-tegh-shell] .tegh-note-fields{grid-template-columns:minmax(0,1fr)}
+  html[data-tegh-shell] .tegh-note-fields :is(.tegh-span-2,.tegh-span-4){grid-column:auto}
+  html[data-tegh-shell] .tegh-note-doc-card{padding:14px}
+  html[data-tegh-shell] .tegh-note-lines-head{flex-direction:column}
+  html[data-tegh-shell] .tegh-note-lines-actions{justify-content:flex-start}
+  html[data-tegh-shell] .tegh-note-doc-actions{position:sticky;bottom:0;background:var(--tegh-surface,#fff);padding:10px 0!important;z-index:5}
+  html[data-tegh-shell] .tegh-note-doc-actions .srp-btn{flex:1 1 0}
+}
+html[data-tegh-shell] .tegh-notes-workspace:has(.tegh-note-doc) .tegh-note-settlement-scope{display:none!important}
+html[data-tegh-shell] .tegh-note-fields{align-items:end}
+html[data-tegh-shell] .tegh-note-doc-main{grid-template-columns:minmax(0,1fr)}
+html[data-tegh-shell] .tegh-note-doc-card{min-width:0}
+@media (max-width:820px){
+  /* Item lines as stacked cards: description on top, then qty · price · amount. */
+  html[data-tegh-shell] table.tegh-note-lines{min-width:0;display:block}
+  html[data-tegh-shell] table.tegh-note-lines thead{display:none}
+  html[data-tegh-shell] table.tegh-note-lines tbody{display:grid;gap:10px}
+  html[data-tegh-shell] table.tegh-note-lines tr{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.1fr) minmax(0,1fr) 36px;gap:8px;padding:10px;border:1px solid var(--tegh-line,#e3ece8);border-radius:10px}
+  html[data-tegh-shell] table.tegh-note-lines td{display:block;padding:0;border:0;min-width:0}
+  html[data-tegh-shell] table.tegh-note-lines td:first-child{grid-column:1/-1}
+  html[data-tegh-shell] table.tegh-note-lines td[data-line-amount]{padding-top:10px}
+  html[data-tegh-shell] table.tegh-note-lines tr.tegh-note-lines-empty{display:block;border-style:dashed}
+  html[data-tegh-shell] .tegh-note-doc-actions{flex-direction:row!important;flex-wrap:nowrap!important}
+  html[data-tegh-shell] .tegh-note-doc-actions .srp-btn{min-width:0;padding-inline:8px!important;width:auto!important}
+}
+
+/* 6. Cards that lost their inner padding (Journal Entry, Transfers and other
+   "fill" editors had padding:0, so headings and fields touched the border).
+   Report tables and the invoice form keep their own spacing. */
+html[data-tegh-shell] .r22-workspace>.srp-card.r22-fill-path:not(:has(.r23-table-host)):not(.srp-ci-workspace):not(:has(.r29-invoice-layout)):not(:has(.tegh-note-doc)){padding:18px 20px!important}
+
+/* Journal Entry: readable line headers (white text on a pale band before) and
+   a card that ends after its lines instead of an empty fixed-height box. */
+html[data-tegh-shell] .srp-journal-head,html[data-tegh-shell] .srp-journal-head *{color:var(--tegh-muted,#4f6861)!important;font-size:.76rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+html[data-tegh-shell] .srp-journal-head{border-radius:8px 8px 0 0}
+html[data-tegh-shell] .srp-journal-lines.r22-scroll-region{flex:0 1 auto!important;max-height:min(60vh,560px)}
+html[data-tegh-shell] .r22-workspace>.srp-card.r22-fill-path:has(.srp-journal-lines){flex:0 0 auto!important;height:auto!important}
+html[data-tegh-shell] .r22-workspace>.srp-card.r22-fill-path:has(.srp-journal-lines) form.r22-fill-path{flex:0 0 auto!important;height:auto!important}
+
+/* Recurring Transactions and other two-panel pages: panels size to their own
+   content instead of stretching an empty list to the height of the form. */
+html[data-tegh-shell] .sra-grid{align-items:start!important}
+
+/* Dark hero banners (Document Intake, Collection Drafts, Payroll): body copy
+   was grey on dark green. */
+html[data-tegh-shell] :is(.tegh-native-boundary,.tegh-agent-hero) p{color:rgba(255,255,255,.82)!important}
+
+/* 7. Invoice line item: even columns, bottoms aligned, rate preset readable. */
+@media (min-width:1101px){
+  html[data-tegh-shell] .srp-ci-line-grid{grid-template-columns:minmax(0,1.25fr) minmax(0,2fr) 88px 130px 120px 170px!important;align-items:end!important;gap:10px 12px!important}
+  html[data-tegh-shell] .srp-ci-line-grid>*{min-width:0!important;width:auto!important}
+  html[data-tegh-shell] .srp-ci-line-grid select{width:100%!important;min-width:0!important}
+  html[data-tegh-shell] .srp-ci-line-grid .srp-check{align-self:center!important;padding-bottom:0!important}
+}
+html[data-tegh-shell] .r63-product-field .srp-btn{min-height:30px!important;padding:4px 10px!important;font-size:.8rem!important;justify-self:start}

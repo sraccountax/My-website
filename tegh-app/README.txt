@@ -20,3 +20,4 @@ This is not an accepted production release.
 R118: server-side account guard, metadata denied by .htaccess, integrity lists refreshed. See R118-CHANGES.md.
 
 R119: invoice/note tabs, one Invoice & Note Register per side, invoice tax-split repair (notes and sign-in), scrolling report tables, mobile layout and export fixes. No migration. See R119-CHANGES.md.
+R120: credit/debit notes as itemized documents (returns), render-loop fix for dropdowns/scrolling, sidebar and layout polish. Auto-creates table accounting_note_lines. See R120-CHANGES.md.

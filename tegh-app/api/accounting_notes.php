@@ -371,9 +371,88 @@ function note_void(array $user,array $company,array $note,array $input): array
     return ['id'=>$note['id'],'status'=>'void','reversalJournalEntryId'=>$reversal];
 }
 
+/* R120: optional itemized note lines (product returns, price adjustments).
+   The note's accounting still comes from its subtotal and the original
+   document's tax proportion; lines are the itemized source of that subtotal.
+   The table is additive and created on first use, outside any transaction. */
+function note_lines_ready(): bool
+{
+    static $ready=null;if($ready!==null)return $ready;
+    try{
+        if(!schema_table_exists('accounting_note_lines')){
+            db()->exec("CREATE TABLE IF NOT EXISTS accounting_note_lines (
+ id VARCHAR(64) NOT NULL PRIMARY KEY,
+ company_id VARCHAR(64) NOT NULL,
+ note_id VARCHAR(64) NOT NULL,
+ source_line_id VARCHAR(64) NULL,
+ product_service_id VARCHAR(64) NULL,
+ description VARCHAR(500) NOT NULL,
+ quantity_milli BIGINT NOT NULL,
+ foreign_unit_price_cents BIGINT NOT NULL,
+ foreign_amount_cents BIGINT NOT NULL,
+ sort_order INT NOT NULL DEFAULT 0,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ KEY accounting_note_lines_note_idx (company_id,note_id,sort_order),
+ KEY accounting_note_lines_source_idx (company_id,source_line_id),
+ CONSTRAINT accounting_note_lines_note_fk FOREIGN KEY (note_id) REFERENCES accounting_notes(id) ON DELETE CASCADE,
+ CONSTRAINT accounting_note_lines_amount_ck CHECK (quantity_milli > 0 AND foreign_unit_price_cents >= 0 AND foreign_amount_cents >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        }
+        $ready=schema_table_exists('accounting_note_lines');
+    }catch(Throwable $e){$ready=false;}
+    return $ready;
+}
+
+/** Validate submitted lines against the original document; returns clean lines or [] when none were sent. */
+function note_prepare_lines(string $companyId,array $values,mixed $raw): array
+{
+    if($raw===null||$raw===[])return [];
+    if(!is_array($raw)||!array_is_list($raw)||count($raw)>100)fail('Send between 1 and 100 note lines.',422,'note_lines_invalid');
+    if(!note_lines_ready())fail('Itemized note lines are unavailable on this database. Enter the subtotal only.',503,'note_lines_unavailable');
+    $source=$values['source'];$isInvoice=$values['spec']['source']==='invoice';$reducing=$values['spec']['direction']!=='increase';
+    $originals=[];
+    if($isInvoice){$q=db()->prepare('SELECT id,quantity_milli,product_service_id FROM invoice_lines WHERE invoice_id=?');$q->execute([(string)$source['id']]);foreach($q->fetchAll(PDO::FETCH_ASSOC) as $row)$originals[(string)$row['id']]=$row;}
+    else $originals[(string)$source['id']]=['id'=>(string)$source['id'],'quantity_milli'=>(int)($source['quantity_milli']??1000),'product_service_id'=>$source['product_service_id']??null];
+    $lines=[];$sum=0;$wanted=[];
+    foreach($raw as $i=>$line){
+        if(!is_array($line))fail('Each note line must be an object.',422,'note_lines_invalid');
+        $description=trim((string)($line['description']??''));if($description===''||mb_strlen($description)>500)fail('Each note line needs a description of up to 500 characters.',422,'note_line_description');
+        $qty=filter_var($line['quantityMilli']??null,FILTER_VALIDATE_INT);$unit=filter_var($line['foreignUnitPriceCents']??null,FILTER_VALIDATE_INT);
+        if($qty===false||$qty<=0||$qty>1000000000)fail('Each note line needs a positive quantity.',422,'note_line_quantity');
+        if($unit===false||$unit<0||$unit>100000000000)fail('Each note line needs a unit price of zero or more.',422,'note_line_price');
+        $amount=(int)round($qty*$unit/1000);$sum+=$amount;
+        $sourceLine=trim((string)($line['sourceLineId']??''));
+        if($sourceLine!==''){
+            if(!isset($originals[$sourceLine]))fail('A returned line does not belong to the original document.',422,'note_line_source');
+            $wanted[$sourceLine]=($wanted[$sourceLine]??0)+$qty;
+        }
+        $product=trim((string)($line['productServiceId']??''))?:($sourceLine!==''?($originals[$sourceLine]['product_service_id']??null):null);
+        $lines[]=['description'=>$description,'quantityMilli'=>$qty,'foreignUnitPriceCents'=>$unit,'foreignAmountCents'=>$amount,'sourceLineId'=>$sourceLine?:null,'productServiceId'=>$product?:null,'sortOrder'=>$i];
+    }
+    if($sum!==(int)$values['net'])fail('The note subtotal must equal the sum of its lines.',422,'note_lines_total_mismatch');
+    if($reducing&&$wanted){
+        // Returned quantities cannot exceed what the original document sold,
+        // counting every other draft or posted note against the same line.
+        $marks=implode(',',array_fill(0,count($wanted),'?'));
+        $q=db()->prepare("SELECT l.source_line_id,COALESCE(SUM(l.quantity_milli),0) qty FROM accounting_note_lines l JOIN accounting_notes n ON n.id=l.note_id AND n.company_id=l.company_id WHERE l.company_id=? AND n.status<>'void' AND n.note_kind IN (?,?) AND l.source_line_id IN ($marks) GROUP BY l.source_line_id");
+        $reducingKinds=$isInvoice?['customer_credit','customer_credit']:['vendor_credit','vendor_debit'];
+        $q->execute(array_merge([$companyId],$reducingKinds,array_keys($wanted)));$prior=[];foreach($q->fetchAll(PDO::FETCH_ASSOC) as $row)$prior[(string)$row['source_line_id']]=(int)$row['qty'];
+        foreach($wanted as $id=>$qty)if($qty+($prior[$id]??0)>(int)$originals[$id]['quantity_milli'])fail('A returned quantity is more than the original document still has available to return.',422,'note_line_quantity_exceeded');
+    }
+    return $lines;
+}
+
+function note_store_lines(string $companyId,string $noteId,array $lines): void
+{
+    if(!$lines)return;
+    $s=db()->prepare('INSERT INTO accounting_note_lines(id,company_id,note_id,source_line_id,product_service_id,description,quantity_milli,foreign_unit_price_cents,foreign_amount_cents,sort_order) VALUES(?,?,?,?,?,?,?,?,?,?)');
+    foreach($lines as $l)$s->execute([new_id('nline'),$companyId,$noteId,$l['sourceLineId'],$l['productServiceId'],$l['description'],$l['quantityMilli'],$l['foreignUnitPriceCents'],$l['foreignAmountCents'],$l['sortOrder']]);
+}
+
 function handle_accounting_notes(): never
 {
     require_method('GET','POST','PATCH');$user=require_user();$company=require_company($user);$companyId=(string)$company['id'];tegh_notes_r67_require();
+    note_lines_ready();
     if(request_method()==='GET'){
         $sourceId=trim((string)($_GET['sourceId']??''));$where='company_id=?';$params=[$companyId];
         if($sourceId!==''){$where.=' AND source_id=?';$params[]=clean_text($sourceId,'Original invoice',64);}
@@ -401,7 +480,14 @@ function handle_accounting_notes(): never
             $legacy=$applied>0&&!isset($parts['application']);
             return ['id'=>$row['id'],'kind'=>$row['note_kind'],'number'=>$row['number'],'sourceType'=>$row['source_type'],'sourceId'=>$row['source_id'],'partyId'=>$row['party_id'],'date'=>$row['note_date'],'status'=>$row['status'],'currency'=>$row['currency'],'exchangeRateMicros'=>(int)$row['exchange_rate_micros'],'foreignSubtotalCents'=>(int)$row['foreign_subtotal_cents'],'foreignTaxCents'=>(int)$row['foreign_tax_cents'],'foreignTotalCents'=>(int)$row['foreign_total_cents'],'subtotalCents'=>(int)$row['subtotal_cents'],'taxCents'=>(int)$row['tax_cents'],'totalCents'=>(int)$row['total_cents'],'appliedCents'=>$applied,'foreignAppliedCents'=>$foreignApplied,'refundedCents'=>$refunded,'foreignRefundedCents'=>$foreignRefunded,'remainingCents'=>max(0,($legacy?$applied:(int)$row['total_cents'])-$applied-$refunded),'foreignRemainingCents'=>max(0,(int)$row['foreign_total_cents']-$foreignApplied-$foreignRefunded),'debitDocumentId'=>$row['debit_document_id'],'journalEntryId'=>$row['journal_entry_id'],'memo'=>$row['memo']];
         },$rows);
-        json_response(['notes'=>$notes,'settlements'=>$settlements,'settlementReady'=>true]);
+        if($notes&&note_lines_ready()){
+            $ids=array_column($notes,'id');$marks=implode(',',array_fill(0,count($ids),'?'));
+            $q=db()->prepare("SELECT note_id,source_line_id,product_service_id,description,quantity_milli,foreign_unit_price_cents,foreign_amount_cents FROM accounting_note_lines WHERE company_id=? AND note_id IN ($marks) ORDER BY note_id,sort_order");
+            $q->execute(array_merge([$companyId],$ids));$byNote=[];
+            foreach($q->fetchAll(PDO::FETCH_ASSOC) as $l)$byNote[(string)$l['note_id']][]=['sourceLineId'=>$l['source_line_id'],'productServiceId'=>$l['product_service_id'],'description'=>$l['description'],'quantityMilli'=>(int)$l['quantity_milli'],'foreignUnitPriceCents'=>(int)$l['foreign_unit_price_cents'],'foreignAmountCents'=>(int)$l['foreign_amount_cents']];
+            foreach($notes as &$n)$n['lines']=$byNote[(string)$n['id']]??[];unset($n);
+        }
+        json_response(['notes'=>$notes,'settlements'=>$settlements,'settlementReady'=>true,'linesReady'=>note_lines_ready()]);
     }
     require_csrf();require_company_role($company,'owner','bookkeeper');$input=request_json();
     if(request_method()==='POST'){
@@ -409,16 +495,17 @@ function handle_accounting_notes(): never
             $company=tegh_bank_reauthorize_mutation($user,$company,'');
             require_company_permission($company,note_kind_spec((string)($input['kind']??''))['permission']);
             $operationKey=clean_text($input['operationKey']??'','Operation key',120);
-            $payloadHash=hash('sha256',json_encode(['companyId'=>$companyId,'actorId'=>$user['id'],'kind'=>$input['kind']??null,'sourceId'=>$input['sourceId']??null,'date'=>$input['date']??null,'subtotalCents'=>$input['subtotalCents']??null,'taxCents'=>$input['taxCents']??null,'memo'=>$input['memo']??null],JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR));
+            $payloadHash=hash('sha256',json_encode(['companyId'=>$companyId,'actorId'=>$user['id'],'kind'=>$input['kind']??null,'sourceId'=>$input['sourceId']??null,'date'=>$input['date']??null,'subtotalCents'=>$input['subtotalCents']??null,'taxCents'=>$input['taxCents']??null,'memo'=>$input['memo']??null]+(empty($input['lines'])?[]:['lines'=>$input['lines']]),JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR));
             $prior=db()->prepare('SELECT id,number,status,payload_hash,created_by FROM accounting_notes WHERE company_id=? AND operation_key=? FOR UPDATE');
             $prior->execute([$companyId,$operationKey]);$previous=$prior->fetch();
             if($previous){
                 if(!hash_equals((string)$previous['payload_hash'],$payloadHash)||(string)$previous['created_by']!==(string)$user['id'])fail('The operation key was already used for a different note.',409,'note_operation_key_conflict');
                 return ['id'=>$previous['id'],'number'=>$previous['number'],'status'=>$previous['status'],'idempotent'=>true];
             }
-            $values=note_prepare($company,$input);$kind=$values['kind'];$spec=$values['spec'];$source=$values['source'];$number=note_reserve_number($companyId,$kind,$spec['prefix']);$id=new_id('note');
+            $values=note_prepare($company,$input);$lines=note_prepare_lines($companyId,$values,$input['lines']??null);$kind=$values['kind'];$spec=$values['spec'];$source=$values['source'];$number=note_reserve_number($companyId,$kind,$spec['prefix']);$id=new_id('note');
             db()->prepare("INSERT INTO accounting_notes(id,company_id,source_type,source_id,party_id,note_kind,number,note_date,status,currency,exchange_rate_micros,foreign_subtotal_cents,foreign_tax_cents,foreign_total_cents,subtotal_cents,tax_cents,total_cents,memo,operation_key,payload_hash,created_by) VALUES(?,?,?,?,?,?,?,?,'draft',?,?,?,?,?,?,?,?,?,?,?,?)")
                 ->execute([$id,$companyId,$spec['source'],$source['id'],$source[$spec['source']==='invoice'?'customer_id':'vendor_id'],$kind,$number,$values['date'],$source['currency'],$values['rate'],$values['net'],$values['tax'],$values['foreignTotal'],$values['baseNet'],$values['baseTax'],$values['total'],$values['memo'],$operationKey,$payloadHash,$user['id']]);
+            note_store_lines($companyId,$id,$lines);
             if(function_exists('voucher_register_saved'))voucher_register_saved($user,$companyId,$spec['prefix'],$spec['source']==='invoice'?'AR':'AP','accounting_note',$id,$values['date'],$number.' · '.(string)$source['number'],$values['total'],null,false);
             audit_event($user,$companyId,'accounting_note.created','accounting_note',$id,['kind'=>$kind,'number'=>$number,'sourceId'=>$source['id']]);
             return ['id'=>$id,'number'=>$number,'status'=>'draft'];

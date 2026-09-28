@@ -22,7 +22,10 @@
     const update=()=>{if(!state)return;const complete=control.type==='checkbox'||control.type==='radio'?control.checked:String(control.value||'').trim()!=='';state.textContent=complete?'✓ Complete':'Pending';state.dataset.state=complete?'complete':'pending'};
     if(!control.dataset.r27State){control.dataset.r27State='1';control.addEventListener('input',update);control.addEventListener('change',update)}update();
   }
-  function compactForms(root){$$(routineForms,root).forEach(form=>{form.classList.add('r27-task-form');if(form.dataset.teghFormLayout!=='compact'){let index=0;$$('label',form).forEach(label=>{if(label.closest('fieldset')&&label.querySelector('input[type="radio"],input[type="checkbox"]'))return;const control=$('input:not([type="hidden"]),select,textarea',label);if(control)formState(label,++index)})}else{$$('.r27-field-number,.r27-required,.r27-field-state',form).forEach(node=>node.remove());$$('.r27-field',form).forEach(label=>label.classList.remove('r27-field'))}const actions=$('.srp-actions,.form-actions,[data-form-actions]',form);if(actions)actions.classList.add('r27-form-actions')});}
+  // R120: every form uses the compact layout. Numbered step badges and the
+  // per-field "Required / Pending / ✓ Complete" text centred each label and
+  // tripled field height; the required dot next to the label is enough.
+  function compactForms(root){$$(routineForms,root).forEach(form=>{form.classList.add('r27-task-form');if(false){let index=0;$$('label',form).forEach(label=>{if(label.closest('fieldset')&&label.querySelector('input[type="radio"],input[type="checkbox"]'))return;const control=$('input:not([type="hidden"]),select,textarea',label);if(control)formState(label,++index)})}else{$$('.r27-field-number,.r27-required,.r27-field-state',form).forEach(node=>node.remove());$$('.r27-field',form).forEach(label=>label.classList.remove('r27-field'))}const actions=$('.srp-actions,.form-actions,[data-form-actions]',form);if(actions)actions.classList.add('r27-form-actions')});}
 
   function simplifyReports(page){
     const route=page.dataset.srpPage||'';if(!reportRoutes.has(route)&&!route.startsWith('report-')&&!route.startsWith('financial-')&&!$('.srp-report-period-caption,[data-tegh-authoritative-report]',page))return;

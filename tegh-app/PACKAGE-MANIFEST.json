@@ -4,15 +4,15 @@
   "build": 5990,
   "schema": 46,
   "schemaTarget": 46,
-  "revision": "Sites R117 frontend with R117 debit-note output hotfix, R118 account guard and metadata hardening, and R119 invoice/note tabs, combined invoice & note registers, invoice tax-split repair, scrolling tables, mobile layout and export fixes",
+  "revision": "Sites R117 frontend with R117 debit-note output hotfix, R118 account guard and metadata hardening, and R119 invoice/note tabs, combined invoice & note registers, invoice tax-split repair, scrolling tables, mobile layout and export fixes; R120 itemized credit/debit note documents, render-loop fix for dropdowns and scrolling, sidebar/menu/layout polish",
   "releaseStatus": "STAGING CANDIDATE \u2014 accounting acceptance and serving-host file identity pending",
   "sealed": false,
   "productionReady": false,
   "acceptanceComplete": false,
   "flatRoot": true,
   "packageType": "cumulative-full-application",
-  "package": "Tegh-5.9.9-Build-5990-Schema-46-Sites-R117-Hotfix-R119-Consolidated-IONOS-STAGING",
-  "generatedAt": "2026-09-28T11:29:13Z",
+  "package": "Tegh-5.9.9-Build-5990-Schema-46-Sites-R117-Hotfix-R120-Consolidated-IONOS-STAGING",
+  "generatedAt": "2026-09-28T17:46:03Z",
   "sourceSiteProjectId": "appgprj_6ab3cf31e2d48191b5f1ce9e490fc8db",
   "sourceSiteCommit": "e33a278ff46f6e1e057eb9bfe94dc52461640794",
   "sourceBasePackageSha256": "21838aae4541a3c958f9c2837e8fb7dadb20c7f4de1fc08d9f6acf4c9486611c",
@@ -122,7 +122,7 @@
     },
     {
       "path": "api/accounting_notes.php",
-      "sha256": "37b5a6ddaf20db743beaf83f286a8399981d057ede9a6f4e6a3f716820dbd4dd"
+      "sha256": "5b31be2c980c659e02c2f15d2089992241cedbd83f9f8280e4cdd65edd97ea43"
     },
     {
       "path": "api/invoice_documents_r20.php",
@@ -142,19 +142,19 @@
     },
     {
       "path": "app.html",
-      "sha256": "2d4a0487931aa5b19d076d0483d5f1d8b44d86169da79a4ffd08d9d6b134b480"
+      "sha256": "31e1f0c6a9787dd0da0420da30c5da043f60dd1795b88b7544124610942f6a90"
     },
     {
       "path": "assets/tegh-gate-v5990.js",
-      "sha256": "d00a14891a4961831fd6ee634729586c8b9dd2306aaba41c05d7400965e7117d"
+      "sha256": "9c6f6b695376d12a22ed198073fd9a3dbfcde320f770aec08656f9c9e5b427c9"
     },
     {
       "path": "assets/tegh-preflight-v5990.js",
-      "sha256": "664aa2155e034a7603b9d9b17af59b2be200aef97bceeb41f6c0bd2bd49f7372"
+      "sha256": "7b166827bf94f3768baf2432898bdcdcd7cf8dd63a18a3a3f1b2e738cd71a35b"
     },
     {
       "path": "assets/tegh-portal-v5990.js",
-      "sha256": "13cf60e17fbc09a81dbbc38472c7c49e1975af36bb954ab62144bab8d52fb7be"
+      "sha256": "2d9a4ef7bace9a0b7ed6712819817bc795b123a82387f46fa141df93cefde82d"
     },
     {
       "path": "assets/tegh-registers-r23.js",
@@ -181,5 +181,36 @@
       "sha256": "a4235ad9180de4278d17b7276bd1d0f927b4dceb559d9b5e8852d3fba504b5d1"
     }
   ],
-  "r119Migration": false
+  "r119Migration": false,
+  "r120Files": [
+    {
+      "path": "api/accounting_notes.php",
+      "sha256": "5b31be2c980c659e02c2f15d2089992241cedbd83f9f8280e4cdd65edd97ea43"
+    },
+    {
+      "path": "app.html",
+      "sha256": "31e1f0c6a9787dd0da0420da30c5da043f60dd1795b88b7544124610942f6a90"
+    },
+    {
+      "path": "assets/tegh-gate-v5990.js",
+      "sha256": "9c6f6b695376d12a22ed198073fd9a3dbfcde320f770aec08656f9c9e5b427c9"
+    },
+    {
+      "path": "assets/tegh-portal-v5990.js",
+      "sha256": "2d9a4ef7bace9a0b7ed6712819817bc795b123a82387f46fa141df93cefde82d"
+    },
+    {
+      "path": "assets/tegh-preflight-v5990.js",
+      "sha256": "7b166827bf94f3768baf2432898bdcdcd7cf8dd63a18a3a3f1b2e738cd71a35b"
+    },
+    {
+      "path": "assets/tegh-r27.js",
+      "sha256": "5b7bcfe0d070807eab0357317f61523abe08a1a5052a17c12c78545c2882acb3"
+    },
+    {
+      "path": "assets/tegh-r120.css",
+      "sha256": "8b1b81060fb35e324dc0beb3576bed442b42ae9d7a5179746f0b4ff2db6b8ba9"
+    }
+  ],
+  "r120AutoCreatedTable": "accounting_note_lines"
 }
