@@ -1,5 +1,0 @@
-Base ZIP SHA-256: 21838aae4541a3c958f9c2837e8fb7dadb20c7f4de1fc08d9f6acf4c9486611c
-Hotfix ZIP SHA-256: 7f361a835acd4f6a3a087091141d0c0a07fee709bc8c5e13bece6c316b8219c0
-Site commit: e33a278ff46f6e1e057eb9bfe94dc52461640794
-Changed PHP: api/accounting_notes.php, api/professional_output_v5710.php
-No other application files changed from base R117.

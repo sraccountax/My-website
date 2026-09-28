@@ -54,7 +54,7 @@
   let pdfEnginePromise=null;
   async function pdfEngine(){
     if(window.TeghPDF)return window.TeghPDF;
-    return pdfEnginePromise||(pdfEnginePromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='/assets/tegh-pdf-v5990.js?v=5990-r121';script.onload=()=>window.TeghPDF?resolve(window.TeghPDF):reject(Error('PDF renderer did not initialize.'));script.onerror=()=>{script.remove();pdfEnginePromise=null;reject(Error('PDF renderer could not load. Please retry.'))};document.head.append(script)}));
+    return pdfEnginePromise||(pdfEnginePromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='/assets/tegh-pdf-v5990.js?v=5990-r122';script.onload=()=>window.TeghPDF?resolve(window.TeghPDF):reject(Error('PDF renderer did not initialize.'));script.onerror=()=>{script.remove();pdfEnginePromise=null;reject(Error('PDF renderer could not load. Please retry.'))};document.head.append(script)}));
   }
   async function pdfInvoice(model){return (await pdfEngine()).invoice(model)}
   function download(blob,filename){
@@ -368,7 +368,7 @@
     }catch(error){const ambiguous=error.status===0||Number(error.status)>=500;notify(ambiguous?'Posting result needs verification':'Depreciation not posted',ambiguous?`Check the schedule and Day Book, then safely retry this same operation. `:`${error.message}`,'error');button.disabled=false;button.removeAttribute('aria-busy');button.textContent=original}
     finally{button.dataset.teghPosting='0'}
   }
-  async function refreshAdvancedAssets(button){const host=button.closest('.srp-advanced-host')||q('.srp-page[data-srp-page="advanced-assets"] .srp-advanced-host');if(host&&window.SRBooksAdvanced?.mount)await window.SRBooksAdvanced.mount(host,'assets',{showTabs:false});else location.reload()}
+  async function refreshAdvancedAssets(button){const host=button.closest('.srp-advanced-host')||q('.srp-page[data-srp-page="advanced-assets"] .srp-advanced-host');if(host&&window.TeghAdvanced?.mount)await window.TeghAdvanced.mount(host,'assets',{showTabs:false});else location.reload()}
 
   let routeCleanup=[];
   function cleanupRoute(){routeCleanup.splice(0).forEach(dispose=>{try{dispose()}catch{}})}

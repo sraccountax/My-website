@@ -1442,9 +1442,26 @@ function bank_transaction_post_service_once(array $user, array $company, array $
                 if($amount===0)fail('A zero-value statement line cannot settle sales tax.',422,'sales_tax_settlement_zero');
                 $taxAccountId=account_by_code($companyId,$salesTaxSettlement==='gst_hst'?'2100':'2110');
                 $settled=abs($amount);$label=$salesTaxSettlement==='gst_hst'?'GST/HST':'PST';
-                $lines=$amount<0
-                    ?[['accountId'=>$taxAccountId,'debitCents'=>$settled,'creditCents'=>0,'memo'=>$label.' remittance'],['accountId'=>$bankLedgerId,'debitCents'=>0,'creditCents'=>$settled]]
-                    :[['accountId'=>$bankLedgerId,'debitCents'=>$settled,'creditCents'=>0],['accountId'=>$taxAccountId,'debitCents'=>0,'creditCents'=>$settled,'memo'=>$label.' refund']];
+                // R122: with a return period end, the input tax credits recorded to
+                // that date are cleared too (Cr 1100/1110) and the payable account
+                // takes the balancing amount, so a payment of collected tax less
+                // ITCs settles both accounts.
+                $itcCents=0;$itcAccountId=null;$periodEndRaw=trim((string)($decision['salesTaxPeriodEnd']??''));
+                if($periodEndRaw!==''){
+                    $periodEnd=safe_date($periodEndRaw,'Return period end');
+                    if($periodEnd>(string)$transaction['transaction_date'])fail('The return period end must be on or before the bank transaction date.',422,'sales_tax_period_invalid');
+                    if($salesTaxSettlement==='gst_hst'||(bool)($company['pst_recoverable']??false)){
+                        $itcAccountId=account_by_code($companyId,$salesTaxSettlement==='gst_hst'?'1100':'1110');
+                        $itcStmt=db()->prepare("SELECT COALESCE(SUM(jl.debit_cents-jl.credit_cents),0) FROM journal_lines jl JOIN journal_entries je ON je.id=jl.journal_entry_id WHERE je.company_id=? AND jl.account_id=? AND je.status='posted' AND je.entry_date<=?");
+                        $itcStmt->execute([$companyId,$itcAccountId,$periodEnd]);$toDate=(int)$itcStmt->fetchColumn();$itcStmt->execute([$companyId,$itcAccountId,'9999-12-31']);$remaining=(int)$itcStmt->fetchColumn();$itcCents=max(0,min($toDate,$remaining)); // never clear credits a prior settlement already cleared
+                    }
+                }
+                $balancing=-$amount+$itcCents; // debit to the payable account (negative means credit)
+                $lines=[];
+                if($amount<0)$lines[]=['accountId'=>$bankLedgerId,'debitCents'=>0,'creditCents'=>$settled];else $lines[]=['accountId'=>$bankLedgerId,'debitCents'=>$settled,'creditCents'=>0];
+                if($itcCents>0)$lines[]=['accountId'=>$itcAccountId,'debitCents'=>0,'creditCents'=>$itcCents,'memo'=>'Input tax credits to '.$periodEnd];
+                if($balancing>0)$lines[]=['accountId'=>$taxAccountId,'debitCents'=>$balancing,'creditCents'=>0,'memo'=>$label.($amount<0?' remittance':' return')];
+                elseif($balancing<0)$lines[]=['accountId'=>$taxAccountId,'debitCents'=>0,'creditCents'=>-$balancing,'memo'=>$label.' refund'];
                 $remarks=mb_substr(trim((string)($decision['remarks']??'')),0,500);$journalMemo=$remarks!==''?$remarks:(string)$transaction['description'];
                 $entryId=add_journal_entry($user,$companyId,(string)$transaction['transaction_date'],'bank_transaction',$transactionId,$journalMemo,$lines);
                 db()->prepare("UPDATE bank_transactions SET decided_account_id=?, remarks=?, tax_code='NO_TAX', suggestion_source='manual', status='posted', journal_entry_id=? WHERE id=? AND company_id=? AND status='pending'")
@@ -2094,30 +2111,27 @@ function handle_reconciliations(): never
     $periodStart = $periodStart === '' ? substr($periodEnd,0,8).'01' : safe_date($periodStart,'Period start');
     if ($periodStart > $periodEnd) fail('Period start cannot be after period end.');
     assert_not_future_date($periodEnd, 'Period end');
-    $statementBalance = safe_cents($input['statementBalanceCents'] ?? null, 'Statement balance', true);
     $status = (string)($input['status'] ?? 'complete');
     if (!in_array($status,['draft','complete'],true)) fail('Reconciliation status is invalid.');
     $notes = optional_text($input['notes'] ?? null,1000) ?? '';
-    $stmt = db()->prepare("SELECT ledger_account_id, currency FROM bank_accounts WHERE id = ? AND company_id = ? AND account_type IN ('bank','credit_card') AND active = 1");
+    $stmt = db()->prepare("SELECT id, name, ledger_account_id, currency FROM bank_accounts WHERE id = ? AND company_id = ? AND account_type IN ('bank','credit_card') AND active = 1");
     $stmt->execute([$bankAccountId, $companyId]);
     $bank = $stmt->fetch();
     if (!$bank) fail('Choose a valid bank account.');
     if ((string)$bank['currency'] !== (string)$company['currency']) {
         fail('Complete a reviewed period-end currency adjustment before reconciling this account.', 409, 'foreign_bank_revaluation_required');
     }
-    $stmt = db()->prepare("SELECT COALESCE(SUM(jl.debit_cents - jl.credit_cents),0) FROM journal_lines jl JOIN journal_entries je ON je.id = jl.journal_entry_id WHERE jl.account_id = ? AND je.company_id = ? AND je.status = 'posted' AND je.entry_date <= ?");
-    $stmt->execute([$bank['ledger_account_id'], $companyId, $periodEnd]);
-    $bookBalance = (int)$stmt->fetchColumn();
-    $difference = $statementBalance - $bookBalance;
-    if ($status === 'complete' && $difference !== 0) fail('Reconciliation is out by ' . number_format(abs($difference) / 100, 2) . ' ' . (string)$company['currency'] . '. Save it as a draft or review missing transactions.');
-    // Completion certifies explicit reconciliation evidence. Posting a bank row
-    // to the GL is accounting, not reconciliation; every statement row in the
-    // selected period must participate in an active match group before it can
-    // be cleared.
-    $stmt = db()->prepare("SELECT COUNT(*) FROM bank_transactions bt WHERE bt.bank_account_id=? AND bt.company_id=? AND bt.transaction_date BETWEEN ? AND ? AND bt.status NOT IN ('duplicate','excluded')
-        AND NOT EXISTS(SELECT 1 FROM bank_match_bank_items mbi JOIN bank_match_groups mg ON mg.id=mbi.match_group_id WHERE mbi.bank_transaction_id=bt.id AND mg.company_id=bt.company_id AND mg.bank_account_id=bt.bank_account_id AND mg.status='matched')");
-    $stmt->execute([$bankAccountId, $companyId, $periodStart, $periodEnd]);
-    if ($status === 'complete' && (int)$stmt->fetchColumn() > 0) fail('Match every bank-statement item in this period before completing reconciliation.',409,'reconciliation_unmatched_bank_items');
+    // R122: the bank-side balance is calculated from the opening balance and
+    // every imported bank transaction; it is never typed in or read from a
+    // statement import. Reconciling items (unposted imports, timing and
+    // book-only entries) are reported; completion needs the unexplained
+    // difference to be zero.
+    require_once __DIR__ . '/reconciliation_position_r122.php';
+    $position = tegh_recon_position_r122($companyId, $bank, $periodStart, $periodEnd);
+    $statementBalance = (int)$position['bank']['closingCents'];
+    $bookBalance = (int)$position['book']['closingCents'];
+    $difference = (int)$position['unexplainedCents'];
+    if ($status === 'complete' && $difference !== 0) fail('The bank and book balances differ by ' . number_format(abs($difference) / 100, 2) . ' ' . (string)$company['currency'] . ' that the reconciling items do not explain. Save it as a draft and review the transactions.', 409, 'reconciliation_unexplained_difference');
     $stmt = db()->prepare("SELECT COUNT(*) FROM bank_transactions bt JOIN reconciliation_items ri ON ri.bank_transaction_id=bt.id JOIN reconciliations prior ON prior.id=ri.reconciliation_id WHERE bt.bank_account_id=? AND bt.company_id=? AND bt.transaction_date BETWEEN ? AND ? AND prior.company_id=bt.company_id AND prior.status='complete'");
     $stmt->execute([$bankAccountId,$companyId,$periodStart,$periodEnd]);
     if($status==='complete' && (int)$stmt->fetchColumn()>0) fail('One or more bank-statement items in this period are already part of a completed reconciliation. Reopen the prior reconciliation instead of clearing them twice.',409,'bank_item_already_reconciled');
@@ -2139,8 +2153,10 @@ function handle_reconciliations(): never
         if($status==='complete'){
             db()->prepare('UPDATE bank_accounts SET statement_balance_cents = ?, last_reconciled_date = GREATEST(COALESCE(last_reconciled_date,?),?) WHERE id = ? AND company_id = ?')
                 ->execute([$statementBalance,$periodEnd,$periodEnd,$bankAccountId,$companyId]);
-            $stmt = db()->prepare("SELECT DISTINCT bt.id FROM bank_transactions bt JOIN bank_match_bank_items mbi ON mbi.bank_transaction_id=bt.id JOIN bank_match_groups mg ON mg.id=mbi.match_group_id WHERE bt.bank_account_id=? AND bt.company_id=? AND bt.transaction_date BETWEEN ? AND ? AND bt.status NOT IN ('duplicate','excluded') AND mg.company_id=bt.company_id AND mg.bank_account_id=bt.bank_account_id AND mg.status='matched'");
-            $stmt->execute([$bankAccountId,$companyId,$periodStart,$periodEnd]);
+            $stmt = db()->prepare("SELECT DISTINCT bt.id FROM bank_transactions bt JOIN journal_entries je ON je.company_id=bt.company_id AND je.status='posted' AND je.entry_date<=? AND (je.id=bt.journal_entry_id OR je.id IN (SELECT mi.journal_entry_id FROM bank_match_bank_items bi JOIN bank_match_groups g ON g.id=bi.match_group_id AND g.status='matched' JOIN bank_match_book_items mi ON mi.match_group_id=g.id WHERE bi.bank_transaction_id=bt.id))
+                WHERE bt.bank_account_id=? AND bt.company_id=? AND bt.transaction_date BETWEEN ? AND ? AND bt.status='posted'
+                AND NOT EXISTS(SELECT 1 FROM reconciliation_items pri JOIN reconciliations pr ON pr.id=pri.reconciliation_id AND pr.status='complete' AND pr.id<>? WHERE pri.bank_transaction_id=bt.id)");
+            $stmt->execute([$periodEnd,$bankAccountId,$companyId,$periodStart,$periodEnd,$id]);
             $itemStmt = db()->prepare('INSERT INTO reconciliation_items (reconciliation_id, bank_transaction_id, cleared) VALUES (?, ?, 1)');
             foreach ($stmt->fetchAll() as $row) $itemStmt->execute([$id, $row['id']]);
             db()->prepare('DELETE FROM reconciliation_match_groups WHERE reconciliation_id=?')->execute([$id]);

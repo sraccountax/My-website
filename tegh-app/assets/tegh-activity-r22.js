@@ -249,11 +249,15 @@
   function positionMenu(control) {
     if(control?.open) overlayManager.position(control);
   }
+  // R122: page headings are written by more than one layer. Writing only
+  // when the text actually changes stops a MutationObserver ping-pong that
+  // made titles flicker (Edit Product alternated with "Edit item" ~60x/s).
+  const setHeading=head=>{const h=$('h1',head);return {set textContent(value){if(h&&h.textContent!==String(value))h.textContent=String(value)}}};
   function titleAndHelp(page,s) {
     const head=s.head;
     if(!head.dataset.r22Authored){
       const title=$('h1',head),intro=$(':scope > div:first-child > p',head),actions=$('.tegh-page-head-actions',head);
-      s.title=title?.textContent||page.dataset.srpPage||'Workspace';s.description=intro?.textContent||'';
+      s.title=title?.textContent||page.dataset.srpTitle||page.dataset.srpPage||'Workspace';s.description=intro?.textContent||'';
       const titleBox=document.createElement('div');titleBox.className='r22-title';
       if(title)titleBox.append(title);else titleBox.innerHTML=`<h1>${esc(s.title)}</h1>`;
       const controls=document.createElement('div');controls.className='r22-toolbar-controls';
@@ -497,7 +501,7 @@
     if(visibleForm&&['expense-vouchers','payroll-remittance','payroll-employees'].includes(s.page.dataset.srpPage)){
       const card=visibleForm.closest('.srp-card'),intro=card&&$(':scope>.srp-section-title,:scope>.srp-register-head',card);
       if(intro&&!$('button,input,select,a',intro)){
-        const h=$('h2',intro);if(h){$('h1',head).textContent=h.textContent;h.remove();}
+        const h=$('h2',intro);if(h){setHeading(head).textContent=h.textContent;h.remove();}
         const text=intro.textContent.trim();if(text){intro.classList.add('r22-trailing-warning');appendOnce(card,intro);}else intro.remove();
       }
     }
@@ -519,7 +523,7 @@
     if(s.page.dataset.srpPage==='expense-vouchers'){
       const form=$('[data-expense-form]',work),card=form?.closest('.srp-card'),grid=card?.parentElement;
       if(form&&grid){grid.classList.add('r22-expense-editor');[...grid.children].filter(n=>n!==card).forEach(n=>{const menu=toolbarMenu(s,'r22-expense-history','Expense history');appendOnce(menuPanel(menu),n);});
-        const title=$(':scope > h2',card);if(title){$('h1',head).textContent=title.textContent;title.remove();}
+        const title=$(':scope > h2',card);if(title){setHeading(head).textContent=title.textContent;title.remove();}
         form.classList.add('r22-expense-form');
       }
     }
@@ -645,7 +649,7 @@
     if(c.kind==='payment-form'){
       const form=$('[data-payment-form]',work);
       if(form){const card=form.closest('.srp-card'),grid=card?.parentElement;
-        const intro=$(':scope>.srp-section-title',card);if(intro){const heading=$('h2,h3',intro);if(heading)$('h1',head).textContent=heading.textContent;const help=guidance(s);while(intro.firstChild)help.append(intro.firstChild);intro.remove();}
+        const intro=$(':scope>.srp-section-title',card);if(intro){const heading=$('h2,h3',intro);if(heading)setHeading(head).textContent=heading.textContent;const help=guidance(s);while(intro.firstChild)help.append(intro.firstChild);intro.remove();}
         if(grid?.classList.contains('srp-grid')){
         grid.classList.add('r22-payment-grid');const others=[...grid.children].filter(n=>n!==card);if(others.length){const menu=toolbarMenu(s,'r22-payment-guide','Recording help');others.forEach(n=>menuPanel(menu).append(n));}
         const history=$$(':scope > .srp-card',work).filter(n=>!n.contains(form));if(history.length){const menu=toolbarMenu(s,'r22-payment-history','History');history.forEach(n=>{const card=n.closest('.srp-card');menuPanel(menu).append(card&&!card.contains(form)?card:n);});}
@@ -692,7 +696,7 @@
         const steps=$('.srp-import-steps',chooser);if(steps){const current=$('.current',steps);let step=$('.r22-import-stage',head);if(!step){step=document.createElement('span');step.className='r22-import-stage';controls.prepend(step);}step.textContent=current?.textContent.trim()||'Choose file';steps.remove();}
       }
       const bench=$('[data-import-workbench]:not([hidden]),.srp-import-review',work);
-      if(bench){const title=$('.srp-register-head h2',bench);if(title){$('h1',head).textContent=title.textContent;title.remove();}const links=$('.srp-import-template-links',bench);if(links){const menu=toolbarMenu(s,'r22-import-templates','Templates');menuPanel(menu).append(links);}}
+      if(bench){const title=$('.srp-register-head h2',bench);if(title){setHeading(head).textContent=title.textContent;title.remove();}const links=$('.srp-import-template-links',bench);if(links){const menu=toolbarMenu(s,'r22-import-templates','Templates');menuPanel(menu).append(links);}}
       const legacyNav=$('.srp-segmented',work);if(legacyNav)appendOnce(controls,legacyNav);
     }
     if(c.kind==='catalogue'){
@@ -701,7 +705,7 @@
     if(c.kind==='directory'&&s.page.dataset.srpPage==='products'){
       const editor=$('[data-r22-product-editor]',work),catalog=$('#srp-product-form',work)?.closest('.srp-grid');
       if(editor&&catalog){s.page.dataset.r22Editor=editor.hidden?'0':'1';catalog.classList.add('r22-product-grid');const sibling=[...catalog.children].find(n=>n!==editor);if(sibling)sibling.hidden=!editor.hidden;
-        $('h1',head).textContent=editor.hidden?'Products & services':($('#srp-product-form [name=id]',editor)?.value?'Edit item':'New Product or Service');
+        setHeading(head).textContent=editor.hidden?'Products & services':($('#srp-product-form [name=id]',editor)?.value?'Edit Product or Service':'New Product or Service');
       }
     }
     if(c.kind==='calculator'){
@@ -760,7 +764,7 @@
       if(assetForm||analyticForm){const form=assetForm||analyticForm,card=form.closest('.sra-card'),grid=card?.parentElement;
         if(grid){grid.classList.add('r22-advanced-directory');const otherForms=$$('form',grid).filter(n=>n!==form);otherForms.forEach(n=>{const other=n.closest('.sra-card');if(other&&other!==card){const menu=toolbarMenu(s,'r22-advanced-options','Additional actions');appendOnce(menuPanel(menu),other);}});
           if(!card.dataset.r22Editor){card.dataset.r22Editor='1';card.hidden=true;const open=document.createElement('button');open.type='button';open.className='sra-btn';open.textContent=assetForm?'Add asset schedule':'New analytic account';open.dataset.r22AdvancedCreate='1';tools.append(open);const cancel=document.createElement('button');cancel.type='button';cancel.className='sra-btn secondary';cancel.textContent='Cancel';$('.sra-actions',form).append(cancel);
-            const apply=show=>{card.hidden=!show;[...grid.children].filter(n=>n!==card).forEach(n=>n.hidden=show);$('h1',head).textContent=show?open.textContent:s.title;open.hidden=show;s.page.dataset.r22AdvancedEditing=show?'1':'0';schedule();};
+            const apply=show=>{card.hidden=!show;[...grid.children].filter(n=>n!==card).forEach(n=>n.hidden=show);setHeading(head).textContent=show?open.textContent:s.title;open.hidden=show;s.page.dataset.r22AdvancedEditing=show?'1':'0';schedule();};
             const markDirty=event=>{const field=event.target;if(field?.matches?.('input,select,textarea'))field.dataset.r22Dirty='1';};
             open.onclick=()=>apply(true);
             cancel.onclick=()=>{
@@ -1263,7 +1267,7 @@
     const page=event.detail?.page;if(!page)return;
     if(active&&active!==page)detach(active);
     // Refresh permission-aware navigation before applying the resolved layout.
-    window.SRBooksPortal?.refreshNavigation?.();
+    window.TeghPortal?.refreshNavigation?.();
     navigation(root.dataset.teghNavigationLayout,false);
     const existing=states.get(page);if(existing)existing.readyEmitted=false;
     mount(page);

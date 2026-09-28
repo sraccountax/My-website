@@ -3,8 +3,8 @@
   'use strict';
 
   const STORAGE = {
-    sidebar: 'srbooks.ui.sidebarCollapsed',
-    density: 'srbooks.ui.compactRows'
+    sidebar: 'tegh.ui.sidebarCollapsed',
+    density: 'tegh.ui.compactRows'
   };
   const enhancedTables = new WeakSet();
   let sidebarFilter = null;
@@ -87,7 +87,7 @@
     scrim.querySelector('.sr-test-close')?.addEventListener('click', closeTestModal);
     scrim.querySelector('[data-test-centre]')?.addEventListener('click', () => {
       closeTestModal();
-      window.SRBooksTestCentre?.open?.();
+      window.TeghTestCentre?.open?.();
     });
     scrim.querySelector('[data-test-return]')?.addEventListener('click', () => {
       const id = scrim.querySelector('[data-test-switch]')?.value;

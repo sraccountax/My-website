@@ -184,7 +184,7 @@
     });
   }
 
-  window.SRBooksSitesShell = {
+  window.TeghSitesShell = {
     enabled: false,
     version: VERSION,
     build: BUILD,

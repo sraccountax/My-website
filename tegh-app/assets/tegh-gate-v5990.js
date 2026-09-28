@@ -3,7 +3,7 @@
 
   const VERSION = '5.9.9';
   const BUILD = '5990';
-  const ASSET_REVISION = '5990-r121-reconcile';
+  const ASSET_REVISION = '5990-r122-tegh';
   const AUTH_CACHE_MS = 60000;
   const POST_COMMIT_SESSION_GRACE_MS = 45000;
   const RECOVERY_MARKER_KEY = 'tegh-session-recovery-v5990';
@@ -191,7 +191,7 @@
   // the full-page Opening Tegh recovery used by earlier builds.
   function restoreCoreSessionInPlace(trigger = 'post_commit_core_repair') {
     if (!recentImportCommit() || returningToSignIn) return false;
-    const restore = window.SRBooksCoreReauthenticate;
+    const restore = window.TeghCoreReauthenticate;
     if (typeof restore !== 'function') return false;
     if (coreSessionRepairStarted) return true;
     coreSessionRepairStarted = true;
@@ -254,7 +254,7 @@
     document.documentElement.classList.remove('sr-post-commit-session-repair');
     try {
       window.sessionStorage.setItem('tegh-last-signin-reason', String(reason || 'confirmed_session_end').slice(0, 120));
-      window.localStorage.removeItem('srbooks-session-hint');
+      window.localStorage.removeItem('tegh-session-hint');
       window.localStorage.removeItem('sr-accountax-company');
       window.sessionStorage.removeItem(RECOVERY_MARKER_KEY);
     } catch (_) {}
@@ -302,7 +302,7 @@
             lastCompanyId = company;
             try { window.localStorage.setItem('sr-accountax-company', company); } catch (_) {}
           }
-          try { window.localStorage.setItem('srbooks-session-hint', '1'); } catch (_) {}
+          try { window.localStorage.setItem('tegh-session-hint', '1'); } catch (_) {}
           return {state:'valid', status:response.status, body};
         }
         const code = String(body?.code || '');
@@ -1251,8 +1251,8 @@
         await new Promise((resolve) => window.setTimeout(resolve, 80));
       }
     }
-    window.__SRBOOKS_INTERFACE_ERRORS__ = window.__SRBOOKS_INTERFACE_ERRORS__ || [];
-    window.__SRBOOKS_INTERFACE_ERRORS__.push({moduleUrl, required, message:lastError?.message || 'Interface extension failed'});
+    window.__TEGH_INTERFACE_ERRORS__ = window.__TEGH_INTERFACE_ERRORS__ || [];
+    window.__TEGH_INTERFACE_ERRORS__.push({moduleUrl, required, message:lastError?.message || 'Interface extension failed'});
     return false;
   }
 
@@ -1295,16 +1295,16 @@
       // If there is no explicit deep link, ask the current portal to mount its
       // dashboard immediately and keep the neutral loader above the core app
       // until that mount is confirmed.
-      if (!dashboardRequested && (!requested || requested === 'dashboard') && window.SRBooksPortal?.openDashboard) {
+      if (!dashboardRequested && (!requested || requested === 'dashboard') && window.TeghPortal?.openDashboard) {
         dashboardRequested = true;
-        try { firstCompanyExperienceMode()==='owner'&&window.SRBooksPortal?.openGuidedBookkeeping ? window.SRBooksPortal.openGuidedBookkeeping() : window.SRBooksPortal.openDashboard(); } catch (_) {}
+        try { firstCompanyExperienceMode()==='owner'&&window.TeghPortal?.openGuidedBookkeeping ? window.TeghPortal.openGuidedBookkeeping() : window.TeghPortal.openDashboard(); } catch (_) {}
       }
       await new Promise((resolve) => window.setTimeout(resolve, 50));
     }
 
     // One final deterministic recovery attempt. Do not treat the old Home
     // screen as "ready" merely because a timeout elapsed.
-    try { firstCompanyExperienceMode()==='owner'&&window.SRBooksPortal?.openGuidedBookkeeping ? window.SRBooksPortal.openGuidedBookkeeping() : window.SRBooksPortal?.openDashboard?.(); } catch (_) {}
+    try { firstCompanyExperienceMode()==='owner'&&window.TeghPortal?.openGuidedBookkeeping ? window.TeghPortal.openGuidedBookkeeping() : window.TeghPortal?.openDashboard?.(); } catch (_) {}
     const recoveryStarted = Date.now();
     while (Date.now() - recoveryStarted < 1500) {
       const page = document.querySelector('.srp-page[data-srp-page]');
@@ -1454,7 +1454,7 @@
     lastAuth = auth;
     lastVerifiedSessionAt = Date.now();
     authCacheExpiresAt = lastVerifiedSessionAt + AUTH_CACHE_MS;
-    window.localStorage.setItem('srbooks-session-hint', '1');
+    window.localStorage.setItem('tegh-session-hint', '1');
     lastCompanyId = selectedCompany(auth);
     if (lastCompanyId) window.localStorage.setItem('sr-accountax-company', lastCompanyId);
 
@@ -1694,7 +1694,7 @@
       await openApplication(auth);
     } catch (error) {
       if (error.status === 401) {
-        window.localStorage.removeItem('srbooks-session-hint');
+        window.localStorage.removeItem('tegh-session-hint');
         document.documentElement.classList.remove('sr-gate-session-pending');
         showLogin();
         setProgress('Sign-in is ready.', 'Enter your email and password.', false);

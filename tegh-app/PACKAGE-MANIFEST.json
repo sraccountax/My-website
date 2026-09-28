@@ -276,5 +276,239 @@
     }
   ],
   "r121Migration": false,
-  "r121CacheToken": "5990-r121-reconcile"
+  "r121CacheToken": "5990-r121-reconcile",
+  "r122Files": [
+    {
+      "path": ".htaccess",
+      "sha256": "5ba3da4dcae0dbdc4725c8d743f8860820b77764cd669e10c0935ff83f3ba91e"
+    },
+    {
+      "path": "DEPLOYMENT-NOTES.txt",
+      "sha256": "ee8084031b609cd52146b808212c0ed5696d9aab102fe6d0bc8813fe2c3c63a9"
+    },
+    {
+      "path": "R122-CHANGES.md",
+      "sha256": "772104f8aeeaffcfc2db9366f56082894533e96221c7c00c5ae64cd23947fe8f"
+    },
+    {
+      "path": "README.txt",
+      "sha256": "eead026d181f2f6ccf75a2fab7f848fb73bb800cada5e966f4796dc309126852"
+    },
+    {
+      "path": "api/accounting.php",
+      "sha256": "b716b06610a03d539ed07c3396fd5818363abafac1645271116a51c39dfb895d"
+    },
+    {
+      "path": "api/backup.php",
+      "sha256": "bacb65d67c2cf7072f0329bd6a187ab7841148d8c10d6c1af6687eea67ad6c1a"
+    },
+    {
+      "path": "api/bank_operations_v5980.php",
+      "sha256": "dab703f2dcad57ab037589e31b932d0afe5268a11294bb857455f5e57c54130e"
+    },
+    {
+      "path": "api/operations.php",
+      "sha256": "870bded7f1a87ab22e29376094a9e4ebb2f144f2359cc0bec94816a714a1c0d7"
+    },
+    {
+      "path": "api/portal.php",
+      "sha256": "098cdba85530f27e38ea5d7e071eee7bcf159c20552e37e6d37c91a9f0321458"
+    },
+    {
+      "path": "api/reconciliation_position_r122.php",
+      "sha256": "dbc3243c10ce116afaaded5e653956c16bca30ce2ce26706b9cafd1009a46abc"
+    },
+    {
+      "path": "api/report_loaders_v5980.php",
+      "sha256": "ac058dbcc72526700af3b7d32ae9397e62590a6a30fe1beafc1ee048961b7521"
+    },
+    {
+      "path": "app.html",
+      "sha256": "d5a5cbc267798a7078ef05ee51acb9ca1a729f11da277e218cb68ff23f2a9e13"
+    },
+    {
+      "path": "assets/index-BsxPiq85-v211.js",
+      "sha256": "d1b20bea8a98faa66d195fae2d658914e1db49a66cc38537f876dd04f0758f95"
+    },
+    {
+      "path": "assets/index-BsxPiq85-v2817.js",
+      "sha256": "f6fc72f83d0afd4a70eb667d2a43cd981a1b9a0841c45af8a78634b68e6825c5"
+    },
+    {
+      "path": "assets/tegh-activity-r22.js",
+      "sha256": "963ca00b6cb7bf042fbe7b7356d5b181ac2024f054a245ef3570c7e4546ce891"
+    },
+    {
+      "path": "assets/tegh-advanced-v5800.js",
+      "sha256": "2486efebcd975c2fcb84816e3c0634063ab918beb5ade666881994c87f71da61"
+    },
+    {
+      "path": "assets/tegh-forecast-v5300.js",
+      "sha256": "2617235c2f1397da4bc90237f5c53eb75274f96fbb39d91c67d43632bb78624b"
+    },
+    {
+      "path": "assets/tegh-gate-v5990.js",
+      "sha256": "c02680efc74e75db236a9a9b8878afb16e09f75d3a9d3811d723981fea8535de"
+    },
+    {
+      "path": "assets/tegh-modern-v5700.js",
+      "sha256": "76fc739279c2f6667984163cc5799b5b58e03b91dd5338df9e0b2a131903e8f2"
+    },
+    {
+      "path": "assets/tegh-pdf-v5990.js",
+      "sha256": "ca51b7f1ffc6f1e1cac26c4defa650b702a2a795cc784c76cc948b3b9e9c5405"
+    },
+    {
+      "path": "assets/tegh-portal-v5990.js",
+      "sha256": "aee22227bc8194f1dfff37faacddbcbddb080cff7a6ce42c15af0ab3a38e174f"
+    },
+    {
+      "path": "assets/tegh-preflight-v5990.js",
+      "sha256": "1ae3f82ad3f4384b060aaf98e680bdd99e161b60b50c97ce53423ae288c7711e"
+    },
+    {
+      "path": "assets/tegh-premium-v5700.js",
+      "sha256": "66808a8d4578d84b8f6f3a9511e001a50f18269c0425d7a03d3b0a7075c29f40"
+    },
+    {
+      "path": "assets/tegh-professional-output-v5990.js",
+      "sha256": "6a13a76945777dfe02d9e89fe7c6ed4e016a5047b00205de76d5219d1ca48454"
+    },
+    {
+      "path": "assets/tegh-r120.css",
+      "sha256": "fbd88210934e48f75cc826ab5f4fcad5afbfe78931a5f245884d25b7bf4499ac"
+    },
+    {
+      "path": "assets/tegh-reference-r19.js",
+      "sha256": "501bf5ca75bc6a3710ba1942196b638d8e94bba6180b82dd832fb6af90f81826"
+    },
+    {
+      "path": "assets/tegh-reference-r29.js",
+      "sha256": "2a3ae411e1ff11b138c7d16b9d15c62fd3dac346131f9cf5ed82de7dec7d1abd"
+    },
+    {
+      "path": "assets/tegh-registers-r23.js",
+      "sha256": "574af8d83144cc657706d0d0c6d14e25accfbdd6897f0666c01033ec2c2a124a"
+    },
+    {
+      "path": "assets/tegh-sites-shell-v5990.js",
+      "sha256": "9a3e0674614c317bc7bd6487098ece7b1e1a55f262331edd15b7b9039317c2c1"
+    },
+    {
+      "path": "assets/tegh-workflow-v5700.js",
+      "sha256": "d08bc38047f21d6a6b004fcef74d4b762e9c11f9ff7c2baf6b2afb947a1eef85"
+    },
+    {
+      "path": "assets/tegh-workspace-r17.js",
+      "sha256": "90e8f9dc5e27997c48a9ae8f070698a1a32471e860f6dcb3bf37ae61953a27a7"
+    }
+  ],
+  "r122RemovedFiles": [
+    "EXPECTED-EXISTING-SHA256.txt",
+    "R10-CHANGES.md",
+    "R11-CHANGES.md",
+    "R117-HOTFIX-CONSOLIDATION.txt",
+    "R12-CHANGES.md",
+    "R13-CHANGES.md",
+    "R14-CHANGES.md",
+    "R15-CHANGES.md",
+    "R16-UI-CHANGES.md",
+    "R17-CHANGES.md",
+    "R17A-CHANGES.md",
+    "R18-CHANGES.md",
+    "R19-CHANGES.md",
+    "R20-CHANGES.md",
+    "R22-CHANGES.md",
+    "R23-CHANGES.md",
+    "R24-CHANGES.md",
+    "R25-CHANGES.md",
+    "R26-CHANGES.md",
+    "R27-CHANGES.md",
+    "R28-S16Q-HOLD-REPORT.md",
+    "R28-S16R-HOLD-REPORT.md",
+    "R28-S16S-HOLD-REPORT.md",
+    "R28-S16T-HOLD-REPORT.md",
+    "R28-S16U-HOLD-REPORT.md",
+    "R28-S16V-HOLD-REPORT.md",
+    "R28-STEP-06-BANK-RECONCILIATION-REPORT.md",
+    "R28-STEP-07-BANKING-REPAIR.md",
+    "R28-STEP-07A-BANKING-UI-REPAIR.md",
+    "R28-STEP-08-BANKING-SCALE-MOBILE.md",
+    "R28-STEP-09-MOBILE-SCROLL-REPAIR.md",
+    "R28-STEP-10-BANKING-TABLE-VISIBILITY.md",
+    "R28-STEP-11-BANKING-FIT-SIDEBAR.md",
+    "R28-STEP-12-BANK-REPORTS-ACCOUNTS.md",
+    "R28-STEP-15-LIVE-REVIEW-REPAIR.md",
+    "R28-STEP-16-LIVE-TEST-REPAIR.md",
+    "R9-CHANGES.md",
+    "REPLACEMENT-SHA256.txt",
+    "ROLLBACK-R27.md",
+    "START-HERE-R20.md",
+    "START-HERE-R21-OPENING-HOTFIX.md",
+    "START-HERE-R22.md",
+    "START-HERE-R23.md",
+    "START-HERE-R24.md",
+    "START-HERE-R25.md",
+    "START-HERE-R26.md",
+    "START-HERE-R27.md",
+    "assets/tegh-app-v5830.css",
+    "assets/tegh-app-v5900.css",
+    "assets/tegh-app-v5910.css",
+    "assets/tegh-app-v5950.css",
+    "assets/tegh-app-v5960.css",
+    "assets/tegh-app-v5980.css",
+    "assets/tegh-bank-converter-core-v5930.js",
+    "assets/tegh-bank-converter-core-v5980.js",
+    "assets/tegh-bank-converter-v5930.css",
+    "assets/tegh-bank-converter-v5940.js",
+    "assets/tegh-bank-converter-v5980.css",
+    "assets/tegh-bank-converter-v5980.js",
+    "assets/tegh-gate-v5830.js",
+    "assets/tegh-gate-v5900.js",
+    "assets/tegh-gate-v5910.js",
+    "assets/tegh-gate-v5950.js",
+    "assets/tegh-gate-v5960.js",
+    "assets/tegh-gate-v5980.js",
+    "assets/tegh-payroll-tax-v5000.js",
+    "assets/tegh-pdf-v5950.js",
+    "assets/tegh-pdf-v5980.js",
+    "assets/tegh-portal-v5830.js",
+    "assets/tegh-portal-v5900.js",
+    "assets/tegh-portal-v5910.js",
+    "assets/tegh-portal-v5950.js",
+    "assets/tegh-portal-v5960.js",
+    "assets/tegh-portal-v5980.js",
+    "assets/tegh-preflight-v5830.js",
+    "assets/tegh-preflight-v5900.js",
+    "assets/tegh-preflight-v5910.js",
+    "assets/tegh-preflight-v5950.js",
+    "assets/tegh-preflight-v5960.js",
+    "assets/tegh-preflight-v5980.js",
+    "assets/tegh-professional-output-v5950.js",
+    "assets/tegh-professional-output-v5980.js",
+    "assets/tegh-shell-v5910.css",
+    "assets/tegh-sites-shell-v5700.js",
+    "assets/tegh-sites-shell-v5960.js",
+    "assets/tegh-sites-shell-v5980.js",
+    "assets/tegh-viewport-r16.css",
+    "assets/tegh-viewport-r16.js",
+    "file.svg",
+    "globe.svg",
+    "release/5970/CHANGED-FILES.json",
+    "release/5970/DEPLOYMENT-ROLLBACK.md",
+    "release/5970/RELEASE-NOTES.md",
+    "release/5970/REQUIREMENT-TEST-MATRIX.csv",
+    "release/5970/TEST-RESULTS.json",
+    "release/5970/TEST-RESULTS.md",
+    "release/5980/CHANGED-FILES.json",
+    "release/5980/DEPLOYMENT-ROLLBACK.md",
+    "release/5980/RELEASE-NOTES.md",
+    "release/5980/REQUIREMENT-TEST-MATRIX.csv",
+    "release/5980/TEST-COMMANDS.md",
+    "release/5980/TEST-RESULTS.json",
+    "release/5980/TEST-RESULTS.md",
+    "window.svg"
+  ],
+  "r122Migration": false,
+  "r122CacheToken": "5990-r122-tegh"
 }

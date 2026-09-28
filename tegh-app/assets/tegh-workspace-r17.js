@@ -185,7 +185,7 @@
     oldProfile?.remove();oldSignout?.remove();
   }
 
-  function installHeader(){const modules=$('.topbar .menu,.topbar [data-menu-toggle],.topbar [data-mobile-menu]');if(modules){modules.setAttribute('aria-label','Modules');modules.title='Modules';if(!$('.r17-modules-label',modules)){const label=document.createElement('span');label.className='r17-modules-label';label.textContent='Modules';modules.append(label)}}installProfileMenu();void installCreateMenu();window.SRBooksPortal?.refreshNavigation?.()}
+  function installHeader(){const modules=$('.topbar .menu,.topbar [data-menu-toggle],.topbar [data-mobile-menu]');if(modules){modules.setAttribute('aria-label','Modules');modules.title='Modules';if(!$('.r17-modules-label',modules)){const label=document.createElement('span');label.className='r17-modules-label';label.textContent='Modules';modules.append(label)}}installProfileMenu();void installCreateMenu();window.TeghPortal?.refreshNavigation?.()}
 
   function apply(page){
     if(!page?.isConnected)return;currentPage=page;if(page.dataset.r22Shell==='1'){installHeader();window.TeghActivityShell?.refresh?.(page);return;}const body=$('.srp-page-body',page);if(!body)return;

@@ -176,11 +176,11 @@ const SRA = (() => {
     // Legacy entry point now redirects into the canonical new-generation page.
     // No Advanced Accounting popup/overlay is created in v2.4.2.
     state.host=null;state.embedded=false;state.focus='';state.showTabs=true;
-    window.SRBooksPortal?.openAdvancedDashboard?.();
+    window.TeghPortal?.openAdvancedDashboard?.();
   }
-  function close(returnToDashboard=true){unmount();document.body.classList.remove('sra-lock');if(returnToDashboard)window.SRBooksPortal?.returnFromAdvanced?.();}
+  function close(returnToDashboard=true){unmount();document.body.classList.remove('sra-lock');if(returnToDashboard)window.TeghPortal?.returnFromAdvanced?.();}
   // v2.4.2: do not inject a second Advanced Accounting navigation button. The
   // portal owns canonical navigation and embeds these workflows in the standard page shell.
   return {open,close,mount,unmount};
 })();
-window.SRBooksAdvanced=SRA;
+window.TeghAdvanced=SRA;

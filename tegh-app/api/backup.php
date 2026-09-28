@@ -1,6 +1,13 @@
 <?php
 declare(strict_types=1);
 
+/** Backups are written as 'tegh-backup'. Archives made before the product was
+ *  renamed carry the former format name and are still accepted for restore. */
+function tegh_backup_format_supported(mixed $format): bool
+{
+    return in_array((string)$format, ['tegh-backup', 'srbooks-backup'], true);
+}
+
 /** Schema revision recorded in every backup manifest. Keep in step with migrations.php. */
 const SR_BACKUP_SCHEMA_VERSION = 46;
 
@@ -180,13 +187,13 @@ function handle_backup_export(): never
     if(!class_exists('ZipArchive'))fail('The server ZIP extension is required for Tegh backups.',503,'zip_unavailable');
     $snapshot=backup_capture_snapshot($company);$backupId=new_id('backup');$companyId=(string)$company['id'];
     $evidence=backup_collect_evidence($snapshot['records'],$companyId);
-    $payload=['format'=>'srbooks-backup','formatVersion'=>2,'applicationVersion'=>SR_ACCOUNTAX_VERSION,'schemaTarget'=>SR_BACKUP_SCHEMA_VERSION,'backupId'=>$backupId,'createdAtUtc'=>gmdate('c'),'createdBy'=>['userId'=>(string)$user['id'],'email'=>(string)$user['email']],'evidenceManifest'=>$evidence,'excludedCollections'=>backup_exclusions(),'recoveryRequirements'=>['The original protected installation configuration/app.secret is required to verify this archive and decrypt protected payroll fields. It is deliberately not embedded.','Restore creates a separate company and pauses automations. Review its users and policies.']]+$snapshot;
+    $payload=['format'=>'tegh-backup','formatVersion'=>2,'applicationVersion'=>SR_ACCOUNTAX_VERSION,'schemaTarget'=>SR_BACKUP_SCHEMA_VERSION,'backupId'=>$backupId,'createdAtUtc'=>gmdate('c'),'createdBy'=>['userId'=>(string)$user['id'],'email'=>(string)$user['email']],'evidenceManifest'=>$evidence,'excludedCollections'=>backup_exclusions(),'recoveryRequirements'=>['The original protected installation configuration/app.secret is required to verify this archive and decrypt protected payroll fields. It is deliberately not embedded.','Restore creates a separate company and pauses automations. Review its users and policies.']]+$snapshot;
     $tmp=tempnam(sys_get_temp_dir(),'tegh_backup_');if($tmp===false)throw new RuntimeException('A private backup temporary file could not be created.');chmod($tmp,0600);
     register_shutdown_function(static function()use($tmp):void{if(is_file($tmp))@unlink($tmp);});
     try{
         $manifest=backup_write_archive($payload,$tmp);$sha=$manifest['payloadSha256'];$filename='tegh-'.backup_slug((string)$company['name']).'-'.gmdate('Ymd-His').'Z.tegh';
         db()->prepare('INSERT INTO backup_restore_log (id,company_id,backup_id,action,filename,payload_sha256,performed_by,details_json) VALUES (?,?,?,?,?,?,?,?)')->execute([new_id('backuplog'),$companyId,$backupId,'export',$filename,$sha,$user['id'],json_encode(['recordCounts'=>$snapshot['recordCounts'],'evidenceCount'=>count($evidence),'excludedCollections'=>backup_exclusions()],JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR)]);
-        audit_event($user,$companyId,'backup.exported','company_backup',$backupId,['format'=>'srbooks-backup','formatVersion'=>2,'payloadSha256'=>$sha]);
+        audit_event($user,$companyId,'backup.exported','company_backup',$backupId,['format'=>'tegh-backup','formatVersion'=>2,'payloadSha256'=>$sha]);
         clearstatcache(true,$tmp);$size=filesize($tmp);if($size===false||$size<4)throw new RuntimeException('The backup file could not be verified.');
         header('Content-Type: application/vnd.tegh.backup');header('Content-Disposition: attachment; filename="'.$filename.'"');header('Content-Length: '.$size);header('X-Content-Type-Options: nosniff');header('Cache-Control: no-store');if(readfile($tmp)!==$size)throw new RuntimeException('The backup download was interrupted.');
     }finally{@unlink($tmp);}exit;
@@ -277,7 +284,7 @@ function handle_backup_restore(): never
     if($selectedCompanyId!==''){$membership=db()->prepare("SELECT role FROM company_members WHERE company_id=? AND user_id=? AND status='active'");$membership->execute([$selectedCompanyId,$user['id']]);if($membership->fetchColumn()!=='owner')fail('Only the Company Owner can restore a Tegh backup.',403,'role_forbidden');}
     if(!class_exists('ZipArchive'))fail('The server ZIP extension is required for Tegh restore.',503,'zip_unavailable');
     if(!isset($_FILES['backup'])||!is_array($_FILES['backup']))fail('Choose a Tegh backup file.');$file=$_FILES['backup'];$name=(string)($file['name']??'');
-    if(!in_array(strtolower(pathinfo($name,PATHINFO_EXTENSION)),['tegh','srbooks'],true))fail('Choose a .tegh or legacy .srbooks backup.',415,'backup_extension_invalid');
+    if(!in_array(strtolower(pathinfo($name,PATHINFO_EXTENSION)),['tegh','srbooks'],true))fail('Choose a .tegh backup file.',415,'backup_extension_invalid');
     if((int)($file['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_OK||!is_uploaded_file((string)$file['tmp_name']))fail('The backup upload did not complete.',400,'backup_upload_failed');
     if((int)($file['size']??0)<=0||(int)$file['size']>250*1024*1024)fail('The backup file must be smaller than 250 MB.',413,'backup_size_invalid');
     $zip=new ZipArchive();if($zip->open((string)$file['tmp_name'],ZipArchive::CHECKCONS)!==true)fail('The selected file is not a valid Tegh backup.',415,'backup_archive_invalid');
@@ -354,7 +361,7 @@ function backup_safe_evidence_path(string $relative,string $companyId): bool
 function backup_write_archive(array $payload,string $path): array
 {
     $sha=hash('sha256',backup_canonical_json($payload));$evidence=$payload['evidenceManifest']??[];
-    $manifest=['format'=>'srbooks-backup','formatVersion'=>2,'applicationVersion'=>SR_ACCOUNTAX_VERSION,'schemaVersion'=>$payload['schemaVersion'],'schemaTarget'=>SR_BACKUP_SCHEMA_VERSION,'backupId'=>$payload['backupId'],'createdAtUtc'=>$payload['createdAtUtc'],'payloadFile'=>'payload.json','payloadSha256'=>$sha,'signatureAlgorithm'=>'HMAC-SHA256','signature'=>backup_signature($sha),'companyId'=>$payload['company']['id'],'companyName'=>$payload['company']['name'],'evidenceCount'=>count($evidence),'completeness'=>'company-records-and-referenced-files','excludedCollections'=>backup_exclusions()];
+    $manifest=['format'=>'tegh-backup','formatVersion'=>2,'applicationVersion'=>SR_ACCOUNTAX_VERSION,'schemaVersion'=>$payload['schemaVersion'],'schemaTarget'=>SR_BACKUP_SCHEMA_VERSION,'backupId'=>$payload['backupId'],'createdAtUtc'=>$payload['createdAtUtc'],'payloadFile'=>'payload.json','payloadSha256'=>$sha,'signatureAlgorithm'=>'HMAC-SHA256','signature'=>backup_signature($sha),'companyId'=>$payload['company']['id'],'companyName'=>$payload['company']['name'],'evidenceCount'=>count($evidence),'completeness'=>'company-records-and-referenced-files','excludedCollections'=>backup_exclusions()];
     $zip=new ZipArchive();$opened=false;
     try{
         if($zip->open($path,ZipArchive::CREATE|ZipArchive::OVERWRITE)!==true)throw new RuntimeException('Backup archive could not be created. Check temporary disk space.');$opened=true;
@@ -373,7 +380,7 @@ function backup_verify_archive(ZipArchive $zip): array
     $uncompressed=0;$names=[];for($i=0;$i<$zip->numFiles;$i++){$stat=$zip->statIndex($i);if(!$stat)throw new RuntimeException('A backup member could not be inspected.');$name=(string)$stat['name'];if(isset($names[$name]))throw new RuntimeException('The backup contains duplicate archive paths.');$names[$name]=true;$uncompressed+=(int)$stat['size'];if($uncompressed>750*1024*1024)throw new RuntimeException('The expanded backup exceeds the supported 750 MB limit.');}
     foreach(['manifest.json'=>1024*1024,'payload.json'=>250*1024*1024] as $name=>$limit){$stat=$zip->statName($name);if(!$stat||(int)$stat['size']>$limit)throw new RuntimeException('The backup manifest or payload is missing or exceeds its size limit.');}
     $manifest=json_decode((string)$zip->getFromName('manifest.json'),true,128,JSON_THROW_ON_ERROR);$payload=json_decode((string)$zip->getFromName('payload.json'),true,512,JSON_THROW_ON_ERROR);
-    if(!is_array($manifest)||!is_array($payload)||($manifest['format']??'')!=='srbooks-backup'||(int)($manifest['formatVersion']??0)!==2||($payload['format']??'')!=='srbooks-backup'||(int)($payload['formatVersion']??0)!==2)throw new RuntimeException('This is not a supported Tegh backup.');
+    if(!is_array($manifest)||!is_array($payload)||!tegh_backup_format_supported($manifest['format']??'')||(int)($manifest['formatVersion']??0)!==2||!tegh_backup_format_supported($payload['format']??'')||(int)($payload['formatVersion']??0)!==2)throw new RuntimeException('This is not a supported Tegh backup.');
     $sha=hash('sha256',backup_canonical_json($payload));if(!hash_equals((string)($manifest['payloadSha256']??''),$sha)||!hash_equals((string)($manifest['signature']??''),backup_signature($sha)))throw new RuntimeException('Backup signature verification failed. The file was changed or belongs to a different installation.');
     $company=$payload['company']??[];$sourceId=(string)($company['id']??'');if(!preg_match('/^[A-Za-z0-9_-]{1,64}$/D',$sourceId)||empty($company['name']))throw new RuntimeException('The company identity is invalid.');
     if((string)($manifest['companyId']??'')!==$sourceId||($manifest['backupId']??null)!==($payload['backupId']??null)||(int)($manifest['schemaVersion']??0)!==(int)($payload['schemaVersion']??0))throw new RuntimeException('The backup manifest does not agree with its signed payload.');

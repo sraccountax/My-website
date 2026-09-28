@@ -16,8 +16,8 @@
   const setDefinitionList=(list,rows)=>list.replaceChildren(...rows.map(row=>definitionRow(row[0],row[1],row[2]||'')));
 
   function pageTitle(page,title,subtitle=''){
-    const heading=$('.tegh-page-head h1,.srp-page-head h1',page);if(heading)heading.textContent=title;
-    const copy=$('.tegh-page-head .r22-title>p,.srp-page-head>div>p',page);if(copy&&subtitle)copy.textContent=subtitle;
+    const heading=$('.tegh-page-head h1,.srp-page-head h1',page);if(heading&&heading.textContent!==title)heading.textContent=title;
+    const copy=$('.tegh-page-head .r22-title>p,.srp-page-head>div>p',page);if(copy&&subtitle&&copy.textContent!==subtitle)copy.textContent=subtitle;
   }
 
   function breadcrumb(page,section,current){
@@ -53,7 +53,7 @@
     const editor=$('[data-r22-product-editor]:not([hidden])',page),form=$('#srp-product-form',editor||page);if(!editor||!form)return;
     const editing=!!field(form,'id')?.value;
     pageTitle(page,editing?'Edit Product or Service':'New Product or Service',editing?'Update this item and its sales income account for future invoices.':'Create a reusable item with a sales income account.');breadcrumb(page,page.dataset.srpModule==='Payables'?'Payables':'Receivables','Products & services');
-    if(form.dataset.r29Reference){const save=$('button[type="submit"]',form);if(save)save.textContent=editing?'Save changes':'Create item';return;}
+    if(form.dataset.r29Reference){const save=$('button[type="submit"]',form);if(save){const label=editing?'Save Changes':'Create Item';if(save.textContent!==label)save.textContent=label};return;}
     form.dataset.r29Reference='product';page.dataset.r29Reference='product';editor.classList.add('r29-product-editor');
     direct(editor,'h2')?.remove();
     const layout=element('div','r29-product-layout'),main=element('section','r29-product-form-card'),preview=element('aside','r29-product-preview');
@@ -61,7 +61,7 @@
     const kind=field(form,'kind'),segment=element('div','r29-segmented');segment.setAttribute('aria-label','Item type');
     for(const [value,label] of [['service','Service'],['product','Product']]){const button=element('button','',label);button.type='button';button.dataset.value=value;button.onclick=()=>{kind.value=value;kind.dispatchEvent(new Event('change',{bubbles:true}));sync();};segment.append(button);}
     const kindLabel=kind.closest('label');kindLabel?.after(segment);if(kindLabel)kindLabel.hidden=true;
-    const actions=direct(form,'.srp-actions');if(actions){actions.classList.add('r29-sticky-actions');const save=$('button[type="submit"]',actions);if(save)save.textContent=editing?'Save changes':'Create item';}
+    const actions=direct(form,'.srp-actions');if(actions){actions.classList.add('r29-sticky-actions');const save=$('button[type="submit"]',actions);if(save){const label=editing?'Save Changes':'Create Item';if(save.textContent!==label)save.textContent=label};}
     const previewHeader=element('header'),previewEyebrow=element('small','','Invoice line preview'),previewName=element('h2'),previewType=element('span'),previewDescription=element('p'),previewList=element('dl');previewHeader.append(previewEyebrow,previewName,previewType);preview.append(previewHeader,previewDescription,previewList);
     const sync=()=>{const name=field(form,'name')?.value.trim()||'New item',description=field(form,'description')?.value.trim()||'Description will appear on invoice lines.',price=money(field(form,'unitPrice')?.value||0),type=kind?.value==='product'?'Product':'Service',code=field(form,'code')?.value.trim()||'No code',account=field(form,'incomeAccountId')?.selectedOptions?.[0]?.textContent?.trim()||'Use default income account',taxable=field(form,'taxable')?.checked;
       $$('button',segment).forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.value===kind?.value)));

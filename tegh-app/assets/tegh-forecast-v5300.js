@@ -105,11 +105,11 @@
   }
 
   function wireDashboard(host, data, ids, state) {
-    $$('[data-widget-open]',host).forEach(button=>button.onclick=()=>{const id=button.dataset.widgetOpen,portal=window.SRBooksPortal;if(id==='cash_outlook')portal?.openFinancialAnalyst?.();else if(id==='bank_balances')portal?.openFinancialAccounts?.();else if(id==='receivables')portal?.openAgeing?.('receivable','Dashboard');else if(id==='profit_loss')portal?.openFinancialReport?.('profit-loss');else portal?.openFinancialReport?.('balance-sheet');});
-    $$('[data-bank-account]',host).forEach(button=>button.onclick=()=>window.SRBooksPortal?.openGlAccountLedger?.(button.dataset.bankAccount,'Dashboard'));
-    $$('[data-pl-start]',host).forEach(button=>{const open=()=>window.SRBooksPortal?.openFinancialReport?.('profit-loss',{start:button.dataset.plStart,end:button.dataset.plEnd});button.onclick=open;button.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();open()}}});
-    $$('[data-ar-week]',host).forEach(button=>button.onclick=()=>window.SRBooksPortal?.openAgeing?.('receivable','Dashboard'));
-    $$('[data-dashboard-week]',host).forEach(button=>button.onclick=()=>window.SRBooksPortal?.openFinancialAnalyst?.());
+    $$('[data-widget-open]',host).forEach(button=>button.onclick=()=>{const id=button.dataset.widgetOpen,portal=window.TeghPortal;if(id==='cash_outlook')portal?.openFinancialAnalyst?.();else if(id==='bank_balances')portal?.openFinancialAccounts?.();else if(id==='receivables')portal?.openAgeing?.('receivable','Dashboard');else if(id==='profit_loss')portal?.openFinancialReport?.('profit-loss');else portal?.openFinancialReport?.('balance-sheet');});
+    $$('[data-bank-account]',host).forEach(button=>button.onclick=()=>window.TeghPortal?.openGlAccountLedger?.(button.dataset.bankAccount,'Dashboard'));
+    $$('[data-pl-start]',host).forEach(button=>{const open=()=>window.TeghPortal?.openFinancialReport?.('profit-loss',{start:button.dataset.plStart,end:button.dataset.plEnd});button.onclick=open;button.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();open()}}});
+    $$('[data-ar-week]',host).forEach(button=>button.onclick=()=>window.TeghPortal?.openAgeing?.('receivable','Dashboard'));
+    $$('[data-dashboard-week]',host).forEach(button=>button.onclick=()=>window.TeghPortal?.openFinancialAnalyst?.());
     $$('[data-dashboard-customize]',state.page||host).forEach(customize=>{customize.disabled=false;customize.title='Choose and arrange your dashboard widgets';customize.onclick=()=>openWidgetManager(state,ids)});
   }
 
@@ -128,10 +128,10 @@
     $$('[data-dashboard-profit-total]',body).forEach((node,i)=>{node.textContent=money(totals[i],currency);node.classList.toggle('negative',totals[i]<0)});
     const period=months.length?`${date(months[0].periodStart)} – ${date(months.at(-1).periodEnd)}`:'No posted period';
     $('[data-dashboard-profit-period]',body).textContent=period;
-    $('[data-sites-profit]',body).onclick=()=>window.SRBooksPortal?.openFinancialReport?.('profit-loss',months.length?{start:months[0].periodStart,end:months.at(-1).periodEnd}:{});
+    $('[data-sites-profit]',body).onclick=()=>window.TeghPortal?.openFinancialReport?.('profit-loss',months.length?{start:months[0].periodStart,end:months.at(-1).periodEnd}:{});
     const chart=$('[data-dashboard-profit-chart]',body);chart.innerHTML=signedProfitLossChart(months,currency,period,chart.clientWidth||520)+exactTable(['Month','Income','Expenses','Net profit'],months.map(row=>[row.label,money(row.incomeCents,currency),money(row.expenseCents,currency),money(row.netIncomeCents,currency)]),'Posted monthly figures');chart.dataset.ready='true';chart.removeAttribute('role');
     chart._r19Data=data;if(!chart._r19Observer&&typeof ResizeObserver==='function'){chart._r19Width=chart.clientWidth;chart._r19Observer=new ResizeObserver(()=>{if(!page.isConnected){chart._r19Observer.disconnect();chart._r19Observer=null;return}const width=chart.clientWidth;if(width>0&&Math.abs(width-chart._r19Width)>1){chart._r19Width=width;requestAnimationFrame(()=>{if(page.isConnected)renderCompactDashboard(chart._r19Data,page)})}});chart._r19Observer.observe(chart);}
-    $$('[data-pl-start]',body).forEach(button=>{const open=()=>window.SRBooksPortal?.openFinancialReport?.('profit-loss',{start:button.dataset.plStart,end:button.dataset.plEnd});button.onclick=open;button.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();open()}}});
+    $$('[data-pl-start]',body).forEach(button=>{const open=()=>window.TeghPortal?.openFinancialReport?.('profit-loss',{start:button.dataset.plStart,end:button.dataset.plEnd});button.onclick=open;button.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();open()}}});
     periodSelect.dataset.dashboardPeriodReady='1';
     page.dataset.r17DashboardReady='1';
   }

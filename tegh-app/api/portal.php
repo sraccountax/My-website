@@ -112,9 +112,9 @@ function sr_mail_send_legacy_v5210(?string $companyId,?string $createdBy,string 
     $fromName=portal_mime_header((string)(config('mail.from_name')??'Tegh'));
     $replyRaw=trim((string)(config('mail.reply_to')??$from));
     try{$replyTo=safe_email($replyRaw);}catch(Throwable){$replyTo=$from;}
-    $senderDomain=strtolower((string)substr(strrchr($from,'@')?:'@srbooks.local',1));
+    $senderDomain=strtolower((string)substr(strrchr($from,'@')?:'@tegh.local',1));
     $messageId='<'.bin2hex(random_bytes(12)).'@'.$senderDomain.'>';
-    $boundary='srbooks_alt_'.bin2hex(random_bytes(12));
+    $boundary='tegh_alt_'.bin2hex(random_bytes(12));
     $headers=[
         'Date: '.date(DATE_RFC2822),'From: '.$fromName.' <'.$from.'>','To: <'.$recipient.'>',
         'Reply-To: <'.$replyTo.'>','Subject: '.portal_mime_header($subject),'Message-ID: '.$messageId,'MIME-Version: 1.0',
@@ -137,7 +137,7 @@ function sr_mail_send_legacy_v5210(?string $companyId,?string $createdBy,string 
         $alternative=portal_base64_body($textBody);
     }
     if($normalizedAttachments){
-        $mixed='srbooks_mix_'.bin2hex(random_bytes(12));
+        $mixed='tegh_mix_'.bin2hex(random_bytes(12));
         $headers[]='Content-Type: multipart/mixed; boundary="'.$mixed.'"';
         if($htmlBody!==''){
             $body="--$mixed\r\nContent-Type: multipart/alternative; boundary=\"$boundary\"\r\n\r\n".$alternative;
@@ -222,8 +222,8 @@ function sr_mail_send(?string $companyId,?string $createdBy,string $recipient,st
     else try{$from=safe_email($fromRaw);}catch(Throwable){$configurationError='The configured sender email address is invalid.';}
     $fromName=portal_mime_header((string)(config('mail.from_name')??'Tegh'));
     $replyRaw=trim((string)(config('mail.reply_to')??$from));try{$replyTo=safe_email($replyRaw);}catch(Throwable){$replyTo=$from;}
-    $senderDomain=strtolower((string)substr(strrchr($from,'@')?:'@srbooks.local',1));
-    $messageId='<'.bin2hex(random_bytes(12)).'@'.$senderDomain.'>';$boundary='srbooks_alt_'.bin2hex(random_bytes(12));
+    $senderDomain=strtolower((string)substr(strrchr($from,'@')?:'@tegh.local',1));
+    $messageId='<'.bin2hex(random_bytes(12)).'@'.$senderDomain.'>';$boundary='tegh_alt_'.bin2hex(random_bytes(12));
     $headers=['Date: '.date(DATE_RFC2822),'From: '.$fromName.' <'.$from.'>','To: <'.$recipient.'>','Reply-To: <'.$replyTo.'>',
       'Subject: '.portal_mime_header($subject),'Message-ID: '.$messageId,'MIME-Version: 1.0','Auto-Submitted: auto-generated',
       'X-Auto-Response-Suppress: All','X-Tegh-Message: '.$id];
@@ -239,7 +239,7 @@ function sr_mail_send(?string $companyId,?string $createdBy,string $recipient,st
       ?"--$boundary\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n".portal_base64_body($textBody)."\r\n--$boundary\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n".portal_base64_body($htmlBody)."\r\n--$boundary--\r\n"
       :portal_base64_body($textBody);
     if($normalizedAttachments){
-        $mixed='srbooks_mix_'.bin2hex(random_bytes(12));$headers[]='Content-Type: multipart/mixed; boundary="'.$mixed.'"';
+        $mixed='tegh_mix_'.bin2hex(random_bytes(12));$headers[]='Content-Type: multipart/mixed; boundary="'.$mixed.'"';
         $body=$htmlBody!==''?"--$mixed\r\nContent-Type: multipart/alternative; boundary=\"$boundary\"\r\n\r\n".$alternative:"--$mixed\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n".$alternative."\r\n";
         foreach($normalizedAttachments as $attachment)$body.="--$mixed\r\nContent-Type: {$attachment['mime']}; name=\"{$attachment['filename']}\"\r\nContent-Transfer-Encoding: base64\r\nContent-Disposition: attachment; filename=\"{$attachment['filename']}\"\r\n\r\n".rtrim(chunk_split(base64_encode($attachment['data']),76,"\r\n"))."\r\n";
         $body.="--$mixed--\r\n";

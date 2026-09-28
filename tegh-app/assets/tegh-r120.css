@@ -294,3 +294,82 @@ html[data-tegh-shell] .srp-page .r22-form-grid>label.sra-check>input{margin:0!im
    column like a printed invoice instead of under Description. */
 html[data-tegh-shell] .r19-invoice-lines table th.srp-money,html[data-tegh-shell] .r19-invoice-lines table th.tegh-financial-number{text-align:right!important}
 html[data-tegh-shell] .r19-invoice-lines>dl.r19-line-totals{margin-left:auto!important;margin-right:0!important;width:min(320px,100%)!important}
+
+/* 17. Sidebar submenu items on one line (R122). Labels are short; a label
+   that still does not fit is cut with an ellipsis and shown in full as the
+   tooltip, never wrapped onto a second line. */
+html[data-tegh-shell] .sidebar .srp-subnav{padding-left:10px!important}
+html[data-tegh-shell] .sidebar .srp-subnav button{padding-left:10px!important;padding-right:6px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;min-height:30px!important;letter-spacing:0!important;line-height:1.25!important}
+
+/* 18. Brand block (R122). The mark, "TEGH" and a three-line squeezed tagline
+   were packed beside the collapse button. Now: mark + spaced wordmark on the
+   first row, the tagline on its own line underneath with a small accent rule,
+   and the collapse button pinned top-right. The collapsed rail keeps the mark. */
+body:not(.sr-sidebar-collapsed) .sidebar .side-head{position:relative!important;display:block!important;padding:18px 8px 14px 12px!important;min-height:0!important;border-bottom:1px solid rgba(255,255,255,.08)!important;margin-bottom:6px!important}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head>.sr-sidebar-toggle{position:absolute!important;top:16px!important;right:12px!important;width:30px!important;height:30px!important;min-height:30px!important;border-radius:9px!important;opacity:.75;transition:opacity .15s}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head>.sr-sidebar-toggle:hover{opacity:1}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head .brand{display:grid!important;grid-template-columns:40px minmax(0,1fr)!important;grid-template-areas:"mark word" "tag tag"!important;column-gap:12px!important;row-gap:10px!important;align-items:center!important;padding:0!important;background:none!important;box-shadow:none!important;width:100%!important;cursor:pointer}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head .brand img.brand-mark.tegh-brand-image{grid-area:mark;width:40px!important;height:40px!important;min-width:40px!important;max-width:40px!important;margin:0!important;padding:6px!important;border-radius:10px;background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.04));box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 6px 16px rgba(0,0,0,.25)}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word{display:contents!important}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word strong{grid-area:word;font-size:20px!important;line-height:1!important;font-weight:800!important;letter-spacing:.2em!important;color:#fff!important;margin:0!important}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word small{grid-area:tag;display:flex!important;align-items:center;gap:6px;font-size:8.6px!important;line-height:1.2!important;font-weight:600!important;letter-spacing:.025em!important;text-transform:uppercase!important;white-space:nowrap!important;color:rgba(190,232,214,.78)!important;margin:0!important;max-width:none!important}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word small::before{content:"";flex:0 0 12px;height:2px;border-radius:2px;background:linear-gradient(90deg,#d6a34a,#f0c46a)}
+body:not(.sr-sidebar-collapsed) .sidebar>.srp-sidebar-search{margin:0!important}
+body:not(.sr-sidebar-collapsed) .sidebar>nav{margin-top:0!important}
+
+/* 19. Report selection actions (R122) */
+.r23-table-meta .r23-selection-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-left:4px}
+.r23-table-meta .r23-selection-actions[hidden]{display:none!important}
+.r23-selection-actions .r23-selection-action{min-height:32px;padding:5px 12px;border-radius:8px;font-size:13px;font-weight:650;border:1px solid var(--tegh-border,#cad9d1);background:var(--tegh-surface,#fff);color:var(--tegh-ink,#18211e);cursor:pointer}
+.r23-table-meta .r23-selection-actions button.r23-selection-action.is-primary{background:var(--tegh-emerald,#0f5c4b)!important;border-color:var(--tegh-emerald,#0f5c4b)!important;color:#fff!important}
+.r23-selection-actions .r23-selection-action:hover{filter:brightness(.97)}
+.r23-selection-actions .r23-selection-hint{font-size:12.5px;color:var(--tegh-muted,#5b6b65)}
+@media(max-width:700px){.r23-table-meta .r23-selection-actions{width:100%;margin-left:0}}
+.r28-daybook-lines>header .r122-daybook-source{margin-left:auto;min-height:28px;padding:3px 10px;font-size:12px}
+
+/* 20. Reconcile Account (R122): calculated bank balance, reconciliation statement */
+.r122-recon{display:grid;gap:14px}
+.r122-recon-filters{display:flex!important;flex-wrap:wrap;align-items:end;gap:10px 12px;padding:14px 16px!important}
+.r122-recon-filters label{display:grid;gap:4px;font-size:12px;font-weight:650;min-width:170px}
+.r122-recon-filters label:first-child{flex:1 1 240px}
+.r122-recon-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.r122-recon-cards>div{display:grid;gap:4px;padding:14px 16px;border:1px solid var(--tegh-border,#d6dfda);border-radius:12px;background:var(--tegh-surface,#fff)}
+.r122-recon-cards small{font-size:12px;color:var(--tegh-muted,#5b6b65);font-weight:600}
+.r122-recon-cards b{font-size:22px;font-variant-numeric:tabular-nums}
+.r122-recon-cards span{font-size:12px;color:var(--tegh-muted,#5b6b65)}
+.r122-recon-cards .ready{border-color:#9ccdb7;background:#eef7f2}
+.r122-recon-cards .attention{border-color:#e7c07a;background:#fdf6e8}
+.r122-recon-statement{padding:14px 16px!important}
+.r122-recon-statement h2,.r122-recon-running h2{font-size:16px;margin:0 0 8px}
+.r122-recon-statement table td{vertical-align:top}
+.r122-recon-statement td small,.r122-recon-running td small{display:block;color:var(--tegh-muted,#5b6b65);font-size:12px;font-weight:500}
+.r122-recon-line.is-empty td{color:var(--tegh-muted,#5b6b65)}
+.r122-recon-total td{font-weight:700}
+.r122-recon-total.ready td{color:#0f6b4c}
+.r122-recon-total.attention td{color:#9a5b00}
+.r122-recon-items{margin-top:6px}
+.r122-recon-items summary{cursor:pointer;font-size:12.5px;color:var(--tegh-emerald,#0f5c4b);font-weight:650}
+.r122-recon-items .srp-table-wrap{margin-top:6px;max-height:320px;overflow:auto}
+.r122-recon-running{padding:14px 16px!important}
+.r122-recon-running>summary{cursor:pointer;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;list-style:none}
+.r122-recon-running>summary span{font-size:12.5px;color:var(--tegh-muted,#5b6b65)}
+.r122-recon-running .srp-table-wrap{max-height:460px;overflow:auto;margin-top:8px}
+.r122-recon-complete{display:grid;gap:10px;padding:14px 16px!important}
+.r122-recon-complete label{display:grid;gap:4px;font-weight:650;font-size:12.5px}
+.r122-recon-complete footer{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.r122-recon-complete footer span{flex:1 1 280px;font-size:13px;color:var(--tegh-muted,#5b6b65)}
+@media(max-width:900px){.r122-recon-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.r122-recon-cards{grid-template-columns:1fr}.r122-recon-filters label{min-width:0;flex:1 1 100%}}
+.r22-workspace .r122-recon,.r122-recon>*{width:100%;max-width:none!important;box-sizing:border-box}
+.r122-recon-count{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:#eef3f0;color:var(--tegh-muted,#5b6b65);font-size:11.5px;font-weight:600}
+.r122-recon-subhead td{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--tegh-muted,#5b6b65);padding-top:14px!important}
+html[data-tegh-shell] .srp-page section.r122-recon{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:14px!important}
+html[data-tegh-shell] .srp-page section.r122-recon>*{grid-column:1/-1!important}
+.r122-report-items{display:grid;gap:8px;margin-top:14px}
+.r122-report-items h3{font-size:15px;margin:0}
+.r122-report-items details{border:1px solid var(--tegh-border,#d6dfda);border-radius:10px;padding:8px 12px;background:var(--tegh-surface,#fff)}
+.r122-report-items summary{cursor:pointer;display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px}
+.r122-report-items summary span{color:var(--tegh-muted,#5b6b65);font-size:13px}
+.r122-report-items .srp-table-wrap{margin-top:8px}
+html[data-tegh-shell] .srp-page .r28-recon-sections{display:grid!important;gap:8px!important;height:auto!important;max-height:none!important;flex:0 0 auto!important;overflow:visible!important}
+html[data-tegh-shell] .srp-page .r28-recon-sections>.r28-recon-detail-section{height:auto!important;max-height:none!important;min-height:0!important;flex:none!important;overflow:visible!important}

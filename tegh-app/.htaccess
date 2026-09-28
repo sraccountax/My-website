@@ -23,7 +23,6 @@ ErrorDocument 404 /404.html
   RewriteCond %{QUERY_STRING} (^|&)(forceSignIn|safeMode|signin|accountSetup|invite|passwordReset)= [NC]
   RewriteRule ^$ /app.html [R=302,L,NE]
 
-  RewriteRule ^srbooks-login-(?:190|191|192|193|194|195|196|197|198|199|200|201|202)\.html$ /app.html?forceSignIn=1&v=2812 [R=302,L,NE]
 
   # Sites root opens the accounting application. /index.html remains available.
   RewriteRule ^$ /app.html [R=302,L]
@@ -71,7 +70,7 @@ ErrorDocument 404 /404.html
   </IfModule>
 </IfModule>
 
-<FilesMatch "^srbooks-test-v[0-9]+\.(js|css)$">
+<FilesMatch "^[a-z]+-test-v[0-9]+\.(js|css)$">
   Require all denied
 </FilesMatch>
 <FilesMatch "^native-agent-cron\.php$">

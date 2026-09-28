@@ -112,10 +112,10 @@
   };
 
   const preferredGroups = Object.create(null);
-  const portal = () => window.SRBooksPortal;
+  const portal = () => window.TeghPortal;
   const setPreferredGroup = (module,group) => { if(module && group) preferredGroups[module]=group; };
   const getPreferredGroup = module => preferredGroups[module] || '';
-  window.SRBooksWorkflowNavigation = Object.assign(window.SRBooksWorkflowNavigation||{},{
+  window.TeghWorkflowGroups = Object.assign(window.TeghWorkflowGroups||{},{
     setPreferredGroup,
     getPreferredGroup,
     build:BUILD,

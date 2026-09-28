@@ -468,7 +468,7 @@
   }
 
   async function openCollectionTemplateSettings() {
-    window.SRBooksPortal?.openCollectionDrafts?.();
+    window.TeghPortal?.openCollectionDrafts?.();
     const button = await waitForElement('[data-collection-templates]');
     button?.click();
   }
@@ -554,7 +554,7 @@
   }
 
   async function openEmailDeliveryHealth() {
-    const portal = window.SRBooksPortal;
+    const portal = window.TeghPortal;
     portal?.openAccount?.();
     const page = await waitForElement('.srp-page[data-srp-page="account-access"]');
     if (!page) { showShellNotice('Email Delivery Health unavailable', 'The Settings workspace did not open.', 'error'); return; }
@@ -603,7 +603,7 @@
   }
 
   async function replaceLocalQuickActions(ids) {
-    const service = window.SRBooksPortal?.quickActions;
+    const service = window.TeghPortal?.quickActions;
     if (!service) return;
     const unique = [...new Set(ids)].slice(0, QUICK_ACTION_LIMIT);
     if (typeof service.setIds === 'function') service.setIds(unique, 'Quick Action order updated.');
@@ -622,7 +622,7 @@
   }
 
   async function syncQuickActions() {
-    const service = window.SRBooksPortal?.quickActions;
+    const service = window.TeghPortal?.quickActions;
     const company = currentCompanyId();
     if (!service || !company) return;
     const initialScope = service.getScope?.() || '';
@@ -661,7 +661,7 @@
   function openQuickActionCustomizer() {
     const existing = document.querySelector('[data-tegh-quick-customizer]');
     if (existing) { existing.querySelector('[data-qa-v3-search]')?.focus(); return; }
-    const service = window.SRBooksPortal?.quickActions;
+    const service = window.TeghPortal?.quickActions;
     if (!service) return;
     const previousFocus = document.activeElement;
     let selected = service.getIds().slice(0, QUICK_ACTION_LIMIT);
@@ -812,7 +812,7 @@
           await saveQuickActions(selected, mode);
           close();
           showShellNotice('Quick Actions saved', 'Your Quick Actions and keyboard shortcuts are ready.');
-          if (document.querySelector('[data-srp-page="dashboard"]')) window.SRBooksPortal?.openDashboard?.();
+          if (document.querySelector('[data-srp-page="dashboard"]')) window.TeghPortal?.openDashboard?.();
         } catch (error) {
           button.disabled = false; button.textContent = 'Save Quick Actions';
           showShellNotice('Quick Actions not saved', error.message, 'error');
@@ -910,7 +910,7 @@
       if (event.key.toLowerCase() === 'q') { event.preventDefault(); event.stopImmediatePropagation(); void openQuickActionCustomizer(); return; }
       if (window.TeghRegistersR23?.ownsQuickKeys || !/^[0-9]$/.test(event.key)) return;
       event.preventDefault(); event.stopImmediatePropagation();
-      const index = event.key === '0' ? 9 : Number(event.key) - 1, service = window.SRBooksPortal?.quickActions, actionId = service?.getIds?.()[index];
+      const index = event.key === '0' ? 9 : Number(event.key) - 1, service = window.TeghPortal?.quickActions, actionId = service?.getIds?.()[index];
       if (actionId) void service.open(actionId, {source: `keyboard-slot-${index + 1}`});
     }, true);
   }
