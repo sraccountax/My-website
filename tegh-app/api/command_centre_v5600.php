@@ -21,12 +21,13 @@ function tegh_command_project_action(array $action): array
 /** @return array<int,array<string,mixed>> */
 function tegh_command_visible_registry(array $user,array $company): array
 {
-    $out=[];$platformOwner=platform_role_for_user((string)$user['id'])==='platform_owner';
+    // R123: ~170 actions share about a dozen feature keys; resolve each key once.
+    $out=[];$features=[];$platformOwner=platform_role_for_user((string)$user['id'])==='platform_owner';
     foreach(tegh_action_registry() as $action){
         if(empty($action['command_eligible']))continue;
         if(!company_role_can((string)$company['role'],(string)$action['required_permission']))continue;
         if(!empty($action['owner_only'])&&!$platformOwner)continue;
-        $feature=(string)($action['required_feature_key']??'core.accounting');$resolved=tegh_resolve_feature($user,$company,$feature);if(!$resolved['allowed'])continue;
+        $feature=(string)($action['required_feature_key']??'core.accounting');$resolved=$features[$feature]??=tegh_resolve_feature($user,$company,$feature);if(!$resolved['allowed'])continue;
         $action['entitlement_revision']=(int)$resolved['revision'];$action['advanced']=(bool)($resolved['billable']??false);$out[]=tegh_command_project_action($action);
     }
     return $out;
@@ -234,7 +235,7 @@ function tegh_command_interpret_parameters(string $query,array $action,array $co
     // Schema 42 supports the same accounting timezone as canadian_today().
     $timezone='America/Toronto';$today=$today??canadian_today();$now=tegh_report_date($today,'Today');
     $text=strtolower(trim($query));$properties=(array)$action['parameter_schema']['properties'];$parameters=[];$question='';$periodLabel='';$executionBlocked=false;$clarificationFields=[];
-    $snapshot=isset($properties['asOf'])&&!isset($properties['start']);
+    $snapshot=isset($properties['asOf'])&&!isset($properties['start']);$phraseLabel='';$navigation=in_array((string)($action['action_type']??''),['navigation','prepare'],true);
     $periodSupported=isset($properties['start'])||isset($properties['from'])||isset($properties['periodStart'])||isset($properties['asOf']);
     $start=null;$end=null;$matches=[];preg_match_all('/\b\d{4}-\d{2}-\d{2}\b/',$query,$matches);$dates=$matches[0];
     foreach($dates as $date){$parsed=DateTimeImmutable::createFromFormat('!Y-m-d',$date,new DateTimeZone($timezone));if(!$parsed||$parsed->format('Y-m-d')!==$date)$question='Which valid reporting dates should I use? Use YYYY-MM-DD.';}
@@ -253,14 +254,23 @@ function tegh_command_interpret_parameters(string $query,array $action,array $co
         elseif(preg_match('/\b(?:calendar year[- ]to[- ]date|this calendar year)\b/',$text)){[$start,$end]=tegh_report_period_preset($company,'current_year',$today);}
         elseif(preg_match('/\b(?:today|current balances)\b/',$text)){$start=$end=$today;}
         elseif(preg_match('/\byesterday\b/',$text)){$start=$end=$now->modify('-1 day')->format('Y-m-d');}
-        elseif(preg_match('/\b(?:period|month|quarter|year|ytd|as[- ]?of|january|february|march|april|may|june|july|august|september|october|november|december)\b|\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}/',$text))$question='Which reporting dates should I use? Choose dates or a supported period.';
+        elseif(function_exists('tegh_assist_period_phrase')&&($phrase=tegh_assist_period_phrase(function_exists('tegh_assist_lay_rewrite')?tegh_assist_lay_rewrite($query):$text,$company,$today,in_array((string)$action['action_id'],['analysis.cash_forecast','receivables.expected_collections','payables.upcoming'],true)))!==null){[$start,$end,$phraseLabel]=$phrase;}
+        elseif($periodSupported&&preg_match('/\b(?:period|month|quarter|year|ytd|as[- ]?of|january|february|march|april|may|june|july|august|september|october|november|december)\b|\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}/',$text))$question='Which reporting dates should I use? Choose dates or a supported period.';
+        // R123: an everyday question with no dates runs on a sensible,
+        // clearly labelled default period instead of stopping to ask.
+        if($question===''&&$start===null&&function_exists('tegh_assist_default_period')){
+            if($snapshot&&$periodSupported){$start=$end=$today;$phraseLabel='Today';}
+            elseif(($default=tegh_assist_default_period((string)$action['action_id'],$company,$today))!==null){[$start,$end,$phraseLabel]=$default;$phraseLabel.=' (default)';}
+        }
     }
     if($start!==null&&$end!==null&&$question===''){
-        if(!$periodSupported){$question='This action cannot apply a reporting period. Would you like to open its workflow instead?';$executionBlocked=true;$clarificationFields[]='action';}
+        // R123: opening a screen ignores dates in the request instead of refusing.
+        if(!$periodSupported){if(!$navigation){$question='This action cannot apply a reporting period. Would you like to open its workflow instead?';$executionBlocked=true;$clarificationFields[]='action';}}
         elseif($snapshot){$parameters['asOf']=$end;if(isset($properties['mode']))$parameters['mode']='as_of';$periodLabel='As of '.$end;}
         elseif(isset($properties['start'])){$parameters=['mode'=>'custom','start'=>$start,'end'=>$end];if(!isset($properties['mode']))unset($parameters['mode']);$periodLabel=$start.' to '.$end;}
         elseif(isset($properties['periodStart'])){$parameters=['periodStart'=>$start,'periodEnd'=>$end];$periodLabel=$start.' to '.$end;}
         else{$parameters=['from'=>$start,'to'=>$end];$periodLabel=$start.' to '.$end;}
+        if($phraseLabel!==''&&$periodLabel!=='')$periodLabel=$phraseLabel.' · '.$periodLabel;
     }
     $entityLabels=[];
     foreach(['customer'=>'customerId','vendor'=>'vendorId','account'=>'account'] as $type=>$field){
@@ -268,15 +278,15 @@ function tegh_command_interpret_parameters(string $query,array $action,array $co
         if(count($matches)>1){$question=$question?:'Which '.$type.' did you mean? Choose one from the list.';$executionBlocked=true;$clarificationFields[]=$field;continue;}
         if(count($matches)===1&&isset($properties[$field])){$parameters[$field]=(string)$matches[0]['id'];$entityLabels[$field]=(string)$matches[0]['name'];}
         elseif(count($matches)===1&&preg_match('/\b(?:for|customer|vendor|supplier|account)\s+'.preg_quote(strtolower((string)$matches[0]['name']),'/').'\b/',$text)){$question=$question?:'This action cannot apply that '.$type.' filter. Which supported action would you like to use?';$executionBlocked=true;$clarificationFields[]=$field;}
-        elseif(count($matches)===0&&preg_match('/\b'.($type==='vendor'?'(?:vendor|supplier)':$type).'\s+(?!aging\b|ageing\b|balances?\b|ledger\b|invoices?\b|payments?\b)\S+/',$text)){$question=$question?:'Which '.$type.' did you mean? Choose the exact record before continuing.';$executionBlocked=true;$clarificationFields[]=$field;}
+        elseif(count($matches)===0&&isset($properties[$field])&&preg_match('/\b'.($type==='vendor'?'(?:vendor|supplier)':$type).'\s+(?!aging\b|ageing\b|balances?\b|ledger\b|invoices?\b|payments?\b)\S+/',$text)){$question=$question?:'Which '.$type.' did you mean? Choose the exact record before continuing.';$executionBlocked=true;$clarificationFields[]=$field;}
     }
-    if(preg_match('/\b(?:company|client file)\s+["\']?(.+?)(?:["\']|\s+(?:for|from|as of)\b|$)/',$text,$companyMatch)){
+    if(!$navigation&&preg_match('/\b(?:company|client file)\s+["\']?(.+?)(?:["\']|\s+(?:for|from|as of)\b|$)/',$text,$companyMatch)){
         $requested=trim((string)preg_replace('/\s+(?:(?:last|previous|prior|this|current)\s+(?:month|quarter|year)|fiscal year[- ]to[- ]date)\b.*$/','',trim($companyMatch[1])));$current=strtolower(trim((string)($company['name']??'')));
         if($requested!==''&&$requested!==$current){$question=$question?:'This request will use the selected company. Switch company first if you meant another one.';$executionBlocked=true;$clarificationFields[]='company';}
     }
-    if(preg_match('/\b(?:over|under|above|below|greater than|less than)\s*\$?\d|\bonly (?:debits|credits|unpaid|paid)\b/',$text)){$question=$question?:'Which exact filters should I apply? Open the transaction filter controls before continuing.';$executionBlocked=true;$clarificationFields[]='filters';}
-    if(preg_match('/\b(?:excluding|except|department|cost cent(?:er|re)|project filter)\b|\bwithout\s+(?!(?:posting|changing|reconciling|saving|ai|a model)\b)\S+|\bonly\s+(?!(?:last|previous|this|current|posted)\b)\S+/',$text)){$question=$question?:'This request includes a filter that has not been applied. Choose a supported filter or revise the request before running it.';$executionBlocked=true;$clarificationFields[]='filters';}
-    if(preg_match('/\b(?:compare|compared|versus|vs\.?)\b/',$text)){$question=$question?:'Which two exact periods should I compare? Open the report comparison controls to review them.';$executionBlocked=true;$clarificationFields[]='comparison';}
+    if(!$navigation&&preg_match('/\b(?:over|under|above|below|greater than|less than)\s*\$?\d|\bonly (?:debits|credits|unpaid|paid)\b/',$text)){$question=$question?:'Which exact filters should I apply? Open the transaction filter controls before continuing.';$executionBlocked=true;$clarificationFields[]='filters';}
+    if(!$navigation&&preg_match('/\b(?:excluding|except|department|cost cent(?:er|re)|project filter)\b|\bwithout\s+(?!(?:posting|changing|reconciling|saving|ai|a model)\b)\S+|\bonly\s+(?!(?:last|previous|this|current|posted)\b)\S+/',$text)){$question=$question?:'This request includes a filter that has not been applied. Choose a supported filter or revise the request before running it.';$executionBlocked=true;$clarificationFields[]='filters';}
+    if($periodSupported&&preg_match('/\b(?:compare|compared|versus|vs\.?)\b/',$text)){$question=$question?:'Which two exact periods should I compare? Open the report comparison controls to review them.';$executionBlocked=true;$clarificationFields[]='comparison';}
     if($periodSupported&&$periodLabel===''&&$question==='')$question=$snapshot?'Which as-of date should I use?':'Which reporting period should I use?';
     if($question!==''&&!$executionBlocked)$clarificationFields=$snapshot?['asOf']:['start','end'];
     return ['parameters'=>$parameters,'needsClarification'=>$question!=='','clarificationQuestion'=>$question,'clarificationFields'=>array_values(array_unique($clarificationFields)),'canResolveWithPeriod'=>$question!==''&&!$executionBlocked,'executionBlocked'=>$executionBlocked,'interpretation'=>['companyId'=>(string)$company['id'],'companyName'=>(string)($company['name']??''),'timezone'=>$timezone,'periodLabel'=>$periodLabel,'filters'=>$entityLabels,'dateSource'=>'native','accountingWrites'=>0]];
@@ -296,7 +306,11 @@ function tegh_command_free_text(array $user,array $company): never
     require_method('POST');require_csrf();$input=request_json();$query=trim((string)($input['query']??''));if($query==='')fail('Enter a command search.',422,'command_query_required');if(mb_strlen($query)>1200)fail('Keep each request under 1,200 characters.',422,'command_query_too_long');$filtered=tegh_router_language_filter($query);$normalized=tegh_morphology_normalize_action_text((string)$filtered['text']);$prohibited=tegh_router_prohibited_request($normalized);if($prohibited!==null)json_response($prohibited+['committed'=>false,'providerUsed'=>false]);
     $plan=tegh_command_compound_plan($query);if($plan!==null)json_response($plan);
     $registry=[];foreach(tegh_command_visible_registry($user,$company) as $action)$registry[(string)$action['action_id']]=$action;
-    $entities=tegh_router_entity_candidates($normalized,tegh_company_lexicon($user,$company),5);$ranked=tegh_router_native_rank($normalized,$registry,$entities,$company);$candidates=(array)($ranked['candidates']??[]);$topConfidence=(float)($candidates[0]['confidence']??0);$runnerConfidence=(float)($candidates[1]['confidence']??0);
+    $entities=tegh_router_entity_candidates($normalized,tegh_company_lexicon($user,$company),5);$ranked=tegh_router_native_rank($normalized,$registry,$entities,$company);$candidates=(array)($ranked['candidates']??[]);
+    // R123: a screen and its report often share one name ("Trial Balance").
+    // Offer it once, preferring the version that shows the answer here.
+    $byLabel=[];foreach($candidates as $candidate){$label=mb_strtolower((string)($registry[(string)$candidate['action_id']]['plain_label']??$candidate['action_id']));$current=$byLabel[$label]??null;$prefer=static fn(string $id):int=>str_starts_with($id,'nav.')?0:1;if($current===null||(float)$candidate['confidence']>(float)$current['confidence']||((float)$candidate['confidence']===(float)$current['confidence']&&$prefer((string)$candidate['action_id'])>$prefer((string)$current['action_id'])))$byLabel[$label]=$candidate;}
+    $candidates=array_values($byLabel);usort($candidates,static fn($a,$b)=>$b['confidence']<=>$a['confidence']?:strcmp((string)$a['action_id'],(string)$b['action_id']));$topConfidence=(float)($candidates[0]['confidence']??0);$runnerConfidence=(float)($candidates[1]['confidence']??0);
     $choices=[];foreach(array_slice($candidates,0,6) as $candidate){$action=$registry[(string)$candidate['action_id']]??null;if(!$action)continue;$interpreted=tegh_command_interpret_parameters($query,$action,$company,$entities);$choices[]=['actionId'=>(string)$action['action_id'],'label'=>(string)$action['plain_label'],'description'=>(string)$action['plain_description'],'riskLabel'=>(string)$action['risk_label'],'confidence'=>(float)$candidate['confidence'],'safe_stop'=>(bool)$action['safe_stop'],'blocklist'=>$action['blocklist']]+$interpreted;}
     $resolved=count($choices)>=1&&$topConfidence>=.72&&($topConfidence-$runnerConfidence)>=.10;
     if(!$resolved)json_response(['kind'=>'choices','message'=>$choices?'Choose the command you meant.':'No registered command matched. Try a screen or accounting task name.','choices'=>$choices,'committed'=>false,'providerUsed'=>false,'normalizedBy'=>'tegh_router_native']);

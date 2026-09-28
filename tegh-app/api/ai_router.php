@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 const TEGH_ROUTER_VERSION = '4.7.2-4720';
 
+require_once __DIR__ . '/assist_language_r123.php';
+
 function tegh_router_mode(array $context): string
 {
     if (function_exists('tegh_human_mode')) return tegh_human_mode($context);
@@ -196,10 +198,14 @@ function tegh_double_metaphone(string $value): array
 function tegh_router_word_similarity(string $source,string $target): float
 {
     if($source===$target)return 1.0;$max=max(strlen($source),strlen($target));if($max===0)return 1.0;
+    // R123: the same word pairs are compared many times per request; memoize
+    // the result and the phonetic keys instead of recomputing them.
+    static $memo=[];static $phonetic=[];$key=$source."\0".$target;if(isset($memo[$key]))return $memo[$key];
+    if(count($memo)>200000)$memo=[];
     $base=max(0.0,1.0-tegh_damerau_levenshtein_weighted($source,$target)/$max);
-    [$sp,$ss]=tegh_double_metaphone($source);[$tp,$ts]=tegh_double_metaphone($target);
+    [$sp,$ss]=$phonetic[$source]??=tegh_double_metaphone($source);[$tp,$ts]=$phonetic[$target]??=tegh_double_metaphone($target);
     if($sp!==''&&($sp===$tp||$sp===$ts||$ss===$tp))$base=max($base,0.82);
-    return min(1.0,$base);
+    return $memo[$key]=min(1.0,$base);
 }
 
 function tegh_router_registry_vocabulary(): array
@@ -217,9 +223,13 @@ function tegh_router_registry_vocabulary(): array
 
 function tegh_morphology_normalize_action_text(string $text): string
 {
-    $basic=tegh_router_basic_normalize($text);$vocabulary=tegh_router_registry_vocabulary();$out=[];
+    static $memo=[];if(isset($memo[$text]))return $memo[$text];if(count($memo)>5000)$memo=[];
+    $basic=tegh_router_basic_normalize(function_exists('tegh_assist_lay_rewrite')?tegh_assist_lay_rewrite($text):$text);$vocabulary=tegh_router_registry_vocabulary();$out=[];
+    static $known=null;$known??=array_fill_keys($vocabulary,true)+(function_exists('tegh_assist_common_words')?tegh_assist_common_words():[]);
     foreach(preg_split('/\s+/u',$basic,-1,PREG_SPLIT_NO_EMPTY)?:[] as $token){
-        if(strlen($token)<4||preg_match('/\d/',$token)||in_array($token,$vocabulary,true)){$out[]=$token;continue;}
+        // Ordinary English words ("owes", "making", "paid") are never
+        // "corrected" into accounting vocabulary.
+        if(strlen($token)<4||preg_match('/\d/',$token)||isset($known[$token])){$out[]=$token;continue;}
         $best=$token;$bestScore=0.0;$runner=0.0;
         foreach($vocabulary as $word){
             if(abs(strlen($word)-strlen($token))>max(2,(int)floor(strlen($token)*.35)))continue;
@@ -229,7 +239,7 @@ function tegh_morphology_normalize_action_text(string $text): string
         $threshold=strlen($token)<=4?.78:(strlen($token)<=7?.68:.66);
         $out[]=($bestScore>=$threshold&&($bestScore-$runner)>=.04)?$best:$token;
     }
-    return trim(implode(' ',$out));
+    return $memo[$text]=trim(implode(' ',$out));
 }
 
 function tegh_router_lexicon_revision(array $company): string
@@ -322,21 +332,35 @@ function tegh_router_entity_candidates(string $normalized,array $lexicon,int $li
 
 function tegh_router_action_document(array $action): string
 {
-    return tegh_morphology_normalize_action_text(implode(' ',[
+    // R123: registry text is already canonical. Spelling-correcting every
+    // action's description on every request cost ~15 seconds per question.
+    static $cache=[];$key=(string)$action['action_id'];
+    return $cache[$key]??=tegh_router_basic_normalize(implode(' ',[
         (string)$action['name'],(string)$action['description'],(string)$action['module'],
         str_replace(['.','_','-'],' ',(string)$action['action_id']),
         implode(' ',(array)($action['keywords']??[])),
     ]));
 }
 
+/** @return array{document:string,name:string,keywords:array<int,string>,words:array<int,string>} */
+function tegh_router_action_index(array $action): array
+{
+    static $cache=[];$key=(string)$action['action_id'];if(isset($cache[$key]))return $cache[$key];
+    $document=tegh_router_action_document($action);
+    $keywords=array_values(array_filter(array_map(static fn($keyword)=>tegh_router_basic_normalize((string)$keyword),(array)($action['keywords']??[]))));
+    $words=array_values(array_unique(array_filter(preg_split('/\s+/',$document,-1,PREG_SPLIT_NO_EMPTY)?:[],static fn($word)=>strlen($word)>=3)));
+    return $cache[$key]=['document'=>' '.$document.' ','name'=>tegh_router_basic_normalize((string)$action['name']),'keywords'=>$keywords,'words'=>$words];
+}
+
 function tegh_router_action_score(array $action,string $normalized,array $entities): float
 {
-    $document=' '.tegh_router_action_document($action).' ';$name=tegh_morphology_normalize_action_text((string)$action['name']);
-    $tokens=array_values(array_unique(array_filter(preg_split('/\s+/',$normalized,-1,PREG_SPLIT_NO_EMPTY)?:[],static fn($v)=>strlen($v)>=3)));
+    $index=tegh_router_action_index($action);$document=$index['document'];$name=$index['name'];
+    static $stop=null;$stop??=function_exists('tegh_assist_stop_words')?tegh_assist_stop_words():[];
+    $tokens=array_values(array_unique(array_filter(preg_split('/\s+/',$normalized,-1,PREG_SPLIT_NO_EMPTY)?:[],static fn($v)=>strlen($v)>=3&&!isset($stop[$v]))));
     $score=0.0;
     if($name!==''&&str_contains(' '.$normalized.' ',' '.$name.' '))$score+=.62;
-    foreach((array)($action['keywords']??[]) as $keyword){$kw=tegh_morphology_normalize_action_text((string)$keyword);if($kw!==''&&str_contains(' '.$normalized.' ',' '.$kw.' '))$score=max($score,.58);}
-    if($tokens){$hits=0.0;foreach($tokens as $token){if(str_contains($document,' '.$token.' '))$hits+=1.0;else{$best=0.0;foreach(preg_split('/\s+/',$document,-1,PREG_SPLIT_NO_EMPTY)?:[] as $word)if(strlen($word)>=3)$best=max($best,tegh_router_word_similarity($token,$word));if($best>=.78)$hits+=$best*.7;}}$score+=min(.38,$hits/count($tokens)*.38);}
+    foreach($index['keywords'] as $kw){if($kw!==''&&str_contains(' '.$normalized.' ',' '.$kw.' '))$score=max($score,.58);}
+    if($tokens){$hits=0.0;foreach($tokens as $token){if(str_contains($document,' '.$token.' '))$hits+=1.0;else{$best=0.0;$length=strlen($token);foreach($index['words'] as $word){if(abs(strlen($word)-$length)>3)continue;$best=max($best,tegh_router_word_similarity($token,$word));if($best>=1.0)break;}if($best>=.78)$hits+=$best*.7;}}$score+=min(.38,$hits/count($tokens)*.38);}
     $id=(string)$action['action_id'];$type=(string)$action['action_type'];
     $create=(bool)preg_match('/\b(?:create|add|new|make|prepare|enter|record)\b/u',$normalized);
     $navigate=(bool)preg_match('/\b(?:open|go to|navigate|take me to)\b/u',$normalized);
@@ -370,7 +394,16 @@ function tegh_router_learned_boosts(array $company,string $normalized,array $reg
 function tegh_router_native_rank(string $normalized,array $registry,array $entities,array $company): array
 {
     $boosts=tegh_router_learned_boosts($company,$normalized,$registry);$rows=[];
-    foreach($registry as $id=>$action){$score=tegh_router_action_score($action,$normalized,$entities)+($boosts[$id]??0.0);if($score<.18)continue;$rows[]=['action_id'=>$id,'name'=>(string)$action['name'],'confidence'=>round(min(1.0,$score),4),'execution_class'=>(string)$action['execution_class']];}
+    // R123: everyday phrasing ("who owes me money", "pay my supplier") maps
+    // to a registered action. The rule only raises a score; the registry,
+    // permissions and execution class still decide what can happen.
+    $intents=function_exists('tegh_assist_intent_scores')?tegh_assist_intent_scores($normalized,$registry):[];
+    $intentTop=$intents?max($intents):0.0;
+    foreach($registry as $id=>$action){$base=tegh_router_action_score($action,$normalized,$entities);
+        // A recognised everyday phrase outranks loose word overlap (for example
+        // "customers" in "which customers are late paying"); exact names still count.
+        if($intentTop>0&&!isset($intents[$id])&&tegh_router_action_index($action)['name']!==$normalized)$base=min($base,$intentTop-.15);
+        $score=max($base,$intents[$id]??0.0)+($boosts[$id]??0.0);if($score<.18)continue;$rows[]=['action_id'=>$id,'name'=>(string)$action['name'],'confidence'=>round(min(1.0,$score),4),'execution_class'=>(string)$action['execution_class']];}
     usort($rows,static fn($a,$b)=>$b['confidence']<=>$a['confidence']?:strcmp($a['action_id'],$b['action_id']));
     return ['top'=>$rows[0]??null,'alternatives'=>array_slice($rows,1,3),'candidates'=>array_slice($rows,0,5)];
 }

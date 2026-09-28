@@ -94,6 +94,8 @@ function tegh_action_continuation_features(array $action): array
 
 function tegh_action_registry(): array
 {
+    // R123: the registry is static data; build it once per request.
+    static $cached=null;if($cached!==null)return $cached;
     $a = static function(
         string $id,string $name,string $description,string $module,string $route,string $type,string $permission,
         array $modes=['guided','full'],array $required=[],array $optional=[],bool $companyScoped=true,string $validation='',string $execution='',
@@ -389,7 +391,7 @@ function tegh_action_registry(): array
         $item['ai_capability']=$capability;
         $out[$item['action_id']]=$item;
     }
-    return $out;
+    return $cached=$out;
 }
 
 /**

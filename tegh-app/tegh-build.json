@@ -5,7 +5,7 @@
   "schema": 46,
   "schemaTarget": 46,
   "revision": "Sites R117 frontend with R117 debit-note output hotfix, R118 account guard and metadata hardening, and R119 invoice/note tabs, combined invoice & note registers, invoice tax-split repair, scrolling tables, mobile layout and export fixes; R120 itemized credit/debit note documents, render-loop fix for dropdowns and scrolling, sidebar/menu/layout polish",
-  "releaseStatus": "STAGING CANDIDATE \u2014 accounting acceptance and serving-host file identity pending",
+  "releaseStatus": "STAGING CANDIDATE — accounting acceptance and serving-host file identity pending",
   "sealed": false,
   "productionReady": false,
   "acceptanceComplete": false,
@@ -523,5 +523,25 @@
     "window.svg"
   ],
   "r122Migration": false,
-  "r122CacheToken": "5990-r122-tegh"
+  "r122CacheToken": "5990-r122-tegh",
+  "r123Files": [
+    "api/assist_language_r123.php",
+    "api/ai_router.php",
+    "api/ai_actions_v5600.php",
+    "api/command_centre_v5600.php",
+    "api/ai_agent.php",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-r120.css",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "app.html",
+    "R123-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r123Migration": false,
+  "r123CacheToken": "5990-r123-tegh"
 }

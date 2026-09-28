@@ -764,6 +764,7 @@ function agent_local_answer(string $question, array $setup, array $clientContext
     $workflow = 'monthly_close';
     $screenAnswer = agent_screen_answer($question, $setup, $clientContext);
     if ($screenAnswer !== null) return $screenAnswer;
+    if (function_exists('tegh_assist_plain_answer') && ($plain = tegh_assist_plain_answer($question)) !== null) return $plain;
     if (preg_match('/\b(?:how (?:do|can|should) i|show me how to|steps? to|what are the steps to)\b.*\b(?:post|record|issue)\b.*\b(?:customer|sales)?\s*invoice\b/i', $q)) {
         return [
             'mode'=>'guided',
@@ -849,6 +850,11 @@ function agent_local_answer(string $question, array $setup, array $clientContext
     elseif (preg_match('/payroll|employee|cpp|\bei\b|deduction|health tax|levy/', $q)) $workflow = 'payroll';
     elseif (preg_match('/opening|trial balance|chart of account|gl code/', $q)) $workflow = 'opening_setup';
     elseif (preg_match('/report|profit|loss|balance sheet|cash flow|tax|gifi|t2125/', $q)) $workflow = 'reports';
+    // R123: say so plainly when nothing in the guide matches, instead of
+    // returning the month-end summary as if it answered the question.
+    if ($workflow === 'monthly_close' && !preg_match('/month.?end|close|lock|period|books|bookkeep|accounting|workflow|getting started|start|what should|next|to ?do|help|guide|routine|checklist|daily|weekly|monthly/', $q)) {
+        return ['mode'=>'answer','answer'=>'I don’t have a reliable answer to that in Tegh’s built-in guide. Try asking about a task in Tegh, for example “how do I record a customer payment?” or “who owes me money?”. For tax or legal advice, check with CRA or your accountant.','recommendedWorkflow'=>'monthly_close','steps'=>[],'caution'=>'Nothing was changed.'];
+    }
     $catalog = agent_workflow_catalog();
     if ($workflow === 'payroll' && empty($setup['capabilities']['payrollView'])) {
         return ['mode'=>'guided','answer'=>'Payroll guidance is not available to your current company role.','recommendedWorkflow'=>'monthly_close','steps'=>[],'caution'=>'Tegh does not expose payroll setup, employee information or payroll actions without payroll permission.'];
