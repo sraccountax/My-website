@@ -173,7 +173,11 @@ html[data-tegh-shell] .r22-workspace>.srp-card.r22-fill-path:has(.srp-journal-li
 
 /* Recurring Transactions and other two-panel pages: panels size to their own
    content instead of stretching an empty list to the height of the form. */
-html[data-tegh-shell] .sra-grid{align-items:start!important}
+html[data-tegh-shell] .sra-grid:not(.r22-fill-path){align-items:start!important}
+/* R121: where the activity shell turns the grid into a flex column (Fixed
+   Assets, Budgets directories), cards must stay full width. */
+html[data-tegh-shell] .sra-grid.r22-fill-path{align-items:stretch!important}
+html[data-tegh-shell] .sra-grid.r22-fill-path>.sra-card{width:100%!important;max-width:none!important}
 
 /* Dark hero banners (Document Intake, Collection Drafts, Payroll): body copy
    was grey on dark green. */
@@ -187,3 +191,106 @@ html[data-tegh-shell] :is(.tegh-native-boundary,.tegh-agent-hero) p{color:rgba(2
   html[data-tegh-shell] .srp-ci-line-grid .srp-check{align-self:center!important;padding-bottom:0!important}
 }
 html[data-tegh-shell] .r63-product-field .srp-btn{min-height:30px!important;padding:4px 10px!important;font-size:.8rem!important;justify-self:start}
+
+/* 8. Dashboard Quick Actions: one tidy row per action — icon, label, keycap.
+   Each shortcut was shown twice ("1" and "+1"), the "+1" wrapped onto a second
+   line, and the list scrolled inside the card behind a scrollbar that covered
+   the keycaps. The header already says "Ctrl + Alt". */
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list{overflow-x:hidden!important;overflow-y:auto!important;display:grid!important;align-content:start!important;gap:2px!important;padding:0 26px 0 0!important;scrollbar-width:none}
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list::-webkit-scrollbar{display:none}
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list>button{
+  display:grid!important;grid-template-columns:30px minmax(0,1fr) auto!important;align-items:center!important;gap:10px!important;
+  width:100%!important;min-height:40px!important;height:auto!important;padding:5px 8px!important;margin:0!important;
+  border:1px solid transparent!important;border-radius:10px!important;text-align:left!important;
+}
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list>button:hover,
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list>button:focus-visible{background:var(--tegh-surface-mist,#f1f6f3)!important;border-color:var(--tegh-border,#d8e2de)!important}
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list>button>.r19-shortcut-icon{grid-column:1!important;grid-row:1!important;width:30px!important;height:30px!important;display:grid!important;place-items:center!important;border-radius:8px!important;background:var(--tegh-surface-mist,#eef5f1)!important;margin:0!important}
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list>button>strong{grid-column:2!important;grid-row:1!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:.9rem!important;font-weight:650!important;margin:0!important}
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list>button>.r20-shortcut-key{
+  grid-column:3!important;grid-row:1!important;position:static!important;display:inline-grid!important;place-items:center!important;
+  min-width:24px!important;height:24px!important;padding:0 6px!important;margin:0!important;border:1px solid var(--tegh-border,#cad9d1)!important;border-bottom-width:2px!important;
+  border-radius:6px!important;background:var(--tegh-surface,#fff)!important;font:600 .75rem/1 ui-monospace,SFMono-Regular,Menlo,monospace!important;color:var(--tegh-muted,#58706a)!important;
+}
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list>button>kbd.tegh-quick-slot{display:none!important}
+
+/* 9. Bank statement import preview (R121): the panel was a fixed
+   100dvh-24px box, taller than its scrim, so a short statement left a
+   large empty area under the footer and the bottom edge was clipped. It now
+   sizes to its content up to the viewport height. */
+.tegh-bank-verification-continuous{align-items:center!important}
+.tegh-bank-verification-panel{height:auto!important;max-height:calc(100dvh - 48px)!important}
+@media(max-width:480px){.tegh-bank-verification-panel{max-height:calc(100dvh - 12px)!important}}
+
+/* 10. Match and Post Transactions (R121)
+   - The generic floating "N rows selected" bar duplicated the workspace's own
+     "N selected" / Clear controls and covered the last visible rows.
+   - Dates were cut ("Feb 28, 2…") while the description column had room.
+   - The posting form had no inner padding; fields touched the card edge.
+   - Bulk posting list. */
+.r28-banking-workspace .sr-selection-bar{display:none!important}
+.r28-banking-workspace .r28-bank-table th:nth-child(2),.r28-banking-workspace .r28-bank-table td:nth-child(2){white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}
+.r28-banking-workspace .r28-bank-table td:nth-child(2) *{white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}
+.r28-banking-workspace .r28-post-panel>form{padding:14px 16px 16px!important;row-gap:12px}
+.r28-banking-workspace .r28-post-panel>form>footer{padding-top:4px}
+.r28-banking-workspace .r28-post-preview h4{margin:6px 0 8px}
+.r121-bulk-list{list-style:none;margin:0;padding:10px 16px 4px;display:grid;gap:4px;border-bottom:1px solid var(--tegh-line,#d6dfda)}
+.r121-bulk-list li{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:10px;align-items:baseline;font-size:13px;padding:4px 0}
+.r121-bulk-list li span{color:var(--tegh-muted,#5b6b65);white-space:nowrap}
+.r121-bulk-list li b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r121-bulk-list li em{font-style:normal;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.r121-bulk-list li.more{display:block;color:var(--tegh-muted,#5b6b65);font-size:12px}
+.r121-bulk-note{margin:0;font-size:13px;color:var(--tegh-muted,#5b6b65)}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page.srp-page .r28-banking-workspace .r15-recon-table col.date-col{width:110px!important}
+@media(max-width:1180px){html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page.srp-page .r28-banking-workspace .r15-recon-table col.date-col{width:100px!important}}
+
+/* 11. Customer receipt / vendor payment "Match bank transaction" mode (R121) */
+.r29-payment-bank-source.r121-match-focus{outline:2px solid var(--tegh-emerald,#155849);outline-offset:3px;border-radius:10px}
+
+/* 12. Match exact source pairs (R121) */
+.r121-exact-pairs{display:grid;justify-items:center;gap:6px;margin-top:18px;padding:14px 16px;border:1px solid var(--tegh-line,#d6dfda);border-radius:10px;background:var(--tegh-soft-green,#eef5f1);max-width:420px}
+.r121-exact-pairs small{color:var(--tegh-muted,#5b6b65);text-align:center}
+.r121-exact-pairs button{margin-top:4px}
+.r121-exact-pairs [role=status]{font-size:12px;color:var(--tegh-muted,#5b6b65);min-height:1em}
+
+/* 13. Label rows line up (R121). A required label (text + dot in
+   span.srp-label-text) rendered 25px tall versus 18px for an optional label,
+   so optional inputs sat 7px higher in the same row (New Employee, etc.). */
+html[data-tegh-shell] .srp-page label>.srp-label-text{display:block!important;line-height:inherit!important;padding:0!important;margin:0!important;min-height:0!important;height:auto!important;font:inherit}
+html[data-tegh-shell] .srp-page label>.srp-label-text>.srp-required-marker{font-size:inherit!important;vertical-align:baseline!important}
+/* Checkbox fields in a form grid: box and text on one line, aligned with the
+   inputs, not a centred box floating above centred text. */
+html[data-tegh-shell] .srp-page .r22-form-grid>label.srp-check{flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;align-self:end!important;gap:10px!important;min-height:40px;text-align:left!important}
+html[data-tegh-shell] .srp-page .r22-form-grid>label.srp-check>input{margin:0!important;flex:0 0 auto}
+
+/* 14. Tables that scroll sideways never break words letter by letter (R121).
+   Several layers set overflow-wrap:anywhere on cells, so auto-layout tables
+   (Payroll Verification) squeezed "Priya Sharma" and "Unverified" into
+   one-letter lines. Cells now break between words only; a table wider than
+   its container scrolls horizontally instead. Phone card layouts keep their
+   own rules. */
+html[data-tegh-shell] .srp-page table:not(.r22-stacked-table) :is(th,td){overflow-wrap:normal!important;word-break:normal!important;hyphens:manual}
+html[data-tegh-shell] .srp-page table:not(.r22-stacked-table) thead th{white-space:nowrap}
+html[data-tegh-shell] .srp-page table:not(.r22-stacked-table) .srp-status,html[data-tegh-shell] .srp-page table:not(.r22-stacked-table) [class*="status-pill"]{white-space:nowrap}
+html[data-tegh-shell] .srp-page table:not(.r22-stacked-table) td input.srp-money-input{min-width:96px;max-width:140px}
+html[data-tegh-shell] .sra-grid.r22-fill-path>.sra-card{flex:0 0 auto!important;height:auto!important;min-height:0!important}
+html[data-tegh-shell] .sra-grid.r22-fill-path>.sra-card .sra-table-wrap{flex:0 1 auto!important;min-height:0!important}
+html[data-tegh-shell] .sra-grid.r22-fill-path>.sra-card>:is(h2,h3){padding:12px 12px 4px!important;margin:0!important}
+
+/* 15. Advanced Accounting editors (R121): Recurring Transactions, Budgets and
+   similar .sra-form grids had one column, so a nine-field form ran 1,000px
+   down the page, and "full" fields were narrower than "half" ones. Half
+   fields now pair up; full fields and actions span the row. */
+html[data-tegh-shell] .srp-page .sra-form.r22-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;column-gap:14px!important}
+html[data-tegh-shell] .srp-page .sra-form.r22-form-grid>:is(.sra-field.full,.sra-actions,.sra-note,h2,h3,p,table,.sra-table-wrap,.sra-lines){grid-column:1/-1!important;max-width:none!important;width:auto!important}
+html[data-tegh-shell] .srp-page .sra-form.r22-form-grid>.sra-field.half{grid-column:auto!important;max-width:none!important}
+html[data-tegh-shell] .srp-page .sra-form.r22-form-grid>label.sra-check{align-self:center}
+@media(max-width:700px){html[data-tegh-shell] .srp-page .sra-form.r22-form-grid{grid-template-columns:minmax(0,1fr)!important}}
+html[data-tegh-shell] .srp-page .r22-form-grid>label.sra-check{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;text-align:left!important;min-height:40px}
+html[data-tegh-shell] .srp-page .r22-form-grid>label.sra-check>input{margin:0!important;flex:0 0 auto}
+
+/* 16. Invoice / bill / note detail (R121): amount headers line up with their
+   right-aligned values, and Subtotal / Tax / Total sit under the Amount
+   column like a printed invoice instead of under Description. */
+html[data-tegh-shell] .r19-invoice-lines table th.srp-money,html[data-tegh-shell] .r19-invoice-lines table th.tegh-financial-number{text-align:right!important}
+html[data-tegh-shell] .r19-invoice-lines>dl.r19-line-totals{margin-left:auto!important;margin-right:0!important;width:min(320px,100%)!important}

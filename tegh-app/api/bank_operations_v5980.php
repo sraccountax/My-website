@@ -11,11 +11,12 @@ function tegh_bank_operation_key(mixed $value): string
 function tegh_bank_decision_contract(mixed $value): array
 {
     if(!is_array($value)||array_is_list($value))fail('Invalid posting decision.',422,'bank_decision_invalid');
-    $allowed=['id','accountId','transferBankAccountId','transferOperationKey','remarks','paymentId','invoiceId','billId','taxCode','applyGstHst','applyPst','allowContra'];
+    $allowed=['id','accountId','transferBankAccountId','transferOperationKey','remarks','paymentId','invoiceId','billId','taxCode','applyGstHst','applyPst','allowContra','salesTaxSettlement'];
     if(array_diff(array_keys($value),$allowed))fail('Unsupported posting decision field.',422,'bank_decision_invalid');
     $out=['id'=>clean_text($value['id']??'','Transaction',64)];
     foreach(['accountId','transferBankAccountId','paymentId','invoiceId','billId'] as $key)if(isset($value[$key])&&trim((string)$value[$key])!=='')$out[$key]=clean_text($value[$key],$key,64);
-    $kinds=array_intersect(array_keys($out),['accountId','transferBankAccountId','paymentId','invoiceId','billId']);
+    if(isset($value['salesTaxSettlement'])&&trim((string)$value['salesTaxSettlement'])!==''){$settlement=(string)$value['salesTaxSettlement'];if(!in_array($settlement,['gst_hst','pst'],true))fail('Choose GST/HST or PST for a sales tax remittance.',422,'sales_tax_settlement_invalid');$out['salesTaxSettlement']=$settlement;$out['remarks']=mb_substr(trim((string)($value['remarks']??'')),0,500);}
+    $kinds=array_intersect(array_keys($out),['accountId','transferBankAccountId','paymentId','invoiceId','billId','salesTaxSettlement']);
     if(count($kinds)!==1)fail('Choose exactly one posting or matching instruction.',422,'bank_decision_conflict');
     $tax=(string)($value['taxCode']??'NO_TAX');if(!in_array($tax,['NO_TAX','GST_HST','HST13','PST','GST_HST_PST'],true))fail('Choose a valid tax treatment.',422,'bank_tax_invalid');
     $out['taxCode']=$tax==='HST13'?'GST_HST':$tax;

@@ -216,7 +216,17 @@
     }
     m.orientation=m.columns.length>5?'landscape':'portrait';return m;
   }
+  // R121: every exported register (PDF, Excel, CSV, print) ends with a Total
+  // row under its money columns (sum of the exported rows) when all rows are
+  // in one currency.
+  function withTotals(m){
+    if(!m||m.groupBy||Object.keys(m.totals||{}).length||!Array.isArray(m.rows)||m.rows.length<2||!Array.isArray(m.columns))return m;
+    const key=m.rowCurrencyKey,currencies=new Set(m.rows.map(r=>String((key&&r[key])||m.currency||'')));const money=m.columns.filter(c=>c.type==='money');if(!money.length||currencies.size>1)return m;
+    const totals={};for(const c of money){let sum=0,ok=true;for(const r of m.rows){const v=r[c.key];if(v===null||v===undefined||v==='')continue;const n=Number(v);if(!Number.isFinite(n)){ok=false;break}sum+=n}if(ok)totals[c.key]=sum}
+    if(Object.keys(totals).length)m.totals=totals;return m;
+  }
   function printModel(m){
+    withTotals(m);
     if(m.definitionKey==='profit-loss'&&Array.isArray(m.months))return m;
     // R119: registers of up to 12 columns print as a landscape table (the
     // default invoice & note register view has 11); only wider views fall back
@@ -260,6 +270,6 @@
     // the same click that opens it.
     if(node.isConnected)continue;
     if(node.matches?.('.srp-page'))pages.add(node);node.querySelectorAll?.('.srp-page').forEach(p=>pages.add(p));if(node.matches?.('dialog.r23-dialog,.r23-menu'))node.__r23Close?.();node.querySelectorAll?.('dialog.r23-dialog,.r23-menu').forEach(n=>n.__r23Close?.());}for(const page of pages){if(page.isConnected)continue;const s=states.get(page);if(!s)continue;s.stale=true;s.observer?.disconnect();closeLayers(s);states.delete(page);}});cleanup.observe(document.body||document.documentElement,{childList:true,subtree:true});
-  window.TeghRegistersR23={version:'5990-r23',ownsQuickKeys:true,setUser(id){const next=String(id||'');if(user!==next){for(const page of $$('.srp-page')){const s=states.get(page);if(!s)continue;s.stale=true;s.observer?.disconnect();closeLayers(s);states.delete(page);s.host.removeAttribute('aria-busy');s.host.dataset.ready='false';s.host.replaceChildren(el('p','r23-muted','Session changed. Reload the report.'));}user=next;viewCache.clear();}},renderAuthoritative,invalidate,findInCompleteLedger,owns:(p,m)=>{const s=states.get(p);return !!m&&s?.m===m&&!s.stale;},exportModel,printModel,csv,display,parseValue,
+  window.TeghRegistersR23={version:'5990-r23',withTotals,ownsQuickKeys:true,setUser(id){const next=String(id||'');if(user!==next){for(const page of $$('.srp-page')){const s=states.get(page);if(!s)continue;s.stale=true;s.observer?.disconnect();closeLayers(s);states.delete(page);s.host.removeAttribute('aria-busy');s.host.dataset.ready='false';s.host.replaceChildren(el('p','r23-muted','Session changed. Reload the report.'));}user=next;viewCache.clear();}},renderAuthoritative,invalidate,findInCompleteLedger,owns:(p,m)=>{const s=states.get(p);return !!m&&s?.m===m&&!s.stale;},exportModel,printModel,csv,display,parseValue,
     inspect:p=>{const s=states.get(p);return s?{sourceRows:s.m.rowCount,filteredRows:filtered(s).length,columns:[...s.visible],filters:structuredClone(s.filters),selected:s.selected.size,page:s.number,size:s.size,dirty:s.dirty,stale:s.stale}:null;}};
 })();

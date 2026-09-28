@@ -212,5 +212,69 @@
       "sha256": "8b1b81060fb35e324dc0beb3576bed442b42ae9d7a5179746f0b4ff2db6b8ba9"
     }
   ],
-  "r120AutoCreatedTable": "accounting_note_lines"
+  "r120AutoCreatedTable": "accounting_note_lines",
+  "r121Files": [
+    {
+      "path": "api/accounting.php",
+      "sha256": "66e36a257a2fa0bac0efec1438e0fd92ca606cb4ddb292f4139a6dcbf54b7c30"
+    },
+    {
+      "path": "api/bank_operations_v5980.php",
+      "sha256": "05b92df7f28e39fefca0acc958a18962a10e7dae8baa19aab36cbc72d938db35"
+    },
+    {
+      "path": "api/operations.php",
+      "sha256": "9e75a635dcc2015de0ad627d710840d594c1916ea989df339a87b3055ace9332"
+    },
+    {
+      "path": "app.html",
+      "sha256": "0a3482c4fc5426227aea9e3e5f32a36982dfbb6891f43242fa606fd51dd9a2b3"
+    },
+    {
+      "path": "assets/tegh-activity-r22.js",
+      "sha256": "5805ecc30e0e048b1335917044210ed7849297a88e9bb67a8778deeb0c07f28e"
+    },
+    {
+      "path": "assets/tegh-advanced-v5800.js",
+      "sha256": "6b4dc8e12617ee50e51e9087514f5ca9e3760573ca8fc96628b665bf8b7e28bc"
+    },
+    {
+      "path": "assets/tegh-gate-v5990.js",
+      "sha256": "eefa054343ac49a080c679d47ca480eadea86531d8c92eba2334ab7513819b9d"
+    },
+    {
+      "path": "assets/tegh-pdf-v5990.js",
+      "sha256": "8e178d662e2aecbbd91876c6876add208fc1b9bd81194a9270673f23715be462"
+    },
+    {
+      "path": "assets/tegh-portal-v5990.js",
+      "sha256": "a4500fb22d9a462f21d4b9e9f57ec035a7aa1f45416e91dc5fe55e6d7ed4cb6e"
+    },
+    {
+      "path": "assets/tegh-preflight-v5990.js",
+      "sha256": "e551c9144b3f63d68e865c775ff347f931906df9f2eb02941b85b9f940ed1af2"
+    },
+    {
+      "path": "assets/tegh-professional-output-v5990.js",
+      "sha256": "432cf72cadd42e1bbff831f794df97871704f7885f43b1894c26dc27eeeb2bcf"
+    },
+    {
+      "path": "assets/tegh-r120.css",
+      "sha256": "a24916ff3136e76eee814ec721442ba2615c6b16d642fd4059e7d2f1d1b78739"
+    },
+    {
+      "path": "assets/tegh-reference-r29.js",
+      "sha256": "f814d8cafb2ccc54100dd57f5782f208e92e1be16a093cc0e0d92d0d298f6e5f"
+    },
+    {
+      "path": "assets/tegh-registers-r23.js",
+      "sha256": "ed05f066593554e07c36ab50d06fd31803bcd616a8c4621a51f495da8a3bcd5e"
+    },
+    {
+      "path": "R121-CHANGES.md",
+      "sha256": "882a68e5466068a20def5097d3054a4712b42e4650407f2910648eda2c382abb"
+    }
+  ],
+  "r121Migration": false,
+  "r121CacheToken": "5990-r121-reconcile"
 }

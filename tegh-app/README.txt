@@ -21,3 +21,4 @@ R118: server-side account guard, metadata denied by .htaccess, integrity lists r
 
 R119: invoice/note tabs, one Invoice & Note Register per side, invoice tax-split repair (notes and sign-in), scrolling report tables, mobile layout and export fixes. No migration. See R119-CHANGES.md.
 R120: credit/debit notes as itemized documents (returns), render-loop fix for dropdowns/scrolling, sidebar and layout polish. Auto-creates table accounting_note_lines. See R120-CHANGES.md.
+R121: end-to-end functional test fixes: bulk bank posting, contra and exclude actions, match exact pairs, Reconcile Bank Account menu, GST/HST remittance from the bank feed, Add Employee save, Budgets header duplication, desktop tables scroll instead of stacking, premium PDF/Excel totals and invoice PDF. No migration. See R121-CHANGES.md.

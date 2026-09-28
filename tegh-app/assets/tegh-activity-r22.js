@@ -745,9 +745,16 @@
       }
     }
     if(c.kind==='advanced'){
-      const hero=$('.sra-budget-hero',work);if(hero){const create=$('[data-budget-create]',hero);if(create)appendOnce(tools,create);const help=guidance(s);while(hero.firstChild)help.append(hero.firstChild);hero.remove();}
-      const search=$('.sra-budget-search',work);if(search)appendOnce(controls,search);
-      const budgetHead=$('.sra-budget-list>header',work);if(budgetHead){const help=guidance(s);appendOnce(help,budgetHead);}
+      // R121: the Budgets module re-renders its whole view (after opening the
+      // editor, saving or cancelling). Nodes hoisted from the previous render
+      // are tagged and removed first, so the toolbar, search and overview are
+      // never duplicated ("Create Budget" appeared three times).
+      const hero=$('.sra-budget-hero',work),freshSearch=$('.sra-budget-search:not([data-r22-hoisted])',work),freshHead=$('.sra-budget-list>header:not([data-r22-hoisted])',work);
+      if(hero||freshSearch||freshHead){const help=$(':scope > .r22-guidance',work);[tools,controls,help].forEach(scope=>scope&&$$('[data-r22-hoisted="advanced"]',scope).forEach(n=>{if(!hero&&n.matches('[data-budget-create]'))return;if(!freshSearch&&n.matches('.sra-budget-search'))return;n.remove();}));}
+      const tag=n=>{if(n?.nodeType===1)n.dataset.r22Hoisted='advanced';return n;};
+      if(hero){const create=$('[data-budget-create]',hero);if(create)appendOnce(tools,tag(create));const help=guidance(s);[...hero.children].forEach(n=>help.append(tag(n)));hero.remove();}
+      const search=freshSearch;if(search)appendOnce(controls,tag(search));
+      const budgetHead=freshHead;if(budgetHead){const help=guidance(s);appendOnce(help,tag(budgetHead));}
       const budgetKpis=$('.sra-budget-kpis',work);if(budgetKpis){budgetKpis.classList.add('r22-advanced-summary');budgetKpis.style.order='10';}
       const assetForm=$('#sra-asset-form',work),analyticForm=$('#sra-analytic-form',work);
       if(assetForm||analyticForm){const form=assetForm||analyticForm,card=form.closest('.sra-card'),grid=card?.parentElement;
@@ -1093,7 +1100,11 @@
     const state=tableStates.get(table)||{width:0,stacked:false};
     if(Math.abs(available-state.width)>3){table.classList.remove('r22-stacked-table');state.stacked=false;}
     const columns=headers.length,minimum=columns>8?columns*110+100:columns*92;
-    const needsStack=available<Math.max(480,minimum)||(!state.stacked&&table.scrollWidth>available+2);
+    // R121: cards only on phone-width containers. On a desktop (including a
+    // zoomed-in one) a wide table keeps its columns and scrolls sideways; its
+    // container is overflow-x:auto. Stacking a 1,180px desktop table into
+    // cards clipped values at the right edge (Bank Reconciliation Report).
+    const needsStack=available<640&&(available<Math.max(480,minimum)||(!state.stacked&&table.scrollWidth>available+2));
     if(needsStack){table.classList.add('r22-stacked-table');state.stacked=true;}
     const thead=$('thead',table);if(thead){thead.classList.toggle('r22-select-head',!!$('input,button,select',thead));$$('th,td',thead).forEach(cell=>(cell.classList.toggle('r22-header-control',!!$('input,button,select',cell)),cell.dataset.r22SelectLabel=table.closest('.tegh-import-verification')?'Select filtered records':'Select this page'));}
     state.width=available;tableStates.set(table,state);

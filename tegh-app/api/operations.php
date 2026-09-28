@@ -213,9 +213,17 @@ function operations_parse_statement_upload(array $company, array $bankAccount): 
     }catch(Throwable $e){delete_private_file($upload['relativePath']);throw $e;}
 }
 
-function operations_statement_preview_rows(array $rows,int $rate,?int $opening,array &$dates): array
+function operations_statement_preview_rows(array $rows,int $rate,?int &$opening,array &$dates,?int &$closing=null): array
 {
-    $running=$opening??0;$mapped=[];foreach($rows as $index=>$row){$running+=(int)$row['amountCents'];$dates[]=(string)$row['date'];$source=array_key_exists('sourceRunningBalanceCents',$row)?(int)$row['sourceRunningBalanceCents']:null;if($source!==null&&$opening!==null&&$source!==$running)fail('Running balance does not reconcile at source row '.($row['sourceRow']??($index+2)).'.',422,'statement_running_balance_difference');$shown=$source??($opening!==null?$running:null);$mapped[]=['sequence'=>$index+1,'date'=>(string)$row['date'],'description'=>(string)$row['description'],'reference'=>(string)($row['reference']??''),'foreignAmountCents'=>(int)$row['amountCents'],'amountCents'=>convert_to_base_cents((int)$row['amountCents'],$rate),'runningBalanceCents'=>$shown,'runningBalanceSource'=>$source!==null?'source':($opening!==null?'calculated':'unavailable')]+statement_description_metadata($row)+(isset($row['sourcePage'])?statement_converter_row_metadata($row):[]);}return $mapped;
+    // R121: a blank running-balance cell is "not provided", never 0. When the
+    // statement carries its own balance column and no opening balance was
+    // entered, the opening is derived from the first row so continuity is
+    // still checked and the preview shows real balances instead of $0.00.
+    $first=$rows[0]??null;
+    if($opening===null&&is_array($first)&&isset($first['sourceRunningBalanceCents'])&&$first['sourceRunningBalanceCents']!==null)$opening=(int)$first['sourceRunningBalanceCents']-(int)$first['amountCents'];
+    $last=$rows===[]?null:$rows[array_key_last($rows)];
+    if($closing===null&&is_array($last)&&isset($last['sourceRunningBalanceCents'])&&$last['sourceRunningBalanceCents']!==null)$closing=(int)$last['sourceRunningBalanceCents'];
+    $running=$opening??0;$mapped=[];foreach($rows as $index=>$row){$running+=(int)$row['amountCents'];$dates[]=(string)$row['date'];$source=isset($row['sourceRunningBalanceCents'])&&$row['sourceRunningBalanceCents']!==null?(int)$row['sourceRunningBalanceCents']:null;if($source!==null&&$opening!==null&&$source!==$running)fail('Running balance does not reconcile at source row '.($row['sourceRow']??($index+2)).'.',422,'statement_running_balance_difference');$shown=$source??($opening!==null?$running:null);$mapped[]=['sequence'=>$index+1,'date'=>(string)$row['date'],'description'=>(string)$row['description'],'reference'=>(string)($row['reference']??''),'foreignAmountCents'=>(int)$row['amountCents'],'amountCents'=>convert_to_base_cents((int)$row['amountCents'],$rate),'runningBalanceCents'=>$shown,'runningBalanceSource'=>$source!==null?'source':($opening!==null?'calculated':'unavailable')]+statement_description_metadata($row)+(isset($row['sourcePage'])?statement_converter_row_metadata($row):[]);}return $mapped;
 }
 
 function operations_statement_preview_from_upload(
@@ -238,7 +246,7 @@ function operations_statement_preview_from_upload(
         if($rows===[])fail('No transaction rows were found in the statement.');
         foreach($rows as $row)if(!empty($row['currency'])&&strtoupper((string)$row['currency'])!==$currency)fail('A statement Currency value does not match the selected financial account currency.',422,'statement_currency_mismatch');
         $sum=array_sum(array_map(static fn(array $r):int=>(int)$r['amountCents'],$rows));
-        $dates=[];$mapped=operations_statement_preview_rows($rows,$rate,$opening,$dates);$mapped=operations_statement_mark_duplicates($companyId,operations_statement_rows_with_keys($companyId,(string)$bank['id'],$currency,$mapped));
+        $dates=[];$mapped=operations_statement_preview_rows($rows,$rate,$opening,$dates,$closing);$mapped=operations_statement_mark_duplicates($companyId,operations_statement_rows_with_keys($companyId,(string)$bank['id'],$currency,$mapped));
         $calculatedClosing=$opening===null?null:$opening+$sum;$variance=($closing!==null&&$calculatedClosing!==null)?$closing-$calculatedClosing:null;
         $sha=hash_file('sha256',$upload['absolutePath']);$previewId=new_id('preview');
         try{
@@ -263,7 +271,7 @@ function operations_statement_preview(array $user,array $company): never
     $openingRaw=trim((string)($_POST['openingBalanceCents']??''));$closingRaw=trim((string)($_POST['closingBalanceCents']??''));
     $opening=$openingRaw===''?null:safe_cents($openingRaw,'Opening balance',true);$closing=$closingRaw===''?null:safe_cents($closingRaw,'Closing balance',true);
     $sum=array_sum(array_map(static fn(array $r):int=>(int)$r['amountCents'],$rows));
-    $dates=[];$mapped=operations_statement_preview_rows($rows,$rate,$opening,$dates);$mapped=operations_statement_mark_duplicates($companyId,operations_statement_rows_with_keys($companyId,$bankId,$currency,$mapped));
+    $dates=[];$mapped=operations_statement_preview_rows($rows,$rate,$opening,$dates,$closing);$mapped=operations_statement_mark_duplicates($companyId,operations_statement_rows_with_keys($companyId,$bankId,$currency,$mapped));
     $calculatedClosing=$opening===null?null:$opening+$sum;$variance=($closing!==null&&$calculatedClosing!==null)?$closing-$calculatedClosing:null;
     $sha=hash_file('sha256',$upload['absolutePath']);$previewId=new_id('preview');
     try{

@@ -1430,6 +1430,29 @@ function bank_transaction_post_service_once(array $user, array $company, array $
                 $posted++;
                 continue;
             }
+            // R121: a sales tax remittance to (or refund from) the tax authority
+            // settles the protected GST/HST or PST payable control account. It is
+            // an explicit decision, never inferred from a chosen GL account, and
+            // posts only Dr tax payable / Cr bank (or the reverse for a refund).
+            $salesTaxSettlement=trim((string)($decision['salesTaxSettlement']??''));
+            if($salesTaxSettlement!==''){
+                if(!in_array($salesTaxSettlement,['gst_hst','pst'],true))fail('Choose GST/HST or PST for a sales tax remittance.',422,'sales_tax_settlement_invalid');
+                if($salesTaxSettlement==='gst_hst'&&!(bool)$company['tax_registered'])fail('This company is not registered for GST/HST.',422,'sales_tax_settlement_unregistered');
+                if($salesTaxSettlement==='pst'&&!(bool)($company['pst_registered']??false))fail('This company is not registered for PST.',422,'sales_tax_settlement_unregistered');
+                if($amount===0)fail('A zero-value statement line cannot settle sales tax.',422,'sales_tax_settlement_zero');
+                $taxAccountId=account_by_code($companyId,$salesTaxSettlement==='gst_hst'?'2100':'2110');
+                $settled=abs($amount);$label=$salesTaxSettlement==='gst_hst'?'GST/HST':'PST';
+                $lines=$amount<0
+                    ?[['accountId'=>$taxAccountId,'debitCents'=>$settled,'creditCents'=>0,'memo'=>$label.' remittance'],['accountId'=>$bankLedgerId,'debitCents'=>0,'creditCents'=>$settled]]
+                    :[['accountId'=>$bankLedgerId,'debitCents'=>$settled,'creditCents'=>0],['accountId'=>$taxAccountId,'debitCents'=>0,'creditCents'=>$settled,'memo'=>$label.' refund']];
+                $remarks=mb_substr(trim((string)($decision['remarks']??'')),0,500);$journalMemo=$remarks!==''?$remarks:(string)$transaction['description'];
+                $entryId=add_journal_entry($user,$companyId,(string)$transaction['transaction_date'],'bank_transaction',$transactionId,$journalMemo,$lines);
+                db()->prepare("UPDATE bank_transactions SET decided_account_id=?, remarks=?, tax_code='NO_TAX', suggestion_source='manual', status='posted', journal_entry_id=? WHERE id=? AND company_id=? AND status='pending'")
+                    ->execute([$taxAccountId,$remarks,$entryId,$transactionId,$companyId]);
+                audit_event($user,$companyId,'bank_transaction.posted','bank_transaction',$transactionId,['accountId'=>$taxAccountId,'salesTaxSettlement'=>$salesTaxSettlement,'amountCents'=>$amount,'remarks'=>$remarks]);
+                $posted++;
+                continue;
+            }
             $selectedAccountId=trim((string)($decision['accountId']??''));
             if($selectedAccountId!==''){
                 $selectedCapability=tegh_account_capability_resolve($companyId,$selectedAccountId,true);
