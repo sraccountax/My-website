@@ -1,0 +1,142 @@
+import './tegh-bank-converter-core-v5980.js';
+
+const Core = globalThis.BankStatementCore;
+export const ENGINE = 'tegh-statement-converter-v5980';
+const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cancelled = () => new DOMException('Statement conversion cancelled. No rows imported.', 'AbortError');
+export function moneyCents(value) {
+  const text = String(value).trim();
+  if (!/^-?\d+(?:\.\d{1,2})?$/.test(text)) throw new Error('Enter an amount with no more than two decimal places.');
+  const [whole, fraction = ''] = text.replace(/^-/, '').split('.');
+  const cents = Number(whole) * 100 + Number(fraction.padEnd(2, '0'));
+  if (!Number.isSafeInteger(cents) || cents > 100000000000) throw new Error('This amount is outside the supported range.');
+  return text.startsWith('-') ? -cents : cents;
+}
+const displayAmount = cents => `${cents < 0 ? '-' : ''}${Math.floor(Math.abs(cents) / 100)}.${String(Math.abs(cents) % 100).padStart(2, '0')}`;
+const validDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`)) && new Date(`${value}T00:00:00Z`).toISOString().slice(0,10) === value;
+const DATE_EVIDENCE = /(?:\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember|t)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2}(?:,?\s+\d{4})?|\d{1,2}\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember|t)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)(?:\s+\d{4})?|\d{1,2}[-/.]\d{1,2}(?:[-/.]\d{2,4})?)/gi;
+const hasYear = token => /^\d{4}[-/.]/.test(token) || /[-/.]\d{1,2}[-/.]\d{2,4}$/.test(token) || /\b(?:19|20)\d{2}\b/.test(token);
+export const displayDate = iso => validDate(iso) ? new Intl.DateTimeFormat('en-CA',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}).format(new Date(`${iso}T12:00:00Z`)) : 'Date correction required';
+export function detectDateEvidence(lines, chosenOrder='auto') {
+  const tokens=lines.flatMap(line=>{const lead=Core.extractLeadingDates(line.text,{year:2000,dateOrder:'auto'});return lead?[lead.firstToken]:[]});
+  const headers=lines.slice(0,100).filter(line=>/statement\s+(?:period|from|for)|\bperiod\b|\bfrom\b.*\bto\b/i.test(line.text));
+  const headerTokens=headers.flatMap(line=>line.text.match(DATE_EVIDENCE)||[]);
+  const signs=new Set();for(const token of [...tokens,...headerTokens]){const m=token.match(/^(\d{1,2})[-/.](\d{1,2})(?:[-/.]\d{2,4})?$/);if(m){if(+m[1]>12&&+m[2]<=12)signs.add('dmy');if(+m[2]>12&&+m[1]<=12)signs.add('mdy')}}
+  let dateOrder=chosenOrder||'auto';if(dateOrder==='auto'&&signs.size===1)dateOrder=[...signs][0];
+  if(signs.size>1&&dateOrder==='auto')throw new Error('Numeric dates use conflicting orders. Select the Date Format and correct any exceptional row.');
+  const periods=[];
+  for(const line of headers){const ts=line.text.match(DATE_EVIDENCE)||[];if(ts.length!==2)continue;const p=ts.map(t=>Core.parseDateToken(t,{year:2000,dateOrder}));if(p.some(x=>!x.valid||x.ambiguous))continue;
+    const years=ts.map((t,i)=>hasYear(t)?Number(p[i].iso.slice(0,4)):null),anchor=years.find(y=>y!==null);if(!anchor)continue;
+    const possibilities=years.map(y=>y===null?[anchor-1,anchor,anchor+1]:[y]);const pairs=[];
+    for(const y0 of possibilities[0])for(const y1 of possibilities[1]){const start=`${y0}${p[0].iso.slice(4)}`,end=`${y1}${p[1].iso.slice(4)}`,span=(Date.parse(end)-Date.parse(start))/86400000;if(validDate(start)&&validDate(end)&&span>=0&&span<=366)pairs.push({periodStart:start,periodEnd:end,periodEvidence:line.text})}
+    if(pairs.length===1)periods.push(pairs[0]);
+  }
+  // A heading naming one complete calendar month is also explicit period evidence.
+  // Do not use an isolated year, download timestamp or an ordinary transaction line.
+  for(const line of headers){
+    const match=line.text.trim().match(/^(?:statement\s+(?:period|for)|period)\s*:?\s*(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\s+((?:19|20)\d{2})[. ]*$/i);
+    if(!match)continue;
+    const start=Core.parseDateToken(`${match[1]} 1 ${match[2]}`,{dateOrder});
+    if(!start.valid)continue;
+    const month=Number(start.iso.slice(5,7)),year=Number(match[2]);
+    const end=new Date(Date.UTC(year,month,0)).toISOString().slice(0,10);
+    periods.push({periodStart:start.iso,periodEnd:end,periodEvidence:line.text});
+  }
+  const unique=new Map(periods.map(p=>[p.periodStart+'|'+p.periodEnd,p]));
+  const period=unique.size===1?[...unique.values()][0]:{};
+  return {dateOrder,...period,strictDates:true};
+}
+export function convertPages(pages, options={}) {
+  const lines = pages.flatMap(page => page.method === 'Text' ? Core.groupTextItemsToLines(page.items,page.page) : Core.plainTextToLines(page.text,page.page));
+  const evidence=detectDateEvidence(lines,options.dateOrder||'auto');
+  const parsed=Core.parseStatement(lines,{...options,...evidence,year:null});
+  if(parsed.blocksExamined!==parsed.rows.length)throw new Error('Some dated statement lines could not be read safely. Check the column layout or use the bank’s CSV/OFX download.');
+  if(parsed.rows.length>5000)throw new Error('Convert no more than 5,000 rows at a time.');
+  parsed.dateEvidence=evidence;
+  parsed.rows=parsed.rows.map((row,index)=>({...row,date:row.dateAmbiguous?'':row.date,sourceRow:index+1,originalDate:row.dateAmbiguous?null:row.date,originalDateAmbiguous:!!row.dateAmbiguous,dateCorrected:false,originalAmountCents:moneyCents(row.amount.toFixed(2)),originalDescription:row.description,userReviewed:false,reviewedCategory:false,reviewedAccountId:null}));
+  return parsed;
+}
+export function updateReviewedRow(row, field, value) {
+  // Review is a distinct state. Editing never changes the extraction heuristic
+  // or silently replaces the user's chosen destination with a merchant guess.
+  if (field === 'amount') { row.amount = moneyCents(value) / 100; row.debit = row.amount < 0 ? -row.amount : 0; row.credit = row.amount > 0 ? row.amount : 0; }
+  else if (field === 'category') {row.reviewedAccountId = value || null; row.reviewedCategory = true;}
+  else if (field === 'included') row.included = !!value;
+  else if (['date','description','reference'].includes(field)) {row[field]=String(value);if(field==='date')row.dateCorrected=true;}
+  row.userReviewed = true;
+  return row;
+}
+export function reviewedExtraction(parsed, options, pageCount) {
+  if (!parsed.rows.length || parsed.rows.length > 5000) throw new Error('Convert between 1 and 5,000 rows.');
+  let included = 0;
+  const rows = parsed.rows.map(row => {
+    if (!validDate(row.date)) throw new Error(`Correct the date in row ${row.sourceRow}; no year or numeric date order will be guessed.`);
+    if(row.date>new Date().toLocaleDateString('en-CA',{timeZone:'America/Toronto'}))throw new Error(`Row ${row.sourceRow} has a future date.`);
+    if(row.originalDateAmbiguous&&!row.dateCorrected)throw new Error(`Confirm the corrected date in row ${row.sourceRow}.`);
+    const amountCents = moneyCents(Number(row.amount).toFixed(2));
+    if (!amountCents || !row.description.trim()) throw new Error(`Row ${row.sourceRow} needs a description and a non-zero amount.`);
+    if (Array.from(row.description.trim()).length > 4000) throw new Error(`Description in row ${row.sourceRow} is longer than 4,000 characters. Check for text from more than one transaction.`);
+    if (Array.from(String(row.originalDescription||'')).length > 4000 || Array.from(String(row.raw||'')).length > 8000) throw new Error(`Original text in row ${row.sourceRow} is too long. Check the statement layout or use the bank’s CSV/OFX file.`);
+    if (row.included) included++;
+    return {date:row.date,description:row.description.trim(),reference:row.reference || '',amountCents,
+      sourcePage:row.page,sourceRow:row.sourceRow,sourceText:row.raw,originalDate:row.originalDate,
+      originalDescription:row.originalDescription,originalAmountCents:row.originalAmountCents,originalDateAmbiguous:!!row.originalDateAmbiguous,dateCorrected:!!row.dateCorrected,sourceDateToken:row.sourceDateToken||'',
+      sourceBalanceCents:row.balance == null ? null : moneyCents(Number(row.balance).toFixed(2)),
+      categoryHint:row.category,extractionMethod:row.extractionMethod,extractionScore:row.confidence,
+      extractionIssues:row.issues || '',userReviewed:true,userExcluded:!row.included,
+      reviewedCategory:row.reviewedCategory,reviewedAccountId:row.reviewedAccountId};
+  });
+  if (!included) throw new Error('Select at least one transaction.');
+  const dates=rows.map(row=>row.date).sort();if((Date.parse(dates.at(-1))-Date.parse(dates[0]))/86400000>366)throw new Error('The validated rows span more than 366 days. Split the statement.');
+  return {engine:ENGINE,format:'reviewed-pdf',pageCount,accountLastFour:null,excludedRows:0,
+    firstTransactionDate:dates[0],lastTransactionDate:dates.at(-1),dateOrder:parsed.dateEvidence?.dateOrder||options.dateOrder||'auto',dateEvidence:parsed.dateEvidence?.periodEvidence||'Explicit row dates / user corrections',
+    reviewConfirmed:true,openingBalanceCents:parsed.metadata.openingBalance == null ? null : moneyCents(parsed.metadata.openingBalance.toFixed(2)),
+    closingBalanceCents:parsed.metadata.closingBalance == null ? null : moneyCents(parsed.metadata.closingBalance.toFixed(2)),rows};
+}
+function installStyles() {
+  if(document.querySelector('[data-tegh-converter-styles="5980"]'))return;
+  const link=document.createElement('link');link.rel='stylesheet';link.href='/assets/tegh-bank-converter-v5980.css';link.dataset.teghConverterStyles='5980';document.head.append(link);
+}
+export async function extractAndReview(file,{bank,accounts=[],onProgress=()=>{},isCurrent=()=>true}={}) {
+  installStyles();if(!Core?.parseStatement)throw new Error('The statement converter did not load. Refresh and try again.');
+  const abort=new AbortController(),previousFocus=document.activeElement,modal=document.createElement('div');
+  modal.className='tegh-converter-scrim';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-labelledby','tegh-converter-title');
+  modal.innerHTML=`<section class="tegh-converter-panel"><header><div><h2 id="tegh-converter-title">Review your PDF statement</h2><p>${esc(file.name)} · ${esc(bank?.name||'Selected account')} · ${esc(bank?.currency||'CAD')}</p></div><button type="button" data-converter-cancel aria-label="Cancel statement conversion">×</button></header><p role="status" aria-live="polite" data-converter-status>Preparing local PDF reader…</p><form data-converter-options hidden><div class="tegh-converter-options"><label>Date Format<select name="dateOrder"><option value="auto">Use unambiguous statement evidence</option><option value="mdy">Month / day / year</option><option value="dmy">Day / month / year</option></select></label><label>Statement columns<select name="layout"><option value="auto">Detect columns</option><option value="amount">Signed amount</option><option value="amount-balance">Amount and balance</option><option value="debit-credit">Money out and money in</option><option value="debit-credit-balance">Money out, money in and balance</option></select></label><button type="submit">Read transactions</button></div></form><div data-converter-review></div><p data-converter-error role="alert"></p><footer><label class="tegh-converter-confirm"><input type="checkbox" data-reviewed-confirm disabled> I checked the selected rows against the statement, including dates and money-in/out direction.</label><div><button type="button" data-converter-cancel>Cancel</button><button type="button" data-converter-continue disabled>Validate reviewed rows</button></div></footer></section>`;
+  document.body.append(modal);previousFocus?.blur();
+  const panel=modal.querySelector('.tegh-converter-panel'),status=modal.querySelector('[data-converter-status]'),errorNode=modal.querySelector('[data-converter-error]'),review=modal.querySelector('[data-converter-review]'),form=modal.querySelector('form'),next=modal.querySelector('[data-converter-continue]'),confirmReview=modal.querySelector('[data-reviewed-confirm]');
+  let settled=false,pageData=null,parsed=null,options={},specialised=null,observer=null,filtered=[],mounted=0,query='';const invalidFields=new Set();let resolveDone,rejectDone;
+  const done=new Promise((resolve,reject)=>{resolveDone=resolve;rejectDone=reject});done.catch(()=>{});
+  const finish=(result,error)=>{if(settled)return;settled=true;abort.abort();clearInterval(contextWatch);observer?.disconnect();resizeObserver?.disconnect();modal.remove();document.removeEventListener('keydown',keyboard,true);if(previousFocus?.isConnected)previousFocus.focus();error?rejectDone(error):resolveDone(result)};
+  const cancel=()=>finish(null,cancelled()),contextWatch=setInterval(()=>{if(!isCurrent())cancel()},300);
+  modal.querySelectorAll('[data-converter-cancel]').forEach(button=>button.onclick=cancel);
+  const measure=()=>panel.style.setProperty('--converter-header-height',`${Math.ceil(panel.querySelector('header').getBoundingClientRect().height)}px`),resizeObserver=new ResizeObserver(measure);resizeObserver.observe(panel.querySelector('header'));measure();
+  function keyboard(event){if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();cancel();return}if(event.key==='Tab'){const nodes=[...modal.querySelectorAll('button:not(:disabled),input:not(:disabled),select,textarea,a[href],summary')].filter(node=>node.getClientRects().length&&!node.closest('[hidden]'));if(!nodes.length)return;const first=nodes[0],last=nodes.at(-1);if(event.shiftKey&&(document.activeElement===first||!modal.contains(document.activeElement))){event.preventDefault();last.focus()}else if(!event.shiftKey&&(document.activeElement===last||!modal.contains(document.activeElement))){event.preventDefault();first.focus()}}}
+  document.addEventListener('keydown',keyboard,true);modal.querySelector('button').focus();
+  const categoryOptions=selected=>`<option value="">Choose later in Bank Review</option>${accounts.map(account=>{const unavailable=account.active===false||account.isControl||account.systemControl||account.linkedBankId||String(account.id)===String(bank?.ledgerAccountId)||String(account.code)==='9999';return `<option value="${esc(account.id)}" ${String(account.id)===String(selected)?'selected':''} ${unavailable?'disabled':''}>${esc(account.code)} · ${esc(account.name)}${unavailable?' — unavailable':''}</option>`}).join('')}`;
+  const invalidate=()=>{confirmReview.checked=false;next.disabled=true;confirmReview.disabled=!parsed?.rows.length};
+  function totals(){if(!parsed)return;const selected=parsed.rows.filter(row=>row.included),out=selected.reduce((n,row)=>n+Math.max(0,-moneyCents(row.amount.toFixed(2))),0),income=selected.reduce((n,row)=>n+Math.max(0,moneyCents(row.amount.toFixed(2))),0);const summary=review.querySelector('[data-converter-totals]');if(summary)summary.textContent=`${selected.length} selected / ${parsed.rows.length} rows · Money out ${displayAmount(out)} · Money in ${displayAmount(income)} ${bank?.currency||'CAD'} · ${filtered.length} search results`}
+  function rowMarkup(row){return `<tr data-converter-row="${row.sourceRow}"><td data-label="Include"><input aria-label="Include row ${row.sourceRow}" type="checkbox" data-field="included" ${row.included?'checked':''}></td><td data-label="Date"><span data-date-display>${esc(displayDate(row.date))}</span><details ${!row.date?'open':''}><summary>${row.date?'Correct date':'Date required'}</summary><input aria-label="Correct date in row ${row.sourceRow}" type="date" data-field="date" value="${esc(row.date)}"><small>Statement text: ${esc(row.sourceDateToken||row.originalDate||'See source')}</small></details><small>Page ${row.page} · Row ${row.sourceRow}</small></td><td data-label="Description / reference"><textarea rows="2" aria-label="Description row ${row.sourceRow}" data-field="description" maxlength="4000">${esc(row.description)}</textarea><input aria-label="Reference row ${row.sourceRow}" data-field="reference" maxlength="160" value="${esc(row.reference||'')}" placeholder="Reference"><details><summary>Original statement text</summary><p>${esc(row.raw)}</p></details></td><td data-label="Signed amount"><input aria-label="Signed amount row ${row.sourceRow}" data-field="amount" type="text" inputmode="decimal" value="${esc(displayAmount(moneyCents(row.amount.toFixed(2))))}"><small>${row.amount<0?'Money out':'Money in'}</small></td><td class="tegh-converter-money" data-label="Source balance">${row.balance===null?'Not supplied':esc(displayAmount(moneyCents(row.balance.toFixed(2))))}</td><td data-label="Category"><select aria-label="Category row ${row.sourceRow}" data-field="category">${categoryOptions(row.reviewedAccountId)}</select><small>${esc(row.category||'')}</small></td><td data-label="Validation"><strong data-row-check>${row.userReviewed?'Edited':esc(row.extractionMethod)}</strong><p>${esc(row.issues||'Compare with statement.')}${row.duplicate?' Possible duplicate.':''}</p></td></tr>`}
+  function appendRows(){if(!parsed||mounted>=filtered.length)return;const subset=filtered.slice(mounted,mounted+100);review.querySelector('tbody').insertAdjacentHTML('beforeend',subset.map(rowMarkup).join(''));mounted+=subset.length;const sentinel=review.querySelector('[data-converter-more]');if(sentinel){sentinel.hidden=mounted>=filtered.length;sentinel.textContent=mounted<filtered.length?`Showing ${mounted} of ${filtered.length} matches. More rows load as you scroll.`:''}}
+  function renderRows(){observer?.disconnect();filtered=parsed.rows.filter(row=>!query||[row.date,displayDate(row.date),row.description,row.reference,row.amount.toFixed(2),row.category,row.raw].join(' ').toLocaleLowerCase().includes(query));mounted=0;
+    review.innerHTML=`<div class="tegh-converter-selection"><strong data-converter-totals role="status" aria-live="polite"></strong><div><button type="button" data-converter-all>Select all</button><button type="button" data-converter-filtered>Select search results</button><button type="button" data-converter-clear>Clear selection</button></div><label>Search every transaction<input type="search" maxlength="200" data-converter-search value="${esc(query)}" placeholder="Description, date, reference or amount"></label></div><div class="tegh-converter-scroll"><table><colgroup><col style="width:4%"><col style="width:15%"><col style="width:30%"><col style="width:12%"><col style="width:11%"><col style="width:18%"><col style="width:10%"></colgroup><thead><tr><th>Include</th><th>Date / Source</th><th>Description / Reference</th><th>Amount (${esc(bank?.currency||'CAD')})</th><th>Source Balance</th><th>Category</th><th>Check</th></tr></thead><tbody></tbody></table><p data-converter-more role="status"></p></div>`;
+    appendRows();totals();const sentinel=review.querySelector('[data-converter-more]');observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){appendRows()}},{root:panel,rootMargin:'500px'});observer.observe(sentinel);
+    const setSelected=(rows,value)=>{rows.forEach(row=>row.included=value);invalidate();renderRows()};review.querySelector('[data-converter-all]').onclick=()=>setSelected(parsed.rows,true);review.querySelector('[data-converter-filtered]').onclick=()=>setSelected(filtered,true);review.querySelector('[data-converter-clear]').onclick=()=>setSelected(parsed.rows,false);
+    let debounce;review.querySelector('[data-converter-search]').oninput=event=>{const input=event.target,value=input.value;clearTimeout(debounce);debounce=setTimeout(()=>{if(settled)return;query=value.toLocaleLowerCase();renderRows();const restored=review.querySelector('[data-converter-search]');restored.focus();restored.setSelectionRange?.(value.length,value.length)},160)};
+  }
+  review.addEventListener('change',event=>{const input=event.target.closest('[data-field]');if(!input||!parsed)return;const tr=input.closest('[data-converter-row]'),row=parsed.rows[Number(tr.dataset.converterRow)-1];try{updateReviewedRow(row,input.dataset.field,input.type==='checkbox'?input.checked:input.value);if(input.dataset.field==='date'&&!validDate(row.date))throw Error(`Row ${row.sourceRow} needs a valid date.`);invalidFields.delete(`${row.sourceRow}:${input.dataset.field}`);input.removeAttribute('aria-invalid');tr.querySelector('[data-row-check]').textContent='Edited';tr.querySelector('[data-date-display]').textContent=displayDate(row.date);errorNode.textContent='';totals()}catch(error){invalidFields.add(`${row.sourceRow}:${input.dataset.field}`);input.setAttribute('aria-invalid','true');errorNode.textContent=error.message}invalidate()});
+  confirmReview.onchange=()=>{next.disabled=!confirmReview.checked||!parsed?.rows.length||invalidFields.size>0};
+  function readRows(){try{options=Object.fromEntries(new FormData(form));parsed=convertPages(specialised?[]:pageData.pages,options);if(specialised){parsed.rows=specialised.rows.map((row,index)=>({date:row.date,description:row.description,reference:row.reference||'',amount:row.amountCents/100,balance:null,category:Core.categorize(row.description,row.amountCents/100),sourceRow:index+1,page:row.page||1,raw:`${row.date} ${row.description} ${displayAmount(row.amountCents)}`,originalDate:row.date,sourceDateToken:row.date,originalDateAmbiguous:false,dateCorrected:false,originalDescription:row.description,originalAmountCents:row.amountCents,confidence:0,issues:'Statement-specific totals verified; review category and direction.',included:true,duplicate:false,extractionMethod:'Text',userReviewed:false,reviewedCategory:false,reviewedAccountId:null}));parsed.metadata={openingBalance:null,closingBalance:null}}
+      if(!parsed.rows.length)throw Error('No transactions were detected. Check the column layout, or use your bank’s CSV/OFX download.');invalidFields.clear();query='';invalidate();renderRows();const ambiguous=parsed.rows.filter(row=>!row.date).length;status.textContent=`${parsed.rows.length} transactions · Nothing imported or posted.${ambiguous?` ${ambiguous} dates need a Date Format choice or individual correction.`:''}`;errorNode.textContent='';
+    }catch(error){parsed=null;review.innerHTML='';invalidate();errorNode.textContent=error.message}}
+  form.onsubmit=event=>{event.preventDefault();if(form.reportValidity())readRows()};form.onchange=()=>{parsed=null;review.innerHTML='';invalidate();status.textContent='Date/layout settings changed. Read transactions again before confirming.'};
+  next.onclick=()=>{try{if(!isCurrent())throw cancelled();if(!confirmReview.checked)throw Error('Confirm the statement review before continuing.');if(invalidFields.size)throw Error('Correct invalid row fields before continuing.');const result=reviewedExtraction(parsed,options,pageData.pageCount);result.accountLastFour=pageData.accountLastFour||null;finish(result)}catch(error){errorNode.textContent=error.message}};
+  void(async()=>{try{
+    if(globalThis.TeghLoadFeature)await globalThis.TeghLoadFeature('ocr');else await import('./tegh-native-ocr-v5220.js');if(settled)return;
+    pageData=await globalThis.TeghNativeOCR.extractStatementPages(file,{signal:abort.signal,onPassword:retry=>window.prompt(retry?'That PDF password did not work. Try again:':'Enter this PDF’s password. It stays in this browser.'),onProgress:progress=>{if(settled)return;status.textContent=progress.detail||'Reading statement…';onProgress(progress.detail||'Reading statement…',8+Math.round(progress.progress*70))}});if(settled)return;
+    const text=pageData.pages.map(page=>page.text).join('\n'),identifiers=[...text.matchAll(/\bAccount(?:\s*(?:Number|No\.?|#))\s*:?\s*([\dXx* -]{4,25})/gi)].map(match=>match[1].replace(/\D/g,'')).filter(number=>number.length>=4).map(number=>number.slice(-4)),accountIds=[...new Set(identifiers)];
+    if(accountIds.length>1)throw Error('This PDF contains more than one account. Split it into one statement per selected account.');pageData.accountLastFour=accountIds[0]||null;const selectedLastFour=String(bank?.maskedNumber||'').replace(/\D/g,'').slice(-4);if(pageData.accountLastFour&&selectedLastFour.length===4&&pageData.accountLastFour!==selectedLastFour)throw Error('The statement account number does not match the selected account.');
+    if((/Business Account/i.test(text)&&/Withdrawals\/Debits/i.test(text)&&/Deposits\/Credits/i.test(text))||/ScotiaLine\s*for business/i.test(text)){const legacy=await import('./pdfStatementImport-BTobSMtl-v211.js?v=4600');specialised=await legacy.extractPdfStatement(file,onProgress);if(!specialised.summaryVerified)throw Error('Statement-specific totals could not be verified. Use the bank’s CSV/OFX download.');if(specialised.accountType&&specialised.accountType!==bank?.accountType)throw Error('This statement does not match the selected bank or credit-account type.');pageData.accountLastFour=specialised.accountLastFour||pageData.accountLastFour}
+    if(settled)return;form.hidden=false;readRows();
+  }catch(error){if(settled)return;errorNode.textContent=error.name==='AbortError'?'Conversion cancelled.':error.message;status.textContent='No transactions were imported. Close and try the file again.'}})();
+  return done;
+}

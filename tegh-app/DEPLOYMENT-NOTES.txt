@@ -1,0 +1,30 @@
+TEGH R117 CONSOLIDATED IONOS STAGING DEPLOYMENT
+Build 5990 / Schema 46 / Site commit e33a278ff46f6e1e057eb9bfe94dc52461640794
+
+1. Back up the Books-Test web root, database, private config outside the web root,
+   and runtime uploads/storage. Preserve those runtime files during the update.
+2. Compare the two live PHP hashes with EXPECTED-EXISTING-SHA256.txt. The owner
+   reports the two-file hotfix was uploaded: the host may already have the new
+   hashes. Stop and reconcile if either file differs from both listed versions.
+3. Run php -l on api/accounting_notes.php and api/professional_output_v5710.php
+   from this package on a PHP-capable staging host before activation. This
+   workspace has no PHP CLI; source checks are not a substitute for PHP lint.
+4. Upload the CONTENTS of this flat-root ZIP into the test web root, preserving
+   existing private config.php, uploads, storage, logs and database. Do not
+   delete unlisted host files. R117 is the existing Build 5990 / Schema 46
+   staging baseline; the two-file hotfix adds no migration. If upgrading an
+   older installation instead, follow the protected R117 preflight and backup
+   procedure before any schema change. Never run schema.sql on a live database.
+5. Verify in-app QA Centre Build 5990 / Schema 46, host hashes, PHP syntax,
+   DN-1001 detail and all output formats. Do NOT repost DN-1001. Reconcile
+   post-refund AR and cash GL controls and party reports. Complete note void,
+   tax preset second-user/issued-journal, bank, payroll, OCR, roles, mobile,
+   backup/restore and wider reporting before production promotion.
+
+The current evidence covers a limited Site detail and PDF check. The prior PDF
+was already correct for bill-to and arithmetic, so it does not prove this overlay
+is active. Reported upload, observed output and final acceptance are distinct.
+
+R118 ADDENDUM
+This package adds the R118 delta (see R118-CHANGES.md). Upload the contents as before. api/companies.php and .htaccess change; run php -l on api/companies.php on the host. Verify by trying to deactivate account 1200 or 2100 in Settings: the API must refuse with system_account_protected. No database migration.
+R118 also replaces assets/tegh-portal-v5990.js, assets/tegh-polish-r32.css, assets/tegh-gate-v5990.js, assets/tegh-preflight-v5990.js and app.html (cache token r118-doc-tabs). Upload all of them together; a partial upload can leave a stale token.

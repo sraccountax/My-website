@@ -1,0 +1,131 @@
+{
+  "product": "Tegh Accounting & Payroll",
+  "version": "5.9.9",
+  "build": 5990,
+  "schema": 46,
+  "schemaTarget": 46,
+  "revision": "Sites R117 frontend with R117 debit-note output hotfix and R118 account guard, metadata hardening and Invoice / Credit & Debit Notes tabs",
+  "releaseStatus": "STAGING CANDIDATE \u2014 accounting acceptance and serving-host file identity pending",
+  "sealed": false,
+  "productionReady": false,
+  "acceptanceComplete": false,
+  "flatRoot": true,
+  "packageType": "cumulative-full-application",
+  "package": "Tegh-5.9.9-Build-5990-Schema-46-Sites-R117-Hotfix-R118-Consolidated-IONOS-STAGING",
+  "generatedAt": "2026-09-28T06:47:11Z",
+  "sourceSiteProjectId": "appgprj_6ab3cf31e2d48191b5f1ce9e490fc8db",
+  "sourceSiteCommit": "e33a278ff46f6e1e057eb9bfe94dc52461640794",
+  "sourceBaseline": "tegh 1.zip (user-supplied latest deployed package)",
+  "sourceBaselineSha256": "bf1c98aca8f9a7b427b4fa2bcb8e80a33cf0bd897ad6e2ae88900c3fc66d082c",
+  "databaseMigrationRequired": true,
+  "activeEntry": "app.html",
+  "changedActiveFiles": [
+    {
+      "path": ".htaccess",
+      "sha256": "329fd4c7cd083f52f6dedbe8cb7970693863665e5e2b30f7cc42b3e14e481418"
+    },
+    {
+      "path": "404.html",
+      "sha256": "b040b163d2281696f38a25ffb307daedaa6d41b578dc6c5e218d464d387ed64d"
+    },
+    {
+      "path": "api/companies.php",
+      "sha256": "4e8f5ab8caa6a302b48e0c4ff08215e341cd602b7d62f83266845a1d6b0a2951"
+    },
+    {
+      "path": "app.html",
+      "sha256": "f2332364dcc33b288996c520d5224ba9f0b0526ed2b4b064eec4e0241b655f9b"
+    },
+    {
+      "path": "ask-tegh.html",
+      "sha256": "8ae24444cb3292312a85d1383c8727039588d91bce0f07178e367f7330972197"
+    },
+    {
+      "path": "assets/tegh-gate-v5990.js",
+      "sha256": "98447af58a70365271d2e3d56c40e289a17e1875e52a8c60e1ede8f58d5a3742"
+    },
+    {
+      "path": "assets/tegh-polish-r32.css",
+      "sha256": "3395b60e2ea6686120beac22a5c6bb656cbd74f8f5b7701b66b0bc228edd36cf"
+    },
+    {
+      "path": "assets/tegh-portal-v5990.js",
+      "sha256": "fbfa8413e7929607f177e977f5ef4b4219d4e17bf103afedc30f3c5789a3cfda"
+    },
+    {
+      "path": "assets/tegh-preflight-v5990.js",
+      "sha256": "7bf7d8d8afa21c390f935c16d52941ccfbfb2ed933ee63b9f79a86a69bd4feaa"
+    },
+    {
+      "path": "company.html",
+      "sha256": "a7afdfd6857785d5c6c1b6344392849816145eba5037a0494b68fd3325a95373"
+    },
+    {
+      "path": "contact.html",
+      "sha256": "95dbf2d08685522ea22568e6dd8f744667e9c9af3639b3ea10943ce47cb46498"
+    },
+    {
+      "path": "index.html",
+      "sha256": "8ea63ed25a159a1ceb77cd4abb16c20194db1c2670e954a1747923ace743ca97"
+    },
+    {
+      "path": "migration.html",
+      "sha256": "cb45f307e3e18d6deb3ec5c18230bdcbc4b48cf14291fb2bbb7a5f1885a43eba"
+    },
+    {
+      "path": "privacy.html",
+      "sha256": "aeb097936d4c6e8e43fff538b1e03e02105b15ebe06ab0e06170e40cb91d51ff"
+    },
+    {
+      "path": "product.html",
+      "sha256": "f2db086afd3ba67cc29c2cc1c5cc6d3eb3ff7cae18dc9dfdd910d2de4b544b2d"
+    },
+    {
+      "path": "security.html",
+      "sha256": "d1df87a07a1f1aa314c64340538f8addfaf4062a5c114c51f00d2266ebae44b7"
+    },
+    {
+      "path": "solutions.html",
+      "sha256": "54908531e27df864b0128521b8e26fbfa30777435f010343e9f83c2225b5e751"
+    },
+    {
+      "path": "subscriptions.html",
+      "sha256": "3801ae13006c5d4523f2750820c3038e6ca188cd2c0762ea32a4167ce620ccd3"
+    },
+    {
+      "path": "terms.html",
+      "sha256": "9c4495283242ffbb3cbae1e06f023568c6dd17e32c307d487964897c6b805d82"
+    }
+  ],
+  "addedActiveFiles": [
+    {
+      "path": "api/tax_presets.php",
+      "sha256": "50642d2b5c005d6238185e06e5dca775503c1d2d874cd60bac1ddd2a5ac89bb9"
+    }
+  ],
+  "verification": {
+    "siteUiRegressionChecks": "23/23 PASS",
+    "siteBuild": "PASS",
+    "modifiedJavaScriptParse": "PASS",
+    "publicSiteFileMatch": "223/223 PASS",
+    "phpDelimiterCheck": "9/9 PASS (not a PHP parser)",
+    "phpLint": "NOT EXECUTED: PHP runtime unavailable in workspace",
+    "protectedMigration": "NOT EXECUTED: IONOS database and files not accessible here",
+    "notePostingAndSubledger": "NOT EXECUTED: requires updated IONOS backend and database",
+    "finalBrowserPass": "BLOCKED: browser URL policy denied reopening Site"
+  },
+  "executedLocalGates": [
+    "Site UI regression 23/23",
+    "Site production build",
+    "JavaScript parse",
+    "nine PHP delimiter scans",
+    "ZIP manifest and CRC"
+  ],
+  "releaseBlockers": [
+    "PHP lint and database-backed integration verification of changed API files",
+    "Protected invoice tax-column, note-settlement and company tax-preset migration with tax classification preflight on IONOS staging",
+    "Posting DN-1001 and note open/apply/refund/reversal fixtures, balancing journals and reconciling AR/AP party balance and ageing reports",
+    "Full browser/role/viewport acceptance matrix; final browser pass blocked by URL policy",
+    "Full backup/restore and settlement integration tests against an updated IONOS staging database"
+  ]
+}

@@ -1,0 +1,324 @@
+/* R32: connected workspace navigation, report discovery, and reachable overlays. */
+html[data-tegh-shell] .r32-module-overview { display:grid!important;gap:12px!important;align-content:start; }
+html[data-tegh-shell] .r32-module-overview>.srp-sites-module-section-card { min-width:0; }
+html[data-tegh-shell] .r32-module-overview .srp-sites-module-section-head { padding:10px 14px!important;margin:0!important;background:var(--tegh-surface)!important;border-color:var(--tegh-line)!important; }
+html[data-tegh-shell] .r32-module-overview .srp-sites-module-section-head h2 { font-size:17px!important;color:var(--tegh-text)!important; }
+html[data-tegh-shell] .r32-module-overview .srp-sites-menu-card { min-height:70px!important;padding:10px 14px!important;background:var(--tegh-surface)!important;border-color:var(--tegh-line)!important; }
+html[data-tegh-shell] .r32-module-overview .srp-sites-menu-card b { font-size:14px!important;line-height:1.3!important;color:var(--tegh-text)!important; }
+html[data-tegh-shell] .r32-module-overview .srp-sites-menu-card small { font-size:12px!important;color:var(--tegh-muted)!important; }
+html[data-tegh-shell] .r32-reports-workspace { display:grid;gap:12px;min-width:0;padding:2px; }
+html[data-tegh-shell] .r32-report-toolbar { display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 12px;border:1px solid var(--tegh-line);border-radius:11px;background:var(--tegh-surface);color:var(--tegh-text); }
+html[data-tegh-shell] .r32-report-toolbar label { display:block;min-width:0; }
+html[data-tegh-shell] .r32-report-toolbar .r32-report-search { flex:1 1 260px; }
+html[data-tegh-shell] .r32-report-toolbar input,html[data-tegh-shell] .r32-report-toolbar select { width:100%;min-height:40px;padding:8px 11px;border:1px solid var(--tegh-line);border-radius:8px;background:var(--tegh-surface);color:var(--tegh-text);font:inherit;font-size:14px; }
+html[data-tegh-shell] .r32-report-toolbar .r32-report-category { flex:0 1 210px; }
+html[data-tegh-shell] .r32-report-toolbar [data-report-count] { margin-left:auto;color:var(--tegh-muted);font-size:13px;white-space:nowrap; }
+html[data-tegh-shell] .r32-report-groups { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start;min-width:0; }
+html[data-tegh-shell] .r32-report-group { overflow:hidden;min-width:0;border:1px solid var(--tegh-line);border-radius:11px;background:var(--tegh-surface);color:var(--tegh-text); }
+html[data-tegh-shell] .r32-report-group>header { display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 15px;border-bottom:1px solid var(--tegh-line);background:var(--tegh-surface-elevated,var(--tegh-surface)); }
+html[data-tegh-shell] .r32-report-group h2 { margin:0;color:var(--tegh-text);font-size:16px;line-height:1.3; }
+html[data-tegh-shell] .r32-report-group header span { color:var(--tegh-muted);font-size:12px;white-space:nowrap; }
+html[data-tegh-shell] .r32-report-list { display:grid; }
+html[data-tegh-shell] .r32-report-list button { display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;min-height:57px;padding:9px 15px;border:0;border-bottom:1px solid var(--tegh-line);background:var(--tegh-surface);color:var(--tegh-text);text-align:left;cursor:pointer; }
+html[data-tegh-shell] .r32-report-list button:last-child { border-bottom:0; }
+html[data-tegh-shell] .r32-report-list button:hover,html[data-tegh-shell] .r32-report-list button:focus-visible { background:var(--tegh-accent-soft); }
+html[data-tegh-shell] .r32-report-list button:focus-visible { outline:2px solid var(--tegh-accent);outline-offset:-2px; }
+html[data-tegh-shell] .r32-report-list button>span:first-child { display:grid;gap:2px;min-width:0; }
+html[data-tegh-shell] .r32-report-list b { font-size:14px;line-height:1.35; }
+html[data-tegh-shell] .r32-report-list small { color:var(--tegh-muted);font-size:12px;line-height:1.35;white-space:normal; }
+html[data-tegh-shell] .r32-report-arrow { flex:none;color:var(--tegh-accent);font-size:18px; }
+html[data-tegh-shell] .r32-report-group[hidden],html[data-tegh-shell] .r32-report-list button[hidden] { display:none!important; }
+
+/* The sign-in shell uses the same palette as the accounting workspace. */
+html[data-tegh-design="living-ledger"] .sr-gate { background:var(--tegh-canvas)!important;color:var(--tegh-text); }
+html[data-tegh-design="living-ledger"] .sr-gate-brand>b { background:#102f31 url('/assets/tegh-mark.svg') center/cover no-repeat!important; }
+html[data-tegh-design="living-ledger"] .sr-gate-panel { min-height:calc(100dvh - 36px)!important;margin:18px!important;padding:clamp(22px,2.5vw,34px)!important;background:var(--tegh-surface-elevated)!important;color:var(--tegh-text)!important;border-color:var(--tegh-line)!important; }
+html[data-tegh-design="living-ledger"] .sr-gate-choice:has(#sr-choose-register[hidden]) { display:none!important; }
+html[data-tegh-design="living-ledger"] .sr-gate-choice { background:var(--tegh-canvas)!important;border-color:var(--tegh-line)!important; }
+html[data-tegh-design="living-ledger"] .sr-gate-choice button { color:var(--tegh-muted)!important; }
+html[data-tegh-design="living-ledger"] .sr-gate-choice button[aria-selected="true"] { background:var(--tegh-surface)!important;color:var(--tegh-text)!important; }
+html[data-tegh-design="living-ledger"] .sr-gate-form :is(h2,label) { color:var(--tegh-text)!important; }
+html[data-tegh-design="living-ledger"] .sr-gate-form>p { color:var(--tegh-muted)!important; }
+html[data-tegh-design="living-ledger"] .sr-gate-panel :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) { background:var(--tegh-surface)!important;color:var(--tegh-text)!important;border-color:var(--tegh-line)!important; }
+html[data-tegh-design="living-ledger"] .sr-gate-panel :is(input,select,textarea)::placeholder { color:var(--tegh-muted); }
+html[data-tegh-design="living-ledger"] .sr-gate-primary { background:var(--tegh-accent)!important;color:var(--tegh-canvas)!important; }
+html[data-tegh-design="living-ledger"] .sr-gate-panel :is(.sr-gate-progress,.sr-gate-error,.sr-gate-actions button,.sr-gate-actions a,.sr-gate-note code) { background:var(--tegh-surface)!important;color:var(--tegh-text)!important;border-color:var(--tegh-line)!important; }
+html[data-tegh-design="living-ledger"] .sr-gate-panel :is(.sr-gate-progress small,.sr-gate-error p,.sr-gate-note) { color:var(--tegh-muted)!important; }
+html[data-tegh-design="living-ledger"] .sr-gate-panel :is(.sr-gate-link,.sr-gate-actions a) { color:var(--tegh-accent)!important; }
+html[data-tegh-design="living-ledger"] .sr-gate-actions :is(button,a):hover { background:var(--tegh-accent-soft)!important; }
+html[data-tegh-design="living-ledger"].sr-reset-only .sr-gate { display:grid!important;grid-template-columns:minmax(0,1fr)!important;place-items:center;background:var(--tegh-canvas)!important; }
+html[data-tegh-design="living-ledger"].sr-reset-only .sr-gate-panel { width:min(100%,620px);min-height:0!important;margin:0!important;padding:20px!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important; }
+html[data-tegh-design="living-ledger"].sr-reset-only #sr-password-reset-panel { width:100%;max-width:none;padding:clamp(22px,3vw,34px);border:1px solid var(--tegh-line);background:var(--tegh-surface-elevated);color:var(--tegh-text); }
+/* Menus are ported to a top-level overlay; parent-dependent selectors do not apply there. */
+html[data-tegh-shell] #tegh-overlay-root .r17-menu-panel:has(.r31-profile-preferences) { width:min(400px,calc(100vw - 20px))!important;box-sizing:border-box;overflow-y:auto!important;overscroll-behavior:contain; }
+html[data-tegh-shell] #tegh-overlay-root .tegh-overlay-layer { pointer-events:auto; }
+html[data-tegh-shell] .srp-page[data-r29-reference="invoice"] :is(select[name="customerId"],select[name="templateId"],select[name="productServiceId"]) { position:relative;z-index:1;min-height:40px;pointer-events:auto; }
+@media(max-width:850px) { html[data-tegh-shell] .r32-report-groups { grid-template-columns:1fr; } }
+@media(max-width:540px) { html[data-tegh-shell] .r32-report-toolbar .r32-report-category { flex:1 1 100%; }html[data-tegh-shell] .r32-report-toolbar [data-report-count] { margin-left:0; } }
+/* Guided reporting uses the same compact working rhythm and dark tokens. */
+html[data-tegh-shell] .tegh-guided-reports-hero { padding:0 2px 2px; }
+html[data-tegh-shell] .tegh-guided-reports-hero p { max-width:none;color:var(--tegh-muted);font-size:13px;line-height:1.4; }
+html[data-tegh-shell] .tegh-guided-report-grid { gap:10px;margin-top:8px; }
+html[data-tegh-shell] .tegh-guided-report-grid>button { min-height:82px;padding:12px 14px;border-color:var(--tegh-line);border-radius:11px;background:var(--tegh-surface);color:var(--tegh-text);box-shadow:none; }
+html[data-tegh-shell] .tegh-guided-report-grid>button:hover,html[data-tegh-shell] .tegh-guided-report-grid>button:focus-visible { transform:none;border-color:var(--tegh-accent);background:var(--tegh-accent-soft); }
+html[data-tegh-shell] .tegh-guided-report-grid b { color:var(--tegh-text);font-size:15px; }
+html[data-tegh-shell] .tegh-guided-report-grid strong { color:var(--tegh-muted);font-size:13px; }
+html[data-tegh-shell] .tegh-guided-report-grid small { color:var(--tegh-muted);font-size:12px; }
+html[data-tegh-shell] .tegh-guided-report-grid em { color:var(--tegh-accent); }
+html[data-tegh-shell] .tegh-guided-report-icon { background:var(--tegh-accent-soft);color:var(--tegh-accent); }
+html[data-tegh-shell] .tegh-guided-more-reports { margin-top:12px;padding:12px 14px;background:var(--tegh-surface);border-color:var(--tegh-line);border-radius:11px; }
+html[data-tegh-shell] .tegh-guided-more-reports>div>button { background:var(--tegh-surface);border-color:var(--tegh-line);color:var(--tegh-text); }
+html[data-tegh-shell] .tegh-guided-more-reports>div>button small { color:var(--tegh-muted);font-size:12px; }
+
+/* Report rows share a legacy three-column grid; give catalogue cards their
+   own two-column layout so descriptions get the actual available width. */
+html[data-tegh-shell] .r32-report-group .r32-report-list>button { display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;overflow-wrap:normal; }
+html[data-tegh-shell] .r32-report-group .r32-report-list>button>span:first-child { width:auto;min-width:0; }
+
+/* The preferences panel is moved to the body when opened, outside the
+   legacy menu's theme variables and parent-dependent typography rules. */
+html[data-tegh-shell] #tegh-overlay-root .r17-menu-panel:has(.r31-profile-preferences)>button { display:grid;justify-items:start;align-content:center;gap:2px; }
+html[data-tegh-theme="dark"] #tegh-overlay-root .r17-menu-panel:has(.r31-profile-preferences) { --r22-surface:var(--tegh-surface-elevated);--r22-text:var(--tegh-text);--r22-muted:var(--tegh-muted);--r22-border:var(--tegh-line);--r22-accent:var(--tegh-accent);--r22-danger:#ffa7a0; }
+@media(prefers-color-scheme:dark) { html[data-tegh-theme="auto"] #tegh-overlay-root .r17-menu-panel:has(.r31-profile-preferences) { --r22-surface:var(--tegh-surface-elevated);--r22-text:var(--tegh-text);--r22-muted:var(--tegh-muted);--r22-border:var(--tegh-line);--r22-accent:var(--tegh-accent);--r22-danger:#ffa7a0; } }
+html[data-tegh-theme="dark"] .srp-ci-totals .total b { color:var(--tegh-accent)!important; }
+html[data-tegh-theme="dark"] .r23-table .r23-summary-row>th { background:var(--tegh-surface-elevated)!important;color:var(--tegh-text)!important; }
+html[data-tegh-shell][data-tegh-theme="dark"] .srp-report-period label { color:var(--tegh-muted)!important; }
+html[data-tegh-shell][data-tegh-theme="dark"] .srp-report-period :is(input,select) { background:var(--tegh-surface-elevated)!important;color:var(--tegh-text)!important;border-color:var(--tegh-line)!important; }
+html[data-tegh-theme="dark"] :is(.srp-kpi-skeleton,.srp-table-skeleton) { background:var(--tegh-surface-elevated)!important;border:1px solid var(--tegh-line)!important; }
+html[data-tegh-theme="dark"] .srp-btn:not(.secondary):not(:disabled) { color:#fff!important; }
+html[data-tegh-theme="dark"] .tegh-settings-row :is(b,.tegh-settings-row-number) { color:var(--tegh-text)!important; }
+html[data-tegh-theme="dark"] .tegh-settings-row .tegh-settings-row-action { color:var(--tegh-accent)!important; }
+html[data-tegh-theme="dark"] .srp-template-card { background:var(--tegh-surface-elevated)!important;color:var(--tegh-text)!important;border-color:var(--tegh-line)!important; }
+html[data-tegh-theme="dark"] .srp-template-card :is(h3,p,p b) { color:var(--tegh-text)!important; }
+/* Template thumbnails are a preview of white invoice paper; printed text
+   must retain its ink colors when the rest of the workspace uses dark mode. */
+html[data-tegh-theme="dark"] .srp-template-card .srp-template-preview { background:#fff!important;color:#20332f!important;border-color:#cbd9d3!important; }
+html[data-tegh-theme="dark"] .srp-template-card .srp-template-preview :is(small,strong,span) { color:#20332f!important; }
+/* The collapsed sidebar's display:grid rule must respect Guided mode's
+   hidden navigation entries, including their focus and reading order. */
+html[data-tegh-shell] .sidebar nav button[hidden] { display:none!important; }
+html[data-tegh-shell] .app [hidden] { display:none!important; }
+html[data-tegh-theme="dark"] .r22-filter-controls label { color:var(--tegh-muted)!important; }
+html[data-tegh-shell][data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar nav > button[hidden] { display:none!important; }
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r22-toolbar .r22-filter-controls > label[hidden] { display:none!important; }
+
+/* Global search lives in a compact top-bar slot. Give results a real menu
+   width and let descriptions wrap without a horizontal scrollbar. */
+html[data-tegh-shell] .srp-global-search-results { left:auto!important;right:0!important;width:min(440px,calc(100vw - 24px))!important;max-width:calc(100vw - 24px)!important;box-sizing:border-box;overflow-x:hidden!important; }
+html[data-tegh-shell] .srp-global-search-results>button { grid-template-columns:minmax(0,1fr) auto!important;width:100%;min-width:0; }
+html[data-tegh-shell] .srp-global-search-results>button>span { min-width:0; }
+html[data-tegh-shell] .srp-global-search-results>button small { display:block;white-space:normal;overflow-wrap:break-word; }
+@media(max-width:600px) { html[data-tegh-shell] .srp-global-search-results { position:fixed!important;left:12px!important;right:12px!important;top:56px!important;width:auto!important;max-width:none!important; } }
+
+/* The initial Assist view has one narrow column of actions. Keep its drawer
+   proportionate to that content while retaining a scrolling results region. */
+@media(min-width:701px) { html[data-tegh-shell] .tegh-assist-drawer.tegh-assist-panel { width:min(720px,calc(100vw - 24px))!important;max-height:calc(100dvh - 32px)!important;height:min(760px,calc(100dvh - 32px))!important; } }
+
+/* Learned-rule patterns can be long merchant strings. The automatic table
+   layout gave that column the spare width and broke short headings into
+   letters. Reserve readable columns; scroll the table on narrow screens. */
+html[data-tegh-shell] [data-srp-page="tegh-learned-rules"] .srp-table-wrap { max-width:100%;overflow-x:auto!important; }
+html[data-tegh-shell] [data-srp-page="tegh-learned-rules"] .srp-table { width:100%;min-width:1020px;table-layout:fixed!important; }
+html[data-tegh-shell] [data-srp-page="tegh-learned-rules"] .srp-table :is(th,td) { box-sizing:border-box;overflow-wrap:break-word!important;word-break:normal!important; }
+html[data-tegh-shell] [data-srp-page="tegh-learned-rules"] .srp-table th { white-space:nowrap!important; }
+html[data-tegh-shell] [data-srp-page="tegh-learned-rules"] .srp-table th:first-child { width:26%; }
+html[data-tegh-shell] [data-srp-page="tegh-learned-rules"] .srp-table th:last-child { width:13%; }
+
+/* An empty support queue should explain the next step. */
+html[data-tegh-shell] [data-srp-page="support"] .srp-support-empty { display:grid;justify-items:start;gap:8px;max-width:520px;padding:22px 8px;white-space:normal; }
+html[data-tegh-shell] [data-srp-page="support"] .srp-support-empty b { font-size:1rem;color:var(--tegh-text,#263b35); }
+html[data-tegh-shell] [data-srp-page="support"] .srp-support-empty p { margin:0;color:var(--tegh-muted,#60736e);line-height:1.5; }
+html[data-tegh-shell] [data-srp-page="support"] .srp-support-empty .srp-btn { margin-top:5px; }
+
+/* Short Day Book results size to their rows; larger reports retain the bounded table scroller. */
+@media (min-width: 768px) {
+  html[data-tegh-shell] .srp-day-book.r28-daybook-compact { flex:0 0 auto!important;min-height:0!important; }
+  html[data-tegh-shell] .srp-day-book .r23-table-host.r28-daybook-compact { flex:0 0 auto!important;min-height:0!important; }
+  html[data-tegh-shell] .srp-day-book .r23-table-host.r28-daybook-compact .r28-daybook-scroll { flex:0 1 auto!important;min-height:0!important;height:auto!important;max-height:360px; }
+}
+
+/* The invoice editors add status and accounting scope to the compact title.
+   Keep those peers on one line so they cannot spill over the breadcrumb. */
+html[data-tegh-shell] .srp-page[data-r29-reference="bill"] .r22-toolbar-primary>.r22-title,
+html[data-tegh-shell] .srp-page[data-r29-reference="invoice"] .r22-toolbar-primary>.r22-title {
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  justify-content:flex-start!important;gap:9px!important;height:40px!important;
+}
+html[data-tegh-shell] .srp-page:is([data-r29-reference="bill"],[data-r29-reference="invoice"]) .r22-title :is(.r29-draft-pill,.r22-applied-scope) {
+  flex:0 0 auto;position:static!important;margin:0!important;white-space:nowrap;
+}
+@media(max-width:700px) {
+  html[data-tegh-shell] .srp-page:is([data-r29-reference="bill"],[data-r29-reference="invoice"]) .r22-title .r22-applied-scope { display:none!important; }
+}
+
+/* The legacy banking table and register panels still carry light-only ink. */
+html[data-tegh-shell][data-tegh-theme="dark"] body .app .stage .srp-page .srp-register-filter {
+  background:var(--tegh-surface-elevated)!important;color:var(--tegh-text)!important;
+  border-color:var(--tegh-line)!important;
+}
+html[data-tegh-shell][data-tegh-theme="dark"] body .app .stage .srp-page .srp-register-filter label {
+  color:var(--tegh-muted)!important;
+}
+html[data-tegh-shell][data-tegh-theme="dark"] body .app .stage .srp-page .srp-table thead th {
+  background:var(--tegh-surface-elevated)!important;color:var(--tegh-muted)!important;
+  border-color:var(--tegh-line)!important;
+}
+html[data-tegh-shell][data-tegh-theme="dark"] body .app .stage .srp-page .srp-table tbody tr.sr-row-selected td,
+html[data-tegh-shell][data-tegh-theme="dark"] body .app .stage .srp-page .srp-table tbody tr.srp-focus-row td {
+  background:var(--tegh-accent-soft)!important;color:var(--tegh-text)!important;
+  border-color:var(--tegh-line)!important;
+}
+html[data-tegh-shell][data-tegh-theme="dark"] body .app .stage .srp-page .srp-table tfoot :is(th,td) {
+  background:var(--tegh-surface-elevated)!important;color:var(--tegh-text)!important;
+  border-color:var(--tegh-line)!important;
+}
+html[data-tegh-shell][data-tegh-theme="dark"] .r32-module-overview .srp-sites-menu-card em,
+html[data-tegh-shell][data-tegh-theme="dark"] .r32-module-overview .srp-sites-eyebrow {
+  color:var(--tegh-accent)!important;
+}
+html[data-tegh-shell][data-tegh-theme="dark"] .r19-dashboard .srp-sites-stat-card>div :is(span,button) {
+  color:var(--tegh-muted)!important;
+}
+html[data-tegh-shell][data-tegh-theme="dark"] .r19-dashboard .tegh-r17-profit-chart {
+  color:var(--tegh-muted)!important;
+}
+html[data-tegh-shell][data-tegh-theme="dark"] .r19-dashboard .tegh-r17-profit-chart .r19-net-line {
+  color:#a5b4fc!important;stroke:currentColor!important;
+}
+
+/* At narrower widths the invoice preview moves below the entry card. Give
+   each grid track its content height and scroll before the action footer. */
+html[data-tegh-shell] .srp-page[data-r29-reference="invoice"] .r29-invoice-layout,
+html[data-tegh-shell] .srp-page[data-r29-reference="bill"] .r29-invoice-layout {
+  grid-template-rows:none!important;grid-auto-rows:max-content!important;
+  overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain;
+}
+html[data-tegh-shell][data-tegh-theme="dark"] .srp-page .srp-status.posted {
+  color:var(--tegh-text)!important;background:var(--tegh-accent-soft)!important;
+  border-color:var(--tegh-line)!important;
+}
+
+/* Linked accounting notes: compact form, clear ledger state, and a readable mobile register. */
+.srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .srp-page-body{min-width:0}
+.tegh-notes-workspace{min-width:0;display:grid;gap:.85rem}
+.tegh-note-unavailable{display:grid;gap:.3rem;padding:.8rem 1rem;border:1px solid var(--tegh-line,#cad5df);border-left:4px solid var(--tegh-accent,#2473ae);border-radius:.6rem;background:var(--tegh-accent-soft,#ecf5fc);color:var(--tegh-text,#173042);line-height:1.45}
+.tegh-note-unavailable span{font-size:.9rem}
+.tegh-note-form{padding:.9rem;border:1px solid var(--tegh-line,#cad5df);border-radius:.75rem;background:var(--tegh-surface,#fff)}
+.tegh-note-form .srp-section-title{margin:0}
+.tegh-note-form .srp-section-title p{margin:.2rem 0 0}
+.tegh-note-summary{display:flex;align-items:center;gap:.8rem 1.2rem;flex-wrap:wrap;padding:.7rem .85rem;border-radius:.6rem;background:var(--tegh-accent-soft,#ecf5fc)}
+.tegh-note-summary span{display:flex;gap:.5rem;align-items:baseline}
+.tegh-note-summary small{flex-basis:100%;line-height:1.45}
+.tegh-note-filter{display:flex;align-items:end;gap:.7rem;flex-wrap:wrap}
+.tegh-note-filter .grow{flex:1 1 16rem}
+.tegh-note-filter input,.tegh-note-filter select{min-height:2.5rem}
+.tegh-note-table{width:100%;table-layout:fixed}
+.tegh-note-table :is(th,td){font-size:.82rem;white-space:normal;overflow-wrap:anywhere;padding:.45rem}
+.tegh-note-table th:nth-child(5){width:14%}
+.tegh-note-table th:last-child{width:16%}
+.tegh-note-table .srp-actions{gap:.25rem;flex-wrap:wrap}
+/* Added note actions extend the existing capped module menu. Keep its
+   contents inside that cap so the next module remains reachable. */
+html[data-tegh-shell] .sidebar nav .srp-subnav.is-open{overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain}
+@media(max-width:850px){
+  .tegh-note-table{min-width:780px;table-layout:auto}
+  .tegh-notes-workspace .srp-table-wrap{max-width:100%;overflow-x:auto;overscroll-behavior-inline:contain}
+  .tegh-note-form{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:550px){
+  .tegh-note-form{grid-template-columns:minmax(0,1fr)}
+  .tegh-note-form>*,.tegh-note-filter>*{min-width:0}
+  .tegh-note-filter label,.tegh-note-filter .grow{width:100%;flex:1 1 100%}
+}
+
+/* Incident detail inherited pale fact cards with pale text in dark mode. */
+html[data-tegh-theme="dark"] .srp-page[data-srp-page="system-incidents"] .srp-incident-facts>div,
+html[data-tegh-theme="dark"] .srp-page[data-srp-page="system-incidents"] .srp-incident-audit-counts span,
+html[data-tegh-theme="dark"] .srp-page[data-srp-page="system-incidents"] .srp-incident-audit-filters{
+  background:var(--tegh-surface,#17332e)!important;color:var(--tegh-text,#edf7f3)!important;border-color:var(--tegh-line,#35564f)!important
+}
+html[data-tegh-theme="dark"] .srp-page[data-srp-page="system-incidents"] .srp-incident-facts :is(small,b),
+html[data-tegh-theme="dark"] .srp-page[data-srp-page="system-incidents"] .srp-incident-audit-counts b,
+html[data-tegh-theme="dark"] .srp-page[data-srp-page="system-incidents"] .srp-incident-audit-filters label{color:var(--tegh-text,#edf7f3)!important}
+html[data-tegh-theme="dark"] .srp-page[data-srp-page="system-incidents"] .srp-incident-audit-filters :is(input,select){
+  background:var(--tegh-surface,#17332e)!important;color:var(--tegh-text,#edf7f3)!important;border-color:var(--tegh-line,#35564f)!important
+}
+
+/* Notes retain a real accounting table; the generic card conversion wastes
+   the laptop viewport and previously produced pale cells in dark mode. */
+html[data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .srp-table-wrap{
+  box-sizing:border-box;max-width:100%;overflow-x:auto!important;overflow-y:auto;scrollbar-gutter:auto
+}
+html[data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) table.tegh-note-table{
+  display:table!important;width:100%!important;min-width:1080px!important;table-layout:fixed!important;border-collapse:separate;border-spacing:0
+}
+html[data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .tegh-note-table :is(thead,tbody){display:table-row-group!important;position:static!important;clip-path:none!important;width:auto!important;height:auto!important;overflow:visible!important}
+html[data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .tegh-note-table thead{display:table-header-group!important}
+html[data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .tegh-note-table tr{display:table-row!important;width:auto!important;padding:0!important}
+html[data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .tegh-note-table :is(th,td){
+  display:table-cell!important;position:static!important;width:auto!important;height:auto!important;min-width:0!important;padding:.48rem .45rem!important;
+  color:var(--tegh-text,#173042)!important;background:var(--tegh-surface,#fff)!important;border-bottom:1px solid var(--tegh-line,#d6dfda)!important;
+  font-size:.78rem!important;line-height:1.35!important;vertical-align:middle!important;white-space:normal!important;overflow-wrap:anywhere!important
+}
+html[data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .tegh-note-table th{background:var(--tegh-accent-soft,#ecf5fc)!important;font-weight:700!important}
+html[data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .tegh-note-table td::before{display:none!important;content:none!important}
+html[data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .tegh-note-table .srp-actions{display:flex!important;flex-wrap:wrap!important;gap:.25rem!important}
+html[data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .tegh-note-table .srp-btn{padding:.32rem .45rem!important;min-height:2rem!important;font-size:.75rem!important}
+@media(max-width:850px){html[data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) table.tegh-note-table{min-width:940px!important}}
+
+/* Keep a note's identity, ledger state, and actions together on phones. */
+.tegh-note-cards{display:none}
+@media(max-width:850px){
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"][data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .srp-page-head.r22-toolbar{height:auto!important}
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"][data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .srp-page-head.r22-toolbar>.r22-toolbar-primary{display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;align-items:center;height:auto!important;min-height:0!important;gap:.5rem!important}
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"][data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .r22-toolbar-primary>.r22-title h1{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;font-size:1.05rem!important;line-height:1.18!important}
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"][data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .r22-toolbar-primary>.tegh-page-head-actions{grid-column:1/-1;width:100%!important;max-width:none!important;margin:0!important;justify-content:stretch!important}
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"][data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .srp-register-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));width:100%!important;gap:.5rem}
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"][data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .srp-register-actions .srp-btn{width:100%;min-height:2.65rem}
+  html[data-tegh-design] .srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .tegh-notes-workspace>.srp-table-wrap{display:none!important}
+  .tegh-note-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr));gap:.75rem;min-width:0}
+  .tegh-note-card{min-width:0;padding:.85rem;border:1px solid var(--tegh-line,#cad5df);border-radius:.75rem;background:var(--tegh-surface,#fff);color:var(--tegh-text,#173042)}
+  .tegh-note-card header{display:flex;align-items:start;justify-content:space-between;gap:.6rem}
+  .tegh-note-card header>div{display:grid;gap:.2rem;min-width:0}
+  .tegh-note-card header b{font-size:1rem;overflow-wrap:anywhere}
+  .tegh-note-card header .srp-status{flex:0 0 auto;white-space:nowrap!important;overflow-wrap:normal!important}
+  .tegh-note-card header small{color:var(--tegh-muted,#61746f);line-height:1.4}
+  .tegh-note-card dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin:.85rem 0 0}
+  .tegh-note-card dl>div{min-width:0}
+  .tegh-note-card dt{font-size:.78rem;color:var(--tegh-muted,#61746f)}
+  .tegh-note-card dd{margin:.15rem 0 0;font-size:.9rem;font-weight:600;overflow-wrap:anywhere}
+  .tegh-note-card .tegh-note-card-total{grid-column:1/-1;padding-top:.6rem;border-top:1px solid var(--tegh-line,#cad5df)}
+  .tegh-note-card-accounting{display:grid;gap:.3rem;justify-items:start;margin:.75rem 0;color:var(--tegh-muted,#61746f)}
+  .tegh-note-card .srp-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem;margin:0}
+  .tegh-note-card .srp-btn{min-width:0;min-height:2.65rem;padding:.45rem .65rem}
+}
+
+.srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .tegh-note-table td small{display:block;margin-top:.3rem;line-height:1.35}
+.srp-page:is([data-srp-page="customer-notes"],[data-srp-page="vendor-notes"]) .tegh-note-settlement-scope{line-height:1.5}
+
+/* Payroll remittance uses legacy light form cards. Keep its labels and
+   summary legible when the application is in dark mode. */
+html[data-tegh-theme="dark"] .srp-page[data-srp-page="payroll-remittance"] [data-remittance-form] > label{
+  color:var(--tegh-text,#edf7f3)!important
+}
+html[data-tegh-theme="dark"] .srp-page[data-srp-page="payroll-remittance"] [data-remittance-form] > .srp-bank-source{
+  background:var(--tegh-accent-soft,#173b32)!important;
+  border-color:var(--tegh-line,#345048)!important;
+  color:var(--tegh-text,#edf7f3)!important
+}
+html[data-tegh-theme="dark"] .srp-page[data-srp-page="payroll-remittance"] [data-remittance-form] > .srp-bank-source :is(small,.srp-match-picker-help){
+  color:var(--tegh-muted,#a7bbb3)!important
+}
+html[data-tegh-theme="dark"] .srp-page[data-srp-page="payroll-remittance"] [data-remittance-total]{
+  background:var(--tegh-accent-soft,#173b32)!important;
+  border-color:var(--tegh-line,#345048)!important;
+  color:var(--tegh-text,#edf7f3)!important
+}
+
+/* R118: Invoice / Credit & Debit Notes tab strip */
+.tegh-doc-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:14px 0;padding:7px;border:1px solid var(--tegh-border);border-radius:var(--tegh-radius);background:var(--tegh-surface-mist)}
+.tegh-doc-tabs button{display:flex;align-items:center;justify-content:center;min-height:46px;padding:9px 12px;border:1px solid transparent;border-radius:var(--tegh-radius-sm);background:transparent;color:var(--tegh-muted);font-weight:750;cursor:pointer;text-align:center}
+.tegh-doc-tabs button:hover{background:var(--tegh-porcelain)}
+.tegh-doc-tabs button:focus-visible{outline:2px solid var(--tegh-heritage-green);outline-offset:2px}
+.tegh-doc-tabs button[aria-selected="true"]{border-color:var(--tegh-border-strong);background:var(--tegh-porcelain);color:var(--tegh-heritage-green);box-shadow:var(--tegh-shadow-xs);cursor:default}
+@media (max-width:560px){.tegh-doc-tabs button{min-height:42px;padding:8px;font-size:.9rem}}

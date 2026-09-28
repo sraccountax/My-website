@@ -1,0 +1,2 @@
+﻿Original Invoice Number,Customer Name,Original Invoice Date,Original Due Date,Original Amount,Amount Previously Paid,Outstanding Amount,Customer PO / Reference,Notes
+QA-OPEN-INV-001,Sample Customer Inc.,2026-01-15,2026-02-14,1000.00,250.00,750.00,QA-OPEN-PO-001,Fictional reconciled opening invoice

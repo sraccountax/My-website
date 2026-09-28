@@ -1,0 +1,509 @@
+{
+  "baselineSha256": "e376a472694527d28a2a501d2eae964aed2fe56e5bbf645d945151a68adbd6ad",
+  "note": "Renamed active files appear as removed+added. Excludes this self-referential file and FILE-MANIFEST; the final package file manifest covers both.",
+  "counts": {
+    "modified": 26,
+    "removed": 29,
+    "added": 28
+  },
+  "files": [
+    {
+      "path": "404.html",
+      "change": "modified",
+      "before": "f0a40acc05777c94b2a5a2b005e377148e546578866e739e997821d518758dab",
+      "after": "c1bd926cce909f4f82fa02792fbf529e1fda04a03bb58ab246074197face4c99"
+    },
+    {
+      "path": "RELEASE-MANIFEST.json",
+      "change": "modified",
+      "before": "04a40ba08a4e7f38762806a356147bf1c76a1b61ebc6798ec4baca78dadd2314",
+      "after": "fa9115b3f17e14cd96fdeb1f4c7e5804336a8fc9133e617b21e1a33fe5963a24"
+    },
+    {
+      "path": "api/ai_connected.php",
+      "change": "modified",
+      "before": "59e47e492f3b6eb9100d544d60a91411934ca2c99cc699000cdb825f9f05f736",
+      "after": "a6e5168a81c1bd1fa9acbcdc32ff9c322195dfa1b425ad1e98f3c626fce6ba3b"
+    },
+    {
+      "path": "api/ai_provider.php",
+      "change": "modified",
+      "before": "ff07357045ef79f0e6312ed178b97293b91db6b3e6feb227ebeb23d1f9bb94e4",
+      "after": "534b361f0fd20d58b06d8042db41f56f116bb8b37449bc0f046980325df08ddd"
+    },
+    {
+      "path": "api/bank_categories_v5970.php",
+      "change": "removed",
+      "before": "03af8ee71a4bd04be4bddef2627c4cb9476557efc711d1611a4243247d1d7134",
+      "after": null
+    },
+    {
+      "path": "api/bank_categories_v5980.php",
+      "change": "added",
+      "before": null,
+      "after": "03af8ee71a4bd04be4bddef2627c4cb9476557efc711d1611a4243247d1d7134"
+    },
+    {
+      "path": "api/bank_operations_v5970.php",
+      "change": "removed",
+      "before": "b11b8df9d18ca03b3526d9ef155eac747c5e5550cc0e68e617ddab4caf271ec7",
+      "after": null
+    },
+    {
+      "path": "api/bank_operations_v5980.php",
+      "change": "added",
+      "before": null,
+      "after": "b11b8df9d18ca03b3526d9ef155eac747c5e5550cc0e68e617ddab4caf271ec7"
+    },
+    {
+      "path": "api/bank_preview_output_v5970.php",
+      "change": "removed",
+      "before": "206245397f443f0f3266001b1508a8068017dd16a9bc05176b0d340c340dfa89",
+      "after": null
+    },
+    {
+      "path": "api/bank_preview_output_v5980.php",
+      "change": "added",
+      "before": null,
+      "after": "9f3df77a9dab43c0d72fd777ed46196d36cb667b2f37c9751a32f8c6ea201dd2"
+    },
+    {
+      "path": "api/bank_safety_v5970.php",
+      "change": "removed",
+      "before": "db79dd653d4b3db452eeb8bd3e7ca4057ee1f897f1acbec1b1fc2cb12ca86520",
+      "after": null
+    },
+    {
+      "path": "api/bank_safety_v5980.php",
+      "change": "added",
+      "before": null,
+      "after": "db79dd653d4b3db452eeb8bd3e7ca4057ee1f897f1acbec1b1fc2cb12ca86520"
+    },
+    {
+      "path": "api/bootstrap.php",
+      "change": "modified",
+      "before": "70cf28f6f83b1e2e19904941cfb3eefb64b93fee5d9994efa9c962abe799e751",
+      "after": "f4dd35a0d3eefb659b28c0d0a8132a8b37707c111492aaa887fcf0166569e05e"
+    },
+    {
+      "path": "api/imports.php",
+      "change": "modified",
+      "before": "ed13087bb78349cfe4e52f57ca961e1fa8b475e7d24f109410c108c7c2bdba5a",
+      "after": "b1184c863bd5043b1edf988db9883b49ee1de384bc48171f2a3af5332fbfcfd8"
+    },
+    {
+      "path": "api/index.php",
+      "change": "modified",
+      "before": "18936b9bf4999fc49400766b8d3427d639fbc657ddee52f1af648db5a59b43b4",
+      "after": "37e968f05df58e4ca58793d68f1a26cbff7620a52ae4cd908363ea846f3187d4"
+    },
+    {
+      "path": "api/invitations_v5970.php",
+      "change": "removed",
+      "before": "048f4895fbfb306e09ea9456ccf2cad5c9c73b753aa5e457583901807586f062",
+      "after": null
+    },
+    {
+      "path": "api/invitations_v5980.php",
+      "change": "added",
+      "before": null,
+      "after": "836308a50ef8181236c858b811ba061a1ad4c1fea6f87ed0409d48d0880c36bb"
+    },
+    {
+      "path": "api/migration_schema44_v5970.php",
+      "change": "removed",
+      "before": "e169d291eb8bc2908fa845da20b5ec04ed27fc654ee7a9bc3b6a85e9b6b12c0c",
+      "after": null
+    },
+    {
+      "path": "api/migration_schema44_v5980.php",
+      "change": "added",
+      "before": null,
+      "after": "146218f1810e5bc052a1b9c4dc1f69b320fde94398857de92dcf32d94339bc8b"
+    },
+    {
+      "path": "api/operations.php",
+      "change": "modified",
+      "before": "9145f58b3f58ee926d09219b8ef2c0397ee8210f48fabc8f9457ed10d6df2a17",
+      "after": "c444e6f329777e515e5c5575b8aed67c3fd6d9e28bbae50432dc785b9104cfaa"
+    },
+    {
+      "path": "api/platform.php",
+      "change": "modified",
+      "before": "519becf8de14b5e71c9e86cf1a3e8ccf689f16d13667bea21763e748bba61276",
+      "after": "e95845df977eafffffce532727e1fd56da8c417b84f5eea07aca1f3a13ecab58"
+    },
+    {
+      "path": "api/professional_output_v5710.php",
+      "change": "modified",
+      "before": "b8adb1827ff655e33ef5703537ae5106d753cc586f6fdcbd02fc0143193c9938",
+      "after": "9e70703af7659063e4b8c739a08d4a0379a85ed554f577ff073dfa2dd6996e16"
+    },
+    {
+      "path": "api/professional_output_v5800.php",
+      "change": "modified",
+      "before": "6231d2900f7af6c89a62421435dc0e44546aae2f9bc0603bbb9add989db2f8f0",
+      "after": "dcc34ce4af0b7873e00e0dc59bbccb4a6b160074cedc71b588c7e165755bd97c"
+    },
+    {
+      "path": "api/release_v5970.php",
+      "change": "removed",
+      "before": "520a0367b81a9c1df955cf24824b673ab0fb102c71b27d5b6625c35568637572",
+      "after": null
+    },
+    {
+      "path": "api/release_v5980.php",
+      "change": "added",
+      "before": null,
+      "after": "cfeb87321fcf4ad9f522dc1d02997fe403da18df93412563f6aa5742019ca36d"
+    },
+    {
+      "path": "api/report_loaders_v5970.php",
+      "change": "removed",
+      "before": "ef43da2488fb00673ab882f0093a567cedd7d78556f0f77899c0dd6c1e59e269",
+      "after": null
+    },
+    {
+      "path": "api/report_loaders_v5980.php",
+      "change": "added",
+      "before": null,
+      "after": "30657b5d82d118b27a6fe92fbfe16159470f7fd05a94bcd3a70d28556bccc3a6"
+    },
+    {
+      "path": "api/report_output_v5970.php",
+      "change": "removed",
+      "before": "5a146a679321642cef14e3026f3261aac0814a40c1f0f3eb70ff8b96c65a1c3e",
+      "after": null
+    },
+    {
+      "path": "api/report_output_v5980.php",
+      "change": "added",
+      "before": null,
+      "after": "b254ad091cd91b0881794f16a4aca158dcde942bca86f43ab0743cc209c7bcbc"
+    },
+    {
+      "path": "api/report_subledgers_v5980.php",
+      "change": "added",
+      "before": null,
+      "after": "a9bece8031c80f457b23dfd883074b287d34fe4a89bc4f2157c2275ee41e20ed"
+    },
+    {
+      "path": "api/schema44_v5970.sql",
+      "change": "removed",
+      "before": "4dc783d5b1a5f38bd99ba84f2c8febc8ead44a2f1e1988e8308f60b2642836c1",
+      "after": null
+    },
+    {
+      "path": "api/schema44_v5980.sql",
+      "change": "added",
+      "before": null,
+      "after": "a5823dc0aa360ebae073c37b2ad340bfeed201c7923907565f07a4f294d33770"
+    },
+    {
+      "path": "app.html",
+      "change": "modified",
+      "before": "f90654584138468f3686a536315cd657b1dd888ff49a489d7985b5a8f3ea6a2d",
+      "after": "5776280e696d325f08f39599a9458e12a9ce8415a945513b667b2dbc442b5c81"
+    },
+    {
+      "path": "ask-tegh.html",
+      "change": "modified",
+      "before": "224932c3a720aebea28e3fbd5780211e05b0fde047be4b1b4869e9daeb765b6e",
+      "after": "1e0a79808b03ef85df2177a28fc9b7d316fb225a213eb2586b2e04f8f87cbccd"
+    },
+    {
+      "path": "assets/fonts/v5930/TeghInter-Bold.json",
+      "change": "removed",
+      "before": "f8724ae0840630b4be1b4f1726cc4c4cc594a5b41daab65058d6208c431ea99f",
+      "after": null
+    },
+    {
+      "path": "assets/fonts/v5930/TeghInter-Regular.json",
+      "change": "removed",
+      "before": "bd908e61c8c40581091581e1f74afb9e985288d8331362bbfb0f26e278db67fc",
+      "after": null
+    },
+    {
+      "path": "assets/fonts/v5930/TeghSans-Bold.json",
+      "change": "removed",
+      "before": "68d9623da046e8cc612124bd5e660c0af9b85ebd8a498c78b3ae1ed1723e300c",
+      "after": null
+    },
+    {
+      "path": "assets/fonts/v5930/TeghSans-Regular.json",
+      "change": "removed",
+      "before": "e74bc68effe991c5a7be0b6f1ae54375318c69f9f1a36b4e4aee9a8eb3aad976",
+      "after": null
+    },
+    {
+      "path": "assets/fonts/v5930/TeghSerif-Bold.json",
+      "change": "removed",
+      "before": "5d207b05cba16c91dc6c5426a8857d63bbde01deb49b9ae66f81458348a45c05",
+      "after": null
+    },
+    {
+      "path": "assets/fonts/v5930/TeghSerif-Regular.json",
+      "change": "removed",
+      "before": "5d53844470b2dacbb207ac813d216d2a38c0956f86e8bd3086f9d62a5db4103b",
+      "after": null
+    },
+    {
+      "path": "assets/fonts/v5930/TeghWide-Bold.json",
+      "change": "removed",
+      "before": "b68a9b881e108577c9633f3fd58dd1a3e72c9e398c07e5a9aade843a8d456441",
+      "after": null
+    },
+    {
+      "path": "assets/fonts/v5930/TeghWide-Regular.json",
+      "change": "removed",
+      "before": "b7eeeed3efd1991ddc8e226948528967c00013c3b5959627f0dfc77958ee8fa1",
+      "after": null
+    },
+    {
+      "path": "assets/tegh-app-v5970.css",
+      "change": "removed",
+      "before": "54d6e635dee4ea98bc2fc75e8a9acf543af2269926e44b7d0ea3113012a52021",
+      "after": null
+    },
+    {
+      "path": "assets/tegh-app-v5980.css",
+      "change": "added",
+      "before": null,
+      "after": "1a92a24b949bd5d1f7ab708d3d79254615b8029a7fb83984c692346d2f142f33"
+    },
+    {
+      "path": "assets/tegh-bank-converter-core-v5970.js",
+      "change": "removed",
+      "before": "3b9863529dce08d83aad7e55159f199622340c07c01bb0c9df010abcd2a7b434",
+      "after": null
+    },
+    {
+      "path": "assets/tegh-bank-converter-core-v5980.js",
+      "change": "added",
+      "before": null,
+      "after": "955c6638586f6a08e4c2c8ac6ede50aa1bcc6bebcd0345747879f44cdf86a32a"
+    },
+    {
+      "path": "assets/tegh-bank-converter-v5970.css",
+      "change": "removed",
+      "before": "b056778e72cf114b0ed6814b3f00a6a155b0f359305e7b89332b400e2f872874",
+      "after": null
+    },
+    {
+      "path": "assets/tegh-bank-converter-v5970.js",
+      "change": "removed",
+      "before": "bc1467ebe5165b069c78b61ca423c4e8c3d8ddd5e47579696302e55a85ee5396",
+      "after": null
+    },
+    {
+      "path": "assets/tegh-bank-converter-v5980.css",
+      "change": "added",
+      "before": null,
+      "after": "b056778e72cf114b0ed6814b3f00a6a155b0f359305e7b89332b400e2f872874"
+    },
+    {
+      "path": "assets/tegh-bank-converter-v5980.js",
+      "change": "added",
+      "before": null,
+      "after": "f1c0efcc8e5fdd56ec2559fcf285a1c4a703910481af260a4058f82b49a36874"
+    },
+    {
+      "path": "assets/tegh-gate-v5970.js",
+      "change": "removed",
+      "before": "8f5ba129843f22aa8eb80c42a3fe69869a70eb0e8f8b29e567dc8b0216a96829",
+      "after": null
+    },
+    {
+      "path": "assets/tegh-gate-v5980.js",
+      "change": "added",
+      "before": null,
+      "after": "d7d7d2db8a6b59dda17a5bbe39c33c47d45f007195a3902ce519a61d933fdae9"
+    },
+    {
+      "path": "assets/tegh-pdf-v5970.js",
+      "change": "removed",
+      "before": "f722a2085fdd043a31de575ad31fec647d8ccd1e48157c45f29277a599660c72",
+      "after": null
+    },
+    {
+      "path": "assets/tegh-pdf-v5980.js",
+      "change": "added",
+      "before": null,
+      "after": "3a710060bc26bec83328af0b6d94884b978d01a716faf38ec920a39af7ecd80f"
+    },
+    {
+      "path": "assets/tegh-portal-v5970.js",
+      "change": "removed",
+      "before": "fe27400c0ea792cbb57f4a21dff78fd72a5f52dbb8fd664cefdd419d8fc86cdb",
+      "after": null
+    },
+    {
+      "path": "assets/tegh-portal-v5980.js",
+      "change": "added",
+      "before": null,
+      "after": "82f6829b7a9ec29f2f3850c2229f724d0965420657f1e3fd1ae1bfe28af96a5b"
+    },
+    {
+      "path": "assets/tegh-preflight-v5970.js",
+      "change": "removed",
+      "before": "a07a64557d72d167769d4356326fc987522e95b27f9eff18876d7cab7dbbf84b",
+      "after": null
+    },
+    {
+      "path": "assets/tegh-preflight-v5980.js",
+      "change": "added",
+      "before": null,
+      "after": "ae8c801e8ce0f9187f741d14e09fcef90310d3c82c6d7464e5941121fa081f8e"
+    },
+    {
+      "path": "assets/tegh-professional-output-v5970.js",
+      "change": "removed",
+      "before": "641290d96af3d78bf311acaa18baaf705ee64fc036894eac271d1051b4966c1e",
+      "after": null
+    },
+    {
+      "path": "assets/tegh-professional-output-v5980.js",
+      "change": "added",
+      "before": null,
+      "after": "8afa6bd079acc7e17f30562ea9d1aa06e2ef5373d0506de47a3247404b036f96"
+    },
+    {
+      "path": "assets/tegh-registration-v5970.js",
+      "change": "removed",
+      "before": "74c0b357389c1d3d5f93b412e7414c2256c9c2eeec03aa9e7fa2fb39492f6c67",
+      "after": null
+    },
+    {
+      "path": "assets/tegh-registration-v5980.js",
+      "change": "added",
+      "before": null,
+      "after": "74c0b357389c1d3d5f93b412e7414c2256c9c2eeec03aa9e7fa2fb39492f6c67"
+    },
+    {
+      "path": "assets/tegh-sites-shell-v5970.js",
+      "change": "removed",
+      "before": "7d0eeec0b3c0f56e8d0c8aaf3a022c1f2912eb2acbc94f0d6276fbf6a0427ebb",
+      "after": null
+    },
+    {
+      "path": "assets/tegh-sites-shell-v5980.js",
+      "change": "added",
+      "before": null,
+      "after": "5c0363fdaca4c40a1cf80d4ef77f98b02a463afffc6ae1c47106b354c85f0b29"
+    },
+    {
+      "path": "company.html",
+      "change": "modified",
+      "before": "d399dcc907b2dddfbf3f17d9a053a4069617b1047e4561ccfa4f68ed7bc3df2c",
+      "after": "e0b34e9a1e03f722a6a2571f12f8a65719652010ab91ccdd0490039e04327958"
+    },
+    {
+      "path": "config.example.php",
+      "change": "modified",
+      "before": "47379a9923840c915fcb4dbdb7d35e579bb8a79e0a4a70b990165ca9dd9ee030",
+      "after": "786951359492781b6673093ed14763d8a7f2d3330dee1ccc61d82aa1087393eb"
+    },
+    {
+      "path": "contact.html",
+      "change": "modified",
+      "before": "e640f99121c4453d2715dfdaf6cd224763142ec8f4a5ae79437e8cc74a70fe6b",
+      "after": "ebfa7d280a18f6af5099469c311f8f1f6b720241e19cac352334398b89b25bb7"
+    },
+    {
+      "path": "index.html",
+      "change": "modified",
+      "before": "40ee2573449d95bae4f75d9d6831d2382d912bc2e35563c295cfcc66bb733f0e",
+      "after": "04090eb2bb359bfddbbd5b0ba930e06cf6cf58d662d20b1253e9a9b70a217a7e"
+    },
+    {
+      "path": "migration.html",
+      "change": "modified",
+      "before": "9367f014e52b2b54900a0c1a8df135d95d54248d166f5450d336e7dad94b2f5c",
+      "after": "07a52c8ea062909827a7c4b12031e26364b148f0fb7e66ef286de73dfbbb0019"
+    },
+    {
+      "path": "privacy.html",
+      "change": "modified",
+      "before": "d477d6555733d221e919a2fbc7a1c83ba5a1e57e4d5c07f4b2b1e4bd9ae2de4b",
+      "after": "5fb335f22c2519e6bdb4658d191e5aee790d508d425b144124e48b803bef312c"
+    },
+    {
+      "path": "product.html",
+      "change": "modified",
+      "before": "194c840c2543448de13799fec24c3f18c90846e3dd28fa73c2cbf7715a8fc98c",
+      "after": "b701bf79600f8784f0fe63c7a04af766567e3ca53e07ea6732bce13ee58dba48"
+    },
+    {
+      "path": "release/5980/DEPLOYMENT-ROLLBACK.md",
+      "change": "added",
+      "before": null,
+      "after": "08fa9bf6fe86f7a716b2f735ca6eaf4996629a14884e40eafd9947a2446dc058"
+    },
+    {
+      "path": "release/5980/RELEASE-NOTES.md",
+      "change": "added",
+      "before": null,
+      "after": "a6a0040f4323edbc80eee95aed7184c39146e4afbe510fc4ea2043c4d2be678d"
+    },
+    {
+      "path": "release/5980/REQUIREMENT-TEST-MATRIX.csv",
+      "change": "added",
+      "before": null,
+      "after": "c753744f91bec1739fa2a20bb7b273a6c0a88107dc6d21bbdbbe7e05bb71e52b"
+    },
+    {
+      "path": "release/5980/TEST-COMMANDS.md",
+      "change": "added",
+      "before": null,
+      "after": "6e1a7ecb394e7576c325bed54ae23ed5fafca324379d2db3e923a5d199fde17e"
+    },
+    {
+      "path": "release/5980/TEST-RESULTS.json",
+      "change": "added",
+      "before": null,
+      "after": "dbe76c8546355b4dd1c4c7404f3d680cc111bfd38a4d8164d3b6f53694fa676f"
+    },
+    {
+      "path": "release/5980/TEST-RESULTS.md",
+      "change": "added",
+      "before": null,
+      "after": "4b4f81ec9ae6ed0690e1810908067dcb41bec79ae5d92a63f872b52a3733da23"
+    },
+    {
+      "path": "resources.html",
+      "change": "modified",
+      "before": "0c3ff3ed8fadb9332aafda85a6675032d33d0fe781bb27368273e15b229959d8",
+      "after": "63bab855f8ad8ef9168ff783f1382019ce927a8e7f63808707df822239d406de"
+    },
+    {
+      "path": "security.html",
+      "change": "modified",
+      "before": "9118a039f203791a22888fae51bda9ebccd6fe25a337ecad346954c2c7a17919",
+      "after": "ba38b9197d4d2b051607adeccc472bd5f1bed8db33b7028d354a2f62812d75f8"
+    },
+    {
+      "path": "solutions.html",
+      "change": "modified",
+      "before": "8e634f6054884fea584136342f6c216fe5d9fc311b30eebe10d517634266698b",
+      "after": "bd3b2abd145e810ac2df6a34dbbc480525d6f691623acb0ecaaf8ebcdf6e463f"
+    },
+    {
+      "path": "subscriptions.html",
+      "change": "modified",
+      "before": "9f2bf01e10f2e35432040c74300dc43fbeb747ec007d394ce330371929319da8",
+      "after": "55517db3524254cef87130d4487325d7e152807da0337530a978a32800bc36ad"
+    },
+    {
+      "path": "tegh-build.json",
+      "change": "modified",
+      "before": "04a40ba08a4e7f38762806a356147bf1c76a1b61ebc6798ec4baca78dadd2314",
+      "after": "fa9115b3f17e14cd96fdeb1f4c7e5804336a8fc9133e617b21e1a33fe5963a24"
+    },
+    {
+      "path": "terms.html",
+      "change": "modified",
+      "before": "cea071fd2ab9b51b3797072dbb98f677c6f367d67d2d255e094d6468e5b23ca0",
+      "after": "7a626341e66615859fa1bf7e032c9f6083f255e26e9253b72edeb32214a2a77d"
+    }
+  ]
+}

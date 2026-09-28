@@ -1,0 +1,89 @@
+Options -Indexes -MultiViews
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+
+<IfModule mod_mime.c>
+  AddType text/javascript .mjs
+  AddType application/wasm .wasm
+  AddType application/octet-stream .traineddata
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  RewriteCond %{SERVER_PORT} !=443
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?books-test\.sraccountax\.ca$ [NC]
+  RewriteRule ^ https://books-test.sraccountax.ca%{REQUEST_URI} [R=301,L,NE]
+
+  RewriteCond %{SERVER_PORT} !=443
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?books\.sraccountax\.ca$ [NC]
+  RewriteRule ^ https://books.sraccountax.ca%{REQUEST_URI} [R=301,L,NE]
+
+  # Authentication/account-setup tokens belong to the application entry point.
+  RewriteCond %{QUERY_STRING} (^|&)(forceSignIn|safeMode|signin|accountSetup|invite|passwordReset)= [NC]
+  RewriteRule ^$ /app.html [R=302,L,NE]
+
+  RewriteRule ^srbooks-login-(?:190|191|192|193|194|195|196|197|198|199|200|201|202)\.html$ /app.html?forceSignIn=1&v=2812 [R=302,L,NE]
+
+  # Sites root opens the accounting application. /index.html remains available.
+  RewriteRule ^$ /app.html [R=302,L]
+
+  # Existing files/directories are served normally. Unknown paths fall through to a real 404.
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "same-origin"
+  Header always set Cross-Origin-Resource-Policy "same-origin"
+  Header always set Strict-Transport-Security "max-age=31536000"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), display-capture=(self)"
+  Header always set Content-Security-Policy "default-src 'self' https://*.clarity.ms https://c.bing.com; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://*.clarity.ms https://c.bing.com 'sha256-5Skb4uJq4xIX+g0EhNMvY8idjvXUe79zNpKtp/WJKI8=' 'sha256-rjKxoBcLHvMnvH7CCtGWqpdaLA530pHCfHs19ufx1kY=' 'sha256-h6WepojrUfLeaiZ59T/NA0EHBezwnbrTdoYZ2AWyRQ4=' 'sha256-ytBOycYX54mF6zksP6yoQyPqd2D8YL+EKMD6WrxnT+Q=' 'sha256-yJS0QRJ8W5u+QLlqiGwL1oZCpYTlUiop23T7XqC8DPc=' 'sha256-hH5BuQ56Pc0SgpZZRy/UYKbvuBpb8bkVdE/Kx6kL4sM='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.clarity.ms https://c.bing.com; connect-src 'self' https://challenges.cloudflare.com https://*.clarity.ms https://c.bing.com; frame-src https://challenges.cloudflare.com; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+
+  <FilesMatch "^(app|startup-recovery)\.html$|^tegh-build\.json$">
+    Header always set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header always set Pragma "no-cache"
+    Header always set Expires "0"
+    Header always set X-Robots-Tag "noindex, nofollow, noarchive"
+  </FilesMatch>
+
+  <FilesMatch "^(index|product|ask-tegh|solutions|migration|resources|company|security|contact|subscriptions|privacy|terms|balance-sheet|bank-reconciliation|ar-aging|cash-vs-accrual|404)\.html$">
+    Header always set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+
+  <FilesMatch "^(tegh-app-v[0-9]+\.css|tegh-motion-v[0-9]+\.(css|js)|tegh-marketing-v[0-9]+\.(css|js)|tegh-(preflight|release|premium|experience|gate|sites-shell|portal|workflow|ai|native-ocr|native-ap-ar|forecast)-v[0-9]+\.(css|js)|tegh-(mark|icons)-v[0-9]+\.svg|tegh-social-v[0-9]+\.png|tegh-icon-180(?:-v[0-9]+)?\.png|index-BsxPiq85-v2817\.js|pdfStatementImport-BTobSMtl-v211\.js|spreadsheetStatementImport-R-lkb343-v211\.js|pdf\.worker\.min-DEtVeC4l\.mjs|xlsx-Cl_0CZaL\.js|setupSpreadsheetImport-ziv42POg\.js|statementRowRules-mL-yEqfq\.js|favicon\.(ico|png))$">
+    Header always set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "^(pdf(?:\.worker)?\.min\.mjs|tesseract\.min\.js|tesseract-core-lstm\.(?:js|wasm|wasm\.js)|worker\.min\.js|eng\.traineddata|tegh-ai-(?:core|runtime|worker)-v4\.js|model\.json|manifest\.json|tegh-vector-v1\.wasm)$">
+    Header always set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/css text/javascript application/javascript application/json application/xml image/svg+xml
+</IfModule>
+<IfModule !mod_brotli.c>
+  <IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json application/xml image/svg+xml
+  </IfModule>
+</IfModule>
+
+<FilesMatch "^srbooks-test-v[0-9]+\.(js|css)$">
+  Require all denied
+</FilesMatch>
+<FilesMatch "^native-agent-cron\.php$">
+  Require all denied
+</FilesMatch>
+<FilesMatch "\.(env|ini|log|sql|bak|md)$">
+  Require all denied
+</FilesMatch>
+<FilesMatch "^(DEPLOY-MANIFEST\.json|SHA256SUMS\.txt|RELEASE-MANIFEST\.json|FILE-MANIFEST\.sha256)$">
+  Require all denied
+</FilesMatch>
+# R118: package/deployment metadata must never be served (commit ids, hashes, ledger amounts).
+<FilesMatch "^(DEPLOYMENT-NOTES|README|EXPECTED-EXISTING-SHA256|REPLACEMENT-SHA256|R[0-9]+-HOTFIX-CONSOLIDATION)\.txt$|^(PACKAGE-MANIFEST|tegh-build)\.json$">
+  Require all denied
+</FilesMatch>

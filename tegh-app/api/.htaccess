@@ -1,0 +1,22 @@
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # IONOS evaluates per-directory rewrites recursively. Exclude the router and
+  # every real file/directory before forwarding a friendly API route.
+  RewriteRule ^index\.php$ - [L]
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+  RewriteRule ^(.+?)/?$ index.php?route=$1 [QSA,L]
+</IfModule>
+
+<FilesMatch "^(bootstrap|config.*|schema)\.(php|sql)$">
+  Require all denied
+</FilesMatch>
+
+<FilesMatch "^(?!index\.php$).*\.php$">
+  Require all denied
+</FilesMatch>

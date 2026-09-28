@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /app.html
+Disallow: /startup-recovery.html
+Disallow: /api/
+
+Sitemap: https://books.sraccountax.ca/sitemap.xml
