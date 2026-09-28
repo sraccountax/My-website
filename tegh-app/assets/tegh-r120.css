@@ -386,3 +386,53 @@ html[data-tegh-navigation-revision="r24"] .topbar[data-r24-density="mobile"] [da
 @media (max-width:430px){
   html[data-tegh-navigation-revision="r24"] .topbar [data-shell-assist].tegh-shell-utility{flex:0 0 36px!important;width:36px!important;min-width:36px!important;max-width:36px!important;height:36px!important;min-height:36px!important;padding:0!important}
 }
+
+/* 22. R124 Tegh Assist: simple ask → answer layout */
+.tegh-assist-drawer>header p{margin:4px 0 0;color:var(--srp-muted,#5d6b66)}
+.tegh-assist-using{margin:0;padding:8px 20px;font-size:13px;background:var(--srp-surface-2,#f3f7f5);border-bottom:1px solid var(--srp-line,#dde5e1)}
+.tegh-assist-sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.tegh-assist-simple .tegh-command-search{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;align-items:center!important}
+.tegh-assist-simple .tegh-command-search .tegh-assist-ask{display:block!important;margin:0}
+.tegh-assist-simple .tegh-command-search input{height:46px;font-size:16px;border-radius:12px;padding:0 14px}
+.tegh-assist-simple .tegh-command-search>.srp-btn{height:46px;min-width:88px!important;border-radius:12px}
+.tegh-assist-simple .tegh-assist-suggestions{grid-column:1/-1;align-items:center}
+.tegh-assist-chips-label{flex:0 0 auto;white-space:nowrap;font-size:12px;font-weight:600;color:var(--srp-muted,#5d6b66);margin-right:2px}
+.tegh-assist-recent .tegh-assist-chip{background:transparent}
+.tegh-assist-simple .tegh-command-workspace:has(>[data-command-result]:empty){display:none}
+.tegh-assist-simple .tegh-command-workspace{position:static!important;max-height:none!important;overflow:visible!important}
+.tegh-assist-you{margin:0 0 10px;font-size:13px;color:var(--srp-muted,#5d6b66)}
+.tegh-assist-thinking{color:var(--srp-muted,#5d6b66);animation:tegh-assist-pulse 1.2s ease-in-out infinite}
+@keyframes tegh-assist-pulse{50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.tegh-assist-thinking{animation:none}}
+.tegh-command-result>h3{margin:0 0 2px;font-size:18px}
+.tegh-assist-period{margin:0 0 12px;font-size:13px;color:var(--srp-muted,#5d6b66)}
+.tegh-assist-answer{border-radius:12px;padding:14px 16px;margin:0 0 12px;background:var(--srp-surface-2,#f3f7f5);border-left:4px solid #6b8f82}
+.tegh-assist-answer[data-tone="good"]{border-left-color:#1f8a5b;background:#eef8f2}
+.tegh-assist-answer[data-tone="warn"]{border-left-color:#b7791f;background:#fdf6ea}
+.tegh-assist-answer[data-tone="bad"]{border-left-color:#c0392b;background:#fdf0ee}
+.tegh-assist-headline{margin:0;font-size:19px;line-height:1.35;font-weight:700;color:var(--srp-ink,#12211c)}
+.tegh-assist-detail{margin:6px 0 0;font-size:14px;color:var(--srp-muted,#4d5c57)}
+.tegh-assist-details{margin:0 0 12px}
+.tegh-assist-details>summary{cursor:pointer;font-weight:600;padding:6px 0;color:var(--srp-accent-ink,#0f5c46)}
+.tegh-assist-next{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.tegh-assist-browse-link{margin-top:8px;display:inline-block}
+.tegh-choice span{color:var(--srp-muted,#5d6b66);font-size:13px}
+.tegh-command-catalogue>summary{cursor:pointer;font-weight:600}
+.tegh-assist-group{border-top:1px solid var(--srp-line,#e2e8e5);padding:4px 0}
+.tegh-assist-group>summary{cursor:pointer;padding:10px 2px;font-weight:600}
+.tegh-assist-group>summary small{color:var(--srp-muted,#5d6b66);font-weight:400;margin-left:4px}
+.tegh-assist-group ul{list-style:none;margin:0 0 8px;padding:0;display:grid;gap:4px}
+.tegh-assist-group li{display:flex;align-items:stretch;gap:4px}
+.tegh-assist-item{flex:1;display:grid;gap:2px;text-align:left;padding:9px 12px;border:1px solid var(--srp-line,#e2e8e5);border-radius:10px;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.tegh-assist-item span{font-size:12.5px;color:var(--srp-muted,#5d6b66)}
+.tegh-assist-item:hover,.tegh-assist-item:focus-visible{border-color:var(--srp-accent,#b8892f);outline:none}
+.tegh-assist-pin{flex:0 0 40px;border:1px solid var(--srp-line,#e2e8e5);border-radius:10px;background:transparent;color:#b8892f;font-size:18px;cursor:pointer}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .tegh-assist-answer[data-tone="good"]{background:rgba(31,138,91,.14)}
+  :root:not([data-theme="light"]) .tegh-assist-answer[data-tone="warn"]{background:rgba(183,121,31,.14)}
+  :root:not([data-theme="light"]) .tegh-assist-answer[data-tone="bad"]{background:rgba(192,57,43,.14)}
+}
+@media (max-width:640px){
+  .tegh-assist-simple .tegh-command-search>.srp-btn{min-width:64px!important}
+  .tegh-assist-headline{font-size:17px}
+}
