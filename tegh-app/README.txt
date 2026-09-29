@@ -1,4 +1,4 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R127 IONOS STAGING CANDIDATE
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R128 IONOS STAGING CANDIDATE
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -16,5 +16,6 @@ R124: simpler Tegh Assist: plain one-line answers first, "Did you mean…" in ev
 R125: friendlier dashboard: one-sentence summary with an Ask box, cards in plain words, chart explained in a sentence, everyday shortcut names, To Do list with only what needs doing. No migration. See R125-CHANGES.md.
 R126: dark mode readable everywhere (110 problems fixed, including top-navigation menus), top navigation uses the short menu names, guided home counts only issued invoices and bills. No migration. See R126-CHANGES.md.
 R127: Match and Post shows the bank balance from imported statement lines (opening, money in, money out, bank balance, book balance, difference with Reconcile). No migration. See R127-CHANGES.md.
+R128: Match and Post shows one bank balance (red when negative); customers and vendors get a Post opening balance button after creation; edit screens titled Edit Customer/Vendor. No migration. See R128-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256.

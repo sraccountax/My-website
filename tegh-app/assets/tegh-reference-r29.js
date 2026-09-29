@@ -36,7 +36,7 @@
   function enhanceParty(page,kind){
     const form=$(kind==='customer'?'[data-customer-form]':'[data-vendor-form]',page);if(!form||form.dataset.r29Reference)return;
     form.dataset.r29Reference=kind;page.dataset.r29Reference=kind;form.classList.add('r29-party-form');
-    const isCustomer=kind==='customer';pageTitle(page,isCustomer?'New Customer':'New Vendor',isCustomer?'Add billing, contact and payment defaults for this customer.':'Add contact, payment and accounting defaults for this vendor.');
+    const isCustomer=kind==='customer',isEdit=!!form.dataset.editingId;pageTitle(page,isEdit?(isCustomer?'Edit Customer':'Edit Vendor'):(isCustomer?'New Customer':'New Vendor'),isEdit?'Update contact, address and payment details.':(isCustomer?'Add billing, contact and payment defaults for this customer.':'Add contact, payment and accounting defaults for this vendor.'));
     breadcrumb(page,isCustomer?'Receivables':'Payables',isCustomer?'Customers':'Vendors');
     const sets=$$('fieldset.tegh-form-section',form),actions=direct(form,'.srp-actions,.form-actions');if(sets.length<3)return;
     setLegend(sets[0],isCustomer?'Customer details':'Vendor details');setLegend(sets[1],isCustomer?'Billing address':'Business address');setLegend(sets[2],isCustomer?'Payment preferences':'Payment & accounting');
@@ -45,8 +45,9 @@
     const status=field(form,'status')?.closest('label');if(status){const statusCard=element('section','r29-status-card'),heading=element('h3','', 'Status');status.before(statusCard);statusCard.append(heading,status);}
     const opening=['openingBalance','openingBalanceDate'].map(name=>field(form,name)?.closest('label')).filter(Boolean);
     if(opening.length)right.append(disclosure('Opening balance',opening));
+    const openingPost=$('.r127-opening',form);if(openingPost)right.append(openingPost);
     const notes=sets[3];if(notes)right.append(disclosure('Internal notes',[notes]));
-    if(actions){actions.classList.add('r29-sticky-actions');actions.querySelector('button[type="submit"]')?.replaceChildren(document.createTextNode(isCustomer?'Create customer':'Create vendor'));form.append(actions);}
+    if(actions){actions.classList.add('r29-sticky-actions');actions.querySelector('button[type="submit"]')?.replaceChildren(document.createTextNode(isEdit?'Save changes':(isCustomer?'Create customer':'Create vendor')));form.append(actions);}
   }
 
   function enhanceProduct(page){

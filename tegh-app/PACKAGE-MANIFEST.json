@@ -591,5 +591,23 @@
     "FILE-MANIFEST.sha256"
   ],
   "r127Migration": false,
-  "r127CacheToken": "5990-r127-tegh"
+  "r127CacheToken": "5990-r127-tegh",
+  "r128Files": [
+    "api/master_data.php",
+    "api/index.php",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-reference-r29.js",
+    "assets/tegh-r120.css",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "app.html",
+    "R128-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r128Migration": false,
+  "r128CacheToken": "5990-r128-tegh"
 }

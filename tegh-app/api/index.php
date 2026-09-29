@@ -204,6 +204,7 @@ require_once __DIR__ . '/report_comparison_r20.php';
     if ($route === 'companies') handle_companies();
     if ($route === 'workspace') handle_workspace();
     if ($route === 'customers') handle_customers();
+    if ($route === 'party-opening-balance') handle_party_opening_balance();
     if (str_starts_with($route,'invoices/r20/')) handle_invoice_documents_r20(substr($route,strlen('invoices/r20/')));
     if ($route === 'invoices') handle_invoices();
     if ($route === 'accounting-notes') handle_accounting_notes();

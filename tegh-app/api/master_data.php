@@ -227,3 +227,42 @@ function assert_customer_may_issue_invoice(string $companyId, string $customerId
         fail('Customer Is On Hold. This invoice cannot be posted while the customer is on hold.'.($reason!==''?' Hold Reason: '.$reason:''),409,'customer_on_hold');
     }
 }
+
+/**
+ * R127: post a customer or vendor opening balance after the party was created.
+ * Uses the same posting service as party creation (Dr/Cr the AR or AP control
+ * account against Opening Balance Control), so only one opening balance can
+ * ever exist per party; later corrections use an adjusting entry.
+ */
+function handle_party_opening_balance(): never
+{
+    require_method('POST');
+    require_csrf();
+    $user = require_user();
+    $company = require_company($user);
+    $input = request_json();
+    $partyType = (string)($input['partyType'] ?? '');
+    if (!in_array($partyType, ['customer','vendor'], true)) fail('Choose a customer or vendor.', 422, 'party_type_invalid');
+    require_company_permission($company, $partyType === 'customer' ? 'customers.write' : 'vendors.write');
+    $companyId = (string)$company['id'];
+    $partyId = clean_text($input['partyId'] ?? '', ucfirst($partyType), 64);
+    $table = $partyType === 'customer' ? 'customers' : 'vendors';
+    $stmt = db()->prepare("SELECT id,name FROM $table WHERE id=? AND company_id=? LIMIT 1");
+    $stmt->execute([$partyId, $companyId]);
+    $party = $stmt->fetch();
+    if (!$party) fail(ucfirst($partyType).' not found.', 404, $partyType.'_not_found');
+    $amountCents = tegh_signed_opening_balance_cents($input['amountCents'] ?? 0);
+    if ($amountCents === 0) fail('Enter a non-zero opening balance.', 422, 'opening_balance_required');
+    $date = trim((string)($input['date'] ?? ''));
+    if ($date === '') fail('Enter the Opening Balance Date.', 422, 'opening_balance_date_required');
+    db()->beginTransaction();
+    try {
+        $opening = post_party_opening_balance($user, $company, $partyType, (string)$party['id'], (string)$party['name'], $amountCents, $date, 'after_create');
+        db()->commit();
+    } catch (Throwable $error) {
+        if (db()->inTransaction()) db()->rollBack();
+        throw $error;
+    }
+    $row = party_opening_balance_row($companyId, $partyType, (string)$party['id']);
+    json_response(['openingBalance' => $opening + ['voucherNumber' => $row['voucher_number'] ?? null]], 201);
+}

@@ -1,6 +1,6 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R127 IONOS STAGING DEPLOYMENT
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R128 IONOS STAGING DEPLOYMENT
 
-This package contains every release through R127 (R118–R127 change notes are
+This package contains every release through R128 (R118–R128 change notes are
 included). No manual database migration. R120's additive table
 accounting_note_lines is created automatically on first use of Credit & Debit
 Notes (the database user needs CREATE privilege, as for the original install).
@@ -17,9 +17,10 @@ Notes (the database user needs CREATE privilege, as for the original install).
    api/accounting.php, api/backup.php, api/bank_operations_v5980.php,
    api/operations.php, api/portal.php, api/report_loaders_v5980.php, the new
    api/reconciliation_position_r122.php, and for R123 api/ai_router.php,
-   api/ai_actions_v5600.php, api/command_centre_v5600.php, api/ai_agent.php and
-   the new api/assist_language_r123.php.
-5. Upload all assets together; the cache token is r127-tegh. A partial upload can
+   api/ai_actions_v5600.php, api/command_centre_v5600.php, api/ai_agent.php,
+   the new api/assist_language_r123.php, and for R128 api/master_data.php and
+   api/index.php.
+5. Upload all assets together; the cache token is r128-tegh. A partial upload can
    leave browsers on a stale portal.
 6. DN-1001 was already posted once in the original staging data. Do NOT post it
    again.
@@ -42,8 +43,10 @@ Verify after upload
   year"), and To Do lists only what needs doing.
 - Settings > Appearance: switch to Dark and to Top navigation; menus, reports
   and forms stay readable.
-- Banking > Match and Post: under Bank Transactions, a row shows opening,
-  money in, money out, bank balance, book balance and the difference.
+- Banking > Match and Post: the Bank Transactions header shows one bank
+  balance for the To date (red when negative).
+- Open an existing customer: the screen says Edit Customer and, if no opening
+  balance exists, offers Post opening balance.
 - In the browser console: window.TeghPortal exists.
 - Tegh Assist (top bar, also on phones): ask "who owes me money?" and the
   answer starts with a plain sentence ("Customers owe you $…") in about a second; "pay my supplier" opens Vendor
