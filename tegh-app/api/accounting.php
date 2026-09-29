@@ -2089,6 +2089,55 @@ function bank_transaction_delete_service(array $user, array $company, array $ids
     return ['deleted'=>count($ids),'postedEntriesDeleted'=>0];
 }
 
+/**
+ * R129: correct an imported bank line before it is used. Only a line that is
+ * unposted (pending, no journal), not matched and not in a completed
+ * reconciliation can change; dates in a locked period are refused. The
+ * original import fingerprint is kept so the same statement row is still
+ * recognised as a duplicate if it is imported again.
+ */
+function handle_bank_transaction_edit(): never
+{
+    require_method('POST'); require_csrf(); $user=require_user(); $company=require_company($user);
+    require_company_role($company,'owner','bookkeeper'); require_company_permission($company,'banking.match');
+    $companyId=(string)$company['id']; $input=request_json();
+    $id=clean_text($input['transactionId'] ?? '','Bank transaction',64);
+    $date=safe_date($input['date'] ?? '','Transaction date'); assert_not_future_date($date,'Transaction date');
+    $description=trim((string)($input['description'] ?? ''));
+    if($description==='' || mb_strlen($description)>2000) fail('Enter a description of up to 2,000 characters.',422,'bank_transaction_description_invalid');
+    $reference=trim((string)($input['reference'] ?? '')); if(mb_strlen($reference)>120) fail('Keep the reference to 120 characters.',422,'bank_transaction_reference_invalid');
+    $remarks=trim((string)($input['remarks'] ?? '')); if(mb_strlen($remarks)>500) fail('Keep the remarks to 500 characters.',422,'bank_transaction_remarks_invalid');
+    $amountRaw=$input['amountCents'] ?? null;
+    if(!is_int($amountRaw) && !(is_string($amountRaw) && preg_match('/^-?\d+$/',$amountRaw))) fail('Enter the amount.',422,'bank_transaction_amount_invalid');
+    $amount=(int)$amountRaw; if($amount===0 || abs($amount)>99999999999) fail('Enter a non-zero amount.',422,'bank_transaction_amount_invalid');
+    if(period_lock_for_date($companyId,$date)!==null) fail('That date is in a locked period.',409,'period_locked');
+    db()->beginTransaction();
+    try{
+        $q=db()->prepare('SELECT * FROM bank_transactions WHERE company_id=? AND id=? FOR UPDATE'); $q->execute([$companyId,$id]); $row=$q->fetch();
+        if(!$row) fail('Bank transaction not found.',404,'bank_transaction_not_found');
+        if((string)$row['status']!=='pending' || $row['journal_entry_id']!==null) fail('Only unposted transactions can be edited. Posted lines keep their audit trail.',409,'bank_transaction_edit_blocked');
+        $m=db()->prepare("SELECT COUNT(*) FROM bank_match_bank_items bi JOIN bank_match_groups g ON g.id=bi.match_group_id WHERE bi.bank_transaction_id=? AND g.status='matched'"); $m->execute([$id]);
+        if((int)$m->fetchColumn()>0) fail('This transaction is matched. Unmatch it before editing.',409,'bank_transaction_edit_matched');
+        if(schema_table_exists('reconciliation_items')){$r=db()->prepare("SELECT COUNT(*) FROM reconciliation_items ri JOIN reconciliations rc ON rc.id=ri.reconciliation_id WHERE ri.bank_transaction_id=? AND rc.company_id=? AND rc.status='complete'");$r->execute([$id,$companyId]);if((int)$r->fetchColumn()>0) fail('This transaction is part of a completed reconciliation.',409,'bank_transaction_edit_reconciled');}
+        if(period_lock_for_date($companyId,(string)$row['transaction_date'])!==null) fail('The original date is in a locked period.',409,'period_locked');
+        $full=null;if(schema_table_exists('bank_transaction_source_text')){$t=db()->prepare('SELECT full_description FROM bank_transaction_source_text WHERE company_id=? AND transaction_id=?');$t->execute([$companyId,$id]);$full=$t->fetchColumn();$full=$full===false?null:(string)$full;}
+        $before=['date'=>(string)$row['transaction_date'],'description'=>$full??(string)$row['description'],'reference'=>(string)($row['reference']??''),'remarks'=>(string)($row['remarks']??''),'amountCents'=>(int)($row['foreign_amount_cents']??$row['amount_cents'])];
+        $after=['date'=>$date,'description'=>$description,'reference'=>$reference,'remarks'=>$remarks,'amountCents'=>$amount];
+        if($before===$after){db()->commit();json_response(['transaction'=>['id'=>$id]+$after,'changed'=>false]);}
+        // A changed amount or description invalidates the automatic suggestion.
+        $resetSuggestion=$before['amountCents']!==$amount || $before['description']!==$description;
+        // Amount is entered in the account's currency; the base amount uses the imported rate.
+        $rate=(int)($row['exchange_rate_micros']??0);$base=$rate>0&&function_exists('convert_to_base_cents')?convert_to_base_cents($amount,$rate):$amount;
+        db()->prepare('UPDATE bank_transactions SET transaction_date=?,description=?,reference=?,remarks=?,amount_cents=?,foreign_amount_cents=?'.($resetSuggestion?",suggested_account_id=NULL,confidence=0,ai_explanation=NULL,normalized_merchant=NULL":'').' WHERE company_id=? AND id=? AND status=\'pending\' AND journal_entry_id IS NULL')
+            ->execute([$date,mb_substr($description,0,500),$reference!==''?$reference:null,$remarks,$base,$amount,$companyId,$id]);
+        if($full!==null&&$before['description']!==$description)db()->prepare('UPDATE bank_transaction_source_text SET full_description=? WHERE company_id=? AND transaction_id=?')->execute([$description,$companyId,$id]);
+        $changed=array_keys(array_filter($after,static fn($value,$key)=>$before[$key]!==$value,ARRAY_FILTER_USE_BOTH));
+        audit_event($user,$companyId,'bank_transaction.edited','bank_transaction',$id,['before'=>$before,'after'=>$after,'changedFields'=>$changed,'bankAccountId'=>(string)$row['bank_account_id'],'initiatedVia'=>'Manual UI']);
+        db()->commit();
+    }catch(Throwable $error){if(db()->inTransaction())db()->rollBack();throw $error;}
+    json_response(['transaction'=>['id'=>$id]+$after,'changed'=>true,'changedFields'=>$changed]);
+}
+
 function handle_bank_transaction_delete(): never
 {
     require_method('POST'); require_csrf(); $user=require_user(); $company=require_company($user); require_company_role($company,'owner','bookkeeper');

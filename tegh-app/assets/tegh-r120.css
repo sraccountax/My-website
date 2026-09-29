@@ -651,3 +651,15 @@ html[data-tegh-theme="dark"] .r127-bank-balance b.r127-neg{color:#ff8f86}
 .r127-opening-error:empty{display:none}
 .r127-opening-fields[hidden]{display:none}
 @media (max-width:640px){.r127-opening-fields{grid-template-columns:1fr}}
+
+/* 26. R129: edit a bank line from the Transactions Report */
+.r129-bank-edit{grid-template-columns:1fr!important}
+.r129-bank-edit label{display:grid;gap:5px}
+.r129-bank-edit textarea{resize:vertical;min-height:58px;font:inherit}
+.r129-bank-edit-pair{display:grid;grid-template-columns:minmax(120px,1fr) minmax(140px,1.4fr);gap:12px}
+@media(max-width:480px){.r129-bank-edit-pair{grid-template-columns:1fr}}
+html[data-tegh-theme="dark"] .r129-bank-edit :is(input,select,textarea){background:var(--tegh-surface,#15231f)!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+@media (prefers-color-scheme:dark){html[data-tegh-theme="auto"] .r129-bank-edit :is(input,select,textarea){background:var(--tegh-surface,#15231f)!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}}
+.r23-dialog-foot .r23-btn.is-primary{background:var(--tegh-emerald,#0f5c4b)!important;border-color:var(--tegh-emerald,#0f5c4b)!important;color:#fff!important}
+/* R129: on phones the bank balance takes its own line so the panel header never squeezes. */
+@media (max-width:640px){.r28-bank-panel>header:has(.r127-bank-balance){flex-wrap:wrap!important;row-gap:6px}.r28-bank-panel>header:has(.r127-bank-balance)>div:first-child{flex:1 1 auto;min-width:0}.r28-bank-panel>header .r127-bank-balance{order:3;flex:1 0 100%!important;margin:0!important}.r28-bank-panel>header .r127-bank-balance .r127-closing{white-space:normal;flex-wrap:wrap}}

@@ -128,6 +128,24 @@
      screen for the record, so every change still goes through that screen's
      own validation and confirmation. */
   function clickWhenReady(pattern,timeout=8000){const started=Date.now();const tick=()=>{const target=typeof pattern==='string'?[...document.querySelectorAll(pattern)].find(n=>!n.disabled):$$('.srp-page button, .srp-page a, .srp-page summary').find(n=>n.offsetParent&&!n.disabled&&pattern.test((n.textContent||'').replace(/\s+/g,' ').trim()));if(target){target.click();return}if(Date.now()-started<timeout)setTimeout(tick,150)};setTimeout(tick,300)}
+  /* R129: a bank line can be edited from the Transactions Report while it is
+     still unposted and unmatched. The server repeats every check. */
+  function editableBankLine(r){return String(r?.status||'').toLowerCase()==='pending'&&!r.matched&&!r.reconciled&&!r.journalId;}
+  function editBankTransaction(s,row){let d;try{d=modal(s,'Edit Bank Transaction',document.activeElement);}catch(e){status(s,e.message);return;}
+    const form=el('form','r23-filter-form r129-bank-edit'),field=(text,input,hint)=>{const l=el('label','',text);l.append(input);if(hint)l.append(el('small','r23-muted',hint));return l;},cur=String(row.currency||'');
+    const date=el('input');date.type='date';date.name='date';date.required=true;date.value=String(row.date||'').slice(0,10);date.max=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+    const description=el('textarea');description.name='description';description.rows=3;description.maxLength=2000;description.required=true;description.value=String(row.description||'');
+    const reference=el('input');reference.name='reference';reference.maxLength=120;reference.value=String(row.reference||'');
+    const cents=Number(row.amountCents||0),direction=el('select');direction.name='direction';direction.add(new Option('Money out','out'));direction.add(new Option('Money in','in'));direction.value=cents<0?'out':'in';
+    const amount=el('input');amount.name='amount';amount.inputMode='decimal';amount.required=true;amount.value=(Math.abs(cents)/100).toFixed(2);
+    const remarks=el('textarea');remarks.name='remarks';remarks.rows=2;remarks.maxLength=500;remarks.value=String(row.remarks||'');
+    const pair=el('div','r129-bank-edit-pair');pair.append(field('Direction',direction),field('Amount'+(cur?` (${cur})`:''),amount));
+    form.append(field('Date',date),field('Description',description),field('Reference',reference),pair,field('Remarks',remarks,'Optional. Kept with the bank line.'));
+    d.body.append(el('p','r23-muted',`${row.bankAccount||'Bank account'} · not posted and not matched, so it can still be changed. The change is recorded in the audit trail.`),form);
+    const save=button('Save changes',async()=>{try{assertActive(s);const raw=amount.value.replace(/[,$\s]/g,'');if(!/^\d+(\.\d{1,2})?$/.test(raw))throw Error('Enter the amount as a number, for example 120.50.');const value=Math.round(Number(raw)*100);if(!value)throw Error('The amount cannot be zero.');if(!date.value)throw Error('Choose the transaction date.');if(!description.value.trim())throw Error('Enter a description.');
+      save.disabled=true;const result=await window.TeghPortal.editBankTransaction({transactionId:row.id,date:date.value,description:description.value.trim(),reference:reference.value.trim(),remarks:remarks.value.trim(),amountCents:direction.value==='out'?-value:value});d.dialog.close();status(s,result?.changed===false?'No changes to save.':'Bank transaction updated.');}catch(e){d.fail(e);}finally{save.disabled=false;}},{'class':'r23-btn is-primary'});
+    form.onsubmit=e=>{e.preventDefault();save.click();};d.footer.append(button('Cancel',()=>d.dialog.close()),save);date.focus();
+  }
   function selectionActions(s,rows){
     const P=window.TeghPortal||{},key=s.m.definitionKey,acts=[],one=rows.length===1?rows[0]:null,add=(label,run,primary=false)=>acts.push({label,run,primary});
     const lower=v=>String(v||'').toLowerCase(),dateOf=r=>String(r.date||r.documentDate||r.payDate||r.paymentDate||'').slice(0,10);
@@ -152,6 +170,7 @@
       if(pending&&same)add(rows.length>1?`Post ${rows.length} transactions`:'Post',()=>P.openBankTransactionsWorkspace(bank,start,end,'post',ids),true);
       if(unmatched&&same)add(rows.length>1?`Match ${rows.length} transactions`:'Match',()=>P.openBankTransactionsWorkspace(bank,start,end,'match',ids),true);
       if(excluded)add('Restore',()=>P.openImportedTransactions('','excluded'),true);
+      if(one&&editableBankLine(one)&&P.editBankTransaction)add('Edit transaction',()=>editBankTransaction(s,one),true);
       if(one){add('View transaction',()=>P.openImportedTransactions(one.id));journal(one);}
       if(!same&&(pending||unmatched))acts.push({label:'Select transactions from one bank account to post or match them together.',note:true});
       return acts;}

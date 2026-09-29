@@ -234,6 +234,7 @@ require_once __DIR__ . '/report_comparison_r20.php';
     if ($route === 'bank-transactions/exclude') handle_bank_transaction_review_state('exclude');
     if ($route === 'bank-transactions/restore') handle_bank_transaction_review_state('restore');
     if ($route === 'bank-transactions/delete') handle_bank_transaction_delete();
+    if ($route === 'bank-transactions/edit') handle_bank_transaction_edit();
     if ($route === 'reconciliations') handle_reconciliations();
     if ($route === 'settings') handle_settings();
     if ($route === 'accounts') handle_accounts();

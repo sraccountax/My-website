@@ -2161,6 +2161,7 @@ const TeghPortal = (() => {
       };generate();
     },{module:returnModule,route:`report-bank-general-ledger-context:${encodeRouteContext({...context,bankAccountId:context.bankAccountId||'',currency:context.currency||''})}`,back:bankReportReturn(context),cache:false});
   }
+  let lastBankReportContext={returnModule:'Banking'};
   function openWorkspaceReport(kind,initialContext='Reports'){
     const reportContext=typeof initialContext==='string'?{returnModule:initialContext}:{...(initialContext||{})},returnModule=reportContext.returnModule||'Reports';
     if(kind==='bank-reconciliation')return openBankReconciliationReport(returnModule);
@@ -2178,6 +2179,7 @@ const TeghPortal = (() => {
       'currency-exposure':['Currency exposure','Active company currencies and current stored exchange rates.']
     }[kind]||['Report','Company report'];
     const dateFieldByKind={'general-ledger':'date','audit-trail':'createdAt','invoice-register':'issueDate','bill-register':'billDate','expense-register':'expenseDate','bank-reconciliation':'periodEnd','bank-transactions':'transactionDate'};
+    if(kind==='bank-transactions')lastBankReportContext={...reportContext};
     showPage(`report-${kind}`,meta[0],meta[1],async body=>{
       const a=await auth(),company=companyAccess(a)||{},fiscalEnd=String(company.fiscalYearEnd||'12-31'),w=await workspace(),currency=w.organization?.currency||'CAD';
       let preset=localStorage.getItem(`tegh-report-period-${kind}`)||localStorage.getItem('tegh-report-period')||'fiscal-ytd';
@@ -6893,6 +6895,8 @@ const TeghPortal = (() => {
     openAccountLedger:async(codeOrId)=>{const w=await workspace(),key=String(codeOrId||''),account=(w.accounts||[]).find(a=>String(a.id)===key||String(a.code)===key);if(!account){toast('Account unavailable','This account is not in the current company.','error');return}openGlAccountLedger(account.id,'Reports')},
     openBankTransactionsWorkspace:(bankId,start,end,mode,ids)=>openBankReconciliation(String(bankId||''),String(start||''),String(end||''),mode==='match'?'match':'post',ids||[]),
     openReconcileAccount:()=>openBankReconciliationCompletion(),
+    // R129: edit an unposted, unmatched bank line from the Transactions Report.
+    editBankTransaction:async payload=>{const result=await api('bank-transactions/edit',{method:'POST',json:payload});if(result?.changed!==false)toast('Bank Transaction Updated','The change is saved and recorded in the audit trail.','success');await refreshAfterCommittedMutation(()=>openWorkspaceReport('bank-transactions',{...lastBankReportContext}),'bank-transactions');return result},
     openBankImport:()=>openCurrentStatementImporter(),
     openReconciliation:()=>openBankReconciliation(),
     quickActions:quickActionService
