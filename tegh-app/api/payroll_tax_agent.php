@@ -82,8 +82,8 @@ function payroll_tax_agent_collect(array $company,array $policy,string $sourceRe
         }
         if($remittanceIssues){$records=array_map(static fn(array $row):array=>['type'=>'payroll_remittance','id'=>$row['id']],$remittanceIssues);$evidence=['records'=>$records,'affectedCount'=>count($remittanceIssues),'issues'=>$remittanceIssues,'humanReconciliationRequired'=>true,'paymentInitiated'=>false,'accountingWrites'=>0,'providerAttempts'=>0];$findings[]=native_agent_finding_spec('payroll_tax','payroll_remittance_evidence_mismatch',$companyId.'|'.native_agent_hash($remittanceIssues),'critical',10000,'Payroll remittance evidence needs reconciliation','One or more posted remittance records does not reconcile to its retained journal or bank evidence. Tegh has not changed, reversed, recreated or paid any remittance.',$evidence,'nav.payroll_remittance',[],$remittanceIssues[0]['paymentDate'].' 00:00:00');}
 
-        $incomplete=payroll_tax_scalar_row("SELECT COUNT(*) employee_count FROM payroll_employees WHERE company_id=? AND active=1 AND (sin_last_four IS NULL OR federal_td1_cents IS NULL OR provincial_td1_cents IS NULL)",[$companyId]);
-        if((int)($incomplete['employee_count']??0)>0){$count=(int)$incomplete['employee_count'];$evidence=['records'=>[['type'=>'payroll_employee_group','id'=>'incomplete-profiles']],'affectedCount'=>$count,'missingProfileCount'=>$count,'sensitiveValuesIncluded'=>false,'accountingWrites'=>0,'providerAttempts'=>0];$findings[]=native_agent_finding_spec('payroll_tax','payroll_employee_profile_review',$companyId.'|incomplete-profiles','warning',10000,'Employee payroll profiles need review','Active employee profiles are missing one or more SIN/TD1 readiness indicators. The finding stores only a count and never exposes SIN ciphertext or employee tax values.',$evidence,'nav.payroll_employees',[],$today.' 00:00:00');}
+        $incomplete=payroll_tax_scalar_row("SELECT COUNT(*) employee_count FROM payroll_employees WHERE company_id=? AND active=1 AND (federal_td1_cents IS NULL OR provincial_td1_cents IS NULL)",[$companyId]);
+        if((int)($incomplete['employee_count']??0)>0){$count=(int)$incomplete['employee_count'];$evidence=['records'=>[['type'=>'payroll_employee_group','id'=>'incomplete-profiles']],'affectedCount'=>$count,'missingProfileCount'=>$count,'sensitiveValuesIncluded'=>false,'accountingWrites'=>0,'providerAttempts'=>0];$findings[]=native_agent_finding_spec('payroll_tax','payroll_employee_profile_review',$companyId.'|incomplete-profiles','warning',10000,'Employee payroll profiles need review','Active employee profiles are missing one or more TD1 readiness indicators. The finding stores only a count and never exposes employee tax values.',$evidence,'nav.payroll_employees',[],$today.' 00:00:00');}
     }
 
     $year=(int)substr($today,0,4);$nextYear=$year+1;$yearEnd=new DateTimeImmutable($year.'-12-31');$daysToYearEnd=(int)(new DateTimeImmutable($today))->diff($yearEnd)->format('%r%a');$rateWindow=(int)($policy['thresholds']['payrollRateReviewDays']??150);
@@ -91,7 +91,7 @@ function payroll_tax_agent_collect(array $company,array $policy,string $sourceRe
 
     if($settings&&$daysToYearEnd>=0&&$daysToYearEnd<=$rateWindow){
         $t4=payroll_tax_scalar_row("SELECT COUNT(DISTINCT r.id) run_count,COUNT(i.id) item_count,COUNT(DISTINCT i.employee_id) employee_count,
-          SUM(CASE WHEN i.id IS NOT NULL AND (e.sin_last_four IS NULL OR e.sin_last_four='') THEN 1 ELSE 0 END) missing_profile_count,
+          0 missing_profile_count,
           SUM(CASE WHEN i.id IS NOT NULL AND (i.verified_income_tax_cents IS NULL OR i.verification_status NOT IN ('official_verified','manual_override')) THEN 1 ELSE 0 END) unverified_item_count,
           SUM(CASE WHEN i.id IS NULL THEN 1 ELSE 0 END) runs_without_items
           FROM payroll_runs r LEFT JOIN payroll_run_items i ON i.payroll_run_id=r.id LEFT JOIN payroll_employees e ON e.id=i.employee_id

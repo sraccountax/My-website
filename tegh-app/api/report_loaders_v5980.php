@@ -241,7 +241,7 @@ function tegh_report_payroll_5980(array $company,array $d,array $p): array
     }
     $totals=[];$posted=[];foreach($columns as $c)if(($c[2]??'')==='money'){$totals[$c[0]]=0;$posted[$c[0]]=0;}
     foreach($rows as &$row)foreach(array_keys($totals) as $key){$row[$key]=(int)$row[$key];$totals[$key]+=$row[$key];if($row['glStatus']==='posted')$posted[$key]+=$row[$key];}unset($row);
-    $m=tegh_report_model_5980($d,$company,$p,tegh_report_columns_5980($columns),$rows,$totals);$m['controlTotals']=['postedToLedger'=>$posted];$m['totalsLabel']='Selected pay runs; draft and verification states are explicit';$m['postingScope']='Payroll calculations and GL posting status are separate. Draft/verified calculations are not represented as posted ledger activity. SIN, tax-account credentials and bank information are excluded.';return $m;
+    $m=tegh_report_model_5980($d,$company,$p,tegh_report_columns_5980($columns),$rows,$totals);$m['controlTotals']=['postedToLedger'=>$posted];$m['totalsLabel']='Selected pay runs; draft and verification states are explicit';$m['postingScope']='Payroll calculations and GL posting status are separate. Draft/verified calculations are not represented as posted ledger activity. Tegh does not store SINs; tax-account credentials and bank information are excluded.';return $m;
 }
 function tegh_report_reconciliation_5980(array $company,array $d,array $p): array
 {

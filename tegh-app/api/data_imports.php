@@ -164,6 +164,23 @@ function di_validate_vendor_documents(array $company,array $rows,array $maps): a
     return ['issues'=>$issues,'prepared'=>$prepared,'openingTotals'=>$openingTotals];
 }
 
+/* R130: Tegh never stores Social Insurance Numbers. Any SIN column value, or
+   any field that looks like a SIN, is replaced before rows are validated or
+   saved as an import preview; the row is then reported as needing correction. */
+function di_strip_sins(array $rows): array
+{
+    foreach($rows as $i=>$row){
+        if(!is_array($row))continue;$found=[];
+        foreach($row as $key=>$value){
+            if(!is_scalar($value))continue;$text=trim((string)$value);if($text==='')continue;
+            $isSinKey=preg_match('/^(sin|sinlastfour|sin_last_four|socialinsurancenumber|social_insurance_number|social insurance number)$/i',(string)$key)===1;
+            if($isSinKey||(function_exists('payroll_looks_like_sin')&&payroll_looks_like_sin($text))){$row[$key]='';$found[]=(string)$key;}
+        }
+        if($found){$row['__sinRemoved']=$found;$rows[$i]=$row;}
+    }
+    return $rows;
+}
+
 function di_validate_rows(array $company,string $type,array $rows): array
 {
     $companyId=(string)$company['id'];$maps=di_lookup_maps($companyId);$issues=[];$prepared=[];$seen=[];$warnings=0;$duplicates=0;
@@ -212,7 +229,9 @@ function di_validate_rows(array $company,string $type,array $rows): array
         if(!$payrollReady)di_add_issue($issues,2,'Payroll Setup','Payroll','Enable payroll before importing employees.','','Complete Payroll Setup, then validate this file again.');
         $allowedProvinces=['AB','BC','MB','NB','NL','NS','NT','NU','ON','PE','SK','YT'];
         foreach(array_values($rows) as $i=>$row){$n=$i+2;if(!is_array($row))continue;$number=di_str($row,'employeeNumber',30);$first=di_str($row,'firstName',100);$last=di_str($row,'lastName',100);$ref=$number!==''?$number:($first.' '.$last?:'Row '.$n);$bad=!$payrollReady;
-            if($number===''){di_add_issue($issues,$n,$ref,'Employee Number','Employee Number is required.','','Enter a unique employee number.');$bad=true;}else{$key=mb_strtolower($number);if(isset($maps['employeeNumbers'][$key])||isset($seen[$key])){di_add_issue($issues,$n,$ref,'Employee Number','Employee Number already exists or is duplicated in this file.',$number,'Use a unique employee number.','duplicate');$duplicates++;$bad=true;}$seen[$key]=true;}
+            if($number===''){di_add_issue($issues,$n,$ref,'Employee Number','Employee Number is required.','','Enter a unique employee number.');$bad=true;}
+            // R130: Tegh never stores Social Insurance Numbers.
+            if(!empty($row['__sinRemoved'])){di_add_issue($issues,$n,$ref,'SIN','A Social Insurance Number (SIN) was found and removed. Tegh does not store SINs.','','Remove SINs from the file and use an Employee ID such as EMP-0001.');$bad=true;}else{$key=mb_strtolower($number);if(isset($maps['employeeNumbers'][$key])||isset($seen[$key])){di_add_issue($issues,$n,$ref,'Employee Number','Employee Number already exists or is duplicated in this file.',$number,'Use a unique employee number.','duplicate');$duplicates++;$bad=true;}$seen[$key]=true;}
             if($first===''){di_add_issue($issues,$n,$ref,'First Name','First Name is required.','','Enter the employee first name.');$bad=true;}if($last===''){di_add_issue($issues,$n,$ref,'Last Name','Last Name is required.','','Enter the employee last name.');$bad=true;}
             $email=di_str($row,'email',254);if($email!==''&&!filter_var($email,FILTER_VALIDATE_EMAIL)){di_add_issue($issues,$n,$ref,'Email','Email format is invalid.',$email,'Correct the email address.');$bad=true;}
             $employment=strtoupper(di_str($row,'provinceOfEmployment',2)?:((string)$company['province']));$residence=strtoupper(di_str($row,'provinceOfResidence',2)?:$employment);foreach([['Province of Employment',$employment],['Province of Residence',$residence]] as [$label,$province]){if($province==='QC'){di_add_issue($issues,$n,$ref,$label,'Quebec payroll is not supported in this release.',$province,'Use a supported province or manage Quebec payroll outside Tegh.');$bad=true;}elseif(!in_array($province,$allowedProvinces,true)){di_add_issue($issues,$n,$ref,$label,'Province is invalid.',$province,'Use a supported Canadian two-letter code.');$bad=true;}}
@@ -562,6 +581,7 @@ function handle_data_imports(string $suffix): never
     if($suffix==='validate'){
         require_method('POST');require_csrf();$input=request_json();$type=strtolower(trim((string)($input['importType']??'')));if($type==='bank_transaction_categories')fail('Use the signed category workbook preview/commit workflow.',409,'category_signed_workflow_required');if(!in_array($type,di_import_types(),true))fail('Choose a supported import type.');require_company_permission($company,di_permission($type));
         $rows=$input['rows']??null;if(!is_array($rows))fail('The import rows are invalid.');$filename=mb_substr(trim((string)($input['filename']??'')),0,240);
+        if($type==='employees')$rows=di_strip_sins($rows); // R130: SIN values are removed before the preview is stored.
         $result=di_attach_selection($type,$rows,di_validate_rows($company,$type,$rows));$previewId=new_id('importpreview');$expires=gmdate('Y-m-d H:i:s',time()+1800);$storageType=$type==='employees'?'products_services':$type;
         db()->prepare('INSERT INTO data_import_previews (id,company_id,user_id,import_type,filename,rows_json,validation_json,status,expires_at) VALUES (?,?,?,?,?,?,?,\'validated\',?)')
             ->execute([$previewId,$companyId,$user['id'],$storageType,$filename,json_encode($rows,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR),json_encode(['logicalImportType'=>$type,'summary'=>$result['summary'],'issues'=>$result['issues']],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR),$expires]);

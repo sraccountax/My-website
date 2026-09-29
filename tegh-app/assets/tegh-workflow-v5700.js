@@ -288,7 +288,7 @@
     const items=workspace[group] || [], active=activeItem(items,route,root,group);
     const bar=document.createElement('section');bar.className='tegh-context-bar';bar.dataset.teghContextBuild=BUILD;
     const top=document.createElement('div');top.className='tegh-context-top';
-    const title=document.createElement('div');title.innerHTML=`<small>${module}</small><strong>${group === 'Activity' ? 'Workflow' : 'Reports'}</strong>`;top.append(title);
+    const title=document.createElement('div');title.innerHTML=`<small>${module === 'Payroll' ? 'Payroll Support' : module}</small><strong>${group === 'Activity' ? 'Workflow' : 'Reports'}</strong>`;top.append(title);
     const switcher=document.createElement('nav');switcher.className='tegh-context-switch';switcher.setAttribute('aria-label',`${module} section`);
     ['Activity','Reports'].forEach(name=>{
       const button=document.createElement('button');button.type='button';button.textContent=name;button.classList.toggle('active',name===group);
@@ -303,7 +303,7 @@
     }
     bar.append(top);
     const tabs=document.createElement('nav');tabs.className=`tegh-context-tabs ${group==='Activity'?'workflow':''}`;tabs.setAttribute('aria-label',`${module} ${group}`);
-    items.forEach((item,index)=>tabs.append(makeButton(item[0],item[0]===active,()=>{setPreferredGroup(module,group);item[1]()},group==='Activity'?String(index+1):'')));
+    items.forEach((item,index)=>tabs.append(makeButton(item[0]==='CRA Remittance'?'Remittance Records':item[0],item[0]===active,()=>{setPreferredGroup(module,group);item[1]()},group==='Activity'?String(index+1):'')));
     bar.append(tabs);return bar;
   }
 

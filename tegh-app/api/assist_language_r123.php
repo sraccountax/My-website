@@ -262,7 +262,7 @@ function tegh_assist_plain_answer(string $question): ?array
          [['See GST/HST paid and collected','The Tax Summary shows your net position.','report.tax_summary']]],
         ['/\b(?:when|what date)\b.{0,30}\b(?:payroll|source deductions?|remittance)\b.{0,20}\bdue\b|\bpayroll (?:remittance|deductions?) due\b|\bwhen (?:do|should|must) (?:i|we) remit\b/u',
          'Most small employers (regular remitters) must send CPP, EI and income tax deductions to CRA by the 15th of the month after the pay date. Larger employers remit more often; your CRA remitter type is shown on your remittance voucher.',
-         [['Record the remittance','CRA Payroll Remittance fills in the amounts owing.','nav.payroll_remittance']]],
+         [['Record the remittance','Remittance Records fills in the amounts owing.','nav.payroll_remittance']]],
         ['/\b(?:difference between|what is the difference)\b.{0,30}\b(?:invoice|bill)\b.{0,30}\b(?:invoice|bill)\b|\bis a bill (?:the same as|an invoice)\b/u',
          'In Tegh, an invoice is what you send a customer (money in) and a bill or vendor invoice is what a supplier sends you (money out).',
          [['Create an invoice','Bill a customer.','nav.customer_invoice_create'],['Enter a bill','Record a supplier bill.','nav.vendor_invoice_create']]],

@@ -663,3 +663,39 @@ html[data-tegh-theme="dark"] .r129-bank-edit :is(input,select,textarea){backgrou
 .r23-dialog-foot .r23-btn.is-primary{background:var(--tegh-emerald,#0f5c4b)!important;border-color:var(--tegh-emerald,#0f5c4b)!important;color:#fff!important}
 /* R129: on phones the bank balance takes its own line so the panel header never squeezes. */
 @media (max-width:640px){.r28-bank-panel>header:has(.r127-bank-balance){flex-wrap:wrap!important;row-gap:6px}.r28-bank-panel>header:has(.r127-bank-balance)>div:first-child{flex:1 1 auto;min-width:0}.r28-bank-panel>header .r127-bank-balance{order:3;flex:1 0 100%!important;margin:0!important}.r28-bank-panel>header .r127-bank-balance .r127-closing{white-space:normal;flex-wrap:wrap}}
+
+/* 27. R130: Payroll Support notice and pay-run review confirmation */
+.payroll-support-notice{display:grid!important;gap:4px;margin:0 0 14px;padding:12px 14px;border:1px solid #e3cf8f;border-left:4px solid #b7862b;border-radius:10px;background:#fdf8ea;color:#4a3b12;font-size:13px;line-height:1.45}
+.payroll-support-notice b{font-size:13.5px;color:#3d300c}
+.payroll-support-notice span{color:#4a3b12}
+.srp-page>.payroll-support-notice{margin:12px 16px 2px}
+.r130-finalize-dialog form{display:grid;gap:12px}
+.r130-finalize-dialog label{display:grid;gap:5px}
+.r130-finalize-dialog .r130-review-check{display:flex!important;align-items:flex-start;gap:9px;padding:10px 12px;border:1px solid var(--tegh-line,#dde5e1);border-radius:9px;font-weight:600;line-height:1.4}
+.r130-finalize-dialog .r130-review-check input{margin-top:3px;flex:none;width:18px;height:18px}
+.r130-finalize-error{margin:0;color:#b3261e;font-size:13px}
+.r130-finalize-dialog button[type="submit"]:disabled{opacity:.55;cursor:not-allowed}
+html[data-tegh-theme="dark"] .payroll-support-notice{background:#2a2412;border-color:#6b5820;border-left-color:#d4a53d;color:#f1e6c4}
+html[data-tegh-theme="dark"] .payroll-support-notice b{color:#fbefcb}
+html[data-tegh-theme="dark"] .payroll-support-notice span{color:#eadfbe}
+html[data-tegh-theme="dark"] .r130-finalize-error{color:#ff8f86}
+@media (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] .payroll-support-notice{background:#2a2412;border-color:#6b5820;border-left-color:#d4a53d;color:#f1e6c4}
+  html[data-tegh-theme="auto"] .payroll-support-notice b{color:#fbefcb}
+  html[data-tegh-theme="auto"] .payroll-support-notice span{color:#eadfbe}
+  html[data-tegh-theme="auto"] .r130-finalize-error{color:#ff8f86}
+}
+.tegh-action-dialog.r130-finalize-dialog{width:min(36rem,calc(100vw - 24px))!important;max-width:calc(100vw - 24px)!important}
+html[data-tegh-theme="dark"] .r130-finalize-dialog>header{background:transparent!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+html[data-tegh-theme="dark"] .r130-finalize-dialog>header h2{color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] .r130-finalize-dialog>header small{color:var(--tegh-muted,#a7bbb3)!important}
+html[data-tegh-theme="dark"] .r130-finalize-dialog>header button{background:transparent!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+@media (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] .r130-finalize-dialog>header{background:transparent!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+  html[data-tegh-theme="auto"] .r130-finalize-dialog>header h2{color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] .r130-finalize-dialog>header small{color:var(--tegh-muted,#a7bbb3)!important}
+  html[data-tegh-theme="auto"] .r130-finalize-dialog>header button{background:transparent!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+}
+/* R130: the Verified pay-run status stays readable in dark mode (matches Posted). */
+html[data-tegh-theme="dark"] .srp-page .srp-status.verified{color:var(--tegh-ink,#edf6f2)!important;background:rgba(20,120,160,.28)!important;border-color:var(--tegh-line,#334b43)!important}
+@media (prefers-color-scheme:dark){html[data-tegh-theme="auto"] .srp-page .srp-status.verified{color:var(--tegh-ink,#edf6f2)!important;background:rgba(20,120,160,.28)!important;border-color:var(--tegh-line,#334b43)!important}}

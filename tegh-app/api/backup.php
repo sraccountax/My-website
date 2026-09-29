@@ -232,6 +232,7 @@ function backup_insert_row(string $table,array $row,string $companyId,string $us
     if($row===[])return;$available=backup_table_columns($table);if($available===[])throw new RuntimeException('Restore target table is missing: '.$table);
     if($table==='journal_entries'&&isset($available['content_hash'])&&!array_key_exists('content_hash',$row))$row['content_hash']=str_repeat('0',64);
     $userColumns=['user_id','created_by','updated_by','approved_by','verified_by','run_by','initiated_by','invited_by','accepted_by','posted_by','actor_user_id','prepared_by','reviewed_by','reopened_by','locked_by','unlocked_by','reversed_by','gl_posted_by','matched_by','unreconciled_by','test_created_by','checked_by','performed_by','requested_by','assigned_to','assigned_user_id','changed_by','uploaded_by','actor_id','removed_by','linked_by','dismissed_by','snoozed_by','resolved_by','recovered_by','attested_by','voided_by','hold_by','released_by','suspended_by'];
+    if($table==='payroll_employees'){unset($row['sin_ciphertext'],$row['sin_last_four']);} // R130: never restore SINs from older backups.
     if(array_key_exists('company_id',$row))$row['company_id']=$companyId;
     foreach($userColumns as $column)if(array_key_exists($column,$row)&&$row[$column]!==null&&$row[$column]!=='')$row[$column]=$userId;
     if(array_key_exists('actor_email',$row)){$stmt=db()->prepare('SELECT email FROM users WHERE id=?');$stmt->execute([$userId]);$row['actor_email']=(string)$stmt->fetchColumn();}
@@ -326,6 +327,8 @@ function backup_capture_snapshot(array $company): array
     try{
         $stmt=$pdo->prepare('SELECT * FROM companies WHERE id=?');$stmt->execute([$company['id']]);$companyRow=$stmt->fetch();if(!$companyRow)throw new RuntimeException('The company is no longer available.');
         $records=[];$counts=[];foreach(backup_record_queries() as $key=>$sql){$records[$key]=backup_rows($sql,(string)$company['id']);$counts[$key]=count($records[$key]);}
+        // R130: backups never carry Social Insurance Numbers.
+        foreach($records['payrollEmployees']??[] as $i=>$row){unset($records['payrollEmployees'][$i]['sin_ciphertext'],$records['payrollEmployees'][$i]['sin_last_four']);}
         $members=backup_rows("SELECT cm.company_id,cm.user_id,cm.role,cm.status,cm.created_at,u.email,u.display_name FROM company_members cm JOIN users u ON u.id=cm.user_id WHERE cm.company_id=? AND cm.status='active' ORDER BY u.email",(string)$company['id']);
         $schema=current_database_schema_version();$pdo->commit();return ['company'=>$companyRow,'records'=>$records,'recordCounts'=>$counts,'companyMembers'=>$members,'schemaVersion'=>$schema];
     }catch(Throwable $error){if($pdo->inTransaction())$pdo->rollBack();throw $error;}

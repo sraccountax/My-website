@@ -641,5 +641,33 @@
     "FILE-MANIFEST.sha256"
   ],
   "r129Migration": false,
-  "r129CacheToken": "5990-r129-tegh"
+  "r129CacheToken": "5990-r129-tegh",
+  "r130Files": [
+    "api/payroll.php",
+    "api/data_imports.php",
+    "api/backup.php",
+    "api/payroll_tax_agent.php",
+    "api/native_agents.php",
+    "api/report_loaders_v5980.php",
+    "api/ai_actions_v5600.php",
+    "api/ai_agent.php",
+    "api/assist_language_r123.php",
+    "api/schema.sql",
+    "assets/tegh-portal-v5990.js",
+    "assets/index-BsxPiq85-v2817.js",
+    "assets/index-BsxPiq85-v211.js",
+    "assets/tegh-workflow-v5700.js",
+    "assets/tegh-r120.css",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "app.html",
+    "R130-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r130Migration": false,
+  "r130CacheToken": "5990-r130-tegh"
 }

@@ -329,21 +329,45 @@ function payroll_calculate_2026(array $input, ?array $rateSnapshot = null): arra
     ];
 }
 
-function payroll_validate_sin(string $sin): string
+/* R130: Tegh never stores Social Insurance Numbers. The employee's internal
+   Employee ID (for example EMP-0001) identifies them instead. This check only
+   detects a SIN-shaped value (nine digits passing the SIN checksum) so it can
+   be refused; nothing is kept. */
+function payroll_looks_like_sin(string $value): bool
 {
-    $digits = preg_replace('/\D+/', '', $sin) ?? '';
-    if (strlen($digits) !== 9) fail('SIN must contain exactly nine digits.');
+    $digits = preg_replace('/\D+/', '', $value) ?? '';
+    if (strlen($digits) !== 9 || !preg_match('/^\s*\d{3}[\s-]?\d{3}[\s-]?\d{3}\s*$/', $value)) return false;
     $sum = 0;
     foreach (str_split($digits) as $index => $character) {
         $digit = (int)$character;
-        if ($index % 2 === 1) {
-            $digit *= 2;
-            if ($digit > 9) $digit -= 9;
-        }
+        if ($index % 2 === 1) { $digit *= 2; if ($digit > 9) $digit -= 9; }
         $sum += $digit;
     }
-    if ($sum % 10 !== 0) fail('SIN checksum is invalid.');
-    return $digits;
+    return $sum % 10 === 0;
+}
+
+function payroll_refuse_sin_input(array $input): void
+{
+    foreach (['sin', 'socialInsuranceNumber', 'social_insurance_number', 'sinLastFour', 'sin_last_four'] as $key) {
+        if (array_key_exists($key, $input) && trim((string)$input[$key]) !== '') fail('Tegh does not store Social Insurance Numbers (SINs). Remove the SIN and use the Employee ID instead.', 422, 'sin_not_accepted');
+    }
+    foreach (['employeeNumber', 'firstName', 'lastName', 'email'] as $key) {
+        if (isset($input[$key]) && payroll_looks_like_sin((string)$input[$key])) fail('This looks like a Social Insurance Number. Tegh does not store SINs; use an Employee ID such as EMP-0001.', 422, 'sin_not_accepted');
+    }
+}
+
+/* R130: clear any SIN values saved by earlier releases for this company. It
+   runs on payroll requests; once clean it is one indexed read. The clean-up is
+   recorded in the company audit trail as an automatic action. */
+function payroll_purge_stored_sins(array $user, string $companyId): void
+{
+    static $done = []; if (isset($done[$companyId])) return; $done[$companyId] = true;
+    $stmt = db()->prepare('SELECT COUNT(*) FROM payroll_employees WHERE company_id = ? AND (sin_ciphertext IS NOT NULL OR sin_last_four IS NOT NULL)');
+    $stmt->execute([$companyId]);
+    $count = (int)$stmt->fetchColumn();
+    if ($count === 0) return;
+    db()->prepare('UPDATE payroll_employees SET sin_ciphertext = NULL, sin_last_four = NULL WHERE company_id = ? AND (sin_ciphertext IS NOT NULL OR sin_last_four IS NOT NULL)')->execute([$companyId]);
+    audit_event($user, $companyId, 'payroll.sin_data_removed', 'payroll_employee', 'all', ['employeesCleared' => $count, 'automatic' => true, 'reason' => 'Tegh no longer stores Social Insurance Numbers']);
 }
 
 function payroll_encrypt_secret(string $plaintext): string
@@ -471,7 +495,6 @@ function payroll_workspace_data(array $company): array
         'firstName' => (string)$row['first_name'], 'lastName' => (string)$row['last_name'],
         'name' => (string)$row['first_name'] . ' ' . (string)$row['last_name'],
         'email' => $row['email'] !== null ? (string)$row['email'] : null,
-        'sinLastFour' => $row['sin_last_four'] !== null ? (string)$row['sin_last_four'] : null,
         'provinceOfEmployment' => (string)$row['province_of_employment'], 'provinceOfResidence' => (string)$row['province_of_residence'],
         'hireDate' => (string)$row['hire_date'], 'terminationDate' => $row['termination_date'] !== null ? (string)$row['termination_date'] : null,
         'payFrequency' => (string)$row['pay_frequency'], 'payType' => (string)$row['pay_type'],
@@ -642,9 +665,8 @@ function handle_payroll_employee(array $user, array $company): never
     $standardHours = payroll_safe_hours_milli($input['standardHours'] ?? ($payType === 'hourly' ? 80 : 0), 'Standard hours');
     $vacationRate = (int)($input['vacationRateBps'] ?? 400);
     if ($vacationRate < 0 || $vacationRate > 2000) fail('Vacation rate must be between 0% and 20%.');
-    $sin = trim((string)($input['sin'] ?? ''));
-    $sinCipher = null; $sinLast = null;
-    if ($sin !== '') { $digits = payroll_validate_sin($sin); $sinCipher = payroll_encrypt_secret($digits); $sinLast = substr($digits, -4); }
+    payroll_refuse_sin_input($input);
+    $sinCipher = null; $sinLast = null; // R130: SINs are never stored.
     $email = trim((string)($input['email'] ?? ''));
     $email = $email === '' ? null : safe_email($email);
     $isUpdate = request_method() === 'PUT';
@@ -653,7 +675,7 @@ function handle_payroll_employee(array $user, array $company): never
         $values = [clean_text($input['employeeNumber'] ?? '', 'Employee number', 30),clean_text($input['firstName'] ?? '', 'First name', 100),clean_text($input['lastName'] ?? '', 'Last name', 100),$email,$sinCipher,$sinLast,$provinceEmployment,$provinceResidence,isset($input['dateOfBirth']) && $input['dateOfBirth'] !== '' ? safe_date($input['dateOfBirth'], 'Date of birth') : null,safe_date($input['hireDate'] ?? '', 'Hire date'),isset($input['terminationDate']) && $input['terminationDate'] !== '' ? safe_date($input['terminationDate'], 'Termination date') : null,$frequency,$payType,$salary,$hourly,$standardHours,$vacationRate,!empty($input['vacationPaidEachPay']) ? 1 : 0,isset($input['federalTd1Cents']) ? payroll_nonnegative_cents($input['federalTd1Cents'],'Federal TD1') : null,isset($input['provincialTd1Cents']) ? payroll_nonnegative_cents($input['provincialTd1Cents'],'Provincial TD1') : null,payroll_nonnegative_cents($input['additionalTaxCents'] ?? 0,'Additional tax'),!empty($input['cppExempt']) ? 1 : 0,!empty($input['eiExempt']) ? 1 : 0,array_key_exists('active',$input) ? (!empty($input['active']) ? 1 : 0) : 1];
         if ($values[10] !== null && $values[10] < $values[9]) fail('Termination date cannot precede hire date.');
         if ($isUpdate) {
-            $stmt = db()->prepare('UPDATE payroll_employees SET employee_number=?,first_name=?,last_name=?,email=?,sin_ciphertext=COALESCE(?,sin_ciphertext),sin_last_four=COALESCE(?,sin_last_four),province_of_employment=?,province_of_residence=?,date_of_birth=COALESCE(?,date_of_birth),hire_date=?,termination_date=?,pay_frequency=?,pay_type=?,annual_salary_cents=?,hourly_rate_cents=?,standard_hours_milli=?,vacation_rate_bps=?,vacation_paid_each_pay=?,federal_td1_cents=COALESCE(?,federal_td1_cents),provincial_td1_cents=COALESCE(?,provincial_td1_cents),additional_tax_cents=?,cpp_exempt=?,ei_exempt=?,active=? WHERE id=? AND company_id=?');
+            $stmt = db()->prepare('UPDATE payroll_employees SET employee_number=?,first_name=?,last_name=?,email=?,sin_ciphertext=?,sin_last_four=?,province_of_employment=?,province_of_residence=?,date_of_birth=COALESCE(?,date_of_birth),hire_date=?,termination_date=?,pay_frequency=?,pay_type=?,annual_salary_cents=?,hourly_rate_cents=?,standard_hours_milli=?,vacation_rate_bps=?,vacation_paid_each_pay=?,federal_td1_cents=COALESCE(?,federal_td1_cents),provincial_td1_cents=COALESCE(?,provincial_td1_cents),additional_tax_cents=?,cpp_exempt=?,ei_exempt=?,active=? WHERE id=? AND company_id=?');
             $stmt->execute([...$values,$id,$company['id']]);
             if ($stmt->rowCount() === 0) {
                 $check=db()->prepare('SELECT COUNT(*) FROM payroll_employees WHERE id=? AND company_id=?');$check->execute([$id,$company['id']]);
@@ -921,7 +943,7 @@ function handle_payroll_verify(array $user, array $company): never
 function handle_payroll_finalize(array $user, array $company): never
 {
     require_method('POST'); require_csrf(); require_company_role($company,'owner');
-    $input=request_json(); if(empty($input['confirmed'])) fail('Confirm that every deduction was checked before finalising.');
+    $input=request_json(); if(($input['reviewConfirmed']??null)!==true) fail('Confirm "I have reviewed and verified the payroll calculations and statutory deductions." before finalizing the pay run.',422,'payroll_review_confirmation_required');
     $runId=clean_text($input['runId']??'','Payroll run',64);$reference=clean_text($input['verificationReference']??'','Verification reference',200);
     $settings=payroll_settings_row((string)$company['id']);if(!$settings)fail('Payroll is not enabled.',409,'payroll_not_enabled');$mode=payroll_company_posting_mode($company);
     $journal=null;$draftId=null;
@@ -945,7 +967,7 @@ function handle_payroll_finalize(array $user, array $company): never
         db()->prepare("UPDATE payroll_runs SET status=?,gl_status=?,verification_reference=?,accrual_journal_entry_id=?,approved_by=?,approved_at=UTC_TIMESTAMP(),gl_posted_by=?,gl_posted_at=? WHERE id=?")
             ->execute([$lifecycleStatus,$glStatus,$reference,$journal,$user['id'],$journal!==null?$user['id']:null,$journal!==null?gmdate('Y-m-d H:i:s'):null,$runId]);
         if($journal!==null&&function_exists('voucher_mark_posted'))voucher_mark_posted($user,(string)$company['id'],'payroll_run',$runId,$journal);
-        audit_event($user,(string)$company['id'],'payroll.run_finalized','payroll_run',$runId,['journalEntryId'=>$journal,'draftJournalId'=>$draftId,'postingMode'=>$mode,'glStatus'=>$glStatus,'verificationReference'=>$reference,'employerLevyCents'=>$levyAmount]);db()->commit();
+        audit_event($user,(string)$company['id'],'payroll.run_finalized','payroll_run',$runId,['journalEntryId'=>$journal,'draftJournalId'=>$draftId,'postingMode'=>$mode,'glStatus'=>$glStatus,'verificationReference'=>$reference,'employerLevyCents'=>$levyAmount,'reviewConfirmation'=>'I have reviewed and verified the payroll calculations and statutory deductions.']);db()->commit();
     }catch(Throwable $error){if(db()->inTransaction())db()->rollBack();throw $error;}
     json_response(['journalEntryId'=>$journal,'draftJournalId'=>$draftId,'postingMode'=>$mode]);
 }
@@ -1080,17 +1102,17 @@ function handle_payroll_remittance_reverse(array $user,array $company):never
 function handle_payroll_t4(array $user,array $company):never
 {
     require_method('GET');$year=(int)($_GET['year']??date('Y'));if($year<2020||$year>2100)fail('Year is invalid.');
-    $stmt=db()->prepare("SELECT e.employee_number,e.first_name,e.last_name,e.sin_last_four,
+    $stmt=db()->prepare("SELECT e.employee_number,e.first_name,e.last_name,
       COALESCE(SUM(CASE WHEN r.id IS NOT NULL THEN i.gross_pay_cents ELSE 0 END),0) employment_income_cents,
       COALESCE(SUM(CASE WHEN r.id IS NOT NULL THEN i.employee_cpp_cents ELSE 0 END),0) cpp_cents,
       COALESCE(SUM(CASE WHEN r.id IS NOT NULL THEN i.employee_cpp2_cents ELSE 0 END),0) cpp2_cents,
       COALESCE(SUM(CASE WHEN r.id IS NOT NULL THEN i.employee_ei_cents ELSE 0 END),0) ei_cents,
       COALESCE(SUM(CASE WHEN r.id IS NOT NULL THEN i.verified_income_tax_cents ELSE 0 END),0) income_tax_cents
       FROM payroll_employees e LEFT JOIN payroll_run_items i ON i.employee_id=e.id LEFT JOIN payroll_runs r ON r.id=i.payroll_run_id AND r.status IN ('posted','paid') AND YEAR(r.pay_date)=?
-      WHERE e.company_id=? GROUP BY e.id,e.employee_number,e.first_name,e.last_name,e.sin_last_four
+      WHERE e.company_id=? GROUP BY e.id,e.employee_number,e.first_name,e.last_name
       HAVING COALESCE(SUM(CASE WHEN r.id IS NOT NULL THEN i.gross_pay_cents ELSE 0 END),0)>0
       ORDER BY e.last_name,e.first_name");$stmt->execute([$year,$company['id']]);
-    $rows=array_map(static fn(array $row):array=>['employeeNumber'=>$row['employee_number'],'employeeName'=>$row['first_name'].' '.$row['last_name'],'sinLastFour'=>$row['sin_last_four'],'box14EmploymentIncomeCents'=>(int)$row['employment_income_cents'],'box16CppCents'=>(int)$row['cpp_cents'],'box16ACpp2Cents'=>(int)$row['cpp2_cents'],'box18EiCents'=>(int)$row['ei_cents'],'box22IncomeTaxCents'=>(int)$row['income_tax_cents']],$stmt->fetchAll());
+    $rows=array_map(static fn(array $row):array=>['employeeNumber'=>$row['employee_number'],'employeeName'=>$row['first_name'].' '.$row['last_name'],'box14EmploymentIncomeCents'=>(int)$row['employment_income_cents'],'box16CppCents'=>(int)$row['cpp_cents'],'box16ACpp2Cents'=>(int)$row['cpp2_cents'],'box18EiCents'=>(int)$row['ei_cents'],'box22IncomeTaxCents'=>(int)$row['income_tax_cents']],$stmt->fetchAll());
     json_response(['year'=>$year,'companyId'=>$company['id'],'workingPaperOnly'=>true,'filingReady'=>false,'notice'=>'Review against CRA year-end guidance. This is not an official T4 slip, XML return, or filing submission.','employees'=>$rows]);
 }
 
@@ -1098,6 +1120,7 @@ function handle_payroll(string $action): never
 {
     $user=require_user();$company=require_company($user);
     require_company_permission($company,'payroll.view');
+    payroll_purge_stored_sins($user,(string)$company['id']);
     if((string)$company['currency']!=='CAD')fail('Canadian payroll is available only when the company base currency is CAD. Use a separate CAD company file for payroll.',409,'payroll_requires_cad');
     if($action===''||$action==='workspace'){require_method('GET');json_response(['payroll'=>payroll_workspace_data($company)]);}
     if($action==='quick-calculate')handle_payroll_quick_calculate($user,$company);

@@ -269,12 +269,12 @@ function tegh_action_registry(): array
         $nav('report.budget_actual','Budget Versus Actual','Open planned and actual results by account.','Reports','report-budget-actual','reports.view',['icon'=>'BA','keywords'=>['budget vs actual','variance report'],'sort_order'=>660]),
         $nav('report.fixed_assets','Fixed Asset Register','Open asset cost, depreciation and book value.','Reports','report-fixed-assets','reports.view',['icon'=>'FA','keywords'=>['asset register','depreciation report'],'sort_order'=>670]),
 
-        $nav('nav.payroll','Payroll','Open the Payroll workspace.','Payroll','payroll','payroll.view',['icon'=>'PL','keywords'=>['payroll dashboard','pay employees'],'sort_order'=>700],['full']),
+        $nav('nav.payroll','Payroll Support','Open Payroll Support: payroll calculations and accounting records.','Payroll','payroll','payroll.view',['icon'=>'PL','keywords'=>['payroll dashboard','pay employees'],'sort_order'=>700],['full']),
         $nav('nav.payroll_calculator','Payroll Calculator','Open the no-record Quick Payroll Calculator.','Payroll','payroll-calculator','payroll.view',['icon'=>'PC','keywords'=>['quick calculation','pay calculator','payroll estimate'],'sort_order'=>710],['full']),
         $nav('nav.payroll_employees','Employees','Open payroll employee records.','Payroll','payroll-employees','payroll.view',['icon'=>'EM','keywords'=>['staff','employee setup','payroll people'],'sort_order'=>720],['full']),
         $nav('nav.payroll_runs','Payroll Runs','Open the Pay Run Register.','Payroll','payroll-runs','payroll.view',['icon'=>'PR','keywords'=>['pay runs','pay run register','run payroll'],'sort_order'=>730],['full']),
         $nav('nav.payroll_verification','Payroll Verification','Open retained payroll calculation checks.','Payroll','payroll-verification','payroll.view',['icon'=>'PV','keywords'=>['verify deductions','official calculator check'],'sort_order'=>740],['full']),
-        $nav('nav.payroll_remittance','CRA Payroll Remittance','Open payroll source-deduction remittances.','Payroll','payroll-remittance','payroll.view',['icon'=>'CR','keywords'=>['cra remittance','source deductions','payroll tax payment'],'sort_order'=>750],['full']),
+        $nav('nav.payroll_remittance','Payroll Remittance Records','Record payroll source-deduction remittances paid outside Tegh.','Payroll','payroll-remittance','payroll.view',['icon'=>'CR','keywords'=>['cra remittance','source deductions','payroll tax payment'],'sort_order'=>750],['full']),
         $nav('nav.payroll_history','Payroll History','Open completed, reversed and deleted pay-run history.','Payroll','payroll-history','payroll.view',['icon'=>'PH','keywords'=>['payroll reports','completed pay runs','pay history'],'sort_order'=>760],['full']),
 
         $nav('nav.settings','Settings','Open Company & Workspace Settings.','Settings','settings','company.view',['icon'=>'ST','keywords'=>['preferences','setup','configuration'],'sort_order'=>800]),
