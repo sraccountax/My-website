@@ -1,4 +1,4 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R124 IONOS STAGING CANDIDATE
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R125 IONOS STAGING CANDIDATE
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -13,5 +13,6 @@ R121: end-to-end functional test fixes: bulk bank posting, contra and exclude ac
 R122: one-line menus and new brand block, actions for selected report rows, bank reconciliation calculated from the books with reconciling items, GST/HST remittance with input tax credits, payroll remittance prefill, credit/debit note PDFs, flicker fixes, SR Books name removed, 104 unused files removed. No migration. See R122-CHANGES.md.
 R123: Tegh Assist audit: requests take about 0.2 s instead of about 15 s, understands everyday language, dates and typos, answers common small-business questions, acts at once on confident requests, and is available on phones. No migration. See R123-CHANGES.md.
 R124: simpler Tegh Assist: plain one-line answers first, "Did you mean…" in everyday words, friendly forms, grouped "everything I can help with" list, recent questions. No migration. See R124-CHANGES.md.
+R125: friendlier dashboard: one-sentence summary with an Ask box, cards in plain words, chart explained in a sentence, everyday shortcut names, To Do list with only what needs doing. No migration. See R125-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256.

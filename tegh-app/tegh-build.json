@@ -558,5 +558,21 @@
     "FILE-MANIFEST.sha256"
   ],
   "r124Migration": false,
-  "r124CacheToken": "5990-r124-tegh"
+  "r124CacheToken": "5990-r124-tegh",
+  "r125Files": [
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-forecast-v5300.js",
+    "assets/tegh-r120.css",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "app.html",
+    "R125-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r125Migration": false,
+  "r125CacheToken": "5990-r125-tegh"
 }

@@ -436,3 +436,50 @@ html[data-tegh-navigation-revision="r24"] .topbar[data-r24-density="mobile"] [da
   .tegh-assist-simple .tegh-command-search>.srp-btn{min-width:64px!important}
   .tegh-assist-headline{font-size:17px}
 }
+
+/* 23. R125 friendly dashboard */
+.r125-dash-intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,420px);gap:14px 20px;align-items:center;margin:0 0 14px;padding:14px 18px;border:1px solid var(--srp-line,#dde5e1);border-radius:14px;background:var(--srp-surface,#fff)}
+.r125-dash-summary{margin:0;font-size:15.5px;line-height:1.5;color:var(--srp-ink,#12211c)}
+.r125-dash-ask{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:0}
+.r125-dash-ask label{margin:0;display:block}
+.r125-dash-ask input{width:100%;height:42px;border-radius:10px;padding:0 12px;font-size:15px}
+.r125-dash-ask .srp-btn{height:42px;min-width:72px}
+.srp-sites-stat-card .r125-term{display:block;margin-top:6px;font-style:normal;font-size:11px;letter-spacing:.02em;color:var(--srp-muted,#7a8783)}
+.srp-sites-stat-card[data-tone="bad"] strong{color:#b3261e}
+.srp-sites-stat-card[data-tone="warn"] small{color:#8a5a00}
+.srp-sites-stat-card[data-tone="good"] strong{color:#1f7a50}
+.r125-chart-plain{margin:2px 0 8px;font-size:14px;font-weight:600}
+.r125-chart-plain[data-tone="good"]{color:#1f7a50}
+.r125-chart-plain[data-tone="bad"]{color:#b3261e}
+.r17-dashboard-actions .r20-shortcut-key,.r17-dashboard-actions .r23-quick-modifiers{display:none!important}
+.r17-dashboard-actions .r17-quick-list{max-height:none!important;overflow:visible!important}
+.r19-task-grid>[hidden]{display:none!important}
+.r125-all-done{grid-column:1/-1;margin:0;padding:10px 12px;border-radius:10px;background:#eef8f2;color:#1f5a3f;font-weight:600}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .r125-all-done{background:rgba(31,138,91,.15);color:inherit}}
+@media (max-width:900px){.r125-dash-intro{grid-template-columns:1fr}}
+.srp-sites-stat-grid>.r125-dash-intro{grid-column:1/-1;margin:0}
+html[data-tegh-activity-shell] .srp-page[data-srp-page="dashboard"] .r17-dashboard-actions .r17-quick-list,
+html[data-tegh-activity-shell] .srp-page[data-srp-page="dashboard"] .r17-dashboard-actions .r17-quick-list.r22-scroll-region{max-height:none!important;overflow:visible!important;height:auto!important}
+html[data-tegh-activity-shell] .srp-page[data-srp-page="dashboard"] .r17-dashboard-actions .r20-shortcut-key{display:none!important}
+html[data-tegh-activity-shell] .srp-page[data-srp-page="dashboard"] .r17-dashboard-actions{height:auto!important;max-height:none!important}
+.r125-chart-plain{margin:10px 0 8px!important}
+/* Overview as a wrapping row: every section keeps its natural height and the page scrolls. */
+@media (min-width:1101px){
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow{display:flex!important;flex-wrap:wrap;align-content:flex-start;align-items:stretch;gap:12px}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>*{flex:1 1 100%;min-width:0;margin:0}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.r17-dashboard-charts{flex:1 1 0;order:3}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.r17-dashboard-actions{flex:0 0 320px;order:4}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.r19-attention{order:2}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.tegh-dashboard-widget-slot{order:5}
+}
+/* Phones and tablets: summary, cards, To Do, then shortcuts and chart. */
+@media (max-width:1100px){
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow{display:flex!important;flex-direction:column}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>*{margin:0 0 12px!important}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.srp-sites-stat-grid{order:1}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.r19-attention{order:2}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.r17-dashboard-actions{order:3}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.r17-dashboard-charts{order:4}
+  .r125-dash-intro{padding:12px 14px}
+  .r125-dash-summary{font-size:14.5px}
+}
