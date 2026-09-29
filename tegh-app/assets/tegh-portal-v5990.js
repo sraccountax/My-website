@@ -935,7 +935,11 @@ const TeghPortal = (() => {
     const aliases={'Advanced accounting':['advanced accounting','advanced'],'My account':['settings','my account']};
     return Object.keys(menus).find(label=>(aliases[label]||[label]).some(name=>text.includes(String(name).toLowerCase())))||'';
   }
+  // R131: on phones the sidebar is a drawer. Submenus never open there; a module
+  // tap opens that module's Activity/Reports page and closes the drawer.
+  const mobileNavigation=()=>window.innerWidth<=820;
   function setMenuState(parent,open){
+    if(open&&mobileNavigation())open=false;
     parent.setAttribute('aria-expanded',String(open));
     parent.classList.toggle('srp-nav-open',open);
     const sub=parent.nextElementSibling;
@@ -945,6 +949,9 @@ const TeghPortal = (() => {
     }
   }
   function collapseOther(parent){$$('.srp-nav-parent').forEach(p=>{if(p!==parent)setMenuState(p,false)})}
+  // Crossing the phone breakpoint: close every submenu on phones; on wider
+  // screens reopen the submenu of the module currently shown.
+  try{window.matchMedia('(max-width:820px)').addEventListener('change',event=>{if(event.matches){collapseOther(null);return}const module=customPage?.dataset?.srpModule||'';const parent=$$('.srp-nav-parent').find(p=>p.dataset.srpLabel===module);if(parent)setMenuState(parent,true)})}catch{}
   const moduleItemDescriptions={
     'Create Customer':'Add a customer before invoicing','Customer Invoices':'Create and review customer invoices','Customer Credit Notes':'Reduce an open invoice with a linked adjustment','Customer Debit Notes':'Add a separate receivable linked to an invoice','Customer Note Register':'Review linked customer notes and GL status','Customers':'Customer directory, balances, contact details and exports','Invoices':'Issued invoice register, filters and reports','Customer Payments':'Receipts, allocations and bank matching',
     'Products and Services':'Reusable items, prices and accounting codes','Customer Ledgers':'Customer-by-customer account activity','Receivable Ageing':'Outstanding balances by overdue period',
@@ -2818,6 +2825,7 @@ const TeghPortal = (() => {
       parent.insertAdjacentElement('afterend',sub);
       parent.onclick=e=>{
         e.preventDefault();e.stopImmediatePropagation();
+        if(mobileNavigation()){collapseOther(null);moduleDashboard(label);closeMobileSidebar();return}
         const expanded=parent.getAttribute('aria-expanded')==='true',chevronClick=!!e.target.closest?.('.srp-chevron');
         collapseOther(parent);
         if(chevronClick){setMenuState(parent,!expanded);return}
@@ -2926,6 +2934,7 @@ const TeghPortal = (() => {
         const label=parent.dataset.srpLabel||'Dashboard';
         if(label==='Dashboard'){collapseOther(null);openDashboard();closeMobileSidebar();return}
         if(label==='My account'){collapseOther(parent);moduleDashboard('My account');closeMobileSidebar();return}
+        if(mobileNavigation()){collapseOther(null);moduleDashboard(label);closeMobileSidebar();return}
         const expanded=parent.getAttribute('aria-expanded')==='true',chevronClick=!!event.target.closest?.('.srp-chevron');
         collapseOther(parent);
         if(chevronClick){setMenuState(parent,!expanded);return}

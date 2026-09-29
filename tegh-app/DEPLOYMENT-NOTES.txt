@@ -1,6 +1,6 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R130 IONOS STAGING DEPLOYMENT
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R131 IONOS STAGING DEPLOYMENT
 
-This package contains every release through R130 (R118–R130 change notes are
+This package contains every release through R131 (R118–R131 change notes are
 included). No manual database migration. R120's additive table
 accounting_note_lines is created automatically on first use of Credit & Debit
 Notes (the database user needs CREATE privilege, as for the original install).
@@ -23,7 +23,7 @@ Notes (the database user needs CREATE privilege, as for the original install).
    for R130 api/payroll.php, api/data_imports.php, api/backup.php,
    api/payroll_tax_agent.php, api/native_agents.php, api/ai_actions_v5600.php,
    api/ai_agent.php and api/assist_language_r123.php.
-5. Upload all assets together; the cache token is r130-tegh. A partial upload can
+5. Upload all assets together; the cache token is r131-tegh. A partial upload can
    leave browsers on a stale portal.
 6. DN-1001 was already posted once in the original staging data. Do NOT post it
    again.
@@ -55,6 +55,8 @@ Verify after upload
 - Payroll Support (sidebar): the Payroll Support Tool notice shows at the top;
   the employee form has no SIN field and suggests an Employee ID (EMP-0001);
   finalizing a pay run needs the "I have reviewed and verified…" checkbox.
+- On a phone: open ☰ and tap Banking. The Banking page (Activity and Reports)
+  opens and the menu closes; no submenu expands in the menu.
 - R130 clears SINs saved by earlier releases the first time each company opens
   Payroll Support (recorded in its audit trail as payroll.sin_data_removed).
   To clear every company at once instead, run:

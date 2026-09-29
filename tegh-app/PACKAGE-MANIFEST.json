@@ -656,5 +656,20 @@
     "FILE-MANIFEST.sha256"
   ],
   "r130Migration": false,
-  "r130CacheToken": "5990-r130-tegh"
+  "r130CacheToken": "5990-r130-tegh",
+  "r131Files": [
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-r120.css",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "app.html",
+    "R131-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r131Migration": false,
+  "r131CacheToken": "5990-r131-tegh"
 }

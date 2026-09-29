@@ -13,7 +13,7 @@
     } catch {}
     const params = new URLSearchParams(location.search);
     const version = '5990';
-    const assetRevision = '5990-r130-tegh';
+    const assetRevision = '5990-r131-tegh';
     const signedOut = params.get('signed-out') === '1';
     if (signedOut) {
       document.documentElement.dataset.signedOut = '1';

@@ -699,3 +699,48 @@ html[data-tegh-theme="dark"] .r130-finalize-dialog>header button{background:tran
 /* R130: the Verified pay-run status stays readable in dark mode (matches Posted). */
 html[data-tegh-theme="dark"] .srp-page .srp-status.verified{color:var(--tegh-ink,#edf6f2)!important;background:rgba(20,120,160,.28)!important;border-color:var(--tegh-line,#334b43)!important}
 @media (prefers-color-scheme:dark){html[data-tegh-theme="auto"] .srp-page .srp-status.verified{color:var(--tegh-ink,#edf6f2)!important;background:rgba(20,120,160,.28)!important;border-color:var(--tegh-line,#334b43)!important}}
+
+/* 28. R131: phone sidebar — modules only, no submenus, reliable touch scrolling */
+@media (max-width:820px){
+  .sidebar .srp-subnav{display:none!important}
+  .sidebar .srp-nav-parent .srp-chevron{display:none!important}
+  .sidebar nav{min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
+}
+/* R131: drawer header — logo and TEGH wordmark sit above the company chip (no overlap). */
+@media (max-width:820px){
+  body.r19-drawer-open:not(.sr-sidebar-collapsed) .sidebar .side-head{height:auto!important;min-height:0!important;flex:none!important}
+  body.r19-drawer-open:not(.sr-sidebar-collapsed) .sidebar .side-head .brand{height:auto!important;min-height:44px!important;max-height:none!important;overflow:visible!important;grid-template-areas:"mark word"!important;flex:none!important}
+  body.r19-drawer-open:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word small{display:none!important}
+  body.r19-drawer-open:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word strong{color:var(--r22-ink,#12211c)!important}
+  html[data-tegh-theme="dark"] body.r19-drawer-open:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word strong{color:#edf6f2!important}
+}
+@media (max-width:820px) and (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] body.r19-drawer-open:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word strong{color:#edf6f2!important}
+}
+/* R131: drawer readable in dark mode (tegh-mobile-r30 assumed a white drawer). */
+@media (max-width:820px){
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar{background:#10201c!important;color:#edf6f2!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar nav .srp-nav-parent:not([aria-current="page"]),html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar nav [data-srp-label]:not([aria-current="page"]){color:#e3eee9!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar :is(.srp-company-trigger,.srp-company-switcher,.book-context){background:#16302a!important;border-color:#334b43!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar nav :is(.srp-nav-parent,[data-srp-label])[aria-current="page"]{background:#1d3a33!important;color:#9ff0cf!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar .srp-company-trigger :is(b, small, span){color:#edf6f2!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar nav :is(.srp-nav-parent,[data-srp-label])[aria-current="page"] :is(b,span:not(.srp-chevron),svg){color:#9ff0cf!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar section button,html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar section button :is(span,b,svg){color:#edf6f2!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar .srp-company-trigger small{color:#a7bbb3!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar :is(.side-foot button,.side-foot a,[data-r19-drawer-account] b,[data-r19-drawer-account] strong){color:#edf6f2!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar :is(.side-foot small,[data-r19-drawer-account] small){color:#a7bbb3!important}
+  html[data-tegh-theme="dark"] body.r19-drawer-open .r19-drawer-close{background:transparent!important;color:#edf6f2!important;border-color:#334b43!important}
+}
+@media (max-width:820px) and (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar{background:#10201c!important;color:#edf6f2!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar nav .srp-nav-parent:not([aria-current="page"]),html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar nav [data-srp-label]:not([aria-current="page"]){color:#e3eee9!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar :is(.srp-company-trigger,.srp-company-switcher,.book-context){background:#16302a!important;border-color:#334b43!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar nav :is(.srp-nav-parent,[data-srp-label])[aria-current="page"]{background:#1d3a33!important;color:#9ff0cf!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar .srp-company-trigger :is(b, small, span){color:#edf6f2!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar nav :is(.srp-nav-parent,[data-srp-label])[aria-current="page"] :is(b,span:not(.srp-chevron),svg){color:#9ff0cf!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar section button,html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar section button :is(span,b,svg){color:#edf6f2!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar .srp-company-trigger small{color:#a7bbb3!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar :is(.side-foot button,.side-foot a,[data-r19-drawer-account] b,[data-r19-drawer-account] strong){color:#edf6f2!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar :is(.side-foot small,[data-r19-drawer-account] small){color:#a7bbb3!important}
+  html[data-tegh-theme="auto"] body.r19-drawer-open .r19-drawer-close{background:transparent!important;color:#edf6f2!important;border-color:#334b43!important}
+}
