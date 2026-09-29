@@ -1,6 +1,6 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R132 IONOS STAGING DEPLOYMENT
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R133 IONOS STAGING DEPLOYMENT
 
-This package contains every release through R132 (R118–R132 change notes are
+This package contains every release through R133 (R118–R133 change notes are
 included). No manual database migration. R120's additive table
 accounting_note_lines is created automatically on first use of Credit & Debit
 Notes (the database user needs CREATE privilege, as for the original install).
@@ -23,8 +23,10 @@ Notes (the database user needs CREATE privilege, as for the original install).
    for R130 api/payroll.php, api/data_imports.php, api/backup.php,
    api/payroll_tax_agent.php, api/native_agents.php, api/ai_actions_v5600.php,
    api/ai_agent.php and api/assist_language_r123.php, and for R132
-   api/workspace_summary_v5610.php.
-5. Upload all assets together; the cache token is r132-tegh. A partial upload can
+   api/workspace_summary_v5610.php, and for R133 the new
+   api/client_view_r133.php, api/index.php and api/portal.php. Upload the new
+   client-view.html at the web root and the updated .htaccess.
+5. Upload all assets together; the cache token is r133-tegh. A partial upload can
    leave browsers on a stale portal.
 6. DN-1001 was already posted once in the original staging data. Do NOT post it
    again.
@@ -60,6 +62,12 @@ Verify after upload
   opens and the menu closes; no submenu expands in the menu.
 - Dashboard: a fifth card shows "GST/HST you owe" (or "refund due"); its ↗ opens
   the GST/HST Summary.
+- Settings > Team and access > Client Viewing Links: create a link for a test
+  email you can read, open it in a private window, click "Email me a code",
+  enter the code and check the dashboard and a report download. Email
+  delivery must be configured (mail.from_email and SMTP) for codes to arrive.
+- R133 creates client_view_links, client_view_codes and client_view_sessions
+  automatically on first use (CREATE privilege needed).
 - R130 clears SINs saved by earlier releases the first time each company opens
   Payroll Support (recorded in its audit trail as payroll.sin_data_removed).
   To clear every company at once instead, run:

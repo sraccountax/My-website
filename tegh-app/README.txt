@@ -1,4 +1,4 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R132 IONOS STAGING CANDIDATE
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R133 IONOS STAGING CANDIDATE
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -21,5 +21,6 @@ R129: the Transactions Report can edit a bank line that is not posted and not ma
 R130: Payroll renamed Payroll Support; SINs removed everywhere and refused (Employee ID such as EMP-0001 instead); persistent Payroll Support notice; required review checkbox before finalizing a pay run; neutral calculation/support wording. No manual migration (stored SINs are cleared automatically). See R130-CHANGES.md.
 R131: phone sidebar lists modules only (no submenus); tapping a module opens its Activity/Reports page and closes the drawer; drawer header and dark mode fixed. No migration. See R131-CHANGES.md.
 R132: dashboard shows a GST/HST (tax summary) card: amount owing or refund due, collected vs paid, opens the GST/HST Summary. No migration. See R132-CHANGES.md.
+R133: Client Viewing Links: accountants share a view-only dashboard and chosen reports with a client; the client signs in with a 6-digit emailed code and can download PDF/Excel. Also fixes outbound email when reply_to is empty. Additive tables created on first use. See R133-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256.

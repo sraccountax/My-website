@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<title>Your Dashboard · Tegh</title>
+<link rel="icon" href="/favicon.ico?v=4600">
+<link rel="stylesheet" href="/assets/tegh-client-view-r133.css?v=5990-r133">
+</head>
+<body>
+<header class="cv-top">
+  <div class="cv-brand"><img src="/assets/tegh-mark-v4600.svg?v=4600" alt="" width="32" height="32"><span>TEGH</span></div>
+  <div class="cv-company" data-cv-company hidden></div>
+  <button type="button" class="cv-link" data-cv-signout hidden>Sign out</button>
+</header>
+<main class="cv-main" id="main">
+  <section class="cv-card cv-gate" data-cv-gate>
+    <h1>Your view-only dashboard</h1>
+    <p class="cv-muted" data-cv-gate-text>Checking your link…</p>
+    <div data-cv-send hidden>
+      <p>To keep your company's figures private, we'll email a 6-digit code to the address your accountant used.</p>
+      <button type="button" class="cv-btn" data-cv-send-code>Email me a code</button>
+    </div>
+    <form data-cv-code-form hidden novalidate>
+      <label for="cv-code">Enter the 6-digit code we sent to <b data-cv-sent-to></b></label>
+      <input id="cv-code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" pattern="[0-9 ]*" placeholder="123456" required>
+      <div class="cv-row"><button type="submit" class="cv-btn">View dashboard</button><button type="button" class="cv-link" data-cv-resend>Send a new code</button></div>
+    </form>
+    <p class="cv-error" role="alert" data-cv-error hidden></p>
+  </section>
+  <section data-cv-app hidden>
+    <div class="cv-intro"><h1 data-cv-title>Dashboard</h1><p class="cv-muted" data-cv-subtitle></p></div>
+    <nav class="cv-tabs" aria-label="Views"><button type="button" class="cv-tab is-active" data-cv-tab="dashboard" aria-current="page">Dashboard</button><button type="button" class="cv-tab" data-cv-tab="reports">Reports</button></nav>
+    <section data-cv-dashboard aria-live="polite"></section>
+    <section data-cv-reports hidden></section>
+  </section>
+</main>
+<footer class="cv-foot">View only · figures come from the company's books in Tegh and update as your accountant records them.</footer>
+<script src="/assets/tegh-professional-output-v5990.js?v=5990-r133" defer></script>
+<script src="/assets/tegh-client-view-r133.js?v=5990-r133" defer></script>
+</body>
+</html>

@@ -753,3 +753,36 @@ html[data-tegh-theme="dark"] .srp-page .srp-status.verified{color:var(--tegh-ink
 @media (max-width:1279px){
   html body .srp-sites-stat-grid>[data-dashboard-kpi="4"]{grid-column:1/-1}
 }
+
+/* 30. R133: Client Viewing Links (Settings) */
+.srp-page .r133-report-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px 18px;margin:4px 0 6px}
+.srp-page .r133-report-grid label.srp-check{display:flex!important;align-items:center;gap:9px;margin:0!important;font-weight:500!important;min-height:34px;grid-template-columns:none!important}
+.srp-page .r133-report-grid label.srp-check input{width:18px!important;height:18px!important;min-height:0!important;flex:none;margin:0}
+.srp-page .r133-form fieldset{border:1px solid var(--tegh-line,#dde5e1);border-radius:10px;padding:10px 14px}
+.srp-page .r133-form label.r133-email-now{display:flex!important;align-items:center;gap:9px;align-self:end;font-weight:600}
+.srp-page .r133-form label.r133-email-now input{width:18px!important;height:18px!important;min-height:0!important}
+.srp-page .r133-muted{color:var(--tegh-muted,#5b6b65);font-size:13px}
+.srp-page .r133-error{color:#b3261e;margin:0}
+.srp-page .r133-intro ol{margin:6px 0 8px;padding-left:20px;line-height:1.6}
+.srp-page .r133-result{margin-top:14px;padding:14px;border:1px solid #9fd8c3;border-left:4px solid #0f5c4b;border-radius:10px;background:#eef8f3}
+.srp-page .r133-result h3{margin:0 0 4px}
+.srp-page .r133-copy{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.srp-page .r133-copy input{flex:1 1 320px;min-width:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+.srp-page .r133-status{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:700;background:#e7f4ee;color:#0f5c4b}
+.srp-page .r133-status[data-state="expired"]{background:#fdf3e1;color:#8a5a00}
+.srp-page .r133-status[data-state="revoked"]{background:#f1f3f2;color:#5b6b65}
+.srp-page .r133-actions{display:flex;gap:6px;flex-wrap:wrap}
+.srp-page .r133-actions .srp-btn{min-height:32px;padding:4px 10px;font-size:13px}
+.srp-page .r133-edit{padding:8px 4px}
+html[data-tegh-theme="dark"] .srp-page .r133-result{background:#12302a;border-color:#2f6b5a;border-left-color:#2f9f83}
+html[data-tegh-theme="dark"] .srp-page .r133-status{background:#1d3a33;color:#9ff0cf}
+html[data-tegh-theme="dark"] .srp-page .r133-status[data-state="expired"]{background:#3a2e12;color:#f2c46a}
+html[data-tegh-theme="dark"] .srp-page .r133-status[data-state="revoked"]{background:#22302c;color:#a7bbb3}
+html[data-tegh-theme="dark"] .srp-page .r133-error{color:#ff8f86}
+@media (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] .srp-page .r133-result{background:#12302a;border-color:#2f6b5a;border-left-color:#2f9f83}
+  html[data-tegh-theme="auto"] .srp-page .r133-status{background:#1d3a33;color:#9ff0cf}
+  html[data-tegh-theme="auto"] .srp-page .r133-status[data-state="expired"]{background:#3a2e12;color:#f2c46a}
+  html[data-tegh-theme="auto"] .srp-page .r133-status[data-state="revoked"]{background:#22302c;color:#a7bbb3}
+  html[data-tegh-theme="auto"] .srp-page .r133-error{color:#ff8f86}
+}

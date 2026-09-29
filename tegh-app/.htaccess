@@ -42,7 +42,7 @@ ErrorDocument 404 /404.html
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), display-capture=(self)"
   Header always set Content-Security-Policy "default-src 'self' https://*.clarity.ms https://c.bing.com; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://*.clarity.ms https://c.bing.com 'sha256-5Skb4uJq4xIX+g0EhNMvY8idjvXUe79zNpKtp/WJKI8=' 'sha256-rjKxoBcLHvMnvH7CCtGWqpdaLA530pHCfHs19ufx1kY=' 'sha256-h6WepojrUfLeaiZ59T/NA0EHBezwnbrTdoYZ2AWyRQ4=' 'sha256-ytBOycYX54mF6zksP6yoQyPqd2D8YL+EKMD6WrxnT+Q=' 'sha256-yJS0QRJ8W5u+QLlqiGwL1oZCpYTlUiop23T7XqC8DPc=' 'sha256-hH5BuQ56Pc0SgpZZRy/UYKbvuBpb8bkVdE/Kx6kL4sM='; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.clarity.ms https://c.bing.com; connect-src 'self' https://challenges.cloudflare.com https://*.clarity.ms https://c.bing.com; frame-src https://challenges.cloudflare.com; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
 
-  <FilesMatch "^(app|startup-recovery)\.html$|^tegh-build\.json$">
+  <FilesMatch "^(app|startup-recovery|client-view)\.html$|^tegh-build\.json$">
     Header always set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
     Header always set Pragma "no-cache"
     Header always set Expires "0"

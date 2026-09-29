@@ -687,5 +687,27 @@
     "FILE-MANIFEST.sha256"
   ],
   "r132Migration": false,
-  "r132CacheToken": "5990-r132-tegh"
+  "r132CacheToken": "5990-r132-tegh",
+  "r133Files": [
+    "api/client_view_r133.php",
+    "client-view.html",
+    "assets/tegh-client-view-r133.js",
+    "assets/tegh-client-view-r133.css",
+    "api/index.php",
+    "api/portal.php",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-r120.css",
+    ".htaccess",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "app.html",
+    "R133-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r133Migration": "automatic additive tables client_view_links, client_view_codes, client_view_sessions (created on first use)",
+  "r133CacheToken": "5990-r133-tegh"
 }

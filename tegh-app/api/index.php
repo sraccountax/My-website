@@ -200,6 +200,12 @@ require_once __DIR__ . '/report_comparison_r20.php';
     if ($route === 'auth/password-reset-request') handle_password_reset_request();
     if ($route === 'auth/password-reset-details') handle_password_reset_details();
     if ($route === 'auth/password-reset-complete') handle_password_reset_complete();
+    // R133: client viewing links. Management routes require an owner/admin
+    // session; the client routes use their own emailed-code session.
+    if ($route === 'client-view' || str_starts_with($route, 'client-view/')) {
+        require_once __DIR__ . '/client_view_r133.php';
+        handle_client_view($route);
+    }
 
     if ($route === 'companies') handle_companies();
     if ($route === 'workspace') handle_workspace();

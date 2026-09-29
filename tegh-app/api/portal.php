@@ -103,15 +103,15 @@ function sr_mail_send_legacy_v5210(?string $companyId,?string $createdBy,string 
         record_system_incident('An outbound email could not be sent.',502,'outbound_email_failed',null,['source'=>'external_service_error','route'=>'mail/send','internalMessage'=>$message,'companyId'=>$companyId,'mailId'=>$id,'templateKey'=>$templateKey]);
         return ['id'=>$id,'sent'=>false,'status'=>'failed','message'=>$message];
     }
-    try{$from=safe_email($fromRaw);}catch(Throwable){
+    $fromCandidate=strtolower($fromRaw);if(filter_var($fromCandidate,FILTER_VALIDATE_EMAIL)!==false)$from=$fromCandidate;else{
         $message='The configured sender email address is invalid.';
         if(schema_table_exists('outbound_emails')) db()->prepare("UPDATE outbound_emails SET status='failed',attempt_count=attempt_count+1,provider_message=? WHERE id=?")->execute([$message,$id]);
         record_system_incident('An outbound email could not be sent.',502,'outbound_email_failed',null,['source'=>'external_service_error','route'=>'mail/send','internalMessage'=>$message,'companyId'=>$companyId,'mailId'=>$id,'templateKey'=>$templateKey]);
         return ['id'=>$id,'sent'=>false,'status'=>'failed','message'=>$message];
     }
     $fromName=portal_mime_header((string)(config('mail.from_name')??'Tegh'));
-    $replyRaw=trim((string)(config('mail.reply_to')??$from));
-    try{$replyTo=safe_email($replyRaw);}catch(Throwable){$replyTo=$from;}
+    $replyRaw=strtolower(trim((string)(config('mail.reply_to')??'')));
+    $replyTo=$replyRaw!==''&&filter_var($replyRaw,FILTER_VALIDATE_EMAIL)!==false?$replyRaw:$from; // R133: empty reply_to falls back to the sender
     $senderDomain=strtolower((string)substr(strrchr($from,'@')?:'@tegh.local',1));
     $messageId='<'.bin2hex(random_bytes(12)).'@'.$senderDomain.'>';
     $boundary='tegh_alt_'.bin2hex(random_bytes(12));
@@ -219,9 +219,9 @@ function sr_mail_send(?string $companyId,?string $createdBy,string $recipient,st
 
     $fromRaw=trim((string)(config('mail.from_email')??''));$from='';$configurationError='';
     if($fromRaw==='')$configurationError='Email delivery is not configured. Add a sender address and SMTP details in the private server configuration.';
-    else try{$from=safe_email($fromRaw);}catch(Throwable){$configurationError='The configured sender email address is invalid.';}
+    else{$fromCandidate=strtolower($fromRaw);if(filter_var($fromCandidate,FILTER_VALIDATE_EMAIL)!==false)$from=$fromCandidate;else $configurationError='The configured sender email address is invalid.';}
     $fromName=portal_mime_header((string)(config('mail.from_name')??'Tegh'));
-    $replyRaw=trim((string)(config('mail.reply_to')??$from));try{$replyTo=safe_email($replyRaw);}catch(Throwable){$replyTo=$from;}
+    $replyRaw=strtolower(trim((string)(config('mail.reply_to')??'')));$replyTo=$replyRaw!==''&&filter_var($replyRaw,FILTER_VALIDATE_EMAIL)!==false?$replyRaw:$from; // R133: empty reply_to falls back to the sender
     $senderDomain=strtolower((string)substr(strrchr($from,'@')?:'@tegh.local',1));
     $messageId='<'.bin2hex(random_bytes(12)).'@'.$senderDomain.'>';$boundary='tegh_alt_'.bin2hex(random_bytes(12));
     $headers=['Date: '.date(DATE_RFC2822),'From: '.$fromName.' <'.$from.'>','To: <'.$recipient.'>','Reply-To: <'.$replyTo.'>',
