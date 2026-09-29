@@ -744,3 +744,12 @@ html[data-tegh-theme="dark"] .srp-page .srp-status.verified{color:var(--tegh-ink
   html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar :is(.side-foot small,[data-r19-drawer-account] small){color:#a7bbb3!important}
   html[data-tegh-theme="auto"] body.r19-drawer-open .r19-drawer-close{background:transparent!important;color:#edf6f2!important;border-color:#334b43!important}
 }
+
+/* 29. R132: dashboard shows five summary cards (tax summary added). */
+@media (min-width:1280px){
+  html[data-tegh-activity-shell] body .r22-dashboard-flow>.srp-sites-stat-grid:has(>[data-dashboard-kpi="4"]),
+  html[data-tegh-design] body .srp-sites-stat-grid:has(>[data-dashboard-kpi="4"]){grid-template-columns:repeat(5,minmax(0,1fr))!important}
+}
+@media (max-width:1279px){
+  html body .srp-sites-stat-grid>[data-dashboard-kpi="4"]{grid-column:1/-1}
+}
