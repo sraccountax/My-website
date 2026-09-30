@@ -4,10 +4,10 @@
   "build": 5990,
   "schema": 46,
   "schemaTarget": 46,
-  "release": "R138",
-  "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R138-Consolidated-IONOS-STAGING",
-  "packageFile": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R138-Consolidated-IONOS-STAGING.zip",
-  "revision": "Cumulative R118–R138 over the Sites R117 frontend. R138: tax code picker in bank posting screens (Match and Post, review panel, guided review), QST on its own GL accounts (2115/1115) with QST remittance, and editable Canadian starter tax codes for every province and territory plus GST-only on new Default-chart companies, with an Add Canadian tax codes button for existing companies. R137: user-defined tax codes (named taxes such as GST+QST or CGST+SGST, each with its own rate and sales/purchase GL accounts, one active code per province) used by invoices, bills, expenses, notes, cash-basis settlements and the bank feed; new companies start with no codes; existing companies switch on their first code. R136: PST/QST/RST rates stored and calculated exactly in thousandths of a percent (QST 9.975%), companies.pst_rate_mpct added automatically. R135: customer-invoice PST/QST/RST recorded and posted separately from GST/HST (2110 vs 2100) on create, draft edit, issue, recurring, notes and cash-basis receipts; plain-language sales tax guide at company registration and Company Details; Inventory Report renamed Product Activity with an ASPE 3031 / IAS 2 scope note; release manifests regenerated with one identity.",
+  "release": "R139",
+  "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R139-Consolidated-IONOS-STAGING",
+  "packageFile": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R139-Consolidated-IONOS-STAGING.zip",
+  "revision": "Cumulative R118–R139 over the Sites R117 frontend. R139: beta release gate fixes only: no Clarity session recording in app.html; manual/recurring journals refused on AR 1200 and AP 2050; companies not registered for GST/HST are not charged tax automatically and their purchase tax becomes cost; dashboard tax card shows other tax-code accounts; accepted-mail message; damaged backup returns 422; root config*.php denied. R138: tax code picker in bank posting screens (Match and Post, review panel, guided review), QST on its own GL accounts (2115/1115) with QST remittance, and editable Canadian starter tax codes for every province and territory plus GST-only on new Default-chart companies, with an Add Canadian tax codes button for existing companies. R137: user-defined tax codes (named taxes such as GST+QST or CGST+SGST, each with its own rate and sales/purchase GL accounts, one active code per province) used by invoices, bills, expenses, notes, cash-basis settlements and the bank feed; new companies start with no codes; existing companies switch on their first code. R136: PST/QST/RST rates stored and calculated exactly in thousandths of a percent (QST 9.975%), companies.pst_rate_mpct added automatically. R135: customer-invoice PST/QST/RST recorded and posted separately from GST/HST (2110 vs 2100) on create, draft edit, issue, recurring, notes and cash-basis receipts; plain-language sales tax guide at company registration and Company Details; Inventory Report renamed Product Activity with an ASPE 3031 / IAS 2 scope note; release manifests regenerated with one identity.",
   "releaseStatus": "STAGING CANDIDATE — host acceptance open (see hostAcceptance)",
   "sealed": false,
   "productionReady": false,
@@ -19,19 +19,19 @@
     "Restore a production backup into a separate staging database; trial balance, AR/AP and GST/HST balances match",
     "On the host database: PST invoice (2100/2110 split), HST invoice, credit note and customer payment post and balance",
     "Signed-in browser check of a Client Viewing Link: emailed code, R134 charts draw and match reports (desktop/phone, light/dark)",
-    "Owner review of R135 sales-tax wording and the Product Activity (not inventory) note"
+    "Owner review of the R135 sales-tax wording, the Product Activity (not inventory) note, and the R139 analytics/Privacy Notice decision (FINAL-BETA-QA-REPORT.md)"
   ],
   "flatRoot": true,
   "packageType": "cumulative-full-application",
   "activeEntry": "app.html",
-  "generatedAt": "2026-09-30T03:31:07Z",
+  "generatedAt": "2026-09-30T12:07:14Z",
   "sourceRepository": "sraccountax/My-website",
   "sourceBranch": "claude/invoice-credit-debit-audit-e2y8wc",
-  "sourceParentCommit": "9e942ef9367e24e6352e6d2cab7a86a3729a8443",
+  "sourceParentCommit": "cc4b32a60a743f7976d4ec4922745275686532b6",
   "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
   "databaseMigrationRequired": false,
   "databaseMigrationNote": "No manual migration since R118. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
-  "cacheToken": "5990-r138-tegh",
+  "cacheToken": "5990-r139-tegh",
   "clientViewCacheToken": "5990-r135",
   "doNotRepost": [
     "DN-1001"
@@ -39,133 +39,35 @@
   "fileManifest": {
     "path": "FILE-MANIFEST.sha256",
     "algorithm": "SHA-256",
-    "entries": 335,
+    "entries": 336,
     "authoritative": true,
     "note": "The only authoritative per-file hash list for this package. Per-file hashes under history record earlier releases and are not expected to match current files."
   },
-  "testStatus": "R138 local gates passed on a scratch MariaDB with PHP 8.4 (see executedLocalGates). Host acceptance not started; productionReady false.",
+  "testStatus": "R139 = R138 plus the fixes for defects confirmed by the invite-only beta release gate. The gate ran on the exact R138 ZIP: an Apache 2.4 + PHP-FPM 8.3 HTTPS test host, a fresh MariaDB, an SMTP sandbox with STARTTLS+AUTH, and synthetic companies. It was then re-run on the exact R139 ZIP. Results, evidence and the verdict are in FINAL-BETA-QA-REPORT.md in the source repository (not in this package). Host acceptance has not started; productionReady is false.",
   "executedLocalGates": {
-    "phpLint": {
-      "passed": true,
-      "checks": 79,
-      "failures": 0,
-      "detail": "php -l on every api/*.php file, PHP 8.4 (build environment, not the serving host)"
+    "betaGateR138Baseline": {
+      "passed": false,
+      "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
     },
-    "javascriptParse": {
-      "passed": true,
-      "checks": 6,
-      "failures": 0,
-      "detail": "changed JS files parsed"
+    "betaGateR139Retest": {
+      "passed": null,
+      "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
     },
-    "invoiceTaxPostingDatabaseTest": {
-      "passed": true,
-      "checks": 21,
-      "failures": 0,
-      "detail": "BC PST-registered company 5%+7%: $1,000 sale Dr1200 1120.00 / Cr4000 1000 / Cr2100 50 / Cr2110 70; AB customer GST only; pst:false line; mixed lines; draft save/edit/round-trip/issue; detail API split; invoice PDF model split; credit note reverses 2100 10.00 and 2110 14.00; ON HST 13% all to 2100; pst:true refused without PST setup (409); recurring invoice split; accrual receipt; cash-basis half payment recognises GST 25 / PST 35. Baseline on R134 code: 6 of the same checks passed, 12 failed (no PST charged or posted). Re-run on R136: 21/21. Re-run on R137 (legacy mode): 21/21. Re-run on R138 (legacy mode): 21/21."
-    },
-    "invoiceFormBrowser": {
-      "passed": true,
-      "detail": "Playwright 1440x900 and 390x844: Charge PST tick box, split totals, customer-province switching, issued invoice posted Cr2100 50 / Cr2110 70"
-    },
-    "companySetupGuideBrowser": {
-      "passed": true,
-      "detail": "BC, ON, QC, AB guide text and PST fields; Company Details guide"
-    },
-    "uiAuditDesktop": {
-      "passed": true,
-      "checks": 46,
-      "failures": 0,
-      "detail": "46 screens, no page errors, no horizontal overflow (re-run on R138)"
-    },
-    "uiAuditPhone": {
-      "passed": true,
-      "checks": 46,
-      "failures": 0,
-      "detail": "46 screens at 390x844, no page errors, no horizontal overflow (re-run on R138)"
-    },
-    "renderChurn": {
-      "passed": true,
-      "checks": 46,
-      "detail": "idle DOM changes total 1 across 46 screens"
-    },
-    "assistBench": {
-      "passed": true,
-      "checks": 54,
-      "failures": 0,
-      "detail": "re-run on R138"
-    },
-    "assistHoldout": {
-      "passed": true,
-      "checks": 45,
-      "failures": 0,
-      "detail": "re-run on R138"
-    },
-    "assistProductActivity": {
-      "passed": true,
-      "checks": 5,
-      "failures": 0,
-      "detail": "inventory report / product activity / stock report resolve to report.inventory (Product Activity)"
-    },
-    "clientViewApi": {
-      "passed": true,
-      "detail": "client viewing link: emailed code, dashboard, shared/unshared reports, revoke"
-    },
-    "exactPstRateDatabaseTest": {
-      "passed": true,
-      "checks": 13,
-      "failures": 0,
-      "detail": "QC GST 5% + QST 9.975%: $1,000 sale Cr2100 50.00 / Cr2110 99.75; $123.45 -> QST 12.31; $100,000 -> QST 9,975.00; bills tax-added and tax-included exact; settings keep 9975; >25% refused; legacy pstRateBps input; pre-column fallback; BC 7% unchanged Re-run on R137 (legacy mode): 13/13. Re-run on R138 (legacy mode): 13/13."
-    },
-    "taxCalculationEquivalence": {
-      "passed": true,
-      "checks": 400000,
-      "failures": 0,
-      "detail": "new thousandths-of-a-percent calculation vs previous basis-point calculation, 10 whole-bps rate pairs, exclusive and inclusive: 0 differences"
-    },
-    "qcInvoiceFormBrowser": {
-      "passed": true,
-      "detail": "QC invoice form: QST $99.75 on $1,000, total $1,149.75, 'Charge QST (9.975%)'; Company Details rate 9.975"
-    },
-    "taxCodesDatabaseTest": {
-      "passed": true,
-      "checks": 27,
-      "failures": 0,
-      "detail": "codes with named taxes and own GLs; one code per province; invalid accounts and duplicate names refused; QC GST->2100 QST->2120; BC GST+PST; CGST/SGST to separate GLs; per-line override and No tax; PDF per tax; credit note split; bills GST-only, BC PST to cost, tax-included QC ITCs, no tax, draft issue; expense; code edit keeps history; removal deactivates and frees province; legacy company switches on first code Re-run on R138: 27/27."
-    },
-    "taxCodesSettlementTest": {
-      "passed": true,
-      "checks": 9,
-      "failures": 0,
-      "detail": "cash-basis receipt and vendor payment per tax; recurring invoice; draft detail and edit; debit note split and its receivable; backup export Re-run on R138: 9/9."
-    },
-    "taxCodesBackupRestore": {
-      "passed": true,
-      "detail": "restore recreated codes, taxes, document tax lines and tax_setup_mode with GL links to the restored company"
-    },
-    "taxCodesBrowser": {
-      "passed": true,
-      "detail": "Tax Codes page, starter example, invoice picker and per-tax totals, bill picker, Company Details summary, new-company flow opens Tax Codes; 1440x900 and 390x844"
-    },
-    "r138BankCodesStarterQstTest": {
-      "passed": true,
-      "checks": 26,
-      "failures": 0,
-      "detail": "starter codes for 13 provinces + GST-only with rates and GL mapping; QST on 2115/1115; Ontario HST and Quebec GST+QST invoices; region uniqueness; editable; reseed adds nothing; bank deposit/withdrawal with QC, BC, GST-only and no tax; bulk route with tax codes; CODE without id refused; QST remittance clears 2115/1115; Start Empty chart gets no codes; existing company gets 2115/1115 when codes are added"
-    },
-    "r138Browser": {
-      "passed": true,
-      "detail": "Match and Post lists tax codes and previews per tax (BC: GST recoverable, PST to cost) and posted CODE:BC; review panel lists codes; QST remittance option previews 2115; Add Canadian tax codes on an existing company with confirmation"
+    "history": {
+      "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
     }
   },
   "notExecuted": [
-    "PHP lint on the serving host",
+    "PHP lint on the serving host (IONOS)",
     "sha256sum -c FILE-MANIFEST.sha256 on the serving host",
     "Real bank statement files",
-    "Backup restore test",
+    "Restore of a production backup into staging",
     "Live postings on the host database",
     "Signed-in browser check of R134 charts on the host",
-    "Visual dark-mode check of the new R135 panels (styles added; not screenshot-verified)",
-    "Owner review"
+    "Email delivery through the production SMTP account and DNS (SPF/DKIM/DMARC)",
+    "Owner review",
+    "Large-volume performance (tested with small synthetic data only)",
+    "Screen-reader / keyboard-only accessibility audit"
   ],
   "hostAcceptance": [
     {
@@ -200,7 +102,7 @@
     },
     {
       "id": "owner-review",
-      "item": "Owner review of R135 sales-tax wording and the Product Activity (not inventory) note",
+      "item": "Owner review of the R135 sales-tax wording, the Product Activity (not inventory) note, and the R139 analytics/Privacy Notice decision (FINAL-BETA-QA-REPORT.md)",
       "status": "open"
     }
   ],
@@ -210,10 +112,37 @@
     "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
     "Automatic code by region uses the customer's Canadian province field only",
     "Existing companies keep the legacy tax rules until their first tax code is saved",
-    "Dashboard tax card shows GST/HST, PST and QST from their standard accounts only; taxes mapped to other accounts appear in the GST/HST Summary report, ledger and trial balance",
     "Starter tax codes use general rates and charge PST/RST in BC, MB and SK; companies not registered there must deactivate those codes",
-    "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited"
+    "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+    "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+    "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+    "Journals posted to 1200/2050 before R139 are not changed",
+    "Marketing pages (index, company) still load Microsoft Clarity; the Privacy Notice does not describe it (owner decision)",
+    "Invitation links carry the single-use token in the URL query string, so it can appear in host access logs (72-hour expiry, single use)"
   ],
+  "r139Files": [
+    "api/tax_codes_r137.php",
+    "api/accounting.php",
+    "api/advanced.php",
+    "api/books.php",
+    "api/workspace_summary_v5610.php",
+    "api/portal.php",
+    "api/backup.php",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "app.html",
+    ".htaccess",
+    "R139-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r139Migration": "none",
+  "r139CacheToken": "5990-r139-tegh",
   "r138Files": [
     "api/tax_codes_r137.php",
     "api/companies.php",
@@ -1322,6 +1251,136 @@
         "Bank-feed categorisation screen has no tax code picker yet (ticking GST/PST applies the home-province code)",
         "Automatic code by region uses the customer's Canadian province field only",
         "Existing companies keep the legacy tax rules until their first tax code is saved"
+      ]
+    },
+    "r138Identity": {
+      "release": "R138",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R138-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-09-30T03:31:07Z",
+      "sourceParentCommit": "9e942ef9367e24e6352e6d2cab7a86a3729a8443",
+      "testStatus": "R138 local gates passed on a scratch MariaDB with PHP 8.4 (see executedLocalGates). Host acceptance not started; productionReady false.",
+      "executedLocalGates": {
+        "phpLint": {
+          "passed": true,
+          "checks": 79,
+          "failures": 0,
+          "detail": "php -l on every api/*.php file, PHP 8.4 (build environment, not the serving host)"
+        },
+        "javascriptParse": {
+          "passed": true,
+          "checks": 6,
+          "failures": 0,
+          "detail": "changed JS files parsed"
+        },
+        "invoiceTaxPostingDatabaseTest": {
+          "passed": true,
+          "checks": 21,
+          "failures": 0,
+          "detail": "BC PST-registered company 5%+7%: $1,000 sale Dr1200 1120.00 / Cr4000 1000 / Cr2100 50 / Cr2110 70; AB customer GST only; pst:false line; mixed lines; draft save/edit/round-trip/issue; detail API split; invoice PDF model split; credit note reverses 2100 10.00 and 2110 14.00; ON HST 13% all to 2100; pst:true refused without PST setup (409); recurring invoice split; accrual receipt; cash-basis half payment recognises GST 25 / PST 35. Baseline on R134 code: 6 of the same checks passed, 12 failed (no PST charged or posted). Re-run on R136: 21/21. Re-run on R137 (legacy mode): 21/21. Re-run on R138 (legacy mode): 21/21."
+        },
+        "invoiceFormBrowser": {
+          "passed": true,
+          "detail": "Playwright 1440x900 and 390x844: Charge PST tick box, split totals, customer-province switching, issued invoice posted Cr2100 50 / Cr2110 70"
+        },
+        "companySetupGuideBrowser": {
+          "passed": true,
+          "detail": "BC, ON, QC, AB guide text and PST fields; Company Details guide"
+        },
+        "uiAuditDesktop": {
+          "passed": true,
+          "checks": 46,
+          "failures": 0,
+          "detail": "46 screens, no page errors, no horizontal overflow (re-run on R138)"
+        },
+        "uiAuditPhone": {
+          "passed": true,
+          "checks": 46,
+          "failures": 0,
+          "detail": "46 screens at 390x844, no page errors, no horizontal overflow (re-run on R138)"
+        },
+        "renderChurn": {
+          "passed": true,
+          "checks": 46,
+          "detail": "idle DOM changes total 1 across 46 screens"
+        },
+        "assistBench": {
+          "passed": true,
+          "checks": 54,
+          "failures": 0,
+          "detail": "re-run on R138"
+        },
+        "assistHoldout": {
+          "passed": true,
+          "checks": 45,
+          "failures": 0,
+          "detail": "re-run on R138"
+        },
+        "assistProductActivity": {
+          "passed": true,
+          "checks": 5,
+          "failures": 0,
+          "detail": "inventory report / product activity / stock report resolve to report.inventory (Product Activity)"
+        },
+        "clientViewApi": {
+          "passed": true,
+          "detail": "client viewing link: emailed code, dashboard, shared/unshared reports, revoke"
+        },
+        "exactPstRateDatabaseTest": {
+          "passed": true,
+          "checks": 13,
+          "failures": 0,
+          "detail": "QC GST 5% + QST 9.975%: $1,000 sale Cr2100 50.00 / Cr2110 99.75; $123.45 -> QST 12.31; $100,000 -> QST 9,975.00; bills tax-added and tax-included exact; settings keep 9975; >25% refused; legacy pstRateBps input; pre-column fallback; BC 7% unchanged Re-run on R137 (legacy mode): 13/13. Re-run on R138 (legacy mode): 13/13."
+        },
+        "taxCalculationEquivalence": {
+          "passed": true,
+          "checks": 400000,
+          "failures": 0,
+          "detail": "new thousandths-of-a-percent calculation vs previous basis-point calculation, 10 whole-bps rate pairs, exclusive and inclusive: 0 differences"
+        },
+        "qcInvoiceFormBrowser": {
+          "passed": true,
+          "detail": "QC invoice form: QST $99.75 on $1,000, total $1,149.75, 'Charge QST (9.975%)'; Company Details rate 9.975"
+        },
+        "taxCodesDatabaseTest": {
+          "passed": true,
+          "checks": 27,
+          "failures": 0,
+          "detail": "codes with named taxes and own GLs; one code per province; invalid accounts and duplicate names refused; QC GST->2100 QST->2120; BC GST+PST; CGST/SGST to separate GLs; per-line override and No tax; PDF per tax; credit note split; bills GST-only, BC PST to cost, tax-included QC ITCs, no tax, draft issue; expense; code edit keeps history; removal deactivates and frees province; legacy company switches on first code Re-run on R138: 27/27."
+        },
+        "taxCodesSettlementTest": {
+          "passed": true,
+          "checks": 9,
+          "failures": 0,
+          "detail": "cash-basis receipt and vendor payment per tax; recurring invoice; draft detail and edit; debit note split and its receivable; backup export Re-run on R138: 9/9."
+        },
+        "taxCodesBackupRestore": {
+          "passed": true,
+          "detail": "restore recreated codes, taxes, document tax lines and tax_setup_mode with GL links to the restored company"
+        },
+        "taxCodesBrowser": {
+          "passed": true,
+          "detail": "Tax Codes page, starter example, invoice picker and per-tax totals, bill picker, Company Details summary, new-company flow opens Tax Codes; 1440x900 and 390x844"
+        },
+        "r138BankCodesStarterQstTest": {
+          "passed": true,
+          "checks": 26,
+          "failures": 0,
+          "detail": "starter codes for 13 provinces + GST-only with rates and GL mapping; QST on 2115/1115; Ontario HST and Quebec GST+QST invoices; region uniqueness; editable; reseed adds nothing; bank deposit/withdrawal with QC, BC, GST-only and no tax; bulk route with tax codes; CODE without id refused; QST remittance clears 2115/1115; Start Empty chart gets no codes; existing company gets 2115/1115 when codes are added"
+        },
+        "r138Browser": {
+          "passed": true,
+          "detail": "Match and Post lists tax codes and previews per tax (BC: GST recoverable, PST to cost) and posted CODE:BC; review panel lists codes; QST remittance option previews 2115; Add Canadian tax codes on an existing company with confirmation"
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "Automatic code by region uses the customer's Canadian province field only",
+        "Existing companies keep the legacy tax rules until their first tax code is saved",
+        "Dashboard tax card shows GST/HST, PST and QST from their standard accounts only; taxes mapped to other accounts appear in the GST/HST Summary report, ledger and trial balance",
+        "Starter tax codes use general rates and charge PST/RST in BC, MB and SK; companies not registered there must deactivate those codes",
+        "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited"
       ]
     }
   }
