@@ -50,9 +50,26 @@ Tegh Assist still finds the report when asked for "inventory report" or "stock r
 
 Earlier release sections (`r118Files` … `r134Files`, R117 hotfix hashes, the old "changedActiveFiles" hashes) moved unchanged under `history`, marked as historical. `FILE-MANIFEST.sha256` is named as the only authoritative per-file hash list.
 
-## Verified (local, this build)
+## Verified (local, this build: scratch MariaDB, PHP 8.4, Playwright Chromium)
 
-See `executedLocalGates` in RELEASE-MANIFEST.json for the recorded results.
+- **PHP lint:** all 79 `api/*.php` files pass. Changed JavaScript parses.
+- **Database-backed posting test:** 21/21 pass with a BC company registered for GST 5% and PST 7%:
+  - A $1,000 BC sale posts Dr 1200 $1,120 / Cr 4000 $1,000 / Cr 2100 $50 / Cr 2110 $70.
+  - A sale to an Alberta customer gets GST only.
+  - A line with `pst:false` gets GST only.
+  - Mixed lines split correctly.
+  - A draft saves, round-trips through the editor without an override prompt, is edited and issued.
+  - The invoice PDF model shows GST/HST $50 and PST $70.
+  - A $200 credit note reverses $10 in 2100 and $14 in 2110.
+  - An Ontario HST 13% sale posts entirely to 2100.
+  - `pst:true` without a PST setup is refused.
+  - A recurring invoice splits correctly.
+  - A cash-basis half payment recognises GST $25 and PST $35.
+
+  The same test on the R134 code failed 5 checks (no PST charged, saved or posted), and its PST credit note was refused.
+- **Browser:** the invoice form at 1440×900 and 390×844, and an invoice issued from the UI that posted Cr 2100 $50 / Cr 2110 $70. The company guide was checked for BC, ON, QC and AB, and in Company Details.
+- **Regression:** 46 screens with no errors and no sideways overflow on desktop and phone. Render churn totalled 1. Tegh Assist passed 54/54 and the holdout set 45/45; "inventory report", "product activity" and "stock report" all open Product Activity. The client viewing link API passed.
+- **Not screenshot-verified:** dark mode for the new panels. Dark styles were added, but the test harness did not switch the theme.
 
 ## Not verified here: host acceptance (open)
 

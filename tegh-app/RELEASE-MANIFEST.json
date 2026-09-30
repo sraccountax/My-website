@@ -4,115 +4,293 @@
   "build": 5990,
   "schema": 46,
   "schemaTarget": 46,
-  "revision": "Sites R117 frontend with R117 debit-note output hotfix and R118 account guard, metadata hardening and Invoice / Credit & Debit Notes tabs",
-  "releaseStatus": "STAGING CANDIDATE \u2014 accounting acceptance and serving-host file identity pending",
+  "release": "R135",
+  "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R135-Consolidated-IONOS-STAGING",
+  "packageFile": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R135-Consolidated-IONOS-STAGING.zip",
+  "revision": "Cumulative R118–R135 over the Sites R117 frontend. R135: customer-invoice PST/QST/RST recorded and posted separately from GST/HST (2110 vs 2100) on create, draft edit, issue, recurring, notes and cash-basis receipts; plain-language sales tax guide at company registration and Company Details; Inventory Report renamed Product Activity with an ASPE 3031 / IAS 2 scope note; release manifests regenerated with one identity.",
+  "releaseStatus": "STAGING CANDIDATE — host acceptance open (see hostAcceptance)",
   "sealed": false,
   "productionReady": false,
   "acceptanceComplete": false,
+  "productionReadyBlockers": [
+    "php -l on every api/*.php file with the serving host's PHP version",
+    "sha256sum -c FILE-MANIFEST.sha256 in the serving web root after upload",
+    "Import real bank statement files; Match and Post; complete a reconciliation at $0.00 difference",
+    "Restore a production backup into a separate staging database; trial balance, AR/AP and GST/HST balances match",
+    "On the host database: PST invoice (2100/2110 split), HST invoice, credit note and customer payment post and balance",
+    "Signed-in browser check of a Client Viewing Link: emailed code, R134 charts draw and match reports (desktop/phone, light/dark)",
+    "Owner review of R135 sales-tax wording and the Product Activity (not inventory) note"
+  ],
   "flatRoot": true,
   "packageType": "cumulative-full-application",
-  "package": "Tegh-5.9.9-Build-5990-Schema-46-Sites-R117-Hotfix-R118-Consolidated-IONOS-STAGING",
-  "generatedAt": "2026-09-28T06:47:11Z",
-  "sourceSiteProjectId": "appgprj_6ab3cf31e2d48191b5f1ce9e490fc8db",
-  "sourceSiteCommit": "e33a278ff46f6e1e057eb9bfe94dc52461640794",
-  "sourceBasePackageSha256": "21838aae4541a3c958f9c2837e8fb7dadb20c7f4de1fc08d9f6acf4c9486611c",
-  "sourceHotfixSha256": "7f361a835acd4f6a3a087091141d0c0a07fee709bc8c5e13bece6c316b8219c0",
-  "databaseMigrationRequired": true,
-  "newMigrationRequiredForHotfix": false,
   "activeEntry": "app.html",
+  "generatedAt": "2026-09-30T01:23:13Z",
+  "sourceRepository": "sraccountax/My-website",
+  "sourceBranch": "claude/invoice-credit-debit-audit-e2y8wc",
+  "sourceParentCommit": "2af3275771d18ec3a2393f382895382caf4e8cb3",
+  "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
+  "databaseMigrationRequired": false,
+  "databaseMigrationNote": "No manual migration since R118. Additive tables from R120 (accounting_note_lines) and R133 (client_view_*) are created automatically on first use.",
+  "cacheToken": "5990-r135-tegh",
+  "clientViewCacheToken": "5990-r135",
   "doNotRepost": [
     "DN-1001"
   ],
-  "hotfixFiles": [
+  "fileManifest": {
+    "path": "FILE-MANIFEST.sha256",
+    "algorithm": "SHA-256",
+    "entries": 331,
+    "authoritative": true,
+    "note": "The only authoritative per-file hash list for this package. Per-file hashes under history record earlier releases and are not expected to match current files."
+  },
+  "testStatus": "R135 local gates passed on a scratch MariaDB with PHP 8.4 (see executedLocalGates). Host acceptance not started; productionReady false.",
+  "executedLocalGates": {
+    "phpLint": {
+      "passed": true,
+      "checks": 79,
+      "failures": 0,
+      "detail": "php -l on every api/*.php file, PHP 8.4 (build environment, not the serving host)"
+    },
+    "javascriptParse": {
+      "passed": true,
+      "checks": 6,
+      "failures": 0,
+      "detail": "changed JS files parsed"
+    },
+    "invoiceTaxPostingDatabaseTest": {
+      "passed": true,
+      "checks": 21,
+      "failures": 0,
+      "detail": "BC PST-registered company 5%+7%: $1,000 sale Dr1200 1120.00 / Cr4000 1000 / Cr2100 50 / Cr2110 70; AB customer GST only; pst:false line; mixed lines; draft save/edit/round-trip/issue; detail API split; invoice PDF model split; credit note reverses 2100 10.00 and 2110 14.00; ON HST 13% all to 2100; pst:true refused without PST setup (409); recurring invoice split; accrual receipt; cash-basis half payment recognises GST 25 / PST 35. Baseline on R134 code: 5 checks failed (no PST charged, saved or posted) and the PST credit note was refused before the run stopped."
+    },
+    "invoiceFormBrowser": {
+      "passed": true,
+      "detail": "Playwright 1440x900 and 390x844: Charge PST tick box, split totals, customer-province switching, issued invoice posted Cr2100 50 / Cr2110 70"
+    },
+    "companySetupGuideBrowser": {
+      "passed": true,
+      "detail": "BC, ON, QC, AB guide text and PST fields; Company Details guide"
+    },
+    "uiAuditDesktop": {
+      "passed": true,
+      "checks": 46,
+      "failures": 0,
+      "detail": "46 screens, no page errors, no horizontal overflow"
+    },
+    "uiAuditPhone": {
+      "passed": true,
+      "checks": 46,
+      "failures": 0,
+      "detail": "46 screens at 390x844, no page errors, no horizontal overflow"
+    },
+    "renderChurn": {
+      "passed": true,
+      "checks": 46,
+      "detail": "idle DOM changes total 1 across 46 screens"
+    },
+    "assistBench": {
+      "passed": true,
+      "checks": 54,
+      "failures": 0
+    },
+    "assistHoldout": {
+      "passed": true,
+      "checks": 45,
+      "failures": 0
+    },
+    "assistProductActivity": {
+      "passed": true,
+      "checks": 5,
+      "failures": 0,
+      "detail": "inventory report / product activity / stock report resolve to report.inventory (Product Activity)"
+    },
+    "clientViewApi": {
+      "passed": true,
+      "detail": "client viewing link: emailed code, dashboard, shared/unshared reports, revoke"
+    }
+  },
+  "notExecuted": [
+    "PHP lint on the serving host",
+    "sha256sum -c FILE-MANIFEST.sha256 on the serving host",
+    "Real bank statement files",
+    "Backup restore test",
+    "Live postings on the host database",
+    "Signed-in browser check of R134 charts on the host",
+    "Visual dark-mode check of the new R135 panels (styles added; not screenshot-verified)",
+    "Owner review"
+  ],
+  "hostAcceptance": [
     {
-      "path": "api/accounting_notes.php",
-      "r117Sha256": "9639c451d42f26b0f700617a28584741b132e10f35e57fdb4e9e8f183cd58082",
-      "consolidatedSha256": "8100d2fbd3f5ffc6107e6d19d5484fd83546db3fa48bdd51bfa9ba4d565ed858"
+      "id": "host-php-lint",
+      "item": "php -l on every api/*.php file with the serving host's PHP version",
+      "status": "open"
     },
     {
-      "path": "api/professional_output_v5710.php",
-      "r117Sha256": "203ee314c6924a76cf45c67f269ab4cb920a69f8b82431e8013728c3199a92a4",
-      "consolidatedSha256": "54a55c783d6ffd419ff52ce2ee434685bd358786620b09fb0688ddb632e6590d"
+      "id": "host-file-identity",
+      "item": "sha256sum -c FILE-MANIFEST.sha256 in the serving web root after upload",
+      "status": "open"
+    },
+    {
+      "id": "real-statement-files",
+      "item": "Import real bank statement files; Match and Post; complete a reconciliation at $0.00 difference",
+      "status": "open"
+    },
+    {
+      "id": "backup-restore-test",
+      "item": "Restore a production backup into a separate staging database; trial balance, AR/AP and GST/HST balances match",
+      "status": "open"
+    },
+    {
+      "id": "live-postings",
+      "item": "On the host database: PST invoice (2100/2110 split), HST invoice, credit note and customer payment post and balance",
+      "status": "open"
+    },
+    {
+      "id": "signed-in-browser-r134-charts",
+      "item": "Signed-in browser check of a Client Viewing Link: emailed code, R134 charts draw and match reports (desktop/phone, light/dark)",
+      "status": "open"
+    },
+    {
+      "id": "owner-review",
+      "item": "Owner review of R135 sales-tax wording and the Product Activity (not inventory) note",
+      "status": "open"
     }
   ],
-  "hostDeployment": "R118 files must be uploaded and hash-verified on the serving host; serving-host hashes and PHP lint on the host are not verified by this package.",
-  "testStatus": "Frontend source/static checks and limited DN-1001 detail/PDF passed; GL control and wider live matrix pending.",
-  "r118Files": [
-    {
-      "path": ".htaccess",
-      "sha256": "329fd4c7cd083f52f6dedbe8cb7970693863665e5e2b30f7cc42b3e14e481418"
-    },
-    {
-      "path": "404.html",
-      "sha256": "b040b163d2281696f38a25ffb307daedaa6d41b578dc6c5e218d464d387ed64d"
-    },
-    {
-      "path": "api/companies.php",
-      "sha256": "4e8f5ab8caa6a302b48e0c4ff08215e341cd602b7d62f83266845a1d6b0a2951"
-    },
-    {
-      "path": "app.html",
-      "sha256": "f2332364dcc33b288996c520d5224ba9f0b0526ed2b4b064eec4e0241b655f9b"
-    },
-    {
-      "path": "ask-tegh.html",
-      "sha256": "8ae24444cb3292312a85d1383c8727039588d91bce0f07178e367f7330972197"
-    },
-    {
-      "path": "assets/tegh-gate-v5990.js",
-      "sha256": "98447af58a70365271d2e3d56c40e289a17e1875e52a8c60e1ede8f58d5a3742"
-    },
-    {
-      "path": "assets/tegh-polish-r32.css",
-      "sha256": "3395b60e2ea6686120beac22a5c6bb656cbd74f8f5b7701b66b0bc228edd36cf"
-    },
-    {
-      "path": "assets/tegh-portal-v5990.js",
-      "sha256": "fbfa8413e7929607f177e977f5ef4b4219d4e17bf103afedc30f3c5789a3cfda"
-    },
-    {
-      "path": "assets/tegh-preflight-v5990.js",
-      "sha256": "7bf7d8d8afa21c390f935c16d52941ccfbfb2ed933ee63b9f79a86a69bd4feaa"
-    },
-    {
-      "path": "company.html",
-      "sha256": "a7afdfd6857785d5c6c1b6344392849816145eba5037a0494b68fd3325a95373"
-    },
-    {
-      "path": "contact.html",
-      "sha256": "95dbf2d08685522ea22568e6dd8f744667e9c9af3639b3ea10943ce47cb46498"
-    },
-    {
-      "path": "index.html",
-      "sha256": "8ea63ed25a159a1ceb77cd4abb16c20194db1c2670e954a1747923ace743ca97"
-    },
-    {
-      "path": "migration.html",
-      "sha256": "cb45f307e3e18d6deb3ec5c18230bdcbc4b48cf14291fb2bbb7a5f1885a43eba"
-    },
-    {
-      "path": "privacy.html",
-      "sha256": "aeb097936d4c6e8e43fff538b1e03e02105b15ebe06ab0e06170e40cb91d51ff"
-    },
-    {
-      "path": "product.html",
-      "sha256": "f2db086afd3ba67cc29c2cc1c5cc6d3eb3ff7cae18dc9dfdd910d2de4b544b2d"
-    },
-    {
-      "path": "security.html",
-      "sha256": "d1df87a07a1f1aa314c64340538f8addfaf4062a5c114c51f00d2266ebae44b7"
-    },
-    {
-      "path": "solutions.html",
-      "sha256": "54908531e27df864b0128521b8e26fbfa30777435f010343e9f83c2225b5e751"
-    },
-    {
-      "path": "subscriptions.html",
-      "sha256": "3801ae13006c5d4523f2750820c3038e6ca188cd2c0762ea32a4167ce620ccd3"
-    },
-    {
-      "path": "terms.html",
-      "sha256": "9c4495283242ffbb3cbae1e06f023568c6dd17e32c307d487964897c6b805d82"
-    }
-  ]
+  "knownLimitations": [
+    "QST 9.975% is stored as 9.98% (rates are whole basis points); 5 cents more QST per $1,000",
+    "Product Activity is not an inventory report; no stock, COGS or valuation",
+    "Draft editor infers per-line PST from the stored combined rate when the invoice has PST"
+  ],
+  "r135Files": [
+    "api/accounting.php",
+    "api/advanced.php",
+    "api/payments.php",
+    "api/invoice_documents_r20.php",
+    "api/professional_output_v5710.php",
+    "api/report_output_v5980.php",
+    "api/ai_agent.php",
+    "api/ai_actions_v5600.php",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-invoice-reports-r20.js",
+    "assets/tegh-professional-output-v5990.js",
+    "assets/tegh-workflow-v5700.js",
+    "assets/tegh-r120.css",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "app.html",
+    "client-view.html",
+    "R135-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r135Migration": "none",
+  "r135CacheToken": "5990-r135-tegh (portal); 5990-r135 (client-view.html assets)",
+  "history": {
+    "note": "Fields as they stood before R135 regeneration (last identified as Tegh-5.9.9-Build-5990-Schema-46-Sites-R117-Hotfix-R118-Consolidated-IONOS-STAGING). Kept for traceability; hashes and test wording here are historical.",
+    "previous_revision": "Sites R117 frontend with R117 debit-note output hotfix and R118 account guard, metadata hardening and Invoice / Credit & Debit Notes tabs",
+    "previous_releaseStatus": "STAGING CANDIDATE — accounting acceptance and serving-host file identity pending",
+    "previous_package": "Tegh-5.9.9-Build-5990-Schema-46-Sites-R117-Hotfix-R118-Consolidated-IONOS-STAGING",
+    "previous_generatedAt": "2026-09-28T06:47:11Z",
+    "sourceSiteProjectId": "appgprj_6ab3cf31e2d48191b5f1ce9e490fc8db",
+    "sourceSiteCommit": "e33a278ff46f6e1e057eb9bfe94dc52461640794",
+    "sourceBasePackageSha256": "21838aae4541a3c958f9c2837e8fb7dadb20c7f4de1fc08d9f6acf4c9486611c",
+    "sourceHotfixSha256": "7f361a835acd4f6a3a087091141d0c0a07fee709bc8c5e13bece6c316b8219c0",
+    "newMigrationRequiredForHotfix": false,
+    "hotfixFiles": [
+      {
+        "path": "api/accounting_notes.php",
+        "r117Sha256": "9639c451d42f26b0f700617a28584741b132e10f35e57fdb4e9e8f183cd58082",
+        "consolidatedSha256": "8100d2fbd3f5ffc6107e6d19d5484fd83546db3fa48bdd51bfa9ba4d565ed858"
+      },
+      {
+        "path": "api/professional_output_v5710.php",
+        "r117Sha256": "203ee314c6924a76cf45c67f269ab4cb920a69f8b82431e8013728c3199a92a4",
+        "consolidatedSha256": "54a55c783d6ffd419ff52ce2ee434685bd358786620b09fb0688ddb632e6590d"
+      }
+    ],
+    "hostDeployment": "R118 files must be uploaded and hash-verified on the serving host; serving-host hashes and PHP lint on the host are not verified by this package.",
+    "previous_testStatus": "Frontend source/static checks and limited DN-1001 detail/PDF passed; GL control and wider live matrix pending.",
+    "r118Files": [
+      {
+        "path": ".htaccess",
+        "sha256": "329fd4c7cd083f52f6dedbe8cb7970693863665e5e2b30f7cc42b3e14e481418"
+      },
+      {
+        "path": "404.html",
+        "sha256": "b040b163d2281696f38a25ffb307daedaa6d41b578dc6c5e218d464d387ed64d"
+      },
+      {
+        "path": "api/companies.php",
+        "sha256": "4e8f5ab8caa6a302b48e0c4ff08215e341cd602b7d62f83266845a1d6b0a2951"
+      },
+      {
+        "path": "app.html",
+        "sha256": "f2332364dcc33b288996c520d5224ba9f0b0526ed2b4b064eec4e0241b655f9b"
+      },
+      {
+        "path": "ask-tegh.html",
+        "sha256": "8ae24444cb3292312a85d1383c8727039588d91bce0f07178e367f7330972197"
+      },
+      {
+        "path": "assets/tegh-gate-v5990.js",
+        "sha256": "98447af58a70365271d2e3d56c40e289a17e1875e52a8c60e1ede8f58d5a3742"
+      },
+      {
+        "path": "assets/tegh-polish-r32.css",
+        "sha256": "3395b60e2ea6686120beac22a5c6bb656cbd74f8f5b7701b66b0bc228edd36cf"
+      },
+      {
+        "path": "assets/tegh-portal-v5990.js",
+        "sha256": "fbfa8413e7929607f177e977f5ef4b4219d4e17bf103afedc30f3c5789a3cfda"
+      },
+      {
+        "path": "assets/tegh-preflight-v5990.js",
+        "sha256": "7bf7d8d8afa21c390f935c16d52941ccfbfb2ed933ee63b9f79a86a69bd4feaa"
+      },
+      {
+        "path": "company.html",
+        "sha256": "a7afdfd6857785d5c6c1b6344392849816145eba5037a0494b68fd3325a95373"
+      },
+      {
+        "path": "contact.html",
+        "sha256": "95dbf2d08685522ea22568e6dd8f744667e9c9af3639b3ea10943ce47cb46498"
+      },
+      {
+        "path": "index.html",
+        "sha256": "8ea63ed25a159a1ceb77cd4abb16c20194db1c2670e954a1747923ace743ca97"
+      },
+      {
+        "path": "migration.html",
+        "sha256": "cb45f307e3e18d6deb3ec5c18230bdcbc4b48cf14291fb2bbb7a5f1885a43eba"
+      },
+      {
+        "path": "privacy.html",
+        "sha256": "aeb097936d4c6e8e43fff538b1e03e02105b15ebe06ab0e06170e40cb91d51ff"
+      },
+      {
+        "path": "product.html",
+        "sha256": "f2db086afd3ba67cc29c2cc1c5cc6d3eb3ff7cae18dc9dfdd910d2de4b544b2d"
+      },
+      {
+        "path": "security.html",
+        "sha256": "d1df87a07a1f1aa314c64340538f8addfaf4062a5c114c51f00d2266ebae44b7"
+      },
+      {
+        "path": "solutions.html",
+        "sha256": "54908531e27df864b0128521b8e26fbfa30777435f010343e9f83c2225b5e751"
+      },
+      {
+        "path": "subscriptions.html",
+        "sha256": "3801ae13006c5d4523f2750820c3038e6ca188cd2c0762ea32a4167ce620ccd3"
+      },
+      {
+        "path": "terms.html",
+        "sha256": "9c4495283242ffbb3cbae1e06f023568c6dd17e32c307d487964897c6b805d82"
+      }
+    ]
+  }
 }
