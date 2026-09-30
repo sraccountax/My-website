@@ -4,6 +4,8 @@ Prepared 2026-09-30 by the build/QA agent (senior QA, security and accounting re
 
 ## 1. Verdict
 
+> **Update: R140 supersedes R139 for deployment.** After this report was issued, a new defect was reported: "Can't scroll vendor invoice creation in mobile view" (DEF-09). It is fixed in R140, and the gate was re-run on the exact R140 ZIP. See the addendum at the end. Where this report says "deploy R139", deploy **R140** (SHA-256 `c2e6bb611406a6e66d28c21e35a4ee6d639632cb9548d044ee35533e5890ac4f`). The verdict is unchanged: **NOT READY**, for the same host-acceptance and owner-decision blockers.
+
 # NOT READY: exact blockers
 
 R139 passes every test this gate could run off-host. The verdict is still NOT READY, because the gate rules require host acceptance evidence for READY and none exists yet. The blockers:
@@ -427,7 +429,8 @@ Proposed additions for owner decision:
 
 ## 15. Owner checklist
 
-- [ ] Upload R139 (SHA-256 `0678a234…be57`) to staging, not R138.
+- [ ] Upload **R140** (SHA-256 `c2e6bb61…ac4f`) to staging, not R138 or R139.
+- [ ] On a real iPhone and Android phone: Payables → New Vendor Invoice, swipe up from the form fields; the page scrolls to Save.
 - [ ] Run §11 H1–H11 on the host and paste results into the host-acceptance record.
 - [ ] Decide DEF-08 (§12.2) and the Clarity/Privacy Notice question (§12.3).
 - [ ] Review the sales-tax wording (§12.1) and the Product Activity note (§12.4).
@@ -459,3 +462,36 @@ Test scripts are in `beta-gate-evidence/scripts/` (Node 22, Playwright 1.56, Mar
 - `r138-baseline/`: R138 results for comparison
 
 Screenshots and logs contain only synthetic data. No secrets, SINs or real financial information.
+
+
+## Addendum: R140 (vendor invoice scrolling on phones)
+
+| | |
+|---|---|
+| Package | `Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R140-Consolidated-IONOS-STAGING.zip` |
+| SHA-256 | `c2e6bb611406a6e66d28c21e35a4ee6d639632cb9548d044ee35533e5890ac4f` |
+| Source commit | `0f6d5a4` |
+| FILE-MANIFEST.sha256 | 337 entries, all OK |
+| Cache token | `5990-r140-tegh` |
+| productionReady / acceptanceComplete | false / false (unchanged) |
+
+**DEF-09 (High, usability, phones): New Vendor Invoice could not be scrolled.**
+- **Cause:** on the vendor invoice page only, the form's layout box was a scroll box (`overflow-y:auto; overscroll-behavior:contain`, from the R32 polish rule). It was not the page's designated scroll area, so it had nothing of its own to scroll. On phones, iOS Safari in particular, a swipe starting on the form was caught by that box and not passed on to the page. The customer invoice form never had this combination.
+- **Why the gate missed it:** the gate's UI checks measured layout, not touch scrolling. Emulated Chromium passes swipes on to the page, so this reproduces only on WebKit/iOS.
+- **Fix:** one CSS rule in `assets/tegh-r120.css`. An invoice layout without `r22-fill-path` is not a scroll box.
+
+**Retest on the exact R140 ZIP (fresh gate database):**
+
+| Test | Result |
+|---|---|
+| Swipe-trap scan of all 46 menu screens at 390×844 and 360×800 | Before the fix: 1 (New Vendor Invoice). R140: **0** |
+| Touch swipe and wheel on New Vendor Invoice at 1440×900, 1024×768, 768×1024, 390×844, 360×800 | **PASS** at every size. The phone layout now matches the customer invoice form, and a swipe reaches the bottom (Save as Draft / Record and Post) at 390×844. |
+| Customer invoice form, same sizes | Unchanged, PASS |
+| Full API gate suite | **200 PASS / 0 FAIL / 6 INFO** (same results as R139) |
+| Path, header and asset probes; PHP 8.3 and 8.4 lint | 40/40 PASS; 81 files × 2, 0 failures |
+| UI sweep, 46 screens at 1440×900, 390×844, 360×800 | 0 issues |
+| iOS Safari / real iPhone | **BLOCKED** (WebKit is not available in the build environment). Owner check added to DEPLOYMENT-NOTES. |
+
+Evidence: `beta-gate-evidence/r140/`, including `r140-scroll.txt` and the phone screenshots at the top and bottom of the form.
+
+Also noticed, not changed: on phones the vendor invoice's "Tax Code" dropdown sits just outside the summary card, and its long label is cut off ("GST 5% + P…"). It still works. Cosmetic only.
