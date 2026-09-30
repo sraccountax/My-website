@@ -4,10 +4,10 @@
   "build": 5990,
   "schema": 46,
   "schemaTarget": 46,
-  "release": "R135",
-  "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R135-Consolidated-IONOS-STAGING",
-  "packageFile": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R135-Consolidated-IONOS-STAGING.zip",
-  "revision": "Cumulative R118–R135 over the Sites R117 frontend. R135: customer-invoice PST/QST/RST recorded and posted separately from GST/HST (2110 vs 2100) on create, draft edit, issue, recurring, notes and cash-basis receipts; plain-language sales tax guide at company registration and Company Details; Inventory Report renamed Product Activity with an ASPE 3031 / IAS 2 scope note; release manifests regenerated with one identity.",
+  "release": "R136",
+  "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R136-Consolidated-IONOS-STAGING",
+  "packageFile": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R136-Consolidated-IONOS-STAGING.zip",
+  "revision": "Cumulative R118–R136 over the Sites R117 frontend. R136: PST/QST/RST rates stored and calculated exactly in thousandths of a percent (QST 9.975%), companies.pst_rate_mpct added automatically. R135: customer-invoice PST/QST/RST recorded and posted separately from GST/HST (2110 vs 2100) on create, draft edit, issue, recurring, notes and cash-basis receipts; plain-language sales tax guide at company registration and Company Details; Inventory Report renamed Product Activity with an ASPE 3031 / IAS 2 scope note; release manifests regenerated with one identity.",
   "releaseStatus": "STAGING CANDIDATE — host acceptance open (see hostAcceptance)",
   "sealed": false,
   "productionReady": false,
@@ -24,14 +24,14 @@
   "flatRoot": true,
   "packageType": "cumulative-full-application",
   "activeEntry": "app.html",
-  "generatedAt": "2026-09-30T01:23:13Z",
+  "generatedAt": "2026-09-30T01:41:11Z",
   "sourceRepository": "sraccountax/My-website",
   "sourceBranch": "claude/invoice-credit-debit-audit-e2y8wc",
-  "sourceParentCommit": "2af3275771d18ec3a2393f382895382caf4e8cb3",
+  "sourceParentCommit": "f8518330f8af70472605deecc9baa6f53367c1c0",
   "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
   "databaseMigrationRequired": false,
-  "databaseMigrationNote": "No manual migration since R118. Additive tables from R120 (accounting_note_lines) and R133 (client_view_*) are created automatically on first use.",
-  "cacheToken": "5990-r135-tegh",
+  "databaseMigrationNote": "No manual migration since R118. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10). Needs CREATE and ALTER privilege.",
+  "cacheToken": "5990-r136-tegh",
   "clientViewCacheToken": "5990-r135",
   "doNotRepost": [
     "DN-1001"
@@ -39,11 +39,11 @@
   "fileManifest": {
     "path": "FILE-MANIFEST.sha256",
     "algorithm": "SHA-256",
-    "entries": 331,
+    "entries": 332,
     "authoritative": true,
     "note": "The only authoritative per-file hash list for this package. Per-file hashes under history record earlier releases and are not expected to match current files."
   },
-  "testStatus": "R135 local gates passed on a scratch MariaDB with PHP 8.4 (see executedLocalGates). Host acceptance not started; productionReady false.",
+  "testStatus": "R136 local gates passed on a scratch MariaDB with PHP 8.4 (see executedLocalGates). Host acceptance not started; productionReady false.",
   "executedLocalGates": {
     "phpLint": {
       "passed": true,
@@ -61,7 +61,7 @@
       "passed": true,
       "checks": 21,
       "failures": 0,
-      "detail": "BC PST-registered company 5%+7%: $1,000 sale Dr1200 1120.00 / Cr4000 1000 / Cr2100 50 / Cr2110 70; AB customer GST only; pst:false line; mixed lines; draft save/edit/round-trip/issue; detail API split; invoice PDF model split; credit note reverses 2100 10.00 and 2110 14.00; ON HST 13% all to 2100; pst:true refused without PST setup (409); recurring invoice split; accrual receipt; cash-basis half payment recognises GST 25 / PST 35. Baseline on R134 code: 5 checks failed (no PST charged, saved or posted) and the PST credit note was refused before the run stopped."
+      "detail": "BC PST-registered company 5%+7%: $1,000 sale Dr1200 1120.00 / Cr4000 1000 / Cr2100 50 / Cr2110 70; AB customer GST only; pst:false line; mixed lines; draft save/edit/round-trip/issue; detail API split; invoice PDF model split; credit note reverses 2100 10.00 and 2110 14.00; ON HST 13% all to 2100; pst:true refused without PST setup (409); recurring invoice split; accrual receipt; cash-basis half payment recognises GST 25 / PST 35. Baseline on R134 code: 6 of the same checks passed, 12 failed (no PST charged or posted). Re-run on R136: 21/21."
     },
     "invoiceFormBrowser": {
       "passed": true,
@@ -75,13 +75,13 @@
       "passed": true,
       "checks": 46,
       "failures": 0,
-      "detail": "46 screens, no page errors, no horizontal overflow"
+      "detail": "46 screens, no page errors, no horizontal overflow (re-run on R136)"
     },
     "uiAuditPhone": {
       "passed": true,
       "checks": 46,
       "failures": 0,
-      "detail": "46 screens at 390x844, no page errors, no horizontal overflow"
+      "detail": "46 screens at 390x844, no page errors, no horizontal overflow (re-run on R136)"
     },
     "renderChurn": {
       "passed": true,
@@ -91,12 +91,14 @@
     "assistBench": {
       "passed": true,
       "checks": 54,
-      "failures": 0
+      "failures": 0,
+      "detail": "re-run on R136"
     },
     "assistHoldout": {
       "passed": true,
       "checks": 45,
-      "failures": 0
+      "failures": 0,
+      "detail": "re-run on R136"
     },
     "assistProductActivity": {
       "passed": true,
@@ -107,6 +109,22 @@
     "clientViewApi": {
       "passed": true,
       "detail": "client viewing link: emailed code, dashboard, shared/unshared reports, revoke"
+    },
+    "exactPstRateDatabaseTest": {
+      "passed": true,
+      "checks": 13,
+      "failures": 0,
+      "detail": "QC GST 5% + QST 9.975%: $1,000 sale Cr2100 50.00 / Cr2110 99.75; $123.45 -> QST 12.31; $100,000 -> QST 9,975.00; bills tax-added and tax-included exact; settings keep 9975; >25% refused; legacy pstRateBps input; pre-column fallback; BC 7% unchanged"
+    },
+    "taxCalculationEquivalence": {
+      "passed": true,
+      "checks": 400000,
+      "failures": 0,
+      "detail": "new thousandths-of-a-percent calculation vs previous basis-point calculation, 10 whole-bps rate pairs, exclusive and inclusive: 0 differences"
+    },
+    "qcInvoiceFormBrowser": {
+      "passed": true,
+      "detail": "QC invoice form: QST $99.75 on $1,000, total $1,149.75, 'Charge QST (9.975%)'; Company Details rate 9.975"
     }
   },
   "notExecuted": [
@@ -157,10 +175,33 @@
     }
   ],
   "knownLimitations": [
-    "QST 9.975% is stored as 9.98% (rates are whole basis points); 5 cents more QST per $1,000",
     "Product Activity is not an inventory report; no stock, COGS or valuation",
-    "Draft editor infers per-line PST from the stored combined rate when the invoice has PST"
+    "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+    "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts"
   ],
+  "r136Files": [
+    "api/bootstrap.php",
+    "api/companies.php",
+    "api/accounting.php",
+    "api/books.php",
+    "api/advanced.php",
+    "api/ai_learning.php",
+    "api/invoice_documents_r20.php",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-invoice-reports-r20.js",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "app.html",
+    "R136-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r136Migration": "automatic: companies.pst_rate_mpct",
+  "r136CacheToken": "5990-r136-tegh",
   "r135Files": [
     "api/accounting.php",
     "api/advanced.php",
@@ -910,6 +951,83 @@
       "FILE-MANIFEST.sha256"
     ],
     "r134Migration": false,
-    "r134CacheToken": "5990-r134 (client-view.html assets); portal token unchanged 5990-r133-tegh"
+    "r134CacheToken": "5990-r134 (client-view.html assets); portal token unchanged 5990-r133-tegh",
+    "r135Identity": {
+      "release": "R135",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R135-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-09-30T01:23:13Z",
+      "sourceParentCommit": "2af3275771d18ec3a2393f382895382caf4e8cb3",
+      "testStatus": "R135 local gates passed on a scratch MariaDB with PHP 8.4 (see executedLocalGates). Host acceptance not started; productionReady false.",
+      "executedLocalGates": {
+        "phpLint": {
+          "passed": true,
+          "checks": 79,
+          "failures": 0,
+          "detail": "php -l on every api/*.php file, PHP 8.4 (build environment, not the serving host)"
+        },
+        "javascriptParse": {
+          "passed": true,
+          "checks": 6,
+          "failures": 0,
+          "detail": "changed JS files parsed"
+        },
+        "invoiceTaxPostingDatabaseTest": {
+          "passed": true,
+          "checks": 21,
+          "failures": 0,
+          "detail": "BC PST-registered company 5%+7%: $1,000 sale Dr1200 1120.00 / Cr4000 1000 / Cr2100 50 / Cr2110 70; AB customer GST only; pst:false line; mixed lines; draft save/edit/round-trip/issue; detail API split; invoice PDF model split; credit note reverses 2100 10.00 and 2110 14.00; ON HST 13% all to 2100; pst:true refused without PST setup (409); recurring invoice split; accrual receipt; cash-basis half payment recognises GST 25 / PST 35. Baseline on R134 code: 5 checks failed (no PST charged, saved or posted) and the PST credit note was refused before the run stopped."
+        },
+        "invoiceFormBrowser": {
+          "passed": true,
+          "detail": "Playwright 1440x900 and 390x844: Charge PST tick box, split totals, customer-province switching, issued invoice posted Cr2100 50 / Cr2110 70"
+        },
+        "companySetupGuideBrowser": {
+          "passed": true,
+          "detail": "BC, ON, QC, AB guide text and PST fields; Company Details guide"
+        },
+        "uiAuditDesktop": {
+          "passed": true,
+          "checks": 46,
+          "failures": 0,
+          "detail": "46 screens, no page errors, no horizontal overflow"
+        },
+        "uiAuditPhone": {
+          "passed": true,
+          "checks": 46,
+          "failures": 0,
+          "detail": "46 screens at 390x844, no page errors, no horizontal overflow"
+        },
+        "renderChurn": {
+          "passed": true,
+          "checks": 46,
+          "detail": "idle DOM changes total 1 across 46 screens"
+        },
+        "assistBench": {
+          "passed": true,
+          "checks": 54,
+          "failures": 0
+        },
+        "assistHoldout": {
+          "passed": true,
+          "checks": 45,
+          "failures": 0
+        },
+        "assistProductActivity": {
+          "passed": true,
+          "checks": 5,
+          "failures": 0,
+          "detail": "inventory report / product activity / stock report resolve to report.inventory (Product Activity)"
+        },
+        "clientViewApi": {
+          "passed": true,
+          "detail": "client viewing link: emailed code, dashboard, shared/unshared reports, revoke"
+        }
+      },
+      "knownLimitations": [
+        "QST 9.975% is stored as 9.98% (rates are whole basis points); 5 cents more QST per $1,000",
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST"
+      ]
+    }
   }
 }
