@@ -181,7 +181,7 @@ function operations_control_balances_r122(array $company): never
     require_company_permission($company, 'reports.view');
     $companyId = (string)$company['id'];
     $asOf = safe_date($_GET['asOf'] ?? '', 'As of date');
-    $codes = ['1100', '1110', '2100', '2110', '2310', '2320', '2330', '2340'];
+    $codes = ['1100', '1110', '1115', '2100', '2110', '2115', '2310', '2320', '2330', '2340'];
     $stmt = db()->prepare("SELECT a.code,a.name,COALESCE(SUM(CASE WHEN je.id IS NULL THEN 0 ELSE jl.debit_cents-jl.credit_cents END),0) balance FROM accounts a
         LEFT JOIN journal_lines jl ON jl.account_id=a.id LEFT JOIN journal_entries je ON je.id=jl.journal_entry_id AND je.company_id=a.company_id AND je.status='posted' AND je.entry_date<=?
         WHERE a.company_id=? AND a.code IN (" . implode(',', array_fill(0, count($codes), '?')) . ") GROUP BY a.code,a.name");
@@ -196,8 +196,9 @@ function operations_control_balances_r122(array $company): never
     // Credits that can still be cleared: never more than what remains on the account today.
     $clearable = static fn(string $code): int => max(0, min($debit($code), (int)($current[$code] ?? 0)));
     json_response(['asOf' => $asOf, 'accounts' => $accounts,
-        'clearable' => ['gstHstItcCents' => $clearable('1100'), 'pstRecoverableCents' => $clearable('1110')],
+        'clearable' => ['gstHstItcCents' => $clearable('1100'), 'pstRecoverableCents' => $clearable('1110'), 'qstRecoverableCents' => $clearable('1115')],
         'salesTax' => ['gstHstCollectedCents' => $credit('2100'), 'gstHstItcCents' => $debit('1100'), 'gstHstNetCents' => $credit('2100') - $debit('1100'),
-            'pstCollectedCents' => $credit('2110'), 'pstRecoverableCents' => $debit('1110'), 'pstNetCents' => $credit('2110') - $debit('1110')],
+            'pstCollectedCents' => $credit('2110'), 'pstRecoverableCents' => $debit('1110'), 'pstNetCents' => $credit('2110') - $debit('1110'),
+            'qstCollectedCents' => $credit('2115'), 'qstRecoverableCents' => $debit('1115'), 'qstNetCents' => $credit('2115') - $debit('1115')],
         'payroll' => ['incomeTaxCents' => $credit('2310'), 'cppCents' => $credit('2320'), 'eiCents' => $credit('2330'), 'otherDeductionsCents' => $credit('2340')]]);
 }

@@ -6,7 +6,7 @@ function tegh_bank_account_reason(array $account,int $signedCents,bool $allowCon
 {
     if(empty($account['active']))return 'Inactive account';
     if(!empty($account['linked_bank_id']))return 'Financial account — use Transfer';
-    if(!empty($account['system_control'])||!empty($account['is_control'])||in_array((string)($account['code']??''),['9999','1200','2050','1100','1110','2100','2110','1050','2300','2310','2320','2330','2340','2350','3200'],true))return 'Protected control/system account';
+    if(!empty($account['system_control'])||!empty($account['is_control'])||in_array((string)($account['code']??''),['9999','1200','2050','1100','1110','1115','2100','2110','2115','1050','2300','2310','2320','2330','2340','2350','3200'],true))return 'Protected control/system account';
     $type=(string)($account['account_type']??$account['type']??'');
     if(!in_array($type,['asset','liability','equity','income','expense'],true))return 'Unsupported account type';
     if($signedCents===0)return 'Zero-value statement line';
@@ -55,7 +55,7 @@ function tegh_bank_resolve_transfer(array $company,array $transaction,array $dec
       WHERE ba.company_id=? AND ba.id IN (?,?) ORDER BY ba.id".($lock?' FOR UPDATE':''));$q->execute([$companyId,...$ids]);$rows=$q->fetchAll(PDO::FETCH_ASSOC);$byId=array_column($rows,null,'id');
     if(count($rows)!==2)fail('Select available financial accounts in the current company.',422,'transfer_account_unavailable');
     foreach($rows as $bank){
-        if(empty($bank['active'])||empty($bank['ledger_active'])||!in_array((string)$bank['account_type'],['bank','credit_card'],true)||!in_array((string)$bank['ledger_type'],['asset','liability'],true)||!empty($bank['system_control'])||in_array((string)$bank['code'],['9999','1050','1100','1110','1200','2050','2100','2110','2300','2310','2320','2330','2340','2350','3200'],true))fail('A selected financial account is inactive or unsupported.',422,'transfer_account_unavailable');
+        if(empty($bank['active'])||empty($bank['ledger_active'])||!in_array((string)$bank['account_type'],['bank','credit_card'],true)||!in_array((string)$bank['ledger_type'],['asset','liability'],true)||!empty($bank['system_control'])||in_array((string)$bank['code'],['9999','1050','1100','1110','1115','1200','2050','2100','2110','2115','2300','2310','2320','2330','2340','2350','3200'],true))fail('A selected financial account is inactive or unsupported.',422,'transfer_account_unavailable');
         if((string)$bank['currency']!==(string)$transaction['currency'])fail('Transfers between different currencies require a supported FX workflow.',422,'transfer_currency_unsupported');
     }
     $current=$byId[$currentId];$other=$byId[$counterpartyId];

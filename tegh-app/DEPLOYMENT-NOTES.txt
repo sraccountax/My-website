@@ -44,8 +44,12 @@ Notes (the database user needs CREATE privilege, as for the original install).
    expenses.tax_code_id and companies.tax_setup_mode on the first request
    (CREATE and ALTER privilege needed). Existing companies keep their current
    tax rules until they save their first tax code.
-   For R138: api/tax_codes_r137.php, api/companies.php, api/accounting.php and
-   api/bank_operations_v5980.php.
+   For R138: api/tax_codes_r137.php, api/companies.php, api/accounting.php,
+   api/bank_operations_v5980.php, api/bank_safety_v5980.php,
+   api/bank_register_v5910.php, api/reconciliation_position_r122.php,
+   api/report_loaders_v5980.php and api/workspace_summary_v5610.php. New
+   companies get 2115 QST Payable and 1115 QST Recoverable in the default chart;
+   existing companies get them when Canadian tax codes are added.
 5. Upload all assets together; the cache token is r138-tegh (client-view page:
    5990-r135). A partial upload can
    leave browsers on a stale portal.

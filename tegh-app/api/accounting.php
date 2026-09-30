@@ -1555,12 +1555,15 @@ function bank_transaction_post_service_once(array $user, array $company, array $
             // posts only Dr tax payable / Cr bank (or the reverse for a refund).
             $salesTaxSettlement=trim((string)($decision['salesTaxSettlement']??''));
             if($salesTaxSettlement!==''){
-                if(!in_array($salesTaxSettlement,['gst_hst','pst'],true))fail('Choose GST/HST or PST for a sales tax remittance.',422,'sales_tax_settlement_invalid');
-                if($salesTaxSettlement==='gst_hst'&&!(bool)$company['tax_registered'])fail('This company is not registered for GST/HST.',422,'sales_tax_settlement_unregistered');
-                if($salesTaxSettlement==='pst'&&!(bool)($company['pst_registered']??false))fail('This company is not registered for PST.',422,'sales_tax_settlement_unregistered');
+                if(!in_array($salesTaxSettlement,['gst_hst','pst','qst'],true))fail('Choose GST/HST, PST or QST for a sales tax remittance.',422,'sales_tax_settlement_invalid');
+                $codesModeSettle=function_exists('tax_setup_mode')&&tax_setup_mode($company)==='codes';
+                if(!$codesModeSettle&&$salesTaxSettlement==='gst_hst'&&!(bool)$company['tax_registered'])fail('This company is not registered for GST/HST.',422,'sales_tax_settlement_unregistered');
+                if(!$codesModeSettle&&$salesTaxSettlement==='pst'&&!(bool)($company['pst_registered']??false))fail('This company is not registered for PST.',422,'sales_tax_settlement_unregistered');
+                if($salesTaxSettlement==='qst'&&!$codesModeSettle)fail('QST remittances are available once the company uses tax codes.',422,'sales_tax_settlement_unregistered');
                 if($amount===0)fail('A zero-value statement line cannot settle sales tax.',422,'sales_tax_settlement_zero');
-                $taxAccountId=account_by_code($companyId,$salesTaxSettlement==='gst_hst'?'2100':'2110');
-                $settled=abs($amount);$label=$salesTaxSettlement==='gst_hst'?'GST/HST':'PST';
+                $settleAccounts=['gst_hst'=>['2100','1100','GST/HST'],'pst'=>['2110','1110','PST'],'qst'=>['2115','1115','QST']][$salesTaxSettlement];
+                $taxAccountId=account_by_code($companyId,$settleAccounts[0]);
+                $settled=abs($amount);$label=$settleAccounts[2];
                 // R122: with a return period end, the input tax credits recorded to
                 // that date are cleared too (Cr 1100/1110) and the payable account
                 // takes the balancing amount, so a payment of collected tax less
@@ -1569,8 +1572,8 @@ function bank_transaction_post_service_once(array $user, array $company, array $
                 if($periodEndRaw!==''){
                     $periodEnd=safe_date($periodEndRaw,'Return period end');
                     if($periodEnd>(string)$transaction['transaction_date'])fail('The return period end must be on or before the bank transaction date.',422,'sales_tax_period_invalid');
-                    if($salesTaxSettlement==='gst_hst'||(bool)($company['pst_recoverable']??false)){
-                        $itcAccountId=account_by_code($companyId,$salesTaxSettlement==='gst_hst'?'1100':'1110');
+                    if($salesTaxSettlement!=='pst'||$codesModeSettle||(bool)($company['pst_recoverable']??false)){
+                        $itcAccountId=account_by_code($companyId,$settleAccounts[1]);
                         $itcStmt=db()->prepare("SELECT COALESCE(SUM(jl.debit_cents-jl.credit_cents),0) FROM journal_lines jl JOIN journal_entries je ON je.id=jl.journal_entry_id WHERE je.company_id=? AND jl.account_id=? AND je.status='posted' AND je.entry_date<=?");
                         $itcStmt->execute([$companyId,$itcAccountId,$periodEnd]);$toDate=(int)$itcStmt->fetchColumn();$itcStmt->execute([$companyId,$itcAccountId,'9999-12-31']);$remaining=(int)$itcStmt->fetchColumn();$itcCents=max(0,min($toDate,$remaining)); // never clear credits a prior settlement already cleared
                     }

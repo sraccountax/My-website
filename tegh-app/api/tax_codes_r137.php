@@ -410,9 +410,19 @@ function tax_codes_canada_starter(): array
         'MB' => ['Manitoba', [$gst, ['RST', 7000, '2110', null]]], 'NB' => ['New Brunswick', $hst(15000)],
         'NL' => ['Newfoundland and Labrador', $hst(15000)], 'NS' => ['Nova Scotia', $hst(14000)],
         'NT' => ['Northwest Territories', [$gst]], 'NU' => ['Nunavut', [$gst]], 'ON' => ['Ontario', $hst(13000)],
-        'PE' => ['Prince Edward Island', $hst(15000)], 'QC' => ['Quebec', [$gst, ['QST', 9975, '2110', '1110']]],
+        'PE' => ['Prince Edward Island', $hst(15000)], 'QC' => ['Quebec', [$gst, ['QST', 9975, '2115', '1115']]],
         'SK' => ['Saskatchewan', [$gst, ['PST', 6000, '2110', null]]], 'YT' => ['Yukon', [$gst]],
     ];
+}
+
+/** Create a tax account (control, like 2100/2110) when the company does not have that code yet. */
+function tax_ensure_account(string $companyId, string $code, string $name, string $type, string $normal, ?string $gifi): void
+{
+    $q = db()->prepare('SELECT 1 FROM accounts WHERE company_id=? AND code=? LIMIT 1'); $q->execute([$companyId, $code]);
+    if ($q->fetchColumn()) return;
+    $cols = ['id', 'company_id', 'code', 'name', 'account_type', 'normal_balance', 'is_control', 'active']; $vals = [new_id('account'), $companyId, $code, $name, $type, $normal, 1, 1];
+    if (schema_column_exists('accounts', 'gifi_code')) { $cols[] = 'gifi_code'; $vals[] = $gifi; }
+    db()->prepare('INSERT INTO accounts (' . implode(',', $cols) . ') VALUES (' . implode(',', array_fill(0, count($cols), '?')) . ')')->execute($vals);
 }
 
 function tax_codes_seed_canada(array $user, string $companyId): array
@@ -420,6 +430,9 @@ function tax_codes_seed_canada(array $user, string $companyId): array
     if (!tegh_tax_codes_ready()) return ['created' => [], 'skipped' => [], 'reason' => 'not_ready'];
     $acct = static function (string $code) use ($companyId): ?string { $q = db()->prepare('SELECT id FROM accounts WHERE company_id=? AND code=? AND active=1 LIMIT 1'); $q->execute([$companyId, $code]); $id = $q->fetchColumn(); return $id === false ? null : (string)$id; };
     if ($acct('2100') === null) return ['created' => [], 'skipped' => array_keys(tax_codes_canada_starter()), 'reason' => 'missing_accounts'];
+    // R138: QST has its own collected and recoverable accounts, separate from PST.
+    tax_ensure_account($companyId, '2115', 'QST Payable', 'liability', 'credit', '2680');
+    tax_ensure_account($companyId, '1115', 'QST Recoverable', 'asset', 'debit', '1066');
     $own = !db()->inTransaction();
     if ($own) db()->beginTransaction();
     try {

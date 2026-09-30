@@ -31,7 +31,7 @@ function tegh_bank_ready_predicate(): string
       AND review_account.id IS NOT NULL
       AND review_account.active = 1
       AND review_account.is_control = 0
-      AND review_account.code NOT IN ('9999','1050','1100','1110','1200','2050','2100','2110','2300','2310','2320','2330','2340','2350','3200')
+      AND review_account.code NOT IN ('9999','1050','1100','1110','1115','1200','2050','2100','2110','2115','2300','2310','2320','2330','2340','2350','3200')
       AND bt.confidence >= ".TEGH_BANK_READY_CONFIDENCE."
       AND NOT EXISTS(SELECT 1 FROM bank_accounts linked_bank WHERE linked_bank.company_id=bt.company_id AND linked_bank.ledger_account_id=review_account.id)
       AND NOT EXISTS(SELECT 1 FROM company_system_accounts cs WHERE cs.company_id=bt.company_id AND cs.account_id=review_account.id AND cs.status='active')
