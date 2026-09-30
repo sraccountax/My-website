@@ -853,3 +853,10 @@ html[data-tegh-theme="dark"] .srp-page :is(.r137-codes td small,.r137-starter sm
 .srp-page .r138-seed{align-items:center;gap:12px;margin:8px 0}
 .srp-page .r138-seed small{color:#5b6f68;max-width:640px}
 html[data-tegh-theme="dark"] .srp-page .r138-seed small{color:#a9bdb6}
+
+/* R140: an invoice/vendor-invoice layout that is not the page's designated
+   scroll area (no r22-fill-path) must not be a scroll box. As a non-scrolling
+   overflow:auto box with overscroll-behavior:contain it captured touch swipes
+   on phones (iOS Safari), so the New Vendor Invoice form could not be scrolled.
+   The workspace or page scrolls instead, as on the customer invoice form. */
+html[data-tegh-shell] .srp-page[data-r29-reference] .r29-invoice-layout:not(.r22-fill-path){overflow:visible!important;overscroll-behavior:auto!important}
