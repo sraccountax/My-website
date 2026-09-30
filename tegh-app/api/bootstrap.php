@@ -588,6 +588,41 @@ function province_rate_bps(string $province): int
     };
 }
 
+/* R136: the PST/QST/RST rate is stored exactly in thousandths of a percent
+   (companies.pst_rate_mpct: 7% = 7000, QST 9.975% = 9975). The older whole
+   basis-point column pst_rate_bps cannot hold 9.975% and is kept, rounded,
+   only for older readers. The column is added on first write; until then the
+   rate falls back to pst_rate_bps x 10, which is exact for every whole-bps rate. */
+function company_pst_rate_mpct(array $company): int
+{
+    if (array_key_exists('pst_rate_mpct', $company) && $company['pst_rate_mpct'] !== null) return max(0, (int)$company['pst_rate_mpct']);
+    return max(0, (int)($company['pst_rate_bps'] ?? 0) * 10);
+}
+
+function tegh_pst_rate_precision_ready(): bool
+{
+    static $ready = null;
+    if ($ready === true) return true;
+    if (!function_exists('schema_column_exists')) return false;
+    if (!schema_column_exists('companies', 'pst_rate_mpct')) {
+        if (db()->inTransaction()) return false; // DDL would commit an open transaction
+        db()->exec('ALTER TABLE `companies` ADD COLUMN `pst_rate_mpct` INT NULL DEFAULT NULL AFTER `pst_rate_bps`');
+        db()->exec('UPDATE companies SET pst_rate_mpct = pst_rate_bps * 10 WHERE pst_rate_mpct IS NULL');
+    }
+    return $ready = true;
+}
+
+/** Parse a PST rate from input: pstRateMpct (preferred), pstRatePercent, or legacy pstRateBps. */
+function pst_rate_mpct_from_input(array $input, ?int $fallback = null): int
+{
+    if (isset($input['pstRateMpct']) && $input['pstRateMpct'] !== '') $v = filter_var($input['pstRateMpct'], FILTER_VALIDATE_INT);
+    elseif (isset($input['pstRatePercent']) && $input['pstRatePercent'] !== '') $v = is_numeric($input['pstRatePercent']) ? (int)round((float)$input['pstRatePercent'] * 1000) : false;
+    elseif (isset($input['pstRateBps']) && $input['pstRateBps'] !== '') $v = is_numeric($input['pstRateBps']) ? (int)round((float)$input['pstRateBps'] * 10) : false;
+    else $v = $fallback ?? 0;
+    if ($v === false || $v < 0 || $v > 25000) fail('PST rate must be between 0% and 25% (up to three decimals, for example 9.975).', 422, 'pst_rate_invalid');
+    return (int)$v;
+}
+
 function audit_event(array $user, string $companyId, string $action, string $entityType, string $entityId, array $metadata = []): void
 {
     $pdo = db();

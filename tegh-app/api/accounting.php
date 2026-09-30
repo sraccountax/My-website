@@ -61,31 +61,31 @@ function company_account(string $companyId, string $accountId): ?array
     return $row ?: null;
 }
 
-function calculate_tax_components(int $inputCents, string $mode, int $gstHstRateBps, int $pstRateBps = 0): array
+/* R136: GST/HST is given in basis points; PST in thousandths of a percent
+   (company_pst_rate_mpct), so QST 9.975% (9975) is exact. Work in thousandths
+   of a percent (1% = 1000); results are identical for whole-bps rates. */
+function calculate_tax_components(int $inputCents, string $mode, int $gstHstRateBps, int $pstRateMpct = 0): array
 {
     if ($inputCents < 0) fail('The tax amount cannot be negative.');
     if (!in_array($mode, ['none','exclusive','inclusive'], true)) fail('Choose a valid tax entry mode.');
-    foreach (['GST/HST'=>$gstHstRateBps,'PST'=>$pstRateBps] as $label=>$rate) {
-        if ($rate < 0 || $rate > 2500) fail($label.' rate must be between 0% and 25%.');
-    }
-    if ($mode === 'none' || ($gstHstRateBps + $pstRateBps) === 0) {
+    if ($gstHstRateBps < 0 || $gstHstRateBps > 2500) fail('GST/HST rate must be between 0% and 25%.');
+    if ($pstRateMpct < 0 || $pstRateMpct > 25000) fail('PST rate must be between 0% and 25%.');
+    $g = $gstHstRateBps * 10; $p = $pstRateMpct;
+    if ($mode === 'none' || ($g + $p) === 0) {
         return ['netCents'=>$inputCents,'gstHstCents'=>0,'pstCents'=>0,'taxCents'=>0,'grossCents'=>$inputCents,'mode'=>'none'];
     }
     if ($mode === 'exclusive') {
-        $gst=(int)round(($inputCents*$gstHstRateBps)/10000);
-        $pst=(int)round(($inputCents*$pstRateBps)/10000);
+        $gst=(int)round(($inputCents*$g)/100000);
+        $pst=(int)round(($inputCents*$p)/100000);
         return ['netCents'=>$inputCents,'gstHstCents'=>$gst,'pstCents'=>$pst,'taxCents'=>$gst+$pst,'grossCents'=>$inputCents+$gst+$pst,'mode'=>'exclusive'];
     }
-    $totalRate=$gstHstRateBps+$pstRateBps;
-    $net=(int)round(($inputCents*10000)/(10000+$totalRate));
+    $totalRate=$g+$p;
+    $net=(int)round(($inputCents*100000)/(100000+$totalRate));
     $totalTax=$inputCents-$net;
-    if($totalRate===0){$gst=0;$pst=0;}
-    else{
-        // Allocate the exact included tax total by rate, assigning the final
-        // cent to PST so net + GST/HST + PST always equals the entered gross.
-        $gst=$gstHstRateBps===0?0:(int)round(($totalTax*$gstHstRateBps)/$totalRate);
-        $pst=$totalTax-$gst;
-    }
+    // Allocate the exact included tax total by rate, assigning the final
+    // cent to PST so net + GST/HST + PST always equals the entered gross.
+    $gst=$g===0?0:(int)round(($totalTax*$g)/$totalRate);
+    $pst=$totalTax-$gst;
     return ['netCents'=>$net,'gstHstCents'=>$gst,'pstCents'=>$pst,'taxCents'=>$totalTax,'grossCents'=>$inputCents,'mode'=>'inclusive'];
 }
 
@@ -536,7 +536,7 @@ function workspace_data(array $user, array $company): array
                 $total,
                 ($gstRequested || $pstRequested) ? 'inclusive' : 'none',
                 $gstRequested ? (int)$company['tax_rate_bps'] : 0,
-                $pstRequested ? (int)($company['pst_rate_bps'] ?? 0) : 0
+                $pstRequested ? company_pst_rate_mpct($company) : 0
             );
             $expenses[] = [
                 'id' => 'bank:' . $row['id'], 'vendor' => (string)$row['description'], 'expenseDate' => (string)$row['transaction_date'],
@@ -703,7 +703,7 @@ function workspace_data(array $user, array $company): array
             'booksStartDate' => $company['books_start_date'] !== null ? (string)$company['books_start_date'] : null,
             'taxRegistered' => (bool)$company['tax_registered'],
             'taxNumber' => $company['tax_number'] !== null ? (string)$company['tax_number'] : null,
-            'taxRateBps' => (int)$company['tax_rate_bps'], 'pstRegistered'=>(bool)($company['pst_registered']??false), 'pstRateBps'=>(int)($company['pst_rate_bps']??0), 'pstRecoverable'=>(bool)($company['pst_recoverable']??false), 'onboardingComplete' => true,
+            'taxRateBps' => (int)$company['tax_rate_bps'], 'pstRegistered'=>(bool)($company['pst_registered']??false), 'pstRateBps'=>(int)round(company_pst_rate_mpct($company)/10), 'pstRateMpct'=>company_pst_rate_mpct($company), 'pstRecoverable'=>(bool)($company['pst_recoverable']??false), 'onboardingComplete' => true,
             'isTestMode' => (bool)($company['test_mode'] ?? false),
             'testExpiresAt' => $company['test_expires_at'] !== null ? (string)$company['test_expires_at'] . 'Z' : null,
         ],
@@ -934,7 +934,7 @@ $supplyProvince = (string)($customer['province'] ?: $company['province']);
 // R135: PST/QST is charged on taxable lines when the company is registered for
 // it and the sale is in the company's own province. A line may switch it off
 // (for example a PST-exempt service) or on explicitly.
-$pstRateCompany = (bool)($company['pst_registered'] ?? false) ? (int)($company['pst_rate_bps'] ?? 0) : 0;
+$pstRateCompany = (bool)($company['pst_registered'] ?? false) ? company_pst_rate_mpct($company) : 0;
 $pstDefault = $pstRateCompany > 0 && strtoupper($supplyProvince) === strtoupper((string)$company['province']);
 $sourceLines = $input['lines'] ?? [[
     'description' => $input['description'] ?? '',
@@ -1001,7 +1001,7 @@ foreach (array_values($sourceLines) as $index => $line) {
         $pstRate = $pstRequested ? $pstRateCompany : 0;
     }
     $foreignLineGst = (int)round(($foreignAmount * $taxRate) / 10000);
-    $foreignLinePst = (int)round(($foreignAmount * $pstRate) / 10000);
+    $foreignLinePst = (int)round(($foreignAmount * $pstRate) / 100000); // $pstRate in thousandths of a percent
     $foreignLineTax = $foreignLineGst + $foreignLinePst;
     $baseAmount = convert_to_base_cents($foreignAmount, $exchangeRateMicros);
     $baseLineTotal = convert_to_base_cents($foreignAmount + $foreignLineTax, $exchangeRateMicros);
@@ -1011,8 +1011,8 @@ foreach (array_values($sourceLines) as $index => $line) {
         'description' => $description, 'quantityMilli' => $quantityMilli,
         'foreignUnitPriceCents' => $foreignUnitPrice, 'foreignAmountCents' => $foreignAmount,
         'foreignTaxCents' => $foreignLineTax, 'unitPriceCents' => convert_to_base_cents($foreignUnitPrice, $exchangeRateMicros),
-        'amountCents' => $baseAmount, 'taxCents' => $baseLineTax, 'taxRateBps' => $taxRate + $pstRate,
-        'gstHstRateBps' => $taxRate, 'pstRateBps' => $pstRate, 'gstHstCents' => $baseLineTax - $baseLinePst, 'pstCents' => $baseLinePst,
+        'amountCents' => $baseAmount, 'taxCents' => $baseLineTax, 'taxRateBps' => $taxRate + (int)round($pstRate / 10),
+        'gstHstRateBps' => $taxRate, 'pstRateMpct' => $pstRate, 'gstHstCents' => $baseLineTax - $baseLinePst, 'pstCents' => $baseLinePst,
         'foreignGstHstCents' => $foreignLineGst, 'foreignPstCents' => $foreignLinePst,
         'sortOrder' => $index, 'productServiceId' => $productServiceId !== '' ? $productServiceId : null,
         'incomeAccountId' => $incomeAccountId,
@@ -1241,7 +1241,7 @@ function handle_expenses(): never
     $applyGstHst = (array_key_exists('applyGstHst', $input) ? !empty($input['applyGstHst']) : !empty($input['taxable'])) && (bool)$company['tax_registered'];
     $applyPst = !empty($input['applyPst']) && (bool)($company['pst_registered'] ?? false);
     if ($mode === 'none') { $applyGstHst = false; $applyPst = false; }
-    $parts = calculate_tax_components($foreignAmount,$mode,$applyGstHst ? (int)$company['tax_rate_bps'] : 0,$applyPst ? (int)($company['pst_rate_bps'] ?? 0) : 0);
+    $parts = calculate_tax_components($foreignAmount,$mode,$applyGstHst ? (int)$company['tax_rate_bps'] : 0,$applyPst ? company_pst_rate_mpct($company) : 0);
     $mode = (string)$parts['mode'];
     $foreignSubtotal = (int)$parts['netCents'];
     $foreignGstHst = (int)$parts['gstHstCents'];
@@ -1549,7 +1549,7 @@ function bank_transaction_post_service_once(array $user, array $company, array $
                         $total,
                         'inclusive',
                         $applyGstHst ? (int)$company['tax_rate_bps'] : 0,
-                        $applyPst ? (int)($company['pst_rate_bps'] ?? 0) : 0
+                        $applyPst ? company_pst_rate_mpct($company) : 0
                     );
                     $gstHst = (int)$parts['gstHstCents'];
                     $pst = (int)$parts['pstCents'];
@@ -1574,7 +1574,7 @@ function bank_transaction_post_service_once(array $user, array $company, array $
                     $total,
                     ($applyGstHst || $applyPst) ? 'inclusive' : 'none',
                     $applyGstHst ? (int)$company['tax_rate_bps'] : 0,
-                    $applyPst ? (int)($company['pst_rate_bps'] ?? 0) : 0
+                    $applyPst ? company_pst_rate_mpct($company) : 0
                 );
                 $gstHst = (int)$parts['gstHstCents'];
                 $pst = (int)$parts['pstCents'];
@@ -1640,7 +1640,7 @@ function bank_transaction_effective_tax_code(array $company,array $decision,int 
         $pstRequested=!empty($decision['applyPst'])&&(bool)($company['pst_registered']??false)&&$taxEligible;
     }
     if($gstRequested)$gstHstRate=(int)$company['tax_rate_bps'];
-    if($pstRequested)$pstRate=(int)($company['pst_rate_bps']??0);
+    if($pstRequested)$pstRate=company_pst_rate_mpct($company);
     $parts=calculate_tax_components(abs($amount),($gstHstRate||$pstRate)?'inclusive':'none',$gstHstRate,$pstRate);
     $gstHst=(int)$parts['gstHstCents'];$pst=(int)$parts['pstCents'];
     return $gstHst>0&&$pst>0?'GST_HST_PST':($gstHst>0?'GST_HST':($pst>0?'PST':'NO_TAX'));

@@ -1,6 +1,6 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R135 IONOS STAGING DEPLOYMENT
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R136 IONOS STAGING DEPLOYMENT
 
-This package contains every release through R135 (R118–R135 change notes are
+This package contains every release through R136 (R118–R136 change notes are
 included). It is a STAGING CANDIDATE, not a production release
 (productionReady: false); see "Host acceptance" at the end. No manual database migration. R120's additive table
 accounting_note_lines is created automatically on first use of Credit & Debit
@@ -30,7 +30,12 @@ Notes (the database user needs CREATE privilege, as for the original install).
    For R135: api/accounting.php, api/advanced.php, api/payments.php,
    api/invoice_documents_r20.php, api/professional_output_v5710.php,
    api/report_output_v5980.php, api/ai_agent.php and api/ai_actions_v5600.php.
-5. Upload all assets together; the cache token is r135-tegh (client-view page:
+   For R136: api/bootstrap.php, api/companies.php, api/accounting.php,
+   api/books.php, api/advanced.php, api/ai_learning.php and
+   api/invoice_documents_r20.php. R136 adds companies.pst_rate_mpct
+   automatically on the first company create or settings save (ALTER privilege
+   needed); it is backfilled from pst_rate_bps x 10.
+5. Upload all assets together; the cache token is r136-tegh (client-view page:
    5990-r135). A partial upload can
    leave browsers on a stale portal.
 6. DN-1001 was already posted once in the original staging data. Do NOT post it
@@ -87,6 +92,9 @@ Verify after upload
   PST separately; after issuing, the journal credits 2100 and 2110 separately.
   Settings > Company Details shows "How sales tax works for this company".
   Reports > Product Activity replaces "Inventory Report".
+- R136 (Quebec company): Company Details PST rate shows 9.975 (re-enter 9.975
+  and save if it shows 9.98). A $1,000 taxable invoice to a Quebec customer
+  shows QST $99.75 and posts $99.75 to 2110.
 - In the browser console: window.TeghPortal exists.
 - Tegh Assist (top bar, also on phones): ask "who owes me money?" and the
   answer starts with a plain sentence ("Customers owe you $…") in about a second; "pay my supplier" opens Vendor

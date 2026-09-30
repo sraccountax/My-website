@@ -103,8 +103,8 @@ function handle_companies(): never
         fail('GST/HST number is required when the company is registered for GST/HST.', 422, 'tax_number_required');
     }
     $pstRegistered = !empty($input['pstRegistered']);
-    $pstRateBps = $pstRegistered ? (int)($input['pstRateBps'] ?? 0) : 0;
-    if ($pstRateBps < 0 || $pstRateBps > 2500) fail('PST rate must be between 0% and 25%.');
+    $pstRateMpct = $pstRegistered ? pst_rate_mpct_from_input($input) : 0;
+    $pstRateBps = (int)round($pstRateMpct / 10); // rounded copy for older readers
     $pstRecoverable = $pstRegistered && !empty($input['pstRecoverable']);
     $requestedCurrency = safe_currency_code($input['currency'] ?? 'CAD', 'Base currency');
     if ($requestedCurrency !== 'CAD') {
@@ -132,6 +132,7 @@ function handle_companies(): never
     }
     // Spreadsheet COA/opening-balance imports are centralized under Settings → Data Import.
     $companyId = new_id('company');
+    tegh_pst_rate_precision_ready();
     $accountIds = [];
     $accountTypesByCode = [];
     db()->beginTransaction();
@@ -139,6 +140,7 @@ function handle_companies(): never
         $stmt = db()->prepare("INSERT INTO companies (id, name, legal_name, business_type, province, currency, accounting_basis, module_mode, payroll_posting_mode, tax_reporting_profile, reporting_framework, fiscal_year_end, fiscal_year_end_date, books_start_date, tax_registered, tax_number, tax_rate_bps, pst_registered, pst_rate_bps, pst_recoverable, test_mode, test_expires_at, test_created_by)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$companyId, $name, $legalName, $businessType, $province, $currency, $accountingBasis, $moduleMode, $payrollPostingMode, $taxReportingProfile, $reportingFramework, $fiscalYearEnd, $fiscalYearEndDate, $booksStartDate, $taxRegistered ? 1 : 0, $taxNumber, province_rate_bps($province), $pstRegistered ? 1 : 0, $pstRateBps, $pstRecoverable ? 1 : 0, $testMode ? 1 : 0, $testExpiresAt, $testMode ? $user['id'] : null]);
+        db()->prepare('UPDATE companies SET pst_rate_mpct = ? WHERE id = ?')->execute([$pstRateMpct, $companyId]);
         db()->prepare("INSERT INTO company_members (company_id, user_id, role) VALUES (?, ?, 'owner')")->execute([$companyId, $user['id']]);
         db()->prepare('INSERT INTO company_currencies (company_id, currency_code, rate_to_base_micros, rate_date) VALUES (?, ?, 1000000, CURRENT_DATE)')
             ->execute([$companyId, $currency]);
@@ -249,8 +251,8 @@ function handle_settings(): never
         fail('GST/HST number is required when the company is registered for GST/HST.', 422, 'tax_number_required');
     }
     $pstRegistered = array_key_exists('pstRegistered',$input) ? !empty($input['pstRegistered']) : (bool)($company['pst_registered'] ?? false);
-    $pstRateBps = $pstRegistered ? (int)($input['pstRateBps'] ?? ($company['pst_rate_bps'] ?? 0)) : 0;
-    if ($pstRateBps < 0 || $pstRateBps > 2500) fail('PST rate must be between 0% and 25%.');
+    $pstRateMpct = $pstRegistered ? pst_rate_mpct_from_input($input, company_pst_rate_mpct($company)) : 0;
+    $pstRateBps = (int)round($pstRateMpct / 10); // rounded copy for older readers
     $pstRecoverable = $pstRegistered && (array_key_exists('pstRecoverable',$input) ? !empty($input['pstRecoverable']) : (bool)($company['pst_recoverable'] ?? false));
     $currency = safe_currency_code($input['currency'] ?? $company['currency'], 'Base currency');
     if ((string)$company['currency'] === 'CAD' && $currency !== 'CAD') {
@@ -266,11 +268,13 @@ function handle_settings(): never
         && company_has_accounting_activity((string)$company['id'])) {
         fail('Base currency and accounting basis are locked after the first document, statement import, payroll setup, or journal entry. Create a new company file or migrate the books under professional supervision.', 409, 'fundamental_setting_locked');
     }
+    tegh_pst_rate_precision_ready();
     db()->beginTransaction();
     try {
         $previousCurrency = (string)$company['currency'];
         $stmt = db()->prepare('UPDATE companies SET name = ?, legal_name = ?, business_type = ?, province = ?, currency = ?, accounting_basis = ?, payroll_posting_mode = ?, reporting_framework = ?, fiscal_year_end = ?, fiscal_year_end_date = ?, books_start_date = ?, tax_registered = ?, tax_number = ?, tax_rate_bps = ?, pst_registered = ?, pst_rate_bps = ?, pst_recoverable = ? WHERE id = ?');
         $stmt->execute([$name, $legalName, $businessType, $province, $currency, $accountingBasis, $payrollPostingMode, $reportingFramework, $fiscal, $fiscalDate, $booksStartDate, $taxRegistered ? 1 : 0, $taxNumber, province_rate_bps($province), $pstRegistered ? 1 : 0, $pstRateBps, $pstRecoverable ? 1 : 0, $company['id']]);
+        db()->prepare('UPDATE companies SET pst_rate_mpct = ? WHERE id = ?')->execute([$pstRateMpct, $company['id']]);
         if ($currency !== $previousCurrency) {
             db()->prepare('UPDATE bank_accounts SET currency = ? WHERE company_id = ? AND currency = ?')
                 ->execute([$currency, $company['id'], $previousCurrency]);
@@ -282,7 +286,7 @@ function handle_settings(): never
             ON DUPLICATE KEY UPDATE rate_to_base_micros = 1000000, rate_date = CURRENT_DATE, active = 1")
             ->execute([$company['id'], $currency]);
         audit_event($user, (string)$company['id'], 'company.updated', 'company', (string)$company['id'], [
-            'province' => $province, 'businessType' => $businessType, 'taxRegistered' => $taxRegistered, 'pstRegistered'=>$pstRegistered, 'pstRateBps'=>$pstRateBps, 'pstRecoverable'=>$pstRecoverable,
+            'province' => $province, 'businessType' => $businessType, 'taxRegistered' => $taxRegistered, 'pstRegistered'=>$pstRegistered, 'pstRateBps'=>$pstRateBps, 'pstRateMpct'=>$pstRateMpct, 'pstRecoverable'=>$pstRecoverable,
             'currency' => $currency, 'accountingBasis' => $accountingBasis, 'payrollPostingMode' => $payrollPostingMode, 'reportingFramework'=>$reportingFramework,
             'fiscalYearEndDate' => $fiscalDate, 'booksStartDate' => $booksStartDate,
         ]);
@@ -291,7 +295,7 @@ function handle_settings(): never
             || $taxRegistered !== (bool)$company['tax_registered']
             || province_rate_bps($province) !== (int)$company['tax_rate_bps']
             || $pstRegistered !== (bool)($company['pst_registered'] ?? false)
-            || $pstRateBps !== (int)($company['pst_rate_bps'] ?? 0)
+            || $pstRateMpct !== company_pst_rate_mpct($company)
             || $pstRecoverable !== (bool)($company['pst_recoverable'] ?? false);
         if (function_exists('tegh_ai_decay_rules_for_config_change')) {
             if ($taxConfigurationChanged) tegh_ai_decay_rules_for_config_change($user, $company, 'tax_configuration_changed');

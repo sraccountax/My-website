@@ -1345,15 +1345,15 @@ function handle_advanced_recurring_invoice_run(): never
         if (count($sourceLines) === 0) fail('The recurring invoice has no lines.');
         $supplyProvince = (string)($customer['province'] ?: $company['province']);
         // R135: a PST-registered seller charges PST by default on taxable lines supplied in its own province.
-        $pstRate = (bool)($company['pst_registered'] ?? false) && strtoupper($supplyProvince) === strtoupper((string)$company['province']) ? max(0, (int)($company['pst_rate_bps'] ?? 0)) : 0;
+        $pstRate = (bool)($company['pst_registered'] ?? false) && strtoupper($supplyProvince) === strtoupper((string)$company['province']) ? company_pst_rate_mpct($company) : 0; // thousandths of a percent
         $calculated = [];
         $foreignSubtotal = $foreignTax = $subtotal = $tax = $pst = 0;
         foreach ($sourceLines as $row) {
             $foreignAmount = (int)round(((int)$row['quantity_milli'] * (int)$row['foreign_unit_price_cents']) / 1000);
             $gstRate = (bool)$row['taxable'] && (bool)$company['tax_registered'] ? province_rate_bps($supplyProvince) : 0;
             $linePstRate = (bool)$row['taxable'] ? $pstRate : 0;
-            $taxRate = $gstRate + $linePstRate;
-            $foreignLinePst = (int)round($foreignAmount * $linePstRate / 10000);
+            $taxRate = $gstRate + (int)round($linePstRate / 10);
+            $foreignLinePst = (int)round($foreignAmount * $linePstRate / 100000);
             $foreignLineTax = (int)round($foreignAmount * $gstRate / 10000) + $foreignLinePst;
             $baseAmount = convert_to_base_cents($foreignAmount, $exchangeRate);
             $baseTotal = convert_to_base_cents($foreignAmount + $foreignLineTax, $exchangeRate);
@@ -1449,7 +1449,7 @@ function handle_advanced_recurring_bills(): never
     $applyGstHst = !empty($input['applyGstHst']);
     $applyPst = !empty($input['applyPst']);
     if ($applyGstHst && !(bool)$company['tax_registered']) fail('GST/HST is not enabled in this company tax setup.', 409, 'gst_hst_not_configured');
-    if ($applyPst && (!(bool)($company['pst_registered'] ?? false) || (int)($company['pst_rate_bps'] ?? 0) <= 0)) fail('PST is not enabled in this company tax setup.', 409, 'pst_not_configured');
+    if ($applyPst && (!(bool)($company['pst_registered'] ?? false) || company_pst_rate_mpct($company) <= 0)) fail('PST is not enabled in this company tax setup.', 409, 'pst_not_configured');
     $taxEntryMode = (string)($input['taxEntryMode'] ?? (($applyGstHst || $applyPst) ? 'exclusive' : 'none'));
     if (!in_array($taxEntryMode, ['none', 'exclusive', 'inclusive'], true)) fail('Choose a valid tax entry mode.');
     if (!$applyGstHst && !$applyPst) $taxEntryMode = 'none';

@@ -307,9 +307,9 @@ function bill_input_values(array $company, array $input): array
     $gstEnabled=array_key_exists('applyGstHst',$input)?!empty($input['applyGstHst']):$legacyTaxable;
     $pstEnabled=!empty($input['applyPst']);
     if($gstEnabled&&!(bool)$company['tax_registered'])fail('GST/HST is not enabled in this company tax setup.',409,'gst_hst_not_configured');
-    if($pstEnabled&&(!(bool)($company['pst_registered']??false)||(int)($company['pst_rate_bps']??0)<=0))fail('PST is not enabled in this company tax setup.',409,'pst_not_configured');
+    if($pstEnabled&&(!(bool)($company['pst_registered']??false)||company_pst_rate_mpct($company)<=0))fail('PST is not enabled in this company tax setup.',409,'pst_not_configured');
     $gstRate=$gstEnabled?(int)$company['tax_rate_bps']:0;
-    $pstRate=$pstEnabled?(int)($company['pst_rate_bps']??0):0;
+    $pstRate=$pstEnabled?company_pst_rate_mpct($company):0; // thousandths of a percent
     if(!$gstEnabled&&!$pstEnabled)$mode='none';
     $foreignInput=safe_cents($input['foreignAmountCents']??$input['foreignSubtotalCents']??0,'Vendor invoice amount');
     if($foreignInput<0)fail('Vendor invoice amount must be positive.');
