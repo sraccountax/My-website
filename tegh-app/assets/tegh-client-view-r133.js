@@ -71,8 +71,17 @@
         ...(t?[{label:net<0?'GST/HST refund due':'GST/HST you owe',value:Math.abs(net),note:`Collected ${money(t.gstHstCollectedCents)} · paid on purchases ${money(t.gstHstRecoverableCents)}`,tone:net<0?'good':net>0?'warn':''}]:[])
       ];
       const sentence=[ytd===null?'':ytd>=0?`So far this year the business has made a profit of ${money(ytd)}.`:`So far this year the business has made a loss of ${money(-ytd)}.`,Number(s.unpaidInvoicesCents)>0?`Customers owe ${money(s.unpaidInvoicesCents)}${overdue>0?` (${money(overdue)} overdue)`:''}.`:'',t&&net!==0?(net>0?`About ${money(net)} of GST/HST is owing.`:`A GST/HST refund of about ${money(-net)} is due.`):''].filter(Boolean).join(' ');
-      host.innerHTML=`<p class="cv-summary">${esc(sentence)}</p><div class="cv-cards">${cards.map(c=>`<article class="cv-stat" ${c.tone?`data-tone="${c.tone}"`:''}><span>${esc(c.label)}</span><strong>${c.value===null?'—':esc(money(c.value))}</strong><small>${esc(c.note)}</small></article>`).join('')}</div>${me.reports.length?`<section class="cv-card"><h2>Reports shared with you</h2><div class="cv-report-links">${me.reports.map(r=>`<button type="button" class="cv-chip" data-cv-open="${esc(r.key)}">${esc(r.title)} →</button>`).join('')}</div></section>`:''}`;
+      host.innerHTML=`<p class="cv-summary">${esc(sentence)}</p><div class="cv-cards">${cards.map((c,i)=>`<article class="cv-stat" style="--cv-i:${i}" ${c.tone?`data-tone="${c.tone}"`:''}><span>${esc(c.label)}</span><strong data-cv-count="${c.value===null?'':Number(c.value)}">${c.value===null?'—':esc(money(c.value))}</strong><small>${esc(c.note)}</small></article>`).join('')}</div><div data-cv-charts></div>${me.reports.length?`<section class="cv-card"><h2>Reports shared with you</h2><div class="cv-report-links">${me.reports.map(r=>`<button type="button" class="cv-chip" data-cv-open="${esc(r.key)}">${esc(r.title)} →</button>`).join('')}</div></section>`:''}`;
       $$('[data-cv-open]',host).forEach(b=>b.onclick=()=>{switchTab('reports');openReport(b.dataset.cvOpen)});
+      const charts=window.TeghClientCharts;
+      if(charts){
+        $$('[data-cv-count]',host).forEach(n=>{if(n.dataset.cvCount!=='')charts.countUp(n,Number(n.dataset.cvCount),v=>money(v))});
+        const titles=Object.fromEntries(me.reports.map(r=>[r.key,r.title]));
+        const compact=v=>{try{return new Intl.NumberFormat('en-CA',{style:'currency',currency,notation:'compact',maximumFractionDigits:1}).format(v/100)}catch{return money(v)}};
+        charts.mount($('[data-cv-charts]',host),{reports:me.reports.map(r=>r.key),titles,currency,money:v=>money(v),compact,period:{start:s.periodStart,end:s.periodEnd},
+          fetch:key=>{const def=me.reports.find(r=>r.key===key);return api('client-view/report',{params:{key,purpose:'chart',...(def.mode==='asOf'?{asOf:s.periodEnd}:{start:s.periodStart,end:s.periodEnd})}}).then(r=>r.output)},
+          onOpen:key=>{switchTab('reports');openReport(key)}});
+      }
     }catch(e){if(e.status===401||e.status===410)return sessionEnded(e.message);host.innerHTML=`<p class="cv-error">${esc(e.message)}</p>`}
   }
   function sessionEnded(message){me=null;app.hidden=true;gate.hidden=false;$('[data-cv-signout]').hidden=true;$('[data-cv-company]').hidden=true;$('[data-cv-code-form]').hidden=true;$('[data-cv-send]').hidden=!token;$('[data-cv-gate-text]').textContent='';showError(message)}
@@ -107,7 +116,7 @@
     const head=`<thead><tr>${columns.map(c=>`<th class="${c.type==='money'||c.type==='integer'?'num':''}">${esc(c.label)}</th>`).join('')}</tr></thead>`;
     const line=(row,cls='')=>`<tr class="${cls}">${columns.map(c=>`<td class="${c.type==='money'||c.type==='integer'?'num':''}">${esc(cell(model,row,c))}</td>`).join('')}</tr>`;
     let body='';
-    if(groupKey){const order=model.groupOrder||[...new Set(rows.map(r=>r[groupKey]))];for(const g of order){const inGroup=rows.filter(r=>String(r[groupKey])===String(g));if(!inGroup.length)continue;body+=`<tr class="cv-group"><th colspan="${columns.length}">${esc((model.groupLabels||{})[g]||humanize(g))}</th></tr>`+inGroup.map(r=>line(r)).join('');const gt=(model.groupTotals||{})[g];if(gt&&typeof gt==='object'){const totalRow={...gt};const first=columns.find(c=>c.type!=='money');if(first)totalRow[first.key]=`Total ${(model.groupLabels||{})[g]||humanize(g)}`;body+=line(totalRow,'cv-subtotal')}}}
+    if(groupKey){const order=model.groupOrder||[...new Set(rows.map(r=>r[groupKey]))];for(const g of order){const inGroup=rows.filter(r=>String(r[groupKey])===String(g));if(!inGroup.length)continue;body+=`<tr class="cv-group"><th colspan="${columns.length}">${esc((model.groupLabels||{})[g]||humanize(g))}</th></tr>`+inGroup.map(r=>line(r)).join('');const gtRaw=(model.groupTotals||{})[g],moneyCol=columns.find(c=>c.type==='money'),gt=typeof gtRaw==='number'&&moneyCol?{[moneyCol.key]:gtRaw}:gtRaw;if(gt&&typeof gt==='object'){const totalRow={...gt};const first=columns.find(c=>c.type!=='money');if(first)totalRow[first.key]=`Total ${(model.groupLabels||{})[g]||humanize(g)}`;body+=line(totalRow,'cv-subtotal')}}}
     else body=rows.map(r=>line(r)).join('');
     for(const s of model.summaryRows||[])body+=line(s,'cv-summary-row');
     if(!rows.length)body=`<tr><td colspan="${columns.length}" class="cv-muted">No activity for the chosen dates.</td></tr>`;

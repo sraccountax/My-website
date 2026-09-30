@@ -709,5 +709,20 @@
     "FILE-MANIFEST.sha256"
   ],
   "r133Migration": "automatic additive tables client_view_links, client_view_codes, client_view_sessions (created on first use)",
-  "r133CacheToken": "5990-r133-tegh"
+  "r133CacheToken": "5990-r133-tegh",
+  "r134Files": [
+    "assets/tegh-client-view-charts-r134.js",
+    "assets/tegh-client-view-r133.js",
+    "assets/tegh-client-view-r133.css",
+    "client-view.html",
+    "api/client_view_r133.php",
+    "R134-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r134Migration": false,
+  "r134CacheToken": "5990-r134 (client-view.html assets); portal token unchanged 5990-r133-tegh"
 }

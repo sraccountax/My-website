@@ -405,7 +405,9 @@ function handle_client_view_public(string $action): never
         $_SERVER['HTTP_X_COMPANY_ID'] = (string)$company['id'];
         try { $output = tegh_service_boundary(fn() => tegh_report_output_5980($actor, $company, $key, $params)); }
         catch (Throwable $error) { tegh_fail_service($error); }
-        audit_event($actor, (string)$company['id'], 'client_view.report_viewed', 'client_view_link', (string)$link['id'], ['viaClientView' => true, 'report' => $key, 'parameters' => $params]);
+        // R134: dashboard charts read the same shared reports; the sign-in already
+        // records the visit, so chart loads are not logged one by one.
+        if (($_GET['purpose'] ?? '') !== 'chart') audit_event($actor, (string)$company['id'], 'client_view.report_viewed', 'client_view_link', (string)$link['id'], ['viaClientView' => true, 'report' => $key, 'parameters' => $params]);
         json_response(['output' => $output]);
     }
     if ($action === 'download') {

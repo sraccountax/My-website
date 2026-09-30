@@ -1,6 +1,6 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R133 IONOS STAGING DEPLOYMENT
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R134 IONOS STAGING DEPLOYMENT
 
-This package contains every release through R133 (R118–R133 change notes are
+This package contains every release through R134 (R118–R134 change notes are
 included). No manual database migration. R120's additive table
 accounting_note_lines is created automatically on first use of Credit & Debit
 Notes (the database user needs CREATE privilege, as for the original install).
@@ -68,6 +68,9 @@ Verify after upload
   delivery must be configured (mail.from_email and SMTP) for codes to arrive.
 - R133 creates client_view_links, client_view_codes and client_view_sessions
   automatically on first use (CREATE privilege needed).
+- R134: upload client-view.html, api/client_view_r133.php and the three
+  assets/tegh-client-view-* files together. The client dashboard shows a chart
+  for each shared report that has one.
 - R130 clears SINs saved by earlier releases the first time each company opens
   Payroll Support (recorded in its audit trail as payroll.sin_data_removed).
   To clear every company at once instead, run:

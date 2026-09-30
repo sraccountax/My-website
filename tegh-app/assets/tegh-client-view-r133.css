@@ -64,3 +64,56 @@ html,body{margin:0;background:var(--cv-bg);color:var(--cv-ink);font:15px/1.5 sys
 .cv-foot{max-width:1180px;margin:0 auto;padding:0 20px 30px;color:var(--cv-muted);font-size:12.5px}
 @media (max-width:1100px){.cv-cards{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:700px){.cv-top{padding:8px 14px;gap:10px}.cv-brand span{display:none}.cv-main{padding:16px 14px 30px}.cv-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.cv-stat strong{font-size:19px}.cv-cards>.cv-stat:last-child:nth-child(odd){grid-column:1/-1}.cv-gate{margin:20px auto}}
+
+/* R134: dashboard charts. Series colours validated for CVD separation and
+   contrast on both surfaces (light #fff, dark #15231f). */
+:root{--cvc-s1:#2a78d6;--cvc-s2:#eb6834;--cvc-s3:#1baf7a;--cvc-neg:#e34948;--cvc-grid:#e6ece9;--cvc-axis:#c3cec9;--cvc-hl:rgba(15,92,75,.06)}
+@media (prefers-color-scheme:dark){:root{--cvc-s1:#3987e5;--cvc-s2:#d95926;--cvc-s3:#199e70;--cvc-neg:#e66767;--cvc-grid:#243a34;--cvc-axis:#3a544b;--cvc-hl:rgba(255,255,255,.05)}}
+.cvc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:0 0 16px}
+.cvc-card{position:relative;background:var(--cv-surface);border:1px solid var(--cv-line);border-radius:14px;padding:16px 16px 12px;min-width:0;animation:cvc-rise .55s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--cvc-i,0) * 90ms)}
+.cvc-card.cvc-loading{min-height:300px;opacity:.7}
+.cvc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin:0 0 6px}
+.cvc-head h3{margin:0;font-size:16px}
+.cvc-headline{margin:2px 0 0;color:var(--cv-muted);font-size:13.5px}
+.cvc-actions{display:flex;gap:4px;flex:none}
+.cvc-ghost{font:inherit;font-size:13px;font-weight:600;background:none;border:1px solid transparent;border-radius:8px;color:var(--cv-brand);padding:4px 8px;cursor:pointer}
+.cvc-ghost:hover,.cvc-ghost:focus-visible{background:var(--cv-soft);border-color:var(--cv-line)}
+.cvc-legend{display:flex;flex-wrap:wrap;gap:4px 16px;list-style:none;margin:6px 0 4px;padding:0;font-size:12.5px;color:var(--cv-muted)}
+.cvc-legend li{display:flex;align-items:center;gap:6px}
+.cvc-key{display:inline-block;width:10px;height:10px;border-radius:3px;flex:none}
+.cvc-key.is-line{width:14px;height:2px;border-radius:2px}
+.cvc-plot{min-height:220px}
+.cvc-plot svg{display:block;overflow:visible}
+.cvc-grid line.cvc-grid,.cvc-plot .cvc-grid{stroke:var(--cvc-grid);stroke-width:1}
+.cvc-plot .cvc-base{stroke:var(--cvc-axis);stroke-width:1}
+.cvc-plot .cvc-axis{fill:var(--cv-muted);font-size:11px;font-variant-numeric:tabular-nums}
+.cvc-plot .cvc-label{fill:var(--cv-ink);font-size:12.5px}
+.cvc-plot .cvc-value{fill:var(--cv-muted);font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.cvc-plot .cvc-hl{fill:var(--cvc-hl);transition:opacity .15s}
+.cvc-plot rect[tabindex]:focus{outline:none}
+.cvc-plot rect[tabindex]:focus-visible{outline:2px solid var(--cv-brand);outline-offset:-2px}
+/* animations: columns grow from the baseline, bars from the left, the line draws itself */
+.cvc-anim .cvc-col{transform-box:fill-box;transform-origin:50% 100%;animation:cvc-grow .7s cubic-bezier(.2,.8,.2,1) both}
+.cvc-anim .cvc-col.is-neg{transform-origin:50% 0}
+.cvc-anim .cvc-bar{transform-box:fill-box;transform-origin:0 50%;animation:cvc-growx .8s cubic-bezier(.2,.8,.2,1) both}
+.cvc-anim .cvc-line{stroke-dasharray:1;stroke-dashoffset:1;animation:cvc-draw 1s ease-out forwards}
+.cvc-anim .cvc-dot{animation:cvc-pop .35s ease-out both}
+.cvc-tip{position:absolute;z-index:3;min-width:150px;max-width:240px;padding:8px 10px;border-radius:10px;background:var(--cv-surface);border:1px solid var(--cv-line);box-shadow:0 8px 24px rgba(0,0,0,.14);font-size:12.5px;pointer-events:none}
+.cvc-tip b{display:block;margin:0 0 4px;font-size:12.5px;color:var(--cv-muted);font-weight:600}
+.cvc-tip-row{display:grid;grid-template-columns:14px auto 1fr;align-items:center;gap:6px}
+.cvc-tip-row strong{font-variant-numeric:tabular-nums;color:var(--cv-ink)}
+.cvc-tip-row span{color:var(--cv-muted)}
+.cvc-table{overflow-x:auto}
+.cvc-table table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.cvc-table th,.cvc-table td{padding:6px 8px;border-bottom:1px solid var(--cv-line);text-align:left;white-space:nowrap}
+.cvc-table .num{text-align:right}
+.cv-stat{animation:cvc-rise .5s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--cv-i,0) * 70ms)}
+.cv-summary{animation:cvc-rise .45s ease-out both}
+@keyframes cvc-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes cvc-grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes cvc-growx{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes cvc-draw{to{stroke-dashoffset:0}}
+@keyframes cvc-pop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+.cvc-anim .cvc-dot{transform-box:fill-box;transform-origin:center}
+@media (max-width:900px){.cvc-grid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.cvc-card,.cv-stat,.cv-summary,.cvc-anim .cvc-col,.cvc-anim .cvc-bar,.cvc-anim .cvc-dot{animation:none!important}.cvc-anim .cvc-line{animation:none!important;stroke-dasharray:none;stroke-dashoffset:0}}
