@@ -124,7 +124,8 @@ function tegh_workspace_summary_data(array $company): array
     // 2110/1110 and 2115/1115 (for example a custom HST or CGST account) are
     // reported separately so the dashboard card never hides them.
     $otherTaxNet=0;$otherTaxAccounts=0;
-    if(function_exists('tegh_tax_codes_ready')&&tegh_tax_codes_ready()){
+    // workspace/summary is routed before tax_codes_r137.php loads, so check the tables directly.
+    if(schema_table_exists('tax_codes')&&schema_table_exists('tax_code_components')){
         $taxAccountStmt=db()->prepare("SELECT DISTINCT a.id,a.code,a.normal_balance FROM tax_codes t JOIN tax_code_components c ON c.tax_code_id=t.id JOIN accounts a ON a.company_id=t.company_id AND a.id IN (c.sales_account_id,c.purchase_account_id) WHERE t.company_id=?");$taxAccountStmt->execute([$companyId]);$queries++;
         foreach($taxAccountStmt->fetchAll() as $taxAccount){if(in_array((string)$taxAccount['code'],['2100','1100','2110','1110','2115','1115'],true))continue;$otherTaxAccounts++;$normal=(int)($balances[(string)$taxAccount['id']]??0);$otherTaxNet+=(string)$taxAccount['normal_balance']==='credit'?$normal:-$normal;}
     }
