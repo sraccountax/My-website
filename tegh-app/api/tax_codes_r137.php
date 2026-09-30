@@ -369,6 +369,12 @@ function handle_tax_codes(): never
         });
         json_response(['taxCode' => $result]);
     }
+    if (($input['action'] ?? '') === 'seed-canada') {
+        require_company_role($company, 'owner', 'admin');
+        $r = tax_codes_seed_canada($user, $companyId);
+        if (($r['reason'] ?? '') === 'missing_accounts') fail('The starter codes need GL accounts 2100 (GST/HST Payable), 1100 (GST/HST Recoverable) and 2110 (PST Payable). Add them to the chart of accounts, or create tax codes by hand.', 409, 'tax_code_starter_accounts_missing');
+        json_response(['created' => $r['created'], 'skipped' => $r['skipped'], 'taxCodes' => tax_codes_list($companyId, true)], 201);
+    }
     $saved = tax_code_save($user, $company, $input);
     json_response(['taxCode' => tax_code_get($companyId, $saved['id'], false), 'switchedToTaxCodes' => $saved['switchedToTaxCodes']], request_method() === 'POST' ? 201 : 200);
 }
@@ -389,3 +395,59 @@ function bank_decision_tax_code(array $company, array $decision): ?array
     return null;
 }
 
+
+/* R138: starter Canadian tax codes, one per province/territory plus "GST only".
+   They use the default chart's tax accounts (2100/1100 for GST/HST, 2110 for
+   PST/QST/RST; QST is recoverable to 1110, BC/MB/SK PST is not recoverable and
+   becomes part of cost). Provinces that already have a code and codes whose
+   name is taken are skipped. Everything created stays fully editable. */
+function tax_codes_canada_starter(): array
+{
+    $gst = ['GST', 5000, '2100', '1100'];
+    $hst = static fn(int $r): array => [['HST', $r, '2100', '1100']];
+    return [
+        'AB' => ['Alberta', [$gst]], 'BC' => ['British Columbia', [$gst, ['PST', 7000, '2110', null]]],
+        'MB' => ['Manitoba', [$gst, ['RST', 7000, '2110', null]]], 'NB' => ['New Brunswick', $hst(15000)],
+        'NL' => ['Newfoundland and Labrador', $hst(15000)], 'NS' => ['Nova Scotia', $hst(14000)],
+        'NT' => ['Northwest Territories', [$gst]], 'NU' => ['Nunavut', [$gst]], 'ON' => ['Ontario', $hst(13000)],
+        'PE' => ['Prince Edward Island', $hst(15000)], 'QC' => ['Quebec', [$gst, ['QST', 9975, '2110', '1110']]],
+        'SK' => ['Saskatchewan', [$gst, ['PST', 6000, '2110', null]]], 'YT' => ['Yukon', [$gst]],
+    ];
+}
+
+function tax_codes_seed_canada(array $user, string $companyId): array
+{
+    if (!tegh_tax_codes_ready()) return ['created' => [], 'skipped' => [], 'reason' => 'not_ready'];
+    $acct = static function (string $code) use ($companyId): ?string { $q = db()->prepare('SELECT id FROM accounts WHERE company_id=? AND code=? AND active=1 LIMIT 1'); $q->execute([$companyId, $code]); $id = $q->fetchColumn(); return $id === false ? null : (string)$id; };
+    if ($acct('2100') === null) return ['created' => [], 'skipped' => array_keys(tax_codes_canada_starter()), 'reason' => 'missing_accounts'];
+    $own = !db()->inTransaction();
+    if ($own) db()->beginTransaction();
+    try {
+        $existing = db()->prepare('SELECT code, region, status FROM tax_codes WHERE company_id=?'); $existing->execute([$companyId]);
+        $codes = []; $regions = [];
+        foreach ($existing->fetchAll(PDO::FETCH_ASSOC) as $r) { $codes[strtoupper((string)$r['code'])] = true; if ($r['status'] === 'active' && $r['region'] !== null) $regions[(string)$r['region']] = true; }
+        $insCode = db()->prepare("INSERT INTO tax_codes(id,company_id,code,name,region,description,status,created_by,updated_by) VALUES(?,?,?,?,?,?,'active',?,?)");
+        $insComp = db()->prepare('INSERT INTO tax_code_components(id,tax_code_id,company_id,name,rate_mpct,sales_account_id,purchase_account_id,purchase_recoverable,sort_order) VALUES(?,?,?,?,?,?,?,?,?)');
+        $created = []; $skipped = [];
+        $add = static function (string $code, string $name, ?string $region, array $components, string $note) use ($companyId, $user, $insCode, $insComp, $acct, &$created, &$skipped, &$codes, &$regions): void {
+            if (isset($codes[$code]) || ($region !== null && isset($regions[$region]))) { $skipped[] = $code; return; }
+            foreach ($components as [, , $sales]) if ($acct($sales) === null) { $skipped[] = $code; return; }
+            $id = new_id('taxcode');
+            $insCode->execute([$id, $companyId, $code, $name, $region, $note, $user['id'] ?? null, $user['id'] ?? null]);
+            foreach (array_values($components) as $i => [$cname, $rate, $sales, $purchase]) {
+                $pid = $purchase !== null ? $acct($purchase) : null;
+                $insComp->execute([new_id('taxcomp'), $id, $companyId, $cname, $rate, $acct($sales), $pid, $pid !== null ? 1 : 0, $i]);
+            }
+            $codes[$code] = true; if ($region !== null) $regions[$region] = true; $created[] = $code;
+        };
+        foreach (tax_codes_canada_starter() as $prov => [$provName, $components]) {
+            $label = $provName . ' — ' . implode(' + ', array_map(static fn(array $c): string => $c[0] . ' ' . tax_rate_label((int)$c[1]), $components));
+            $add($prov, $label, $prov, $components, 'Starter code created by Tegh from general Canadian rates. Review the rates and GL accounts before use; edit any time.');
+        }
+        $add('GST', 'GST only — 5% (no provincial tax)', null, [['GST', 5000, '2100', '1100']], 'Use for suppliers or sales where only GST applies, for example a BC supplier who charged no PST.');
+        if ($created) db()->prepare("UPDATE companies SET tax_setup_mode='codes' WHERE id=?")->execute([$companyId]);
+        if ($created) audit_event($user, $companyId, 'tax_code.canada_starter_created', 'company', $companyId, ['created' => $created, 'skipped' => $skipped]);
+        if ($own) db()->commit();
+        return ['created' => $created, 'skipped' => $skipped];
+    } catch (Throwable $e) { if ($own && db()->inTransaction()) db()->rollBack(); throw $e; }
+}

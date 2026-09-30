@@ -1,4 +1,4 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R137 IONOS STAGING CANDIDATE
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R138 IONOS STAGING CANDIDATE
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -26,8 +26,9 @@ R134: the client view-only dashboard has animated charts that follow the reports
 R135: customer invoices charge and post PST (QST/RST) separately from GST/HST (2110 vs 2100), same as bills; sales tax setup explained in plain language when a company is registered; "Inventory Report" renamed Product Activity (not stock or inventory value); release manifests regenerated with one R135 identity. No migration. See R135-CHANGES.md.
 R136: QST 9.975% (and any PST rate with three decimals) is stored and calculated exactly; companies.pst_rate_mpct is added automatically on first company save. Quebec companies set up earlier: re-enter 9.975 in Company Details. See R136-CHANGES.md.
 R137: Tax Codes. Owners set up tax codes (one or more named taxes such as GST + QST or CGST + SGST, each with its own rate and GL accounts, optionally linked to one province). Invoices default to the customer's province code and every line can be changed; vendor invoices and expenses choose a code; each tax posts to its own GL account. New companies start with no codes; existing companies switch when their first code is saved. Tables and columns are added automatically. See R137-CHANGES.md.
+R138: tax code picker in Match and Post, the transaction review panel and guided review (bank amount treated as tax included, each tax to its own GL); new companies on the Default chart get editable Canadian tax codes for every province and territory plus GST-only; existing companies can add them with one button. No migration. See R138-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json
-and tegh-build.json all identify this package as R137; per-file hashes kept in
+and tegh-build.json all identify this package as R138; per-file hashes kept in
 their "history" sections record earlier releases and are not expected to match.

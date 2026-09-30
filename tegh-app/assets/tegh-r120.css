@@ -850,3 +850,6 @@ html[data-tegh-theme="dark"] .srp-page :is(.r137-codes td small,.r137-starter sm
 .srp-page .r137-codes td small,.srp-page .r137-codes td>div{white-space:normal;overflow-wrap:anywhere}
 .srp-page .srp-ci-line-total>span:has([data-ci-tax-split]){flex-wrap:wrap;row-gap:2px}
 .srp-page .srp-ci-line-total [data-ci-tax-split]{flex-basis:100%}
+.srp-page .r138-seed{align-items:center;gap:12px;margin:8px 0}
+.srp-page .r138-seed small{color:#5b6f68;max-width:640px}
+html[data-tegh-theme="dark"] .srp-page .r138-seed small{color:#a9bdb6}

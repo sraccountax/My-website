@@ -208,6 +208,8 @@ function handle_companies(): never
         ]);
         ensure_v6_seed_data($companyId);
         if(function_exists('tegh_company_entitlements_initialize'))tegh_company_entitlements_initialize($user,$companyId,$name);
+        // R138: companies on the default chart start with editable Canadian tax codes.
+        if ($coaMode === 'default' && function_exists('tax_codes_seed_canada')) tax_codes_seed_canada($user, $companyId);
         db()->commit();
     } catch (Throwable $error) {
         if (db()->inTransaction()) {

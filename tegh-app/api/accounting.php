@@ -1721,6 +1721,14 @@ function bank_transaction_canonical_tax_code(string $taxCode): string
  */
 function bank_transaction_effective_tax_code(array $company,array $decision,int $amount,string $accountType): string
 {
+    // R137: in tax-code mode the persisted label mirrors the posting branch (CODE:<code> or NO_TAX).
+    if(function_exists('bank_decision_tax_code')&&function_exists('tax_setup_mode')&&tax_setup_mode($company)==='codes'){
+        $code=bank_decision_tax_code($company,$decision);
+        $eligible=$amount>0?$accountType==='income':in_array($accountType,['expense','asset'],true);
+        if($code===null||!$eligible)return 'NO_TAX';
+        $calc=tax_code_compute($code,abs($amount),'inclusive');
+        return (int)$calc['tax']>0?mb_substr('CODE:'.$code['code'],0,30):'NO_TAX';
+    }
     $gstHstRate=0;$pstRate=0;
     if($amount>0){
         $gstRequested=!empty($decision['applyGstHst'])&&(bool)$company['tax_registered']&&$accountType==='income';
