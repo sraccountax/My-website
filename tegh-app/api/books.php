@@ -346,6 +346,7 @@ function bill_input_values(array $company, array $input): array
         $calc=$code?tax_code_compute($code,$foreignInput,$mode):['net'=>$foreignInput,'gross'=>$foreignInput,'tax'=>0,'parts'=>[]];
         $foreignSubtotal=(int)$calc['net'];$foreignTotal=(int)$calc['gross'];
         $subtotal=convert_to_base_cents($foreignSubtotal,$rate);$total=convert_to_base_cents($foreignTotal,$rate);
+        $code=tax_code_for_purchases($company,$code);
         $taxRows=[];if($code)tax_rows_add($taxRows,$code,$calc['parts'],tax_allocate($total-$subtotal,$calc['parts']),$subtotal,'purchase');
         $taxRows=array_values($taxRows);
         [$gst,$pst]=tax_rows_buckets($companyId,$taxRows);$taxTotal=$gst+$pst;
@@ -494,6 +495,25 @@ function handle_bills(): never
 }
 
 /** Shared manual-journal service used by the normal form and an authorized Ask Tegh confirmation. */
+/**
+ * R139: Accounts Receivable (1200) and Accounts Payable (2050) must always equal
+ * the open customer and vendor documents behind them. A manual journal has no
+ * customer or vendor, so it would put the control account out of step with the
+ * subledger and the ageing reports. Those balances change only through their
+ * documents (invoices, bills, credit/debit notes, payments, opening balances).
+ */
+function journal_assert_no_subledger_control(string $companyId, array $accountIds): void
+{
+    $ids = array_values(array_unique(array_filter(array_map('strval', $accountIds))));
+    if ($ids === []) return;
+    $in = implode(',', array_fill(0, count($ids), '?'));
+    $q = db()->prepare("SELECT code,name FROM accounts WHERE company_id=? AND id IN ($in) AND code IN ('1200','2050') LIMIT 1");
+    $q->execute(array_merge([$companyId], $ids));
+    if ($row = $q->fetch()) {
+        fail('Account '.$row['code'].' '.$row['name'].' follows your customer and vendor documents, so a journal cannot post to it. Use a credit or debit note, a payment, or an opening balance for the customer or vendor instead.', 409, 'journal_subledger_control_protected');
+    }
+}
+
 function manual_journal_post_service(array $user,array $company,array $input,string $initiatedVia='manual',string $idempotencyKey=''): array
 {
     require_company_permission($company,'journals.write');
@@ -515,6 +535,7 @@ function manual_journal_post_service(array $user,array $company,array $input,str
             'memo' => optional_text($lineInput['memo'] ?? null, 500) ?? '',
         ];
     }
+    journal_assert_no_subledger_control($companyId, array_column($lines, 'accountId'));
     $sourceId=$idempotencyKey!==''?'ask_'.substr(hash('sha256',$idempotencyKey),0,48):trim((string)($input['draftSourceId'] ?? ''));
     if($idempotencyKey!==''){
         $prior=db()->prepare("SELECT id,status FROM journal_entries WHERE company_id=? AND source_type='manual_journal' AND source_id=? LIMIT 1");$prior->execute([$companyId,$sourceId]);$existing=$prior->fetch();if($existing)return ['journalEntry'=>['id'=>(string)$existing['id'],'status'=>(string)$existing['status']],'idempotent'=>true];

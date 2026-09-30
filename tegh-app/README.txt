@@ -1,4 +1,4 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R138 IONOS STAGING CANDIDATE
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R139 IONOS STAGING CANDIDATE
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -27,8 +27,16 @@ R135: customer invoices charge and post PST (QST/RST) separately from GST/HST (2
 R136: QST 9.975% (and any PST rate with three decimals) is stored and calculated exactly; companies.pst_rate_mpct is added automatically on first company save. Quebec companies set up earlier: re-enter 9.975 in Company Details. See R136-CHANGES.md.
 R137: Tax Codes. Owners set up tax codes (one or more named taxes such as GST + QST or CGST + SGST, each with its own rate and GL accounts, optionally linked to one province). Invoices default to the customer's province code and every line can be changed; vendor invoices and expenses choose a code; each tax posts to its own GL account. New companies start with no codes; existing companies switch when their first code is saved. Tables and columns are added automatically. See R137-CHANGES.md.
 R138: tax code picker in Match and Post, the transaction review panel and guided review (bank amount treated as tax included, each tax to its own GL); new companies on the Default chart get editable Canadian tax codes for every province and territory plus GST-only; existing companies can add them with one button. No migration. QST has its own accounts (2115 QST Payable, 1115 QST Recoverable), separate from PST, with a QST remittance option in Match and Post. See R138-CHANGES.md.
+R139: fixes from the invite-only beta release gate. No third-party session recording in the signed-in app. Journals can no longer post to AR 1200 / AP 2050. Companies not registered for GST/HST are no longer charged tax automatically, and their purchase tax goes to cost. The dashboard tax card shows tax held in custom accounts. Correct message for a successfully sent email. A damaged backup gives an integrity message instead of a server error. Root config template denied. No migration. See R139-CHANGES.md and FINAL-BETA-QA-REPORT.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json
-and tegh-build.json all identify this package as R138; per-file hashes kept in
+and tegh-build.json all identify this package as R139; per-file hashes kept in
 their "history" sections record earlier releases and are not expected to match.
+
+Fresh installation (empty database): upload the package, put config.php outside
+the web root (see config.example.php), open /app.html and create the Platform
+Owner with the setup key. After the first sign-in Tegh shows "Database upgrade"
+(the installer creates Schema 43 and the protected upgrade brings it to 46).
+Tick the backup confirmation and run it once. Startup status then reports
+Schema 46 with no warning.

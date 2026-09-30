@@ -73,7 +73,7 @@ ErrorDocument 404 /404.html
 <FilesMatch "^[a-z]+-test-v[0-9]+\.(js|css)$">
   Require all denied
 </FilesMatch>
-<FilesMatch "^native-agent-cron\.php$">
+<FilesMatch "^(native-agent-cron|config.*)\.php$">
   Require all denied
 </FilesMatch>
 <FilesMatch "\.(env|ini|log|sql|bak|md)$">

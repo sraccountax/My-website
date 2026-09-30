@@ -132,6 +132,22 @@ function tax_code_for_region(string $companyId, ?string $region): ?array
 }
 
 /** Tax for one amount under one code. Returns per-component foreign tax and the net/gross. */
+/** R139: a business not registered for GST/HST cannot claim input tax credits, so
+    every tax it pays on purchases becomes part of the cost. */
+function tax_code_for_purchases(array $company, ?array $code): ?array
+{
+    if ($code === null || (bool)($company['tax_registered'] ?? true)) return $code;
+    foreach ($code['components'] as &$c) { $c['purchaseRecoverable'] = false; }
+    unset($c);
+    return $code;
+}
+
+/** R139: sales tax is applied automatically only for businesses registered for GST/HST. */
+function tax_code_auto_region(array $company, string $companyId, ?string $region): ?array
+{
+    return (bool)($company['tax_registered'] ?? true) ? tax_code_for_region($companyId, $region) : null;
+}
+
 function tax_code_compute(array $code, int $amountCents, string $mode = 'exclusive'): array
 {
     $comps = $code['components'];

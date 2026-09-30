@@ -1143,6 +1143,7 @@ function advanced_validate_recurring_journal_lines(string $companyId, mixed $sou
         $lines[] = [$accountId, $debit, $credit, mb_substr(trim((string)($row['memo'] ?? '')), 0, 500), $index];
     }
     if ($debits <= 0 || $debits !== $credits) fail('Recurring journal debits and credits must balance exactly.');
+    if (function_exists('journal_assert_no_subledger_control')) journal_assert_no_subledger_control($companyId, array_column($lines, 0));
     return $lines;
 }
 
@@ -1349,7 +1350,7 @@ function handle_advanced_recurring_invoice_run(): never
         $calculated = [];
         $foreignSubtotal = $foreignTax = $subtotal = $tax = $pst = 0;
         $codesMode = function_exists('tax_setup_mode') && tax_setup_mode($company) === 'codes';
-        $regionCode = $codesMode ? tax_code_for_region($companyId, $supplyProvince) : null; $taxRows = [];
+        $regionCode = $codesMode ? tax_code_auto_region($company, $companyId, $supplyProvince) : null; $taxRows = [];
         foreach ($sourceLines as $row) {
             $foreignAmount = (int)round(((int)$row['quantity_milli'] * (int)$row['foreign_unit_price_cents']) / 1000);
             if ($codesMode) {

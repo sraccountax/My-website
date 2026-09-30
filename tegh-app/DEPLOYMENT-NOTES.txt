@@ -1,7 +1,8 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R138 IONOS STAGING DEPLOYMENT
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R139 IONOS STAGING DEPLOYMENT
 
-This package contains every release through R138 (R118–R138 change notes are
-included). It is a STAGING CANDIDATE, not a production release
+This package contains every release through R139 (R118–R139 change notes are
+included). R139 contains only the fixes from the invite-only beta release gate
+(FINAL-BETA-QA-REPORT.md). It is a STAGING CANDIDATE, not a production release
 (productionReady: false); see "Host acceptance" at the end. No manual database migration. R120's additive table
 accounting_note_lines is created automatically on first use of Credit & Debit
 Notes (the database user needs CREATE privilege, as for the original install).
@@ -50,7 +51,11 @@ Notes (the database user needs CREATE privilege, as for the original install).
    api/report_loaders_v5980.php and api/workspace_summary_v5610.php. New
    companies get 2115 QST Payable and 1115 QST Recoverable in the default chart;
    existing companies get them when Canadian tax codes are added.
-5. Upload all assets together; the cache token is r138-tegh (client-view page:
+   For R139: api/tax_codes_r137.php, api/accounting.php, api/advanced.php,
+   api/books.php, api/workspace_summary_v5610.php, api/portal.php,
+   api/backup.php, app.html, .htaccess and assets/tegh-portal-v5990.js,
+   assets/tegh-gate-v5990.js, assets/tegh-preflight-v5990.js. No migration.
+5. Upload all assets together; the cache token is r139-tegh (client-view page:
    5990-r135). A partial upload can
    leave browsers on a stale portal.
 6. DN-1001 was already posted once in the original staging data. Do NOT post it
@@ -120,6 +125,11 @@ Verify after upload
   choose an expense account and the BC code: the preview shows GST recoverable
   and PST added to the expense. For an existing company, Tax Codes > Add
   Canadian tax codes adds the missing provinces after a confirmation.
+- R139: (1) GL Journal Entry does not list 1200/2050; a journal sent to them
+  by the API is refused. (2) Company Details: untick "Registered for GST/HST"
+  on a test company; a new invoice line shows "Not registered for GST/HST — no
+  tax" and a vendor invoice with the BC code puts GST+PST into the expense.
+  (3) View the page source of /app.html: no clarity.ms script.
 - In the browser console: window.TeghPortal exists.
 - Tegh Assist (top bar, also on phones): ask "who owes me money?" and the
   answer starts with a plain sentence ("Customers owe you $…") in about a second; "pay my supplier" opens Vendor

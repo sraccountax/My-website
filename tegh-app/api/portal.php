@@ -67,6 +67,7 @@ function portal_mail_plain_message(string $stage,int $code,string $outcome): str
     if($stage==='authentication'&&$code===535)return 'SMTP authentication failed. A Platform Owner must verify the configured mailbox credentials.';
     if($stage==='mail_from'&&$code===550)return 'The mail server rejected the configured sender. Verify the From address and SMTP account in Email Delivery Health.';
     if($stage==='rcpt_to'&&$code===550)return 'The recipient address was rejected. Verify the customer’s email address.';
+    if($outcome==='accepted')return 'The mail server accepted the message for delivery.';
     if($outcome==='ambiguous_after_submission')return 'Tegh submitted the message but did not receive a final delivery decision. Automatic retry is disabled to prevent duplicate email.';
     if($outcome==='diagnostic_failure_after_acceptance')return 'The mail server accepted the message, but the closing SMTP diagnostic failed. The message remains Sent and must not be retried.';
     if($outcome==='temporary_preaccept_failure')return 'The mail server temporarily deferred the message before accepting it. Correct or review the issue, then authorize a new attempt.';

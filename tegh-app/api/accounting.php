@@ -974,7 +974,7 @@ $calculatedLines = [];
 $taxOverrides = [];
 $taxRows = [];
 $codesMode = function_exists('tax_setup_mode') && tax_setup_mode($company) === 'codes';
-$regionCode = $codesMode ? tax_code_for_region($companyId, $supplyProvince) : null;
+$regionCode = $codesMode ? tax_code_auto_region($company, $companyId, $supplyProvince) : null;
 $foreignSubtotal = 0;
 $foreignTax = 0;
 $foreignPst = 0;
@@ -1325,6 +1325,7 @@ function handle_expenses(): never
         $mode = $code ? $emode : 'none';
         $foreignSubtotal = (int)$calc['net']; $foreignTotal = (int)$calc['gross']; $foreignTax = (int)$calc['tax'];
         $subtotal = convert_to_base_cents($foreignSubtotal, $rate); $total = convert_to_base_cents($foreignTotal, $rate); $tax = $total - $subtotal;
+        $code = tax_code_for_purchases($company, $code);
         $expenseTaxRows = []; if ($code) tax_rows_add($expenseTaxRows, $code, $calc['parts'], tax_allocate($tax, $calc['parts']), $subtotal, 'purchase');
         $expenseTaxRows = array_values($expenseTaxRows); [$gstHst, $pst] = tax_rows_buckets($companyId, $expenseTaxRows); $foreignGstHst = 0; $foreignPst = 0; $expenseTaxCodeId = $code['id'] ?? null;
     }
@@ -1626,6 +1627,7 @@ function bank_transaction_post_service_once(array $user, array $company, array $
                 $lines = array_merge([['accountId' => $bankLedgerId, 'debitCents' => $amount, 'creditCents' => 0, 'memo' => 'Statement deposit'], ['accountId' => (string)$category['id'], 'debitCents' => 0, 'creditCents' => (int)$calc['net'], 'memo' => 'Income net of collected sales tax']], tax_rows_sales_lines($companyId, array_values($rows)));
                 $taxCode = mb_substr('CODE:' . $bankCode['code'], 0, 30);
             } elseif ($bankCode !== null && $amount < 0 && in_array($category['account_type'], ['expense','asset'], true)) {
+                $bankCode = tax_code_for_purchases($company, $bankCode);
                 $total = abs($amount); $calc = tax_code_compute($bankCode, $total, 'inclusive');
                 $rows = []; tax_rows_add($rows, $bankCode, $calc['parts'], $calc['parts'], (int)$calc['net'], 'purchase');
                 $purchase = tax_rows_purchase_lines($companyId, array_values($rows));
