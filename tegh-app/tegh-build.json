@@ -24,10 +24,10 @@
   "flatRoot": true,
   "packageType": "cumulative-full-application",
   "activeEntry": "app.html",
-  "generatedAt": "2026-09-30T12:11:03Z",
+  "generatedAt": "2026-09-30T12:18:10Z",
   "sourceRepository": "sraccountax/My-website",
   "sourceBranch": "claude/invoice-credit-debit-audit-e2y8wc",
-  "sourceParentCommit": "bc8436057dfd414b03094f1e6664f559d3342b8d",
+  "sourceParentCommit": "013a4887e3c50f8e99557cc909a24b457108167c",
   "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
   "databaseMigrationRequired": false,
   "databaseMigrationNote": "No manual migration since R118. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
@@ -1265,8 +1265,8 @@
     "r138Identity": {
       "release": "R139",
       "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R139-Consolidated-IONOS-STAGING",
-      "generatedAt": "2026-09-30T12:07:14Z",
-      "sourceParentCommit": "cc4b32a60a743f7976d4ec4922745275686532b6",
+      "generatedAt": "2026-09-30T12:11:03Z",
+      "sourceParentCommit": "bc8436057dfd414b03094f1e6664f559d3342b8d",
       "testStatus": "R139 = R138 plus the fixes for defects confirmed by the invite-only beta release gate. The gate ran on the exact R138 ZIP: an Apache 2.4 + PHP-FPM 8.3 HTTPS test host, a fresh MariaDB, an SMTP sandbox with STARTTLS+AUTH, and synthetic companies. It was then re-run on the exact R139 ZIP. Results, evidence and the verdict are in FINAL-BETA-QA-REPORT.md in the source repository (not in this package). Host acceptance has not started; productionReady is false.",
       "executedLocalGates": {
         "betaGateR138Baseline": {
