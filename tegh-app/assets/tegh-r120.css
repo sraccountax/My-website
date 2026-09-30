@@ -786,3 +786,40 @@ html[data-tegh-theme="dark"] .srp-page .r133-error{color:#ff8f86}
   html[data-tegh-theme="auto"] .srp-page .r133-status[data-state="revoked"]{background:#22302c;color:#a7bbb3}
   html[data-tegh-theme="auto"] .srp-page .r133-error{color:#ff8f86}
 }
+
+/* 31. R135: sales tax guide (company setup) and GST/HST + PST on invoices */
+.srp-page .r135-tax-heading{border-top:1px solid #dce6e1;padding-top:12px;margin-top:4px}
+.srp-page .r135-tax-heading h3{margin:0 0 2px;font-size:1rem}
+.srp-page .r135-tax-heading p{margin:0;color:#5b6f68;font-size:.875rem}
+/* The PST checkbox adds a seventh cell to the desktop invoice line; keep the override reason wide. */
+@media (min-width:1101px){html[data-tegh-activity-shell="r22"] .r29-invoice-main .srp-ci-line-grid:has(input[name="pst"])>label.full:has(input[name="taxOverrideReason"]){grid-column:3/-1!important}}
+.srp-page .r135-tax-guide{border:1px solid #cfe3da;border-left:4px solid #1f8a6d;border-radius:12px;background:#f5fbf8;padding:14px 16px;color:#1d2c27;line-height:1.5}
+.srp-page .r135-tax-guide h3{margin:0 0 6px;font-size:1rem}
+.srp-page .r135-tax-guide p{margin:0 0 8px}
+.srp-page .r135-tax-guide ul{margin:8px 0;padding-left:20px}
+.srp-page .r135-tax-guide li{margin:3px 0}
+.srp-page .r135-tax-example{border-collapse:collapse;min-width:min(100%,380px);margin:6px 0 8px;font-variant-numeric:tabular-nums}
+.srp-page .r135-tax-example caption{text-align:left;font-weight:600;padding-bottom:4px;color:#3f5550}
+.srp-page .r135-tax-example td{padding:4px 10px 4px 0;border-bottom:1px solid #dce9e3}
+.srp-page .r135-tax-example td:last-child{text-align:right;padding-right:0;white-space:nowrap}
+.srp-page .r135-tax-example small{display:block;color:#5b6f68;font-size:.78rem}
+.srp-page .r135-tax-example .r135-total td{font-weight:700;border-bottom:0;border-top:2px solid #1f8a6d}
+.srp-page .r135-warn{background:#fdf6e6;border:1px solid #efd9a6;border-radius:8px;padding:8px 10px;color:#5d4300}
+.srp-page .r135-fine{font-size:.82rem;color:#5b6f68;margin:6px 0 0}
+.srp-page .srp-ci-totals.r135-has-pst{grid-template-columns:repeat(4,minmax(0,1fr))}
+.srp-page .srp-ci-line-total [data-ci-tax-split]{display:block;font-size:.75rem;color:#5b6f68;font-weight:400}
+.srp-page .srp-ci-line-total [data-ci-tax-split]:empty{display:none}
+@media (max-width:900px){.srp-page .srp-ci-totals.r135-has-pst{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.srp-page .srp-ci-totals.r135-has-pst{grid-template-columns:1fr}}
+html[data-tegh-theme="dark"] .srp-page .r135-tax-heading{border-color:#2f4a42}html[data-tegh-theme="dark"] .srp-page .r135-tax-heading p{color:#a9bdb6}
+html[data-tegh-theme="dark"] .srp-page .r135-tax-guide{background:#12251f;border-color:#2f5a4c;border-left-color:#2f9f83;color:#e3eeea}
+html[data-tegh-theme="dark"] .srp-page .r135-tax-example caption,html[data-tegh-theme="dark"] .srp-page .r135-tax-example small,html[data-tegh-theme="dark"] .srp-page .r135-fine,html[data-tegh-theme="dark"] .srp-page .srp-ci-line-total [data-ci-tax-split]{color:#a9bdb6}
+html[data-tegh-theme="dark"] .srp-page .r135-tax-example td{border-color:#2a4038}
+html[data-tegh-theme="dark"] .srp-page .r135-warn{background:#3a2e12;border-color:#6b5520;color:#f6dca0}
+@media (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] .srp-page .r135-tax-heading{border-color:#2f4a42}html[data-tegh-theme="auto"] .srp-page .r135-tax-heading p{color:#a9bdb6}
+  html[data-tegh-theme="auto"] .srp-page .r135-tax-guide{background:#12251f;border-color:#2f5a4c;border-left-color:#2f9f83;color:#e3eeea}
+  html[data-tegh-theme="auto"] .srp-page .r135-tax-example caption,html[data-tegh-theme="auto"] .srp-page .r135-tax-example small,html[data-tegh-theme="auto"] .srp-page .r135-fine,html[data-tegh-theme="auto"] .srp-page .srp-ci-line-total [data-ci-tax-split]{color:#a9bdb6}
+  html[data-tegh-theme="auto"] .srp-page .r135-tax-example td{border-color:#2a4038}
+  html[data-tegh-theme="auto"] .srp-page .r135-warn{background:#3a2e12;border-color:#6b5520;color:#f6dca0}
+}

@@ -1344,15 +1344,21 @@ function handle_advanced_recurring_invoice_run(): never
         $sourceLines = $lineStmt->fetchAll();
         if (count($sourceLines) === 0) fail('The recurring invoice has no lines.');
         $supplyProvince = (string)($customer['province'] ?: $company['province']);
+        // R135: a PST-registered seller charges PST by default on taxable lines supplied in its own province.
+        $pstRate = (bool)($company['pst_registered'] ?? false) && strtoupper($supplyProvince) === strtoupper((string)$company['province']) ? max(0, (int)($company['pst_rate_bps'] ?? 0)) : 0;
         $calculated = [];
-        $foreignSubtotal = $foreignTax = $subtotal = $tax = 0;
+        $foreignSubtotal = $foreignTax = $subtotal = $tax = $pst = 0;
         foreach ($sourceLines as $row) {
             $foreignAmount = (int)round(((int)$row['quantity_milli'] * (int)$row['foreign_unit_price_cents']) / 1000);
-            $taxRate = (bool)$row['taxable'] && (bool)$company['tax_registered'] ? province_rate_bps($supplyProvince) : 0;
-            $foreignLineTax = (int)round($foreignAmount * $taxRate / 10000);
+            $gstRate = (bool)$row['taxable'] && (bool)$company['tax_registered'] ? province_rate_bps($supplyProvince) : 0;
+            $linePstRate = (bool)$row['taxable'] ? $pstRate : 0;
+            $taxRate = $gstRate + $linePstRate;
+            $foreignLinePst = (int)round($foreignAmount * $linePstRate / 10000);
+            $foreignLineTax = (int)round($foreignAmount * $gstRate / 10000) + $foreignLinePst;
             $baseAmount = convert_to_base_cents($foreignAmount, $exchangeRate);
             $baseTotal = convert_to_base_cents($foreignAmount + $foreignLineTax, $exchangeRate);
             $baseTax = $baseTotal - $baseAmount;
+            $pst += min($baseTax, convert_to_base_cents($foreignLinePst, $exchangeRate));
             $calculated[] = [
                 'description' => (string)$row['description'], 'quantityMilli' => (int)$row['quantity_milli'],
                 'foreignUnitPriceCents' => (int)$row['foreign_unit_price_cents'], 'foreignAmountCents' => $foreignAmount,
@@ -1370,7 +1376,7 @@ function handle_advanced_recurring_invoice_run(): never
         if ($issue) assert_period_open($companyId, $issueDate);
         $dueDate = (new DateTimeImmutable($issueDate, new DateTimeZone('UTC')))->modify('+' . (int)$profile['payment_terms_days'] . ' days')->format('Y-m-d');
         $entryId = $issue && (string)$company['accounting_basis'] === 'accrual'
-            ? add_journal_entry($user, $companyId, $issueDate, 'invoice', $invoiceId, 'Invoice ' . $number, invoice_posting_lines($companyId, $subtotal, $tax, $total))
+            ? add_journal_entry($user, $companyId, $issueDate, 'invoice', $invoiceId, 'Invoice ' . $number, invoice_posting_lines($companyId, $subtotal, $tax, $total, null, null, $pst))
             : null;
         db()->prepare('INSERT INTO invoices (id, company_id, customer_id, number, issue_date, due_date, status,
             subtotal_cents, tax_cents, total_cents, balance_cents, message, currency, exchange_rate_micros,
@@ -1384,6 +1390,7 @@ function handle_advanced_recurring_invoice_run(): never
                 json_encode(invoice_customer_snapshot($customer), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR), $entryId]);
         $insertLine = db()->prepare('INSERT INTO invoice_lines (id, invoice_id, description, quantity_milli, unit_price_cents, tax_rate_bps, amount_cents, tax_cents, foreign_unit_price_cents, foreign_amount_cents, foreign_tax_cents, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         foreach ($calculated as $line) $insertLine->execute([new_id('iline'), $invoiceId, $line['description'], $line['quantityMilli'], $line['unitPriceCents'], $line['taxRateBps'], $line['amountCents'], $line['taxCents'], $line['foreignUnitPriceCents'], $line['foreignAmountCents'], $line['foreignTaxCents'], $line['sortOrder']]);
+        if (function_exists('invoice_record_tax_split')) invoice_record_tax_split($companyId, $invoiceId, $tax, $pst);
         $next = advanced_next_date($issueDate, (string)$profile['frequency'], (int)$profile['anchor_day']);
         $active = $profile['end_date'] === null || $next <= (string)$profile['end_date'];
         db()->prepare('UPDATE recurring_invoice_profiles SET next_invoice_date = ?, active = ? WHERE id = ?')->execute([$next, $active ? 1 : 0, $profileId]);

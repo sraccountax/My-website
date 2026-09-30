@@ -208,7 +208,7 @@ function payment_apply_service(array $user,array $company,array $input,bool $man
                 if($type==='vendor'&&$difference>0)$recognitionLines=[['accountId'=>account_by_code($companyId,'6850'),'debitCents'=>$difference,'creditCents'=>0,'memo'=>'Realized exchange difference'],['accountId'=>account_by_code($companyId,'2050'),'debitCents'=>0,'creditCents'=>$difference,'memo'=>'Apply vendor payment']];
                 if($type==='vendor'&&$difference<0)$recognitionLines=[['accountId'=>account_by_code($companyId,'2050'),'debitCents'=>abs($difference),'creditCents'=>0,'memo'=>'Apply vendor payment'],['accountId'=>account_by_code($companyId,'6850'),'debitCents'=>0,'creditCents'=>abs($difference),'memo'=>'Realized exchange difference']];
             }elseif($type==='customer'){
-                $tax=(int)round(($paymentCarrying*(int)$document['foreign_tax_cents'])/max(1,(int)$document['foreign_total_cents']));$recognitionLines=[['accountId'=>account_by_code($companyId,'1200'),'debitCents'=>$paymentCarrying,'creditCents'=>0,'memo'=>'Apply customer payment'],['accountId'=>account_by_code($companyId,'4000'),'debitCents'=>0,'creditCents'=>$paymentCarrying-$tax,'memo'=>(string)$document['number']]];if($tax>0)$recognitionLines[]=['accountId'=>account_by_code($companyId,'2100'),'debitCents'=>0,'creditCents'=>$tax,'memo'=>'GST/HST collected'];
+                $tax=(int)round(($paymentCarrying*(int)$document['foreign_tax_cents'])/max(1,(int)$document['foreign_total_cents']));$recognitionLines=[['accountId'=>account_by_code($companyId,'1200'),'debitCents'=>$paymentCarrying,'creditCents'=>0,'memo'=>'Apply customer payment'],['accountId'=>account_by_code($companyId,'4000'),'debitCents'=>0,'creditCents'=>$paymentCarrying-$tax,'memo'=>(string)$document['number']]];[$gstPart,$pstPart]=invoice_tax_parts($document,$tax);foreach(invoice_tax_credit_lines($companyId,$gstPart,$pstPart) as $taxLine)$recognitionLines[]=$taxLine;
             }else{
                 $foreignTotal=max(1,(int)$document['foreign_total_cents']);$gst=(int)round(($paymentCarrying*(int)($document['foreign_gst_hst_cents']??$document['foreign_tax_cents']??0))/$foreignTotal);$pst=(int)round(($paymentCarrying*(int)($document['foreign_pst_cents']??0))/$foreignTotal);$recoverablePst=!empty($company['pst_recoverable'])?$pst:0;$cost=$paymentCarrying-$gst-$recoverablePst;if($cost<0)fail('Vendor payment tax allocation exceeds the applied amount.',409,'vendor_payment_tax_allocation_invalid');$recognitionLines=[['accountId'=>(string)$document['category_account_id'],'debitCents'=>$cost,'creditCents'=>0,'memo'=>(string)$document['number']]];if($gst>0)$recognitionLines[]=['accountId'=>account_by_code($companyId,'1100'),'debitCents'=>$gst,'creditCents'=>0,'memo'=>'GST/HST recoverable'];if($recoverablePst>0)$recognitionLines[]=['accountId'=>account_by_code($companyId,'1110'),'debitCents'=>$recoverablePst,'creditCents'=>0,'memo'=>'PST recoverable'];$recognitionLines[]=['accountId'=>account_by_code($companyId,'2050'),'debitCents'=>0,'creditCents'=>$paymentCarrying,'memo'=>'Apply vendor payment'];
             }
@@ -433,7 +433,7 @@ function post_party_payment(array $user, array $company, array $input): never
                 ['accountId'=>$paymentAccountId,'debitCents'=>$actualAmount,'creditCents'=>0,'memo'=>$partyName],
                 ['accountId'=>account_by_code($companyId,'4000'),'debitCents'=>0,'creditCents'=>$actualAmount-$taxPortion,'memo'=>$documentNumber],
             ];
-            if ($taxPortion > 0) $lines[]=['accountId'=>account_by_code($companyId,'2100'),'debitCents'=>0,'creditCents'=>$taxPortion,'memo'=>'GST/HST collected'];
+            [$gstPart,$pstPart]=invoice_tax_parts($document,$taxPortion);foreach(invoice_tax_credit_lines($companyId,$gstPart,$pstPart) as $taxLine)$lines[]=$taxLine;
         } else {
             // Cash-basis vendor payments recognise the vendor-invoice tax when
             // cash leaves. Keep GST/HST and PST distinct: non-recoverable PST
@@ -562,7 +562,7 @@ function apply_advance_to_document(array $user, array $company, array $input): n
                 ['accountId'=>account_by_code($companyId,'1200'),'debitCents'=>$actualAmount,'creditCents'=>0,'memo'=>'Apply customer advance'],
                 ['accountId'=>account_by_code($companyId,'4000'),'debitCents'=>0,'creditCents'=>$actualAmount-$taxPortion,'memo'=>(string)$document['number']],
             ];
-            if ($taxPortion > 0) $lines[]=['accountId'=>account_by_code($companyId,'2100'),'debitCents'=>0,'creditCents'=>$taxPortion,'memo'=>'GST/HST collected'];
+            [$gstPart,$pstPart]=invoice_tax_parts($document,$taxPortion);foreach(invoice_tax_credit_lines($companyId,$gstPart,$pstPart) as $taxLine)$lines[]=$taxLine;
         } else {
             $foreignTotal=max(1,(int)$document['foreign_total_cents']);
             $foreignGst=(int)($document['foreign_gst_hst_cents']??$document['foreign_tax_cents']??0);

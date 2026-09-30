@@ -820,13 +820,13 @@ function agent_local_answer(string $question, array $setup, array $clientContext
     }
     if (preg_match('/inventory|stock\s+report|product\s+inventory/', $q)) {
         return [
-            'mode'=>'guided','answer'=>'Tegh provides a product-only Inventory Report with linked customer-invoice and vendor-invoice activity. Quantity-on-hand and inventory costing remain reserved for the future dedicated Inventory module.',
+            'mode'=>'guided','answer'=>'Tegh does not have an inventory report yet. The Product Activity report (formerly called Inventory Report) lists, for each product, the quantities and amounts on customer and vendor invoices. It does not show stock on hand, cost of goods sold or inventory value. Under ASPE Section 3031 and IFRS (IAS 2) inventory is measured at the lower of cost and net realisable value using a cost formula such as FIFO or weighted average, which needs stock movements and costs that Tegh does not track yet.',
             'recommendedWorkflow'=>'reports',
             'steps'=>[
                 ['title'=>'Review products','instruction'=>'Maintain product records in Products & Services.','actionKey'=>'nav.products_services'],
-                ['title'=>'Open Inventory Report','instruction'=>'Open Reports → Accounting → Inventory Report.','actionKey'=>'report.inventory'],
+                ['title'=>'Open Product Activity','instruction'=>'Open Reports → Accounting → Product Activity.','actionKey'=>'report.inventory'],
             ],
-            'caution'=>'Do not treat the current Inventory Report as a quantity-on-hand or inventory valuation report.',
+            'caution'=>'Do not use Product Activity as a stock count, inventory valuation or cost-of-sales figure. Record inventory and cost of sales in the general ledger (for example a count-based period-end adjustment) and report them from the Balance Sheet and Income Statement.',
         ];
     }
     if (preg_match('/audit\s+history|who\s+changed|change\s+history/', $q)) {
@@ -839,7 +839,7 @@ function agent_local_answer(string $question, array $setup, array $clientContext
         return ['mode'=>'guided','answer'=>'Payroll remittances you paid to CRA outside Tegh can be recorded in Payroll Support and matched to an eligible imported bank withdrawal. Tegh does not send payments or filings to CRA.','recommendedWorkflow'=>'payroll','steps'=>[['title'=>'Open Remittance Records','instruction'=>'Open Payroll Support → Remittance Records and select the imported bank withdrawal when one is available.','actionKey'=>'nav.payroll_remittance']],'caution'=>'Confirm the remittance period and amounts before posting.'];
     }
     if (preg_match('/product(?:s)?\s*(?:and|&)\s*service|product\s+or\s+service|sales\s+item/', $q)) {
-        return ['mode'=>'guided','answer'=>'Products & Services contains reusable invoice items. It is linked from both Receivables and Payables.','recommendedWorkflow'=>'customer_invoice','steps'=>[['title'=>'Open Products & Services','instruction'=>'Create or update a product/service, then select it from the invoice line dropdown.','actionKey'=>'nav.products_services']],'caution'=>'Only product-type items appear in the Inventory Report.'];
+        return ['mode'=>'guided','answer'=>'Products & Services contains reusable invoice items. It is linked from both Receivables and Payables.','recommendedWorkflow'=>'customer_invoice','steps'=>[['title'=>'Open Products & Services','instruction'=>'Create or update a product/service, then select it from the invoice line dropdown.','actionKey'=>'nav.products_services']],'caution'=>'Only product-type items appear in the Product Activity report.'];
     }
     if (preg_match('/customer\s+(?:payment|receipt)|accept\s+(?:a\s+)?payment|receive\s+(?:a\s+)?payment/', $q)) $workflow = 'customer_payment';
     elseif (preg_match('/vendor\s+payment|supplier\s+payment|pay\s+(?:a\s+)?(?:vendor|supplier|bill)/', $q)) $workflow = 'vendor_payment';

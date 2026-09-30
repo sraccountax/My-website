@@ -91,7 +91,7 @@
       ['Expense Register', () => openReport('Expense Register'), ['report-expense-register','expense-vouchers']],
     ],
     'Accounting': [
-      ['Inventory Report', () => portal()?.openInventoryReport?.(), ['report-inventory']],
+      ['Product Activity', () => portal()?.openInventoryReport?.(), ['report-inventory']],
     ],
     Banking: [
       ['Bank Reconciliation Summary', () => openReport('Bank Reconciliation Summary'), ['report-bank-reconciliation']],

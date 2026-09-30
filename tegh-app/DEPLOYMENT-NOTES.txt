@@ -1,7 +1,8 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R134 IONOS STAGING DEPLOYMENT
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R135 IONOS STAGING DEPLOYMENT
 
-This package contains every release through R134 (R118–R134 change notes are
-included). No manual database migration. R120's additive table
+This package contains every release through R135 (R118–R135 change notes are
+included). It is a STAGING CANDIDATE, not a production release
+(productionReady: false); see "Host acceptance" at the end. No manual database migration. R120's additive table
 accounting_note_lines is created automatically on first use of Credit & Debit
 Notes (the database user needs CREATE privilege, as for the original install).
 
@@ -26,7 +27,11 @@ Notes (the database user needs CREATE privilege, as for the original install).
    api/workspace_summary_v5610.php, and for R133 the new
    api/client_view_r133.php, api/index.php and api/portal.php. Upload the new
    client-view.html at the web root and the updated .htaccess.
-5. Upload all assets together; the cache token is r133-tegh. A partial upload can
+   For R135: api/accounting.php, api/advanced.php, api/payments.php,
+   api/invoice_documents_r20.php, api/professional_output_v5710.php,
+   api/report_output_v5980.php, api/ai_agent.php and api/ai_actions_v5600.php.
+5. Upload all assets together; the cache token is r135-tegh (client-view page:
+   5990-r135). A partial upload can
    leave browsers on a stale portal.
 6. DN-1001 was already posted once in the original staging data. Do NOT post it
    again.
@@ -77,10 +82,35 @@ Verify after upload
   UPDATE payroll_employees SET sin_ciphertext=NULL, sin_last_four=NULL;
   Older backups and database dumps taken before R130 may still contain SINs;
   store or delete them according to your retention policy.
+- R135 (BC, MB, QC or SK company registered for PST): a taxable invoice line to
+  a customer in the same province shows "Charge PST"; totals show GST/HST and
+  PST separately; after issuing, the journal credits 2100 and 2110 separately.
+  Settings > Company Details shows "How sales tax works for this company".
+  Reports > Product Activity replaces "Inventory Report".
 - In the browser console: window.TeghPortal exists.
 - Tegh Assist (top bar, also on phones): ask "who owes me money?" and the
   answer starts with a plain sentence ("Customers owe you $…") in about a second; "pay my supplier" opens Vendor
   Payments; "can I deduct my car" gives a plain answer.
 
-Full acceptance before production still needs: host PHP lint, real bank
-statement files, a restore test of a production backup, and review by the owner.
+Host acceptance (all open — none of these can be done from the build
+environment; record the result of each before any production decision)
+[ ] 1. Host PHP lint: run php -l on every file in api/ with the host's PHP
+       version; all must report "No syntax errors".
+[ ] 2. Serving-host file identity: after upload, run
+       sha256sum -c FILE-MANIFEST.sha256 in the web root (or compare hashes of
+       the uploaded files); every line must say OK.
+[ ] 3. Real statement files: import at least one real CSV/OFX statement per bank
+       account; check duplicates, Match and Post and a completed reconciliation
+       with a $0.00 unexplained difference.
+[ ] 4. Backup restore test: restore a copy of a production backup into a
+       separate staging database; confirm trial balance, AR/AP and GST/HST
+       balances match the source.
+[ ] 5. Live postings: issue one PST invoice (BC/MB/QC/SK company) and one
+       HST invoice; confirm journals (2100/2110), a credit note, and a customer
+       payment on the host database.
+[ ] 6. Signed-in browser check: as the owner, open a Client Viewing Link in a
+       private window, sign in with the emailed code and confirm the R134 charts
+       draw and match the reports (desktop and phone, light and dark).
+[ ] 7. Owner review of the R135 sales-tax wording and the Product Activity note.
+When all seven pass, set productionReady/acceptanceComplete in the three
+manifests only after the owner signs off.

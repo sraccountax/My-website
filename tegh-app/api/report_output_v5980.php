@@ -15,7 +15,7 @@ function tegh_report_definitions_5980(): array
         'cash-forecast'=>['Cash Forecast','reports.view','forecast','range','landscape'],
         'budget-vs-actual'=>['Budget Versus Actual','reports.view','budget','budget','landscape'],
         'fixed-assets'=>['Fixed Asset Schedule','reports.view','assets','current','landscape'],
-        'inventory'=>['Inventory Activity','reports.view','inventory','range','landscape'],
+        'inventory'=>['Product Activity','reports.view','inventory','range','landscape'],
         'day-book'=>['Day Book','journals.view','day_book','range','landscape'],
         'general-ledger'=>['General Ledger Detail','reports.view','ledger','range','landscape'],
         'gl-account-ledger'=>['General Ledger Account Report','reports.view','ledger','range','landscape'],

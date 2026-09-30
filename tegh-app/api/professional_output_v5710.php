@@ -98,6 +98,10 @@ function tegh_output_invoice_model(array $user,array $company,string $invoiceId)
     $foreignSubtotal=$invoiceCurrency===$baseCurrency&&(int)$invoice['foreign_subtotal_cents']===0&&(int)$invoice['subtotal_cents']!==0?(int)$invoice['subtotal_cents']:(int)$invoice['foreign_subtotal_cents'];
     $foreignTax=$invoiceCurrency===$baseCurrency&&(int)$invoice['foreign_tax_cents']===0&&(int)$invoice['tax_cents']!==0?(int)$invoice['tax_cents']:(int)$invoice['foreign_tax_cents'];
     $foreignBalance=$invoiceCurrency===$baseCurrency&&(int)$invoice['foreign_balance_cents']===0&&(int)$invoice['balance_cents']!==0?(int)$invoice['balance_cents']:(int)$invoice['foreign_balance_cents'];
+    // R135: show GST/HST and PST as separate lines when the invoice recorded PST.
+    $basePst=(int)($invoice['pst_cents']??0);$baseTax=(int)$invoice['tax_cents'];
+    $foreignPst=$basePst>0&&$baseTax>0?min($foreignTax,(int)round($foreignTax*$basePst/$baseTax)):0;
+    $pstLabel=match(strtoupper((string)($company['province']??''))){'QC'=>'QST','MB'=>'RST',default=>'PST'};
     $void=(string)$invoice['status']==='void';$paid=$void?0:max(0,$foreignTotal-$foreignBalance);$balanceDue=$void?0:$foreignBalance;
     $statusLabel=match((string)$invoice['status']){
         'draft'=>'Draft',
@@ -135,8 +139,9 @@ function tegh_output_invoice_model(array $user,array $company,string $invoiceId)
             ['key'=>'taxRateBps','label'=>'Tax','type'=>'rate_bps','width'=>8],['key'=>'lineTotalCents','label'=>'Line total','type'=>'money','width'=>14],
         ],
         'rows'=>$rows,
-        'totals'=>['subtotalCents'=>$foreignSubtotal,'discountCents'=>0,'taxCents'=>$foreignTax,'totalCents'=>$foreignTotal,
+        'totals'=>['subtotalCents'=>$foreignSubtotal,'discountCents'=>0]+($foreignPst>0?['gstHstCents'=>$foreignTax-$foreignPst,'pstCents'=>$foreignPst]:[])+['taxCents'=>$foreignTax,'totalCents'=>$foreignTotal,
             'paymentsCreditsCents'=>$paid,'balanceDueCents'=>$balanceDue],
+        'taxLabels'=>['gstHst'=>'GST/HST','pst'=>$pstLabel],
         'terms'=>!empty($template['showPaymentInstructions'])?(trim((string)($template['paymentInstructions']??''))?:null):null,
         'notes'=>trim((string)($template['footer']??''))?:null,
     ];

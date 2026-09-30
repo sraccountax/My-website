@@ -855,17 +855,36 @@ function handle_customers(): never
     json_response(['customer'=>['id'=>$id,'status'=>$values['status']]],200);
 }
 
-/* R119: invoice_posting_lines() credits all sales tax to 2100 GST/HST, so the
-   saved split must say the same. Credit and debit notes refuse to post against
-   an invoice whose GST/HST + PST does not equal its tax. */
-function invoice_record_tax_split(string $companyId, string $invoiceId, int $tax): void
+/* R135: customer-invoice sales tax is recorded and posted in two parts, the same
+   way bills are: GST/HST to 2100 and PST (or QST) to 2110. The saved split is
+   what credit/debit notes and cash-basis payments allocate from. */
+function invoice_record_tax_split(string $companyId, string $invoiceId, int $tax, int $pst = 0): void
 {
     if (!schema_column_exists('invoices', 'gst_hst_cents') || !schema_column_exists('invoices', 'pst_cents') || !schema_column_exists('invoices', 'tax_entry_mode')) return;
-    db()->prepare("UPDATE invoices SET gst_hst_cents=?, pst_cents=0, tax_entry_mode=? WHERE company_id=? AND id=?")
-        ->execute([max(0, $tax), $tax > 0 ? 'exclusive' : 'none', $companyId, $invoiceId]);
+    $tax = max(0, $tax); $pst = max(0, min($pst, $tax));
+    db()->prepare("UPDATE invoices SET gst_hst_cents=?, pst_cents=?, tax_entry_mode=? WHERE company_id=? AND id=?")
+        ->execute([$tax - $pst, $pst, $tax > 0 ? 'exclusive' : 'none', $companyId, $invoiceId]);
 }
 
-function invoice_posting_lines(string $companyId, int $subtotal, int $tax, int $total, ?array $calculatedLines = null, ?string $invoiceId = null): array
+/** Split a tax amount taken from an invoice in the invoice's own GST/HST : PST proportion. */
+function invoice_tax_parts(array $invoice, int $taxPortion): array
+{
+    $tax = (int)($invoice['tax_cents'] ?? 0); $pst = (int)($invoice['pst_cents'] ?? 0);
+    if ($taxPortion <= 0 || $tax <= 0 || $pst <= 0) return [max(0, $taxPortion), 0];
+    $pstPart = (int)round($taxPortion * min($pst, $tax) / $tax);
+    return [$taxPortion - $pstPart, $pstPart];
+}
+
+/** Credit lines for sales tax collected: GST/HST to 2100, PST to 2110. */
+function invoice_tax_credit_lines(string $companyId, int $gstHst, int $pst): array
+{
+    $lines = [];
+    if ($gstHst > 0) $lines[] = ['accountId' => account_by_code($companyId, '2100'), 'debitCents' => 0, 'creditCents' => $gstHst, 'memo' => 'GST/HST collected'];
+    if ($pst > 0) $lines[] = ['accountId' => account_by_code($companyId, '2110'), 'debitCents' => 0, 'creditCents' => $pst, 'memo' => 'PST collected'];
+    return $lines;
+}
+
+function invoice_posting_lines(string $companyId, int $subtotal, int $tax, int $total, ?array $calculatedLines = null, ?string $invoiceId = null, int $pst = 0): array
 {
     $revenue=[];
     if($calculatedLines!==null){
@@ -876,7 +895,8 @@ function invoice_posting_lines(string $companyId, int $subtotal, int $tax, int $
     if(!$revenue)$revenue=[account_by_code($companyId,'4000')=>$subtotal];
     $lines=[['accountId'=>account_by_code($companyId,'1200'),'debitCents'=>$total,'creditCents'=>0]];
     foreach($revenue as $account=>$amount)if($amount>0)$lines[]=['accountId'=>$account,'debitCents'=>0,'creditCents'=>$amount];
-    if($tax>0)$lines[]=['accountId'=>account_by_code($companyId,'2100'),'debitCents'=>0,'creditCents'=>$tax];
+    $pst=max(0,min($pst,$tax));
+    foreach(invoice_tax_credit_lines($companyId,$tax-$pst,$pst) as $line)$lines[]=$line;
     return $lines;
 }
 
@@ -911,6 +931,11 @@ $currencyRow = company_currency($companyId, $currency);
 if (!$currencyRow) fail('Add that currency to the company before using it on an invoice.');
 $exchangeRateMicros = safe_exchange_rate_micros($input['exchangeRateMicros'] ?? $currencyRow['rate_to_base_micros'], $currency, (string)$company['currency']);
 $supplyProvince = (string)($customer['province'] ?: $company['province']);
+// R135: PST/QST is charged on taxable lines when the company is registered for
+// it and the sale is in the company's own province. A line may switch it off
+// (for example a PST-exempt service) or on explicitly.
+$pstRateCompany = (bool)($company['pst_registered'] ?? false) ? (int)($company['pst_rate_bps'] ?? 0) : 0;
+$pstDefault = $pstRateCompany > 0 && strtoupper($supplyProvince) === strtoupper((string)$company['province']);
 $sourceLines = $input['lines'] ?? [[
     'description' => $input['description'] ?? '',
     'quantity' => $input['quantity'] ?? 0,
@@ -924,8 +949,10 @@ $calculatedLines = [];
 $taxOverrides = [];
 $foreignSubtotal = 0;
 $foreignTax = 0;
+$foreignPst = 0;
 $subtotal = 0;
 $tax = 0;
+$pst = 0;
 foreach (array_values($sourceLines) as $index => $line) {
     if (!is_array($line)) fail('An invoice line is invalid.');
     $description = clean_text($line['description'] ?? '', 'Line description', 500);
@@ -966,22 +993,36 @@ foreach (array_values($sourceLines) as $index => $line) {
             }
         }
     }
-    $foreignLineTax = (int)round(($foreignAmount * $taxRate) / 10000);
+    $pstRate = 0;
+    if (!empty($line['taxable'])) {
+        $pstRequested = array_key_exists('pst', $line) && $line['pst'] !== null && $line['pst'] !== '' ? filter_var($line['pst'], FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) : $pstDefault;
+        if ($pstRequested === null) fail('Line PST choice is invalid.', 422, 'invoice_pst_invalid');
+        if ($pstRequested && $pstRateCompany <= 0) fail('PST is not enabled in this company tax setup. Turn it on under Company Details first.', 409, 'pst_not_configured');
+        $pstRate = $pstRequested ? $pstRateCompany : 0;
+    }
+    $foreignLineGst = (int)round(($foreignAmount * $taxRate) / 10000);
+    $foreignLinePst = (int)round(($foreignAmount * $pstRate) / 10000);
+    $foreignLineTax = $foreignLineGst + $foreignLinePst;
     $baseAmount = convert_to_base_cents($foreignAmount, $exchangeRateMicros);
     $baseLineTotal = convert_to_base_cents($foreignAmount + $foreignLineTax, $exchangeRateMicros);
     $baseLineTax = $baseLineTotal - $baseAmount;
+    $baseLinePst = min($baseLineTax, convert_to_base_cents($foreignLinePst, $exchangeRateMicros));
     $calculatedLines[] = [
         'description' => $description, 'quantityMilli' => $quantityMilli,
         'foreignUnitPriceCents' => $foreignUnitPrice, 'foreignAmountCents' => $foreignAmount,
         'foreignTaxCents' => $foreignLineTax, 'unitPriceCents' => convert_to_base_cents($foreignUnitPrice, $exchangeRateMicros),
-        'amountCents' => $baseAmount, 'taxCents' => $baseLineTax, 'taxRateBps' => $taxRate,
+        'amountCents' => $baseAmount, 'taxCents' => $baseLineTax, 'taxRateBps' => $taxRate + $pstRate,
+        'gstHstRateBps' => $taxRate, 'pstRateBps' => $pstRate, 'gstHstCents' => $baseLineTax - $baseLinePst, 'pstCents' => $baseLinePst,
+        'foreignGstHstCents' => $foreignLineGst, 'foreignPstCents' => $foreignLinePst,
         'sortOrder' => $index, 'productServiceId' => $productServiceId !== '' ? $productServiceId : null,
         'incomeAccountId' => $incomeAccountId,
     ];
     $foreignSubtotal += $foreignAmount;
     $foreignTax += $foreignLineTax;
+    $foreignPst += $foreignLinePst;
     $subtotal += $baseAmount;
     $tax += $baseLineTax;
+    $pst += $baseLinePst;
 }
 $foreignTotal = $foreignSubtotal + $foreignTax;
 $total = $subtotal + $tax;
@@ -998,7 +1039,7 @@ if($importReference!==null){
     $dup=db()->prepare('SELECT 1 FROM invoices WHERE company_id=? AND import_reference=? AND id<>? LIMIT 1');$dup->execute([$companyId,$importReference,$excludeInvoiceId??'']);
     if($dup->fetchColumn())fail('That customer invoice import reference has already been used.',409,'duplicate_invoice_import_reference');
 }
-return compact('companyId','customerId','customer','issueDate','dueDate','issue','currency','exchangeRateMicros','calculatedLines','taxOverrides','foreignSubtotal','foreignTax','subtotal','tax','foreignTotal','total','templateId','template','templateSnapshot','customerSnapshot','purchaseOrder','importReference');
+return compact('companyId','customerId','customer','issueDate','dueDate','issue','currency','exchangeRateMicros','calculatedLines','taxOverrides','foreignSubtotal','foreignTax','foreignPst','subtotal','tax','pst','foreignTotal','total','templateId','template','templateSnapshot','customerSnapshot','purchaseOrder','importReference');
 }
 
 function create_invoice_record(array $user,array $company,array $input,string $source='manual'): array
@@ -1021,14 +1062,14 @@ db_transaction_retry(function () use (
     $subtotal, $tax, $total, $customerId, $dueDate, $status, $input,
     $currency, $exchangeRateMicros, $foreignSubtotal, $foreignTax,
     $foreignTotal, $purchaseOrder, $template, $templateSnapshot,
-    $customerSnapshot, $calculatedLines, $customer, $isRecurring, $importReference, $source, $taxOverrides
+    $customerSnapshot, $calculatedLines, $customer, $isRecurring, $importReference, $source, $taxOverrides, $pst
 ): void {
     if(function_exists('voucher_register_saved'))voucher_register_saved($user,$companyId,'CI','AR','invoice',$id,$issueDate,'Customer invoice '.$number,$total,null,false);
     $lineDescriptions = array_map(static fn(array $line): string => (string)$line['description'], $calculatedLines);
     $entryId = $issue && (string)$company['accounting_basis'] === 'accrual'
         ? add_journal_entry($user, $companyId, $issueDate, 'invoice', $id,
             invoice_posting_description((string)$customer['name'], $number, $issueDate, $lineDescriptions),
-            invoice_posting_lines($companyId,$subtotal,$tax,$total,$calculatedLines))
+            invoice_posting_lines($companyId,$subtotal,$tax,$total,$calculatedLines,null,$pst))
         : null;
     db()->prepare('INSERT INTO invoices (id, company_id, customer_id, number, issue_date, due_date, status,
         subtotal_cents, tax_cents, total_cents, balance_cents, message, currency, exchange_rate_micros,
@@ -1042,7 +1083,7 @@ db_transaction_retry(function () use (
             json_encode($templateSnapshot, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
             json_encode($customerSnapshot, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
             $entryId, $isRecurring ? 1 : 0]);
-    invoice_record_tax_split($companyId, $id, $tax);
+    invoice_record_tax_split($companyId, $id, $tax, $pst);
     $lineStmt = db()->prepare('INSERT INTO invoice_lines
         (id,invoice_id,product_service_id,income_account_id,description,quantity_milli,unit_price_cents,tax_rate_bps,amount_cents,tax_cents,
          foreign_unit_price_cents,foreign_amount_cents,foreign_tax_cents,sort_order)
@@ -1103,7 +1144,7 @@ function handle_invoices(): never
                     $lineDescriptions = array_map('strval', $lineStmt->fetchAll(PDO::FETCH_COLUMN));
                     $entryId = add_journal_entry($user, $companyId, (string)$invoice['issue_date'], 'invoice', $invoiceId,
                         invoice_posting_description((string)$invoice['customer_name'], (string)$invoice['number'], (string)$invoice['issue_date'], $lineDescriptions),
-                        invoice_posting_lines($companyId,(int)$invoice['subtotal_cents'],(int)$invoice['tax_cents'],(int)$invoice['total_cents'],null,$invoiceId));
+                        invoice_posting_lines($companyId,(int)$invoice['subtotal_cents'],(int)$invoice['tax_cents'],(int)$invoice['total_cents'],null,$invoiceId,(int)($invoice['pst_cents']??0)));
                 }
                 db()->prepare("UPDATE invoices SET status = 'sent', issued_journal_entry_id = ? WHERE id = ? AND status = 'draft'")->execute([$entryId, $invoiceId]);
                 if (function_exists('voucher_mark_posted')) voucher_mark_posted($user, $companyId, 'invoice', $invoiceId, $entryId);
@@ -1356,9 +1397,8 @@ function bank_transaction_post_service_once(array $user, array $company, array $
                         ['accountId' => $bankLedgerId, 'debitCents' => $amount, 'creditCents' => 0],
                         ['accountId' => $decidedAccount, 'debitCents' => 0, 'creditCents' => $revenuePortion],
                     ];
-                    if ($taxPortion > 0) {
-                        $lines[] = ['accountId' => account_by_code($companyId, '2100'), 'debitCents' => 0, 'creditCents' => $taxPortion];
-                    }
+                    [$gstPart, $pstPart] = invoice_tax_parts($invoice, $taxPortion);
+                    foreach (invoice_tax_credit_lines($companyId, $gstPart, $pstPart) as $taxLine) $lines[] = $taxLine;
                 }
                 $entryId = add_journal_entry($user, $companyId, (string)$transaction['transaction_date'], 'bank_transaction', $transactionId, 'Payment matched to ' . $invoice['number'], $lines);
                 db()->prepare("UPDATE bank_transactions SET decided_account_id = ?, tax_code = 'NO_TAX', suggestion_source = 'manual', status = 'posted', journal_entry_id = ? WHERE id = ? AND status = 'pending'")
@@ -1849,7 +1889,7 @@ function handle_bank_transaction_reassign(): never
                     ['accountId'=>$bankLedgerId,'debitCents'=>$amount,'creditCents'=>0],
                     ['accountId'=>$decidedAccount,'debitCents'=>0,'creditCents'=>$revenuePortion],
                 ];
-                if ($taxPortion > 0) $replacement[]=['accountId'=>account_by_code($companyId,'2100'),'debitCents'=>0,'creditCents'=>$taxPortion];
+                [$gstPart,$pstPart]=invoice_tax_parts($invoice,$taxPortion);foreach(invoice_tax_credit_lines($companyId,$gstPart,$pstPart) as $taxLine)$replacement[]=$taxLine;
             }
             $correctionLines = bank_reassignment_lines($companyId,$transaction,$bankLedgerId,$replacement);
             if (count($correctionLines) >= 2) {
