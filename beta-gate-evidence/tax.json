@@ -1,0 +1,184 @@
+[
+ {
+  "id": "QT-01",
+  "area": "TAX",
+  "title": "QC company invoice $1,000: GST $50 → 2100, QST $99.75 → 2115",
+  "status": "PASS",
+  "evidence": "{\"1200\":114975,\"2100\":-5000,\"2115\":-9975,\"4000\":-100000}"
+ },
+ {
+  "id": "QT-02",
+  "area": "TAX",
+  "title": "QC bill $500: GST ITC $25.00 → 1100, QST ITR $49.88 (49.875 rounded half-up) → 1115; AP $574.88",
+  "status": "PASS",
+  "evidence": "{\"1100\":2500,\"1115\":4988,\"2050\":-57488,\"6000\":50000}"
+ },
+ {
+  "id": "QT-03",
+  "area": "TAX",
+  "title": "QC statement import (2 rows)",
+  "status": "PASS",
+  "evidence": "201 {\"batch\":{\"id\":\"import_8db4b6c1ddadc21e980006c295231e53\",\"status\":\"needs_review\",\"rowCount\":2,\"selec"
+ },
+ {
+  "id": "QT-04a",
+  "area": "TAX",
+  "title": "Remittance with period end after the payment date refused",
+  "status": "PASS",
+  "evidence": "[422,\"sales_tax_period_invalid\"]"
+ },
+ {
+  "id": "QT-04",
+  "area": "TAX",
+  "title": "QST remittance $49.87: Dr 2115 $99.75, Cr 1115 $49.88, Cr bank $49.87",
+  "status": "PASS",
+  "evidence": "[200,{\"1000\":-4987,\"1115\":-4988,\"2115\":9975}]"
+ },
+ {
+  "id": "QT-05",
+  "area": "TAX",
+  "title": "After QST remittance: 2115 = $0.00 and 1115 = $0.00",
+  "status": "PASS",
+  "evidence": "[0,0]"
+ },
+ {
+  "id": "QT-06",
+  "area": "TAX",
+  "title": "GST remittance $25.00: Dr 2100 $50, Cr 1100 $25, Cr bank $25; 2100 and 1100 back to $0",
+  "status": "PASS",
+  "evidence": "[200,{\"1000\":-2500,\"1100\":-2500,\"2100\":5000},0,0]"
+ },
+ {
+  "id": "QT-07",
+  "area": "TAX",
+  "title": "GST/HST (tax) Summary report includes QST accounts 2115 and 1115",
+  "status": "PASS",
+  "evidence": "status 200 codes \"code\":\"1100\" \"code\":\"1110\" \"code\":\"1115\" \"code\":\"2100\" \"code\":\"2110\" \"code\":\"2115\""
+ },
+ {
+  "id": "CG-01",
+  "area": "TAX",
+  "title": "Create custom tax accounts 2120/1120",
+  "status": "PASS",
+  "evidence": "201/201 {\"account\":{\"id\":\"account_4ae2ddc34b620a27982b74eba6a074a3\",\"gifiCode\":null}}"
+ },
+ {
+  "id": "CG-02",
+  "area": "TAX",
+  "title": "Starter ON code edited to post HST to custom 2120/1120",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "CG-03",
+  "area": "TAX",
+  "title": "ON invoice $200: HST $26.00 → 2120 (custom), nothing to 2100",
+  "status": "PASS",
+  "evidence": "{\"1200\":22600,\"2120\":-2600,\"4000\":-20000}"
+ },
+ {
+  "id": "CG-04",
+  "area": "TAX",
+  "title": "ON bill $100: HST ITC $13.00 → 1120 (custom)",
+  "status": "PASS",
+  "evidence": "{\"1120\":1300,\"2050\":-11300,\"6000\":10000}"
+ },
+ {
+  "id": "CG-05",
+  "area": "TAX",
+  "title": "Trial Balance shows 2120 Cr $26.00 and 1120 Dr $13.00",
+  "status": "PASS",
+  "evidence": "[2600,1300]"
+ },
+ {
+  "id": "CG-06",
+  "area": "TAX",
+  "title": "General Ledger for 2120 lists the $26.00 credit",
+  "status": "PASS",
+  "evidence": "status 200 {\"currency\":\"CAD\",\"start\":\"2026-01-01\",\"end\":\"2026-09-30\",\"account\":{\"id\":\"account_4ae2ddc34b620a27982b74eba6a074a3\",\"code\":\"2120\",\"name\":\"HST Payable (custom)\""
+ },
+ {
+  "id": "CG-07",
+  "area": "TAX",
+  "title": "Tax Summary report includes custom 2120 ($26.00) and 1120 ($13.00)",
+  "status": "PASS",
+  "evidence": "status 200"
+ },
+ {
+  "id": "CG-08",
+  "area": "TAX",
+  "title": "Dashboard tax card reports custom-account HST: other tax accounts net $13.00 owed (2120 $26 − 1120 $13)",
+  "status": "PASS",
+  "evidence": "\"gstHstCollectedCents\":0 \"gstHstRecoverableCents\":0 \"gstHstNetCents\":0 \"pstPayableCents\":0 \"pstRecoverableCents\":0 \"qstPayableCents\":0 \"qstRecoverableCents\":0"
+ },
+ {
+  "id": "NR-01",
+  "area": "TAX",
+  "title": "Company NOT registered for GST/HST: default taxable invoice line charges no GST/PST",
+  "status": "PASS",
+  "evidence": "starter codes=14 mode=codes journal={\"1200\":10000,\"4000\":-10000}"
+ },
+ {
+  "id": "NR-02",
+  "area": "TAX",
+  "title": "Unregistered company: $100 bill with BC code — GST $5 and PST $7 added to cost ($112), no ITC",
+  "status": "PASS",
+  "evidence": "{\"2050\":-11200,\"6000\":11200}"
+ },
+ {
+  "id": "NR-03",
+  "area": "TAX",
+  "title": "Unregistered company: a code chosen explicitly on the line is still applied (GST $5)",
+  "status": "PASS",
+  "evidence": "{\"1200\":10500,\"2100\":-500,\"4000\":-10000}"
+ },
+ {
+  "id": "CB-01",
+  "area": "TAX",
+  "title": "Cash basis: receipt of $565 (half) recognises HST $65.00 in 2100 and revenue $500",
+  "status": "PASS",
+  "evidence": "[-6500,-50000]"
+ },
+ {
+  "id": "CB-02",
+  "area": "TAX",
+  "title": "Cash basis: invoice issue posting recorded for review",
+  "status": "INFO",
+  "evidence": "{}"
+ },
+ {
+  "id": "FX-01",
+  "area": "FX",
+  "title": "Add USD at 1.35",
+  "status": "PASS",
+  "evidence": "201"
+ },
+ {
+  "id": "FX-01b",
+  "area": "FX",
+  "title": "Add USD bank account",
+  "status": "PASS",
+  "evidence": "201 {\"bankAccount\":{\"id\":\"bank_bec1b5391fdda47dba122d793548e534\",\"accountType\":\"bank\",\"accountSubtype\":\"chequing\"}}"
+ },
+ {
+  "id": "FX-02",
+  "area": "FX",
+  "title": "USD 1,000 invoice at 1.35: revenue CAD $1,350.00, GST CAD $67.50, AR CAD $1,417.50",
+  "status": "PASS",
+  "evidence": "[201,{\"1200\":141750,\"2100\":-6750,\"4000\":-135000}]"
+ },
+ {
+  "id": "FX-03",
+  "area": "FX",
+  "title": "USD 1,050 receipt at 1.40: bank CAD $1,470.00, AR −$1,417.50, FX gain $52.50",
+  "status": "PASS",
+  "evidence": "201 {\"payment\":{\"id\":\"payment_3da5d69bf680b9eff41d6dd573646748\",\"type\":\"customer\",\"flowKind\":\"customer_receipt\",\"status\":\"po lines: 1010\t147000\t0 | 1200\t0\t141750 | 6850\t0\t5250"
+ },
+ {
+  "id": "FX-04",
+  "area": "FX",
+  "title": "USD invoice fully settled (foreign balance 0)",
+  "status": "PASS",
+  "evidence": "\"0\""
+ }
+]
