@@ -141,6 +141,23 @@ function note_posting_lines(string $companyId,array $company,array $note,array $
 {
     $kind=(string)$note['note_kind'];$net=$carrying-(int)$note['tax_cents'];$tax=(int)$note['tax_cents'];
     if($net<=0)fail('The note amount is too small for its tax at the original exchange rate.',409,'note_tax_rounding_invalid');
+    // R137: when the original document saved tax-code components, the note's
+    // tax is split across those components and posts to each one's account.
+    $isCustomer=in_array($kind,['customer_debit','customer_credit'],true);
+    $rows=function_exists('document_tax_rows_get')?document_tax_rows_get($companyId,$isCustomer?'invoice':'bill',(string)$source['id']):[];
+    if($rows&&$tax>0){
+        $part=tax_rows_portion($rows,$tax);
+        if($isCustomer){
+            $increase=$kind==='customer_debit';
+            $result=[['accountId'=>note_control_account_id($companyId,true),'debitCents'=>$increase?$carrying:0,'creditCents'=>$increase?0:$carrying,'memo'=>'Accounts receivable']];
+            $result=array_merge($result,note_customer_revenue_lines($companyId,(string)$source['id'],$net,!$increase));
+            return array_merge($result,tax_rows_sales_lines($companyId,$part,!$increase));
+        }
+        $purchase=tax_rows_purchase_lines($companyId,$part,true);
+        $result=[['accountId'=>note_control_account_id($companyId,false),'debitCents'=>$carrying,'creditCents'=>0,'memo'=>'Accounts payable']];
+        $result[]=['accountId'=>(string)$source['category_account_id'],'debitCents'=>0,'creditCents'=>$net+$purchase['costCents'],'memo'=>'Original vendor invoice cost adjustment'];
+        return array_merge($result,$purchase['lines']);
+    }
     $sourceTax=(int)$source['tax_cents'];$sourceGst=(int)$source['gst_hst_cents'];$sourcePst=(int)$source['pst_cents'];
     if($tax>0&&($sourceTax<=0||$sourceGst+$sourcePst!==$sourceTax))
         fail('The original invoice tax split must be reconciled before this note can be posted.',409,'note_source_tax_unclassified');
@@ -225,6 +242,7 @@ function note_issue(array $user,array $company,array $note,bool $leaveOpen=false
         $pst=(int)$note['tax_cents']-$gst;
         db()->prepare("INSERT INTO invoices(id,company_id,customer_id,number,issue_date,due_date,status,subtotal_cents,gst_hst_cents,pst_cents,tax_cents,tax_entry_mode,total_cents,balance_cents,message,currency,exchange_rate_micros,foreign_subtotal_cents,foreign_tax_cents,foreign_total_cents,foreign_balance_cents,issued_journal_entry_id,template_snapshot_json,customer_snapshot_json) VALUES(?,?,?,?,?,?,'sent',?,?,?,?,'exclusive',?,?,?,?,?,?,?,?,?,?,?,?)")
             ->execute([$debitDocumentId,$companyId,$customerId,$note['number'],$note['note_date'],$dueDate,$carrying-(int)$note['tax_cents'],$gst,$pst,(int)$note['tax_cents'],$carrying,$carrying,'Debit note for invoice '.(string)$source['number'].' · '.(string)$note['memo'],$note['currency'],$note['exchange_rate_micros'],$note['foreign_subtotal_cents'],$note['foreign_tax_cents'],$note['foreign_total_cents'],$note['foreign_total_cents'],$journal,$source['template_snapshot_json']??null,$source['customer_snapshot_json']??null]);
+        if(function_exists('document_tax_rows_get')&&(int)$note['tax_cents']>0){$srcRows=document_tax_rows_get($companyId,'invoice',(string)$source['id']);if($srcRows)document_tax_rows_save($companyId,'invoice',$debitDocumentId,tax_rows_portion($srcRows,(int)$note['tax_cents'],(int)$note['foreign_tax_cents']));}
         $q=db()->prepare('SELECT income_account_id FROM invoice_lines WHERE invoice_id=? ORDER BY sort_order,id LIMIT 1');$q->execute([(string)$source['id']]);$income=$q->fetchColumn()?:null;
         $rateBps=(int)round(10000*(int)$note['foreign_tax_cents']/max(1,(int)$note['foreign_subtotal_cents']));
         db()->prepare('INSERT INTO invoice_lines(id,invoice_id,income_account_id,description,quantity_milli,unit_price_cents,tax_rate_bps,amount_cents,tax_cents,foreign_unit_price_cents,foreign_amount_cents,foreign_tax_cents) VALUES(?,?,?,?,1000,?,?,?,?, ?,?,?)')

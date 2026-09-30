@@ -238,6 +238,37 @@ function bill_posting_lines(string $companyId, string $categoryAccountId, int $s
     return $lines;
 }
 
+/** R137: vendor invoice posting from tax-code components. */
+function bill_posting_lines_rows(string $companyId, string $categoryAccountId, int $subtotal, array $taxRows, int $total): array
+{
+    $purchase = tax_rows_purchase_lines($companyId, $taxRows);
+    $lines = [['accountId' => $categoryAccountId, 'debitCents' => $subtotal + $purchase['costCents'], 'creditCents' => 0, 'memo' => 'Vendor invoice net' . ($purchase['costCents'] > 0 ? ' + non-recoverable tax' : '')]];
+    foreach ($purchase['lines'] as $l) $lines[] = $l;
+    $lines[] = ['accountId' => account_by_code($companyId, '2050'), 'debitCents' => 0, 'creditCents' => $total, 'memo' => 'Accounts payable'];
+    return $lines;
+}
+
+/** Posting lines for a saved bill: tax-code components when saved, else the legacy GST/HST + PST rule. */
+function bill_saved_posting_lines(string $companyId, array $company, array $bill): array
+{
+    $rows = function_exists('document_tax_rows_get') ? document_tax_rows_get($companyId, 'bill', (string)$bill['id']) : [];
+    if ($rows || (function_exists('tax_setup_mode') && tax_setup_mode($company) === 'codes' && (int)$bill['tax_cents'] === 0)) return bill_posting_lines_rows($companyId, (string)$bill['category_account_id'], (int)$bill['subtotal_cents'], $rows, (int)$bill['total_cents']);
+    $fx = bill_fx_rounding_cents((int)$bill['foreign_subtotal_cents'], (int)$bill['foreign_gst_hst_cents'], (int)$bill['foreign_pst_cents'], (int)$bill['exchange_rate_micros'], (int)$bill['total_cents']);
+    return bill_posting_lines($companyId, (string)$bill['category_account_id'], (int)$bill['subtotal_cents'], (int)$bill['gst_hst_cents'], (int)$bill['pst_cents'], (int)$bill['total_cents'], (bool)($company['pst_recoverable'] ?? false), $fx);
+}
+
+/** R137: cash-basis recognition of a bill's tax-code components for an applied amount, or null for legacy bills. */
+function bill_tax_recognition_lines(string $companyId, array $bill, int $amount): ?array
+{
+    $rows = function_exists('document_tax_rows_get') ? document_tax_rows_get($companyId, 'bill', (string)$bill['id']) : [];
+    if (!$rows) return null;
+    $foreignTotal = max(1, (int)$bill['foreign_total_cents']);
+    $foreignTax = array_sum(array_map(static fn(array $r): int => (int)$r['foreignTaxCents'], $rows));
+    $taxPortion = min($amount, (int)round($amount * $foreignTax / $foreignTotal));
+    $p = tax_rows_purchase_lines($companyId, tax_rows_portion($rows, $taxPortion));
+    return array_merge([['accountId' => (string)$bill['category_account_id'], 'debitCents' => $amount - $taxPortion + $p['costCents'], 'creditCents' => 0, 'memo' => (string)$bill['number']]], $p['lines']);
+}
+
 function bill_fx_rounding_cents(int $foreignSubtotal,int $foreignGst,int $foreignPst,int $rateMicros,int $convertedTotal): int
 {
     $independent=convert_to_base_cents($foreignSubtotal,$rateMicros)
@@ -302,6 +333,27 @@ function bill_input_values(array $company, array $input): array
     $currencyRow=company_currency($companyId,$currency);if(!$currencyRow)fail('Add that currency to the company before using it on a vendor invoice.');
     $rate=safe_exchange_rate_micros($input['exchangeRateMicros']??$currencyRow['rate_to_base_micros'],$currency,(string)$company['currency']);
 
+    if(function_exists('tax_setup_mode')&&tax_setup_mode($company)==='codes'){
+        // R137: the vendor invoice's tax code decides each tax, whether it is
+        // recoverable (posted to its purchase GL) or becomes part of the cost.
+        $code=null;
+        if(array_key_exists('taxCodeId',$input)&&$input['taxCodeId']!==null){$wanted=trim((string)$input['taxCodeId']);if($wanted!==''){$code=tax_code_get($companyId,$wanted);if(!$code)fail('The selected tax code is no longer active. Choose another.',422,'tax_code_unavailable');}}
+        elseif(($input['taxEntryMode']??'none')!=='none')$code=tax_code_for_region($companyId,(string)$company['province']);
+        $mode=(string)($input['taxEntryMode']??'exclusive');if(!in_array($mode,['exclusive','inclusive','none'],true))fail('Choose a valid tax entry mode.');
+        if(!$code)$mode='none';
+        $foreignInput=safe_cents($input['foreignAmountCents']??$input['foreignSubtotalCents']??0,'Vendor invoice amount');
+        if($foreignInput<0)fail('Vendor invoice amount must be positive.');
+        $calc=$code?tax_code_compute($code,$foreignInput,$mode):['net'=>$foreignInput,'gross'=>$foreignInput,'tax'=>0,'parts'=>[]];
+        $foreignSubtotal=(int)$calc['net'];$foreignTotal=(int)$calc['gross'];
+        $subtotal=convert_to_base_cents($foreignSubtotal,$rate);$total=convert_to_base_cents($foreignTotal,$rate);
+        $taxRows=[];if($code)tax_rows_add($taxRows,$code,$calc['parts'],tax_allocate($total-$subtotal,$calc['parts']),$subtotal,'purchase');
+        $taxRows=array_values($taxRows);
+        [$gst,$pst]=tax_rows_buckets($companyId,$taxRows);$taxTotal=$gst+$pst;
+        $foreignGst=0;$foreignPst=0;
+        foreach($taxRows as $r){[$rowGst]=tax_rows_buckets($companyId,[['accountId'=>$r['accountId'],'taxCents'=>1]]);if($rowGst>0)$foreignGst+=(int)$r['foreignTaxCents'];else $foreignPst+=(int)$r['foreignTaxCents'];}
+        $gstRate=0;$pstRate=0;$fxRounding=0;$codesMode=true;$taxCodeId=$code['id']??null;
+        return compact('vendorId','vendor','productServiceId','productService','quantityMilli','number','billDate','termsDays','dueDate','categoryId','category','currency','rate','mode','gstRate','pstRate','foreignSubtotal','foreignGst','foreignPst','foreignTotal','subtotal','gst','pst','taxTotal','total','fxRounding','taxRows','codesMode','taxCodeId')+['memo'=>optional_text($input['memo']??null,500)??''];
+    }
     $legacyTaxable=!empty($input['taxable']);
     $mode=(string)($input['taxEntryMode']??($legacyTaxable?'exclusive':'none'));
     $gstEnabled=array_key_exists('applyGstHst',$input)?!empty($input['applyGstHst']):$legacyTaxable;
@@ -344,9 +396,10 @@ if($importReference!==null){$dup=db()->prepare('SELECT 1 FROM bills WHERE compan
 if($issue)assert_period_open($companyId,$v['billDate']);$id=new_id('bill');$requiresApproval=$issue&&$v['total']>company_materiality_threshold_cents($companyId);$requestedStatus=$requiresApproval?'draft':($issue?'open':'draft');$ownsTransaction=!db()->inTransaction();if($ownsTransaction)db()->beginTransaction();
 try{
     if(function_exists('voucher_register_saved'))voucher_register_saved($user,$companyId,'VI','AP','bill',$id,$v['billDate'],'Vendor invoice '.$v['number'],$v['total'],null,false);
-    $entryId=null;if($issue&&!$requiresApproval&&(string)$company['accounting_basis']==='accrual')$entryId=add_journal_entry($user,$companyId,$v['billDate'],'bill',$id,bill_posting_description((string)$v['vendor']['name'],$v['number'],$v['billDate'],(string)$v['category']['name']),bill_posting_lines($companyId,$v['categoryId'],$v['subtotal'],$v['gst'],$v['pst'],$v['total'],(bool)($company['pst_recoverable']??false),(int)$v['fxRounding']));
+    $entryId=null;if($issue&&!$requiresApproval&&(string)$company['accounting_basis']==='accrual')$entryId=add_journal_entry($user,$companyId,$v['billDate'],'bill',$id,bill_posting_description((string)$v['vendor']['name'],$v['number'],$v['billDate'],(string)$v['category']['name']),(!empty($v['codesMode'])?bill_posting_lines_rows($companyId,$v['categoryId'],$v['subtotal'],$v['taxRows'],$v['total']):bill_posting_lines($companyId,$v['categoryId'],$v['subtotal'],$v['gst'],$v['pst'],$v['total'],(bool)($company['pst_recoverable']??false),(int)$v['fxRounding'])));
     db()->prepare("INSERT INTO bills (id,company_id,vendor_id,product_service_id,quantity_milli,number,bill_date,due_date,status,category_account_id,payment_terms_days,subtotal_cents,gst_hst_cents,pst_cents,tax_cents,tax_entry_mode,total_cents,balance_cents,currency,exchange_rate_micros,foreign_subtotal_cents,foreign_gst_hst_cents,foreign_pst_cents,foreign_tax_cents,foreign_total_cents,foreign_balance_cents,memo,import_reference,issued_journal_entry_id,is_recurring) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
       ->execute([$id,$companyId,$v['vendorId'],$v['productServiceId'],$v['quantityMilli'],$v['number'],$v['billDate'],$v['dueDate'],$requestedStatus,$v['categoryId'],$v['termsDays'],$v['subtotal'],$v['gst'],$v['pst'],$v['taxTotal'],$v['mode'],$v['total'],$v['total'],$v['currency'],$v['rate'],$v['foreignSubtotal'],$v['foreignGst'],$v['foreignPst'],$v['foreignGst']+$v['foreignPst'],$v['foreignTotal'],$v['foreignTotal'],$v['memo'],$importReference,$entryId,$isRecurring?1:0]);
+    if(!empty($v['codesMode'])){document_tax_rows_save($companyId,'bill',$id,$v['taxRows']);db()->prepare('UPDATE bills SET tax_code_id=? WHERE id=? AND company_id=?')->execute([$v['taxCodeId'],$id,$companyId]);}
     $approvalId=null;
     if($requiresApproval){$billRow=['id'=>$id,'company_id'=>$companyId,'vendor_id'=>$v['vendorId'],'number'=>$v['number'],'bill_date'=>$v['billDate'],'due_date'=>$v['dueDate'],'category_account_id'=>$v['categoryId'],'subtotal_cents'=>$v['subtotal'],'gst_hst_cents'=>$v['gst'],'pst_cents'=>$v['pst'],'tax_cents'=>$v['taxTotal'],'total_cents'=>$v['total'],'currency'=>$v['currency'],'exchange_rate_micros'=>$v['rate'],'foreign_total_cents'=>$v['foreignTotal'],'memo'=>$v['memo']];$approvalId=bill_submit_for_approval($user,$companyId,$billRow);}
     if($issue&&!$requiresApproval&&function_exists('voucher_mark_posted'))voucher_mark_posted($user,$companyId,'bill',$id,$entryId);
@@ -379,7 +432,7 @@ function bill_approval_transition(array $user,array $company,string $billId,stri
         if(!hash_equals((string)$bill['approved_by'],(string)$user['id']))fail('The approving user must complete the final posting step.',409,'bill_approver_post_required');
         assert_not_future_date((string)$bill['bill_date'],'Vendor invoice date');assert_vendor_invoice_on_or_after_books_start($company,(string)$bill['bill_date']);assert_period_open($companyId,(string)$bill['bill_date']);
         $fxRounding=bill_fx_rounding_cents((int)$bill['foreign_subtotal_cents'],(int)$bill['foreign_gst_hst_cents'],(int)$bill['foreign_pst_cents'],(int)$bill['exchange_rate_micros'],(int)$bill['total_cents']);
-        $entryId=null;if((string)$company['accounting_basis']==='accrual')$entryId=add_journal_entry($user,$companyId,(string)$bill['bill_date'],'bill',$billId,bill_posting_description((string)$bill['vendor_name'],(string)$bill['number'],(string)$bill['bill_date'],(string)$bill['category_name']),bill_posting_lines($companyId,(string)$bill['category_account_id'],(int)$bill['subtotal_cents'],(int)$bill['gst_hst_cents'],(int)$bill['pst_cents'],(int)$bill['total_cents'],(bool)($company['pst_recoverable']??false),$fxRounding));
+        $entryId=null;if((string)$company['accounting_basis']==='accrual')$entryId=add_journal_entry($user,$companyId,(string)$bill['bill_date'],'bill',$billId,bill_posting_description((string)$bill['vendor_name'],(string)$bill['number'],(string)$bill['bill_date'],(string)$bill['category_name']),bill_saved_posting_lines($companyId,$company,$bill));
         $updated=$pdo->prepare("UPDATE bills SET status='open',issued_journal_entry_id=? WHERE id=? AND company_id=? AND status='approved'");$updated->execute([$entryId,$billId,$companyId]);
         if($updated->rowCount()!==1)fail('The vendor invoice changed during posting.',409,'bill_post_conflict');
         $pdo->prepare("UPDATE journal_approvals SET status='posted',journal_entry_id=?,posted_at=UTC_TIMESTAMP() WHERE id=? AND company_id=? AND status='approved'")->execute([$entryId,$bill['approval_id'],$companyId]);
@@ -414,6 +467,7 @@ function handle_bills(): never
                 if((string)$status!=='draft')fail('Posted vendor invoices cannot be silently rewritten. Void/reverse the posting and enter the corrected transaction.',409,'posted_bill_edit_blocked');
                 db()->prepare("UPDATE bills SET vendor_id=?,product_service_id=?,quantity_milli=?,number=?,bill_date=?,due_date=?,category_account_id=?,payment_terms_days=?,subtotal_cents=?,gst_hst_cents=?,pst_cents=?,tax_cents=?,tax_entry_mode=?,total_cents=?,balance_cents=?,currency=?,exchange_rate_micros=?,foreign_subtotal_cents=?,foreign_gst_hst_cents=?,foreign_pst_cents=?,foreign_tax_cents=?,foreign_total_cents=?,foreign_balance_cents=?,memo=? WHERE id=? AND company_id=? AND status='draft'")
                   ->execute([$v['vendorId'],$v['productServiceId'],$v['quantityMilli'],$v['number'],$v['billDate'],$v['dueDate'],$v['categoryId'],$v['termsDays'],$v['subtotal'],$v['gst'],$v['pst'],$v['taxTotal'],$v['mode'],$v['total'],$v['total'],$v['currency'],$v['rate'],$v['foreignSubtotal'],$v['foreignGst'],$v['foreignPst'],$v['foreignGst']+$v['foreignPst'],$v['foreignTotal'],$v['foreignTotal'],$v['memo'],$billId,$companyId]);
+                if(!empty($v['codesMode'])){document_tax_rows_save($companyId,'bill',$billId,$v['taxRows']);db()->prepare('UPDATE bills SET tax_code_id=? WHERE id=? AND company_id=?')->execute([$v['taxCodeId'],$billId,$companyId]);}
                 if(function_exists('voucher_update_saved'))voucher_update_saved($companyId,'bill',$billId,$v['billDate'],'Vendor invoice '.$v['number'],$v['total']);
                 audit_event($user,$companyId,'bill.draft_updated','bill',$billId,['number'=>$v['number'],'totalCents'=>$v['total'],'taxEntryMode'=>$v['mode'],'gstHstCents'=>$v['gst'],'pstCents'=>$v['pst']]);db()->commit();
             }catch(Throwable $e){if(db()->inTransaction())db()->rollBack();if($e instanceof PDOException&&(string)$e->getCode()==='23000')fail('That vendor invoice number already exists.',409,'duplicate_bill_number');throw $e;}
@@ -428,7 +482,7 @@ function handle_bills(): never
                 db()->commit();json_response(['bill'=>['id'=>$billId,'status'=>'submitted_for_approval','approvalId'=>$approvalId,'approvalRequired'=>true]],202);
             }
             $fxRounding=bill_fx_rounding_cents((int)$bill['foreign_subtotal_cents'],(int)$bill['foreign_gst_hst_cents'],(int)$bill['foreign_pst_cents'],(int)$bill['exchange_rate_micros'],(int)$bill['total_cents']);
-            $entryId=null;if((string)$company['accounting_basis']==='accrual')$entryId=add_journal_entry($user,$companyId,(string)$bill['bill_date'],'bill',$billId,bill_posting_description((string)$bill['vendor_name'],(string)$bill['number'],(string)$bill['bill_date'],(string)$bill['category_name']),bill_posting_lines($companyId,(string)$bill['category_account_id'],(int)$bill['subtotal_cents'],(int)$bill['gst_hst_cents'],(int)$bill['pst_cents'],(int)$bill['total_cents'],(bool)($company['pst_recoverable']??false),$fxRounding));
+            $entryId=null;if((string)$company['accounting_basis']==='accrual')$entryId=add_journal_entry($user,$companyId,(string)$bill['bill_date'],'bill',$billId,bill_posting_description((string)$bill['vendor_name'],(string)$bill['number'],(string)$bill['bill_date'],(string)$bill['category_name']),bill_saved_posting_lines($companyId,$company,$bill));
             db()->prepare("UPDATE bills SET status='open',issued_journal_entry_id=? WHERE id=? AND status='draft'")->execute([$entryId,$billId]);if(function_exists('voucher_mark_posted'))voucher_mark_posted($user,$companyId,'bill',$billId,$entryId);
             audit_event($user,$companyId,'bill.issued','bill',$billId,['number'=>(string)$bill['number'],'totalCents'=>(int)$bill['total_cents'],'journalEntryId'=>$entryId,'accountingBasis'=>(string)$company['accounting_basis']]);db()->commit();
         }catch(Throwable $e){if(db()->inTransaction())db()->rollBack();throw $e;}
@@ -934,7 +988,7 @@ function books_workspace_data(array $company): array
             'status' => $status, 'displayStatus' => $display, 'categoryAccountId' => (string)$row['category_account_id'],
             'paymentTermsDays' => (int)$row['payment_terms_days'],
             'categoryName' => (string)$row['category_name'], 'subtotalCents' => (int)$row['subtotal_cents'],
-            'gstHstCents'=>(int)($row['gst_hst_cents']??$row['tax_cents']), 'pstCents'=>(int)($row['pst_cents']??0), 'taxEntryMode'=>(string)($row['tax_entry_mode']??'exclusive'),
+            'gstHstCents'=>(int)($row['gst_hst_cents']??$row['tax_cents']), 'pstCents'=>(int)($row['pst_cents']??0), 'taxCodeId'=>$row['tax_code_id']??null, 'taxEntryMode'=>(string)($row['tax_entry_mode']??'exclusive'),
             'taxCents' => (int)$row['tax_cents'], 'totalCents' => (int)$row['total_cents'], 'balanceCents' => (int)$row['balance_cents'],
             'currency' => (string)$row['currency'], 'exchangeRateMicros' => (int)$row['exchange_rate_micros'],
             'foreignSubtotalCents' => (int)$row['foreign_subtotal_cents'], 'foreignGstHstCents'=>(int)($row['foreign_gst_hst_cents']??$row['foreign_tax_cents']), 'foreignPstCents'=>(int)($row['foreign_pst_cents']??0), 'foreignTaxCents' => (int)$row['foreign_tax_cents'],

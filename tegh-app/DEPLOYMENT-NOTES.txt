@@ -1,6 +1,6 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R136 IONOS STAGING DEPLOYMENT
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R137 IONOS STAGING DEPLOYMENT
 
-This package contains every release through R136 (R118–R136 change notes are
+This package contains every release through R137 (R118–R137 change notes are
 included). It is a STAGING CANDIDATE, not a production release
 (productionReady: false); see "Host acceptance" at the end. No manual database migration. R120's additive table
 accounting_note_lines is created automatically on first use of Credit & Debit
@@ -35,7 +35,16 @@ Notes (the database user needs CREATE privilege, as for the original install).
    api/invoice_documents_r20.php. R136 adds companies.pst_rate_mpct
    automatically on the first company create or settings save (ALTER privilege
    needed); it is backfilled from pst_rate_bps x 10.
-5. Upload all assets together; the cache token is r136-tegh (client-view page:
+   For R137: the new api/tax_codes_r137.php, plus api/index.php,
+   api/accounting.php, api/accounting_notes.php, api/advanced.php,
+   api/books.php, api/payments.php, api/invoice_documents_r20.php,
+   api/professional_output_v5710.php, api/backup.php, api/companies.php and
+   api/ai_actions_v5600.php. R137 creates tax_codes, tax_code_components and
+   document_tax_lines and adds invoice_lines.tax_code_id, bills.tax_code_id,
+   expenses.tax_code_id and companies.tax_setup_mode on the first request
+   (CREATE and ALTER privilege needed). Existing companies keep their current
+   tax rules until they save their first tax code.
+5. Upload all assets together; the cache token is r137-tegh (client-view page:
    5990-r135). A partial upload can
    leave browsers on a stale portal.
 6. DN-1001 was already posted once in the original staging data. Do NOT post it
@@ -95,6 +104,11 @@ Verify after upload
 - R136 (Quebec company): Company Details PST rate shows 9.975 (re-enter 9.975
   and save if it shows 9.98). A $1,000 taxable invoice to a Quebec customer
   shows QST $99.75 and posts $99.75 to 2110.
+- R137: Settings > Company Setup > Tax Codes lists codes. Add a code for your
+  province (Start from a Canadian example fills it in), save, then create an
+  invoice for a customer in that province: the line's Tax code defaults to it
+  and the totals list each tax. Check the journal posts each tax to its GL.
+  Saving the first code switches an existing company to tax codes.
 - In the browser console: window.TeghPortal exists.
 - Tegh Assist (top bar, also on phones): ask "who owes me money?" and the
   answer starts with a plain sentence ("Customers owe you $…") in about a second; "pay my supplier" opens Vendor

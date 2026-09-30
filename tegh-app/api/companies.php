@@ -141,6 +141,8 @@ function handle_companies(): never
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$companyId, $name, $legalName, $businessType, $province, $currency, $accountingBasis, $moduleMode, $payrollPostingMode, $taxReportingProfile, $reportingFramework, $fiscalYearEnd, $fiscalYearEndDate, $booksStartDate, $taxRegistered ? 1 : 0, $taxNumber, province_rate_bps($province), $pstRegistered ? 1 : 0, $pstRateBps, $pstRecoverable ? 1 : 0, $testMode ? 1 : 0, $testExpiresAt, $testMode ? $user['id'] : null]);
         db()->prepare('UPDATE companies SET pst_rate_mpct = ? WHERE id = ?')->execute([$pstRateMpct, $companyId]);
+        // R137: new companies charge nothing until the owner sets up tax codes.
+        if (function_exists('schema_column_exists') && schema_column_exists('companies', 'tax_setup_mode')) db()->prepare("UPDATE companies SET tax_setup_mode = 'codes' WHERE id = ?")->execute([$companyId]);
         db()->prepare("INSERT INTO company_members (company_id, user_id, role) VALUES (?, ?, 'owner')")->execute([$companyId, $user['id']]);
         db()->prepare('INSERT INTO company_currencies (company_id, currency_code, rate_to_base_micros, rate_date) VALUES (?, ?, 1000000, CURRENT_DATE)')
             ->execute([$companyId, $currency]);

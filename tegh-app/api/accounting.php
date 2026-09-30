@@ -703,10 +703,11 @@ function workspace_data(array $user, array $company): array
             'booksStartDate' => $company['books_start_date'] !== null ? (string)$company['books_start_date'] : null,
             'taxRegistered' => (bool)$company['tax_registered'],
             'taxNumber' => $company['tax_number'] !== null ? (string)$company['tax_number'] : null,
-            'taxRateBps' => (int)$company['tax_rate_bps'], 'pstRegistered'=>(bool)($company['pst_registered']??false), 'pstRateBps'=>(int)round(company_pst_rate_mpct($company)/10), 'pstRateMpct'=>company_pst_rate_mpct($company), 'pstRecoverable'=>(bool)($company['pst_recoverable']??false), 'onboardingComplete' => true,
+            'taxRateBps' => (int)$company['tax_rate_bps'], 'pstRegistered'=>(bool)($company['pst_registered']??false), 'pstRateBps'=>(int)round(company_pst_rate_mpct($company)/10), 'pstRateMpct'=>company_pst_rate_mpct($company), 'pstRecoverable'=>(bool)($company['pst_recoverable']??false), 'taxSetupMode'=>function_exists('tax_setup_mode')?tax_setup_mode($company):'legacy', 'onboardingComplete' => true,
             'isTestMode' => (bool)($company['test_mode'] ?? false),
             'testExpiresAt' => $company['test_expires_at'] !== null ? (string)$company['test_expires_at'] . 'Z' : null,
         ],
+        'taxCodes' => function_exists('tax_codes_list') ? tax_codes_list((string)$company['id']) : [],
         'accounts' => $accounts, 'systemAccounts'=>$systemAccounts, 'customers' => $customers, 'productsServices' => $productsServices, 'invoices' => $invoices, 'invoiceTemplates' => $invoiceTemplates, 'expenses' => $expenses,
         'vendors' => $books['vendors'], 'bills' => $books['bills'], 'companyCurrencies' => $books['companyCurrencies'],
         'accountingControls' => $books['accountingControls'], 'receivableAging' => $receivableAging, 'payableAging' => $books['payableAging'],
@@ -866,6 +867,24 @@ function invoice_record_tax_split(string $companyId, string $invoiceId, int $tax
         ->execute([$tax - $pst, $pst, $tax > 0 ? 'exclusive' : 'none', $companyId, $invoiceId]);
 }
 
+/** R137: tax component rows saved with an invoice, or null for invoices made under the legacy rules. */
+function invoice_saved_tax_rows(string $companyId, string $invoiceId): ?array
+{
+    if (!function_exists('document_tax_rows_get')) return null;
+    $rows = document_tax_rows_get($companyId, 'invoice', $invoiceId);
+    return $rows ?: null;
+}
+
+/** Journal lines recognising a portion of an invoice's tax (cash basis / partial receipts). */
+function invoice_tax_recognition_lines(string $companyId, array $invoice, int $taxPortion): array
+{
+    if ($taxPortion <= 0) return [];
+    $rows = invoice_saved_tax_rows($companyId, (string)$invoice['id']);
+    if ($rows) return tax_rows_sales_lines($companyId, tax_rows_portion($rows, $taxPortion));
+    [$gst, $pst] = invoice_tax_parts($invoice, $taxPortion);
+    return invoice_tax_credit_lines($companyId, $gst, $pst);
+}
+
 /** Split a tax amount taken from an invoice in the invoice's own GST/HST : PST proportion. */
 function invoice_tax_parts(array $invoice, int $taxPortion): array
 {
@@ -884,7 +903,7 @@ function invoice_tax_credit_lines(string $companyId, int $gstHst, int $pst): arr
     return $lines;
 }
 
-function invoice_posting_lines(string $companyId, int $subtotal, int $tax, int $total, ?array $calculatedLines = null, ?string $invoiceId = null, int $pst = 0): array
+function invoice_posting_lines(string $companyId, int $subtotal, int $tax, int $total, ?array $calculatedLines = null, ?string $invoiceId = null, int $pst = 0, ?array $taxRows = null): array
 {
     $revenue=[];
     if($calculatedLines!==null){
@@ -895,6 +914,12 @@ function invoice_posting_lines(string $companyId, int $subtotal, int $tax, int $
     if(!$revenue)$revenue=[account_by_code($companyId,'4000')=>$subtotal];
     $lines=[['accountId'=>account_by_code($companyId,'1200'),'debitCents'=>$total,'creditCents'=>0]];
     foreach($revenue as $account=>$amount)if($amount>0)$lines[]=['accountId'=>$account,'debitCents'=>0,'creditCents'=>$amount];
+    if($taxRows!==null&&function_exists('tax_rows_sales_lines')){
+        // R137: each tax component posts to its own GL account.
+        if(array_sum(array_map(static fn(array $r):int=>(int)$r['taxCents'],$taxRows))!==$tax)throw new RuntimeException('Invoice tax components do not add up to the invoice tax.');
+        foreach(tax_rows_sales_lines($companyId,$taxRows) as $line)$lines[]=$line;
+        return $lines;
+    }
     $pst=max(0,min($pst,$tax));
     foreach(invoice_tax_credit_lines($companyId,$tax-$pst,$pst) as $line)$lines[]=$line;
     return $lines;
@@ -947,6 +972,9 @@ if (!is_array($sourceLines) || count($sourceLines) < 1 || count($sourceLines) > 
 }
 $calculatedLines = [];
 $taxOverrides = [];
+$taxRows = [];
+$codesMode = function_exists('tax_setup_mode') && tax_setup_mode($company) === 'codes';
+$regionCode = $codesMode ? tax_code_for_region($companyId, $supplyProvince) : null;
 $foreignSubtotal = 0;
 $foreignTax = 0;
 $foreignPst = 0;
@@ -978,6 +1006,32 @@ foreach (array_values($sourceLines) as $index => $line) {
     if ($quantityMilli <= 0 || $quantityMilli > 1_000_000 || $foreignUnitPrice <= 0) fail('A line quantity or rate is invalid.');
     $foreignAmount = (int)round(($quantityMilli * $foreignUnitPrice) / 1000);
     if ($foreignAmount <= 0) fail('Each invoice line must have a positive amount.');
+    if ($codesMode) {
+        // R137: the line's tax code decides every tax and where it posts.
+        $lineCode = null;
+        if (array_key_exists('taxCodeId', $line) && $line['taxCodeId'] !== null) {
+            $wanted = trim((string)$line['taxCodeId']);
+            if ($wanted !== '') { $lineCode = tax_code_get($companyId, $wanted); if (!$lineCode) fail('A selected tax code is no longer active. Choose another under Tax code.', 422, 'tax_code_unavailable'); }
+        } elseif (!empty($line['taxable'])) $lineCode = $regionCode;
+        if ($lineCode) foreach ($lineCode['components'] as $comp) if ((int)$comp['rateMpct'] > 0 && empty($comp['salesAccountId'])) fail('Tax code ' . $lineCode['code'] . ' has no sales GL account for ' . $comp['name'] . '. Set it under Settings → Tax Codes.', 409, 'tax_code_sales_account_missing');
+        $calc = $lineCode ? tax_code_compute($lineCode, $foreignAmount, 'exclusive') : ['tax' => 0, 'parts' => []];
+        $foreignLineTax = (int)$calc['tax'];
+        $baseAmount = convert_to_base_cents($foreignAmount, $exchangeRateMicros);
+        $baseLineTax = convert_to_base_cents($foreignAmount + $foreignLineTax, $exchangeRateMicros) - $baseAmount;
+        $baseParts = $lineCode ? tax_allocate($baseLineTax, $calc['parts']) : [];
+        if ($lineCode) tax_rows_add($taxRows, $lineCode, $calc['parts'], $baseParts, $baseAmount, 'sales');
+        $calculatedLines[] = [
+            'description' => $description, 'quantityMilli' => $quantityMilli,
+            'foreignUnitPriceCents' => $foreignUnitPrice, 'foreignAmountCents' => $foreignAmount,
+            'foreignTaxCents' => $foreignLineTax, 'unitPriceCents' => convert_to_base_cents($foreignUnitPrice, $exchangeRateMicros),
+            'amountCents' => $baseAmount, 'taxCents' => $baseLineTax, 'taxRateBps' => $lineCode ? (int)round($lineCode['totalRateMpct'] / 10) : 0,
+            'taxCodeId' => $lineCode['id'] ?? null, 'taxCode' => $lineCode['code'] ?? null,
+            'sortOrder' => $index, 'productServiceId' => $productServiceId !== '' ? $productServiceId : null,
+            'incomeAccountId' => $incomeAccountId,
+        ];
+        $foreignSubtotal += $foreignAmount; $foreignTax += $foreignLineTax; $subtotal += $baseAmount; $tax += $baseLineTax;
+        continue;
+    }
     $taxRate = 0;
     if (!empty($line['taxable']) && (bool)$company['tax_registered']) {
         $provinceRate = province_rate_bps($supplyProvince);
@@ -1024,6 +1078,7 @@ foreach (array_values($sourceLines) as $index => $line) {
     $tax += $baseLineTax;
     $pst += $baseLinePst;
 }
+if ($codesMode) { $taxRows = array_values($taxRows); [, $pst] = tax_rows_buckets($companyId, $taxRows); $foreignPst = 0; }
 $foreignTotal = $foreignSubtotal + $foreignTax;
 $total = $subtotal + $tax;
 if ($foreignTotal <= 0 || $foreignTotal > 100_000_000_000 || $total > 100_000_000_000) {
@@ -1039,7 +1094,7 @@ if($importReference!==null){
     $dup=db()->prepare('SELECT 1 FROM invoices WHERE company_id=? AND import_reference=? AND id<>? LIMIT 1');$dup->execute([$companyId,$importReference,$excludeInvoiceId??'']);
     if($dup->fetchColumn())fail('That customer invoice import reference has already been used.',409,'duplicate_invoice_import_reference');
 }
-return compact('companyId','customerId','customer','issueDate','dueDate','issue','currency','exchangeRateMicros','calculatedLines','taxOverrides','foreignSubtotal','foreignTax','foreignPst','subtotal','tax','pst','foreignTotal','total','templateId','template','templateSnapshot','customerSnapshot','purchaseOrder','importReference');
+return compact('companyId','customerId','customer','issueDate','dueDate','issue','currency','exchangeRateMicros','calculatedLines','taxOverrides','taxRows','codesMode','foreignSubtotal','foreignTax','foreignPst','subtotal','tax','pst','foreignTotal','total','templateId','template','templateSnapshot','customerSnapshot','purchaseOrder','importReference');
 }
 
 function create_invoice_record(array $user,array $company,array $input,string $source='manual'): array
@@ -1062,14 +1117,14 @@ db_transaction_retry(function () use (
     $subtotal, $tax, $total, $customerId, $dueDate, $status, $input,
     $currency, $exchangeRateMicros, $foreignSubtotal, $foreignTax,
     $foreignTotal, $purchaseOrder, $template, $templateSnapshot,
-    $customerSnapshot, $calculatedLines, $customer, $isRecurring, $importReference, $source, $taxOverrides, $pst
+    $customerSnapshot, $calculatedLines, $customer, $isRecurring, $importReference, $source, $taxOverrides, $pst, $taxRows, $codesMode
 ): void {
     if(function_exists('voucher_register_saved'))voucher_register_saved($user,$companyId,'CI','AR','invoice',$id,$issueDate,'Customer invoice '.$number,$total,null,false);
     $lineDescriptions = array_map(static fn(array $line): string => (string)$line['description'], $calculatedLines);
     $entryId = $issue && (string)$company['accounting_basis'] === 'accrual'
         ? add_journal_entry($user, $companyId, $issueDate, 'invoice', $id,
             invoice_posting_description((string)$customer['name'], $number, $issueDate, $lineDescriptions),
-            invoice_posting_lines($companyId,$subtotal,$tax,$total,$calculatedLines,null,$pst))
+            invoice_posting_lines($companyId,$subtotal,$tax,$total,$calculatedLines,null,$pst,$codesMode?$taxRows:null))
         : null;
     db()->prepare('INSERT INTO invoices (id, company_id, customer_id, number, issue_date, due_date, status,
         subtotal_cents, tax_cents, total_cents, balance_cents, message, currency, exchange_rate_micros,
@@ -1094,6 +1149,11 @@ db_transaction_retry(function () use (
             $line['taxRateBps'],$line['amountCents'],$line['taxCents'],$line['foreignUnitPriceCents'],
             $line['foreignAmountCents'],$line['foreignTaxCents'],$line['sortOrder'],
         ]);
+    }
+    if ($codesMode) {
+        document_tax_rows_save($companyId, 'invoice', $id, $taxRows);
+        $codeStmt = db()->prepare('UPDATE invoice_lines SET tax_code_id=? WHERE invoice_id=? AND sort_order=?');
+        foreach ($calculatedLines as $line) if (!empty($line['taxCodeId'])) $codeStmt->execute([$line['taxCodeId'], $id, $line['sortOrder']]);
     }
     if ($issue && function_exists('voucher_mark_posted')) voucher_mark_posted($user, $companyId, 'invoice', $id, $entryId);
     audit_event($user, $companyId, $issue ? 'invoice.issued' : 'invoice.draft_created', 'invoice', $id, [
@@ -1144,7 +1204,7 @@ function handle_invoices(): never
                     $lineDescriptions = array_map('strval', $lineStmt->fetchAll(PDO::FETCH_COLUMN));
                     $entryId = add_journal_entry($user, $companyId, (string)$invoice['issue_date'], 'invoice', $invoiceId,
                         invoice_posting_description((string)$invoice['customer_name'], (string)$invoice['number'], (string)$invoice['issue_date'], $lineDescriptions),
-                        invoice_posting_lines($companyId,(int)$invoice['subtotal_cents'],(int)$invoice['tax_cents'],(int)$invoice['total_cents'],null,$invoiceId,(int)($invoice['pst_cents']??0)));
+                        invoice_posting_lines($companyId,(int)$invoice['subtotal_cents'],(int)$invoice['tax_cents'],(int)$invoice['total_cents'],null,$invoiceId,(int)($invoice['pst_cents']??0),invoice_saved_tax_rows($companyId,$invoiceId)));
                 }
                 db()->prepare("UPDATE invoices SET status = 'sent', issued_journal_entry_id = ? WHERE id = ? AND status = 'draft'")->execute([$entryId, $invoiceId]);
                 if (function_exists('voucher_mark_posted')) voucher_mark_posted($user, $companyId, 'invoice', $invoiceId, $entryId);
@@ -1254,6 +1314,20 @@ function handle_expenses(): never
     $tax = $gstHst + $pst;
     $total = $subtotal + $tax;
     $pstRecoverable = (bool)($company['pst_recoverable'] ?? false);
+    // R137: in tax-code mode the chosen code replaces the GST/HST + PST switches.
+    $expenseTaxRows = null; $expenseTaxCodeId = null;
+    if (function_exists('tax_setup_mode') && tax_setup_mode($company) === 'codes') {
+        $code = null;
+        if (array_key_exists('taxCodeId', $input) && $input['taxCodeId'] !== null) { $wanted = trim((string)$input['taxCodeId']); if ($wanted !== '') { $code = tax_code_get($companyId, $wanted); if (!$code) fail('The selected tax code is no longer active.', 422, 'tax_code_unavailable'); } }
+        elseif ($applyGstHst || $applyPst) $code = tax_code_for_region($companyId, (string)$company['province']);
+        $emode = in_array((string)($input['taxEntryMode'] ?? 'inclusive'), ['exclusive', 'inclusive'], true) ? (string)($input['taxEntryMode'] ?? 'inclusive') : 'inclusive';
+        $calc = $code ? tax_code_compute($code, $foreignAmount, $emode) : ['net' => $foreignAmount, 'gross' => $foreignAmount, 'tax' => 0, 'parts' => []];
+        $mode = $code ? $emode : 'none';
+        $foreignSubtotal = (int)$calc['net']; $foreignTotal = (int)$calc['gross']; $foreignTax = (int)$calc['tax'];
+        $subtotal = convert_to_base_cents($foreignSubtotal, $rate); $total = convert_to_base_cents($foreignTotal, $rate); $tax = $total - $subtotal;
+        $expenseTaxRows = []; if ($code) tax_rows_add($expenseTaxRows, $code, $calc['parts'], tax_allocate($tax, $calc['parts']), $subtotal, 'purchase');
+        $expenseTaxRows = array_values($expenseTaxRows); [$gstHst, $pst] = tax_rows_buckets($companyId, $expenseTaxRows); $foreignGstHst = 0; $foreignPst = 0; $expenseTaxCodeId = $code['id'] ?? null;
+    }
 
     $receiptPath = optional_text($input['receiptKey'] ?? null, 500);
     if ($receiptPath !== null && !valid_private_storage_reference($companyId, $receiptPath, 'receipts')) fail('The uploaded receipt reference is invalid.');
@@ -1267,10 +1341,15 @@ function handle_expenses(): never
     db()->beginTransaction();
     try {
         if(function_exists('voucher_register_saved'))voucher_register_saved($user,$companyId,'EX','EX','expense',$id,$date,'Expense · '.$vendor,$total,null,false);
+        if ($expenseTaxRows !== null) {
+            $purchase = tax_rows_purchase_lines($companyId, $expenseTaxRows);
+            $lines = array_merge([['accountId'=>(string)$category['id'],'debitCents'=>$subtotal + $purchase['costCents'],'creditCents'=>0,'memo'=>$purchase['costCents'] > 0 ? 'Expense net + non-recoverable tax' : 'Expense net']], $purchase['lines']);
+        } else {
         $categoryDebit = $subtotal + ($pstRecoverable ? 0 : $pst);
         $lines = [['accountId'=>(string)$category['id'],'debitCents'=>$categoryDebit,'creditCents'=>0,'memo'=>$pst > 0 && !$pstRecoverable ? 'Expense net + non-recoverable PST' : 'Expense net']];
         if ($gstHst > 0) $lines[]=['accountId'=>account_by_code($companyId,'1100'),'debitCents'=>$gstHst,'creditCents'=>0,'memo'=>'GST/HST recoverable'];
         if ($pst > 0 && $pstRecoverable) $lines[]=['accountId'=>account_by_code($companyId,'1110'),'debitCents'=>$pst,'creditCents'=>0,'memo'=>'PST recoverable'];
+        }
         $lines[]=['accountId'=>(string)$paid['id'],'debitCents'=>0,'creditCents'=>$total,'memo'=>'Payment account'];
         $entryId=add_journal_entry($user,$companyId,$date,'expense',$id,'Vendor '.$vendor.' · Expense '.$date.' · '.(string)$category['name'].' · '.$currency.' @ '.number_format($rate/1000000,6),$lines);
         if(function_exists('voucher_mark_posted'))voucher_mark_posted($user,$companyId,'expense',$id,$entryId);
@@ -1278,6 +1357,7 @@ function handle_expenses(): never
         $taxCode=$gstHst > 0 && $pst > 0 ? 'GST_HST_PST' : ($gstHst > 0 ? 'GST_HST' : ($pst > 0 ? 'PST' : 'NO_TAX'));
         db()->prepare('INSERT INTO expenses (id,company_id,vendor,expense_date,category_account_id,paid_from_account_id,currency,exchange_rate_micros,foreign_subtotal_cents,foreign_gst_hst_cents,foreign_pst_cents,foreign_tax_cents,foreign_total_cents,subtotal_cents,gst_hst_cents,pst_cents,tax_cents,tax_entry_mode,total_cents,tax_code,receipt_path,journal_entry_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
             ->execute([$id,$companyId,$vendor,$date,$category['id'],$paid['id'],$currency,$rate,$foreignSubtotal,$foreignGstHst,$foreignPst,$foreignTax,$foreignTotal,$subtotal,$gstHst,$pst,$tax,$mode,$total,$taxCode,$receiptPath,$entryId]);
+        if ($expenseTaxRows !== null) { document_tax_rows_save($companyId, 'expense', $id, $expenseTaxRows); db()->prepare('UPDATE expenses SET tax_code_id=? WHERE id=? AND company_id=?')->execute([$expenseTaxCodeId, $id, $companyId]); }
         audit_event($user,$companyId,'expense.posted','expense',$id,['vendor'=>$vendor,'currency'=>$currency,'exchangeRateMicros'=>$rate,'foreignTotalCents'=>$foreignTotal,'totalCents'=>$total,'taxEntryMode'=>$mode]);
         db()->commit();
     } catch (Throwable $error) { if (db()->inTransaction()) db()->rollBack(); throw $error; }
@@ -1397,8 +1477,7 @@ function bank_transaction_post_service_once(array $user, array $company, array $
                         ['accountId' => $bankLedgerId, 'debitCents' => $amount, 'creditCents' => 0],
                         ['accountId' => $decidedAccount, 'debitCents' => 0, 'creditCents' => $revenuePortion],
                     ];
-                    [$gstPart, $pstPart] = invoice_tax_parts($invoice, $taxPortion);
-                    foreach (invoice_tax_credit_lines($companyId, $gstPart, $pstPart) as $taxLine) $lines[] = $taxLine;
+                    foreach (invoice_tax_recognition_lines($companyId, $invoice, $taxPortion) as $taxLine) $lines[] = $taxLine;
                 }
                 $entryId = add_journal_entry($user, $companyId, (string)$transaction['transaction_date'], 'bank_transaction', $transactionId, 'Payment matched to ' . $invoice['number'], $lines);
                 db()->prepare("UPDATE bank_transactions SET decided_account_id = ?, tax_code = 'NO_TAX', suggestion_source = 'manual', status = 'posted', journal_entry_id = ? WHERE id = ? AND status = 'pending'")
@@ -1535,7 +1614,21 @@ function bank_transaction_post_service_once(array $user, array $company, array $
             }
             $lines = [];
             $taxCode = 'NO_TAX';
-            if ($amount > 0) {
+            // R137: in tax-code mode the decision's tax code (or the company's home
+            // region code when GST/PST was ticked) splits the statement amount.
+            $bankCode = function_exists('bank_decision_tax_code') ? bank_decision_tax_code($company, $decision) : null;
+            if ($bankCode !== null && $amount > 0 && $category['account_type'] === 'income') {
+                $total = $amount; $calc = tax_code_compute($bankCode, $amount, 'inclusive');
+                $rows = []; tax_rows_add($rows, $bankCode, $calc['parts'], $calc['parts'], (int)$calc['net'], 'sales');
+                $lines = array_merge([['accountId' => $bankLedgerId, 'debitCents' => $amount, 'creditCents' => 0, 'memo' => 'Statement deposit'], ['accountId' => (string)$category['id'], 'debitCents' => 0, 'creditCents' => (int)$calc['net'], 'memo' => 'Income net of collected sales tax']], tax_rows_sales_lines($companyId, array_values($rows)));
+                $taxCode = mb_substr('CODE:' . $bankCode['code'], 0, 30);
+            } elseif ($bankCode !== null && $amount < 0 && in_array($category['account_type'], ['expense','asset'], true)) {
+                $total = abs($amount); $calc = tax_code_compute($bankCode, $total, 'inclusive');
+                $rows = []; tax_rows_add($rows, $bankCode, $calc['parts'], $calc['parts'], (int)$calc['net'], 'purchase');
+                $purchase = tax_rows_purchase_lines($companyId, array_values($rows));
+                $lines = array_merge([['accountId' => (string)$category['id'], 'debitCents' => (int)$calc['net'] + $purchase['costCents'], 'creditCents' => 0, 'memo' => $purchase['costCents'] > 0 ? 'Expense net + non-recoverable tax' : 'Expense net']], $purchase['lines'], [['accountId' => $bankLedgerId, 'debitCents' => 0, 'creditCents' => $total]]);
+                $taxCode = mb_substr('CODE:' . $bankCode['code'], 0, 30);
+            } elseif ($amount > 0) {
                 if (!in_array($category['account_type'], ['income','equity','liability','asset'], true) && ($decision['allowContra']??false)!==true) fail('Money-in requires an income, equity, liability, or transfer account.');
                 $total = $amount;
                 $applyGstHst = !empty($decision['applyGstHst']) && (bool)$company['tax_registered'] && $category['account_type'] === 'income';
@@ -1889,7 +1982,7 @@ function handle_bank_transaction_reassign(): never
                     ['accountId'=>$bankLedgerId,'debitCents'=>$amount,'creditCents'=>0],
                     ['accountId'=>$decidedAccount,'debitCents'=>0,'creditCents'=>$revenuePortion],
                 ];
-                [$gstPart,$pstPart]=invoice_tax_parts($invoice,$taxPortion);foreach(invoice_tax_credit_lines($companyId,$gstPart,$pstPart) as $taxLine)$replacement[]=$taxLine;
+                foreach(invoice_tax_recognition_lines($companyId,$invoice,$taxPortion) as $taxLine)$replacement[]=$taxLine;
             }
             $correctionLines = bank_reassignment_lines($companyId,$transaction,$bankLedgerId,$replacement);
             if (count($correctionLines) >= 2) {

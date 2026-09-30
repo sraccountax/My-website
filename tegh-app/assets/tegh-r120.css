@@ -823,3 +823,30 @@ html[data-tegh-theme="dark"] .srp-page .r135-warn{background:#3a2e12;border-colo
   html[data-tegh-theme="auto"] .srp-page .r135-tax-example td{border-color:#2a4038}
   html[data-tegh-theme="auto"] .srp-page .r135-warn{background:#3a2e12;border-color:#6b5520;color:#f6dca0}
 }
+
+/* 32. R137: Tax Codes page, tax code pickers and per-tax invoice totals */
+.srp-page .r137-comps{display:grid;gap:12px}
+.srp-page .r137-comp{border:1px solid #dce6e1;border-radius:12px;padding:10px 14px 14px;margin:0;display:grid;grid-template-columns:minmax(120px,1fr) minmax(90px,.6fr) minmax(180px,1.4fr) minmax(180px,1.4fr) auto;gap:10px 14px;align-items:end}
+.srp-page .r137-comp legend{font-weight:700;padding:0 6px}
+.srp-page .r137-comp label{display:flex;flex-direction:column;gap:4px;min-width:0}
+.srp-page .r137-starter{display:flex;flex-direction:column;gap:4px;max-width:340px}
+.srp-page .r137-starter small{color:#5b6f68}
+.srp-page .r137-example{display:grid;grid-template-columns:minmax(260px,1fr) minmax(220px,1fr);gap:8px 24px;align-items:start}
+.srp-page .r137-example ul{margin:4px 0;padding-left:20px}
+.srp-page .r137-codes td small{display:block;color:#5b6f68}
+.srp-page .r137-codes td>div+div{margin-top:4px}
+.srp-page .srp-ci-totals.r137-totals{grid-template-columns:repeat(var(--r137-cols,3),minmax(0,1fr))}
+.srp-page .r137-line-code small,.srp-page .r137-purchase-code small{color:#5b6f68;font-weight:400}
+@media (max-width:900px){.srp-page .r137-comp{grid-template-columns:1fr 1fr}.srp-page .r137-example{grid-template-columns:1fr}.srp-page .srp-ci-totals.r137-totals{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.srp-page .r137-comp{grid-template-columns:1fr}.srp-page .srp-ci-totals.r137-totals{grid-template-columns:1fr}}
+html[data-tegh-theme="dark"] .srp-page .r137-comp{border-color:#2f4a42}
+html[data-tegh-theme="dark"] .srp-page :is(.r137-codes td small,.r137-starter small,.r137-line-code small,.r137-purchase-code small){color:#a9bdb6}
+@media (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] .srp-page .r137-comp{border-color:#2f4a42}
+  html[data-tegh-theme="auto"] .srp-page :is(.r137-codes td small,.r137-starter small,.r137-line-code small,.r137-purchase-code small){color:#a9bdb6}
+}
+@media (min-width:1101px){html[data-tegh-activity-shell="r22"] .r29-invoice-main .srp-ci-line-grid>label.full.r137-line-code,html[data-tegh-activity-shell="r22"] .srp-ci-line-grid>label.r137-line-code{grid-column:span 2!important}}
+.srp-page .r137-line-code select{min-width:0;width:100%}
+.srp-page .r137-codes td small,.srp-page .r137-codes td>div{white-space:normal;overflow-wrap:anywhere}
+.srp-page .srp-ci-line-total>span:has([data-ci-tax-split]){flex-wrap:wrap;row-gap:2px}
+.srp-page .srp-ci-line-total [data-ci-tax-split]{flex-basis:100%}

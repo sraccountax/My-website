@@ -208,9 +208,9 @@ function payment_apply_service(array $user,array $company,array $input,bool $man
                 if($type==='vendor'&&$difference>0)$recognitionLines=[['accountId'=>account_by_code($companyId,'6850'),'debitCents'=>$difference,'creditCents'=>0,'memo'=>'Realized exchange difference'],['accountId'=>account_by_code($companyId,'2050'),'debitCents'=>0,'creditCents'=>$difference,'memo'=>'Apply vendor payment']];
                 if($type==='vendor'&&$difference<0)$recognitionLines=[['accountId'=>account_by_code($companyId,'2050'),'debitCents'=>abs($difference),'creditCents'=>0,'memo'=>'Apply vendor payment'],['accountId'=>account_by_code($companyId,'6850'),'debitCents'=>0,'creditCents'=>abs($difference),'memo'=>'Realized exchange difference']];
             }elseif($type==='customer'){
-                $tax=(int)round(($paymentCarrying*(int)$document['foreign_tax_cents'])/max(1,(int)$document['foreign_total_cents']));$recognitionLines=[['accountId'=>account_by_code($companyId,'1200'),'debitCents'=>$paymentCarrying,'creditCents'=>0,'memo'=>'Apply customer payment'],['accountId'=>account_by_code($companyId,'4000'),'debitCents'=>0,'creditCents'=>$paymentCarrying-$tax,'memo'=>(string)$document['number']]];[$gstPart,$pstPart]=invoice_tax_parts($document,$tax);foreach(invoice_tax_credit_lines($companyId,$gstPart,$pstPart) as $taxLine)$recognitionLines[]=$taxLine;
+                $tax=(int)round(($paymentCarrying*(int)$document['foreign_tax_cents'])/max(1,(int)$document['foreign_total_cents']));$recognitionLines=[['accountId'=>account_by_code($companyId,'1200'),'debitCents'=>$paymentCarrying,'creditCents'=>0,'memo'=>'Apply customer payment'],['accountId'=>account_by_code($companyId,'4000'),'debitCents'=>0,'creditCents'=>$paymentCarrying-$tax,'memo'=>(string)$document['number']]];foreach(invoice_tax_recognition_lines($companyId,$document,$tax) as $taxLine)$recognitionLines[]=$taxLine;
             }else{
-                $foreignTotal=max(1,(int)$document['foreign_total_cents']);$gst=(int)round(($paymentCarrying*(int)($document['foreign_gst_hst_cents']??$document['foreign_tax_cents']??0))/$foreignTotal);$pst=(int)round(($paymentCarrying*(int)($document['foreign_pst_cents']??0))/$foreignTotal);$recoverablePst=!empty($company['pst_recoverable'])?$pst:0;$cost=$paymentCarrying-$gst-$recoverablePst;if($cost<0)fail('Vendor payment tax allocation exceeds the applied amount.',409,'vendor_payment_tax_allocation_invalid');$recognitionLines=[['accountId'=>(string)$document['category_account_id'],'debitCents'=>$cost,'creditCents'=>0,'memo'=>(string)$document['number']]];if($gst>0)$recognitionLines[]=['accountId'=>account_by_code($companyId,'1100'),'debitCents'=>$gst,'creditCents'=>0,'memo'=>'GST/HST recoverable'];if($recoverablePst>0)$recognitionLines[]=['accountId'=>account_by_code($companyId,'1110'),'debitCents'=>$recoverablePst,'creditCents'=>0,'memo'=>'PST recoverable'];$recognitionLines[]=['accountId'=>account_by_code($companyId,'2050'),'debitCents'=>0,'creditCents'=>$paymentCarrying,'memo'=>'Apply vendor payment'];
+                $foreignTotal=max(1,(int)$document['foreign_total_cents']);$gst=(int)round(($paymentCarrying*(int)($document['foreign_gst_hst_cents']??$document['foreign_tax_cents']??0))/$foreignTotal);$pst=(int)round(($paymentCarrying*(int)($document['foreign_pst_cents']??0))/$foreignTotal);$recoverablePst=!empty($company['pst_recoverable'])?$pst:0;$cost=$paymentCarrying-$gst-$recoverablePst;if($cost<0)fail('Vendor payment tax allocation exceeds the applied amount.',409,'vendor_payment_tax_allocation_invalid');$recognitionLines=[['accountId'=>(string)$document['category_account_id'],'debitCents'=>$cost,'creditCents'=>0,'memo'=>(string)$document['number']]];if($gst>0)$recognitionLines[]=['accountId'=>account_by_code($companyId,'1100'),'debitCents'=>$gst,'creditCents'=>0,'memo'=>'GST/HST recoverable'];if($recoverablePst>0)$recognitionLines[]=['accountId'=>account_by_code($companyId,'1110'),'debitCents'=>$recoverablePst,'creditCents'=>0,'memo'=>'PST recoverable'];if(($rl=bill_tax_recognition_lines($companyId,$document,$paymentCarrying))!==null)$recognitionLines=$rl;$recognitionLines[]=['accountId'=>account_by_code($companyId,'2050'),'debitCents'=>0,'creditCents'=>$paymentCarrying,'memo'=>'Apply vendor payment'];
             }
             if($recognitionLines)$recognitionJournalId=add_journal_entry($user,$companyId,$date,$type.'_payment_application',(string)$payment['id'],'Apply payment to '.(string)$document['number'],$recognitionLines);
             $newBalance=(int)$document['balance_cents']-$documentCarrying;$update=db()->prepare("UPDATE `$table` SET balance_cents=?,foreign_balance_cents=foreign_balance_cents-?,status=CASE WHEN ?=0 THEN 'paid' ELSE ? END WHERE id=? AND company_id=? AND status=? AND balance_cents>=? AND foreign_balance_cents>=?");
@@ -433,7 +433,7 @@ function post_party_payment(array $user, array $company, array $input): never
                 ['accountId'=>$paymentAccountId,'debitCents'=>$actualAmount,'creditCents'=>0,'memo'=>$partyName],
                 ['accountId'=>account_by_code($companyId,'4000'),'debitCents'=>0,'creditCents'=>$actualAmount-$taxPortion,'memo'=>$documentNumber],
             ];
-            [$gstPart,$pstPart]=invoice_tax_parts($document,$taxPortion);foreach(invoice_tax_credit_lines($companyId,$gstPart,$pstPart) as $taxLine)$lines[]=$taxLine;
+            foreach(invoice_tax_recognition_lines($companyId,$document,$taxPortion) as $taxLine)$lines[]=$taxLine;
         } else {
             // Cash-basis vendor payments recognise the vendor-invoice tax when
             // cash leaves. Keep GST/HST and PST distinct: non-recoverable PST
@@ -450,6 +450,7 @@ function post_party_payment(array $user, array $company, array $input): never
             $lines = [['accountId'=>(string)$document['category_account_id'],'debitCents'=>$categoryDebit,'creditCents'=>0,'memo'=>$documentNumber]];
             if ($gstPortion > 0) $lines[]=['accountId'=>account_by_code($companyId,'1100'),'debitCents'=>$gstPortion,'creditCents'=>0,'memo'=>'GST/HST recoverable'];
             if ($recoverablePst > 0) $lines[]=['accountId'=>account_by_code($companyId,'1110'),'debitCents'=>$recoverablePst,'creditCents'=>0,'memo'=>'PST recoverable'];
+            if (($rl = bill_tax_recognition_lines($companyId, $document, $actualAmount)) !== null) $lines = $rl;
             $lines[]=['accountId'=>$paymentAccountId,'debitCents'=>0,'creditCents'=>$actualAmount,'memo'=>$partyName];
         }
 
@@ -562,7 +563,7 @@ function apply_advance_to_document(array $user, array $company, array $input): n
                 ['accountId'=>account_by_code($companyId,'1200'),'debitCents'=>$actualAmount,'creditCents'=>0,'memo'=>'Apply customer advance'],
                 ['accountId'=>account_by_code($companyId,'4000'),'debitCents'=>0,'creditCents'=>$actualAmount-$taxPortion,'memo'=>(string)$document['number']],
             ];
-            [$gstPart,$pstPart]=invoice_tax_parts($document,$taxPortion);foreach(invoice_tax_credit_lines($companyId,$gstPart,$pstPart) as $taxLine)$lines[]=$taxLine;
+            foreach(invoice_tax_recognition_lines($companyId,$document,$taxPortion) as $taxLine)$lines[]=$taxLine;
         } else {
             $foreignTotal=max(1,(int)$document['foreign_total_cents']);
             $foreignGst=(int)($document['foreign_gst_hst_cents']??$document['foreign_tax_cents']??0);
@@ -574,6 +575,7 @@ function apply_advance_to_document(array $user, array $company, array $input): n
             $lines=[['accountId'=>(string)$document['category_account_id'],'debitCents'=>$categoryDebit,'creditCents'=>0,'memo'=>(string)$document['number']]];
             if($gstPortion>0)$lines[]=['accountId'=>account_by_code($companyId,'1100'),'debitCents'=>$gstPortion,'creditCents'=>0,'memo'=>'GST/HST recoverable'];
             if($recoverablePst>0)$lines[]=['accountId'=>account_by_code($companyId,'1110'),'debitCents'=>$recoverablePst,'creditCents'=>0,'memo'=>'PST recoverable'];
+            if(($rl=bill_tax_recognition_lines($companyId,$document,$actualAmount))!==null)$lines=$rl;
             $lines[]=['accountId'=>account_by_code($companyId,'2050'),'debitCents'=>0,'creditCents'=>$actualAmount,'memo'=>'Apply vendor advance'];
         }
         $applicationJournalId = count($lines) ? add_journal_entry($user,$companyId,$applicationDate,$type.'_advance_application',$paymentId,'Apply advance to '.(string)$document['number'],$lines) : null;

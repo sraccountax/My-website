@@ -149,6 +149,10 @@ function backup_record_queries(): array
     if(schema_table_exists('accounting_notes'))$queries['accountingNotes']='SELECT * FROM accounting_notes WHERE company_id = ? ORDER BY created_at,id';
     if(schema_table_exists('accounting_note_settlements'))$queries['accountingNoteSettlements']='SELECT * FROM accounting_note_settlements WHERE company_id = ? ORDER BY settlement_date,id';
     if(schema_table_exists('company_invoice_tax_presets'))$queries['companyInvoiceTaxPresets']='SELECT * FROM company_invoice_tax_presets WHERE company_id = ? ORDER BY province,effective_from,id';
+    // R137: tax codes, their taxes, and the tax detail saved on each document.
+    if(schema_table_exists('tax_codes'))$queries['taxCodes']='SELECT id,company_id,code,name,region,description,status,created_by,updated_by,created_at,updated_at FROM tax_codes WHERE company_id = ? ORDER BY code,id';
+    if(schema_table_exists('tax_code_components'))$queries['taxCodeComponents']='SELECT * FROM tax_code_components WHERE company_id = ? ORDER BY tax_code_id,sort_order,id';
+    if(schema_table_exists('document_tax_lines'))$queries['documentTaxLines']='SELECT * FROM document_tax_lines WHERE company_id = ? ORDER BY document_type,document_id,sort_order,id';
     return $queries;
 }
 
@@ -224,6 +228,9 @@ function backup_restore_map(): array
     if(schema_table_exists('accounting_notes'))$map['accountingNotes']='accounting_notes';
     if(schema_table_exists('accounting_note_settlements'))$map['accountingNoteSettlements']='accounting_note_settlements';
     if(schema_table_exists('company_invoice_tax_presets'))$map['companyInvoiceTaxPresets']='company_invoice_tax_presets';
+    if(schema_table_exists('tax_codes'))$map['taxCodes']='tax_codes';
+    if(schema_table_exists('tax_code_components'))$map['taxCodeComponents']='tax_code_components';
+    if(schema_table_exists('document_tax_lines'))$map['documentTaxLines']='document_tax_lines';
     return $map;
 }
 
@@ -314,7 +321,8 @@ function backup_exclusions(): array
 function backup_table_columns(string $table): array
 {
     static $cache=[];$cacheKey=spl_object_id(db()).':'.$table;if(isset($cache[$cacheKey]))return $cache[$cacheKey];
-    $stmt=db()->prepare('SELECT COLUMN_NAME FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name=?');
+    // Generated columns (for example tax_codes.active_region) are computed by the database and are never restored.
+    $stmt=db()->prepare("SELECT COLUMN_NAME FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name=? AND (EXTRA IS NULL OR (EXTRA NOT LIKE '%GENERATED%' AND EXTRA NOT LIKE '%VIRTUAL%' AND EXTRA NOT LIKE '%STORED%' AND EXTRA NOT LIKE '%PERSISTENT%'))");
     $stmt->execute([$table]);return $cache[$cacheKey]=array_fill_keys(array_map(static fn(array $row):string=>(string)($row['COLUMN_NAME']??$row['column_name']),$stmt->fetchAll()),true);
 }
 

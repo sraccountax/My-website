@@ -1348,8 +1348,24 @@ function handle_advanced_recurring_invoice_run(): never
         $pstRate = (bool)($company['pst_registered'] ?? false) && strtoupper($supplyProvince) === strtoupper((string)$company['province']) ? company_pst_rate_mpct($company) : 0; // thousandths of a percent
         $calculated = [];
         $foreignSubtotal = $foreignTax = $subtotal = $tax = $pst = 0;
+        $codesMode = function_exists('tax_setup_mode') && tax_setup_mode($company) === 'codes';
+        $regionCode = $codesMode ? tax_code_for_region($companyId, $supplyProvince) : null; $taxRows = [];
         foreach ($sourceLines as $row) {
             $foreignAmount = (int)round(((int)$row['quantity_milli'] * (int)$row['foreign_unit_price_cents']) / 1000);
+            if ($codesMode) {
+                // R137: taxable recurring lines use the customer's province tax code.
+                $lineCode = (bool)$row['taxable'] ? $regionCode : null;
+                $calc = $lineCode ? tax_code_compute($lineCode, $foreignAmount, 'exclusive') : ['tax' => 0, 'parts' => []];
+                $baseAmount = convert_to_base_cents($foreignAmount, $exchangeRate);
+                $baseTax = convert_to_base_cents($foreignAmount + (int)$calc['tax'], $exchangeRate) - $baseAmount;
+                if ($lineCode) tax_rows_add($taxRows, $lineCode, $calc['parts'], tax_allocate($baseTax, $calc['parts']), $baseAmount, 'sales');
+                $calculated[] = ['description' => (string)$row['description'], 'quantityMilli' => (int)$row['quantity_milli'],
+                    'foreignUnitPriceCents' => (int)$row['foreign_unit_price_cents'], 'foreignAmountCents' => $foreignAmount,
+                    'foreignTaxCents' => (int)$calc['tax'], 'unitPriceCents' => convert_to_base_cents((int)$row['foreign_unit_price_cents'], $exchangeRate),
+                    'amountCents' => $baseAmount, 'taxCents' => $baseTax, 'taxRateBps' => $lineCode ? (int)round($lineCode['totalRateMpct'] / 10) : 0, 'sortOrder' => (int)$row['sort_order'], 'taxCodeId' => $lineCode['id'] ?? null];
+                $foreignSubtotal += $foreignAmount; $foreignTax += (int)$calc['tax']; $subtotal += $baseAmount; $tax += $baseTax;
+                continue;
+            }
             $gstRate = (bool)$row['taxable'] && (bool)$company['tax_registered'] ? province_rate_bps($supplyProvince) : 0;
             $linePstRate = (bool)$row['taxable'] ? $pstRate : 0;
             $taxRate = $gstRate + (int)round($linePstRate / 10);
@@ -1367,6 +1383,7 @@ function handle_advanced_recurring_invoice_run(): never
             ];
             $foreignSubtotal += $foreignAmount; $foreignTax += $foreignLineTax; $subtotal += $baseAmount; $tax += $baseTax;
         }
+        if ($codesMode) { $taxRows = array_values($taxRows); [, $pst] = tax_rows_buckets($companyId, $taxRows); }
         $foreignTotal = $foreignSubtotal + $foreignTax;
         $total = $subtotal + $tax;
         if ($total <= 0 || $total > 100_000_000_000) fail('Recurring invoice total is outside the supported range.');
@@ -1376,7 +1393,7 @@ function handle_advanced_recurring_invoice_run(): never
         if ($issue) assert_period_open($companyId, $issueDate);
         $dueDate = (new DateTimeImmutable($issueDate, new DateTimeZone('UTC')))->modify('+' . (int)$profile['payment_terms_days'] . ' days')->format('Y-m-d');
         $entryId = $issue && (string)$company['accounting_basis'] === 'accrual'
-            ? add_journal_entry($user, $companyId, $issueDate, 'invoice', $invoiceId, 'Invoice ' . $number, invoice_posting_lines($companyId, $subtotal, $tax, $total, null, null, $pst))
+            ? add_journal_entry($user, $companyId, $issueDate, 'invoice', $invoiceId, 'Invoice ' . $number, invoice_posting_lines($companyId, $subtotal, $tax, $total, null, null, $pst, $codesMode ? $taxRows : null))
             : null;
         db()->prepare('INSERT INTO invoices (id, company_id, customer_id, number, issue_date, due_date, status,
             subtotal_cents, tax_cents, total_cents, balance_cents, message, currency, exchange_rate_micros,
@@ -1391,6 +1408,7 @@ function handle_advanced_recurring_invoice_run(): never
         $insertLine = db()->prepare('INSERT INTO invoice_lines (id, invoice_id, description, quantity_milli, unit_price_cents, tax_rate_bps, amount_cents, tax_cents, foreign_unit_price_cents, foreign_amount_cents, foreign_tax_cents, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         foreach ($calculated as $line) $insertLine->execute([new_id('iline'), $invoiceId, $line['description'], $line['quantityMilli'], $line['unitPriceCents'], $line['taxRateBps'], $line['amountCents'], $line['taxCents'], $line['foreignUnitPriceCents'], $line['foreignAmountCents'], $line['foreignTaxCents'], $line['sortOrder']]);
         if (function_exists('invoice_record_tax_split')) invoice_record_tax_split($companyId, $invoiceId, $tax, $pst);
+        if ($codesMode) { document_tax_rows_save($companyId, 'invoice', $invoiceId, $taxRows); $cs = db()->prepare('UPDATE invoice_lines SET tax_code_id=? WHERE invoice_id=? AND sort_order=?'); foreach ($calculated as $line) if (!empty($line['taxCodeId'])) $cs->execute([$line['taxCodeId'], $invoiceId, $line['sortOrder']]); }
         $next = advanced_next_date($issueDate, (string)$profile['frequency'], (int)$profile['anchor_day']);
         $active = $profile['end_date'] === null || $next <= (string)$profile['end_date'];
         db()->prepare('UPDATE recurring_invoice_profiles SET next_invoice_date = ?, active = ? WHERE id = ?')->execute([$next, $active ? 1 : 0, $profileId]);
@@ -1500,10 +1518,11 @@ function handle_advanced_recurring_bill_run(): never
         $entryId = $issue && (string)$company['accounting_basis'] === 'accrual'
             ? add_journal_entry($user, $companyId, $values['billDate'], 'bill', $billId,
                 bill_posting_description((string)$values['vendor']['name'], $values['number'], $values['billDate'], (string)$values['category']['name']),
-                bill_posting_lines($companyId, $values['categoryId'], $values['subtotal'], $values['gst'], $values['pst'], $values['total'], (bool)($company['pst_recoverable'] ?? false)))
+                (!empty($values['codesMode']) ? bill_posting_lines_rows($companyId, $values['categoryId'], $values['subtotal'], $values['taxRows'], $values['total']) : bill_posting_lines($companyId, $values['categoryId'], $values['subtotal'], $values['gst'], $values['pst'], $values['total'], (bool)($company['pst_recoverable'] ?? false))))
             : null;
         db()->prepare('INSERT INTO bills (id,company_id,vendor_id,number,bill_date,due_date,status,category_account_id,payment_terms_days,subtotal_cents,gst_hst_cents,pst_cents,tax_cents,tax_entry_mode,total_cents,balance_cents,currency,exchange_rate_micros,foreign_subtotal_cents,foreign_gst_hst_cents,foreign_pst_cents,foreign_tax_cents,foreign_total_cents,foreign_balance_cents,memo,issued_journal_entry_id,is_recurring) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)')
             ->execute([$billId,$companyId,$values['vendorId'],$values['number'],$values['billDate'],$values['dueDate'],$issue?'open':'draft',$values['categoryId'],$values['termsDays'],$values['subtotal'],$values['gst'],$values['pst'],$values['taxTotal'],$values['mode'],$values['total'],$values['total'],$values['currency'],$values['rate'],$values['foreignSubtotal'],$values['foreignGst'],$values['foreignPst'],$values['foreignGst']+$values['foreignPst'],$values['foreignTotal'],$values['foreignTotal'],$values['memo'],$entryId]);
+        if (!empty($values['codesMode'])) { document_tax_rows_save($companyId, 'bill', $billId, $values['taxRows']); db()->prepare('UPDATE bills SET tax_code_id=? WHERE id=?')->execute([$values['taxCodeId'], $billId]); }
         if ($issue && function_exists('voucher_mark_posted')) voucher_mark_posted($user, $companyId, 'bill', $billId, $entryId);
         $next = advanced_next_date($billDate, (string)$profile['frequency'], (int)$profile['anchor_day']);
         $active = $profile['end_date'] === null || $next <= (string)$profile['end_date'];

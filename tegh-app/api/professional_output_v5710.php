@@ -101,6 +101,8 @@ function tegh_output_invoice_model(array $user,array $company,string $invoiceId)
     // R135: show GST/HST and PST as separate lines when the invoice recorded PST.
     $basePst=(int)($invoice['pst_cents']??0);$baseTax=(int)$invoice['tax_cents'];
     $foreignPst=$basePst>0&&$baseTax>0?min($foreignTax,(int)round($foreignTax*$basePst/$baseTax)):0;
+    // R137: invoices with tax-code components list each named tax instead of the GST/HST + PST pair.
+    if(function_exists('document_tax_rows_get')&&document_tax_rows_get((string)$company['id'],'invoice',(string)$invoice['id']))$foreignPst=0;
     $pstLabel=match(strtoupper((string)($company['province']??''))){'QC'=>'QST','MB'=>'RST',default=>'PST'};
     $void=(string)$invoice['status']==='void';$paid=$void?0:max(0,$foreignTotal-$foreignBalance);$balanceDue=$void?0:$foreignBalance;
     $statusLabel=match((string)$invoice['status']){
@@ -142,6 +144,7 @@ function tegh_output_invoice_model(array $user,array $company,string $invoiceId)
         'totals'=>['subtotalCents'=>$foreignSubtotal,'discountCents'=>0]+($foreignPst>0?['gstHstCents'=>$foreignTax-$foreignPst,'pstCents'=>$foreignPst]:[])+['taxCents'=>$foreignTax,'totalCents'=>$foreignTotal,
             'paymentsCreditsCents'=>$paid,'balanceDueCents'=>$balanceDue],
         'taxLabels'=>['gstHst'=>'GST/HST','pst'=>$pstLabel],
+        'taxBreakdown'=>function_exists('document_tax_rows_get')?array_values(array_map(static fn(array $r):array=>['label'=>$r['componentName'].' '.tax_rate_label((int)$r['rateMpct']),'cents'=>$invoiceCurrency===$baseCurrency?(int)$r['taxCents']:(int)$r['foreignTaxCents']],document_tax_rows_get((string)$company['id'],'invoice',(string)$invoice['id']))):[],
         'terms'=>!empty($template['showPaymentInstructions'])?(trim((string)($template['paymentInstructions']??''))?:null):null,
         'notes'=>trim((string)($template['footer']??''))?:null,
     ];
