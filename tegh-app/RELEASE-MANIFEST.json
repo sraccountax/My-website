@@ -24,10 +24,10 @@
   "flatRoot": true,
   "packageType": "cumulative-full-application",
   "activeEntry": "app.html",
-  "generatedAt": "2026-10-01T16:58:12Z",
+  "generatedAt": "2026-10-01T17:07:45Z",
   "sourceRepository": "sraccountax/My-website",
   "sourceBranch": "claude/invoice-credit-debit-audit-e2y8wc",
-  "sourceParentCommit": "a570ce72230c2af011caecf47618d19256c7db87",
+  "sourceParentCommit": "c1fe9d3b2b8d9fc07f36f84928c8247f6b9416f8",
   "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
   "databaseMigrationRequired": false,
   "databaseMigrationNote": "No manual migration since R118. R144 creates company_insight_dismissals on the first dismissal. R141 adds companies.country, widens province to VARCHAR(10) on companies/customers/vendors and creates company_dashboard_mappings on the first request. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
@@ -980,11 +980,11 @@
       ]
     },
     "r143Identity": {
-      "release": "R143",
-      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R143-Consolidated-IONOS-STAGING",
-      "generatedAt": "2026-10-01T16:29:28Z",
-      "sourceParentCommit": "f6705180823bfeaf52f1ffffdc6d45c0994b8a1f",
-      "testStatus": "R143 = R142 plus fixes found by a click-through test of every daily workflow (DEF-10 to DEF-13). Re-run through the full gate suite, the R141/R142 tests, the click-through workflow suite, the UI matrix and the R118->R143 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R143 addendum). Host acceptance has not started; productionReady is false.",
+      "release": "R144",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R144-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-10-01T16:58:12Z",
+      "sourceParentCommit": "a570ce72230c2af011caecf47618d19256c7db87",
+      "testStatus": "R144 = R143 plus Tegh Intelligence, built into Tegh with no external AI. Re-run through the full gate suite, the R141/R142/R144 tests, the click-through workflow suite, the R144 browser checks (desktop and phone), the UI matrix and the R118->R144 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R143/R144 addendum). Host acceptance has not started; productionReady is false.",
       "executedLocalGates": {
         "betaGateR138Baseline": {
           "passed": false,
@@ -1012,6 +1012,10 @@
         "r143ClickThroughWorkflows": {
           "passed": null,
           "detail": "Click-through workflow suite on a fresh synthetic company (customer to payroll, Assist, PDF and export), every result checked against the database with hand-computed expectations; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r144Intelligence": {
+          "passed": null,
+          "detail": "15-r144 on a seeded synthetic company with hand-computed expectations (anomalies, brief, chase list, cash, bank suggestions, ask-your-books, dismissals, read-only, isolation, no outbound calls) and journeys144 at 1440x900 and 390x844."
         }
       },
       "knownLimitations": [
@@ -1032,7 +1036,10 @@
         "Report exports are under the table's Actions menu (Export…)",
         "GL Journal Entry excludes bank, AR, AP and tax control accounts by design",
         "Balance Sheet shows GST/HST Recoverable under Other Assets",
-        "Employee province fields are free text"
+        "Employee province fields are free text",
+        "Tegh Intelligence uses rules and statistics; it can miss things or raise false alarms",
+        "Bank suggestions need at least one earlier posting of a similar line",
+        "Insight dismissals are not included in backups"
       ]
     }
   }
