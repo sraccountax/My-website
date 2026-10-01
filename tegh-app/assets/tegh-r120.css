@@ -930,3 +930,14 @@ html[data-tegh-theme="dark"] .r144-suggestion{background:#14213a;border-color:#2
 html[data-tegh-theme="dark"] .r144-confidence{background:#22365a;color:#dbe7fb}
 html[data-tegh-theme="dark"] .r144-sev{background:#3a2f12;color:#f6d58b}html[data-tegh-theme="dark"] .r144-findings li[data-severity="high"] .r144-sev{background:#3d1714;color:#f7b4ad}
 @media (max-width:640px){.r144-brief header .srp-btn{margin-left:0}.r144-actions{width:100%}.r144-actions .srp-btn{flex:1}.r144-runway strong{font-size:19px}}
+/* R145 Document Intake review aids */
+.tegh-date-choices{margin:0;padding:10px 12px;border:1px solid #e7b56a;border-radius:9px;background:#fff6e6;color:#6b3d00;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tegh-date-choices [aria-pressed=true]{outline:2px solid #0d9488;outline-offset:1px}
+.tegh-amount-check{margin:0;font-weight:600;min-height:1em}.tegh-amount-check[data-state=ok]{color:#0f6b4f}.tegh-amount-check[data-state=warn]{color:#8a4b00}
+html[data-tegh-theme="dark"] .tegh-date-choices{background:#352605;border-color:#8a5d16;color:#ffe2b0}
+html[data-tegh-theme="dark"] .tegh-amount-check[data-state=ok]{color:#7ee0b8}html[data-tegh-theme="dark"] .tegh-amount-check[data-state=warn]{color:#ffc46b}
+/* R145 DEF-14: inside the header "Upload document" menu the three-column upload grid squeezed the submit button to ~35px wide and pushed it off the panel. Stack it. */
+.r22-menu-panel :is(.tegh-document-upload,.tegh-collection-prepare){display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px;align-items:stretch!important}
+.r22-menu-panel :is(.tegh-document-upload,.tegh-collection-prepare)>*{min-width:0;max-width:100%}
+.r22-menu-panel :is(.tegh-document-upload,.tegh-collection-prepare) button[type=submit]{width:100%;height:auto;min-height:40px;white-space:normal}
+.r22-menu-panel :is(.tegh-document-upload,.tegh-collection-prepare) input[type=file]{width:100%;max-width:100%}

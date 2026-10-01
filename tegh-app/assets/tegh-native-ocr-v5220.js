@@ -9,6 +9,9 @@
     manifest: `${ROOT}/manifest.json?v=${BUILD}`,
     pdf: `${ROOT}/pdfjs/pdf.min.mjs?v=${BUILD}`,
     pdfWorker: `${ROOT}/pdfjs/pdf.worker.min.mjs?v=${BUILD}`,
+    // R145: the worker starts through a same-origin entry that adds Map/WeakMap upsert methods for browsers without them.
+    pdfWorkerEntry: '/assets/tegh-pdf-worker-r145.mjs?v=5990-r145-tegh',
+    upsert: '/assets/tegh-upsert-polyfill-r145.js?v=5990-r145-tegh',
     tesseract: `${ROOT}/tesseract/tesseract.min.js?v=${BUILD}`,
     worker: `${ROOT}/tesseract/worker.min.js?v=${BUILD}`,
     core: `${ROOT}/tesseract/tesseract-core-lstm.wasm.js?v=${BUILD}`,
@@ -127,8 +130,8 @@
   });
 
   async function pdfjs() {
-    pdfModulePromise ||= verifyAssets('pdf_text').then(() => import(PATHS.pdf)).then((module) => {
-      module.GlobalWorkerOptions.workerSrc = PATHS.pdfWorker;
+    pdfModulePromise ||= verifyAssets('pdf_text').then(() => import(PATHS.upsert)).then(() => import(PATHS.pdf)).then((module) => {
+      module.GlobalWorkerOptions.workerSrc = PATHS.pdfWorkerEntry;
       return module;
     }).catch(error => { pdfModulePromise = null; throw error; });
     return pdfModulePromise;
@@ -172,63 +175,164 @@
     return normalizeText(rows.map(row => row.runs.sort((a, b) => a.x - b.x || a.index - b.index).map(item => item.str).join(' ')).join('\n'));
   }
 
-  const isoDate = (value) => {
-    const raw = String(value || '').trim();
-    const valid = (year, month, day) => {
-      const d = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
-      return d.getUTCFullYear() === Number(year) && d.getUTCMonth() + 1 === Number(month) && d.getUTCDate() === Number(day)
-        ? `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}` : '';
-    };
-    let match = raw.match(/\b(20\d{2})[-/.](0?[1-9]|1[0-2])[-/.](0?[1-9]|[12]\d|3[01])\b/);
-    if (match) return valid(match[1], match[2], match[3]);
-    match = raw.match(/\b(0?[1-9]|[12]\d|3[01])[-/.](0?[1-9]|1[0-2])[-/.](20\d{2})\b/);
-    if (match) return valid(match[3], match[2], match[1]);
-    const months = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
-    match = raw.match(/\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{1,2})(?:st|nd|rd|th)?[,]?[\s]+(20\d{2})\b/i);
-    if (match) return valid(match[3], months[match[1].slice(0,3).toLowerCase()], match[2]);
-    match = raw.match(/\b(\d{1,2})(?:st|nd|rd|th)?\s+(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+[,]?(20\d{2})\b/i);
-    if (match) return valid(match[3], months[match[2].slice(0,3).toLowerCase()], match[1]);
-    return '';
+  // R145: field reader for bills, invoices and receipts. Works on the text of a PDF or an OCR'd image, in English
+  // and French (Québec). Labels are matched with their value on the same line or the line below. Numeric dates
+  // that read both ways (03/04/2026) are never guessed: both readings go to alternatives for the reviewer.
+  const MONTHS_EN = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+  const MONTHS_FR = {janv:1,janvier:1,fevr:2,fevrier:2,fev:2,mars:3,avr:4,avril:4,mai:5,juin:6,juil:7,juillet:7,aout:8,sept:9,septembre:9,oct:10,octobre:10,nov:11,novembre:11,dec:12,decembre:12};
+  const fold = value => String(value || '').normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const ymd = (year, month, day) => {
+    const d = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+    return d.getUTCFullYear() === Number(year) && d.getUTCMonth() + 1 === Number(month) && d.getUTCDate() === Number(day)
+      ? `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}` : '';
   };
+  const EN_MONTH = '(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\\.?';
+  const FR_MONTH = '(janv(?:ier)?|f[eé]v(?:r(?:ier)?)?|mars|avr(?:il)?|mai|juin|juil(?:let)?|ao[uû]t|sept(?:embre)?|oct(?:obre)?|nov(?:embre)?|d[eé]c(?:embre)?)\\.?';
+  /** Every date in a piece of text: {iso, alternatives[], index}. Ambiguous numeric dates have iso '' and two alternatives. */
+  function datesIn(value) {
+    const raw = String(value || ''), found = [];
+    const push = (index, iso, alternatives = []) => { if (iso || alternatives.length) found.push({index, iso, alternatives}); };
+    for (const m of raw.matchAll(/\b(20\d{2})[-/.](0?[1-9]|1[0-2])[-/.](0?[1-9]|[12]\d|3[01])\b/g)) push(m.index, ymd(m[1], m[2], m[3]));
+    for (const m of raw.matchAll(/\b(0?[1-9]|[12]\d|3[01])[-/.](0?[1-9]|[12]\d|3[01])[-/.](20\d{2})\b/g)) {
+      const a = Number(m[1]), b = Number(m[2]);
+      if (a > 12) push(m.index, ymd(m[3], b, a));                 // 25/03/2026 → day first
+      else if (b > 12) push(m.index, ymd(m[3], a, b));            // 03/25/2026 → month first
+      else if (a === b) push(m.index, ymd(m[3], a, b));
+      else push(m.index, '', [ymd(m[3], a, b), ymd(m[3], b, a)].filter(Boolean)); // 03/04/2026: March 4 or 3 April
+    }
+    for (const m of raw.matchAll(new RegExp(`\\b${EN_MONTH}\\s+(\\d{1,2})(?:st|nd|rd|th)?,?\\s+(20\\d{2})\\b`, 'gi'))) push(m.index, ymd(m[3], MONTHS_EN[m[1].slice(0, 3).toLowerCase()], m[2]));
+    for (const m of raw.matchAll(new RegExp(`\\b(\\d{1,2})(?:st|nd|rd|th|er)?\\s+${EN_MONTH},?\\s+(20\\d{2})\\b`, 'gi'))) push(m.index, ymd(m[3], MONTHS_EN[m[2].slice(0, 3).toLowerCase()], m[1]));
+    for (const m of raw.matchAll(new RegExp(`\\b(\\d{1,2})(?:er)?\\s+${FR_MONTH}\\s+(20\\d{2})\\b`, 'gi'))) { const key = fold(m[2]).toLowerCase().replace(/\.$/, ''); const month = MONTHS_FR[key] ?? MONTHS_FR[key.slice(0, 4)] ?? MONTHS_FR[key.slice(0, 3)]; push(m.index, month ? ymd(m[3], month, m[1]) : ''); }
+    return found.sort((x, y) => x.index - y.index);
+  }
+  const isoDate = value => datesIn(value).find(d => d.iso)?.iso || '';
 
-  const cents = (value) => {
-    const cleaned = String(value || '').replace(/[^0-9.,-]/g, '').replace(/,/g, '');
-    if (!/^-?\d+(?:\.\d{1,2})?$/.test(cleaned)) return null;
-    const amount = Number(cleaned);
-    return Number.isFinite(amount) ? Math.round(amount * 100) : null;
-  };
+  /** Money tokens on a line: "$1,234.56", "1 234,56 $" (French), "45.20-", "(12.50)". Returns signed cents. */
+  function moneyIn(line, french) {
+    const out = [], src = String(line || '');
+    const re = french
+      ? /(\(?-?\$?\s?)(\d{1,3}(?:[ \u00a0\u202f.]\d{3})*|\d+),(\d{2})(?!\d)(\s?\$)?(\)?-?)/g
+      : /(\(?-?(?:CAD|USD|US\$|C\$|\$|€|£)?\s?)(\d{1,3}(?:,\d{3})*|\d+)\.(\d{2})(?!\d)(\s?(?:CAD|USD|\$))?(\)?-?)/g;
+    for (const m of src.matchAll(re)) {
+      const digits = m.index + m[1].length, before = src.slice(Math.max(0, digits - 1), digits);
+      if (/[\d.,%]/.test(before) || /%/.test(src.slice(m.index + m[0].length, m.index + m[0].length + 1))) continue; // part of a longer number or a rate
+      const whole = m[2].replace(/[ \u00a0\u202f.,]/g, ''), value = Number(whole) * 100 + Number(m[3]);
+      const negative = /-/.test(m[1]) || /-$/.test(m[5]) || (/\(/.test(m[1]) && /\)/.test(m[5]));
+      if (Number.isSafeInteger(value)) out.push(negative ? -value : value);
+    }
+    return out;
+  }
+  const cents = value => { const found = moneyIn(String(value || ''), false); return found.length ? found[found.length - 1] : null; };
 
   function candidateFromText(rawText) {
-    const text=normalizeText(rawText),lines=text.split('\n').map(x=>x.trim()).filter(Boolean);
-    const moneyPattern='(?:CAD|USD|EUR|GBP|US\\$|C\\$|\\$|€|£)?\\s*([0-9][0-9,]*(?:\\.[0-9]{1,2})?)';
-    const amountFor=labels=>{for(const label of labels){const re=new RegExp('^\\s*(?:'+label+')\\s*(?:\\([^)]*\\))?\\s*[:=–-]?\\s*'+moneyPattern+'\\s*(?:CAD|USD|EUR|GBP)?\\s*$','im'),match=text.match(re);if(match)return cents(match[1]);}return null;};
-    const invoiceTotal=amountFor(['invoice\\s+total','grand\\s+total','total\\s+(?:amount|including\\s+tax)','total']);
-    const payable=amountFor(['total\\s+amount\\s+(?:due|payable)','amount\\s+(?:due|payable)','balance\\s+due','total\\s+due']);
-    const subtotal=amountFor(['sub\\s*total','net\\s+(?:amount|total)','total\\s+before\\s+tax']);
-    let tax=amountFor(['tax\\s+total','total\\s+tax','tax']);
-    if(tax===null){const taxLines=lines.filter(x=>/^(?:GST\s*\/?\s*HST|HST|GST|PST|QST|VAT)\b/i.test(x)&&!/(?:registration|register|number|\bno\b|#|RT\d{4})/i.test(x));const values=taxLines.map(x=>{const m=x.match(/(?:^|\s|[:$])([0-9][0-9,]*\.\d{2})\s*(?:CAD|USD)?$/i);return m?cents(m[1]):null;}).filter(Number.isInteger);if(values.length)tax=values.reduce((a,b)=>a+b,0);}
-    const labelledName=text.match(/^(?:vendor|supplier|seller|from)(?:\s+(?:name|legal name))?\s*[:：]\s*(.+)$/im)?.[1];
-    // An unlabelled three-character OCR fragment is weak identity evidence;
-    // leave the party blank for human review instead of proposing a false match.
-    const partyLine=labelledName||lines.find(line=>line.length>=4&&line.length<=160&&/[a-z]/i.test(line)&&! /\b(invoice|bill to|ship to|statement|receipt|total|date|tax|gst|hst|pst|registration|account number|description|quantity|amount|payment|terms)\b/i.test(line)&&!/@|https?:|www\./i.test(line))||'';
-    const identifier=text.match(/\b(?:GST\s*\/?\s*HST|HST|GST|VAT|tax|business|registration|registeration)\s*(?:(?:registration|registeration|reg(?:istration)?\.?|number|no\.?)\s*)?[:#]\s*([A-Z0-9][A-Z0-9 -]{4,35})/i)?.[1]?.trim()||text.match(/\b\d{9}\s*RT\s*\d{4}\b/i)?.[0]||'';
-    const number=text.match(/\b(?:invoice|bill|document)\s*(?:number|no\.?|#)\s*[:#-]?\s*([A-Z0-9][A-Z0-9._/-]{1,39})/i)?.[1]||'';
-    const documentDate=text.match(/^(?:invoice|bill|document)\s*date\s*[:#-]?\s*([^\n]{6,24})/im)||text.match(/^date\s*[:#-]?\s*([^\n]{6,24})/im),due=text.match(/^due\s*date\s*[:#-]?\s*([^\n]{6,24})/im);
-    const candidate={partyName:partyLine,partyEmail:text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)?.[0]||'',businessIdentifier:identifier,documentNumber:number,documentDate:isoDate(documentDate?.[1]||''),dueDate:isoDate(due?.[1]||''),currency:/\bUSD\b|US\$/i.test(text)?'USD':/\bEUR\b|€/i.test(text)?'EUR':/\bGBP\b|£/i.test(text)?'GBP':'CAD',paymentTerms:text.match(/\b(?:payment\s+terms|terms)\s*[:：]\s*([^\n]{1,80})/i)?.[1]||'',confidenceBps:0,alternatives:[],lineItems:[]};
-    const total=invoiceTotal??(Number.isInteger(subtotal)&&Number.isInteger(tax)?subtotal+tax:payable);
-    if(Number.isInteger(total))candidate.totalCents=total;
-    if(Number.isInteger(payable))candidate.amountDueCents=payable;
-    if(Number.isInteger(tax))candidate.taxCents=tax;
-    if(Number.isInteger(subtotal))candidate.subtotalCents=subtotal;
+    const text = normalizeText(rawText), lines = text.split('\n').map(x => x.trim()).filter(Boolean), folded = lines.map(x => fold(x));
+    const french = /\b(TPS|TVQ|TVH|sous-?total|montant|facture|re[cç]u|payer|taxes?\s+incluses)\b/i.test(fold(text)) && !/\b\d{1,3}(,\d{3})*\.\d{2}\b/.test(text);
+    // A labelled amount: the label starts the line (or follows a short prefix), the amount is the last on that line,
+    // or the next line holds only an amount.
+    const labelled = (labels, exclude = null) => {
+      const hits = [];
+      folded.forEach((line, i) => {
+        const re = new RegExp(`^(?:[^A-Za-z0-9]{0,3})(?:${labels})\\b`, 'i');
+        if (!re.test(line) || (exclude && exclude.test(line))) return;
+        let amounts = moneyIn(lines[i], french);
+        if (!amounts.length && i + 1 < lines.length && /^[^A-Za-z]*$/.test(lines[i + 1].replace(/\b(CAD|USD)\b/g, ''))) amounts = moneyIn(lines[i + 1], french);
+        if (amounts.length) hits.push({line: i, cents: amounts[amounts.length - 1]});
+      });
+      return hits;
+    };
+    const SUB = 'sub\\s*-?\\s*total|sous\\s*-?\\s*total|total\\s+before\\s+tax(?:es)?|net\\s+(?:amount|total)|total\\s+(?:hors\\s+taxes|HT)|montant\\s+avant\\s+taxes';
+    const subtotalHits = labelled(SUB);
+    const taxTotalHits = labelled('total\\s+tax(?:es)?|tax(?:es)?\\s+total|total\\s+des\\s+taxes|sales\\s+tax(?:es)?');
+    const TAXWORD = /^(?:[^A-Za-z]{0,3})(GST\s*\/\s*HST|TPS\s*\/\s*TVH|HST|GST|PST|QST|RST|TPS|TVQ|TVH|TVP|VAT|tax(?:e)?)\b/i;
+    const components = [];
+    folded.forEach((line, i) => {
+      if (!TAXWORD.test(line) || /\b(total|exempt)\b/i.test(line)) return;
+      const included = /\b(incl|included|incluses?|comprises?)\b/i.test(line);
+      // Registration numbers ("GST/HST # 123456789 RT0001", "TVQ 1234567890 TQ0001") are identity, not amounts.
+      const stripped = lines[i].replace(/\b\d{9}\s*(RT|TQ|RR)\s*\d{4}\b|\b\d{10}\s*TQ\s*\d{4}\b/gi, ' ').replace(/\b(?:no|n°|#|number|reg(?:istration)?\.?)\s*[:#]?\s*[A-Z0-9 -]{6,}$/i, ' ');
+      let amounts = moneyIn(stripped, french);
+      if (!amounts.length && i + 1 < lines.length && /^[^A-Za-z]*$/.test(lines[i + 1])) amounts = moneyIn(lines[i + 1], french);
+      if (amounts.length) components.push({line: i, included, label: TAXWORD.exec(line)[1].toUpperCase().replace(/\s+/g, ''), cents: amounts[amounts.length - 1]});
+    });
+    const totalHits = labelled('invoice\\s+total|grand\\s+total|total\\s+(?:amount|cad|usd|payable|ttc|a\\s+payer|due)|amount\\s+\\(?incl|montant\\s+total|total',
+      /\b(sub|sous|before|avant|hors|HT\b|tax(es)?\s+total|total\s+tax|total\s+(gst|hst|pst|qst|tps|tvq|tvh)|des\s+taxes|items?|articles?|qty|quantit|savings|economies|discount|points|pts)\b/i);
+    const dueHits = labelled('(?:total\\s+)?amount\\s+(?:due|payable)|balance\\s+(?:due|owing)|total\\s+due|montant\\s+(?:du|a\\s+payer|exigible)|solde\\s+du|please\\s+pay');
+    const subtotal = subtotalHits.length ? subtotalHits[0].cents : null;
+    // Tax printed as "included" counts only when no separate tax lines are printed.
+    const separate = components.filter(c => !c.included), counted = separate.length ? separate : components;
+    const componentSum = counted.length ? counted.reduce((sum, c) => sum + c.cents, 0) : null;
+    let tax = taxTotalHits.length ? taxTotalHits[taxTotalHits.length - 1].cents : componentSum;
+    // Several "total" lines (receipts print TOTAL, then the card tender): prefer the one that equals subtotal + tax,
+    // then the largest positive one.
+    let total = null;
+    if (totalHits.length) {
+      const exact = Number.isInteger(subtotal) && Number.isInteger(tax) ? totalHits.find(h => h.cents === subtotal + tax) : null;
+      total = exact ? exact.cents : Math.max(...totalHits.map(h => h.cents));
+    }
+    const payable = dueHits.length ? dueHits[dueHits.length - 1].cents : null;
+    // Labelled document date (same line or next line), then any date not on a due-date line.
+    const DUE_RE = /\b(due|echeance|payable\s+by|pay\s+by|payment\s+due)\b/i;
+    const beforeDue = (line, foldedLine) => { const m = DUE_RE.exec(foldedLine); return m ? line.slice(0, m.index) : line; };
+    const dateAfterLabel = (labelRe, stopAtDue) => {
+      for (let i = 0; i < lines.length; i++) {
+        const m = labelRe.exec(folded[i]); if (!m || (stopAtDue && /(due|echeance|payment|pay\s+by)\s*$/i.test(folded[i].slice(0, m.index)))) continue;
+        const start = m.index + m[0].length, restFolded = folded[i].slice(start);
+        let rest = lines[i].slice(start); if (stopAtDue) rest = beforeDue(rest, restFolded);
+        const here = datesIn(rest)[0] || (i + 1 < lines.length ? datesIn(stopAtDue ? beforeDue(lines[i + 1], folded[i + 1]) : lines[i + 1])[0] : null);
+        if (here) return here;
+      }
+      return null;
+    };
+    const docDate = dateAfterLabel(/\b(?:invoice|bill|document|receipt|transaction|statement|issue[d]?|order)\s+date\b|\bdate\s+(?:de\s+(?:la\s+)?facture|d'emission|de\s+transaction)\b|\bdate(?:\s+of\s+(?:invoice|issue))?\s*[:：]|^date\b/i, true)
+      || datesIn(lines.map((line, i) => beforeDue(line, folded[i])).join('\n'))[0] || null;
+    const dueDate = dateAfterLabel(/\b(?:due\s+date|date\s+due|payment\s+due|payable\s+by|date\s+d'echeance|echeance)\b/i, false);
+    const labelledName = text.match(/^(?:vendor|supplier|seller|from|fournisseur|vendeur)(?:\s+(?:name|legal name))?\s*[:：]\s*(.+)$/im)?.[1];
+    // An unlabelled three-character OCR fragment is weak identity evidence; leave the party blank instead of guessing.
+    // A heading row often carries the document type next to the business name ("Northwind Ltd.   INVOICE"); drop that word.
+    const partyLine = labelledName || lines.map(line => line.replace(/\s*\b(?:tax\s+invoice|invoice|facture|receipt|re[cç]u|bill)\b\s*$/i, '').replace(/^\s*\b(?:tax\s+invoice|invoice|facture|receipt|re[cç]u)\b\s+/i, '').trim()).find(line => line.length >= 4 && !moneyIn(line, french).length && line.length <= 160 && /[a-z]{2}/i.test(line)
+      && !/\b(invoice|facture|bill\s+to|ship\s+to|sold\s+to|factur[eé]\s+[aà]|statement|receipt|re[cç]u|total|date|tax|gst|hst|pst|qst|tps|tvq|registration|account\s+number|description|quantity|amount|payment|terms|page|thank|merci|welcome|bienvenue|customer\s+copy|copie)\b/i.test(line)
+      && !/@|https?:|www\.|\.com\b|\.ca\b/i.test(line) && !/^\+?[\d\s().-]{7,}$/.test(line) && !/^\d+\s+\S+.*\b(st|street|rd|road|ave|avenue|blvd|boul|rue|ch|chemin|dr|drive|way|unit|suite)\b/i.test(line)) || '';
+    const identifier = text.match(/\b\d{9}\s*RT\s*\d{4}\b/i)?.[0]
+      || text.match(/\b(?:GST\s*\/?\s*HST|HST|GST|TPS(?:\s*\/\s*TVH)?|TVQ|QST|VAT|tax|business|registration|registeration)\s*(?:(?:registration|registeration|reg(?:istration)?\.?|number|no\.?|n°)\s*)?[:#]\s*([A-Z0-9][A-Z0-9 -]{4,35})/i)?.[1]?.trim() || '';
+    const numberMatch = fold(text).match(/\b(?:invoice|bill|document|receipt|transaction|order|facture|recu)\s*(?:number|no\.?|n[o°º]\.?|#|num(?:ero)?\.?)\s*[:#-]?\s*([A-Z0-9][A-Z0-9._/-]{0,39})/i)
+      || fold(text).match(/^(?:invoice|facture)\s*[:#]?\s*([A-Z]{0,6}-?\d[A-Z0-9._/-]{0,39})\b/im);
+    const number = numberMatch && /\d/.test(numberMatch[1]) ? numberMatch[1] : '';
+    const termsText = text.match(/\b(?:payment\s+terms|terms|conditions(?:\s+de\s+paiement)?)\s*[:：]\s*([^\n]{1,80})/i)?.[1] || (text.match(/\b(net\s*\d{1,3}(?:\s*days)?|due\s+on\s+receipt|payable\s+[aà]\s+r[eé]ception)\b/i)?.[1] || '');
+    const candidate = {partyName: partyLine, partyEmail: text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)?.[0] || '', businessIdentifier: identifier, documentNumber: number,
+      documentDate: docDate?.iso || '', dueDate: dueDate?.iso || '',
+      currency: /\bUSD\b|US\$/i.test(text) ? 'USD' : /\bEUR\b|€/.test(text) ? 'EUR' : /\bGBP\b|£/.test(text) ? 'GBP' : 'CAD', paymentTerms: termsText.trim(), confidenceBps: 0, alternatives: [], lineItems: []};
+    if (docDate && !docDate.iso) candidate.alternatives = docDate.alternatives.map(documentDate => ({documentDate}));
+    // "Net 30" with a known date gives the due date by plain day arithmetic; the reviewer still confirms it.
+    const net = /\bnet\s*(\d{1,3})\b/i.exec(candidate.paymentTerms);
+    if (!candidate.dueDate && candidate.documentDate && net) candidate.dueDate = new Date(Date.parse(candidate.documentDate + 'T00:00:00Z') + Number(net[1]) * 86400000).toISOString().slice(0, 10);
+    if (Number.isInteger(total) && Number.isInteger(subtotal) && tax === null && total >= subtotal) tax = total - subtotal;
+    const finalTotal = total ?? (Number.isInteger(subtotal) && Number.isInteger(tax) ? subtotal + tax : payable);
+    if (Number.isInteger(finalTotal) && finalTotal >= 0) candidate.totalCents = finalTotal;
+    if (Number.isInteger(payable) && payable >= 0) candidate.amountDueCents = payable;
+    if (Number.isInteger(tax) && tax >= 0) candidate.taxCents = tax;
+    if (Number.isInteger(subtotal) && subtotal >= 0) candidate.subtotalCents = subtotal;
     // Derive only exact arithmetic; inconsistent printed totals remain for human review.
-    if(Number.isInteger(total)&&Number.isInteger(tax)&&subtotal===null&&total>=tax)candidate.subtotalCents=total-tax;
-    if(Number.isInteger(total)&&Number.isInteger(subtotal)&&tax===null&&total>=subtotal)candidate.taxCents=total-subtotal;
-    const heading=lines.findIndex(x=>/^(?:description|item\s+description)\b/i.test(x)||/^(?:services|products|items)\b.*\b(?:amount|price|quantity|qty|total)\b/i.test(x));
-    if(heading>=0){for(const line of lines.slice(heading+1)){if(/^(sub\s*total|tax|GST|HST|PST|VAT|grand\s+total|total|amount\s+(due|payable)|balance\s+due|payment|terms)\b/i.test(line))break;const m=line.match(/^(.+?[A-Za-z].*?)\s+(?:CAD\s*|USD\s*|\$\s*)?([0-9][0-9,]*\.\d{2})\s*$/);if(m)candidate.lineItems.push({description:m[1].trim().slice(0,300),amountCents:cents(m[2])});if(candidate.lineItems.length>=100)break;}}
-    if(candidate.lineItems.length)candidate.memo=candidate.lineItems.map(x=>x.description).join('; ').slice(0,500);
-    const known=[candidate.partyName,candidate.documentNumber,candidate.documentDate,candidate.totalCents].filter(x=>x!==''&&x!==undefined).length;
-    candidate.confidenceBps=Math.min(9000,2000+known*1500+(identifier?500:0));
-    if(Number.isInteger(candidate.subtotalCents)&&Number.isInteger(candidate.taxCents)&&Number.isInteger(total)&&candidate.subtotalCents+candidate.taxCents!==total){candidate.confidenceBps=Math.min(candidate.confidenceBps,4000);delete candidate.subtotalCents;}
+    if (Number.isInteger(candidate.totalCents) && Number.isInteger(candidate.taxCents) && candidate.subtotalCents === undefined && candidate.totalCents >= candidate.taxCents) candidate.subtotalCents = candidate.totalCents - candidate.taxCents;
+    // Line items: rows under a heading that names a description and a money column.
+    const heading = folded.findIndex(x => /^(?:description|item\s+description|items?|articles?|produits?)\b/i.test(x) || (/\b(description|item|article)\b/i.test(x) && /\b(amount|price|total|montant|prix|qty|quantity|quantite)\b/i.test(x)));
+    if (heading >= 0) {
+      for (const line of lines.slice(heading + 1)) {
+        if (TAXWORD.test(fold(line)) || /^(sub\s*-?\s*total|sous\s*-?\s*total|grand\s+total|total|amount\s+(due|payable)|balance\s+due|payment|terms|montant)\b/i.test(fold(line))) break;
+        const amounts = moneyIn(line, french);
+        if (!amounts.length || !/[A-Za-z]{2}/.test(line)) continue;
+        const description = line.replace(/(?:\s+(?:CAD|USD|\$)?\s*-?\(?\$?\d[\d ,.]*\)?\s*\$?)+\s*$/, '').replace(/^\d+(?:\.\d+)?\s*[x×]?\s+/, '').trim();
+        if (description && amounts[amounts.length - 1] > 0) candidate.lineItems.push({description: description.slice(0, 300), amountCents: amounts[amounts.length - 1]});
+        if (candidate.lineItems.length >= 100) break;
+      }
+    }
+    if (candidate.lineItems.length) candidate.memo = candidate.lineItems.map(x => x.description).join('; ').slice(0, 500);
+    const known = [candidate.partyName, candidate.documentNumber, candidate.documentDate, candidate.totalCents].filter(x => x !== '' && x !== undefined).length;
+    candidate.confidenceBps = Math.min(9000, 2000 + known * 1500 + (identifier ? 500 : 0));
+    if (Number.isInteger(candidate.subtotalCents) && Number.isInteger(candidate.taxCents) && Number.isInteger(candidate.totalCents)) {
+      if (candidate.subtotalCents + candidate.taxCents !== candidate.totalCents) { candidate.confidenceBps = Math.min(candidate.confidenceBps, 4000); delete candidate.subtotalCents; }
+      else candidate.confidenceBps = Math.min(9500, candidate.confidenceBps + 500); // the document's own arithmetic agrees
+    }
+    if (candidate.alternatives.length) candidate.confidenceBps = Math.min(candidate.confidenceBps, 6000);
     return candidate;
   }
 
@@ -242,6 +346,36 @@
       cacheMethod: 'write',
       logger: (message) => progress(onProgress, message.status || 'ocr', Number(message.progress || 0), 'Local OCR'),
     });
+  }
+
+  // R145: OCR reads clean, upright, grey pages best. Photos are turned upright from their camera orientation, scaled so
+  // text is large enough (small photos up, huge photos down), turned grey and contrast-stretched (1st–99th percentile).
+  function enhanceCanvas(canvas) {
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    const image = context.getImageData(0, 0, canvas.width, canvas.height), data = image.data, histogram = new Uint32Array(256);
+    for (let i = 0; i < data.length; i += 4) { const grey = (data[i] * 299 + data[i + 1] * 587 + data[i + 2] * 114) / 1000 | 0; data[i] = grey; histogram[grey]++; }
+    const pixels = data.length / 4; let low = 0, high = 255, seen = 0;
+    for (let v = 0; v < 256; v++) { seen += histogram[v]; if (seen >= pixels * 0.01) { low = v; break; } }
+    seen = 0; for (let v = 255; v >= 0; v--) { seen += histogram[v]; if (seen >= pixels * 0.01) { high = v; break; } }
+    const span = Math.max(1, high - low);
+    for (let i = 0; i < data.length; i += 4) { const v = Math.max(0, Math.min(255, Math.round((data[i] - low) * 255 / span))); data[i] = data[i + 1] = data[i + 2] = v; }
+    context.putImageData(image, 0, 0);
+    return canvas;
+  }
+  async function prepareImage(file) {
+    if (typeof createImageBitmap !== 'function') return file;
+    let bitmap;
+    try { bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (_) { return file; }
+    try {
+      const longest = Math.max(bitmap.width, bitmap.height);
+      const scale = longest < 1600 ? Math.min(3, 1600 / longest) : longest > 3200 ? 3200 / longest : 1;
+      const canvas = window.document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale)); canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      const context = canvas.getContext('2d', { alpha: false, willReadFrequently: true });
+      context.fillStyle = '#fff'; context.fillRect(0, 0, canvas.width, canvas.height);
+      context.imageSmoothingQuality = 'high'; context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      return enhanceCanvas(canvas);
+    } finally { bitmap.close?.(); }
   }
 
   async function recognize(worker, source) {
@@ -267,13 +401,13 @@
         let pageText = layoutTextFromItems(content.items);
         if (pageText.replace(/\s/g, '').length < 55 && !/(?:invoice|bill|document)\s*(?:number|no\.?|#)|(?:amount|balance)\s+due/i.test(pageText)) {
           worker ||= await createOcrWorker(onProgress);
-          const viewport = page.getViewport({ scale: 1.75 });
+          const viewport = page.getViewport({ scale: 2.5 });
           const canvas = window.document.createElement('canvas');
           canvas.width = Math.ceil(viewport.width);
           canvas.height = Math.ceil(viewport.height);
           const context = canvas.getContext('2d', { alpha: false });
           await page.render({ canvasContext: context, viewport }).promise;
-          pageText = await recognize(worker, canvas);
+          pageText = await recognize(worker, enhanceCanvas(canvas));
           canvas.width = 1;
           canvas.height = 1;
           usedOcr = true;
@@ -290,7 +424,12 @@
 
   async function extractImage(file, onProgress) {
     const worker = await createOcrWorker(onProgress);
-    try { return { text: await recognize(worker, file), method: 'ocr', pageCount: 1, truncatedPages: false }; }
+    try {
+      const source = await prepareImage(file);
+      const text = await recognize(worker, source);
+      if (source !== file) { source.width = 1; source.height = 1; }
+      return { text, method: 'ocr', pageCount: 1, truncatedPages: false };
+    }
     finally { await worker.terminate().catch(() => {}); }
   }
 

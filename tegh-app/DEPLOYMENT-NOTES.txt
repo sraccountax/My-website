@@ -1,7 +1,7 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R144 IONOS STAGING DEPLOYMENT
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R145 IONOS STAGING DEPLOYMENT
 
-This package contains every release through R144 (R118–R144 change notes are
-included). R144 adds Tegh Intelligence (no external AI). R143 fixes defects found by a click-through test of every daily
+This package contains every release through R145 (R118–R145 change notes are
+included). R145 improves the PDF statement converter and Document Intake. R144 adds Tegh Intelligence (no external AI). R143 fixes defects found by a click-through test of every daily
 workflow. R142 applies the owner-approved wording (payroll outside Quebec,
 sales tax guide, Product Activity note). R141 adds the gate follow-ups (DEF-08, OBS-2, Clarity), countries,
 the Tax Code Report and Dashboard Figures. R140 fixes vendor invoice scrolling on phones. R139 contains only the fixes from the invite-only beta release gate
@@ -79,7 +79,13 @@ Notes (the database user needs CREATE privilege, as for the original install).
    the changed assets. The table company_insight_dismissals is created on the
    first "Not a problem" (CREATE privilege). No outbound network access is
    needed: Tegh Intelligence runs entirely on this server.
-5. Upload all assets together; the cache token is r144-tegh (client-view page:
+   For R145: the new assets/tegh-statement-layout-r145.js,
+   assets/tegh-upsert-polyfill-r145.js and assets/tegh-pdf-worker-r145.mjs (.mjs
+   must be served as text/javascript; the root .htaccess already does this),
+   plus app.html, client-view.html and the changed assets. No server code and
+   no migration.
+5. Upload all assets together; the cache token is r145-tegh (the client-view
+   page loads its output script with r145-tegh too; its other assets stay on
    5990-r135). A partial upload can
    leave browsers on a stale portal.
 6. DN-1001 was already posted once in the original staging data. Do NOT post it
@@ -182,6 +188,13 @@ Verify after upload
   before; a suggestion with a confidence appears and Use suggestion fills the
   account and tax code without posting. (4) Ask Tegh Assist "how much did I
   spend on travel this year".
+- R145: (1) Banking > Upload Statement > Bank Statement Converter: convert a
+  text PDF statement; the review screen shows a green line ("Opening balance
+  … with these rows, comes to the closing balance … ✓") or an amber line
+  naming the difference. (2) Payables > Document Intake > Upload document: the
+  Upload and Extract Locally button is visible inside the panel; upload a bill
+  and check the read fields and "Subtotal + tax = total ✓". (3) Upload a
+  scanned (image-only) PDF bill: the fields are read by OCR without an error.
 - In the browser console: window.TeghPortal exists.
 - Tegh Assist (top bar, also on phones): ask "who owes me money?" and the
   answer starts with a plain sentence ("Customers owe you $…") in about a second; "pay my supplier" opens Vendor

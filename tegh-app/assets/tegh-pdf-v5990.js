@@ -154,8 +154,8 @@ async function invoice(model){const doc=new Document(await fonts(fontFamily(mode
  if(detail.watermark)doc.pages.forEach(ops=>{doc.ops=ops;doc.text(detail.watermark,doc.margin,36,9,{bold:true,color:doc.accent})});return doc.finish(model)}
 let previewModulePromise;
 async function renderPreview(blob,container,isCurrent=()=>true){
- const pdfjs=await(previewModulePromise||(previewModulePromise=import('/assets/tegh-ocr/v5220/pdfjs/pdf.min.mjs?v=5220').catch(error=>{previewModulePromise=null;throw error})));
- pdfjs.GlobalWorkerOptions.workerSrc='/assets/tegh-ocr/v5220/pdfjs/pdf.worker.min.mjs?v=5220';
+ const pdfjs=await(previewModulePromise||(previewModulePromise=import('/assets/tegh-upsert-polyfill-r145.js?v=5990-r145-tegh').then(()=>import('/assets/tegh-ocr/v5220/pdfjs/pdf.min.mjs?v=5220')).catch(error=>{previewModulePromise=null;throw error})));
+ pdfjs.GlobalWorkerOptions.workerSrc='/assets/tegh-pdf-worker-r145.mjs?v=5990-r145-tegh';
  const task=pdfjs.getDocument({data:new Uint8Array(await blob.arrayBuffer()),isEvalSupported:false,useWorkerFetch:false});const documentPdf=await task.promise;
  try{const pages=document.createDocumentFragment();for(let i=1;i<=documentPdf.numPages;i++){if(!isCurrent())return false;const page=await documentPdf.getPage(i),base=page.getViewport({scale:1}),scale=Math.min(1.5,Math.max(.5,(container.clientWidth||750)/base.width)),viewport=page.getViewport({scale});const canvas=document.createElement('canvas');canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);canvas.setAttribute('role','img');canvas.setAttribute('aria-label',`Invoice preview page ${i} of ${documentPdf.numPages}`);await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;if(!isCurrent())return false;pages.append(canvas)}if(!isCurrent())return false;container.replaceChildren(pages);container.dataset.previewRevision=String(Number(container.dataset.previewRevision||0)+1);return true}finally{await documentPdf.destroy()}
 }

@@ -54,7 +54,7 @@
   let pdfEnginePromise=null;
   async function pdfEngine(){
     if(window.TeghPDF)return window.TeghPDF;
-    return pdfEnginePromise||(pdfEnginePromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='/assets/tegh-pdf-v5990.js?v=5990-r122';script.onload=()=>window.TeghPDF?resolve(window.TeghPDF):reject(Error('PDF renderer did not initialize.'));script.onerror=()=>{script.remove();pdfEnginePromise=null;reject(Error('PDF renderer could not load. Please retry.'))};document.head.append(script)}));
+    return pdfEnginePromise||(pdfEnginePromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='/assets/tegh-pdf-v5990.js?v=5990-r145-tegh';script.onload=()=>window.TeghPDF?resolve(window.TeghPDF):reject(Error('PDF renderer did not initialize.'));script.onerror=()=>{script.remove();pdfEnginePromise=null;reject(Error('PDF renderer could not load. Please retry.'))};document.head.append(script)}));
   }
   async function pdfInvoice(model){return (await pdfEngine()).invoice(model)}
   function download(blob,filename){
