@@ -1,4 +1,4 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R141 IONOS STAGING CANDIDATE
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R142 IONOS STAGING CANDIDATE
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -30,10 +30,11 @@ R138: tax code picker in Match and Post, the transaction review panel and guided
 R139: fixes from the invite-only beta release gate. No third-party session recording in the signed-in app. Journals can no longer post to AR 1200 / AP 2050. Companies not registered for GST/HST are no longer charged tax automatically, and their purchase tax goes to cost. The dashboard tax card shows tax held in custom accounts. Correct message for a successfully sent email. A damaged backup gives an integrity message instead of a server error. Root config template denied. No migration. See R139-CHANGES.md and FINAL-BETA-QA-REPORT.md.
 R140: the New Vendor Invoice form scrolls on phones (a nested scroll box captured swipes). No migration. See R140-CHANGES.md.
 R141: starter tax codes charge PST/RST/QST only in the company's own province (DEF-08); invite and reset tokens move after # in links (OBS-2); Clarity removed from the Content-Security-Policy; country and province/state on companies, customers and vendors, and tax codes for other countries (US-NY, IN-MH, GB…); Tax Code Report with Edit selected; Dashboard Figures (choose the GL accounts behind each dashboard number); Payroll Support marked Canada only. Automatic migration: companies.country, wider province fields, company_dashboard_mappings (ALTER/CREATE privilege). See R141-CHANGES.md.
+R142: owner-approved wording: Payroll Support is for Canadian payroll outside Quebec, and the payroll screens list the CRA T4127 rate tables loaded; clearer sales tax guide (where tax applies, zero-rated vs exempt, small supplier, input tax credit receipts, foreign rates); starter-code note for other provinces; Product Activity note (specific identification, no LIFO, count-based steps). No migration. See R142-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json
-and tegh-build.json all identify this package as R141; per-file hashes kept in
+and tegh-build.json all identify this package as R142; per-file hashes kept in
 their "history" sections record earlier releases and are not expected to match.
 
 Fresh installation (empty database): upload the package, put config.php outside

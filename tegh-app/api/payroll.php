@@ -474,6 +474,16 @@ function payroll_recalculate_run_totals(string $runId): void
         ->execute([(int)$totals['gross_pay_cents'], (int)$totals['employee_cpp_cents'], (int)$totals['employee_cpp2_cents'], (int)$totals['employee_ei_cents'], (int)$totals['income_tax_cents'], (int)$totals['other_deductions_cents'], (int)$totals['net_pay_cents'], (int)$totals['employer_cpp_cents'], (int)$totals['employer_cpp2_cents'], (int)$totals['employer_ei_cents'], $runId]);
 }
 
+/** R142: the CRA rate tables available, so the payroll screen can say which apply. */
+function payroll_rate_tables_summary(): array
+{
+    try { $releases = payroll_available_rate_releases(); } catch (Throwable) { return []; }
+    $out = [];
+    foreach ($releases as $r) $out[] = ['label' => (string)($r['label'] ?? ''), 'effectiveFrom' => (string)($r['effectiveFrom'] ?? ''), 'effectiveTo' => (string)($r['effectiveTo'] ?? '')];
+    usort($out, static fn(array $a, array $b): int => strcmp($a['effectiveFrom'], $b['effectiveFrom']));
+    return $out;
+}
+
 function payroll_workspace_data(array $company): array
 {
     $companyId = (string)$company['id'];
@@ -486,6 +496,7 @@ function payroll_workspace_data(array $company): array
             'supportedYear' => 2026,
             'employees' => [], 'runs' => [], 'remittances' => [],
             'boundary' => ['quebecSupported' => false, 'directDeposit' => false, 'craFiling' => false, 't4Xml' => false],
+            'rateTables' => payroll_rate_tables_summary(),
         ];
     }
     $stmt = db()->prepare('SELECT * FROM payroll_employees WHERE company_id = ? ORDER BY active DESC, last_name, first_name');
@@ -569,6 +580,7 @@ function payroll_workspace_data(array $company): array
         'settings' => ['payrollAccountNumber' => $settings['payroll_account_number'], 'defaultFrequency' => $settings['default_frequency'], 'remitterType' => $settings['remitter_type']],
         'employees' => $employees, 'runs' => $runs, 'remittances' => $remittances,
         'boundary' => ['quebecSupported' => false, 'directDeposit' => false, 'craFiling' => false, 't4Xml' => false],
+            'rateTables' => payroll_rate_tables_summary(),
     ];
 }
 

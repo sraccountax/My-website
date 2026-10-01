@@ -820,7 +820,7 @@ function agent_local_answer(string $question, array $setup, array $clientContext
     }
     if (preg_match('/inventory|stock\s+report|product\s+inventory/', $q)) {
         return [
-            'mode'=>'guided','answer'=>'Tegh does not have an inventory report yet. The Product Activity report (formerly called Inventory Report) lists, for each product, the quantities and amounts on customer and vendor invoices. It does not show stock on hand, cost of goods sold or inventory value. Under ASPE Section 3031 and IFRS (IAS 2) inventory is measured at the lower of cost and net realisable value using a cost formula such as FIFO or weighted average, which needs stock movements and costs that Tegh does not track yet.',
+            'mode'=>'guided','answer'=>'Tegh does not have an inventory report yet. The Product Activity report (formerly called Inventory Report) lists, for each product, the quantities and amounts on customer and vendor invoices. It does not show stock on hand, cost of goods sold or inventory value. Under ASPE Section 3031 and IFRS (IAS 2) inventory is measured at the lower of cost and net realisable value using specific identification for items that are not interchangeable and FIFO or weighted average for the rest (LIFO is not allowed). Tegh does not track stock quantities or cost layers: count stock at period end, value it at the lower of cost and net realisable value, and post one journal adjusting Inventory to that value, with the difference to cost of goods sold.',
             'recommendedWorkflow'=>'reports',
             'steps'=>[
                 ['title'=>'Review products','instruction'=>'Maintain product records in Products & Services.','actionKey'=>'nav.products_services'],

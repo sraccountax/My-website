@@ -505,7 +505,7 @@ function tax_codes_seed_canada(array $user, string $companyId): array
             $note = 'Starter code created by Tegh from general Canadian rates. Review the rates and GL accounts before use; edit any time.';
             if ($provincial && $prov !== $home) {
                 $p = $provincial[0];
-                $note = 'Starter code: GST only, because ' . $p[0] . ' is charged only by businesses registered in ' . $provName . '. If you register there, edit this code and add ' . $p[0] . ' ' . tax_rate_label((int)$p[1]) . '.';
+                $note = 'GST only. Charge ' . $provName . ' ' . $p[0] . ' only if you are registered with ' . $provName . '. Businesses outside ' . $provName . ' may have to register if they sell to customers there. Check with the province. Once registered, edit this code and add ' . $p[0] . ' ' . tax_rate_label((int)$p[1]) . '.';
                 $components = array_values(array_filter($components, static fn(array $c): bool => $c[0] === 'GST'));
             }
             $label = $provName . ' — ' . implode(' + ', array_map(static fn(array $c): string => $c[0] . ' ' . tax_rate_label((int)$c[1]), $components));
