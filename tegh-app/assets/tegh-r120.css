@@ -876,3 +876,12 @@ html[data-tegh-theme="dark"] .srp-page .r141-dash-card legend small{color:#a9bdb
 /* R142: CRA rate tables line under the Payroll Support notice */
 .payroll-support-notice [data-payroll-rate-tables]{display:block;grid-column:1/-1;flex-basis:100%;margin-top:4px;font-size:.85em;line-height:1.4;opacity:.85}
 .payroll-support-notice [data-payroll-rate-tables][hidden]{display:none}
+
+/* R143: recorded payment found for a bank line (Match and Post) */
+.r143-recorded-payment{margin:0 0 14px;padding:12px 14px;border:1px solid #9fd3c7;border-left:4px solid #0f766e;border-radius:10px;background:#ecfdf8;color:#134e48}
+.r143-recorded-payment>b{display:block;font-size:14px;margin-bottom:2px}
+.r143-recorded-payment p{margin:0 0 8px;font-size:13px}
+.r143-recorded-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px solid #c7e9e0}
+.r143-recorded-row span{font-size:13px;min-width:0;overflow-wrap:anywhere}
+html[data-tegh-theme="dark"] .r143-recorded-payment{background:#0f2f2b;border-color:#1f5f56;border-left-color:#2dd4bf;color:#d5f5ee}
+html[data-tegh-theme="dark"] .r143-recorded-row{border-top-color:#1f5f56}

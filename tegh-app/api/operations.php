@@ -251,6 +251,11 @@ function operations_statement_preview_from_upload(
         $dates=[];$mapped=operations_statement_preview_rows($rows,$rate,$opening,$dates,$closing);$mapped=operations_statement_mark_duplicates($companyId,operations_statement_rows_with_keys($companyId,(string)$bank['id'],$currency,$mapped));
         $calculatedClosing=$opening===null?null:$opening+$sum;$variance=($closing!==null&&$calculatedClosing!==null)?$closing-$calculatedClosing:null;
         $sha=hash_file('sha256',$upload['absolutePath']);$previewId=new_id('preview');
+        // R143 (DEF-10): a draft left open by a refreshed or closed page blocked re-uploading the same file, and
+        // nothing on screen listed it. Drafts create no bank transactions or GL entries, so a new upload of the
+        // same file for the same account replaces the stale draft.
+        $stale=db()->prepare("SELECT id,source_path FROM statement_previews WHERE company_id=? AND bank_account_id=? AND source_sha256=? AND status='draft'");$stale->execute([$companyId,$bank['id'],$sha]);
+        foreach($stale->fetchAll() as $old){db()->prepare("DELETE FROM statement_previews WHERE id=? AND company_id=? AND status='draft'")->execute([$old['id'],$companyId]);if((string)$old['source_path']!=='')delete_private_file((string)$old['source_path']);audit_event($user,$companyId,'statement.preview_replaced','statement_preview',(string)$old['id'],['filename'=>$upload['originalName'],'replacedBy'=>$previewId]);}
         try{
             db()->prepare('INSERT INTO statement_previews (id,company_id,bank_account_id,filename,file_type,source_path,source_sha256,currency,exchange_rate_micros,opening_balance_cents,closing_balance_cents,first_transaction_date,last_transaction_date,row_count,excluded_count,rows_json,status,created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,\'draft\',?)')
                 ->execute([$previewId,$companyId,$bank['id'],$upload['originalName'],$upload['mime'],$upload['relativePath'],$sha,$currency,$rate,$opening,$closing,min($dates),max($dates),count($mapped),$excluded,json_encode($mapped,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR),$user['id']]);

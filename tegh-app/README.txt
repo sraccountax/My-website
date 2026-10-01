@@ -1,4 +1,4 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R142 IONOS STAGING CANDIDATE
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R143 IONOS STAGING CANDIDATE
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -31,10 +31,11 @@ R139: fixes from the invite-only beta release gate. No third-party session recor
 R140: the New Vendor Invoice form scrolls on phones (a nested scroll box captured swipes). No migration. See R140-CHANGES.md.
 R141: starter tax codes charge PST/RST/QST only in the company's own province (DEF-08); invite and reset tokens move after # in links (OBS-2); Clarity removed from the Content-Security-Policy; country and province/state on companies, customers and vendors, and tax codes for other countries (US-NY, IN-MH, GB…); Tax Code Report with Edit selected; Dashboard Figures (choose the GL accounts behind each dashboard number); Payroll Support marked Canada only. Automatic migration: companies.country, wider province fields, company_dashboard_mappings (ALTER/CREATE privilege). See R141-CHANGES.md.
 R142: owner-approved wording: Payroll Support is for Canadian payroll outside Quebec, and the payroll screens list the CRA T4127 rate tables loaded; clearer sales tax guide (where tax applies, zero-rated vs exempt, small supplier, input tax credit receipts, foreign rates); starter-code note for other provinces; Product Activity note (specific identification, no LIFO, count-based steps). No migration. See R142-CHANGES.md.
+R143: fixes from a click-through test of every daily workflow: re-uploading a statement left in preview replaces the stale draft; Match and Post offers "Already recorded?" to link a bank line to a payment recorded by hand (nothing posted twice); Tegh Assist understands more bank-balance and "what do I owe" questions; invoice screen column "Total incl. tax"; reconciliation wording for a period that ends in the future. No migration. See R143-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json
-and tegh-build.json all identify this package as R142; per-file hashes kept in
+and tegh-build.json all identify this package as R143; per-file hashes kept in
 their "history" sections record earlier releases and are not expected to match.
 
 Fresh installation (empty database): upload the package, put config.php outside
