@@ -695,3 +695,72 @@ This is built into Tegh, as the owner requested: **no external AI**.
 Evidence: `beta-gate-evidence/r143/` and `beta-gate-evidence/r144/`; scripts in `beta-gate-evidence/scripts/` (including `e2e/`, `15-r144.mjs`, `journeys144.mjs`, `gate-run.sh`).
 
 **Verdict for R144: NOT READY.** As before, only host acceptance (§11) and production email (§1 item 2) are open. Deploy **R144** to staging.
+
+## Addendum: R145 (PDF statement converter, Document Intake)
+
+| | R145 |
+|---|---|
+| Package | `…-Hotfix-R145-Consolidated-IONOS-STAGING.zip` |
+| SHA-256 | `4bde2d850051e3a71ae28b0382f8fe524cc5739df4d76f53dd2ac863ccccb181` |
+| Source commits | `11d8489` (code), manifests commit after it |
+| FILE-MANIFEST.sha256 | 348 entries, all OK |
+| Cache token | `5990-r145-tegh` |
+| Migration | none (browser-side changes only) |
+| productionReady / acceptanceComplete | false / false |
+
+The owner supplied three real business statements (a chequing statement with withdrawals / deposits / balance columns, a business Visa statement and a business chequing statement) and asked for the converter and Document Intake to be improved.
+
+**Handling of the real statements.**
+- They were used only in a private folder on the test machine.
+- They were never committed or copied into evidence, and their contents are not quoted here.
+- Only aggregate figures were compared, against each statement's own printed totals.
+- The committed tests use made-up statements and documents in the same layouts.
+
+### Bank Statement Converter
+| Real statement | R144 reader | R145 reader |
+|---|---|---|
+| Chequing (date / description / withdrawals / deposits / balance) | 40 rows, 19 needing manual amounts, net wrong | 135 rows, none manual. Opening + rows = closing to the cent; 144/144 running balances agree |
+| Business Visa | 21 rows, net wrong | 21 rows. Previous balance owed + rows = new balance to the cent |
+| Business chequing | 0 rows | 254 rows. Balance forward + rows = last balance to the cent; 35/35 running balances and 18/18 page totals agree |
+
+### Document Intake
+On six made-up documents, the R144 reader got **19 of 41** fields right and the R145 reader got **41 of 41**:
+- a text PDF invoice;
+- a Québec invoice (TPS/TVQ, "185,69 $");
+- a receipt photo with an ambiguous date;
+- a scanned PDF;
+- a fuel receipt with tax included;
+- a small low-contrast photo.
+
+### Defects found and fixed in R145
+| ID | Severity | Defect | Fix | Test |
+|---|---|---|---|---|
+| DEF-14 | High, usability | In Payables › Document Intake › Upload document, the Upload and Extract Locally button was about 35 px wide, 401 px tall and pushed outside the panel. At desktop width there was no visible way to upload. | The upload form is a single column inside menu panels. | DI-UI0 (button 372×40 inside the panel) |
+| DEF-15 | High, compatibility | OCR of a scanned (image-only) PDF failed with "getOrInsertComputed is not a function" in browsers without that 2026 JavaScript method (Chromium 141 here). The bundled pdf.js 5.6 uses it on the page and in its worker. | The standard method is installed where missing, on the page and through a same-origin worker entry. | DI-I4, DI-SCAN |
+| (accuracy) | Medium | The R144 intake reader silently read 03/04/2026 as 3 April, and missed several fields: French labels, labels with values on the next line, receipt numbers, and dates beside a due date. | The reader was rewritten. Ambiguous dates are offered both ways and never guessed. | DI-I1…I6, DI-AMB, DI-UI3 |
+
+### Results on the exact ZIP (fresh gate database, Apache + PHP 8.3 HTTPS, STARTTLS mail sandbox)
+| Area | R145 |
+|---|---|
+| Full API gate suite | 203 PASS / 6 INFO |
+| R141 / R142 / R144 tests | 38 / 11 / 35 PASS |
+| Click-through workflow suite | **51 PASS** |
+| R144 browser checks, 1440×900 and 390×844 | **22 PASS** |
+| R145 converter and Document Intake tests (16-r145) | **44 PASS / 1 INFO** (the R144-vs-R145 field comparison) |
+| Upgrade R118 → R145 | **13 PASS** |
+| **Total** | **417 PASS / 0 FAIL / 7 INFO** |
+| Paths and headers | 40 PASS |
+| UI matrix (20 runs) | **0 screens with issues** |
+| Swipe-trap scan at 390×844 | **0 traps** |
+
+**What 16-r145 covers.**
+- **Converter, engine level.** Six made-up statements in the three layouts plus an ISO-date layout, one with a missing line, and one with no column headings. Each is checked for rows, dates (including a December → January year change), net, money in and out, opening and closing balances, running balances and page totals. The missing-line statement must show amber, and the no-headings statement must fall back to the general reader.
+- **Converter, on screen.** The review screen's green or amber line, and the hand-off of statement balances to the server preview.
+- **Document Intake.** Six documents with hand-written expected fields. On screen: upload, the live subtotal + tax = total check, choosing a date reading, and saving the review as ready.
+- **Nothing posted.** Nothing was imported, drafted or posted.
+
+Expected figures come from the fixture generators' integer-cent arithmetic, not from Tegh code.
+
+Evidence: `beta-gate-evidence/r145/` (results, screenshots, made-up fixtures) and `beta-gate-evidence/scripts/` (`16-r145.mjs`, `conv/`).
+
+**Verdict for R145: NOT READY.** As before, only host acceptance (§11) and production email (§1 item 2) are open. Deploy **R145** to staging.
