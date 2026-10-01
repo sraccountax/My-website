@@ -308,7 +308,7 @@ const TeghPortal = (() => {
     return JSON.stringify([method,clientScopeKey(),clientDataGeneration,String(route),String(cid||''),params]);
   }
   async function api(route,opt={}){
-    const method=String(opt.method||'GET').toUpperCase(),invalidatesWorkspace=!['GET','HEAD','OPTIONS'].includes(method)&&!['agent/learning-signal','agent/interface-preferences'].includes(route),selection=JSON.stringify(selectedCompanyIds()),a=await auth();
+    const method=String(opt.method||'GET').toUpperCase(),invalidatesWorkspace=!['GET','HEAD','OPTIONS'].includes(method)&&!['agent/learning-signal','agent/interface-preferences','insights/ask','insights/bank-suggestions','insights/dismiss'].includes(route),selection=JSON.stringify(selectedCompanyIds()),a=await auth();
     if(selection!=='[]'&&selection!==JSON.stringify(selectedCompanyIds()))throw staleClientRead();
     const scope=observeClientScope(),scopeGeneration=clientScopeGeneration,dataGeneration=clientDataGeneration,cid=opt.companyId||companyId()||'',responseKey=apiRequestKey(route,opt,method,cid),cacheRead=method==='GET'&&apiReadCacheAllowed(route,opt);
     if(cacheRead){const cached=apiResponseCache.get(responseKey);if(cached&&cached.expiresAt>Date.now())return cloneApiValue(cached.value);if(cached)apiResponseCache.delete(responseKey)}
