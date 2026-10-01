@@ -357,8 +357,10 @@
     const pixels = data.length / 4; let low = 0, high = 255, seen = 0;
     for (let v = 0; v < 256; v++) { seen += histogram[v]; if (seen >= pixels * 0.01) { low = v; break; } }
     seen = 0; for (let v = 255; v >= 0; v--) { seen += histogram[v]; if (seen >= pixels * 0.01) { high = v; break; } }
-    const span = Math.max(1, high - low);
-    for (let i = 0; i < data.length; i += 4) { const v = Math.max(0, Math.min(255, Math.round((data[i] - low) * 255 / span))); data[i] = data[i + 1] = data[i + 2] = v; }
+    // Stretch only a genuinely low-contrast page. On a clean page with little text both percentiles can sit on the white
+    // background, and stretching would turn every slightly-off-white pixel black.
+    const span = high - low;
+    if (span >= 24 && span < 96) for (let i = 0; i < data.length; i += 4) { const v = Math.max(0, Math.min(255, Math.round((data[i] - low) * 255 / span))); data[i] = data[i + 1] = data[i + 2] = v; }
     context.putImageData(image, 0, 0);
     return canvas;
   }
