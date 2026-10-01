@@ -63,6 +63,17 @@
    "totalCents": 1017
   }
  },
+ "I7": {
+  "kind": "scan",
+  "want": {
+   "partyName": "Birchwood Courier Ltd.",
+   "documentNumber": "BC-311",
+   "documentDate": "2026-07-07",
+   "subtotalCents": 8000,
+   "taxCents": 1040,
+   "totalCents": 9040
+  }
+ },
  "I5": {
   "kind": "png",
   "want": {

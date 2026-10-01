@@ -764,3 +764,46 @@ Expected figures come from the fixture generators' integer-cent arithmetic, not 
 Evidence: `beta-gate-evidence/r145/` (results, screenshots, made-up fixtures) and `beta-gate-evidence/scripts/` (`16-r145.mjs`, `conv/`).
 
 **Verdict for R145: NOT READY.** As before, only host acceptance (§11) and production email (§1 item 2) are open. Deploy **R145** to staging.
+
+## Addendum: R146 (OCR clean-up fix) and the website converter v10
+
+| | R146 |
+|---|---|
+| Package | `…-Hotfix-R146-Consolidated-IONOS-STAGING.zip` |
+| SHA-256 | `9a2fa4ae7634596eaada6f6d02bcdae837964266e722f73445585e7b1ea7f82a` |
+| FILE-MANIFEST.sha256 | 349 entries, all OK |
+| Cache token | `5990-r146-tegh` |
+| Migration | none |
+| productionReady / acceptanceComplete | false / false |
+
+| ID | Severity | Defect | Fix | Test |
+|---|---|---|---|---|
+| DEF-16 | High, Document Intake | R145's OCR clean-up stretched contrast between the 1st and 99th percentile. On a clean scan with little text, both points fell on the white background, every off-white pixel turned black, and OCR read nothing (0/6 fields on a sparse courier invoice). | The stretch is applied only to genuinely low-contrast pages (24–95 grey-level spread). | DI-I7: 6/6 fields. Seven documents: R146 47/47; R145 41/47; R144 19/47 |
+
+The defect was found while porting the reader to the owner's website converter (below), where the same clean-up blanked a scanned statement.
+
+**Results on the exact R146 ZIP:**
+
+| Check | Result |
+|---|---|
+| Gate and upgrade tests | **418 PASS / 0 FAIL / 7 INFO** (R145 tests 45 PASS / 1 INFO; upgrade R118 → R146 13 PASS) |
+| Paths and headers | 40 PASS |
+| UI matrix (20 runs) | 0 screens with issues |
+| Swipe traps | 0 |
+
+**SR AccounTax Bank Statement Converter v10** (the owner's separate website, from the owner-supplied backup; update in `sr-bank-statement-converter-v10/`, tests in `beta-gate-evidence/website-converter-v10/`):
+- **Reader and checks.** The R145 column reader is ported. It adds a statement check panel and a chain check across consecutive statements of the same account.
+- **Scanned statements.** OCR keeps word positions, so the column reader works on scans. The pdf.js 6.1 `getOrInsertComputed` failure is fixed on the page and in the worker.
+- **Settings and exports.** New account-type setting, QBO export, credit-card OFX, and a "Statement Check" sheet in the Excel export.
+
+These were tested on the exact update files over a fresh copy of the backup, with test-only stand-ins for the member login and database:
+
+| Test | v9 | v10 |
+|---|---|---|
+| Owner's three real statements | 21 / 0 / 0 rows | 135 / 21 / 254 rows; each balances to the cent; figures only, statements not stored |
+| Scanned statement | crash | reads and balances |
+| Consecutive statements | — | chain check links them and flags a missing month |
+| Free plan | — | 25-row sample, with a whole-statement check |
+| Exports | — | six formats valid; QBO and card OFX checked by hand |
+
+**Verdict for R146: NOT READY.** As before, only host acceptance (§11) and production email (§1 item 2) are open. Deploy **R146** to staging.
