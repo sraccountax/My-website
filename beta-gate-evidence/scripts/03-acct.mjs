@@ -23,6 +23,11 @@ EXP=sql(`SELECT code FROM accounts WHERE company_id='${CID}' AND account_type='e
 const EQ=sql(`SELECT code FROM accounts WHERE company_id='${CID}' AND account_type='equity' AND is_control=0 AND active=1 ORDER BY code LIMIT 1`);
 const BANK=sql(`SELECT b.id FROM bank_accounts b WHERE b.company_id='${CID}' AND b.account_type='bank' ORDER BY b.created_at LIMIT 1`);const BANKGL=sql(`SELECT a.code FROM bank_accounts b JOIN accounts a ON a.id=b.ledger_account_id WHERE b.id='${BANK}'`);
 console.log('expense',EXP,'equity',EQ,'bank gl',BANKGL);
+const qcStart=sql(`SELECT GROUP_CONCAT(c.name ORDER BY c.sort_order) FROM tax_codes t JOIN tax_code_components c ON c.tax_code_id=t.id WHERE t.company_id='${CID}' AND t.code='QC'`);
+check('TX-00b',A,'DEF-08: BC company starter code for QC is GST only (not registered with Revenu Québec)',qcStart,'GST');
+check('TX-00c',A,'DEF-08: BC company keeps BC PST on its home-province code',sql(`SELECT GROUP_CONCAT(c.name ORDER BY c.sort_order) FROM tax_codes t JOIN tax_code_components c ON c.tax_code_id=t.id WHERE t.company_id='${CID}' AND t.code='BC'`),'GST,PST');
+{const r=await o.call('tax-codes',{method:'PUT',json:{id:sql(`SELECT id FROM tax_codes WHERE company_id='${CID}' AND code='QC'`),code:'QC',name:'Quebec GST + QST (registered)',region:'QC',components:[{name:'GST',ratePercent:'5',salesAccountId:acct('2100'),purchaseAccountId:acct('1100'),purchaseRecoverable:true},{name:'QST',ratePercent:'9.975',salesAccountId:acct('2115'),purchaseAccountId:acct('1115'),purchaseRecoverable:true}]}});
+ check('TX-00d',A,'After registering in Quebec, owner edits the QC code to add QST 9.975% → 2115/1115',r.s,200);}
 check('TX-00',A,'Starter codes present in new BC company',sql(`SELECT GROUP_CONCAT(code ORDER BY code) FROM tax_codes WHERE company_id='${CID}' AND status='active'`),'AB,BC,GST,MB,NB,NL,NS,NT,NU,ON,PE,QC,SK,YT');
 // --- Opening balances: $10,000 cash / $10,000 equity
 let r=await o.call('setup/opening-balances',{method:'PUT',json:{accountId:acct(BANKGL),amountCents:1000000}});

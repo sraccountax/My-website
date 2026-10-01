@@ -4,7 +4,9 @@ Prepared 2026-09-30 by the build/QA agent (senior QA, security and accounting re
 
 ## 1. Verdict
 
-> **Update: R140 supersedes R139 for deployment.** After this report was issued, a new defect was reported: "Can't scroll vendor invoice creation in mobile view" (DEF-09). It is fixed in R140, and the gate was re-run on the exact R140 ZIP. See the addendum at the end. Where this report says "deploy R139", deploy **R140** (SHA-256 `c2e6bb611406a6e66d28c21e35a4ee6d639632cb9548d044ee35533e5890ac4f`). The verdict is unchanged: **NOT READY**, for the same host-acceptance and owner-decision blockers.
+> **Update: R141 supersedes R140 and R139 for deployment.** R141 fixes DEF-08 and OBS-2, removes the last Clarity allowance and adds features the owner requested. The gate was re-run on the exact R141 ZIP (SHA-256 `f80d3d6608dc4d0686bada3ce82bcf4146c7a72cbc2efacf72a88aee29581c1f`): 253 PASS, 0 FAIL, 6 INFO. See "Addendum: R141" at the end. The verdict is still **NOT READY**, because host acceptance and the owner review are still open.
+>
+> **Update (R140):** After this report was issued, a new defect was reported: "Can't scroll vendor invoice creation in mobile view" (DEF-09). It is fixed in R140, and the gate was re-run on the exact R140 ZIP. See the addendum at the end. Where this report says "deploy R139", deploy **R140** (SHA-256 `c2e6bb611406a6e66d28c21e35a4ee6d639632cb9548d044ee35533e5890ac4f`). The verdict is unchanged: **NOT READY**, for the same host-acceptance and owner-decision blockers.
 
 # NOT READY: exact blockers
 
@@ -19,8 +21,8 @@ R139 passes every test this gate could run off-host. The verdict is still NOT RE
    - signed-in Client Viewing Link check with a real emailed code
 2. **Production email delivery is BLOCKED/unverified.** Mail was proven only through a local STARTTLS+AUTH sandbox. The IONOS SMTP account, SPF, DKIM and DMARC for the real sender domain are untested (§11, H6).
 3. **Owner decisions are required before invitations go out** (§12):
-   - **Privacy Notice vs Microsoft Clarity:** the marketing pages `index.html` and `company.html` still load Clarity. The Privacy Notice says the site does not store cookies. Either remove Clarity or publish the disclosure drafted in §12.3.
-   - **Starter tax codes for other provinces (DEF-08):** by default, customers in QC, MB, SK and BC are charged that province's QST/RST/PST, even if the business is not registered there.
+   - ~~**Privacy Notice vs Microsoft Clarity:** the marketing pages `index.html` and `company.html` still load Clarity.~~ **Correction (R141):** this was wrong. `index.html` and `company.html` never loaded Clarity; the check matched the tagline "Control · Clarity · Intelligence". Only `app.html` loaded it, and R139 removed it. The `.htaccess` Content-Security-Policy still allowed `*.clarity.ms` and `c.bing.com`; R141 removes that. No owner decision is needed.
+   - **Starter tax codes for other provinces (DEF-08):** by default, customers in QC, MB, SK and BC are charged that province's QST/RST/PST, even if the business is not registered there. **Fixed in R141** (option 12.2(b)): starter codes are GST only outside the home province.
    - **Owner review (host-acceptance item 7):** the R135 sales-tax wording and the Product Activity note, drafted in §12.
 4. **Deploy R139, not R138.** R138 has confirmed defects DEF-01 and DEF-04/05/06/07 (plus DEF-02 and DEF-03), all fixed in R139.
 
@@ -108,9 +110,9 @@ INFO rows record observations with no pass/fail criterion. Each is explained in 
 | DEF-02 | Medium | Email | A successful send (SMTP 250, status "sent") was recorded as "The mail server rejected the message before accepting it…". This appears in invitations and Email Health. | **Fixed** | PASS: D-MAILMSG |
 | DEF-07 | Low | Backup | Restoring a damaged `.tegh` returned **500** (uncaught `JsonException`). Nothing was written. | **Fixed**: 422 integrity message | PASS: BR-08 |
 | DEF-03 | Low: hardening | Web root | `/config.example.php` was executable over HTTP (200, empty body). | **Fixed**: `.htaccess` denies `config*.php` | PASS: path probe (403) |
-| DEF-08 | Medium: sales tax | Starter codes | Starter codes apply by **customer** province. A BC company invoicing a QC customer charges QST $99.75 to 2115, and an MB customer is charged RST, even when the business is registered only for GST and BC PST. The R138 docs mention only home-province PST. | **Open**: owner decision (§12.2). Beta restriction in §13. | TX-03 shows the behaviour |
+| DEF-08 | Medium: sales tax | Starter codes | Starter codes apply by **customer** province. A BC company invoicing a QC customer charges QST $99.75 to 2115, and an MB customer is charged RST, even when the business is registered only for GST and BC PST. The R138 docs mention only home-province PST. | **Fixed in R141** (option b): starter codes are GST only outside the home province. Codes created earlier are unchanged. | R141: TX-00b/c/d, D8-01…05, UP-11 PASS |
 | OBS-1 | Low | Install | A fresh install creates Schema 43. The owner must run the in-app protected upgrade (→46) once after first sign-in. This was not documented for fresh installs. | **Documented** in README (R139) | PASS: H-11, H-12 |
-| OBS-2 | Low | Logs | Invitation tokens are in the URL query (`app.html?accountSetup=`), so they can reach host access logs. They are single-use with 72-hour expiry. Client-view tokens use the URL fragment. | Open (accepted) | – |
+| OBS-2 | Low | Logs | Invitation tokens are in the URL query (`app.html?accountSetup=`), so they can reach host access logs. They are single-use with 72-hour expiry. Client-view tokens use the URL fragment. | **Fixed in R141**: invitation, setup and reset links carry the token after `#`, and the lookup is a same-origin POST | R141: OB-01…06 PASS |
 | OBS-3 | Low | Deploy | The first request within about 2 s of uploading files saw a mixed old/new PHP opcache state ("degraded"). It cleared on the next request. | **Documented**: restart PHP / wait after upload (§14) | UP-01 PASS after reload |
 | OBS-4 | Info | PHP limits | The PHP-FPM default `post_max_size` of 8 MB rejects bodies above 8 MB before Tegh's 10 MB rule. IONOS honours the shipped `api/php.ini` (24 MB). | Host check (§11) | – |
 
@@ -263,8 +265,8 @@ Evidence: `beta-gate-evidence/bc-expected-vs-gl.json`, `bc-tb.json`, `bc-bs.json
   - `security.html`: no SOC 2/ISO claim; "users remain responsible…".
   - `terms.html`: review before relying or filing.
   - Beta and pricing pages: no placeholder pricing.
-- **Privacy Notice:** inaccurate while Clarity runs on `index.html` and `company.html` (§12.3).
-- **Payroll wording:** `product.html` says "CPP, EI and income-tax outputs through Tegh's payroll engine", while the app positions payroll as a "Payroll Support Tool". Consider aligning.
+- **Privacy Notice:** ~~inaccurate while Clarity runs on `index.html` and `company.html`~~. **Correction (R141):** those pages never loaded Clarity, and R141 also removes the CSP allowance. The notice is consistent with the package.
+- **Payroll wording:** `product.html` said "CPP, EI and income-tax outputs through Tegh's payroll engine", while the app positions payroll as a "Payroll Support Tool". **Aligned in R141:** "Payroll Support Tool (Canada only)" with "estimates for you to review and confirm".
 - **Demo figures:** marketing demo figures (Northstar Design Studio, Maple Ridge…) are labelled "Demo interaction". Keep them clearly fictional.
 
 ## 10. Recovery, performance, operations (R139, PASS)
@@ -368,7 +370,7 @@ Proposed additions for owner decision:
 - **(a) Keep, and warn:** keep the current codes and add the wording above to the Tax Codes page.
 - **(b) Change the defaults (recommended for beta):** starter codes for provinces other than the company's own charge only GST or HST. The home-province PST/QST/RST stays, and other provinces' PST/QST/RST are added only when the owner ticks "registered in …". This is a small change for R140 if approved.
 
-**12.3 Privacy Notice and analytics.** Choose one:
+**12.3 Privacy Notice and analytics.** *Resolved in R141: no page loads Clarity, and the CSP no longer allows it. The original options are kept below for the record.* Choose one:
 - **(a) Remove** the Clarity snippet from `index.html` and `company.html`.
 - **(b) Keep it** and add this draft disclosure (for legal review):
 
@@ -385,7 +387,7 @@ Proposed additions for owner decision:
 ## 13. Limitations and beta restrictions
 
 1. **Invite-only beta on R139.** Keep `public_signup_enabled=false`.
-2. **Registration check:** until DEF-08 is decided, onboard only businesses that are registered in every province whose customers they invoice, or tell beta users to deactivate the other provinces' PST/QST/RST starter codes.
+2. **Registration check** (*resolved by R141 for new starter codes; companies that added codes before R141 should still check them*): until DEF-08 is decided, onboard only businesses that are registered in every province whose customers they invoice, or tell beta users to deactivate the other provinces' PST/QST/RST starter codes.
 3. **Unregistered businesses:** keep "Registered for GST/HST" unticked. An explicitly chosen code still charges tax.
 4. **Dashboard tax card:**
    - The GST/HST figure is 2100/1100 only; custom tax accounts are shown as a separate amount.
@@ -401,7 +403,7 @@ Proposed additions for owner decision:
    - screen-reader accessibility;
    - production SMTP/DNS;
    - the IONOS host.
-10. **Invitation links:** tokens are in the query string (OBS-2).
+10. **Invitation links:** tokens are in the query string (OBS-2). *Fixed in R141.*
 
 ## 14. Deployment, backup and rollback (R139)
 
@@ -429,11 +431,11 @@ Proposed additions for owner decision:
 
 ## 15. Owner checklist
 
-- [ ] Upload **R140** (SHA-256 `c2e6bb61…ac4f`) to staging, not R138 or R139.
+- [ ] Upload **R141** (SHA-256 `f80d3d66…1c1f`) to staging, not R138, R139 or R140.
 - [ ] On a real iPhone and Android phone: Payables → New Vendor Invoice, swipe up from the form fields; the page scrolls to Save.
 - [ ] Run §11 H1–H11 on the host and paste results into the host-acceptance record.
-- [ ] Decide DEF-08 (§12.2) and the Clarity/Privacy Notice question (§12.3).
-- [ ] Review the sales-tax wording (§12.1) and the Product Activity note (§12.4).
+- [x] ~~Decide DEF-08 (§12.2) and the Clarity/Privacy Notice question (§12.3).~~ Done in R141 at the owner's request (DEF-08 option b; Clarity removed).
+- [ ] Review the sales-tax wording (§12.1, plus the R141 wording in the R141 addendum) and the Product Activity note (§12.4).
 - [ ] Confirm the payroll rate edition (§12.5).
 - [ ] Confirm someone monitors the contact form and support requests.
 - [ ] Only after all of the above: set `productionReady` / `acceptanceComplete` in the three manifests (owner sign-off).
@@ -495,3 +497,70 @@ Screenshots and logs contain only synthetic data. No secrets, SINs or real finan
 Evidence: `beta-gate-evidence/r140/`, including `r140-scroll.txt` and the phone screenshots at the top and bottom of the form.
 
 Also noticed, not changed: on phones the vendor invoice's "Tax Code" dropdown sits just outside the summary card, and its long label is cut off ("GST 5% + P…"). It still works. Cosmetic only.
+
+## Addendum: R141 (gate follow-ups and owner-requested features)
+
+| | |
+|---|---|
+| Package | `Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R141-Consolidated-IONOS-STAGING.zip` |
+| SHA-256 | `f80d3d6608dc4d0686bada3ce82bcf4146c7a72cbc2efacf72a88aee29581c1f` |
+| Source commits | `5d941fa` (code), `28cae05` (manifests) |
+| FILE-MANIFEST.sha256 | 340 entries, all OK on the gate host |
+| Cache token | `5990-r141-tegh` |
+| productionReady / acceptanceComplete | false / false (unchanged) |
+| Migration | Automatic on first request: `companies.country`; `province` VARCHAR(10) on companies, customers and vendors; `company_dashboard_mappings`. Needs ALTER and CREATE privilege. |
+
+**Requested by the owner:**
+- fix DEF-08 and OBS-2;
+- remove Microsoft Clarity;
+- Tax Code Report with editing of selected codes;
+- taxes for other countries;
+- country and province/state everywhere, starting from company registration;
+- Dashboard Figures GL mapping;
+- payroll wording aligned and marked Canada only.
+
+This is a feature release on top of the gate fixes, not a gate-only fix. Every new feature has its own tests below.
+
+**Correction to this report.** §1, §9 and §12.3 said that `index.html` and `company.html` still load Microsoft Clarity. That was wrong. The check matched the brand tagline "Control · Clarity · Intelligence". Git history shows that only `app.html` ever loaded the Clarity script, and R139 removed it. What remained was the `.htaccess` Content-Security-Policy allowance (`https://*.clarity.ms https://c.bing.com`), which R141 removes. The earlier sections are annotated in place.
+
+**Defect status:**
+
+| ID | R141 status | Evidence |
+|---|---|---|
+| DEF-08 | **Fixed.** Starter codes for provinces other than the company's own are GST only (HST provinces keep HST), with a note saying how to add the provincial tax once registered there. Codes created before R141 are unchanged. | TX-00b/c/d, D8-01…05, UP-11 |
+| OBS-2 | **Fixed.** Invitation, account-setup and password-reset links use `#accountSetup=` / `#passwordReset=`. The page removes the token from the address bar and looks it up with a same-origin POST. Old `?accountSetup=` links still work until they expire. | OB-01…06 (OB-05: the only access-log line with a token is the deliberate old-style GET) |
+| Clarity | **Removed** from the CSP; no file loads it | CL-01, path probes |
+
+**Retest on the exact R141 ZIP** (fresh gate database, Apache + PHP 8.3 over HTTPS, STARTTLS mail sandbox):
+
+| Area | Result |
+|---|---|
+| Full API gate suite (install, mail, accounting, tax, FX, security, client links, payroll, backup, ops) | **203 PASS / 0 FAIL / 6 INFO**. This is the R140 set plus 3 new DEF-08 tax checks. The 6 INFO items are the same as in R140 (CB-02, XS-01, PY-01, PY-07, LG-03, SP-02). |
+| R141 tests (DEF-08, countries, foreign tax codes, OBS-2, Tax Code Report usage, Dashboard Figures, Clarity, payroll wording) | **38 PASS / 0 FAIL** |
+| Upgrade R118 → R141 (seeded R118 database, R141 unzipped over it) | **12 PASS / 0 FAIL**: ledger unchanged, legacy tax mode kept, new columns added, country `Canada`, MB starter code GST only, Dashboard Figures available |
+| **Total** | **253 PASS / 0 FAIL / 6 INFO / 0 BLOCKED** (host acceptance items in §11 remain BLOCKED, as before) |
+| Path, header and asset probes; PHP 8.3 and 8.4 lint | 40/40 PASS; 83 files × 2, 0 failures |
+| UI matrix (46 screens × 20 runs: light/dark at 1920, 1440, 1366, 768, 390, 360, 320; zoom 125/150/200 %; top-navigation guided/full) | **0 screens with issues** |
+| R141 browser journeys at 1440×900 and 390×844 | 10/10 at both sizes. Covers Company Setup cards, Tax Code Report (Edit selected opens the first code with "1 more selected after this one"), foreign tax region editor, Dashboard Figures, US customer state field, vendor country, Company Details country, US company invoice, and Add company with United Kingdom (tax heading "Sales tax, VAT or GST", Payroll disabled) |
+| Swipe-trap scan at 390×844 (R140 regression) | 0 traps |
+| Independent figures | The D8, FC and DM expectations are hand-computed: NY $1,000 × 8.875 % = $88.75; US fallback 6 % = $60.00; dashboard bank = SQL sum of GL 1000; profit = −(4000) − 6000 from SQL. None use Tegh's calculation functions. |
+| Not executed | iOS Safari / real devices; tax rates for other countries (the owner enters them; Tegh does not supply or verify them); large data volumes |
+
+**New limitations:**
+- The base currency is CAD for every company, including companies outside Canada.
+- Dashboard Figures mappings are not in backups.
+- Payroll Support is Canada only.
+- Legacy-mode companies (no tax codes) do not give foreign customers a code automatically.
+
+**Owner review added by R141 (prepared, not reviewed).** These are in addition to §12.1 and §12.4:
+1. **Home-province starter-code note** (shown on each non-home PST/RST/QST code): "Starter code: GST only, because PST is charged only by businesses registered in British Columbia. If you register there, edit this code and add PST 7%." The same pattern applies to RST in Manitoba, PST in Saskatchewan and QST in Quebec. Please confirm that "charged only by businesses registered in" is accurate enough. Out-of-province registration rules (for example, BC and SK registration for remote sellers) are more nuanced.
+2. **Non-Canadian company tax text:**
+   - The heading is "Sales tax, VAT or GST"; the tick box is "Registered to charge sales tax, VAT or GST".
+   - The help text reads: "Tegh does not create starter tax codes outside Canada. After the company is created, add your taxes under Tax Codes (for example VAT 20%, or CGST + SGST)…"
+   - Confirm that no country-specific claim is wanted.
+3. **Payroll Support notice:** "Tegh Payroll Support is for Canadian payroll only (CRA rules for Canadian provinces and territories)…". On `product.html`: "Payroll Support Tool (Canada only)… estimates for you to review and confirm".
+4. **§12.1 sentence to update:** "Tegh works out GST/HST from the customer's province". From R141 the code is chosen by the customer's state or province, then their country.
+
+Evidence: `beta-gate-evidence/r141/` (identity, lint, paths, run-all log, `r141.json`, `upg.json`, UI matrix JSON, journeys and screenshots). No passwords, setup keys or SMTP secrets are in the evidence; a scan was run before committing.
+
+**Verdict for R141: NOT READY**, for the same reasons as before (§1 items 1, 2 and the owner review). Fewer owner decisions are now open: DEF-08 and Clarity are resolved. Deploy **R141** to staging.

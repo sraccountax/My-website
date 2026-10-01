@@ -1,6 +1,6 @@
 import {S,sql,rec,check,save} from './lib.mjs';import fs from 'fs';const u=JSON.parse(fs.readFileSync('upg.json'));const A='UPG';
 const s=new S();await s.login('owner@gate.test','Gate!Owner#2026pw');s.cid=u.cid;
-let r=await s.call('startup/status',{company:false});rec('UP-01',A,'After uploading R139 over R118: startup status not degraded, schema 46',r.b?.schemaVersion===46&&!r.b?.degraded?'PASS':'FAIL',`schema ${r.b?.schemaVersion} degraded ${r.b?.degraded} warning ${r.b?.warningCode}`);
+let r=await s.call('startup/status',{company:false});rec('UP-01',A,'After uploading the new release over R118: startup status not degraded, schema 46',r.b?.schemaVersion===46&&!r.b?.degraded?'PASS':'FAIL',`schema ${r.b?.schemaVersion} degraded ${r.b?.degraded} warning ${r.b?.warningCode}`);
 r=await s.call('workspace/summary');rec('UP-02',A,'Existing company opens (dashboard summary)',r.s===200?'PASS':'FAIL',String(r.s));
 await s.call('invoice-templates');
 const tables=['tax_codes','tax_code_components','document_tax_lines'].map(t=>sql(`SHOW TABLES LIKE '${t}'`)).join(',');
@@ -17,4 +17,8 @@ rec('UP-07',A,'Pre-upgrade invoice can be settled after upgrade',r.s===201&&sql(
 r=await s.call('tax-codes',{method:'POST',json:{action:'seed-canada'}});
 rec('UP-08',A,'Existing company: Add Canadian tax codes creates 14 codes, QST accounts 2115/1115, and switches to tax codes',r.s===201&&sql(`SELECT COUNT(*) FROM tax_codes WHERE company_id='${u.cid}'`)==='14'&&sql(`SELECT COUNT(*) FROM accounts WHERE company_id='${u.cid}' AND code IN ('2115','1115')`)==='2'&&sql(`SELECT tax_setup_mode FROM companies WHERE id='${u.cid}'`)==='codes'?'PASS':'FAIL',r.s+' codes='+sql(`SELECT COUNT(*) FROM tax_codes WHERE company_id='${u.cid}'`));
 const unb=sql(`SELECT COUNT(*) FROM (SELECT je.id FROM journal_entries je JOIN journal_lines jl ON jl.journal_entry_id=je.id GROUP BY je.id HAVING SUM(jl.debit_cents)<>SUM(jl.credit_cents)) x`);check('UP-09',A,'All journals balance after upgrade',unb,'0');
+rec('UP-10',A,'R141 migration: existing company country is Canada; province widened to VARCHAR(10) on companies, customers, vendors',sql(`SELECT country FROM companies WHERE id='${u.cid}'`)==='Canada'&&sql(`SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND column_name='province' AND table_name IN ('companies','customers','vendors') AND character_maximum_length=10`)==='3'?'PASS':'FAIL',sql(`SELECT country FROM companies WHERE id='${u.cid}'`)+' / widened='+sql(`SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND column_name='province' AND table_name IN ('companies','customers','vendors') AND character_maximum_length=10`));
+const mbComps=sql(`SELECT GROUP_CONCAT(c.name ORDER BY c.sort_order) FROM tax_codes t JOIN tax_code_components c ON c.tax_code_id=t.id WHERE t.company_id='${u.cid}' AND t.region='MB'`);
+rec('UP-11',A,'DEF-08 on an upgraded BC company: Manitoba starter code is GST only',mbComps==='GST'?'PASS':'FAIL',mbComps);
+r=await s.call('dashboard-mappings');rec('UP-12',A,'Dashboard Figures available on the upgraded company (table created on first use)',r.s===200&&sql(`SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='company_dashboard_mappings'`)==='1'?'PASS':'FAIL',String(r.s));
 save('upg.json');
