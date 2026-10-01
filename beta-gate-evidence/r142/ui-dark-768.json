@@ -1,0 +1,291 @@
+{
+ "tag": "dark-768",
+ "W": "768",
+ "H": "1024",
+ "Z": "1",
+ "vw": 768,
+ "theme": "dark",
+ "nav": "side",
+ "mode": "full",
+ "state": {
+  "theme": "dark"
+ },
+ "screens": [
+  {
+   "id": "banking:upload-statement",
+   "label": "Upload Statement",
+   "h1": "Upload Statement",
+   "issues": []
+  },
+  {
+   "id": "banking:match-and-post-transactions",
+   "label": "Match and Post",
+   "h1": "Match And Post Transactions",
+   "issues": []
+  },
+  {
+   "id": "banking:reconcile-bank-account",
+   "label": "Reconcile Account",
+   "h1": "Reconcile Bank Account",
+   "issues": []
+  },
+  {
+   "id": "banking:bank-transfers",
+   "label": "Bank Transfers",
+   "h1": "Transfers",
+   "issues": []
+  },
+  {
+   "id": "banking:manage-bank-accounts",
+   "label": "Bank Accounts",
+   "h1": "Manage Bank Accounts",
+   "issues": []
+  },
+  {
+   "id": "banking:bank-transaction-report",
+   "label": "Transactions Report",
+   "h1": "Bank Transaction Report",
+   "issues": []
+  },
+  {
+   "id": "banking:bank-general-ledger-report",
+   "label": "Bank General Ledger",
+   "h1": "Bank General Ledger Report",
+   "issues": []
+  },
+  {
+   "id": "banking:bank-reconciliation-report",
+   "label": "Bank Reconciliation",
+   "h1": "Bank Reconciliation Report",
+   "issues": []
+  },
+  {
+   "id": "receivables:create-customer",
+   "label": "Create Customer",
+   "h1": "New Customer",
+   "issues": []
+  },
+  {
+   "id": "receivables:products-and-services",
+   "label": "Products",
+   "h1": "Products & services",
+   "issues": []
+  },
+  {
+   "id": "receivables:customer-invoices",
+   "label": "Customer Invoices",
+   "h1": "New Invoice",
+   "issues": []
+  },
+  {
+   "id": "receivables:customer-payments",
+   "label": "Payments",
+   "h1": "New Customer Receipt",
+   "issues": []
+  },
+  {
+   "id": "receivables:collection-drafts",
+   "label": "Collection Drafts",
+   "h1": "Collection Drafts",
+   "issues": []
+  },
+  {
+   "id": "receivables:customers",
+   "label": "Customers",
+   "h1": "Customers",
+   "issues": []
+  },
+  {
+   "id": "receivables:customer-invoice-note-register",
+   "label": "Invoice Register",
+   "h1": "Customer Invoice & Note Register",
+   "issues": []
+  },
+  {
+   "id": "receivables:customer-ledgers",
+   "label": "Customer Ledgers",
+   "h1": "Customer Ledgers",
+   "issues": []
+  },
+  {
+   "id": "receivables:receivable-ageing",
+   "label": "Receivable Ageing",
+   "h1": "Receivable Ageing",
+   "issues": []
+  },
+  {
+   "id": "receivables:period-trial-balance",
+   "label": "Trial Balance",
+   "h1": "Customer Trial Balance",
+   "issues": []
+  },
+  {
+   "id": "payables:create-vendor",
+   "label": "Create Vendor",
+   "h1": "New Vendor",
+   "issues": []
+  },
+  {
+   "id": "payables:products-and-services",
+   "label": "Products",
+   "h1": "Products & services",
+   "issues": []
+  },
+  {
+   "id": "payables:vendor-invoices",
+   "label": "Vendor Invoices",
+   "h1": "New Vendor Invoice",
+   "issues": []
+  },
+  {
+   "id": "payables:vendor-payments",
+   "label": "Payments",
+   "h1": "New Vendor Payment",
+   "issues": []
+  },
+  {
+   "id": "payables:document-intake",
+   "label": "Document Intake",
+   "h1": "Document Intake",
+   "issues": []
+  },
+  {
+   "id": "payables:vendors",
+   "label": "Vendors",
+   "h1": "Vendors",
+   "issues": []
+  },
+  {
+   "id": "payables:vendor-invoice-note-register",
+   "label": "Invoice Register",
+   "h1": "Vendor Invoice & Note Register",
+   "issues": []
+  },
+  {
+   "id": "payables:vendor-ledgers",
+   "label": "Vendor Ledgers",
+   "h1": "Vendor Ledgers",
+   "issues": []
+  },
+  {
+   "id": "payables:payable-ageing",
+   "label": "Payable Ageing",
+   "h1": "Payable Ageing",
+   "issues": []
+  },
+  {
+   "id": "payables:period-trial-balance",
+   "label": "Trial Balance",
+   "h1": "Vendor Trial Balance",
+   "issues": []
+  },
+  {
+   "id": "general-ledger:journal-entries",
+   "label": "Journal Entries",
+   "h1": "GL Journal Entry",
+   "issues": []
+  },
+  {
+   "id": "general-ledger:expense-vouchers",
+   "label": "Expense Vouchers",
+   "h1": "New Expense Voucher",
+   "issues": []
+  },
+  {
+   "id": "general-ledger:day-book",
+   "label": "Day Book",
+   "h1": "Day Book",
+   "issues": []
+  },
+  {
+   "id": "general-ledger:general-ledger-account-report",
+   "label": "General Ledger",
+   "h1": "General Ledger Account Report",
+   "issues": []
+  },
+  {
+   "id": "general-ledger:period-trial-balance",
+   "label": "Trial Balance",
+   "h1": "Trial Balance",
+   "issues": []
+  },
+  {
+   "id": "general-ledger:gifi-report",
+   "label": "GIFI Report",
+   "h1": "GIFI Report",
+   "issues": []
+  },
+  {
+   "id": "payroll:payroll-tax-center",
+   "label": "Payroll Center",
+   "h1": "Payroll & Tax Center",
+   "issues": []
+  },
+  {
+   "id": "payroll:quick-calculation",
+   "label": "Quick Calculation",
+   "h1": "Quick Payroll Calculation",
+   "issues": []
+  },
+  {
+   "id": "payroll:employees",
+   "label": "Employees",
+   "h1": "Employees",
+   "issues": []
+  },
+  {
+   "id": "payroll:pay-run-register",
+   "label": "Pay Run Register",
+   "h1": "Pay Run Register",
+   "issues": []
+  },
+  {
+   "id": "payroll:payroll-verification",
+   "label": "Verification",
+   "h1": "Payroll Verification",
+   "issues": []
+  },
+  {
+   "id": "payroll:cra-remittance",
+   "label": "Remittance Records",
+   "h1": "Payroll Remittance Records",
+   "issues": []
+  },
+  {
+   "id": "payroll:payroll-history",
+   "label": "Payroll History",
+   "h1": "Payroll History & Deletion",
+   "issues": []
+  },
+  {
+   "id": "advanced-accounting:budgets",
+   "label": "Budgets",
+   "h1": "Budgets",
+   "issues": []
+  },
+  {
+   "id": "advanced-accounting:fixed-assets",
+   "label": "Fixed Assets",
+   "h1": "Fixed Assets",
+   "issues": []
+  },
+  {
+   "id": "advanced-accounting:recurring-transactions",
+   "label": "Recurring",
+   "h1": "Recurring Transactions",
+   "issues": []
+  },
+  {
+   "id": "advanced-accounting:analytics",
+   "label": "Analytics",
+   "h1": "Analytics",
+   "issues": []
+  },
+  {
+   "id": "advanced-accounting:collections",
+   "label": "Collections",
+   "h1": "Collections",
+   "issues": []
+  }
+ ]
+}

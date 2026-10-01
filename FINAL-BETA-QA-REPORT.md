@@ -4,6 +4,8 @@ Prepared 2026-09-30 by the build/QA agent (senior QA, security and accounting re
 
 ## 1. Verdict
 
+> **Update: R142 supersedes R141 for deployment.** R142 applies the owner-approved wording for payroll (outside Quebec), the sales tax guide and the Product Activity note. The gate was re-run on the exact R142 ZIP (SHA-256 `29e9898004c7aaaf4e842581a1bb159053166d8f2ed8e7a51812aeca85534da4`): 264 PASS, 0 FAIL, 6 INFO. See "Addendum: R142". The verdict is still **NOT READY**, because host acceptance is open.
+>
 > **Update: R141 supersedes R140 and R139 for deployment.** R141 fixes DEF-08 and OBS-2, removes the last Clarity allowance and adds features the owner requested. The gate was re-run on the exact R141 ZIP (SHA-256 `f80d3d6608dc4d0686bada3ce82bcf4146c7a72cbc2efacf72a88aee29581c1f`): 253 PASS, 0 FAIL, 6 INFO. See "Addendum: R141" at the end. The verdict is still **NOT READY**, because host acceptance and the owner review are still open.
 >
 > **Update (R140):** After this report was issued, a new defect was reported: "Can't scroll vendor invoice creation in mobile view" (DEF-09). It is fixed in R140, and the gate was re-run on the exact R140 ZIP. See the addendum at the end. Where this report says "deploy R139", deploy **R140** (SHA-256 `c2e6bb611406a6e66d28c21e35a4ee6d639632cb9548d044ee35533e5890ac4f`). The verdict is unchanged: **NOT READY**, for the same host-acceptance and owner-decision blockers.
@@ -431,11 +433,11 @@ Proposed additions for owner decision:
 
 ## 15. Owner checklist
 
-- [ ] Upload **R141** (SHA-256 `f80d3d66…1c1f`) to staging, not R138, R139 or R140.
+- [ ] Upload **R142** (SHA-256 `29e98980…34da4`) to staging, not R138–R141.
 - [ ] On a real iPhone and Android phone: Payables → New Vendor Invoice, swipe up from the form fields; the page scrolls to Save.
 - [ ] Run §11 H1–H11 on the host and paste results into the host-acceptance record.
 - [x] ~~Decide DEF-08 (§12.2) and the Clarity/Privacy Notice question (§12.3).~~ Done in R141 at the owner's request (DEF-08 option b; Clarity removed).
-- [ ] Review the sales-tax wording (§12.1, plus the R141 wording in the R141 addendum) and the Product Activity note (§12.4).
+- [ ] Sales-tax, Product Activity and payroll wording: the owner approved the proposed text, and R142 ships it. Record a sign-off once your accountant has confirmed it.
 - [ ] Confirm the payroll rate edition (§12.5).
 - [ ] Confirm someone monitors the contact form and support requests.
 - [ ] Only after all of the above: set `productionReady` / `acceptanceComplete` in the three manifests (owner sign-off).
@@ -564,3 +566,42 @@ This is a feature release on top of the gate fixes, not a gate-only fix. Every n
 Evidence: `beta-gate-evidence/r141/` (identity, lint, paths, run-all log, `r141.json`, `upg.json`, UI matrix JSON, journeys and screenshots). No passwords, setup keys or SMTP secrets are in the evidence; a scan was run before committing.
 
 **Verdict for R141: NOT READY**, for the same reasons as before (§1 items 1, 2 and the owner review). Fewer owner decisions are now open: DEF-08 and Clarity are resolved. Deploy **R141** to staging.
+
+## Addendum: R142 (owner-approved wording)
+
+| | |
+|---|---|
+| Package | `Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R142-Consolidated-IONOS-STAGING.zip` |
+| SHA-256 | `29e9898004c7aaaf4e842581a1bb159053166d8f2ed8e7a51812aeca85534da4` |
+| Source commits | `e5791a6` (code), `09b0625` (manifests) |
+| FILE-MANIFEST.sha256 | 341 entries, all OK on the gate host |
+| Cache token | `5990-r142-tegh` |
+| Migration | none |
+| productionReady / acceptanceComplete | false / false (unchanged) |
+
+The owner approved the replacement wording proposed after R141, and R142 ships it. The text was proposed by the build/QA agent and approved by the owner in conversation. It is not legal or tax advice, and the owner intends to have their accountant confirm it. Calculations and postings are unchanged.
+
+**Correction to R141.** The R141 payroll notice said "CRA rules for Canadian provinces and territories". The code refuses Quebec employees (`quebec_payroll_unsupported`), so the claim was broader than the product. R142 says "Canadian payroll outside Quebec", and WR-10 checks that the claim matches the code.
+
+**Found while testing R142.** The short tax guide at company registration still said "Customers in each province get their province's code automatically", without saying that other provinces' starter codes became GST/HST only in R141. It is updated in R142 and covered by journey step 04.
+
+| Area | Result |
+|---|---|
+| Full API gate suite | 203 PASS / 0 FAIL / 6 INFO (same 6 INFO as before) |
+| R141 tests (PW-01/02 updated to the R142 wording) | 38 PASS |
+| R142 tests WR-01…11: exact starter-code notes for BC and QC on an Ontario company, six guide sentences, old sentences removed, Product Activity in the report and Ask Tegh, payroll notice in both bundles, product/subscription pages, Quebec employee refused, CRA T4127 tables listed (January 2026 from 2026-01-01; July 2026 from 2026-07-01) | 11 PASS |
+| Upgrade R118 → R142 | 12 PASS |
+| **Total** | **264 PASS / 0 FAIL / 6 INFO / 0 BLOCKED** (§11 host items still BLOCKED) |
+| R142 browser journeys at 1440×900 and 390×844 | 8/8 at both sizes: payroll notice and rate-table line, Payroll Manager, Product Activity note, registration guide (registered, unregistered, United Kingdom), Tax Code Report, full Company Details guide on a synthetic legacy-mode company |
+| R141 browser journeys | 10/10 at both sizes |
+| UI matrix (46 screens × 20 runs) | 0 screens with issues |
+| Swipe-trap scan at 390×844 | 0. The first attempt exited with a Node error immediately after the matrix run; a re-run completed with 0 traps. |
+| Path and header probes; PHP 8.3 and 8.4 lint | 40/40 PASS; 83 files × 2, 0 failures |
+
+**Test environment note.** The first R142 run had 16 FAILs in mail and client-link tests. The cause was the gate host's SMTP sandbox, which had stopped when the build container restarted; invitations could not be delivered, so later logins failed. After restarting the sandbox and resetting to the same ZIP, the full run passed. Those FAILs came from the environment, not the package.
+
+**Limitation added:** starter codes created before R142 keep the R141 note text until they are edited.
+
+Evidence: `beta-gate-evidence/r142/`, including `r142.json`, the journeys JSON and the phone and desktop screenshots. A secrets scan was run before committing.
+
+**Verdict for R142: NOT READY**, still only because of host acceptance (§11) and production email (§1 item 2). Deploy **R142** to staging.

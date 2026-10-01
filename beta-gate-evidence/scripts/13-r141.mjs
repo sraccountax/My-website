@@ -76,7 +76,7 @@ const ws2=(await o.call('workspace/summary')).b.summary;check('DM-08',A,'Reset: 
 // ---------- Clarity / payroll wording ----------
 const www='/srv/gate/www/';const files=['app.html','index.html','company.html','product.html','.htaccess'];
 rec('CL-01',A,'No Microsoft Clarity script or CSP allowance anywhere in the package',files.every(f=>!/clarity\.ms|c\.bing\.com/.test(fs.readFileSync(www+f,'utf8')))?'PASS':'FAIL','');
-rec('PW-01',A,'Product page says Payroll Support Tool, Canada only, no "payroll engine"',/Payroll Support Tool/.test(fs.readFileSync(www+'product.html','utf8'))&&!/payroll engine/i.test(fs.readFileSync(www+'product.html','utf8'))&&/Canada only/.test(fs.readFileSync(www+'product.html','utf8'))?'PASS':'FAIL','');
-rec('PW-02',A,'In-app Payroll Support notice says Canadian payroll only',/Payroll Support is for Canadian payroll only/.test(fs.readFileSync(www+'assets/tegh-portal-v5990.js','utf8'))&&/Payroll Support is for Canadian payroll only/.test(fs.readFileSync(www+'assets/index-BsxPiq85-v2817.js','utf8'))?'PASS':'FAIL','');
+rec('PW-01',A,'Product page says Payroll Support Tool, Canada excluding Quebec (R142 wording), no "payroll engine"',/Payroll Support Tool/.test(fs.readFileSync(www+'product.html','utf8'))&&!/payroll engine/i.test(fs.readFileSync(www+'product.html','utf8'))&&/Canada, excluding Quebec/.test(fs.readFileSync(www+'product.html','utf8'))?'PASS':'FAIL','');
+rec('PW-02',A,'In-app Payroll Support notice says Canadian payroll outside Quebec (R142 wording)',/Payroll Support is for Canadian payroll outside Quebec/.test(fs.readFileSync(www+'assets/tegh-portal-v5990.js','utf8'))&&/Payroll Support is for Canadian payroll outside Quebec/.test(fs.readFileSync(www+'assets/index-BsxPiq85-v2817.js','utf8'))?'PASS':'FAIL','');
 fs.writeFileSync('/srv/gate/t/ids.json',JSON.stringify({...ids,US,QCHOME:QC}));
 save('r141.json');
