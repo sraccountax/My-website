@@ -142,10 +142,28 @@ function tax_code_for_purchases(array $company, ?array $code): ?array
     return $code;
 }
 
-/** R139: sales tax is applied automatically only for businesses registered for GST/HST. */
-function tax_code_auto_region(array $company, string $companyId, ?string $region): ?array
+/** R141: the company's own region code (home province, or country/state outside Canada). */
+function tax_code_home(array $company): ?array
 {
-    return (bool)($company['tax_registered'] ?? true) ? tax_code_for_region($companyId, $region) : null;
+    $companyId = (string)$company['id'];
+    if (!function_exists('tegh_tax_region_candidates')) return tax_code_for_region($companyId, (string)$company['province']);
+    foreach (tegh_tax_region_candidates((string)($company['country'] ?? 'Canada'), (string)$company['province']) as $candidate) { $code = tax_code_for_region($companyId, $candidate); if ($code) return $code; }
+    return null;
+}
+
+/** R139: sales tax is applied automatically only for businesses registered for GST/HST.
+    R141: $customer (country + province/state) picks the region: ON, or US-NY then US. */
+function tax_code_auto_region(array $company, string $companyId, ?string $region, ?array $customer = null): ?array
+{
+    if (!(bool)($company['tax_registered'] ?? true)) return null;
+    if ($customer !== null && function_exists('tegh_tax_region_candidates')) {
+        $country = trim((string)($customer['country'] ?? '')) ?: 'Canada';
+        $province = trim((string)($customer['province'] ?? ''));
+        if ($province === '' && tegh_country_code($country) === tegh_country_code((string)($company['country'] ?? 'Canada'))) $province = (string)$company['province'];
+        foreach (tegh_tax_region_candidates($country, $province) as $candidate) { $code = tax_code_for_region($companyId, $candidate); if ($code) return $code; }
+        return null;
+    }
+    return tax_code_for_region($companyId, $region);
 }
 
 function tax_code_compute(array $code, int $amountCents, string $mode = 'exclusive'): array
@@ -364,7 +382,16 @@ function handle_tax_codes(): never
     tegh_tax_codes_ready();
     if (request_method() === 'GET') {
         $mode = db()->prepare('SELECT tax_setup_mode FROM companies WHERE id=?'); $mode->execute([$companyId]);
-        json_response(['taxCodes' => tax_codes_list($companyId, true), 'taxSetupMode' => (string)($mode->fetchColumn() ?: 'legacy'), 'regions' => TEGH_TAX_REGIONS]);
+        $payload = ['taxCodes' => tax_codes_list($companyId, true), 'taxSetupMode' => (string)($mode->fetchColumn() ?: 'legacy'), 'regions' => TEGH_TAX_REGIONS];
+        // R141: Tax Code report. Usage per code from each document's saved tax detail.
+        if (!empty($_GET['usage']) && schema_table_exists('document_tax_lines')) {
+            $u = db()->prepare("SELECT tax_code_id, COUNT(DISTINCT CONCAT(document_type,':',document_id)) documents, COALESCE(SUM(CASE WHEN side='sales' THEN tax_cents ELSE 0 END),0) sales_tax_cents, COALESCE(SUM(CASE WHEN side='purchase' THEN tax_cents ELSE 0 END),0) purchase_tax_cents FROM document_tax_lines WHERE company_id=? AND tax_code_id IS NOT NULL GROUP BY tax_code_id");
+            $u->execute([$companyId]);
+            $usage = [];
+            foreach ($u->fetchAll(PDO::FETCH_ASSOC) as $r) $usage[(string)$r['tax_code_id']] = ['documents' => (int)$r['documents'], 'salesTaxCents' => (int)$r['sales_tax_cents'], 'purchaseTaxCents' => (int)$r['purchase_tax_cents']];
+            $payload['usage'] = $usage;
+        }
+        json_response($payload);
     }
     require_csrf(); require_company_role($company, 'owner', 'admin', 'bookkeeper');
     $input = request_json();
@@ -407,7 +434,7 @@ function bank_decision_tax_code(array $company, array $decision): ?array
         if (!$code) fail('The selected tax code is no longer active.', 422, 'tax_code_unavailable');
         return $code;
     }
-    if (!empty($decision['applyGstHst']) || !empty($decision['applyPst']) || in_array((string)($decision['taxCode'] ?? ''), ['GST_HST', 'HST13', 'GST_HST_PST', 'PST'], true)) return tax_code_for_region($companyId, (string)$company['province']);
+    if (!empty($decision['applyGstHst']) || !empty($decision['applyPst']) || in_array((string)($decision['taxCode'] ?? ''), ['GST_HST', 'HST13', 'GST_HST_PST', 'PST'], true)) return tax_code_home($company);
     return null;
 }
 
@@ -469,9 +496,20 @@ function tax_codes_seed_canada(array $user, string $companyId): array
             }
             $codes[$code] = true; if ($region !== null) $regions[$region] = true; $created[] = $code;
         };
+        // R141: a business charges another province's PST, QST or RST only when it is
+        // registered there. Starter codes for other provinces therefore carry GST only;
+        // the home province keeps its provincial tax.
+        $home = strtoupper((string)db()->query('SELECT province FROM companies WHERE id=' . db()->quote($companyId))->fetchColumn());
         foreach (tax_codes_canada_starter() as $prov => [$provName, $components]) {
+            $provincial = array_values(array_filter($components, static fn(array $c): bool => $c[0] !== 'GST' && $c[0] !== 'HST'));
+            $note = 'Starter code created by Tegh from general Canadian rates. Review the rates and GL accounts before use; edit any time.';
+            if ($provincial && $prov !== $home) {
+                $p = $provincial[0];
+                $note = 'Starter code: GST only, because ' . $p[0] . ' is charged only by businesses registered in ' . $provName . '. If you register there, edit this code and add ' . $p[0] . ' ' . tax_rate_label((int)$p[1]) . '.';
+                $components = array_values(array_filter($components, static fn(array $c): bool => $c[0] === 'GST'));
+            }
             $label = $provName . ' — ' . implode(' + ', array_map(static fn(array $c): string => $c[0] . ' ' . tax_rate_label((int)$c[1]), $components));
-            $add($prov, $label, $prov, $components, 'Starter code created by Tegh from general Canadian rates. Review the rates and GL accounts before use; edit any time.');
+            $add($prov, $label, $prov, $components, $note);
         }
         $add('GST', 'GST only — 5% (no provincial tax)', null, [['GST', 5000, '2100', '1100']], 'Use for suppliers or sales where only GST applies, for example a BC supplier who charged no PST.');
         if ($created) db()->prepare("UPDATE companies SET tax_setup_mode='codes' WHERE id=?")->execute([$companyId]);

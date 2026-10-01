@@ -1332,7 +1332,7 @@ function handle_advanced_recurring_invoice_run(): never
         $issueDate = (string)$profile['next_invoice_date'];
         if ($issueDate > canadian_today()) fail('This recurring invoice is not due yet.');
         if ($profile['end_date'] !== null && $issueDate > (string)$profile['end_date']) fail('This recurring invoice has ended.');
-        $customerStmt = db()->prepare('SELECT id, name, email, phone, billing_address, province FROM customers WHERE id = ? AND company_id = ? AND active = 1');
+        $customerStmt = db()->prepare('SELECT id, name, email, phone, billing_address, province, country FROM customers WHERE id = ? AND company_id = ? AND active = 1');
         $customerStmt->execute([(string)$profile['customer_id'], $companyId]);
         $customer = $customerStmt->fetch();
         if (!$customer) fail('The recurring invoice customer is unavailable.');
@@ -1350,7 +1350,7 @@ function handle_advanced_recurring_invoice_run(): never
         $calculated = [];
         $foreignSubtotal = $foreignTax = $subtotal = $tax = $pst = 0;
         $codesMode = function_exists('tax_setup_mode') && tax_setup_mode($company) === 'codes';
-        $regionCode = $codesMode ? tax_code_auto_region($company, $companyId, $supplyProvince) : null; $taxRows = [];
+        $regionCode = $codesMode ? tax_code_auto_region($company, $companyId, $supplyProvince, $customer) : null; $taxRows = [];
         foreach ($sourceLines as $row) {
             $foreignAmount = (int)round(((int)$row['quantity_milli'] * (int)$row['foreign_unit_price_cents']) / 1000);
             if ($codesMode) {

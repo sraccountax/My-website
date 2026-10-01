@@ -43,13 +43,13 @@ function tegh_workspace_summary_data(array $company): array
       LEFT JOIN journal_entries je ON je.id=jl.journal_entry_id AND je.company_id=a.company_id
       WHERE a.company_id=? GROUP BY a.id,a.code,a.account_type,a.normal_balance");
     $accountStmt->execute([$today,$periodStart,$today,$today,$today,$companyId]);$queries++;
-    $balances=[];$income=0;$expenses=0;$ledgerDebits=0;$ledgerCredits=0;$accountCount=0;
+    $balances=[];$signedById=[];$periodSignedById=[];$income=0;$expenses=0;$ledgerDebits=0;$ledgerCredits=0;$accountCount=0;
     foreach($accountStmt->fetchAll() as $row){
         $accountCount++;
         $signed=(int)$row['signed_balance_cents'];$periodSigned=(int)$row['period_signed_balance_cents'];
         $balance=(string)$row['normal_balance']==='debit'?$signed:-$signed;
         $periodBalance=(string)$row['normal_balance']==='debit'?$periodSigned:-$periodSigned;
-        $balances[(string)$row['id']]=$balance;$balances['code:'.(string)$row['code']]=$balance;
+        $balances[(string)$row['id']]=$balance;$balances['code:'.(string)$row['code']]=$balance;$signedById[(string)$row['id']]=$signed;$periodSignedById[(string)$row['id']]=$periodSigned;
         if((string)$row['account_type']==='income')$income+=$periodBalance;
         if((string)$row['account_type']==='expense')$expenses+=$periodBalance;
         $ledgerDebits+=(int)$row['debit_cents'];$ledgerCredits+=(int)$row['credit_cents'];
@@ -136,7 +136,7 @@ function tegh_workspace_summary_data(array $company): array
     $durationMs=(hrtime(true)-$started)/1e6;
     header('Server-Timing: workspace-summary;dur='.number_format($durationMs,2,'.',''));
     header('X-Tegh-Query-Count: '.(string)$queries);
-    return [
+    $result = [
       'mode'=>'summary','organization'=>['id'=>$companyId,'name'=>(string)$company['name'],'currency'=>(string)$company['currency'],'accountingBasis'=>(string)$company['accounting_basis'],'fiscalYearEnd'=>(string)$company['fiscal_year_end'],'fiscalYearEndDate'=>$company['fiscal_year_end_date']!==null?(string)$company['fiscal_year_end_date']:null,'booksStartDate'=>$company['books_start_date']!==null?(string)$company['books_start_date']:null],
       'currentThrough'=>$currentThrough,'bankAccounts'=>$bankAccounts,'bankTransactions'=>$recent,'cashFlow'=>$cashFlow,
       'summary'=>['periodStart'=>$periodStart,'periodEnd'=>$today,'bankBalanceCents'=>$bankBalance,'statementBalanceCents'=>$statementBalance,'unpaidInvoicesCents'=>$unpaid,'overdueInvoicesCents'=>(int)($invoice['overdue_cents']??0),'openInvoiceCount'=>(int)($invoice['open_count']??0),'openBillCount'=>(int)($bill['open_count']??0),'dueSoonBillCount'=>(int)($bill['due_soon_count']??0),'receivableControlCents'=>$receivableControl,'receivableSubledgerCents'=>$unpaid,'receivableDifferenceCents'=>$accrual?$receivableControl-$unpaid:0,'receivableControlApplicable'=>$accrual,'payableControlCents'=>$payableControl,'payableSubledgerCents'=>$payable,'payableDifferenceCents'=>$accrual?$payableControl-$payable:0,'payableControlApplicable'=>$accrual,'taxPayableCents'=>max(0,(int)($balances['code:2100']??0)-(int)($balances['code:1100']??0)),'taxSummary'=>['gstHstCollectedCents'=>(int)($balances['code:2100']??0),'gstHstRecoverableCents'=>(int)($balances['code:1100']??0),'gstHstNetCents'=>(int)($balances['code:2100']??0)-(int)($balances['code:1100']??0),'pstPayableCents'=>(int)($balances['code:2110']??0),'pstRecoverableCents'=>(int)($balances['code:1110']??0),'qstPayableCents'=>(int)($balances['code:2115']??0),'qstRecoverableCents'=>(int)($balances['code:1115']??0),'otherTaxNetCents'=>$otherTaxNet,'otherTaxAccountCount'=>$otherTaxAccounts],'transactionsToReview'=>(int)($bankStats['pending_count']??0),'duplicateTransactions'=>(int)($bankStats['duplicate_count']??0),'incomeYtdCents'=>$income,'expensesYtdCents'=>$expenses,'netIncomeYtdCents'=>$income-$expenses,'ledgerDebitsCents'=>$ledgerDebits,'ledgerCreditsCents'=>$ledgerCredits,'ledgerDifferenceCents'=>$ledgerDebits-$ledgerCredits],
@@ -146,6 +146,9 @@ function tegh_workspace_summary_data(array $company): array
       'performance'=>['queryCount'=>$queries,'durationMs'=>round($durationMs,2),'projection'=>'dashboard-summary-v5610'],
       'accountingWrites'=>0,
     ];
+    // R141: dashboard figures can use GL accounts chosen under Settings → Dashboard Figures.
+    require_once __DIR__ . '/dashboard_mappings_r141.php';
+    return tegh_dashboard_apply_mappings($company, $result, $signedById, $periodSignedById);
 }
 
 function handle_tegh_workspace_summary(): never

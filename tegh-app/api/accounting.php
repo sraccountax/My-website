@@ -694,7 +694,7 @@ function workspace_data(array $user, array $company): array
         'mode' => 'persistent',
         'organization' => [
             'id' => $companyId, 'name' => (string)$company['name'], 'legalName' => (string)$company['legal_name'],
-            'businessType' => (string)$company['business_type'], 'province' => (string)$company['province'], 'currency' => (string)$company['currency'],
+            'businessType' => (string)$company['business_type'], 'province' => (string)$company['province'], 'country' => (string)($company['country'] ?? 'Canada'), 'currency' => (string)$company['currency'],
             'accountingBasis' => (string)$company['accounting_basis'],
             'payrollPostingMode' => (string)$company['payroll_posting_mode'],
             'reportingFramework' => (string)($company['reporting_framework'] ?? 'not_set'),
@@ -752,9 +752,13 @@ function customer_record_values(array $company, array $input): array
     $emailRaw = trim((string)($input['email'] ?? ''));
     $email = $emailRaw !== '' ? safe_email($emailRaw) : null;
     $phone = optional_text($input['phone'] ?? null, 60);
-    $province = strtoupper(clean_text($input['province'] ?? '', 'Customer province or territory', 2));
-    if (!in_array($province, tegh_province_codes(), true)) fail('Customer province or territory is invalid.');
+    // R141: country plus province/state. Canadian customers need a province or
+    // territory (it decides the GST/HST rate); elsewhere the state is optional.
     $address = tegh_structured_address($input, 'billingAddress');
+    tegh_regions_ready();
+    $location = tegh_location($input['country'] ?? 'Canada', $input['province'] ?? '', true, 'Customer province or state');
+    $province = $location['province'];
+    $address['country'] = $location['country'];
     $termsDays = tegh_terms_days($input['paymentTerms'] ?? ($input['defaultTermsDays'] ?? 30), $input['customTermsDays'] ?? null, 30);
     $notes = optional_text($input['notes'] ?? null, 2000);
     $status = tegh_party_status($input['status'] ?? 'active', 'Customer status');
@@ -832,7 +836,7 @@ function handle_customers(): never
     $existingStmt=db()->prepare('SELECT * FROM customers WHERE id=? AND company_id=? LIMIT 1');$existingStmt->execute([$id,$companyId]);$existing=$existingStmt->fetch();
     if(!$existing)fail('Customer not found.',404,'customer_not_found');
     $used=db()->prepare('SELECT COUNT(*) FROM invoices WHERE customer_id=? AND company_id=?');$used->execute([$id,$companyId]);$locked=(int)$used->fetchColumn()>0;
-    if($locked && ((string)$existing['name']!==$values['name'] || strtoupper((string)$existing['province'])!==$values['province'])){
+    if($locked && ((string)$existing['name']!==$values['name'] || strtoupper((string)$existing['province'])!==(string)$values['province'])){
         fail('Customer name and province are locked after invoice use. Contact details, terms, notes and hold status can still be updated.',409,'customer_legal_fields_locked');
     }
     if($values['openingBalanceCents']!==0 && !party_opening_balance_row($companyId,'customer',$id)){
@@ -938,7 +942,7 @@ function prepare_invoice_record_r20(array $user,array $company,array $input,?str
     require_company_permission($company,'invoices.write');
     $companyId=(string)$company['id'];
 $customerId = clean_text($input['customerId'] ?? '', 'Customer', 64);
-$stmt = db()->prepare('SELECT id, name, email, phone, billing_address, province FROM customers WHERE id = ? AND company_id = ? AND active = 1');
+$stmt = db()->prepare('SELECT id, name, email, phone, billing_address, province, country FROM customers WHERE id = ? AND company_id = ? AND active = 1');
 $stmt->execute([$customerId, $companyId]);
 $customer = $stmt->fetch();
 if (!$customer) fail('Choose a valid customer.');
@@ -974,7 +978,7 @@ $calculatedLines = [];
 $taxOverrides = [];
 $taxRows = [];
 $codesMode = function_exists('tax_setup_mode') && tax_setup_mode($company) === 'codes';
-$regionCode = $codesMode ? tax_code_auto_region($company, $companyId, $supplyProvince) : null;
+$regionCode = $codesMode ? tax_code_auto_region($company, $companyId, $supplyProvince, $customer) : null;
 $foreignSubtotal = 0;
 $foreignTax = 0;
 $foreignPst = 0;
@@ -1319,7 +1323,7 @@ function handle_expenses(): never
     if (function_exists('tax_setup_mode') && tax_setup_mode($company) === 'codes') {
         $code = null;
         if (array_key_exists('taxCodeId', $input) && $input['taxCodeId'] !== null) { $wanted = trim((string)$input['taxCodeId']); if ($wanted !== '') { $code = tax_code_get($companyId, $wanted); if (!$code) fail('The selected tax code is no longer active.', 422, 'tax_code_unavailable'); } }
-        elseif ($applyGstHst || $applyPst) $code = tax_code_for_region($companyId, (string)$company['province']);
+        elseif ($applyGstHst || $applyPst) $code = tax_code_home($company);
         $emode = in_array((string)($input['taxEntryMode'] ?? 'inclusive'), ['exclusive', 'inclusive'], true) ? (string)($input['taxEntryMode'] ?? 'inclusive') : 'inclusive';
         $calc = $code ? tax_code_compute($code, $foreignAmount, $emode) : ['net' => $foreignAmount, 'gross' => $foreignAmount, 'tax' => 0, 'parts' => []];
         $mode = $code ? $emode : 'none';

@@ -190,7 +190,7 @@ function operations_workspace(array $user, array $company): never
     }
     json_response(['organization'=>[
         'id'=>$companyId,'name'=>(string)$company['name'],'legalName'=>(string)$company['legal_name'],'businessType'=>(string)$company['business_type'],
-        'province'=>(string)$company['province'],'currency'=>(string)$company['currency'],'accountingBasis'=>(string)$company['accounting_basis'],
+        'province'=>(string)$company['province'],'country'=>(string)($company['country']??'Canada'),'currency'=>(string)$company['currency'],'accountingBasis'=>(string)$company['accounting_basis'],
         'moduleMode'=>(string)($company['module_mode']??'both'),'payrollPostingMode'=>$canViewPayroll?(string)($company['payroll_posting_mode']??'draft'):null,
         'taxReportingProfile'=>(string)($company['tax_reporting_profile']??'none'),'reportingFramework'=>(string)($company['reporting_framework']??'not_set'),
         'fiscalYearEnd'=>(string)$company['fiscal_year_end'],

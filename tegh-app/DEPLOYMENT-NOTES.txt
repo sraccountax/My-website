@@ -1,7 +1,8 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R140 IONOS STAGING DEPLOYMENT
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R141 IONOS STAGING DEPLOYMENT
 
-This package contains every release through R140 (R118–R140 change notes are
-included). R140 fixes vendor invoice scrolling on phones. R139 contains only the fixes from the invite-only beta release gate
+This package contains every release through R141 (R118–R141 change notes are
+included). R141 adds the gate follow-ups (DEF-08, OBS-2, Clarity), countries,
+the Tax Code Report and Dashboard Figures. R140 fixes vendor invoice scrolling on phones. R139 contains only the fixes from the invite-only beta release gate
 (FINAL-BETA-QA-REPORT.md). It is a STAGING CANDIDATE, not a production release
 (productionReady: false); see "Host acceptance" at the end. No manual database migration. R120's additive table
 accounting_note_lines is created automatically on first use of Credit & Debit
@@ -57,7 +58,17 @@ Notes (the database user needs CREATE privilege, as for the original install).
    assets/tegh-gate-v5990.js, assets/tegh-preflight-v5990.js. No migration.
    For R140: assets/tegh-r120.css, app.html, assets/tegh-gate-v5990.js and
    assets/tegh-preflight-v5990.js. No migration.
-5. Upload all assets together; the cache token is r140-tegh (client-view page:
+   For R141: the new api/regions_r141.php and api/dashboard_mappings_r141.php,
+   plus api/index.php, api/companies.php, api/accounting.php, api/advanced.php,
+   api/books.php, api/operations.php, api/payroll.php, api/tax_codes_r137.php,
+   api/workspace_summary_v5610.php, api/auth.php, api/invitations_v5980.php
+   and api/platform.php; also .htaccess, app.html, product.html,
+   subscriptions.html and the changed assets. On the first request R141 adds
+   companies.country (default Canada), widens province to VARCHAR(10) on
+   companies, customers and vendors, and creates company_dashboard_mappings
+   (ALTER and CREATE privilege needed). Dashboard mappings are not included in
+   backups; re-enter them after a restore.
+5. Upload all assets together; the cache token is r141-tegh (client-view page:
    5990-r135). A partial upload can
    leave browsers on a stale portal.
 6. DN-1001 was already posted once in the original staging data. Do NOT post it
@@ -135,6 +146,15 @@ Verify after upload
 - R140 (on an iPhone and an Android phone): Payables > New Vendor Invoice;
   swipe up starting on the form fields. The page scrolls to the invoice lines
   and the Save buttons.
+- R141: (1) Settings > Users: send a test invitation to a sandbox inbox; the
+  link contains "#accountSetup=" (not "?") and the token is not in the access
+  log. (2) Add company: choose United States; the tax heading reads "Sales tax,
+  VAT or GST" and Payroll is unavailable. (3) A test company in Ontario with
+  the Default chart: the BC code is GST 5% only. (4) Settings > Company Setup >
+  Tax Code Report: tick two codes and press Edit selected. (5) Settings >
+  Company Setup > Dashboard Figures: map "Money in the bank" to one bank
+  account; the dashboard card shows "· your GL mapping". Set it back to
+  Automatic. (6) Response headers: Content-Security-Policy has no clarity.ms.
 - In the browser console: window.TeghPortal exists.
 - Tegh Assist (top bar, also on phones): ask "who owes me money?" and the
   answer starts with a plain sentence ("Customers owe you $…") in about a second; "pay my supplier" opens Vendor

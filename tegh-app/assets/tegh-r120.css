@@ -860,3 +860,15 @@ html[data-tegh-theme="dark"] .srp-page .r138-seed small{color:#a9bdb6}
    on phones (iOS Safari), so the New Vendor Invoice form could not be scrolled.
    The workspace or page scrolls instead, as on the customer invoice form. */
 html[data-tegh-shell] .srp-page[data-r29-reference] .r29-invoice-layout:not(.r22-fill-path){overflow:visible!important;overscroll-behavior:auto!important}
+
+/* R141: dashboard figures, tax code report, country + province fields. */
+.srp-page .r141-dash-card{border:1px solid var(--tegh-line,#cad5df);border-radius:10px;padding:12px 14px;margin:12px 0;display:grid;gap:8px;min-width:0}
+.srp-page .r141-dash-card legend{padding:0 6px}
+.srp-page .r141-dash-card legend small{color:#5b6f68;margin-left:6px}
+.srp-page .r141-dash-list{display:grid;gap:6px;margin-top:6px;min-width:0}
+.srp-page .r141-dash-accounts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 14px;max-height:240px;overflow:auto;padding:6px;border:1px solid var(--tegh-line,#cad5df);border-radius:8px}
+.srp-page .r141-tcr-actions{align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0}
+.srp-page .r141-tcr td small{line-height:1.35}
+.srp-modal .r141-location,.srp-page .r141-location{display:grid;gap:8px;min-width:0}
+html[data-tegh-theme="dark"] .srp-page .r141-dash-card legend small{color:#a9bdb6}
+@media(max-width:720px){.srp-page .r141-dash-accounts{grid-template-columns:1fr}}

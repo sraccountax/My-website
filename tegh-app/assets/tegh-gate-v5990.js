@@ -3,7 +3,7 @@
 
   const VERSION = '5.9.9';
   const BUILD = '5990';
-  const ASSET_REVISION = '5990-r140-tegh';
+  const ASSET_REVISION = '5990-r141-tegh';
   const AUTH_CACHE_MS = 60000;
   const POST_COMMIT_SESSION_GRACE_MS = 45000;
   const RECOVERY_MARKER_KEY = 'tegh-session-recovery-v5990';
@@ -92,8 +92,15 @@
     } catch (_) {}
   }
   const safeMode = params.get('safeMode') === '1';
-  const inviteToken = params.get('accountSetup') || params.get('invite') || '';
-  const passwordResetToken = params.get('passwordReset') || '';
+  // R141: links carry the token after '#', so it never reaches server logs or
+  // Referer headers. Older links with ?accountSetup= still work.
+  const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+  const inviteToken = hashParams.get('accountSetup') || params.get('accountSetup') || params.get('invite') || '';
+  const passwordResetToken = hashParams.get('passwordReset') || params.get('passwordReset') || '';
+  if ((hashParams.has('accountSetup') || hashParams.has('passwordReset')) && window.history?.replaceState) {
+    // Keep the token in memory only; remove it from the address bar and history.
+    try { window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search); } catch (_) {}
+  }
   let inviteDetails = null;
   let sessionController = null;
   let opening = false;
@@ -1643,7 +1650,7 @@
     const panel = passwordResetPanel('<h2>Reset password</h2><p>Checking this secure reset link…</p>');
     setProgress('Checking reset link…', 'Verifying the single-use token.', true);
     try {
-      await request('auth/password-reset-details', {method: 'GET'}, 15000, new URLSearchParams({token: passwordResetToken}));
+      await request('auth/password-reset-details', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: passwordResetToken})}, 15000);
       panel.innerHTML =
         '<h2>Choose a new password</h2>' +
         '<p>Use at least 12 characters with uppercase, lowercase and a number.</p>' +
@@ -1805,7 +1812,7 @@
     document.documentElement.classList.add('sr-invite-only');
     setProgress('Checking account setup…','Confirming the secure link.',true);
     try{
-      inviteDetails=await request('platform/invite-details',{method:'GET'},88000,new URLSearchParams({token:inviteToken}));
+      inviteDetails=await request('platform/invite-details',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:inviteToken})},88000);
       const item=inviteDetails.invitation||{};
       inviteForm.invitedEmail.value=item.email||'';
       const invitedCompanies=document.getElementById('sr-invite-companies');if(invitedCompanies)invitedCompanies.textContent=(item.assignments||[]).map(x=>`${x.companyName} — ${x.roleLabel||x.role}`).join(' · ')||(item.scope==='workspace'?'Independent workspace':'');

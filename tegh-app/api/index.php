@@ -189,6 +189,7 @@ require_once __DIR__ . '/report_comparison_r20.php';
     require_once __DIR__ . '/accounting_notes.php';
     require_once __DIR__ . '/tax_presets.php';
     require_once __DIR__ . '/tax_codes_r137.php';
+    require_once __DIR__ . '/regions_r141.php';
     require_once __DIR__ . '/qa_guardian_v5820.php';
 
     // Password reset uses the shared Tegh mailer, so it is dispatched after
@@ -210,7 +211,10 @@ require_once __DIR__ . '/report_comparison_r20.php';
 
     // R137: tax code tables/columns are created on first use (outside any transaction).
     if ($route !== '' && !str_starts_with($route, 'startup/') && !str_starts_with($route, 'auth/')) { try { tegh_tax_codes_ready(); } catch (Throwable $e) { error_log('Tegh R137 tax code setup: ' . $e->getMessage()); } }
+    // R141: companies.country and wider province/state columns, created on first use.
+    if ($route !== '' && !str_starts_with($route, 'startup/') && !str_starts_with($route, 'auth/')) { try { tegh_regions_ready(); } catch (Throwable $e) { error_log('Tegh R141 region setup: ' . $e->getMessage()); } }
     if ($route === 'tax-codes') handle_tax_codes();
+    if ($route === 'dashboard-mappings') { require_once __DIR__ . '/dashboard_mappings_r141.php'; handle_dashboard_mappings(); }
     if ($route === 'companies') handle_companies();
     if ($route === 'workspace') handle_workspace();
     if ($route === 'customers') handle_customers();

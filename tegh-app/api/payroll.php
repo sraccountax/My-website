@@ -607,6 +607,8 @@ function handle_payroll_quick_calculate(array $user, array $company): never
 
 function handle_payroll_setup(array $user, array $company): never
 {
+    // R141: Payroll Support calculates Canadian payroll (CRA rules) only.
+    if (function_exists('tegh_country_code') && (tegh_country_code((string)($company['country'] ?? 'Canada')) ?? 'CA') !== 'CA') fail('Payroll Support is for Canadian payroll only. This company is located outside Canada.', 422, 'payroll_canada_only');
     require_method('POST'); require_csrf(); require_company_role($company, 'owner');
     initialize_schema();
     $input = request_json();

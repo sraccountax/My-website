@@ -87,7 +87,7 @@ function companies_for_user(string $userId): array
         $column('payroll_posting_mode',"'draft'",'payroll_posting_mode'),$column('tax_reporting_profile',"'none'",'tax_reporting_profile'),$column('reporting_framework',"'not_set'",'reporting_framework'),
         'c.fiscal_year_end',$column('fiscal_year_end_date','NULL','fiscal_year_end_date'),
         $column('books_start_date','NULL','books_start_date'),'c.tax_registered','c.tax_number','c.tax_rate_bps',
-        $column('test_mode','0','test_mode'),$column('test_expires_at','NULL','test_expires_at'),
+        $column('test_mode','0','test_mode'),$column('test_expires_at','NULL','test_expires_at'),$column('country',"'Canada'",'country'),
     ];
     // Platform administration and company-book access are separate trust
     // boundaries. Even a platform owner only sees companies where they are an
@@ -103,7 +103,7 @@ function companies_for_user(string $userId): array
     $stmt=db()->prepare($sql);$stmt->execute($params);
     return array_map(static fn(array $row):array=>[
         'id'=>(string)$row['id'],'name'=>(string)$row['name'],'legalName'=>(string)$row['legal_name'],
-        'businessType'=>(string)$row['business_type'],'province'=>(string)$row['province'],'currency'=>(string)$row['currency'],
+        'businessType'=>(string)$row['business_type'],'province'=>(string)$row['province'],'country'=>(string)($row['country']??'Canada'),'currency'=>(string)$row['currency'],
         'accountingBasis'=>(string)$row['accounting_basis'],'moduleMode'=>(string)$row['module_mode'],
         'payrollPostingMode'=>(string)$row['payroll_posting_mode'],'taxReportingProfile'=>(string)$row['tax_reporting_profile'],'reportingFramework'=>(string)$row['reporting_framework'],
         'fiscalYearEnd'=>(string)$row['fiscal_year_end'],
@@ -378,7 +378,7 @@ function password_reset_require_schema(): void
 
 function password_reset_url(string $token): string
 {
-    return rtrim((string)config('app.base_url'), '/') . '/app.html?passwordReset=' . rawurlencode($token);
+    return rtrim((string)config('app.base_url'), '/') . '/app.html#passwordReset=' . rawurlencode($token);
 }
 
 function send_password_reset_email(string $email, string $token): void
@@ -437,9 +437,11 @@ function handle_password_reset_request(): never
 
 function handle_password_reset_details(): never
 {
-    require_method('GET');
+    require_method('GET','POST');
     password_reset_require_schema();
-    $token = trim((string)($_GET['token'] ?? ''));
+    // R141: the browser sends the token in a POST body so it never appears in access logs.
+    if (request_method() === 'POST') assert_same_origin();
+    $token = trim((string)(request_method() === 'POST' ? (request_json()['token'] ?? '') : ($_GET['token'] ?? '')));
     if (!preg_match('/^[A-Za-z0-9_-]{40,100}$/', $token)) fail('This password reset link is invalid or expired.',410,'password_reset_invalid');
     $stmt = db()->prepare("SELECT pr.id FROM password_reset_requests pr JOIN users u ON u.id=pr.user_id AND u.active=1 WHERE pr.token_hash=? AND pr.used_at IS NULL AND pr.expires_at>UTC_TIMESTAMP() LIMIT 1");
     $stmt->execute([secret_hash($token)]);

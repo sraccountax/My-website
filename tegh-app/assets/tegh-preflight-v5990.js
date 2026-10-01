@@ -12,8 +12,10 @@
       document.documentElement.style.colorScheme=theme==='dark'?'dark':theme==='light'?'light':'light dark';
     } catch {}
     const params = new URLSearchParams(location.search);
+    // R141: invitation and password-reset tokens arrive after '#'.
+    new URLSearchParams((location.hash || '').replace(/^#/, '')).forEach((value, key) => { if (['accountSetup','passwordReset'].includes(key) && !params.has(key)) params.set(key, value); });
     const version = '5990';
-    const assetRevision = '5990-r140-tegh';
+    const assetRevision = '5990-r141-tegh';
     const signedOut = params.get('signed-out') === '1';
     if (signedOut) {
       document.documentElement.dataset.signedOut = '1';

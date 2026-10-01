@@ -85,7 +85,7 @@ function platform_notifications(array $user,array $company): never
 
 function platform_invitation_base_url(string $token): string
 {
-    return rtrim((string)config('app.base_url'),'/').'/app.html?accountSetup='.rawurlencode($token);
+    return rtrim((string)config('app.base_url'),'/').'/app.html#accountSetup='.rawurlencode($token);
 }
 
 function platform_default_display_name(string $email): string

@@ -93,18 +93,21 @@ function handle_companies(): never
     if (!in_array($businessType, ['sole_proprietor', 'corporation', 'partnership', 'non_profit'], true)) {
         fail('Business type is invalid.');
     }
-    $province = strtoupper(clean_text($input['province'] ?? 'ON', 'Province', 2));
-    if (!in_array($province, ['AB','BC','MB','NB','NL','NS','NT','NU','ON','PE','QC','SK','YT'], true)) {
-        fail('Province or territory is invalid.');
-    }
+    // R141: country and province/state. Canada needs one of its 13 provinces and
+    // territories; elsewhere the state/province code is optional.
+    tegh_regions_ready();
+    $location = tegh_location($input['country'] ?? 'Canada', $input['province'] ?? 'ON', true, 'Province or state');
+    $province = (string)($location['province'] ?? '');
+    $country = $location['country'];
+    $isCanada = $location['countryCode'] === 'CA';
     [$fiscalYearEnd, $fiscalYearEndDate] = company_fiscal_dates($input);
     $booksStartDate = company_books_start_date($input);
     $taxRegistered = !empty($input['taxRegistered']);
     $taxNumber = $taxRegistered ? optional_text($input['taxNumber'] ?? null, 40) : null;
     if ($taxRegistered && $taxNumber === null) {
-        fail('GST/HST number is required when the company is registered for GST/HST.', 422, 'tax_number_required');
+        fail($isCanada ? 'GST/HST number is required when the company is registered for GST/HST.' : 'Enter the sales tax / VAT / GST registration number.', 422, 'tax_number_required');
     }
-    $pstRegistered = !empty($input['pstRegistered']);
+    $pstRegistered = $isCanada && !empty($input['pstRegistered']);
     $pstRateMpct = $pstRegistered ? pst_rate_mpct_from_input($input) : 0;
     $pstRateBps = (int)round($pstRateMpct / 10); // rounded copy for older readers
     $pstRecoverable = $pstRegistered && !empty($input['pstRecoverable']);
@@ -117,6 +120,9 @@ function handle_companies(): never
     if (!in_array($accountingBasis, ['accrual', 'cash'], true)) fail('Accounting basis is invalid.');
     $moduleMode = (string)($input['moduleMode'] ?? 'both');
     if (!in_array($moduleMode, ['accounting','payroll','both'], true)) fail('Module selection is invalid.');
+    // R141: Payroll Support calculates Canadian payroll only.
+    if (!$isCanada && $moduleMode === 'payroll') fail('Payroll Support is for Canadian payroll only. Choose Accounting for a company outside Canada.', 422, 'payroll_canada_only');
+    if (!$isCanada) $moduleMode = 'accounting';
     $payrollPostingMode = (string)($input['payrollPostingMode'] ?? 'draft');
     if (!in_array($payrollPostingMode, ['automatic','draft','none'], true)) fail('Payroll posting selection is invalid.');
     $taxReportingProfile = (string)($input['taxReportingProfile'] ?? ($businessType === 'sole_proprietor' ? 't2125' : ($businessType === 'corporation' ? 'gifi' : 'none')));
@@ -139,9 +145,9 @@ function handle_companies(): never
     $accountTypesByCode = [];
     db()->beginTransaction();
     try {
-        $stmt = db()->prepare("INSERT INTO companies (id, name, legal_name, business_type, province, currency, accounting_basis, module_mode, payroll_posting_mode, tax_reporting_profile, reporting_framework, fiscal_year_end, fiscal_year_end_date, books_start_date, tax_registered, tax_number, tax_rate_bps, pst_registered, pst_rate_bps, pst_recoverable, test_mode, test_expires_at, test_created_by)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$companyId, $name, $legalName, $businessType, $province, $currency, $accountingBasis, $moduleMode, $payrollPostingMode, $taxReportingProfile, $reportingFramework, $fiscalYearEnd, $fiscalYearEndDate, $booksStartDate, $taxRegistered ? 1 : 0, $taxNumber, province_rate_bps($province), $pstRegistered ? 1 : 0, $pstRateBps, $pstRecoverable ? 1 : 0, $testMode ? 1 : 0, $testExpiresAt, $testMode ? $user['id'] : null]);
+        $stmt = db()->prepare("INSERT INTO companies (id, name, legal_name, business_type, province, currency, accounting_basis, module_mode, payroll_posting_mode, tax_reporting_profile, reporting_framework, fiscal_year_end, fiscal_year_end_date, books_start_date, tax_registered, tax_number, tax_rate_bps, pst_registered, pst_rate_bps, pst_recoverable, test_mode, test_expires_at, test_created_by, country)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$companyId, $name, $legalName, $businessType, $province, $currency, $accountingBasis, $moduleMode, $payrollPostingMode, $taxReportingProfile, $reportingFramework, $fiscalYearEnd, $fiscalYearEndDate, $booksStartDate, $taxRegistered ? 1 : 0, $taxNumber, $isCanada ? province_rate_bps($province) : 0, $pstRegistered ? 1 : 0, $pstRateBps, $pstRecoverable ? 1 : 0, $testMode ? 1 : 0, $testExpiresAt, $testMode ? $user['id'] : null, $country]);
         db()->prepare('UPDATE companies SET pst_rate_mpct = ? WHERE id = ?')->execute([$pstRateMpct, $companyId]);
         // R137: new companies charge nothing until the owner sets up tax codes.
         if (function_exists('schema_column_exists') && schema_column_exists('companies', 'tax_setup_mode')) db()->prepare("UPDATE companies SET tax_setup_mode = 'codes' WHERE id = ?")->execute([$companyId]);
@@ -163,7 +169,7 @@ function handle_companies(): never
             ['Tegh Compact', 0, 'INVOICE', '#6B4EFF', 'compact', 'Thank you.'],
         ];
         foreach ($invoiceTemplatePresets as [$templateName,$isDefault,$documentTitle,$accentColor,$layoutStyle,$templateFooter]) {
-            $invoiceTemplateInsert->execute([new_id('invtemplate'), $companyId, $templateName, $isDefault, $documentTitle, $accentColor, $layoutStyle, $province . ', Canada', $templateFooter]);
+            $invoiceTemplateInsert->execute([new_id('invtemplate'), $companyId, $templateName, $isDefault, $documentTitle, $accentColor, $layoutStyle, trim(($province !== '' ? $province . ', ' : '') . $country), $templateFooter]);
         }
         $accountStmt = db()->prepare("INSERT INTO accounts (id, company_id, code, name, account_type, normal_balance, is_control, gifi_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $chartRows = [];
@@ -203,7 +209,7 @@ function handle_companies(): never
             }
         }
         audit_event($user, $companyId, 'company.created', 'company', $companyId, [
-            'name' => $name, 'province' => $province, 'currency' => $currency, 'accountingBasis' => $accountingBasis,
+            'name' => $name, 'province' => $province, 'country' => $country, 'currency' => $currency, 'accountingBasis' => $accountingBasis,
             'moduleMode' => $moduleMode, 'payrollPostingMode' => $payrollPostingMode, 'taxReportingProfile' => $taxReportingProfile, 'reportingFramework'=>$reportingFramework,
             'testMode' => $testMode, 'testExpiresAt' => $testExpiresAt,
             'booksStartDate' => $booksStartDate, 'fiscalYearEndDate' => $fiscalYearEndDate, 'coaMode' => $coaMode,
@@ -211,7 +217,8 @@ function handle_companies(): never
         ensure_v6_seed_data($companyId);
         if(function_exists('tegh_company_entitlements_initialize'))tegh_company_entitlements_initialize($user,$companyId,$name);
         // R138: companies on the default chart start with editable Canadian tax codes.
-        if ($coaMode === 'default' && function_exists('tax_codes_seed_canada')) tax_codes_seed_canada($user, $companyId);
+        // Canadian starter tax codes only for Canadian companies (R141).
+        if ($coaMode === 'default' && $isCanada && function_exists('tax_codes_seed_canada')) tax_codes_seed_canada($user, $companyId);
         db()->commit();
     } catch (Throwable $error) {
         if (db()->inTransaction()) {
@@ -238,10 +245,11 @@ function handle_settings(): never
     if (!in_array($businessType, ['sole_proprietor', 'corporation', 'partnership', 'non_profit'], true)) {
         fail('Business type is invalid.');
     }
-    $province = strtoupper(clean_text($input['province'] ?? $company['province'], 'Province', 2));
-    if (!in_array($province, ['AB','BC','MB','NB','NL','NS','NT','NU','ON','PE','QC','SK','YT'], true)) {
-        fail('Province or territory is invalid.');
-    }
+    tegh_regions_ready();
+    $location = tegh_location($input['country'] ?? ($company['country'] ?? 'Canada'), $input['province'] ?? $company['province'], true, 'Province or state');
+    $province = (string)($location['province'] ?? '');
+    $country = $location['country'];
+    $isCanada = $location['countryCode'] === 'CA';
     [$fiscal, $fiscalDate] = company_fiscal_dates(
         $input,
         (string)$company['fiscal_year_end'],
@@ -254,9 +262,9 @@ function handle_settings(): never
     $taxRegistered = !empty($input['taxRegistered']);
     $taxNumber = $taxRegistered ? optional_text($input['taxNumber'] ?? null, 40) : null;
     if ($taxRegistered && $taxNumber === null) {
-        fail('GST/HST number is required when the company is registered for GST/HST.', 422, 'tax_number_required');
+        fail($isCanada ? 'GST/HST number is required when the company is registered for GST/HST.' : 'Enter the sales tax / VAT / GST registration number.', 422, 'tax_number_required');
     }
-    $pstRegistered = array_key_exists('pstRegistered',$input) ? !empty($input['pstRegistered']) : (bool)($company['pst_registered'] ?? false);
+    $pstRegistered = $isCanada && (array_key_exists('pstRegistered',$input) ? !empty($input['pstRegistered']) : (bool)($company['pst_registered'] ?? false));
     $pstRateMpct = $pstRegistered ? pst_rate_mpct_from_input($input, company_pst_rate_mpct($company)) : 0;
     $pstRateBps = (int)round($pstRateMpct / 10); // rounded copy for older readers
     $pstRecoverable = $pstRegistered && (array_key_exists('pstRecoverable',$input) ? !empty($input['pstRecoverable']) : (bool)($company['pst_recoverable'] ?? false));
@@ -278,8 +286,8 @@ function handle_settings(): never
     db()->beginTransaction();
     try {
         $previousCurrency = (string)$company['currency'];
-        $stmt = db()->prepare('UPDATE companies SET name = ?, legal_name = ?, business_type = ?, province = ?, currency = ?, accounting_basis = ?, payroll_posting_mode = ?, reporting_framework = ?, fiscal_year_end = ?, fiscal_year_end_date = ?, books_start_date = ?, tax_registered = ?, tax_number = ?, tax_rate_bps = ?, pst_registered = ?, pst_rate_bps = ?, pst_recoverable = ? WHERE id = ?');
-        $stmt->execute([$name, $legalName, $businessType, $province, $currency, $accountingBasis, $payrollPostingMode, $reportingFramework, $fiscal, $fiscalDate, $booksStartDate, $taxRegistered ? 1 : 0, $taxNumber, province_rate_bps($province), $pstRegistered ? 1 : 0, $pstRateBps, $pstRecoverable ? 1 : 0, $company['id']]);
+        $stmt = db()->prepare('UPDATE companies SET name = ?, legal_name = ?, business_type = ?, province = ?, currency = ?, accounting_basis = ?, payroll_posting_mode = ?, reporting_framework = ?, fiscal_year_end = ?, fiscal_year_end_date = ?, books_start_date = ?, tax_registered = ?, tax_number = ?, tax_rate_bps = ?, pst_registered = ?, pst_rate_bps = ?, pst_recoverable = ?, country = ? WHERE id = ?');
+        $stmt->execute([$name, $legalName, $businessType, $province, $currency, $accountingBasis, $payrollPostingMode, $reportingFramework, $fiscal, $fiscalDate, $booksStartDate, $taxRegistered ? 1 : 0, $taxNumber, $isCanada ? province_rate_bps($province) : 0, $pstRegistered ? 1 : 0, $pstRateBps, $pstRecoverable ? 1 : 0, $country, $company['id']]);
         db()->prepare('UPDATE companies SET pst_rate_mpct = ? WHERE id = ?')->execute([$pstRateMpct, $company['id']]);
         if ($currency !== $previousCurrency) {
             db()->prepare('UPDATE bank_accounts SET currency = ? WHERE company_id = ? AND currency = ?')
@@ -292,7 +300,7 @@ function handle_settings(): never
             ON DUPLICATE KEY UPDATE rate_to_base_micros = 1000000, rate_date = CURRENT_DATE, active = 1")
             ->execute([$company['id'], $currency]);
         audit_event($user, (string)$company['id'], 'company.updated', 'company', (string)$company['id'], [
-            'province' => $province, 'businessType' => $businessType, 'taxRegistered' => $taxRegistered, 'pstRegistered'=>$pstRegistered, 'pstRateBps'=>$pstRateBps, 'pstRateMpct'=>$pstRateMpct, 'pstRecoverable'=>$pstRecoverable,
+            'province' => $province, 'country' => $country, 'businessType' => $businessType, 'taxRegistered' => $taxRegistered, 'pstRegistered'=>$pstRegistered, 'pstRateBps'=>$pstRateBps, 'pstRateMpct'=>$pstRateMpct, 'pstRecoverable'=>$pstRecoverable,
             'currency' => $currency, 'accountingBasis' => $accountingBasis, 'payrollPostingMode' => $payrollPostingMode, 'reportingFramework'=>$reportingFramework,
             'fiscalYearEndDate' => $fiscalDate, 'booksStartDate' => $booksStartDate,
         ]);

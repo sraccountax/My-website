@@ -173,9 +173,9 @@ function vendor_record_values(array $company, array $input): array
     $emailRaw=trim((string)($input['email']??''));$email=$emailRaw!==''?safe_email($emailRaw):null;
     $phone=optional_text($input['phone']??null,60);
     $address=tegh_structured_address($input,'address');
-    $provinceRaw=strtoupper(trim((string)($input['province']??'')));
-    $province=$provinceRaw!==''?clean_text($provinceRaw,'Vendor province or territory',2):null;
-    if($province!==null&&!in_array($province,tegh_province_codes(),true))fail('Vendor province or territory is invalid.');
+    // R141: country plus province/state (optional for vendors; Canadian codes in Canada).
+    tegh_regions_ready();$location=tegh_location($input['country']??'Canada',$input['province']??'',false,'Vendor province or state');
+    $province=$location['province'];$address['country']=$location['country'];
     $termsDays=tegh_terms_days($input['paymentTerms']??($input['defaultTermsDays']??30),$input['customTermsDays']??null,30);
     $currency=safe_currency_code($input['currency']??$company['currency']);if(!company_currency($companyId,$currency))fail('Add that currency to the company before assigning it to a vendor.');
     $accountId=optional_text($input['defaultExpenseAccountId']??null,64);
@@ -338,7 +338,7 @@ function bill_input_values(array $company, array $input): array
         // recoverable (posted to its purchase GL) or becomes part of the cost.
         $code=null;
         if(array_key_exists('taxCodeId',$input)&&$input['taxCodeId']!==null){$wanted=trim((string)$input['taxCodeId']);if($wanted!==''){$code=tax_code_get($companyId,$wanted);if(!$code)fail('The selected tax code is no longer active. Choose another.',422,'tax_code_unavailable');}}
-        elseif(($input['taxEntryMode']??'none')!=='none')$code=tax_code_for_region($companyId,(string)$company['province']);
+        elseif(($input['taxEntryMode']??'none')!=='none')$code=tax_code_home($company);
         $mode=(string)($input['taxEntryMode']??'exclusive');if(!in_array($mode,['exclusive','inclusive','none'],true))fail('Choose a valid tax entry mode.');
         if(!$code)$mode='none';
         $foreignInput=safe_cents($input['foreignAmountCents']??$input['foreignSubtotalCents']??0,'Vendor invoice amount');
