@@ -1,0 +1,23 @@
+// W15: payroll through the screens (setup done in exploration; employee + pay run here).
+import {open,menu,pageEl,ids,confirm} from './base.mjs';import {sql,rec,check,save} from '../lib.mjs';
+const A='E2E';const cid=ids().E2E;const {b,p,errs}=await open(cid);const q=sql;
+const dumpForms=async tag=>{console.log('=== '+tag);console.log(await p.evaluate(()=>{const fs=[...document.querySelectorAll('form')].filter(f=>f.offsetParent);return fs.map(f=>[...f.attributes].filter(a=>a.name.startsWith('data-')).map(a=>a.name).join(' ')+'\n  '+[...f.querySelectorAll('input,select,textarea')].filter(e=>e.offsetParent&&e.type!=='hidden').map(e=>`${e.tagName}[${e.name}]:${e.type}=${String(e.value).slice(0,20)}${e.tagName==='SELECT'?' {'+[...e.options].slice(0,5).map(o=>o.value+'='+o.text.slice(0,16)).join('|')+'}':''}`).join('\n  ')+'\n  BTNS '+[...f.querySelectorAll('button')].filter(x=>x.offsetParent).map(x=>x.textContent.trim()).join(' ; ')).join('\n')}))};
+try{ if(q(`SELECT COUNT(*) FROM payroll_settings WHERE company_id='${cid}'`)==='0'){await menu(p,'Payroll','Employees',3000);await pageEl(p).locator('button:visible',{hasText:/Open Payroll Setup/}).click();await p.waitForTimeout(2500);const sf=p.locator('form').filter({visible:true}).filter({hasText:'Create Payroll Controls'}).last();await sf.locator('input').first().fill('123456789RP0001');await sf.locator('button',{hasText:'Create Payroll Controls'}).click();await confirm(p);await p.waitForTimeout(3000);
+  check('W15-00',A,'Payroll setup screen creates payroll controls (RP account, biweekly, regular remitter)',q(`SELECT CONCAT(payroll_account_number,'|',default_frequency,'|',remitter_type) FROM payroll_settings WHERE company_id='${cid}'`),'123456789RP0001|biweekly|regular')}
+ if(q(`SELECT COUNT(*) FROM payroll_employees WHERE company_id='${cid}'`)==='0'){
+ await menu(p,'Payroll','Employees',3500);await pageEl(p).locator('button:visible',{hasText:/\+ Add Employee/}).first().click();await p.waitForTimeout(2000);
+ const f=p.locator('[data-employee-form]').filter({visible:true}).last();
+ await f.locator('[name=firstName]').fill('Priya');await f.locator('[name=lastName]').fill('Sharma');await f.locator('[name=email]').fill('priya@example.test');await f.locator('[name=hireDate]').fill('2026-09-01');
+ await f.locator('[name=annualSalary]').fill('52000');await f.locator('button',{hasText:'Save Employee'}).click();await confirm(p);await p.waitForTimeout(2500);
+ check('W15-01',A,'Add Employee saves Priya Sharma, ON, biweekly, $52,000 salary, no SIN stored',q(`SELECT CONCAT(first_name,' ',last_name,'|',province_of_employment,'|',pay_frequency,'|',annual_salary_cents,'|',IFNULL(sin_ciphertext,'nosin'))  FROM payroll_employees WHERE company_id='${cid}'`),'Priya Sharma|ON|biweekly|5200000|nosin');
+}
+ await menu(p,'Payroll','Pay Run Register',3500);
+ const nr=pageEl(p).locator('button:visible',{hasText:/New Pay Run|Run Payroll|\+ New/}).first();if(await nr.count()){await nr.click();await p.waitForTimeout(2500)}const rf=p.locator('[data-run-new]').filter({visible:true}).last();const silent=await (async()=>{await rf.locator('button',{hasText:'Create Draft Pay Run'}).click();await p.waitForTimeout(1200);return await p.evaluate(()=>[...document.querySelectorAll('[role=alert],[role=status],.srp-toast,.toast,[aria-live]')].map(x=>x.textContent.trim()).filter(Boolean).join(' | ').slice(0,200))})();console.log('NO-SELECTION FEEDBACK:',JSON.stringify(silent));
+ await rf.locator('label',{hasText:'Priya Sharma'}).locator('input[type=checkbox]').first().check({force:true}).catch(async()=>{await rf.locator('input[type=checkbox]').nth(1).check({force:true})});await p.waitForTimeout(600);
+ p.on('response',async r=>{if(/payroll/.test(r.url())&&r.request().method()!=='GET')console.log('RES',r.request().method(),decodeURIComponent(r.url()).slice(-50),r.status(),(await r.text()).slice(0,400))});await rf.locator('button',{hasText:'Create Draft Pay Run'}).click();await confirm(p);await p.waitForTimeout(3500);
+ console.log('RUN',q(`SELECT CONCAT(id,'|',status,'|',gross_pay_cents,'|',employee_cpp_cents,'|',employee_ei_cents,'|',income_tax_cents,'|',net_pay_cents) FROM payroll_runs WHERE company_id='${cid}'`));
+ console.log('AFTER BTNS',(await pageEl(p).locator('button:visible').allTextContents()).map(s=>s.trim()).filter(Boolean).join(' ; '));
+ console.log((await pageEl(p).textContent()).replace(/\s+/g,' ').slice(0,1500));
+ await dumpForms('after');await p.screenshot({path:'/srv/gate/ev/shots/e2e-payrun.png'});
+}catch(e){rec('W15-01',A,'Payroll','FAIL',e.message.split('\n')[0].slice(0,200));await p.screenshot({path:'/srv/gate/ev/shots/e2e-fail-W15.png'})}
+await b.close();save('e2e.json');

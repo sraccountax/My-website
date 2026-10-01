@@ -4,6 +4,8 @@ Prepared 2026-09-30 by the build/QA agent (senior QA, security and accounting re
 
 ## 1. Verdict
 
+> **Update: R144 supersedes R142 for deployment.** R143 fixes four defects found by a new click-through test of every daily workflow (DEF-10 to DEF-13). R144 adds Tegh Intelligence, built into Tegh with no external AI. The gate was re-run on the exact R144 ZIP (SHA-256 `4e880cd39406ecef661b5c074a732fac8a0aef159f332fcb02dbabf41afcd914`): 360 PASS, 0 FAIL, 6 INFO. See "Addendum: R143 and R144". The verdict is still **NOT READY**, because host acceptance is open.
+>
 > **Update: R142 supersedes R141 for deployment.** R142 applies the owner-approved wording for payroll (outside Quebec), the sales tax guide and the Product Activity note. The gate was re-run on the exact R142 ZIP (SHA-256 `29e9898004c7aaaf4e842581a1bb159053166d8f2ed8e7a51812aeca85534da4`): 264 PASS, 0 FAIL, 6 INFO. See "Addendum: R142". The verdict is still **NOT READY**, because host acceptance is open.
 >
 > **Update: R141 supersedes R140 and R139 for deployment.** R141 fixes DEF-08 and OBS-2, removes the last Clarity allowance and adds features the owner requested. The gate was re-run on the exact R141 ZIP (SHA-256 `f80d3d6608dc4d0686bada3ce82bcf4146c7a72cbc2efacf72a88aee29581c1f`): 253 PASS, 0 FAIL, 6 INFO. See "Addendum: R141" at the end. The verdict is still **NOT READY**, because host acceptance and the owner review are still open.
@@ -433,7 +435,7 @@ Proposed additions for owner decision:
 
 ## 15. Owner checklist
 
-- [ ] Upload **R142** (SHA-256 `29e98980…34da4`) to staging, not R138–R141.
+- [ ] Upload **R144** (SHA-256 `4e880cd3…cd914`) to staging, not R138–R143.
 - [ ] On a real iPhone and Android phone: Payables → New Vendor Invoice, swipe up from the form fields; the page scrolls to Save.
 - [ ] Run §11 H1–H11 on the host and paste results into the host-acceptance record.
 - [x] ~~Decide DEF-08 (§12.2) and the Clarity/Privacy Notice question (§12.3).~~ Done in R141 at the owner's request (DEF-08 option b; Clarity removed).
@@ -605,3 +607,91 @@ The owner approved the replacement wording proposed after R141, and R142 ships i
 Evidence: `beta-gate-evidence/r142/`, including `r142.json`, the journeys JSON and the phone and desktop screenshots. A secrets scan was run before committing.
 
 **Verdict for R142: NOT READY**, still only because of host acceptance (§11) and production email (§1 item 2). Deploy **R142** to staging.
+
+## Addendum: R143 and R144 (click-through workflow test, Tegh Intelligence)
+
+| | R143 | R144 |
+|---|---|---|
+| Package | `…-Hotfix-R143-Consolidated-IONOS-STAGING.zip` | `…-Hotfix-R144-Consolidated-IONOS-STAGING.zip` |
+| SHA-256 | `7ed8b3856c0756df2a1cd2fd5a65bf4ff48bebaf31441baa421ba339b5a749a1` | `4e880cd39406ecef661b5c074a732fac8a0aef159f332fcb02dbabf41afcd914` |
+| Source commits | `f670518`, `185db7f` | `a570ce7`, `c1fe9d3`, `90d3609` |
+| FILE-MANIFEST.sha256 | 342 entries, all OK | 344 entries, all OK |
+| Cache token | `5990-r143-tegh` | `5990-r144-tegh` |
+| Migration | none | automatic: `company_insight_dismissals` (first dismissal) |
+| productionReady / acceptanceComplete | false / false | false / false |
+
+### Why a new kind of test
+Before new features were started, the owner asked whether the app works as a whole. Until now the gate checked business rules through the API, and the browser runs opened every screen without completing workflows. A new **click-through workflow suite** (`beta-gate-evidence/scripts/e2e/`) now drives every daily workflow through the screens on a fresh synthetic company, as a user would. Every result is checked against the database, with expected figures worked out by hand:
+1. Customer, then an invoice: 2 × $500 + HST 13% = $1,130.00, posting Dr 1200 / Cr 4000 / Cr 2100.
+2. Credit note returning one unit: $565.00.
+3. Customer payment.
+4. Vendor, then a vendor invoice: $200 + HST $26, then a vendor payment.
+5. GL journal.
+6. Statement upload, duplicate protection and cancelling an import.
+7. Match and Post with a tax code ($56.50 = $50 + $6.50 HST).
+8. Linking recorded payments.
+9. Reconciliation to $0.00 and Complete.
+10. Profit and Loss, Balance Sheet and Trial Balance totals ($665.00 = $665.00).
+11. Dashboard cards.
+12. Payroll: setup, employee and draft pay run, checked against CRA T4127 July 2026 by hand.
+    - Gross $2,000.00, CPP $110.99, EI $32.60.
+    - Income tax $254.82 against a hand calculation of $254.83.
+    - Then verification, the reviewed-and-verified tick, Post to GL, and employer CPP and EI.
+13. Tegh Assist answers.
+14. Invoice PDF and report CSV export.
+
+### Defects found and fixed in R143
+| ID | Severity | Defect | Fix | Test |
+|---|---|---|---|---|
+| DEF-10 | Medium, usability | A statement preview left open by a refresh, a closed tab or an expired session blocked re-uploading the same file ("Cancel that preview…"), and no screen listed it. | A new upload of the same file for the same account replaces the stale draft. Drafts create no bank lines or GL entries. The replacement is audited. | W9-01, W9-03, W9-04 |
+| DEF-11 | High, accounting workflow | A receipt or vendor payment recorded with Record Payment could not be linked to its bank line after a statement import. The server supported it, but no screen sent it. Users could only exclude the line or post it again (double counting). | Match and Post shows **"Already recorded?"** with the matching payments. **Link to this payment** reuses the payment's journal entry. | W11-01a/b … W11-04: nothing posted twice; GL 1000 = statement $282.50 |
+| DEF-12 | Medium, Tegh Assist | "how much money is in the bank", "cash in bank", "what is in my chequing account", "how much money is left in the bank" and "how much money do I owe" were not understood. "who do I owe money to" was confused with "who owes me money". | Phrasings added. The receivables rule no longer matches "who do I owe". The 144-question regression set passes 144/144. | W17-01 |
+| DEF-13 | Low, display | The invoice screen showed 2 × $500.00 = "Amount $1,130.00". | The column is labelled "Total incl. tax", as on the emailed invoice. | screenshot |
+| (wording) | Low | A balanced period that ends in the future said "Ready to complete", then refused. | It now says "Balanced. You can complete it once the period has ended." | W12-00 |
+
+**Observations (not changed):**
+- Report exports (Excel, CSV, PDF, Print) are under the table's Actions ⋮ → Export… menu.
+- GL Journal Entry excludes bank, AR, AP and tax control accounts, by design.
+- On the Balance Sheet, GST/HST Recoverable is under "Other Assets".
+- Employee province fields are free text.
+
+### Tegh Intelligence (R144)
+This is built into Tegh, as the owner requested: **no external AI**.
+
+**Features:**
+- a dashboard brief;
+- a Tegh Intelligence page:
+  - anomaly watch: duplicates, unusual amounts, tax-region mismatch, parked balances, old bank lines, overdrawn bank, unposted payroll;
+  - "Not a problem" and Undo, which are audited;
+  - who to chase first;
+  - cash runway with a what-if;
+- bank suggestions with confidence and reason, and Use suggestion;
+- Tegh Assist answers spending, sales, top-expense and top-customer questions from the posted books.
+
+**Safeguards:**
+- **No outbound calls.** IN-64 inspects the module for HTTP clients, sockets and the AI provider.
+- **Read-only.** IN-61: no journal entries are created and bank lines stay pending.
+- **Company isolation.** IN-62.
+- **CSRF protection.** IN-63.
+- **No guessing:** a line with no history gets no suggestion (IN-31).
+
+**Regression found during the R144 gate.** The first R144 ZIP (SHA-256 `7066756c…f1eb`) failed W11-01. The new suggestion lookup is a POST, and the app's request helper treats any POST as a change and re-renders the page. That removed the R143 "Already recorded?" box. Insights requests are now exempt (they change no accounting data), and the ZIP was rebuilt. That earlier ZIP was never released.
+
+### Results on the exact ZIPs (fresh gate database, Apache + PHP 8.3 HTTPS, STARTTLS mail sandbox)
+| Area | R143 | R144 |
+|---|---|---|
+| Full API gate suite (install, mail, accounting, tax, FX, security, client links, payroll, backup, ops) | 203 PASS / 6 INFO | 203 PASS / 6 INFO |
+| R141 / R142 tests | 38 / 11 PASS | 38 / 11 PASS |
+| Click-through workflow suite | **51 PASS** | **51 PASS** |
+| R144 Intelligence tests (seeded company; hand-computed: brief cash $4,887.00 and +$4,943.50, overdue $2,599.00, GST/HST $167.00, profit $1,825.00, suggestion 67%, telephone $1,000.00 this year and $800.00 in Q3, sales $3,300.00) | — | **35 PASS** |
+| R144 browser checks at 1440×900 and 390×844 | — | **22 PASS** |
+| **Total** | **303 PASS / 0 FAIL / 6 INFO** | **360 PASS / 0 FAIL / 6 INFO** |
+| UI matrix (46 screens × 20 runs) | not run (superseded by R144) | **0 screens with issues** |
+| Swipe-trap scan at 390×844 | — | **0 traps** |
+| Upgrade R118 → R144 | — | **13 PASS** (ledger unchanged; Tegh Intelligence works on the upgraded company) |
+
+**Test environment note.** An earlier R143 run was void: two runs overlapped after a hung helper script was restarted, and they reset the same database (27 FAILs, all from the overlap). A single clean run on the same ZIP gave the R143 results above. Gate runs now go through `gate-run.sh`, one at a time.
+
+Evidence: `beta-gate-evidence/r143/` and `beta-gate-evidence/r144/`; scripts in `beta-gate-evidence/scripts/` (including `e2e/`, `15-r144.mjs`, `journeys144.mjs`, `gate-run.sh`).
+
+**Verdict for R144: NOT READY.** As before, only host acceptance (§11) and production email (§1 item 2) are open. Deploy **R144** to staging.

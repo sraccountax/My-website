@@ -21,4 +21,5 @@ rec('UP-10',A,'R141 migration: existing company country is Canada; province wide
 const mbComps=sql(`SELECT GROUP_CONCAT(c.name ORDER BY c.sort_order) FROM tax_codes t JOIN tax_code_components c ON c.tax_code_id=t.id WHERE t.company_id='${u.cid}' AND t.region='MB'`);
 rec('UP-11',A,'DEF-08 on an upgraded BC company: Manitoba starter code is GST only',mbComps==='GST'?'PASS':'FAIL',mbComps);
 r=await s.call('dashboard-mappings');rec('UP-12',A,'Dashboard Figures available on the upgraded company (table created on first use)',r.s===200&&sql(`SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='company_dashboard_mappings'`)==='1'?'PASS':'FAIL',String(r.s));
+r=await s.call('insights');rec('UP-13',A,'Tegh Intelligence works on the upgraded company (brief, findings, chase list, cash)',r.s===200&&Array.isArray(r.b?.brief?.lines)&&Array.isArray(r.b?.anomalies)&&typeof r.b?.cash?.balanceCents==='number'?'PASS':'FAIL',r.s+' lines='+(r.b?.brief?.lines||[]).length);
 save('upg.json');

@@ -1,0 +1,4 @@
+zip: Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R143-Consolidated-IONOS-STAGING.zip
+7ed8b3856c0756df2a1cd2fd5a65bf4ff48bebaf31441baa421ba339b5a749a1  Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R143-Consolidated-IONOS-STAGING.zip
+tag: R143
+FILE-MANIFEST: all 342 entries OK

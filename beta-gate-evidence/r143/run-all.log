@@ -1,0 +1,39 @@
+=== 01-install
+=== 02-setup
+{
+  BC: 'company_c2be7b86b5ca13a977141f102f6fda22',
+  QC: 'company_bf66dd27c01011c4bce24f52db863e59',
+  ON: 'company_21b10b53872b175d032509fc3d1bfec1',
+  X: 'company_329811f5ec4aa398787faab51e249061'
+}
+=== 02b-invite
+=== 03-acct
+expense 6000 equity 3000 bank gl 1000
+=== 04-tax
+INFO     CB-02      Cash basis: invoice issue posting recorded for review | {}
+=== 05-fx
+=== 06-sec
+INFO     XS-01      XSS payload customer stored as text (rendering checked in UI run) | 201
+=== 06b
+=== 07-cv
+=== 08-pay
+INFO     PY-01      Employee with SIN fields submitted: refused or SIN discarded | 422 sin_not_accepted Tegh does not store Social Insurance Numbers (SINs). Remove the SIN and use the Employee ID instead.
+INFO     PY-07      Payroll rate tables: year/version reported for owner verification | "effectiveFrom":"2026-01-01" "effectiveTo":"2026-06-30" "effectiveFrom":"2026-07-01" "effectiveTo":"2026-12-31"
+=== 09-backup
+=== 09b
+=== 10-ops
+INFO     LG-03      PHP error log: warnings recorded (see evidence) | PHP Warning:  POST Content-Length of 11534510 bytes exceeds the limit of 8388608 bytes in Unknown on line 0'
+INFO     SP-02      Public contact page offers a working contact path (form posts to /api/marketing) | no mailto
+=== 13-r141
+=== 14-r142
+=== e2e
+201 company_22b8c9f6ceb08ad204ec9cac89e5dff3
+=== w1
+=== w2
+=== w3
+=== w4
+=== w5
+=== w6
+=== w7
+=== w8
+=== w9
