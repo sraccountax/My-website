@@ -215,6 +215,7 @@ require_once __DIR__ . '/report_comparison_r20.php';
     if ($route !== '' && !str_starts_with($route, 'startup/') && !str_starts_with($route, 'auth/')) { try { tegh_regions_ready(); } catch (Throwable $e) { error_log('Tegh R141 region setup: ' . $e->getMessage()); } }
     if ($route === 'tax-codes') handle_tax_codes();
     if ($route === 'dashboard-mappings') { require_once __DIR__ . '/dashboard_mappings_r141.php'; handle_dashboard_mappings(); }
+    if ($route === 'insights' || str_starts_with($route, 'insights/')) { require_once __DIR__ . '/insights_r144.php'; handle_insights(trim(substr($route, strlen('insights')), '/')); }
     if ($route === 'companies') handle_companies();
     if ($route === 'workspace') handle_workspace();
     if ($route === 'customers') handle_customers();

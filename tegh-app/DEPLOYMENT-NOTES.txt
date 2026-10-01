@@ -1,7 +1,7 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R143 IONOS STAGING DEPLOYMENT
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R144 IONOS STAGING DEPLOYMENT
 
-This package contains every release through R143 (R118–R143 change notes are
-included). R143 fixes defects found by a click-through test of every daily
+This package contains every release through R144 (R118–R144 change notes are
+included). R144 adds Tegh Intelligence (no external AI). R143 fixes defects found by a click-through test of every daily
 workflow. R142 applies the owner-approved wording (payroll outside Quebec,
 sales tax guide, Product Activity note). R141 adds the gate follow-ups (DEF-08, OBS-2, Clarity), countries,
 the Tax Code Report and Dashboard Figures. R140 fixes vendor invoice scrolling on phones. R139 contains only the fixes from the invite-only beta release gate
@@ -75,7 +75,11 @@ Notes (the database user needs CREATE privilege, as for the original install).
    migration.
    For R143: api/operations.php, api/assist_language_r123.php, app.html and
    the changed assets. No migration.
-5. Upload all assets together; the cache token is r143-tegh (client-view page:
+   For R144: the new api/insights_r144.php, plus api/index.php, app.html and
+   the changed assets. The table company_insight_dismissals is created on the
+   first "Not a problem" (CREATE privilege). No outbound network access is
+   needed: Tegh Intelligence runs entirely on this server.
+5. Upload all assets together; the cache token is r144-tegh (client-view page:
    5990-r135). A partial upload can
    leave browsers on a stale portal.
 6. DN-1001 was already posted once in the original staging data. Do NOT post it
@@ -172,6 +176,12 @@ Verify after upload
   shows "Already recorded?" and Link to this payment posts nothing new.
   (2) Ask Tegh Assist "how much money is in the bank": Bank Accounts opens with
   the balance.
+- R144: (1) Dashboard: a "Tegh brief" appears under the summary sentence.
+  (2) Reports > Management > Tegh Intelligence lists findings with Open and
+  Not a problem. (3) Match and Post: select a bank line for a merchant posted
+  before; a suggestion with a confidence appears and Use suggestion fills the
+  account and tax code without posting. (4) Ask Tegh Assist "how much did I
+  spend on travel this year".
 - In the browser console: window.TeghPortal exists.
 - Tegh Assist (top bar, also on phones): ask "who owes me money?" and the
   answer starts with a plain sentence ("Customers owe you $…") in about a second; "pay my supplier" opens Vendor
