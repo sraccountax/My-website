@@ -95,7 +95,7 @@
   // R141: links carry the token after '#', so it never reaches server logs or
   // Referer headers. Older links with ?accountSetup= still work.
   const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
-  const inviteToken = hashParams.get('accountSetup') || params.get('accountSetup') || params.get('invite') || '';
+  let inviteToken = hashParams.get('accountSetup') || params.get('accountSetup') || params.get('invite') || '';
   const passwordResetToken = hashParams.get('passwordReset') || params.get('passwordReset') || '';
   if ((hashParams.has('accountSetup') || hashParams.has('passwordReset')) && window.history?.replaceState) {
     // Keep the token in memory only; remove it from the address bar and history.
@@ -142,6 +142,7 @@
   const registerForm = $('#sr-register-form');
 
   const inviteForm = $('#sr-invite-form');
+  const inviteNeeded = $('#sr-invite-needed');
   const inviteSummary = $('#sr-invite-summary');
   const forgotPasswordLink = $('#sr-forgot-password');
   ensureTwoChoiceGate();
@@ -1108,8 +1109,9 @@
   async function loadAuthSecurity(force = false) {
     if (authSecurityPromise && !force) return authSecurityPromise;
     authSecurityPromise = request('auth/security', {method:'GET'}, 8000).then((profile) => {
-      if(showRegisterButton)showRegisterButton.hidden=!profile.publicSignupEnabled;
-      if(!profile.publicSignupEnabled&&!inviteToken&&registerForm&&!registerForm.hidden)showLogin();
+      // R148: the Create account tab is always shown. Without public sign-up it explains the invitation flow.
+      if(showRegisterButton)showRegisterButton.hidden=false;
+      if(!profile.publicSignupEnabled&&!inviteToken&&registerForm&&!registerForm.hidden)showInviteNeeded();
       authSecurity = {...authSecurity, ...(profile || {})};
       authSecurity.loginFailureThreshold = Math.max(1, Number(authSecurity.loginFailureThreshold || 2));
       return authSecurity;
@@ -1560,14 +1562,14 @@
   // stylesheet now honours it, but the gate states the intent explicitly so a
   // future styling change cannot quietly stack the forms again.
   function showOnlyForm(active) {
-    [loginForm, registerForm, inviteForm, setupForm].forEach((form) => {
+    [loginForm, registerForm, inviteForm, inviteNeeded, setupForm].forEach((form) => {
       if (!form) return;
       const isActive = form === active;
       form.hidden = !isActive;
       form.setAttribute('aria-hidden', isActive ? 'false' : 'true');
       form.setAttribute('role', 'tabpanel');
       if (form === loginForm) form.setAttribute('aria-labelledby', 'sr-choose-login');
-      if (form === registerForm) form.setAttribute('aria-labelledby', 'sr-choose-register');
+      if (form === registerForm || form === inviteForm || form === inviteNeeded) form.setAttribute('aria-labelledby', 'sr-choose-register');
     });
   }
 
@@ -1575,6 +1577,8 @@
     choiceButtons.forEach(button=>{
       const selected=button.id===(which==='register'?'sr-choose-register':'sr-choose-login');
       button.setAttribute('aria-selected',selected?'true':'false');
+      button.tabIndex=selected?0:-1;
+      if(button.id==='sr-choose-register')button.setAttribute('aria-controls',inviteToken?'sr-invite-form':(registerForm&&!registerForm.hidden?'sr-register-form':'sr-invite-needed'));
       button.classList.toggle('active',selected);
     });
   }
@@ -1795,7 +1799,40 @@
   });
 
   forgotPasswordLink?.addEventListener('click',(event)=>{event.preventDefault();showPasswordResetRequest();});
-  showRegisterButton?.addEventListener('click',async()=>{const p=await loadAuthSecurity(true);if(!p.publicSignupEnabled){showLogin();return}clearError();showOnlyForm(registerForm);markChoice('register');setProgress('Create your Tegh account.','All released native modules are included; company permissions still apply.',false);await renderCaptcha('register')});
+  showRegisterButton?.addEventListener('click',()=>openCreateAccount());
+  // R148: what the Create account tab shows. An invitation (from the email link or pasted) wins; otherwise open
+  // sign-up when the server allows it, else an explanation of the invitation-only beta with a paste box.
+  async function openCreateAccount(){
+    clearError();
+    if(inviteToken){if(inviteDetails){showOnlyForm(inviteForm);markChoice('register');setProgress('Account setup is ready.','Enter your details to continue.',false);return}return showInvitation()}
+    const p=await loadAuthSecurity(true);
+    if(!p.publicSignupEnabled)return showInviteNeeded();
+    showOnlyForm(registerForm);markChoice('register');setProgress('Create your Tegh account.','All released native modules are included; company permissions still apply.',false);await renderCaptcha('register')}
+  function showInviteNeeded(message=''){
+    document.documentElement.classList.remove('sr-gate-session-pending');
+    showOnlyForm(inviteNeeded);markChoice('register');
+    const note=inviteNeeded?.querySelector('[data-invite-needed-message]');
+    if(note){note.dataset.state=message?'error':'';note.textContent=message||'Tegh is in an invitation-only beta. Accounts are created from the invitation email sent by a Tegh administrator or by the company that is adding you.'}
+    setProgress(message?'This invitation can’t be used.':'Create your account from your invitation.',message?'Ask the person who invited you to send a new invitation, or sign in if you already have an account.':'Open the link in your invitation email, or paste it here.',false);
+  }
+  // Accepts the full emailed link (token after # or ?) or the bare token.
+  function tokenFromInviteLink(value){
+    const text=String(value||'').trim();if(!text)return '';
+    try{const url=new URL(text,window.location.origin);const h=new URLSearchParams((url.hash||'').replace(/^#/,''));const t=h.get('accountSetup')||url.searchParams.get('accountSetup')||url.searchParams.get('invite')||'';if(t)return t}catch(_){}
+    return /^[A-Za-z0-9_-]{32,256}$/.test(text)?text:'';
+  }
+  inviteNeeded?.addEventListener('submit',(event)=>{
+    event.preventDefault();clearError();
+    const token=tokenFromInviteLink(inviteNeeded.inviteLink.value);
+    if(!token){inviteNeeded.inviteLink.setAttribute('aria-invalid','true');showError(Object.assign(new Error('That doesn’t look like a Tegh invitation link. Copy the whole link from the “Set up your Tegh account” email.'),{route:'auth/invitation',code:'invitation_link_invalid'}));return}
+    inviteNeeded.inviteLink.removeAttribute('aria-invalid');inviteToken=token;inviteDetails=null;inviteNeeded.inviteLink.value='';showInvitation();
+  });
+  // Left/right arrow keys move between the two tabs (WAI-ARIA tabs pattern).
+  document.querySelector('.sr-gate-choice')?.addEventListener('keydown',(event)=>{
+    if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+    const tabs=[...document.querySelectorAll('.sr-gate-choice [role="tab"]')].filter(t=>!t.hidden);const i=tabs.indexOf(document.activeElement);if(i<0)return;
+    event.preventDefault();const next=event.key==='Home'?tabs[0]:event.key==='End'?tabs[tabs.length-1]:tabs[(i+(event.key==='ArrowRight'?1:tabs.length-1))%tabs.length];next.focus();next.click();
+  });
   showLoginButtons.forEach(button=>button.addEventListener('click',()=>{showLogin();setProgress('Sign-in is ready.','Enter your email and password.',false)}));
 
   registerForm?.addEventListener('submit',async(event)=>{
@@ -1808,8 +1845,8 @@
   });
 
   async function showInvitation(){
-    clearError();showOnlyForm(inviteForm);
-    document.documentElement.classList.add('sr-invite-only');
+    clearError();showOnlyForm(inviteForm);markChoice('register');
+    document.documentElement.classList.remove('sr-gate-session-pending');
     setProgress('Checking account setup…','Confirming the secure link.',true);
     try{
       inviteDetails=await request('platform/invite-details',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:inviteToken})},88000);
@@ -1817,20 +1854,29 @@
       inviteForm.invitedEmail.value=item.email||'';
       const invitedCompanies=document.getElementById('sr-invite-companies');if(invitedCompanies)invitedCompanies.textContent=(item.assignments||[]).map(x=>`${x.companyName} — ${x.roleLabel||x.role}`).join(' · ')||(item.scope==='workspace'?'Independent workspace':'');
       const confirm=inviteForm.querySelector('[data-invite-confirm]');if(confirm)confirm.hidden=!!item.existingUser;inviteForm.confirm.required=!item.existingUser;
-      const action=inviteForm.querySelector('button[type="submit"]');if(action)action.textContent=item.existingUser?'Confirm Company Access':'Create Account';
-      inviteSummary.textContent=item.existingUser?'Enter your current password to confirm this company access.':'Create a password for your Tegh account.';
+      const nameField=inviteForm.querySelector('[data-invite-name]');if(nameField)nameField.hidden=!!item.existingUser;if(inviteForm.displayName){inviteForm.displayName.required=!item.existingUser;if(!item.existingUser&&!inviteForm.displayName.value)inviteForm.displayName.value=item.suggestedName||''}
+      const title=inviteForm.querySelector('[data-invite-title]');if(title)title.textContent=item.existingUser?'Accept your invitation':'Create your account';
+      const existingNote=inviteForm.querySelector('[data-invite-existing]');if(existingNote)existingNote.hidden=!item.existingUser;
+      const action=inviteForm.querySelector('button[type="submit"]');if(action)action.textContent=item.existingUser?'Accept invitation':'Create account';
+      inviteSummary.textContent=item.existingUser?'You already have a Tegh account with this email. Enter your current password to accept the invitation.':'You have been invited to Tegh. Enter your name and choose a password.';
       if(inviteForm?.password)inviteForm.password.autocomplete=item.existingUser?'current-password':'new-password';
       setProgress('Account setup is ready.','Enter your password to continue.',false);
-    }catch(error){showError(error,'platform/invite-details');}
+    }catch(error){
+      // Expired, used or mistyped links: explain in the Create account tab and keep Sign in one click away.
+      inviteToken='';inviteDetails=null;
+      if(error?.status===410||error?.status===404||/invitation/i.test(String(error?.code||'')))showInviteNeeded('This invitation link has expired or has already been used.');
+      else showError(error,'platform/invite-details');
+    }
   }
+  inviteForm?.querySelector('[data-invite-forgot]')?.addEventListener('click',(event)=>{event.preventDefault();showPasswordResetRequest();});
 
   inviteForm?.addEventListener('submit',async(event)=>{
     event.preventDefault();if(opening)return;clearError();const form=event.currentTarget;if(!form.reportValidity())return;
     const button=form.querySelector('button[type="submit"]');if(!button)return;button.disabled=true;setProgress('Setting up your account…','Opening your secure workspace.',true);
     try{
-      const result=await request('platform/invite-accept',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:inviteToken,password:form.password.value,confirmPassword:form.confirm.value,acceptTerms:form.acceptTerms.checked,termsVersion:inviteDetails?.invitation?.termsVersion,privacyVersion:inviteDetails?.invitation?.privacyVersion})},90000);
+      const result=await request('platform/invite-accept',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:inviteToken,displayName:inviteDetails?.invitation?.existingUser?'':(form.displayName?.value||'').trim(),password:form.password.value,confirmPassword:form.confirm.value,acceptTerms:form.acceptTerms.checked,termsVersion:inviteDetails?.invitation?.termsVersion,privacyVersion:inviteDetails?.invitation?.privacyVersion})},90000);
       if(!result.auth) throw Object.assign(new Error('The account was set up. Sign in using the email that received the setup link.'),{route:'platform/invite-accept',code:'account_setup_signin_required'});
-      document.documentElement.classList.remove('sr-invite-only');history.replaceState({},'','/app.html');await openApplication(await confirmFreshSession(result.auth));
+      history.replaceState({},'','/app.html');await openApplication(await confirmFreshSession(result.auth));
     }catch(error){button.disabled=false;showError(error,'platform/invite-accept')}
   });
 
@@ -1910,11 +1956,7 @@
     window.setTimeout(showInvitation,100);
   } else if (forceRegister) {
     document.documentElement.classList.remove('sr-gate-session-pending');
-    clearError();
-    showOnlyForm(registerForm);
-    markChoice('register');
-    setProgress('Create your Tegh account.', 'Saved-session opening was skipped by request.', false);
-    window.setTimeout(()=>renderCaptcha('register'),0);
+    window.setTimeout(()=>openCreateAccount(),0);
   } else if (forceSignIn) {
     document.documentElement.classList.remove('sr-gate-session-pending');
     showLogin();

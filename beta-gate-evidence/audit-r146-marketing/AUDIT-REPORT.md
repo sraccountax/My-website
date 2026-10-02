@@ -82,7 +82,7 @@ All seven behave as the page describes, with no JavaScript errors.
 
 | Change | Result |
 |---|---|
-| `forceSignIn` removed from guide Sign In links | No code reads it, so the behaviour is unchanged and now consistent with the other pages |
+| `forceSignIn` removed from guide Sign In links | **Corrected 2026-10-02:** the app *does* read `forceSignIn` (`tegh-gate-v5990.js` line 82); my first search pattern missed it. Only the 8 guide-page Sign In links used it. With a saved session, those links now open the app directly instead of showing the sign-in form, which matches every other page's Sign In link. Minor, not a defect |
 | New contact topics | Server accepts free text up to 120 characters |
 
 ## 4. Static and browser checks

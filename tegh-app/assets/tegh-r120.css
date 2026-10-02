@@ -941,3 +941,13 @@ html[data-tegh-theme="dark"] .tegh-amount-check[data-state=ok]{color:#7ee0b8}htm
 .r22-menu-panel :is(.tegh-document-upload,.tegh-collection-prepare)>*{min-width:0;max-width:100%}
 .r22-menu-panel :is(.tegh-document-upload,.tegh-collection-prepare) button[type=submit]{width:100%;height:auto;min-height:40px;white-space:normal}
 .r22-menu-panel :is(.tegh-document-upload,.tegh-collection-prepare) input[type=file]{width:100%;max-width:100%}
+/* R148 Create account tab: invitation-only explanation, pasted link, invitation details */
+#sr-invite-needed .sr-invite-steps{margin:0 0 14px;padding-left:20px;display:grid;gap:6px;color:var(--color-muted,#4f625b);line-height:1.5}
+#sr-invite-needed [data-invite-needed-message][data-state=error]{padding:10px 12px;border-radius:10px;border:1px solid #e7b56a;background:#fff6e6;color:#6b3d00}
+.sr-invite-hint{display:block;margin:-6px 0 12px;color:var(--color-muted,#4f625b);font-size:.85rem}
+.sr-invite-alt{margin:14px 0 0;font-size:.9rem;color:var(--color-muted,#4f625b);line-height:1.6}
+.sr-invite-alt .sr-gate-link{display:inline;padding:0;border:0;background:none;font:inherit;color:inherit;text-decoration:underline;cursor:pointer}
+#sr-invite-companies:not(:empty){margin:0 0 12px;padding:10px 12px;border-radius:10px;background:var(--color-paper,#f4f7f5);font-weight:600}
+.sr-gate-choice [role=tab]:focus-visible{outline:3px solid #0d9488;outline-offset:2px}
+html[data-tegh-theme="dark"] #sr-invite-needed [data-invite-needed-message][data-state=error]{background:#352605;border-color:#8a5d16;color:#ffe2b0}
+html[data-tegh-theme="dark"] #sr-invite-companies:not(:empty){background:#13211d}

@@ -86,8 +86,8 @@
 </section>
 <section class="sr-gate-panel">
 <div aria-label="Sign in or create an account" class="sr-gate-choice" role="tablist">
-<button aria-controls="sr-login-form" aria-selected="true" data-show-login="" id="sr-choose-login" role="tab" type="button">Sign in</button>
-<button aria-controls="sr-register-form" aria-selected="false" hidden="" data-registration-cta="" id="sr-choose-register" role="tab" type="button">Create account</button>
+<button aria-controls="sr-login-form" aria-selected="true" data-show-login="" id="sr-choose-login" role="tab" tabindex="0" type="button">Sign in</button>
+<button aria-controls="sr-register-form" aria-selected="false" data-registration-cta="" id="sr-choose-register" role="tab" tabindex="-1" type="button">Create account</button>
 </div>
 <form aria-labelledby="sr-choose-login" class="sr-gate-form" id="sr-login-form" novalidate="" role="tabpanel">
 <h2>Sign in</h2>
@@ -111,15 +111,26 @@
 <div class="sr-captcha-wrap" data-captcha-wrap="register" hidden=""><div class="sr-captcha-slot" id="sr-register-captcha"></div><small>This security check helps prevent automated account creation.</small></div>
 <button class="sr-gate-primary" type="submit">Create account</button>
 </form>
-<form class="sr-gate-form" hidden="" id="sr-invite-form" novalidate="">
-<h2>Set up your password</h2>
+<form aria-labelledby="sr-choose-register" class="sr-gate-form" hidden="" id="sr-invite-needed" novalidate="" role="tabpanel">
+<h2>Create your account</h2>
+<p data-invite-needed-message>Tegh is in an invitation-only beta. Accounts are created from the invitation email sent by a Tegh administrator or by the company that is adding you.</p>
+<ol class="sr-invite-steps"><li>Open the email titled <b>“Set up your Tegh account”</b>.</li><li>Select the link in the email. This page opens with your invitation.</li><li>Enter your name and choose a password.</li></ol>
+<label>Invitation link<input autocomplete="off" name="inviteLink" placeholder="Paste the link from your invitation email" type="text"/></label>
+<small class="sr-invite-hint">If the link in the email does not open, copy it and paste it here.</small>
+<button class="sr-gate-primary" type="submit">Continue with invitation</button>
+<p class="sr-invite-alt">No invitation yet? <a href="/contact.html">Ask for beta access</a>. Already have an account? <button class="sr-gate-link" data-show-login="" type="button">Sign in</button></p>
+</form>
+<form aria-labelledby="sr-choose-register" class="sr-gate-form" hidden="" id="sr-invite-form" novalidate="" role="tabpanel">
+<h2 data-invite-title>Create your account</h2>
 <p id="sr-invite-summary">Enter a password to finish setting up your Tegh account.</p>
 <label>Invited email<input name="invitedEmail" type="email" readonly="" autocomplete="username"/></label>
 <div id="sr-invite-companies" aria-label="Invited company roles"></div>
+<label data-invite-name>Your name<input autocomplete="name" maxlength="160" name="displayName" type="text"/></label>
 <label>Password<input autocomplete="new-password" name="password" required="" type="password"/></label>
 <label data-invite-confirm>Confirm password<input autocomplete="new-password" name="confirm" required="" type="password"/></label>
 <label class="sr-gate-check"><input name="acceptTerms" type="checkbox" required=""/><span>I accept the <a href="/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</span></label>
-<button class="sr-gate-primary" type="submit">Create Account</button>
+<button class="sr-gate-primary" type="submit">Create account</button>
+<p class="sr-invite-alt" data-invite-existing hidden>Forgot your password? <a href="#" data-invite-forgot>Reset it</a>, then open this invitation link again.</p>
 </form>
 <form class="sr-gate-form" hidden="" id="sr-setup-form" novalidate="">
 <h2>Create the owner account</h2>

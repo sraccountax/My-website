@@ -173,7 +173,7 @@ function tegh_handle_invite_details(): never
     require_method('GET','POST');tegh_schema44_require();if(request_method()==='POST')assert_same_origin();$token=trim((string)(request_method()==='POST'?(request_json()['token']??''):($_GET['token']??'')));
     try{$invite=tegh_service_boundary(fn()=>tegh_invitation_validate_token($token));}catch(Throwable $error){if($error instanceof TeghServiceFailure)fail('This invitation is unavailable or expired.',410,'invitation_unavailable');throw $error;}
     $s=db()->prepare('SELECT id,active,deleted_at FROM users WHERE email=?');$s->execute([$invite['email']]);$u=$s->fetch();if($u&&((int)$u['active']!==1||$u['deleted_at']!==null))fail('This invitation is unavailable or expired.',410,'invitation_unavailable');
-    header('Cache-Control: no-store');header('Referrer-Policy: no-referrer');json_response(['invitation'=>['email'=>$invite['email'],'scope'=>$invite['scope'],'existingUser'=>(bool)$u,'assignments'=>$invite['assignments'],'termsVersion'=>TEGH_TERMS_VERSION,'privacyVersion'=>TEGH_PRIVACY_VERSION]]);
+    header('Cache-Control: no-store');header('Referrer-Policy: no-referrer');json_response(['invitation'=>['email'=>$invite['email'],'scope'=>$invite['scope'],'existingUser'=>(bool)$u,'suggestedName'=>$u?'':platform_default_display_name((string)$invite['email']),'assignments'=>$invite['assignments'],'termsVersion'=>TEGH_TERMS_VERSION,'privacyVersion'=>TEGH_PRIVACY_VERSION]]);
 }
 function tegh_handle_invite_accept(): never
 {
@@ -187,7 +187,10 @@ function tegh_handle_invite_accept(): never
             $id=(string)$member['id'];$name=(string)$member['display_name'];
         }else{
             if(!hash_equals($password,(string)($input['confirmPassword']??'')))fail('The passwords do not match.',422,'password_mismatch');validate_new_password($password);
-            $hash=password_hash($password,password_algorithm());if(!is_string($hash))throw new RuntimeException('Password hashing unavailable.');$id=new_id('user');$name=platform_default_display_name((string)$invite['email']);
+            $hash=password_hash($password,password_algorithm());if(!is_string($hash))throw new RuntimeException('Password hashing unavailable.');$id=new_id('user');
+            // R148: the name the person typed on the Create account tab; the email-derived name only when it is left empty.
+            $typed=trim(preg_replace('/\s+/u',' ',(string)($input['displayName']??''))??'');if(mb_strlen($typed)>160)fail('Your name can be at most 160 characters.',422,'display_name_too_long');if($typed!==''&&preg_match('/[\x00-\x1F\x7F<>]/u',$typed))fail('Enter your name without special control characters or < >.',422,'display_name_invalid');
+            $name=$typed!==''?$typed:platform_default_display_name((string)$invite['email']);
             db()->prepare("INSERT INTO users (id,email,password_hash,display_name,platform_role,account_plan,signup_source,terms_accepted_at) VALUES (?,?,?,?,'member','free_preview','invitation',UTC_TIMESTAMP())")->execute([$id,$invite['email'],$hash,$name]);
         }
         foreach($invite['assignments'] as $assignment){
