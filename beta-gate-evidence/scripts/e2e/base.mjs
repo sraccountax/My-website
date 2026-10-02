@@ -2,7 +2,10 @@ import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';imp
 export const ids=()=>JSON.parse(fs.readFileSync('/srv/gate/t/ids.json'));
 export async function open(cid,{w=1440,h=900}={}){
  const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium',args:['--no-proxy-server','--host-resolver-rules=MAP gate.test 127.0.0.1']});
- const ctx=await b.newContext({viewport:{width:w,height:h},ignoreHTTPSErrors:true,acceptDownloads:true,isMobile:w<800,hasTouch:w<800});const p=await ctx.newPage();
+ const ctx=await b.newContext({viewport:{width:w,height:h},ignoreHTTPSErrors:true,acceptDownloads:true,isMobile:w<800,hasTouch:w<800});// When the gate host's clock is pinned (clock-pin.sh), the browser's clock is shifted by the same whole days so dates
+ // the screens fill in by default (payment date, period end) match the server. Time keeps running normally.
+ const shift=Number(process.env.GATE_CLOCK_SHIFT_DAYS||0);if(shift>0){await ctx.clock.install({time:Date.now()-shift*86400000});await ctx.clock.resume();}
+ const p=await ctx.newPage();
  const errs=[];p.on('pageerror',e=>errs.push(e.message.slice(0,200)));p.on('dialog',d=>d.accept());
  await p.goto('https://gate.test/app.html');await p.fill('#sr-login-form input[name=email]','owner@gate.test');await p.fill('#sr-login-form input[name=password]','Gate!Owner#2026pw');await p.click('#sr-login-form button[type=submit]');
  await p.waitForFunction(()=>window.TeghPortal&&document.querySelector('.sidebar,.topbar'),null,{timeout:40000});

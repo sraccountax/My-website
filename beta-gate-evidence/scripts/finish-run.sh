@@ -1,4 +1,5 @@
 #!/bin/bash
+[ -f /srv/gate/t/clock.env ] && . /srv/gate/t/clock.env
 # UI matrix (both halves), swipe-trap scan and R118 -> ZIP upgrade, after gate-run.sh.
 ZIP="$1"; cd /srv/gate/t; export NODE_EXTRA_CA_CERTS=/srv/gate/pki/ca.crt
 sed -n 1,8p matrix.sh > /tmp/m1.sh
