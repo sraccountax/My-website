@@ -807,3 +807,50 @@ These were tested on the exact update files over a fresh copy of the backup, wit
 | Exports | — | six formats valid; QBO and card OFX checked by hand |
 
 **Verdict for R146: NOT READY.** As before, only host acceptance (§11) and production email (§1 item 2) are open. Deploy **R146** to staging.
+
+## Addendum: R147 and R148 (owner's public pages, home page at the root, invitation Create account tab)
+
+| | R148 |
+|---|---|
+| Package | `…-Hotfix-R148-Consolidated-IONOS-STAGING.zip` |
+| SHA-256 | `9708a4355f7c0613eeb45296eacb966b04317e4040154e8e08cdc503b4a4b9b8` |
+| FILE-MANIFEST.sha256 | 351 entries, all OK |
+| ZIP entries not 0644 | **0** (new gate check) |
+| Cache token | `5990-r148-tegh` |
+| Migration | none |
+| productionReady / acceptanceComplete | false / false |
+
+**R147**
+- **Public pages.** The 17 public pages from the owner's "R146 Marketing-Aligned" package are included. They were audited in `beta-gate-evidence/audit-r146-marketing/`: claims match the code, links work, and no new scripts were added.
+- **Owner approval needed.** Privacy and Terms version 2026-10-01 still need owner/legal approval.
+- **Site root.** `/` now serves the home page; it previously redirected to `app.html`, so the marketing page appeared not to open. Old root links that carry sign-in parameters still go to the app.
+- **AUD-1.** File permissions in the package are corrected.
+
+**R148: Sign in and Create account tabs**
+- **Invitation link.** It opens Create account, showing:
+  - the invited email, companies and roles;
+  - Your name, password and terms.
+- **Existing users** accept with their current password.
+- **Without a link.** The tab explains the invitation-only beta and accepts a pasted invitation link.
+- **Expired or used links** are explained in the tab.
+- **Name.** The typed name is stored; `< >` and control characters are refused.
+
+**Test clock.** The R147 run on 2026-10-02 showed 6 FAILs (IN-10, IN-11, IN-12, IN-20, W11-01, W12-01). All six had hand-computed expectations for "today = 2026-10-01", for example "62 days late" and payments that default to today's date. None of them involves the R147 changes.
+
+From R148 on, the gate pins the host clock to 2026-10-01: PHP-FPM and MariaDB through libfaketime, and the workflow-suite browser through Playwright's clock. With that in place, all six pass.
+
+**Results on the exact R148 ZIP**
+
+| Area | Result |
+|---|---|
+| Full suite | **432 PASS / 0 FAIL / 7 INFO** |
+| R148 invitation and tab tests (17-r148) | 14 PASS, including account creation with a typed name, the existing-user path, pasted and used links, phone width, and server-side name validation |
+| Upgrade R118 → R148 | 13/13 |
+| Paths and headers | 42 PASS (including "/ serves the home page" and "/?invite= reaches the app") |
+| UI matrix | 0 screens with issues |
+| Swipe traps | 0 |
+| Public pages | 34/34 renders clean; 0 bad links |
+
+One cosmetic flaw was found in the screenshots and fixed before the final ZIP: the Terms checkbox on the invitation form had been stretched into a large box.
+
+**Verdict for R148: NOT READY.** As before, only host acceptance (§11), production email (§1 item 2) and owner/legal approval of Privacy/Terms 2026-10-01 are open. Deploy **R148** to staging.
