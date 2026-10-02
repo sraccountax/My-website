@@ -45,12 +45,14 @@ check('FC-09',A,'Company Details: state changed to NJ',[r.s,sql(`SELECT province
 o.cid=ids.BC;const before=mails().length;
 r=await o.call('platform/invitations',{method:'POST',json:{action:'create_account',email:'r141invite@gate.test',scope:'company',assignments:[{companyId:ids.BC,role:'viewer'}],operationKey:'r141-inv-'+Date.now()}});
 const m=mails().slice(before).find(x=>/r141invite@gate.test/.test(x.t));const link=m?.t.match(/https:\/\/gate\.test\/app\.html[^\s"<]*/)?.[0]||'';
-rec('OB-01',A,'Invitation email link carries the token after # (not in the query string)',/app\.html#accountSetup=/.test(link)&&!/\?accountSetup=/.test(m?.t||'')?'PASS':'FAIL',link.replace(/=[A-Za-z0-9_-]{10,}/,'=<token>'));
-const token=link.split('accountSetup=')[1]||'';const n=new S();
-r=await n.call('platform/invite-details',{method:'POST',company:false,json:{token}});check('OB-02',A,'Invitation details looked up by POST body',r.s,200);
-r=await n.call('platform/invite-details?token='+token,{company:false});check('OB-03',A,'Old-style lookup (?token=) still works for links already sent',r.s,200);
-r=await n.call('platform/invite-details',{method:'POST',company:false,json:{token},origin:'https://evil.example'});check('OB-04',A,'POST lookup from a foreign origin refused',r.s>=400,true);
-const al=fs.readFileSync('/srv/gate/apache-access.log','utf8');const hits=al.split('\n').filter(l=>l.includes(token.slice(0,24)));rec('OB-05',A,'POST lookups leave no token in the web access log (only the one old-style GET call does)',hits.length===1&&/GET /.test(hits[0])?'PASS':'FAIL',hits.length+' log line(s) contain the token');
+// R149: invitations carry a code typed on the Create account tab; the email's only link is the plain sign-up page.
+const code=m?.t.match(/invitation code:\s*([A-Z0-9]{5}-[A-Z0-9]{5})/)?.[1]||'';
+rec('OB-01',A,'Invitation email carries a 10-character code and no secret in any link (the only link is the plain Create account page)',code&&!/accountSetup=/.test(m?.t||'')&&/app\.html\?register=1$/.test(link)?'PASS':'FAIL',`code ${code?'present':'missing'} · link ${link}`);
+const n=new S();const em='r141invite@gate.test';
+r=await n.call('platform/invite-details',{method:'POST',company:false,json:{email:em,code}});check('OB-02',A,'Invitation details looked up by POST body (email + code)',r.s,200);
+r=await n.call('platform/invite-details',{method:'POST',company:false,json:{email:'someone.else@gate.test',code}});check('OB-03',A,'The same code with a different email address is refused',r.s,410);
+r=await n.call('platform/invite-details',{method:'POST',company:false,json:{email:em,code},origin:'https://evil.example'});check('OB-04',A,'POST lookup from a foreign origin refused',r.s>=400,true);
+const al=fs.readFileSync('/srv/gate/apache-access.log','utf8');const hits=al.split('\n').filter(l=>code&&l.includes(code.replace('-','')));rec('OB-05',A,'Invitation codes never appear in the web access log',code&&hits.length===0?'PASS':'FAIL',hits.length+' log line(s) contain the code');
 const rr=await new S().call('auth/password-reset-request',{method:'POST',company:false,json:{email:'viewer@gate.test'}});const rm=mails().reverse().find(x=>/viewer@gate.test/.test(x.t)&&/passwordReset/.test(x.t));
 rec('OB-06',A,'Password reset email link carries the token after #',rm&&/app\.html#passwordReset=/.test(rm.t)?'PASS':(rm?'FAIL':'BLOCKED'),rr.s+' '+(rm?rm.t.match(/https:\/\/gate\.test\/app\.html[^\s"<]*/)?.[0]?.replace(/=[A-Za-z0-9_-]{10,}/,'=<token>'):'no reset email captured'));
 // ---------- Tax code report ----------
