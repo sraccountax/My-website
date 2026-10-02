@@ -1,0 +1,142 @@
+[
+ {
+  "id": "IC-01",
+  "area": "R149",
+  "title": "The invitation email shows the code, the invited email and the Create account page, and carries no setup link or token",
+  "status": "PASS",
+  "evidence": "[true,true,true,false,true]"
+ },
+ {
+  "id": "IC-02",
+  "area": "R149",
+  "title": "Plain app.html: two tabs, Sign in selected",
+  "status": "PASS",
+  "evidence": "Sign in*,Create account"
+ },
+ {
+  "id": "IC-03",
+  "area": "R149",
+  "title": "Create account tab asks for the email address and the invitation code, and names the email to look for",
+  "status": "PASS",
+  "evidence": "inviteEmail,inviteCode |  Create your account Tegh is in an invitation-only beta. When you are invited, you receive an email titled “Se"
+ },
+ {
+  "id": "IC-04",
+  "area": "R149",
+  "title": "\"Join Beta\" (app.html?register=1) opens the Create account tab",
+  "status": "PASS",
+  "evidence": "Sign in,Create account*"
+ },
+ {
+  "id": "IC-05",
+  "area": "R149",
+  "title": "The code is formatted as it is typed (lower case and spaces accepted)",
+  "status": "PASS",
+  "evidence": "typed \"e7jcu vh9j7\" → \"E7JCU-VH9J7\""
+ },
+ {
+  "id": "IC-06",
+  "area": "R149",
+  "title": "Email + code opens the account form: invited email, company and role, suggested name; both tabs still shown",
+  "status": "PASS",
+  "evidence": "newperson-muqwq2w0@gate.test | R144 Insights Inc — Viewer | \"Newperson Muqwq2w0\" | Sign in,Create account*"
+ },
+ {
+  "id": "IC-07",
+  "area": "R149",
+  "title": "Switching to Sign in and back keeps the invitation; arrow keys move between the tabs",
+  "status": "PASS",
+  "evidence": "newperson-muqwq2w0@gate.test | sr-login-form"
+ },
+ {
+  "id": "IC-08",
+  "area": "R149",
+  "title": "Creating the account with a typed name opens Tegh signed in; name, role and terms are stored",
+  "status": "PASS",
+  "evidence": "Priya Example-Test|invitation|terms | role viewer"
+ },
+ {
+  "id": "IC-09",
+  "area": "R149",
+  "title": "A wrong code is refused with a plain message; the tab stays open",
+  "status": "PASS",
+  "evidence": "That email address and invitation code don’t match an open invitation. Check both against your email. Codes expire 72 ho"
+ },
+ {
+  "id": "IC-10",
+  "area": "R149",
+  "title": "The right code with a different email address is refused",
+  "status": "PASS",
+  "evidence": "That email address and invitation code don’t match an open invitation. Check both against your email"
+ },
+ {
+  "id": "IC-11",
+  "area": "R149",
+  "title": "An already-used code is refused",
+  "status": "PASS",
+  "evidence": "That email address and invitation code don’t match an open invitation. Check both against your email"
+ },
+ {
+  "id": "IC-12",
+  "area": "R149",
+  "title": "A code with letters that are never used (O, I, L, 0, 1) is caught before sending",
+  "status": "PASS",
+  "evidence": "The invitation code has 10 letters and numbers, for example K7M2Q-PX9RT. It never contains 0, 1, O, "
+ },
+ {
+  "id": "IC-13",
+  "area": "R149",
+  "title": "Someone who already has an account: \"Accept your invitation\" with the current password only",
+  "status": "PASS",
+  "evidence": "{\"name\":false,\"confirm\":false,\"btn\":\"Accept invitation\"}"
+ },
+ {
+  "id": "IC-14",
+  "area": "R149",
+  "title": "Phone (390×844): tabs, email and code fields, and the account form fit without sideways scrolling",
+  "status": "PASS",
+  "evidence": "{\"sw\":390,\"cw\":390}"
+ },
+ {
+  "id": "IC-15",
+  "area": "R149",
+  "title": "Server: a name with < > is refused; an empty name falls back to the email-derived name (email + code)",
+  "status": "PASS",
+  "evidence": "[422,200,\"Srv Muqwq2w0\"]"
+ },
+ {
+  "id": "IC-16",
+  "area": "R149",
+  "title": "Guessing is limited: after 10 tries for one email within 15 minutes the server answers 429, even for the right code",
+  "status": "PASS",
+  "evidence": "[true,429]"
+ },
+ {
+  "id": "IC-18",
+  "area": "R149",
+  "title": "Correct look-ups never use up the allowance (12 in a row all succeed), so one office can invite several people",
+  "status": "PASS",
+  "evidence": "true"
+ },
+ {
+  "id": "IC-17",
+  "area": "R149",
+  "title": "After too many tries the Create account tab says to wait 15 minutes",
+  "status": "PASS",
+  "evidence": "Too many attempts. Wait 15 minutes, then try again."
+ },
+ {
+  "id": "IC-19",
+  "area": "R149",
+  "title": "An invitation link sent before R149 (token after #) still opens the account form",
+  "status": "PASS",
+  "evidence": "legacy-muqwq2w0@gate.test | Sign in,Create account*"
+ },
+ {
+  "id": "IC-JS",
+  "area": "R149",
+  "title": "No JavaScript errors",
+  "status": "PASS",
+  "evidence": ""
+ }
+]

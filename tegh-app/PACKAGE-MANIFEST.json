@@ -1,0 +1,2114 @@
+{
+  "product": "Tegh Accounting & Payroll",
+  "version": "5.9.9",
+  "build": 5990,
+  "schema": 46,
+  "schemaTarget": 46,
+  "release": "R149",
+  "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R149-Consolidated-IONOS-STAGING",
+  "packageFile": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R149-Consolidated-IONOS-STAGING.zip",
+  "revision": "Cumulative R118–R149 over the Sites R117 frontend. R149: invitations are sent as an invitation code instead of a link; the invited person opens Create account (app.html?register=1), enters their email address and the 10-character code (XXXXX-XXXXX, no 0/O/1/I/L), then their name, password and terms; codes are tied to the invited email, single-use and expire after 72 hours; wrong attempts are limited to 10 per 15 minutes per email and per network address (correct look-ups are not counted); invitation links sent before R149 still work. R148: the sign-in screen has two tabs, Sign in and Create account; an invitation link opens Create account with the invited email, companies and roles, Your name, password and terms (existing users accept with their current password); without a link the tab explains the invitation-only beta and accepts a pasted invitation link; expired or used links are explained; the typed name is stored on acceptance. R147: the owner's public-page update (17 pages from the owner's R146 Marketing-Aligned package, original SHA-256 6fb6db08…28dd; Privacy and Terms version 2026-10-01 pending owner/legal approval) and the site root now serves the home page instead of redirecting to app.html (Sign In and all emailed links use /app.html; old root links with sign-in parameters still redirect); files shipped 0644 / folders 0755 (the owner package was 0600, AUD-1). No application or asset change; cache token unchanged. R146: OCR clean-up no longer blacks out clean scans with little text (DEF-16); the contrast stretch applies only to genuinely low-contrast pages. R145: Bank Statement Converter reads text PDF statements by column position (withdrawal/deposit/amount/balance columns, transaction and posting dates, wrapped descriptions, side panels ignored, years from the statement period, card sign convention) and checks the rows against the statement's opening, running and closing balances and page totals on the review screen; Document Intake field reader rewritten (labels with values on the next line, French/Québec labels and amounts, several tax lines, receipt numbers, Net-N due dates, ambiguous numeric dates offered both ways, never guessed), photo clean-up before OCR, scanned-PDF OCR fixed in browsers without Map.getOrInsertComputed, live subtotal + tax = total check, hidden Upload button in the Document Intake menu fixed (DEF-14). R144: Tegh Intelligence built into Tegh with no external AI (dashboard brief; anomaly watch with dismissals; who to chase first; cash runway with what-if; bank suggestions with confidence and reason; Assist answers spending, sales, top expenses and top customers from the posted books). R143: fixes from a click-through test of every daily workflow (stale statement preview replaced on re-upload; Match and Post links a bank line to a payment recorded by hand; Tegh Assist bank-balance and payables phrasings; invoice screen Total incl. tax; reconciliation wording for future period ends). R142: owner-approved wording: Payroll Support for Canadian payroll outside Quebec with the loaded CRA T4127 rate tables listed on payroll screens; sales tax guide (where tax applies, zero-rated vs exempt, small supplier, input tax credit receipts, foreign rates), short registration guide updated for GST-only starter codes outside the home province, starter-code note, Product Activity note (specific identification, no LIFO, count-based steps). R141: starter tax codes charge PST/RST/QST only in the company's home province (DEF-08); invitation, account-setup and password-reset tokens carried after # and looked up by same-origin POST (OBS-2); Clarity removed from the Content-Security-Policy; country and province/state on companies, customers and vendors with tax codes for other countries (country or country-state regions); Tax Code Report with Edit selected; Dashboard Figures GL mapping per card; Payroll Support marked Canada only and refused for companies outside Canada. R140: New Vendor Invoice form scrolls on phones (a non-scrolling nested scroll box no longer captures swipes). R139: beta release gate fixes only: no Clarity session recording in app.html; manual/recurring journals refused on AR 1200 and AP 2050; companies not registered for GST/HST are not charged tax automatically and their purchase tax becomes cost; dashboard tax card shows other tax-code accounts; accepted-mail message; damaged backup returns 422; root config*.php denied. R138: tax code picker in bank posting screens (Match and Post, review panel, guided review), QST on its own GL accounts (2115/1115) with QST remittance, and editable Canadian starter tax codes for every province and territory plus GST-only on new Default-chart companies, with an Add Canadian tax codes button for existing companies. R137: user-defined tax codes (named taxes such as GST+QST or CGST+SGST, each with its own rate and sales/purchase GL accounts, one active code per province) used by invoices, bills, expenses, notes, cash-basis settlements and the bank feed; new companies start with no codes; existing companies switch on their first code. R136: PST/QST/RST rates stored and calculated exactly in thousandths of a percent (QST 9.975%), companies.pst_rate_mpct added automatically. R135: customer-invoice PST/QST/RST recorded and posted separately from GST/HST (2110 vs 2100) on create, draft edit, issue, recurring, notes and cash-basis receipts; plain-language sales tax guide at company registration and Company Details; Inventory Report renamed Product Activity with an ASPE 3031 / IAS 2 scope note; release manifests regenerated with one identity.",
+  "releaseStatus": "STAGING CANDIDATE — host acceptance open (see hostAcceptance)",
+  "sealed": false,
+  "productionReady": false,
+  "acceptanceComplete": false,
+  "productionReadyBlockers": [
+    "php -l on every api/*.php file with the serving host's PHP version",
+    "sha256sum -c FILE-MANIFEST.sha256 in the serving web root after upload",
+    "Import real bank statement files; Match and Post; complete a reconciliation at $0.00 difference",
+    "Restore a production backup into a separate staging database; trial balance, AR/AP and GST/HST balances match",
+    "On the host database: PST invoice (2100/2110 split), HST invoice, credit note and customer payment post and balance",
+    "Signed-in browser check of a Client Viewing Link: emailed code, R134 charts draw and match reports (desktop/phone, light/dark)",
+    "Owner review of the sales-tax, Product Activity and payroll wording: owner approved the proposed R142 text in conversation; formal sign-off with the accountant's confirmation still to be recorded (FINAL-BETA-QA-REPORT.md)"
+  ],
+  "flatRoot": true,
+  "packageType": "cumulative-full-application",
+  "activeEntry": "app.html",
+  "generatedAt": "2026-10-02T11:53:55Z",
+  "sourceRepository": "sraccountax/My-website",
+  "sourceBranch": "claude/invoice-credit-debit-audit-e2y8wc",
+  "sourceParentCommit": "64938520a345407715b607989efe1ee30b3e0241",
+  "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
+  "databaseMigrationRequired": false,
+  "databaseMigrationNote": "No manual migration since R118. R144 creates company_insight_dismissals on the first dismissal. R141 adds companies.country, widens province to VARCHAR(10) on companies/customers/vendors and creates company_dashboard_mappings on the first request. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
+  "cacheToken": "5990-r149-tegh",
+  "clientViewCacheToken": "5990-r135 (output script 5990-r145-tegh)",
+  "doNotRepost": [
+    "DN-1001"
+  ],
+  "fileManifest": {
+    "path": "FILE-MANIFEST.sha256",
+    "algorithm": "SHA-256",
+    "entries": 352,
+    "authoritative": true,
+    "note": "The only authoritative per-file hash list for this package. Per-file hashes under history record earlier releases and are not expected to match current files."
+  },
+  "testStatus": "R149 = R148 with invitation codes: the invitation email carries a code that the invited person enters with their email address on the Create account tab. Re-run through the full gate suite with the host clock pinned to 2026-10-01, including 18-r149 (code email, tabs, code entry and formatting, account creation, wrong/used/other-email codes, attempt limit, existing users, phone, name validation, links sent before R149), the root and ZIP-permission checks, the UI matrix, a public-page render check and the R118->R149 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R149 addendum). Host acceptance has not started; productionReady is false.",
+  "executedLocalGates": {
+    "betaGateR138Baseline": {
+      "passed": false,
+      "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
+    },
+    "betaGateR139Retest": {
+      "passed": null,
+      "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
+    },
+    "history": {
+      "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
+    },
+    "r140VendorInvoicePhoneScroll": {
+      "passed": true,
+      "detail": "Chromium 390x844 swipe-trap scan of all 46 menu screens: 1 trap before (New Vendor Invoice), 0 after. Touch swipe and wheel scroll the vendor invoice form at 1440, 1024, 768, 390 and 360 px widths. iOS Safari not available in the build environment."
+    },
+    "r141GateRetest": {
+      "passed": null,
+      "detail": "Full gate suite, 13-r141 tests (DEF-08, countries, foreign tax codes, OBS-2, tax code report usage, dashboard mappings, Clarity, payroll Canada only), R141 browser journeys at 1440x900 and 390x844, and R118->R141 upgrade on the exact R141 ZIP; counts in FINAL-BETA-QA-REPORT.md."
+    },
+    "r142WordingRetest": {
+      "passed": null,
+      "detail": "14-r142 tests (exact starter-code notes, guide sentences, Product Activity, payroll notice and pages, Quebec employee refused, rate tables) and R142 browser journeys; counts in FINAL-BETA-QA-REPORT.md."
+    },
+    "r143ClickThroughWorkflows": {
+      "passed": null,
+      "detail": "Click-through workflow suite on a fresh synthetic company (customer to payroll, Assist, PDF and export), every result checked against the database with hand-computed expectations; counts in FINAL-BETA-QA-REPORT.md."
+    },
+    "r144Intelligence": {
+      "passed": null,
+      "detail": "15-r144 on a seeded synthetic company with hand-computed expectations (anomalies, brief, chase list, cash, bank suggestions, ask-your-books, dismissals, read-only, isolation, no outbound calls) and journeys144 at 1440x900 and 390x844."
+    },
+    "r145ConverterAndIntake": {
+      "passed": null,
+      "detail": "16-r145: six synthetic statements in three Canadian layouts plus ISO-date, missing-line and no-heading cases (rows, dates, net, in/out, opening/closing, running balances, page totals, review-screen check, server preview balances) and six synthetic bills/receipts (text PDF, French invoice, receipt photos, scanned PDF) with hand-written expected fields, Document Intake screen upload/review; expected figures from the fixture generators' integer-cent arithmetic. Owner-supplied real statements were checked locally only and are not part of the package or evidence."
+    },
+    "r149InvitationCodes": {
+      "passed": null,
+      "detail": "18-r149 on the gate host: invitation email shows the code and no link; Create account tab with email and code fields; code formatting; account creation with typed name, role and terms stored; wrong code, other email, used code and invalid letters refused with plain messages; 10 wrong tries per 15 minutes answered 429 with a wait message while correct look-ups are never counted; existing users accept with their password; phone width fits; legacy links still open the account form. Counts in FINAL-BETA-QA-REPORT.md."
+    }
+  },
+  "notExecuted": [
+    "PHP lint on the serving host (IONOS)",
+    "sha256sum -c FILE-MANIFEST.sha256 on the serving host",
+    "Real bank statement files",
+    "Restore of a production backup into staging",
+    "Live postings on the host database",
+    "Signed-in browser check of R134 charts on the host",
+    "Email delivery through the production SMTP account and DNS (SPF/DKIM/DMARC)",
+    "Owner review",
+    "Large-volume performance (tested with small synthetic data only)",
+    "Screen-reader / keyboard-only accessibility audit",
+    "iOS Safari / real iPhone check of the vendor invoice scroll fix",
+    "Tax rates for countries other than Canada are entered by the owner; Tegh does not supply or verify them",
+    "Owner/legal approval of Privacy and Terms version 2026-10-01"
+  ],
+  "hostAcceptance": [
+    {
+      "id": "host-php-lint",
+      "item": "php -l on every api/*.php file with the serving host's PHP version",
+      "status": "open"
+    },
+    {
+      "id": "host-file-identity",
+      "item": "sha256sum -c FILE-MANIFEST.sha256 in the serving web root after upload",
+      "status": "open"
+    },
+    {
+      "id": "real-statement-files",
+      "item": "Import real bank statement files; Match and Post; complete a reconciliation at $0.00 difference",
+      "status": "open"
+    },
+    {
+      "id": "backup-restore-test",
+      "item": "Restore a production backup into a separate staging database; trial balance, AR/AP and GST/HST balances match",
+      "status": "open"
+    },
+    {
+      "id": "live-postings",
+      "item": "On the host database: PST invoice (2100/2110 split), HST invoice, credit note and customer payment post and balance",
+      "status": "open"
+    },
+    {
+      "id": "signed-in-browser-r134-charts",
+      "item": "Signed-in browser check of a Client Viewing Link: emailed code, R134 charts draw and match reports (desktop/phone, light/dark)",
+      "status": "open"
+    },
+    {
+      "id": "owner-review",
+      "item": "Owner review of the sales-tax, Product Activity and payroll wording: owner approved the proposed R142 text in conversation; formal sign-off with the accountant's confirmation still to be recorded (FINAL-BETA-QA-REPORT.md)",
+      "status": "open"
+    }
+  ],
+  "knownLimitations": [
+    "Product Activity is not an inventory report; no stock, COGS or valuation",
+    "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+    "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+    "Existing companies keep the legacy tax rules until their first tax code is saved",
+    "Starter tax codes created before R141 charge PST/RST in BC, MB and SK whatever the home province; companies not registered there must deactivate those codes. Codes created from R141 are GST only outside the home province",
+    "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+    "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+    "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+    "Journals posted to 1200/2050 before R139 are not changed",
+    "Base (reporting) currency is CAD for every company, including companies outside Canada",
+    "Dashboard Figures mappings are not included in backups",
+    "Payroll Support is Canada only; companies outside Canada cannot enable it",
+    "Companies on the legacy tax rules (no tax codes saved) do not pick a code for customers outside Canada",
+    "Starter codes created before R142 keep the R141 note text until edited",
+    "Report exports are under the table's Actions menu (Export…)",
+    "GL Journal Entry excludes bank, AR, AP and tax control accounts by design",
+    "Balance Sheet shows GST/HST Recoverable under Other Assets",
+    "Employee province fields are free text",
+    "Tegh Intelligence uses rules and statistics; it can miss things or raise false alarms",
+    "Bank suggestions need at least one earlier posting of a similar line",
+    "Insight dismissals are not included in backups",
+    "The column statement reader needs a text PDF; scanned statements still need the bank's CSV/OFX",
+    "Document Intake OCR uses the bundled English model only",
+    "Statement layouts not seen before may fall back to the general reader; the balance check shows whether the rows are complete"
+  ],
+  "r149Files": [
+    "api/invitations_v5980.php",
+    "app.html",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "assets/tegh-r120.css",
+    "assets/tegh-portal-v5990.js",
+    "R149-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r149Migration": "none (uses the existing invitation_attempts table)",
+  "r149CacheToken": "5990-r149-tegh",
+  "r148Files": [
+    "app.html",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "assets/tegh-r120.css",
+    "api/invitations_v5980.php",
+    "R148-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r148Migration": "none",
+  "r148CacheToken": "5990-r148-tegh",
+  "r147Files": [
+    ".htaccess",
+    "404.html",
+    "ask-tegh.html",
+    "company.html",
+    "contact.html",
+    "guides/ar-aging.html",
+    "guides/balance-sheet.html",
+    "guides/bank-reconciliation.html",
+    "guides/cash-vs-accrual.html",
+    "index.html",
+    "migration.html",
+    "privacy.html",
+    "product.html",
+    "resources.html",
+    "security.html",
+    "solutions.html",
+    "subscriptions.html",
+    "terms.html",
+    "R147-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r147Migration": "none",
+  "r147CacheToken": "5990-r146-tegh (unchanged; no asset changed)",
+  "r146Files": [
+    "assets/tegh-native-ocr-v5220.js",
+    "app.html",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "R146-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r146Migration": "none",
+  "r146CacheToken": "5990-r146-tegh",
+  "r145Files": [
+    "assets/tegh-statement-layout-r145.js",
+    "assets/tegh-upsert-polyfill-r145.js",
+    "assets/tegh-pdf-worker-r145.mjs",
+    "assets/tegh-bank-converter-v5990.js",
+    "assets/tegh-bank-converter-v5990.css",
+    "assets/tegh-native-ocr-v5220.js",
+    "assets/tegh-native-ap-ar-v5600.js",
+    "assets/tegh-pdf-v5990.js",
+    "assets/tegh-professional-output-v5990.js",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-r120.css",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "app.html",
+    "client-view.html",
+    "R145-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r145Migration": "none",
+  "r145CacheToken": "5990-r145-tegh",
+  "r144Files": [
+    "api/insights_r144.php",
+    "api/index.php",
+    "app.html",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-r120.css",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "R144-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r144Migration": "automatic: company_insight_dismissals (first dismissal)",
+  "r144CacheToken": "5990-r144-tegh",
+  "r143Files": [
+    "api/operations.php",
+    "api/assist_language_r123.php",
+    "app.html",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-r120.css",
+    "assets/tegh-reference-r19.js",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "R143-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r143Migration": "none",
+  "r143CacheToken": "5990-r143-tegh",
+  "r142Files": [
+    "api/payroll.php",
+    "api/tax_codes_r137.php",
+    "api/ai_agent.php",
+    "app.html",
+    "product.html",
+    "subscriptions.html",
+    "assets/tegh-portal-v5990.js",
+    "assets/index-BsxPiq85-v2817.js",
+    "assets/tegh-r120.css",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "R142-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r142Migration": "none",
+  "r142CacheToken": "5990-r142-tegh",
+  "r141Files": [
+    "api/regions_r141.php",
+    "api/dashboard_mappings_r141.php",
+    "api/index.php",
+    "api/companies.php",
+    "api/accounting.php",
+    "api/advanced.php",
+    "api/books.php",
+    "api/operations.php",
+    "api/payroll.php",
+    "api/tax_codes_r137.php",
+    "api/workspace_summary_v5610.php",
+    "api/auth.php",
+    "api/invitations_v5980.php",
+    "api/platform.php",
+    ".htaccess",
+    "app.html",
+    "product.html",
+    "subscriptions.html",
+    "assets/tegh-portal-v5990.js",
+    "assets/index-BsxPiq85-v2817.js",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "assets/tegh-r120.css",
+    "R141-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r141Migration": "automatic: companies.country, province VARCHAR(10) on companies/customers/vendors, company_dashboard_mappings",
+  "r141CacheToken": "5990-r141-tegh",
+  "r140Files": [
+    "assets/tegh-r120.css",
+    "app.html",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "R140-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r140Migration": "none",
+  "r140CacheToken": "5990-r140-tegh",
+  "r139Files": [
+    "api/tax_codes_r137.php",
+    "api/accounting.php",
+    "api/advanced.php",
+    "api/books.php",
+    "api/workspace_summary_v5610.php",
+    "api/portal.php",
+    "api/backup.php",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "app.html",
+    ".htaccess",
+    "R139-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r139Migration": "none",
+  "r139CacheToken": "5990-r139-tegh",
+  "r138Files": [
+    "api/tax_codes_r137.php",
+    "api/companies.php",
+    "api/accounting.php",
+    "api/bank_operations_v5980.php",
+    "api/bank_safety_v5980.php",
+    "api/bank_register_v5910.php",
+    "api/reconciliation_position_r122.php",
+    "api/report_loaders_v5980.php",
+    "api/workspace_summary_v5610.php",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-r120.css",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "app.html",
+    "R138-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r138Migration": "none",
+  "r138CacheToken": "5990-r138-tegh",
+  "r137Files": [
+    "api/tax_codes_r137.php",
+    "api/index.php",
+    "api/accounting.php",
+    "api/accounting_notes.php",
+    "api/advanced.php",
+    "api/books.php",
+    "api/payments.php",
+    "api/invoice_documents_r20.php",
+    "api/professional_output_v5710.php",
+    "api/backup.php",
+    "api/companies.php",
+    "api/ai_actions_v5600.php",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-invoice-reports-r20.js",
+    "assets/tegh-professional-output-v5990.js",
+    "assets/tegh-r120.css",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "app.html",
+    "R137-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r137Migration": "automatic: tax_codes, tax_code_components, document_tax_lines, *.tax_code_id, companies.tax_setup_mode",
+  "r137CacheToken": "5990-r137-tegh",
+  "r136Files": [
+    "api/bootstrap.php",
+    "api/companies.php",
+    "api/accounting.php",
+    "api/books.php",
+    "api/advanced.php",
+    "api/ai_learning.php",
+    "api/invoice_documents_r20.php",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-invoice-reports-r20.js",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "app.html",
+    "R136-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r136Migration": "automatic: companies.pst_rate_mpct",
+  "r136CacheToken": "5990-r136-tegh",
+  "r135Files": [
+    "api/accounting.php",
+    "api/advanced.php",
+    "api/payments.php",
+    "api/invoice_documents_r20.php",
+    "api/professional_output_v5710.php",
+    "api/report_output_v5980.php",
+    "api/ai_agent.php",
+    "api/ai_actions_v5600.php",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-invoice-reports-r20.js",
+    "assets/tegh-professional-output-v5990.js",
+    "assets/tegh-workflow-v5700.js",
+    "assets/tegh-r120.css",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "app.html",
+    "client-view.html",
+    "R135-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r135Migration": "none",
+  "r135CacheToken": "5990-r135-tegh (portal); 5990-r135 (client-view.html assets)",
+  "history": {
+    "note": "Fields as they stood before R135 regeneration (last identified as Tegh-5.9.9-Build-5990-Schema-46-Sites-R117-Hotfix-R120-Consolidated-IONOS-STAGING). Kept for traceability; hashes and test wording here are historical.",
+    "previous_revision": "Sites R117 frontend with R117 debit-note output hotfix, R118 account guard and metadata hardening, and R119 invoice/note tabs, combined invoice & note registers, invoice tax-split repair, scrolling tables, mobile layout and export fixes; R120 itemized credit/debit note documents, render-loop fix for dropdowns and scrolling, sidebar/menu/layout polish",
+    "previous_releaseStatus": "STAGING CANDIDATE — accounting acceptance and serving-host file identity pending",
+    "previous_package": "Tegh-5.9.9-Build-5990-Schema-46-Sites-R117-Hotfix-R120-Consolidated-IONOS-STAGING",
+    "previous_generatedAt": "2026-09-28T17:46:03Z",
+    "sourceSiteProjectId": "appgprj_6ab3cf31e2d48191b5f1ce9e490fc8db",
+    "sourceSiteCommit": "e33a278ff46f6e1e057eb9bfe94dc52461640794",
+    "sourceBasePackageSha256": "21838aae4541a3c958f9c2837e8fb7dadb20c7f4de1fc08d9f6acf4c9486611c",
+    "sourceHotfixSha256": "7f361a835acd4f6a3a087091141d0c0a07fee709bc8c5e13bece6c316b8219c0",
+    "newMigrationRequiredForHotfix": false,
+    "hotfixFiles": [
+      {
+        "path": "api/accounting_notes.php",
+        "r117Sha256": "9639c451d42f26b0f700617a28584741b132e10f35e57fdb4e9e8f183cd58082",
+        "consolidatedSha256": "8100d2fbd3f5ffc6107e6d19d5484fd83546db3fa48bdd51bfa9ba4d565ed858"
+      },
+      {
+        "path": "api/professional_output_v5710.php",
+        "r117Sha256": "203ee314c6924a76cf45c67f269ab4cb920a69f8b82431e8013728c3199a92a4",
+        "consolidatedSha256": "54a55c783d6ffd419ff52ce2ee434685bd358786620b09fb0688ddb632e6590d"
+      }
+    ],
+    "hostDeployment": "R118 files must be uploaded and hash-verified on the serving host; serving-host hashes and PHP lint on the host are not verified by this package.",
+    "previous_testStatus": "Frontend source/static checks and limited DN-1001 detail/PDF passed; GL control and wider live matrix pending.",
+    "r118Files": [
+      {
+        "path": ".htaccess",
+        "sha256": "329fd4c7cd083f52f6dedbe8cb7970693863665e5e2b30f7cc42b3e14e481418"
+      },
+      {
+        "path": "404.html",
+        "sha256": "b040b163d2281696f38a25ffb307daedaa6d41b578dc6c5e218d464d387ed64d"
+      },
+      {
+        "path": "api/companies.php",
+        "sha256": "4e8f5ab8caa6a302b48e0c4ff08215e341cd602b7d62f83266845a1d6b0a2951"
+      },
+      {
+        "path": "app.html",
+        "sha256": "f2332364dcc33b288996c520d5224ba9f0b0526ed2b4b064eec4e0241b655f9b"
+      },
+      {
+        "path": "ask-tegh.html",
+        "sha256": "8ae24444cb3292312a85d1383c8727039588d91bce0f07178e367f7330972197"
+      },
+      {
+        "path": "assets/tegh-gate-v5990.js",
+        "sha256": "98447af58a70365271d2e3d56c40e289a17e1875e52a8c60e1ede8f58d5a3742"
+      },
+      {
+        "path": "assets/tegh-polish-r32.css",
+        "sha256": "3395b60e2ea6686120beac22a5c6bb656cbd74f8f5b7701b66b0bc228edd36cf"
+      },
+      {
+        "path": "assets/tegh-portal-v5990.js",
+        "sha256": "fbfa8413e7929607f177e977f5ef4b4219d4e17bf103afedc30f3c5789a3cfda"
+      },
+      {
+        "path": "assets/tegh-preflight-v5990.js",
+        "sha256": "7bf7d8d8afa21c390f935c16d52941ccfbfb2ed933ee63b9f79a86a69bd4feaa"
+      },
+      {
+        "path": "company.html",
+        "sha256": "a7afdfd6857785d5c6c1b6344392849816145eba5037a0494b68fd3325a95373"
+      },
+      {
+        "path": "contact.html",
+        "sha256": "95dbf2d08685522ea22568e6dd8f744667e9c9af3639b3ea10943ce47cb46498"
+      },
+      {
+        "path": "index.html",
+        "sha256": "8ea63ed25a159a1ceb77cd4abb16c20194db1c2670e954a1747923ace743ca97"
+      },
+      {
+        "path": "migration.html",
+        "sha256": "cb45f307e3e18d6deb3ec5c18230bdcbc4b48cf14291fb2bbb7a5f1885a43eba"
+      },
+      {
+        "path": "privacy.html",
+        "sha256": "aeb097936d4c6e8e43fff538b1e03e02105b15ebe06ab0e06170e40cb91d51ff"
+      },
+      {
+        "path": "product.html",
+        "sha256": "f2db086afd3ba67cc29c2cc1c5cc6d3eb3ff7cae18dc9dfdd910d2de4b544b2d"
+      },
+      {
+        "path": "security.html",
+        "sha256": "d1df87a07a1f1aa314c64340538f8addfaf4062a5c114c51f00d2266ebae44b7"
+      },
+      {
+        "path": "solutions.html",
+        "sha256": "54908531e27df864b0128521b8e26fbfa30777435f010343e9f83c2225b5e751"
+      },
+      {
+        "path": "subscriptions.html",
+        "sha256": "3801ae13006c5d4523f2750820c3038e6ca188cd2c0762ea32a4167ce620ccd3"
+      },
+      {
+        "path": "terms.html",
+        "sha256": "9c4495283242ffbb3cbae1e06f023568c6dd17e32c307d487964897c6b805d82"
+      }
+    ],
+    "r119Files": [
+      {
+        "path": "api/accounting.php",
+        "sha256": "300cb8fdcfba066413e956999cda5c954d4a98eafe7c45d409dc96e465351c3f"
+      },
+      {
+        "path": "api/accounting_notes.php",
+        "sha256": "5b31be2c980c659e02c2f15d2089992241cedbd83f9f8280e4cdd65edd97ea43"
+      },
+      {
+        "path": "api/invoice_documents_r20.php",
+        "sha256": "d81be310deecdf7d2de2fe6e717729d206bb7eec36479040de16b16d313e0e14"
+      },
+      {
+        "path": "api/migration_schema46_notes_r67.php",
+        "sha256": "656d049314923f43b7d4d42dd624082d0c26f4da134d3459b368b1a0d9ff3281"
+      },
+      {
+        "path": "api/report_loaders_v5980.php",
+        "sha256": "6720c38b7e51a97ad616523e243b0d5a7bde1b3724c38c4e040afe1db7aaa6aa"
+      },
+      {
+        "path": "api/report_output_v5980.php",
+        "sha256": "31e5deb14db9fb35dc565dd28ad8ab45fb26e6ee61eec8ff01fd541021ae6a10"
+      },
+      {
+        "path": "app.html",
+        "sha256": "31e1f0c6a9787dd0da0420da30c5da043f60dd1795b88b7544124610942f6a90"
+      },
+      {
+        "path": "assets/tegh-gate-v5990.js",
+        "sha256": "9c6f6b695376d12a22ed198073fd9a3dbfcde320f770aec08656f9c9e5b427c9"
+      },
+      {
+        "path": "assets/tegh-preflight-v5990.js",
+        "sha256": "7b166827bf94f3768baf2432898bdcdcd7cf8dd63a18a3a3f1b2e738cd71a35b"
+      },
+      {
+        "path": "assets/tegh-portal-v5990.js",
+        "sha256": "2d9a4ef7bace9a0b7ed6712819817bc795b123a82387f46fa141df93cefde82d"
+      },
+      {
+        "path": "assets/tegh-registers-r23.js",
+        "sha256": "c92394f3231a5267806429beef83708c48dff95567014f6a2790b95a823989e0"
+      },
+      {
+        "path": "assets/tegh-workflow-v5700.js",
+        "sha256": "b4fe9745884d158310cc66cf5208232d211ecba97383025708f1a43190e2ae43"
+      },
+      {
+        "path": "assets/tegh-downloads-r15.js",
+        "sha256": "4a0db29623c960b66ec7070d5ab75037da7654380948915d7ebe1647197f754c"
+      },
+      {
+        "path": "assets/tegh-pdf-v5990.js",
+        "sha256": "544c32a98f274f552edbc3ff99dd921150f4ac036b678d2f3684dfe2be83500e"
+      },
+      {
+        "path": "assets/tegh-professional-output-v5990.js",
+        "sha256": "c325bc184520aa2ee082d1136ea11f2de113e7402e4be61c435333fa613709d6"
+      },
+      {
+        "path": "assets/tegh-r119.css",
+        "sha256": "a4235ad9180de4278d17b7276bd1d0f927b4dceb559d9b5e8852d3fba504b5d1"
+      }
+    ],
+    "r119Migration": false,
+    "r120Files": [
+      {
+        "path": "api/accounting_notes.php",
+        "sha256": "5b31be2c980c659e02c2f15d2089992241cedbd83f9f8280e4cdd65edd97ea43"
+      },
+      {
+        "path": "app.html",
+        "sha256": "31e1f0c6a9787dd0da0420da30c5da043f60dd1795b88b7544124610942f6a90"
+      },
+      {
+        "path": "assets/tegh-gate-v5990.js",
+        "sha256": "9c6f6b695376d12a22ed198073fd9a3dbfcde320f770aec08656f9c9e5b427c9"
+      },
+      {
+        "path": "assets/tegh-portal-v5990.js",
+        "sha256": "2d9a4ef7bace9a0b7ed6712819817bc795b123a82387f46fa141df93cefde82d"
+      },
+      {
+        "path": "assets/tegh-preflight-v5990.js",
+        "sha256": "7b166827bf94f3768baf2432898bdcdcd7cf8dd63a18a3a3f1b2e738cd71a35b"
+      },
+      {
+        "path": "assets/tegh-r27.js",
+        "sha256": "5b7bcfe0d070807eab0357317f61523abe08a1a5052a17c12c78545c2882acb3"
+      },
+      {
+        "path": "assets/tegh-r120.css",
+        "sha256": "8b1b81060fb35e324dc0beb3576bed442b42ae9d7a5179746f0b4ff2db6b8ba9"
+      }
+    ],
+    "r120AutoCreatedTable": "accounting_note_lines",
+    "r121Files": [
+      {
+        "path": "api/accounting.php",
+        "sha256": "66e36a257a2fa0bac0efec1438e0fd92ca606cb4ddb292f4139a6dcbf54b7c30"
+      },
+      {
+        "path": "api/bank_operations_v5980.php",
+        "sha256": "05b92df7f28e39fefca0acc958a18962a10e7dae8baa19aab36cbc72d938db35"
+      },
+      {
+        "path": "api/operations.php",
+        "sha256": "9e75a635dcc2015de0ad627d710840d594c1916ea989df339a87b3055ace9332"
+      },
+      {
+        "path": "app.html",
+        "sha256": "0a3482c4fc5426227aea9e3e5f32a36982dfbb6891f43242fa606fd51dd9a2b3"
+      },
+      {
+        "path": "assets/tegh-activity-r22.js",
+        "sha256": "5805ecc30e0e048b1335917044210ed7849297a88e9bb67a8778deeb0c07f28e"
+      },
+      {
+        "path": "assets/tegh-advanced-v5800.js",
+        "sha256": "6b4dc8e12617ee50e51e9087514f5ca9e3760573ca8fc96628b665bf8b7e28bc"
+      },
+      {
+        "path": "assets/tegh-gate-v5990.js",
+        "sha256": "eefa054343ac49a080c679d47ca480eadea86531d8c92eba2334ab7513819b9d"
+      },
+      {
+        "path": "assets/tegh-pdf-v5990.js",
+        "sha256": "8e178d662e2aecbbd91876c6876add208fc1b9bd81194a9270673f23715be462"
+      },
+      {
+        "path": "assets/tegh-portal-v5990.js",
+        "sha256": "a4500fb22d9a462f21d4b9e9f57ec035a7aa1f45416e91dc5fe55e6d7ed4cb6e"
+      },
+      {
+        "path": "assets/tegh-preflight-v5990.js",
+        "sha256": "e551c9144b3f63d68e865c775ff347f931906df9f2eb02941b85b9f940ed1af2"
+      },
+      {
+        "path": "assets/tegh-professional-output-v5990.js",
+        "sha256": "432cf72cadd42e1bbff831f794df97871704f7885f43b1894c26dc27eeeb2bcf"
+      },
+      {
+        "path": "assets/tegh-r120.css",
+        "sha256": "a24916ff3136e76eee814ec721442ba2615c6b16d642fd4059e7d2f1d1b78739"
+      },
+      {
+        "path": "assets/tegh-reference-r29.js",
+        "sha256": "f814d8cafb2ccc54100dd57f5782f208e92e1be16a093cc0e0d92d0d298f6e5f"
+      },
+      {
+        "path": "assets/tegh-registers-r23.js",
+        "sha256": "ed05f066593554e07c36ab50d06fd31803bcd616a8c4621a51f495da8a3bcd5e"
+      },
+      {
+        "path": "R121-CHANGES.md",
+        "sha256": "882a68e5466068a20def5097d3054a4712b42e4650407f2910648eda2c382abb"
+      }
+    ],
+    "r121Migration": false,
+    "r121CacheToken": "5990-r121-reconcile",
+    "r122Files": [
+      {
+        "path": ".htaccess",
+        "sha256": "5ba3da4dcae0dbdc4725c8d743f8860820b77764cd669e10c0935ff83f3ba91e"
+      },
+      {
+        "path": "DEPLOYMENT-NOTES.txt",
+        "sha256": "ee8084031b609cd52146b808212c0ed5696d9aab102fe6d0bc8813fe2c3c63a9"
+      },
+      {
+        "path": "R122-CHANGES.md",
+        "sha256": "772104f8aeeaffcfc2db9366f56082894533e96221c7c00c5ae64cd23947fe8f"
+      },
+      {
+        "path": "README.txt",
+        "sha256": "eead026d181f2f6ccf75a2fab7f848fb73bb800cada5e966f4796dc309126852"
+      },
+      {
+        "path": "api/accounting.php",
+        "sha256": "b716b06610a03d539ed07c3396fd5818363abafac1645271116a51c39dfb895d"
+      },
+      {
+        "path": "api/backup.php",
+        "sha256": "bacb65d67c2cf7072f0329bd6a187ab7841148d8c10d6c1af6687eea67ad6c1a"
+      },
+      {
+        "path": "api/bank_operations_v5980.php",
+        "sha256": "dab703f2dcad57ab037589e31b932d0afe5268a11294bb857455f5e57c54130e"
+      },
+      {
+        "path": "api/operations.php",
+        "sha256": "870bded7f1a87ab22e29376094a9e4ebb2f144f2359cc0bec94816a714a1c0d7"
+      },
+      {
+        "path": "api/portal.php",
+        "sha256": "098cdba85530f27e38ea5d7e071eee7bcf159c20552e37e6d37c91a9f0321458"
+      },
+      {
+        "path": "api/reconciliation_position_r122.php",
+        "sha256": "dbc3243c10ce116afaaded5e653956c16bca30ce2ce26706b9cafd1009a46abc"
+      },
+      {
+        "path": "api/report_loaders_v5980.php",
+        "sha256": "ac058dbcc72526700af3b7d32ae9397e62590a6a30fe1beafc1ee048961b7521"
+      },
+      {
+        "path": "app.html",
+        "sha256": "d5a5cbc267798a7078ef05ee51acb9ca1a729f11da277e218cb68ff23f2a9e13"
+      },
+      {
+        "path": "assets/index-BsxPiq85-v211.js",
+        "sha256": "d1b20bea8a98faa66d195fae2d658914e1db49a66cc38537f876dd04f0758f95"
+      },
+      {
+        "path": "assets/index-BsxPiq85-v2817.js",
+        "sha256": "f6fc72f83d0afd4a70eb667d2a43cd981a1b9a0841c45af8a78634b68e6825c5"
+      },
+      {
+        "path": "assets/tegh-activity-r22.js",
+        "sha256": "963ca00b6cb7bf042fbe7b7356d5b181ac2024f054a245ef3570c7e4546ce891"
+      },
+      {
+        "path": "assets/tegh-advanced-v5800.js",
+        "sha256": "2486efebcd975c2fcb84816e3c0634063ab918beb5ade666881994c87f71da61"
+      },
+      {
+        "path": "assets/tegh-forecast-v5300.js",
+        "sha256": "2617235c2f1397da4bc90237f5c53eb75274f96fbb39d91c67d43632bb78624b"
+      },
+      {
+        "path": "assets/tegh-gate-v5990.js",
+        "sha256": "c02680efc74e75db236a9a9b8878afb16e09f75d3a9d3811d723981fea8535de"
+      },
+      {
+        "path": "assets/tegh-modern-v5700.js",
+        "sha256": "76fc739279c2f6667984163cc5799b5b58e03b91dd5338df9e0b2a131903e8f2"
+      },
+      {
+        "path": "assets/tegh-pdf-v5990.js",
+        "sha256": "ca51b7f1ffc6f1e1cac26c4defa650b702a2a795cc784c76cc948b3b9e9c5405"
+      },
+      {
+        "path": "assets/tegh-portal-v5990.js",
+        "sha256": "aee22227bc8194f1dfff37faacddbcbddb080cff7a6ce42c15af0ab3a38e174f"
+      },
+      {
+        "path": "assets/tegh-preflight-v5990.js",
+        "sha256": "1ae3f82ad3f4384b060aaf98e680bdd99e161b60b50c97ce53423ae288c7711e"
+      },
+      {
+        "path": "assets/tegh-premium-v5700.js",
+        "sha256": "66808a8d4578d84b8f6f3a9511e001a50f18269c0425d7a03d3b0a7075c29f40"
+      },
+      {
+        "path": "assets/tegh-professional-output-v5990.js",
+        "sha256": "6a13a76945777dfe02d9e89fe7c6ed4e016a5047b00205de76d5219d1ca48454"
+      },
+      {
+        "path": "assets/tegh-r120.css",
+        "sha256": "fbd88210934e48f75cc826ab5f4fcad5afbfe78931a5f245884d25b7bf4499ac"
+      },
+      {
+        "path": "assets/tegh-reference-r19.js",
+        "sha256": "501bf5ca75bc6a3710ba1942196b638d8e94bba6180b82dd832fb6af90f81826"
+      },
+      {
+        "path": "assets/tegh-reference-r29.js",
+        "sha256": "2a3ae411e1ff11b138c7d16b9d15c62fd3dac346131f9cf5ed82de7dec7d1abd"
+      },
+      {
+        "path": "assets/tegh-registers-r23.js",
+        "sha256": "574af8d83144cc657706d0d0c6d14e25accfbdd6897f0666c01033ec2c2a124a"
+      },
+      {
+        "path": "assets/tegh-sites-shell-v5990.js",
+        "sha256": "9a3e0674614c317bc7bd6487098ece7b1e1a55f262331edd15b7b9039317c2c1"
+      },
+      {
+        "path": "assets/tegh-workflow-v5700.js",
+        "sha256": "d08bc38047f21d6a6b004fcef74d4b762e9c11f9ff7c2baf6b2afb947a1eef85"
+      },
+      {
+        "path": "assets/tegh-workspace-r17.js",
+        "sha256": "90e8f9dc5e27997c48a9ae8f070698a1a32471e860f6dcb3bf37ae61953a27a7"
+      }
+    ],
+    "r122RemovedFiles": [
+      "EXPECTED-EXISTING-SHA256.txt",
+      "R10-CHANGES.md",
+      "R11-CHANGES.md",
+      "R117-HOTFIX-CONSOLIDATION.txt",
+      "R12-CHANGES.md",
+      "R13-CHANGES.md",
+      "R14-CHANGES.md",
+      "R15-CHANGES.md",
+      "R16-UI-CHANGES.md",
+      "R17-CHANGES.md",
+      "R17A-CHANGES.md",
+      "R18-CHANGES.md",
+      "R19-CHANGES.md",
+      "R20-CHANGES.md",
+      "R22-CHANGES.md",
+      "R23-CHANGES.md",
+      "R24-CHANGES.md",
+      "R25-CHANGES.md",
+      "R26-CHANGES.md",
+      "R27-CHANGES.md",
+      "R28-S16Q-HOLD-REPORT.md",
+      "R28-S16R-HOLD-REPORT.md",
+      "R28-S16S-HOLD-REPORT.md",
+      "R28-S16T-HOLD-REPORT.md",
+      "R28-S16U-HOLD-REPORT.md",
+      "R28-S16V-HOLD-REPORT.md",
+      "R28-STEP-06-BANK-RECONCILIATION-REPORT.md",
+      "R28-STEP-07-BANKING-REPAIR.md",
+      "R28-STEP-07A-BANKING-UI-REPAIR.md",
+      "R28-STEP-08-BANKING-SCALE-MOBILE.md",
+      "R28-STEP-09-MOBILE-SCROLL-REPAIR.md",
+      "R28-STEP-10-BANKING-TABLE-VISIBILITY.md",
+      "R28-STEP-11-BANKING-FIT-SIDEBAR.md",
+      "R28-STEP-12-BANK-REPORTS-ACCOUNTS.md",
+      "R28-STEP-15-LIVE-REVIEW-REPAIR.md",
+      "R28-STEP-16-LIVE-TEST-REPAIR.md",
+      "R9-CHANGES.md",
+      "REPLACEMENT-SHA256.txt",
+      "ROLLBACK-R27.md",
+      "START-HERE-R20.md",
+      "START-HERE-R21-OPENING-HOTFIX.md",
+      "START-HERE-R22.md",
+      "START-HERE-R23.md",
+      "START-HERE-R24.md",
+      "START-HERE-R25.md",
+      "START-HERE-R26.md",
+      "START-HERE-R27.md",
+      "assets/tegh-app-v5830.css",
+      "assets/tegh-app-v5900.css",
+      "assets/tegh-app-v5910.css",
+      "assets/tegh-app-v5950.css",
+      "assets/tegh-app-v5960.css",
+      "assets/tegh-app-v5980.css",
+      "assets/tegh-bank-converter-core-v5930.js",
+      "assets/tegh-bank-converter-core-v5980.js",
+      "assets/tegh-bank-converter-v5930.css",
+      "assets/tegh-bank-converter-v5940.js",
+      "assets/tegh-bank-converter-v5980.css",
+      "assets/tegh-bank-converter-v5980.js",
+      "assets/tegh-gate-v5830.js",
+      "assets/tegh-gate-v5900.js",
+      "assets/tegh-gate-v5910.js",
+      "assets/tegh-gate-v5950.js",
+      "assets/tegh-gate-v5960.js",
+      "assets/tegh-gate-v5980.js",
+      "assets/tegh-payroll-tax-v5000.js",
+      "assets/tegh-pdf-v5950.js",
+      "assets/tegh-pdf-v5980.js",
+      "assets/tegh-portal-v5830.js",
+      "assets/tegh-portal-v5900.js",
+      "assets/tegh-portal-v5910.js",
+      "assets/tegh-portal-v5950.js",
+      "assets/tegh-portal-v5960.js",
+      "assets/tegh-portal-v5980.js",
+      "assets/tegh-preflight-v5830.js",
+      "assets/tegh-preflight-v5900.js",
+      "assets/tegh-preflight-v5910.js",
+      "assets/tegh-preflight-v5950.js",
+      "assets/tegh-preflight-v5960.js",
+      "assets/tegh-preflight-v5980.js",
+      "assets/tegh-professional-output-v5950.js",
+      "assets/tegh-professional-output-v5980.js",
+      "assets/tegh-shell-v5910.css",
+      "assets/tegh-sites-shell-v5700.js",
+      "assets/tegh-sites-shell-v5960.js",
+      "assets/tegh-sites-shell-v5980.js",
+      "assets/tegh-viewport-r16.css",
+      "assets/tegh-viewport-r16.js",
+      "file.svg",
+      "globe.svg",
+      "release/5970/CHANGED-FILES.json",
+      "release/5970/DEPLOYMENT-ROLLBACK.md",
+      "release/5970/RELEASE-NOTES.md",
+      "release/5970/REQUIREMENT-TEST-MATRIX.csv",
+      "release/5970/TEST-RESULTS.json",
+      "release/5970/TEST-RESULTS.md",
+      "release/5980/CHANGED-FILES.json",
+      "release/5980/DEPLOYMENT-ROLLBACK.md",
+      "release/5980/RELEASE-NOTES.md",
+      "release/5980/REQUIREMENT-TEST-MATRIX.csv",
+      "release/5980/TEST-COMMANDS.md",
+      "release/5980/TEST-RESULTS.json",
+      "release/5980/TEST-RESULTS.md",
+      "window.svg"
+    ],
+    "r122Migration": false,
+    "r122CacheToken": "5990-r122-tegh",
+    "r123Files": [
+      "api/assist_language_r123.php",
+      "api/ai_router.php",
+      "api/ai_actions_v5600.php",
+      "api/command_centre_v5600.php",
+      "api/ai_agent.php",
+      "assets/tegh-portal-v5990.js",
+      "assets/tegh-r120.css",
+      "assets/tegh-gate-v5990.js",
+      "assets/tegh-preflight-v5990.js",
+      "app.html",
+      "R123-CHANGES.md",
+      "README.txt",
+      "DEPLOYMENT-NOTES.txt",
+      "PACKAGE-MANIFEST.json",
+      "tegh-build.json",
+      "FILE-MANIFEST.sha256"
+    ],
+    "r123Migration": false,
+    "r123CacheToken": "5990-r123-tegh",
+    "r124Files": [
+      "assets/tegh-portal-v5990.js",
+      "assets/tegh-r120.css",
+      "assets/tegh-gate-v5990.js",
+      "assets/tegh-preflight-v5990.js",
+      "app.html",
+      "R124-CHANGES.md",
+      "README.txt",
+      "DEPLOYMENT-NOTES.txt",
+      "PACKAGE-MANIFEST.json",
+      "tegh-build.json",
+      "FILE-MANIFEST.sha256"
+    ],
+    "r124Migration": false,
+    "r124CacheToken": "5990-r124-tegh",
+    "r125Files": [
+      "assets/tegh-portal-v5990.js",
+      "assets/tegh-forecast-v5300.js",
+      "assets/tegh-r120.css",
+      "assets/tegh-gate-v5990.js",
+      "assets/tegh-preflight-v5990.js",
+      "app.html",
+      "R125-CHANGES.md",
+      "README.txt",
+      "DEPLOYMENT-NOTES.txt",
+      "PACKAGE-MANIFEST.json",
+      "tegh-build.json",
+      "FILE-MANIFEST.sha256"
+    ],
+    "r125Migration": false,
+    "r125CacheToken": "5990-r125-tegh",
+    "r126Files": [
+      "assets/tegh-r120.css",
+      "assets/tegh-portal-v5990.js",
+      "assets/tegh-gate-v5990.js",
+      "assets/tegh-preflight-v5990.js",
+      "app.html",
+      "R126-CHANGES.md",
+      "README.txt",
+      "DEPLOYMENT-NOTES.txt",
+      "PACKAGE-MANIFEST.json",
+      "tegh-build.json",
+      "FILE-MANIFEST.sha256"
+    ],
+    "r126Migration": false,
+    "r126CacheToken": "5990-r126-tegh",
+    "r127Files": [
+      "assets/tegh-portal-v5990.js",
+      "assets/tegh-r120.css",
+      "assets/tegh-gate-v5990.js",
+      "assets/tegh-preflight-v5990.js",
+      "app.html",
+      "R127-CHANGES.md",
+      "README.txt",
+      "DEPLOYMENT-NOTES.txt",
+      "PACKAGE-MANIFEST.json",
+      "tegh-build.json",
+      "FILE-MANIFEST.sha256"
+    ],
+    "r127Migration": false,
+    "r127CacheToken": "5990-r127-tegh",
+    "r128Files": [
+      "api/master_data.php",
+      "api/index.php",
+      "assets/tegh-portal-v5990.js",
+      "assets/tegh-reference-r29.js",
+      "assets/tegh-r120.css",
+      "assets/tegh-gate-v5990.js",
+      "assets/tegh-preflight-v5990.js",
+      "app.html",
+      "R128-CHANGES.md",
+      "README.txt",
+      "DEPLOYMENT-NOTES.txt",
+      "PACKAGE-MANIFEST.json",
+      "tegh-build.json",
+      "FILE-MANIFEST.sha256"
+    ],
+    "r128Migration": false,
+    "r128CacheToken": "5990-r128-tegh",
+    "r129Files": [
+      "api/accounting.php",
+      "api/index.php",
+      "api/report_loaders_v5980.php",
+      "assets/tegh-registers-r23.js",
+      "assets/tegh-portal-v5990.js",
+      "assets/tegh-r120.css",
+      "assets/tegh-gate-v5990.js",
+      "assets/tegh-preflight-v5990.js",
+      "app.html",
+      "R129-CHANGES.md",
+      "README.txt",
+      "DEPLOYMENT-NOTES.txt",
+      "PACKAGE-MANIFEST.json",
+      "tegh-build.json",
+      "FILE-MANIFEST.sha256"
+    ],
+    "r129Migration": false,
+    "r129CacheToken": "5990-r129-tegh",
+    "r130Files": [
+      "api/payroll.php",
+      "api/data_imports.php",
+      "api/backup.php",
+      "api/payroll_tax_agent.php",
+      "api/native_agents.php",
+      "api/report_loaders_v5980.php",
+      "api/ai_actions_v5600.php",
+      "api/ai_agent.php",
+      "api/assist_language_r123.php",
+      "api/schema.sql",
+      "assets/tegh-portal-v5990.js",
+      "assets/index-BsxPiq85-v2817.js",
+      "assets/index-BsxPiq85-v211.js",
+      "assets/tegh-workflow-v5700.js",
+      "assets/tegh-r120.css",
+      "assets/tegh-gate-v5990.js",
+      "assets/tegh-preflight-v5990.js",
+      "app.html",
+      "R130-CHANGES.md",
+      "README.txt",
+      "DEPLOYMENT-NOTES.txt",
+      "PACKAGE-MANIFEST.json",
+      "tegh-build.json",
+      "FILE-MANIFEST.sha256"
+    ],
+    "r130Migration": false,
+    "r130CacheToken": "5990-r130-tegh",
+    "r131Files": [
+      "assets/tegh-portal-v5990.js",
+      "assets/tegh-r120.css",
+      "assets/tegh-gate-v5990.js",
+      "assets/tegh-preflight-v5990.js",
+      "app.html",
+      "R131-CHANGES.md",
+      "README.txt",
+      "DEPLOYMENT-NOTES.txt",
+      "PACKAGE-MANIFEST.json",
+      "tegh-build.json",
+      "FILE-MANIFEST.sha256"
+    ],
+    "r131Migration": false,
+    "r131CacheToken": "5990-r131-tegh",
+    "r132Files": [
+      "api/workspace_summary_v5610.php",
+      "assets/tegh-portal-v5990.js",
+      "assets/tegh-r120.css",
+      "assets/tegh-gate-v5990.js",
+      "assets/tegh-preflight-v5990.js",
+      "app.html",
+      "R132-CHANGES.md",
+      "README.txt",
+      "DEPLOYMENT-NOTES.txt",
+      "PACKAGE-MANIFEST.json",
+      "tegh-build.json",
+      "FILE-MANIFEST.sha256"
+    ],
+    "r132Migration": false,
+    "r132CacheToken": "5990-r132-tegh",
+    "r133Files": [
+      "api/client_view_r133.php",
+      "client-view.html",
+      "assets/tegh-client-view-r133.js",
+      "assets/tegh-client-view-r133.css",
+      "api/index.php",
+      "api/portal.php",
+      "assets/tegh-portal-v5990.js",
+      "assets/tegh-r120.css",
+      ".htaccess",
+      "assets/tegh-gate-v5990.js",
+      "assets/tegh-preflight-v5990.js",
+      "app.html",
+      "R133-CHANGES.md",
+      "README.txt",
+      "DEPLOYMENT-NOTES.txt",
+      "PACKAGE-MANIFEST.json",
+      "tegh-build.json",
+      "FILE-MANIFEST.sha256"
+    ],
+    "r133Migration": "automatic additive tables client_view_links, client_view_codes, client_view_sessions (created on first use)",
+    "r133CacheToken": "5990-r133-tegh",
+    "r134Files": [
+      "assets/tegh-client-view-charts-r134.js",
+      "assets/tegh-client-view-r133.js",
+      "assets/tegh-client-view-r133.css",
+      "client-view.html",
+      "api/client_view_r133.php",
+      "R134-CHANGES.md",
+      "README.txt",
+      "DEPLOYMENT-NOTES.txt",
+      "PACKAGE-MANIFEST.json",
+      "tegh-build.json",
+      "FILE-MANIFEST.sha256"
+    ],
+    "r134Migration": false,
+    "r134CacheToken": "5990-r134 (client-view.html assets); portal token unchanged 5990-r133-tegh",
+    "r135Identity": {
+      "release": "R135",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R135-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-09-30T01:23:13Z",
+      "sourceParentCommit": "2af3275771d18ec3a2393f382895382caf4e8cb3",
+      "testStatus": "R135 local gates passed on a scratch MariaDB with PHP 8.4 (see executedLocalGates). Host acceptance not started; productionReady false.",
+      "executedLocalGates": {
+        "phpLint": {
+          "passed": true,
+          "checks": 79,
+          "failures": 0,
+          "detail": "php -l on every api/*.php file, PHP 8.4 (build environment, not the serving host)"
+        },
+        "javascriptParse": {
+          "passed": true,
+          "checks": 6,
+          "failures": 0,
+          "detail": "changed JS files parsed"
+        },
+        "invoiceTaxPostingDatabaseTest": {
+          "passed": true,
+          "checks": 21,
+          "failures": 0,
+          "detail": "BC PST-registered company 5%+7%: $1,000 sale Dr1200 1120.00 / Cr4000 1000 / Cr2100 50 / Cr2110 70; AB customer GST only; pst:false line; mixed lines; draft save/edit/round-trip/issue; detail API split; invoice PDF model split; credit note reverses 2100 10.00 and 2110 14.00; ON HST 13% all to 2100; pst:true refused without PST setup (409); recurring invoice split; accrual receipt; cash-basis half payment recognises GST 25 / PST 35. Baseline on R134 code: 5 checks failed (no PST charged, saved or posted) and the PST credit note was refused before the run stopped."
+        },
+        "invoiceFormBrowser": {
+          "passed": true,
+          "detail": "Playwright 1440x900 and 390x844: Charge PST tick box, split totals, customer-province switching, issued invoice posted Cr2100 50 / Cr2110 70"
+        },
+        "companySetupGuideBrowser": {
+          "passed": true,
+          "detail": "BC, ON, QC, AB guide text and PST fields; Company Details guide"
+        },
+        "uiAuditDesktop": {
+          "passed": true,
+          "checks": 46,
+          "failures": 0,
+          "detail": "46 screens, no page errors, no horizontal overflow"
+        },
+        "uiAuditPhone": {
+          "passed": true,
+          "checks": 46,
+          "failures": 0,
+          "detail": "46 screens at 390x844, no page errors, no horizontal overflow"
+        },
+        "renderChurn": {
+          "passed": true,
+          "checks": 46,
+          "detail": "idle DOM changes total 1 across 46 screens"
+        },
+        "assistBench": {
+          "passed": true,
+          "checks": 54,
+          "failures": 0
+        },
+        "assistHoldout": {
+          "passed": true,
+          "checks": 45,
+          "failures": 0
+        },
+        "assistProductActivity": {
+          "passed": true,
+          "checks": 5,
+          "failures": 0,
+          "detail": "inventory report / product activity / stock report resolve to report.inventory (Product Activity)"
+        },
+        "clientViewApi": {
+          "passed": true,
+          "detail": "client viewing link: emailed code, dashboard, shared/unshared reports, revoke"
+        }
+      },
+      "knownLimitations": [
+        "QST 9.975% is stored as 9.98% (rates are whole basis points); 5 cents more QST per $1,000",
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST"
+      ]
+    },
+    "r136Identity": {
+      "release": "R136",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R136-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-09-30T01:41:11Z",
+      "sourceParentCommit": "f8518330f8af70472605deecc9baa6f53367c1c0",
+      "testStatus": "R136 local gates passed on a scratch MariaDB with PHP 8.4 (see executedLocalGates). Host acceptance not started; productionReady false.",
+      "executedLocalGates": {
+        "phpLint": {
+          "passed": true,
+          "checks": 79,
+          "failures": 0,
+          "detail": "php -l on every api/*.php file, PHP 8.4 (build environment, not the serving host)"
+        },
+        "javascriptParse": {
+          "passed": true,
+          "checks": 6,
+          "failures": 0,
+          "detail": "changed JS files parsed"
+        },
+        "invoiceTaxPostingDatabaseTest": {
+          "passed": true,
+          "checks": 21,
+          "failures": 0,
+          "detail": "BC PST-registered company 5%+7%: $1,000 sale Dr1200 1120.00 / Cr4000 1000 / Cr2100 50 / Cr2110 70; AB customer GST only; pst:false line; mixed lines; draft save/edit/round-trip/issue; detail API split; invoice PDF model split; credit note reverses 2100 10.00 and 2110 14.00; ON HST 13% all to 2100; pst:true refused without PST setup (409); recurring invoice split; accrual receipt; cash-basis half payment recognises GST 25 / PST 35. Baseline on R134 code: 6 of the same checks passed, 12 failed (no PST charged or posted). Re-run on R136: 21/21."
+        },
+        "invoiceFormBrowser": {
+          "passed": true,
+          "detail": "Playwright 1440x900 and 390x844: Charge PST tick box, split totals, customer-province switching, issued invoice posted Cr2100 50 / Cr2110 70"
+        },
+        "companySetupGuideBrowser": {
+          "passed": true,
+          "detail": "BC, ON, QC, AB guide text and PST fields; Company Details guide"
+        },
+        "uiAuditDesktop": {
+          "passed": true,
+          "checks": 46,
+          "failures": 0,
+          "detail": "46 screens, no page errors, no horizontal overflow (re-run on R136)"
+        },
+        "uiAuditPhone": {
+          "passed": true,
+          "checks": 46,
+          "failures": 0,
+          "detail": "46 screens at 390x844, no page errors, no horizontal overflow (re-run on R136)"
+        },
+        "renderChurn": {
+          "passed": true,
+          "checks": 46,
+          "detail": "idle DOM changes total 1 across 46 screens"
+        },
+        "assistBench": {
+          "passed": true,
+          "checks": 54,
+          "failures": 0,
+          "detail": "re-run on R136"
+        },
+        "assistHoldout": {
+          "passed": true,
+          "checks": 45,
+          "failures": 0,
+          "detail": "re-run on R136"
+        },
+        "assistProductActivity": {
+          "passed": true,
+          "checks": 5,
+          "failures": 0,
+          "detail": "inventory report / product activity / stock report resolve to report.inventory (Product Activity)"
+        },
+        "clientViewApi": {
+          "passed": true,
+          "detail": "client viewing link: emailed code, dashboard, shared/unshared reports, revoke"
+        },
+        "exactPstRateDatabaseTest": {
+          "passed": true,
+          "checks": 13,
+          "failures": 0,
+          "detail": "QC GST 5% + QST 9.975%: $1,000 sale Cr2100 50.00 / Cr2110 99.75; $123.45 -> QST 12.31; $100,000 -> QST 9,975.00; bills tax-added and tax-included exact; settings keep 9975; >25% refused; legacy pstRateBps input; pre-column fallback; BC 7% unchanged"
+        },
+        "taxCalculationEquivalence": {
+          "passed": true,
+          "checks": 400000,
+          "failures": 0,
+          "detail": "new thousandths-of-a-percent calculation vs previous basis-point calculation, 10 whole-bps rate pairs, exclusive and inclusive: 0 differences"
+        },
+        "qcInvoiceFormBrowser": {
+          "passed": true,
+          "detail": "QC invoice form: QST $99.75 on $1,000, total $1,149.75, 'Charge QST (9.975%)'; Company Details rate 9.975"
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts"
+      ]
+    },
+    "r137Identity": {
+      "release": "R137",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R137-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-09-30T02:50:44Z",
+      "sourceParentCommit": "6a0ce92a1ded5511c6729148016ba88b2846a75b",
+      "testStatus": "R137 local gates passed on a scratch MariaDB with PHP 8.4 (see executedLocalGates). Host acceptance not started; productionReady false.",
+      "executedLocalGates": {
+        "phpLint": {
+          "passed": true,
+          "checks": 79,
+          "failures": 0,
+          "detail": "php -l on every api/*.php file, PHP 8.4 (build environment, not the serving host)"
+        },
+        "javascriptParse": {
+          "passed": true,
+          "checks": 6,
+          "failures": 0,
+          "detail": "changed JS files parsed"
+        },
+        "invoiceTaxPostingDatabaseTest": {
+          "passed": true,
+          "checks": 21,
+          "failures": 0,
+          "detail": "BC PST-registered company 5%+7%: $1,000 sale Dr1200 1120.00 / Cr4000 1000 / Cr2100 50 / Cr2110 70; AB customer GST only; pst:false line; mixed lines; draft save/edit/round-trip/issue; detail API split; invoice PDF model split; credit note reverses 2100 10.00 and 2110 14.00; ON HST 13% all to 2100; pst:true refused without PST setup (409); recurring invoice split; accrual receipt; cash-basis half payment recognises GST 25 / PST 35. Baseline on R134 code: 6 of the same checks passed, 12 failed (no PST charged or posted). Re-run on R136: 21/21. Re-run on R137 (legacy mode): 21/21."
+        },
+        "invoiceFormBrowser": {
+          "passed": true,
+          "detail": "Playwright 1440x900 and 390x844: Charge PST tick box, split totals, customer-province switching, issued invoice posted Cr2100 50 / Cr2110 70"
+        },
+        "companySetupGuideBrowser": {
+          "passed": true,
+          "detail": "BC, ON, QC, AB guide text and PST fields; Company Details guide"
+        },
+        "uiAuditDesktop": {
+          "passed": true,
+          "checks": 46,
+          "failures": 0,
+          "detail": "46 screens, no page errors, no horizontal overflow (re-run on R137)"
+        },
+        "uiAuditPhone": {
+          "passed": true,
+          "checks": 46,
+          "failures": 0,
+          "detail": "46 screens at 390x844, no page errors, no horizontal overflow (re-run on R137)"
+        },
+        "renderChurn": {
+          "passed": true,
+          "checks": 46,
+          "detail": "idle DOM changes total 1 across 46 screens"
+        },
+        "assistBench": {
+          "passed": true,
+          "checks": 54,
+          "failures": 0,
+          "detail": "re-run on R137"
+        },
+        "assistHoldout": {
+          "passed": true,
+          "checks": 45,
+          "failures": 0,
+          "detail": "re-run on R137"
+        },
+        "assistProductActivity": {
+          "passed": true,
+          "checks": 5,
+          "failures": 0,
+          "detail": "inventory report / product activity / stock report resolve to report.inventory (Product Activity)"
+        },
+        "clientViewApi": {
+          "passed": true,
+          "detail": "client viewing link: emailed code, dashboard, shared/unshared reports, revoke"
+        },
+        "exactPstRateDatabaseTest": {
+          "passed": true,
+          "checks": 13,
+          "failures": 0,
+          "detail": "QC GST 5% + QST 9.975%: $1,000 sale Cr2100 50.00 / Cr2110 99.75; $123.45 -> QST 12.31; $100,000 -> QST 9,975.00; bills tax-added and tax-included exact; settings keep 9975; >25% refused; legacy pstRateBps input; pre-column fallback; BC 7% unchanged Re-run on R137 (legacy mode): 13/13."
+        },
+        "taxCalculationEquivalence": {
+          "passed": true,
+          "checks": 400000,
+          "failures": 0,
+          "detail": "new thousandths-of-a-percent calculation vs previous basis-point calculation, 10 whole-bps rate pairs, exclusive and inclusive: 0 differences"
+        },
+        "qcInvoiceFormBrowser": {
+          "passed": true,
+          "detail": "QC invoice form: QST $99.75 on $1,000, total $1,149.75, 'Charge QST (9.975%)'; Company Details rate 9.975"
+        },
+        "taxCodesDatabaseTest": {
+          "passed": true,
+          "checks": 27,
+          "failures": 0,
+          "detail": "codes with named taxes and own GLs; one code per province; invalid accounts and duplicate names refused; QC GST->2100 QST->2120; BC GST+PST; CGST/SGST to separate GLs; per-line override and No tax; PDF per tax; credit note split; bills GST-only, BC PST to cost, tax-included QC ITCs, no tax, draft issue; expense; code edit keeps history; removal deactivates and frees province; legacy company switches on first code"
+        },
+        "taxCodesSettlementTest": {
+          "passed": true,
+          "checks": 9,
+          "failures": 0,
+          "detail": "cash-basis receipt and vendor payment per tax; recurring invoice; draft detail and edit; debit note split and its receivable; backup export"
+        },
+        "taxCodesBackupRestore": {
+          "passed": true,
+          "detail": "restore recreated codes, taxes, document tax lines and tax_setup_mode with GL links to the restored company"
+        },
+        "taxCodesBrowser": {
+          "passed": true,
+          "detail": "Tax Codes page, starter example, invoice picker and per-tax totals, bill picker, Company Details summary, new-company flow opens Tax Codes; 1440x900 and 390x844"
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "GST/HST Summary report and dashboard tax card read only accounts 2100/1100/2110/1110; taxes mapped to other GL accounts appear in the ledger and trial balance but not in those summaries",
+        "Bank-feed categorisation screen has no tax code picker yet (ticking GST/PST applies the home-province code)",
+        "Automatic code by region uses the customer's Canadian province field only",
+        "Existing companies keep the legacy tax rules until their first tax code is saved"
+      ]
+    },
+    "r138Identity": {
+      "release": "R139",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R139-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-09-30T12:11:03Z",
+      "sourceParentCommit": "bc8436057dfd414b03094f1e6664f559d3342b8d",
+      "testStatus": "R139 = R138 plus the fixes for defects confirmed by the invite-only beta release gate. The gate ran on the exact R138 ZIP: an Apache 2.4 + PHP-FPM 8.3 HTTPS test host, a fresh MariaDB, an SMTP sandbox with STARTTLS+AUTH, and synthetic companies. It was then re-run on the exact R139 ZIP. Results, evidence and the verdict are in FINAL-BETA-QA-REPORT.md in the source repository (not in this package). Host acceptance has not started; productionReady is false.",
+      "executedLocalGates": {
+        "betaGateR138Baseline": {
+          "passed": false,
+          "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
+        },
+        "betaGateR139Retest": {
+          "passed": null,
+          "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
+        },
+        "history": {
+          "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "Automatic code by region uses the customer's Canadian province field only",
+        "Existing companies keep the legacy tax rules until their first tax code is saved",
+        "Starter tax codes use general rates and charge PST/RST in BC, MB and SK; companies not registered there must deactivate those codes",
+        "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+        "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+        "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+        "Journals posted to 1200/2050 before R139 are not changed",
+        "Marketing pages (index, company) still load Microsoft Clarity; the Privacy Notice does not describe it (owner decision)",
+        "Invitation links carry the single-use token in the URL query string, so it can appear in host access logs (72-hour expiry, single use)"
+      ]
+    },
+    "r139Identity": {
+      "release": "R139",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R139-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-09-30T12:18:10Z",
+      "sourceParentCommit": "013a4887e3c50f8e99557cc909a24b457108167c",
+      "testStatus": "R139 = R138 plus the fixes for defects confirmed by the invite-only beta release gate. The gate ran on the exact R138 ZIP: an Apache 2.4 + PHP-FPM 8.3 HTTPS test host, a fresh MariaDB, an SMTP sandbox with STARTTLS+AUTH, and synthetic companies. It was then re-run on the exact R139 ZIP. Results, evidence and the verdict are in FINAL-BETA-QA-REPORT.md in the source repository (not in this package). Host acceptance has not started; productionReady is false.",
+      "executedLocalGates": {
+        "betaGateR138Baseline": {
+          "passed": false,
+          "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
+        },
+        "betaGateR139Retest": {
+          "passed": null,
+          "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
+        },
+        "history": {
+          "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "Automatic code by region uses the customer's Canadian province field only",
+        "Existing companies keep the legacy tax rules until their first tax code is saved",
+        "Starter tax codes use general rates and charge PST/RST in BC, MB and SK; companies not registered there must deactivate those codes",
+        "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+        "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+        "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+        "Journals posted to 1200/2050 before R139 are not changed",
+        "Marketing pages (index, company) still load Microsoft Clarity; the Privacy Notice does not describe it (owner decision)",
+        "Invitation links carry the single-use token in the URL query string, so it can appear in host access logs (72-hour expiry, single use)"
+      ]
+    },
+    "r140Identity": {
+      "release": "R140",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R140-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-09-30T21:35:25Z",
+      "sourceParentCommit": "05e985950f643331cb692700a9ea65c24e2cec70",
+      "testStatus": "R140 = R139 plus a fix for vendor invoice scrolling on phones. R139 passed the invite-only beta release gate on its exact ZIP (every executed test passed). R140 was re-run through the gate suite on its exact ZIP. See FINAL-BETA-QA-REPORT.md (source repository, R140 addendum). Host acceptance has not started; productionReady is false.",
+      "executedLocalGates": {
+        "betaGateR138Baseline": {
+          "passed": false,
+          "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
+        },
+        "betaGateR139Retest": {
+          "passed": null,
+          "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
+        },
+        "history": {
+          "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
+        },
+        "r140VendorInvoicePhoneScroll": {
+          "passed": true,
+          "detail": "Chromium 390x844 swipe-trap scan of all 46 menu screens: 1 trap before (New Vendor Invoice), 0 after. Touch swipe and wheel scroll the vendor invoice form at 1440, 1024, 768, 390 and 360 px widths. iOS Safari not available in the build environment."
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "Automatic code by region uses the customer's Canadian province field only",
+        "Existing companies keep the legacy tax rules until their first tax code is saved",
+        "Starter tax codes use general rates and charge PST/RST in BC, MB and SK; companies not registered there must deactivate those codes",
+        "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+        "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+        "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+        "Journals posted to 1200/2050 before R139 are not changed",
+        "Marketing pages (index, company) still load Microsoft Clarity; the Privacy Notice does not describe it (owner decision)",
+        "Invitation links carry the single-use token in the URL query string, so it can appear in host access logs (72-hour expiry, single use)"
+      ]
+    },
+    "r141Identity": {
+      "release": "R141",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R141-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-10-01T03:33:45Z",
+      "sourceParentCommit": "5d941fabd863ed997dc60f91d7f035ce7f40b83f",
+      "testStatus": "R141 = R140 plus the gate follow-ups (DEF-08 starter codes, OBS-2 token in URL fragment, Clarity removed from CSP), countries and provinces/states, tax codes for other countries, the Tax Code Report, Dashboard Figures GL mapping and Canada-only Payroll Support wording. Re-run through the full gate suite and the R141 tests on its exact ZIP; see FINAL-BETA-QA-REPORT.md (source repository, R141 addendum). Host acceptance has not started; productionReady is false.",
+      "executedLocalGates": {
+        "betaGateR138Baseline": {
+          "passed": false,
+          "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
+        },
+        "betaGateR139Retest": {
+          "passed": null,
+          "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
+        },
+        "history": {
+          "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
+        },
+        "r140VendorInvoicePhoneScroll": {
+          "passed": true,
+          "detail": "Chromium 390x844 swipe-trap scan of all 46 menu screens: 1 trap before (New Vendor Invoice), 0 after. Touch swipe and wheel scroll the vendor invoice form at 1440, 1024, 768, 390 and 360 px widths. iOS Safari not available in the build environment."
+        },
+        "r141GateRetest": {
+          "passed": null,
+          "detail": "Full gate suite, 13-r141 tests (DEF-08, countries, foreign tax codes, OBS-2, tax code report usage, dashboard mappings, Clarity, payroll Canada only), R141 browser journeys at 1440x900 and 390x844, and R118->R141 upgrade on the exact R141 ZIP; counts in FINAL-BETA-QA-REPORT.md."
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "Existing companies keep the legacy tax rules until their first tax code is saved",
+        "Starter tax codes created before R141 charge PST/RST in BC, MB and SK whatever the home province; companies not registered there must deactivate those codes. Codes created from R141 are GST only outside the home province",
+        "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+        "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+        "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+        "Journals posted to 1200/2050 before R139 are not changed",
+        "Base (reporting) currency is CAD for every company, including companies outside Canada",
+        "Dashboard Figures mappings are not included in backups",
+        "Payroll Support is Canada only; companies outside Canada cannot enable it",
+        "Companies on the legacy tax rules (no tax codes saved) do not pick a code for customers outside Canada"
+      ]
+    },
+    "r142Identity": {
+      "release": "R142",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R142-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-10-01T13:09:14Z",
+      "sourceParentCommit": "e5791a6596bfd41ef8e0b650f9d50b686aa18c97",
+      "testStatus": "R142 = R141 plus owner-approved wording (payroll outside Quebec with CRA rate tables shown, sales tax guide, starter-code note, Product Activity note). Re-run through the full gate suite, the R141 and R142 tests, the UI matrix and the R118->R142 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R142 addendum). Host acceptance has not started; productionReady is false.",
+      "executedLocalGates": {
+        "betaGateR138Baseline": {
+          "passed": false,
+          "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
+        },
+        "betaGateR139Retest": {
+          "passed": null,
+          "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
+        },
+        "history": {
+          "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
+        },
+        "r140VendorInvoicePhoneScroll": {
+          "passed": true,
+          "detail": "Chromium 390x844 swipe-trap scan of all 46 menu screens: 1 trap before (New Vendor Invoice), 0 after. Touch swipe and wheel scroll the vendor invoice form at 1440, 1024, 768, 390 and 360 px widths. iOS Safari not available in the build environment."
+        },
+        "r141GateRetest": {
+          "passed": null,
+          "detail": "Full gate suite, 13-r141 tests (DEF-08, countries, foreign tax codes, OBS-2, tax code report usage, dashboard mappings, Clarity, payroll Canada only), R141 browser journeys at 1440x900 and 390x844, and R118->R141 upgrade on the exact R141 ZIP; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r142WordingRetest": {
+          "passed": null,
+          "detail": "14-r142 tests (exact starter-code notes, guide sentences, Product Activity, payroll notice and pages, Quebec employee refused, rate tables) and R142 browser journeys; counts in FINAL-BETA-QA-REPORT.md."
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "Existing companies keep the legacy tax rules until their first tax code is saved",
+        "Starter tax codes created before R141 charge PST/RST in BC, MB and SK whatever the home province; companies not registered there must deactivate those codes. Codes created from R141 are GST only outside the home province",
+        "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+        "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+        "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+        "Journals posted to 1200/2050 before R139 are not changed",
+        "Base (reporting) currency is CAD for every company, including companies outside Canada",
+        "Dashboard Figures mappings are not included in backups",
+        "Payroll Support is Canada only; companies outside Canada cannot enable it",
+        "Companies on the legacy tax rules (no tax codes saved) do not pick a code for customers outside Canada",
+        "Starter codes created before R142 keep the R141 note text until edited"
+      ]
+    },
+    "r143Identity": {
+      "release": "R144",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R144-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-10-01T16:58:12Z",
+      "sourceParentCommit": "a570ce72230c2af011caecf47618d19256c7db87",
+      "testStatus": "R144 = R143 plus Tegh Intelligence, built into Tegh with no external AI. Re-run through the full gate suite, the R141/R142/R144 tests, the click-through workflow suite, the R144 browser checks (desktop and phone), the UI matrix and the R118->R144 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R143/R144 addendum). Host acceptance has not started; productionReady is false.",
+      "executedLocalGates": {
+        "betaGateR138Baseline": {
+          "passed": false,
+          "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
+        },
+        "betaGateR139Retest": {
+          "passed": null,
+          "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
+        },
+        "history": {
+          "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
+        },
+        "r140VendorInvoicePhoneScroll": {
+          "passed": true,
+          "detail": "Chromium 390x844 swipe-trap scan of all 46 menu screens: 1 trap before (New Vendor Invoice), 0 after. Touch swipe and wheel scroll the vendor invoice form at 1440, 1024, 768, 390 and 360 px widths. iOS Safari not available in the build environment."
+        },
+        "r141GateRetest": {
+          "passed": null,
+          "detail": "Full gate suite, 13-r141 tests (DEF-08, countries, foreign tax codes, OBS-2, tax code report usage, dashboard mappings, Clarity, payroll Canada only), R141 browser journeys at 1440x900 and 390x844, and R118->R141 upgrade on the exact R141 ZIP; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r142WordingRetest": {
+          "passed": null,
+          "detail": "14-r142 tests (exact starter-code notes, guide sentences, Product Activity, payroll notice and pages, Quebec employee refused, rate tables) and R142 browser journeys; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r143ClickThroughWorkflows": {
+          "passed": null,
+          "detail": "Click-through workflow suite on a fresh synthetic company (customer to payroll, Assist, PDF and export), every result checked against the database with hand-computed expectations; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r144Intelligence": {
+          "passed": null,
+          "detail": "15-r144 on a seeded synthetic company with hand-computed expectations (anomalies, brief, chase list, cash, bank suggestions, ask-your-books, dismissals, read-only, isolation, no outbound calls) and journeys144 at 1440x900 and 390x844."
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "Existing companies keep the legacy tax rules until their first tax code is saved",
+        "Starter tax codes created before R141 charge PST/RST in BC, MB and SK whatever the home province; companies not registered there must deactivate those codes. Codes created from R141 are GST only outside the home province",
+        "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+        "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+        "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+        "Journals posted to 1200/2050 before R139 are not changed",
+        "Base (reporting) currency is CAD for every company, including companies outside Canada",
+        "Dashboard Figures mappings are not included in backups",
+        "Payroll Support is Canada only; companies outside Canada cannot enable it",
+        "Companies on the legacy tax rules (no tax codes saved) do not pick a code for customers outside Canada",
+        "Starter codes created before R142 keep the R141 note text until edited",
+        "Report exports are under the table's Actions menu (Export…)",
+        "GL Journal Entry excludes bank, AR, AP and tax control accounts by design",
+        "Balance Sheet shows GST/HST Recoverable under Other Assets",
+        "Employee province fields are free text",
+        "Tegh Intelligence uses rules and statistics; it can miss things or raise false alarms",
+        "Bank suggestions need at least one earlier posting of a similar line",
+        "Insight dismissals are not included in backups"
+      ]
+    },
+    "r144Identity": {
+      "release": "R144",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R144-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-10-01T17:07:45Z",
+      "sourceParentCommit": "c1fe9d3b2b8d9fc07f36f84928c8247f6b9416f8",
+      "testStatus": "R144 = R143 plus Tegh Intelligence, built into Tegh with no external AI. Re-run through the full gate suite, the R141/R142/R144 tests, the click-through workflow suite, the R144 browser checks (desktop and phone), the UI matrix and the R118->R144 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R143/R144 addendum). Host acceptance has not started; productionReady is false.",
+      "executedLocalGates": {
+        "betaGateR138Baseline": {
+          "passed": false,
+          "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
+        },
+        "betaGateR139Retest": {
+          "passed": null,
+          "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
+        },
+        "history": {
+          "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
+        },
+        "r140VendorInvoicePhoneScroll": {
+          "passed": true,
+          "detail": "Chromium 390x844 swipe-trap scan of all 46 menu screens: 1 trap before (New Vendor Invoice), 0 after. Touch swipe and wheel scroll the vendor invoice form at 1440, 1024, 768, 390 and 360 px widths. iOS Safari not available in the build environment."
+        },
+        "r141GateRetest": {
+          "passed": null,
+          "detail": "Full gate suite, 13-r141 tests (DEF-08, countries, foreign tax codes, OBS-2, tax code report usage, dashboard mappings, Clarity, payroll Canada only), R141 browser journeys at 1440x900 and 390x844, and R118->R141 upgrade on the exact R141 ZIP; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r142WordingRetest": {
+          "passed": null,
+          "detail": "14-r142 tests (exact starter-code notes, guide sentences, Product Activity, payroll notice and pages, Quebec employee refused, rate tables) and R142 browser journeys; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r143ClickThroughWorkflows": {
+          "passed": null,
+          "detail": "Click-through workflow suite on a fresh synthetic company (customer to payroll, Assist, PDF and export), every result checked against the database with hand-computed expectations; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r144Intelligence": {
+          "passed": null,
+          "detail": "15-r144 on a seeded synthetic company with hand-computed expectations (anomalies, brief, chase list, cash, bank suggestions, ask-your-books, dismissals, read-only, isolation, no outbound calls) and journeys144 at 1440x900 and 390x844."
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "Existing companies keep the legacy tax rules until their first tax code is saved",
+        "Starter tax codes created before R141 charge PST/RST in BC, MB and SK whatever the home province; companies not registered there must deactivate those codes. Codes created from R141 are GST only outside the home province",
+        "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+        "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+        "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+        "Journals posted to 1200/2050 before R139 are not changed",
+        "Base (reporting) currency is CAD for every company, including companies outside Canada",
+        "Dashboard Figures mappings are not included in backups",
+        "Payroll Support is Canada only; companies outside Canada cannot enable it",
+        "Companies on the legacy tax rules (no tax codes saved) do not pick a code for customers outside Canada",
+        "Starter codes created before R142 keep the R141 note text until edited",
+        "Report exports are under the table's Actions menu (Export…)",
+        "GL Journal Entry excludes bank, AR, AP and tax control accounts by design",
+        "Balance Sheet shows GST/HST Recoverable under Other Assets",
+        "Employee province fields are free text",
+        "Tegh Intelligence uses rules and statistics; it can miss things or raise false alarms",
+        "Bank suggestions need at least one earlier posting of a similar line",
+        "Insight dismissals are not included in backups"
+      ]
+    },
+    "r145Identity": {
+      "release": "R145",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R145-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-10-01T18:33:52Z",
+      "sourceParentCommit": "11d848957d658a5ea09a161e49446306308a738b",
+      "testStatus": "R145 = R144 plus the column-aware PDF statement converter with balance checks and the improved Document Intake reader (scanned-PDF OCR fix, DEF-14 fix). Re-run through the full gate suite, the R141/R142/R144/R145 tests, the click-through workflow suite, the R144 browser checks (desktop and phone), the UI matrix and the R118->R145 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R145 addendum). Host acceptance has not started; productionReady is false.",
+      "executedLocalGates": {
+        "betaGateR138Baseline": {
+          "passed": false,
+          "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
+        },
+        "betaGateR139Retest": {
+          "passed": null,
+          "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
+        },
+        "history": {
+          "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
+        },
+        "r140VendorInvoicePhoneScroll": {
+          "passed": true,
+          "detail": "Chromium 390x844 swipe-trap scan of all 46 menu screens: 1 trap before (New Vendor Invoice), 0 after. Touch swipe and wheel scroll the vendor invoice form at 1440, 1024, 768, 390 and 360 px widths. iOS Safari not available in the build environment."
+        },
+        "r141GateRetest": {
+          "passed": null,
+          "detail": "Full gate suite, 13-r141 tests (DEF-08, countries, foreign tax codes, OBS-2, tax code report usage, dashboard mappings, Clarity, payroll Canada only), R141 browser journeys at 1440x900 and 390x844, and R118->R141 upgrade on the exact R141 ZIP; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r142WordingRetest": {
+          "passed": null,
+          "detail": "14-r142 tests (exact starter-code notes, guide sentences, Product Activity, payroll notice and pages, Quebec employee refused, rate tables) and R142 browser journeys; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r143ClickThroughWorkflows": {
+          "passed": null,
+          "detail": "Click-through workflow suite on a fresh synthetic company (customer to payroll, Assist, PDF and export), every result checked against the database with hand-computed expectations; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r144Intelligence": {
+          "passed": null,
+          "detail": "15-r144 on a seeded synthetic company with hand-computed expectations (anomalies, brief, chase list, cash, bank suggestions, ask-your-books, dismissals, read-only, isolation, no outbound calls) and journeys144 at 1440x900 and 390x844."
+        },
+        "r145ConverterAndIntake": {
+          "passed": null,
+          "detail": "16-r145: six synthetic statements in three Canadian layouts plus ISO-date, missing-line and no-heading cases (rows, dates, net, in/out, opening/closing, running balances, page totals, review-screen check, server preview balances) and six synthetic bills/receipts (text PDF, French invoice, receipt photos, scanned PDF) with hand-written expected fields, Document Intake screen upload/review; expected figures from the fixture generators' integer-cent arithmetic. Owner-supplied real statements were checked locally only and are not part of the package or evidence."
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "Existing companies keep the legacy tax rules until their first tax code is saved",
+        "Starter tax codes created before R141 charge PST/RST in BC, MB and SK whatever the home province; companies not registered there must deactivate those codes. Codes created from R141 are GST only outside the home province",
+        "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+        "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+        "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+        "Journals posted to 1200/2050 before R139 are not changed",
+        "Base (reporting) currency is CAD for every company, including companies outside Canada",
+        "Dashboard Figures mappings are not included in backups",
+        "Payroll Support is Canada only; companies outside Canada cannot enable it",
+        "Companies on the legacy tax rules (no tax codes saved) do not pick a code for customers outside Canada",
+        "Starter codes created before R142 keep the R141 note text until edited",
+        "Report exports are under the table's Actions menu (Export…)",
+        "GL Journal Entry excludes bank, AR, AP and tax control accounts by design",
+        "Balance Sheet shows GST/HST Recoverable under Other Assets",
+        "Employee province fields are free text",
+        "Tegh Intelligence uses rules and statistics; it can miss things or raise false alarms",
+        "Bank suggestions need at least one earlier posting of a similar line",
+        "Insight dismissals are not included in backups",
+        "The column statement reader needs a text PDF; scanned statements still need the bank's CSV/OFX",
+        "Document Intake OCR uses the bundled English model only",
+        "Statement layouts not seen before may fall back to the general reader; the balance check shows whether the rows are complete"
+      ]
+    },
+    "r146Identity": {
+      "release": "R146",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R146-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-10-01T19:38:13Z",
+      "sourceParentCommit": "cfb6c9454094ff50c99adbbb0f203acf2d9992ce",
+      "testStatus": "R146 = R145 plus the OCR clean-up fix (DEF-16). Re-run through the full gate suite, the R141/R142/R144/R145 tests (16-r145 now includes a mostly-blank scanned bill), the click-through workflow suite, the R144 browser checks, the UI matrix and the R118->R146 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R146 addendum). Host acceptance has not started; productionReady is false.",
+      "executedLocalGates": {
+        "betaGateR138Baseline": {
+          "passed": false,
+          "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
+        },
+        "betaGateR139Retest": {
+          "passed": null,
+          "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
+        },
+        "history": {
+          "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
+        },
+        "r140VendorInvoicePhoneScroll": {
+          "passed": true,
+          "detail": "Chromium 390x844 swipe-trap scan of all 46 menu screens: 1 trap before (New Vendor Invoice), 0 after. Touch swipe and wheel scroll the vendor invoice form at 1440, 1024, 768, 390 and 360 px widths. iOS Safari not available in the build environment."
+        },
+        "r141GateRetest": {
+          "passed": null,
+          "detail": "Full gate suite, 13-r141 tests (DEF-08, countries, foreign tax codes, OBS-2, tax code report usage, dashboard mappings, Clarity, payroll Canada only), R141 browser journeys at 1440x900 and 390x844, and R118->R141 upgrade on the exact R141 ZIP; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r142WordingRetest": {
+          "passed": null,
+          "detail": "14-r142 tests (exact starter-code notes, guide sentences, Product Activity, payroll notice and pages, Quebec employee refused, rate tables) and R142 browser journeys; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r143ClickThroughWorkflows": {
+          "passed": null,
+          "detail": "Click-through workflow suite on a fresh synthetic company (customer to payroll, Assist, PDF and export), every result checked against the database with hand-computed expectations; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r144Intelligence": {
+          "passed": null,
+          "detail": "15-r144 on a seeded synthetic company with hand-computed expectations (anomalies, brief, chase list, cash, bank suggestions, ask-your-books, dismissals, read-only, isolation, no outbound calls) and journeys144 at 1440x900 and 390x844."
+        },
+        "r145ConverterAndIntake": {
+          "passed": null,
+          "detail": "16-r145: six synthetic statements in three Canadian layouts plus ISO-date, missing-line and no-heading cases (rows, dates, net, in/out, opening/closing, running balances, page totals, review-screen check, server preview balances) and six synthetic bills/receipts (text PDF, French invoice, receipt photos, scanned PDF) with hand-written expected fields, Document Intake screen upload/review; expected figures from the fixture generators' integer-cent arithmetic. Owner-supplied real statements were checked locally only and are not part of the package or evidence."
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "Existing companies keep the legacy tax rules until their first tax code is saved",
+        "Starter tax codes created before R141 charge PST/RST in BC, MB and SK whatever the home province; companies not registered there must deactivate those codes. Codes created from R141 are GST only outside the home province",
+        "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+        "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+        "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+        "Journals posted to 1200/2050 before R139 are not changed",
+        "Base (reporting) currency is CAD for every company, including companies outside Canada",
+        "Dashboard Figures mappings are not included in backups",
+        "Payroll Support is Canada only; companies outside Canada cannot enable it",
+        "Companies on the legacy tax rules (no tax codes saved) do not pick a code for customers outside Canada",
+        "Starter codes created before R142 keep the R141 note text until edited",
+        "Report exports are under the table's Actions menu (Export…)",
+        "GL Journal Entry excludes bank, AR, AP and tax control accounts by design",
+        "Balance Sheet shows GST/HST Recoverable under Other Assets",
+        "Employee province fields are free text",
+        "Tegh Intelligence uses rules and statistics; it can miss things or raise false alarms",
+        "Bank suggestions need at least one earlier posting of a similar line",
+        "Insight dismissals are not included in backups",
+        "The column statement reader needs a text PDF; scanned statements still need the bank's CSV/OFX",
+        "Document Intake OCR uses the bundled English model only",
+        "Statement layouts not seen before may fall back to the general reader; the balance check shows whether the rows are complete"
+      ]
+    },
+    "r147Identity": {
+      "release": "R148",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R148-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-10-02T08:24:29Z",
+      "sourceParentCommit": "aea1e72e420d39a0570e0dd188c48bbfd76b5abd",
+      "testStatus": "R148 = R147 plus the Sign in / Create account tabs with account creation through an invitation link. Re-run through the full gate suite with the host clock pinned to 2026-10-01 (the date the hand-computed expectations use), including 17-r148 (invitation tabs, account creation, pasted and expired links, existing users, phone, name validation), the root and ZIP-permission checks, the UI matrix, a public-page render check and the R118->R148 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R147/R148 addendum). Host acceptance has not started; productionReady is false.",
+      "executedLocalGates": {
+        "betaGateR138Baseline": {
+          "passed": false,
+          "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
+        },
+        "betaGateR139Retest": {
+          "passed": null,
+          "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
+        },
+        "history": {
+          "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
+        },
+        "r140VendorInvoicePhoneScroll": {
+          "passed": true,
+          "detail": "Chromium 390x844 swipe-trap scan of all 46 menu screens: 1 trap before (New Vendor Invoice), 0 after. Touch swipe and wheel scroll the vendor invoice form at 1440, 1024, 768, 390 and 360 px widths. iOS Safari not available in the build environment."
+        },
+        "r141GateRetest": {
+          "passed": null,
+          "detail": "Full gate suite, 13-r141 tests (DEF-08, countries, foreign tax codes, OBS-2, tax code report usage, dashboard mappings, Clarity, payroll Canada only), R141 browser journeys at 1440x900 and 390x844, and R118->R141 upgrade on the exact R141 ZIP; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r142WordingRetest": {
+          "passed": null,
+          "detail": "14-r142 tests (exact starter-code notes, guide sentences, Product Activity, payroll notice and pages, Quebec employee refused, rate tables) and R142 browser journeys; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r143ClickThroughWorkflows": {
+          "passed": null,
+          "detail": "Click-through workflow suite on a fresh synthetic company (customer to payroll, Assist, PDF and export), every result checked against the database with hand-computed expectations; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r144Intelligence": {
+          "passed": null,
+          "detail": "15-r144 on a seeded synthetic company with hand-computed expectations (anomalies, brief, chase list, cash, bank suggestions, ask-your-books, dismissals, read-only, isolation, no outbound calls) and journeys144 at 1440x900 and 390x844."
+        },
+        "r145ConverterAndIntake": {
+          "passed": null,
+          "detail": "16-r145: six synthetic statements in three Canadian layouts plus ISO-date, missing-line and no-heading cases (rows, dates, net, in/out, opening/closing, running balances, page totals, review-screen check, server preview balances) and six synthetic bills/receipts (text PDF, French invoice, receipt photos, scanned PDF) with hand-written expected fields, Document Intake screen upload/review; expected figures from the fixture generators' integer-cent arithmetic. Owner-supplied real statements were checked locally only and are not part of the package or evidence."
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "Existing companies keep the legacy tax rules until their first tax code is saved",
+        "Starter tax codes created before R141 charge PST/RST in BC, MB and SK whatever the home province; companies not registered there must deactivate those codes. Codes created from R141 are GST only outside the home province",
+        "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+        "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+        "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+        "Journals posted to 1200/2050 before R139 are not changed",
+        "Base (reporting) currency is CAD for every company, including companies outside Canada",
+        "Dashboard Figures mappings are not included in backups",
+        "Payroll Support is Canada only; companies outside Canada cannot enable it",
+        "Companies on the legacy tax rules (no tax codes saved) do not pick a code for customers outside Canada",
+        "Starter codes created before R142 keep the R141 note text until edited",
+        "Report exports are under the table's Actions menu (Export…)",
+        "GL Journal Entry excludes bank, AR, AP and tax control accounts by design",
+        "Balance Sheet shows GST/HST Recoverable under Other Assets",
+        "Employee province fields are free text",
+        "Tegh Intelligence uses rules and statistics; it can miss things or raise false alarms",
+        "Bank suggestions need at least one earlier posting of a similar line",
+        "Insight dismissals are not included in backups",
+        "The column statement reader needs a text PDF; scanned statements still need the bank's CSV/OFX",
+        "Document Intake OCR uses the bundled English model only",
+        "Statement layouts not seen before may fall back to the general reader; the balance check shows whether the rows are complete"
+      ]
+    },
+    "r148Identity": {
+      "release": "R148",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R148-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-10-02T08:53:35Z",
+      "sourceParentCommit": "a4f23c2fe5705fa200e91a65fc9b64905aac40fe",
+      "testStatus": "R148 = R147 plus the Sign in / Create account tabs with account creation through an invitation link. Re-run through the full gate suite with the host clock pinned to 2026-10-01 (the date the hand-computed expectations use), including 17-r148 (invitation tabs, account creation, pasted and expired links, existing users, phone, name validation), the root and ZIP-permission checks, the UI matrix, a public-page render check and the R118->R148 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R147/R148 addendum). Host acceptance has not started; productionReady is false.",
+      "executedLocalGates": {
+        "betaGateR138Baseline": {
+          "passed": false,
+          "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
+        },
+        "betaGateR139Retest": {
+          "passed": null,
+          "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
+        },
+        "history": {
+          "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
+        },
+        "r140VendorInvoicePhoneScroll": {
+          "passed": true,
+          "detail": "Chromium 390x844 swipe-trap scan of all 46 menu screens: 1 trap before (New Vendor Invoice), 0 after. Touch swipe and wheel scroll the vendor invoice form at 1440, 1024, 768, 390 and 360 px widths. iOS Safari not available in the build environment."
+        },
+        "r141GateRetest": {
+          "passed": null,
+          "detail": "Full gate suite, 13-r141 tests (DEF-08, countries, foreign tax codes, OBS-2, tax code report usage, dashboard mappings, Clarity, payroll Canada only), R141 browser journeys at 1440x900 and 390x844, and R118->R141 upgrade on the exact R141 ZIP; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r142WordingRetest": {
+          "passed": null,
+          "detail": "14-r142 tests (exact starter-code notes, guide sentences, Product Activity, payroll notice and pages, Quebec employee refused, rate tables) and R142 browser journeys; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r143ClickThroughWorkflows": {
+          "passed": null,
+          "detail": "Click-through workflow suite on a fresh synthetic company (customer to payroll, Assist, PDF and export), every result checked against the database with hand-computed expectations; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r144Intelligence": {
+          "passed": null,
+          "detail": "15-r144 on a seeded synthetic company with hand-computed expectations (anomalies, brief, chase list, cash, bank suggestions, ask-your-books, dismissals, read-only, isolation, no outbound calls) and journeys144 at 1440x900 and 390x844."
+        },
+        "r145ConverterAndIntake": {
+          "passed": null,
+          "detail": "16-r145: six synthetic statements in three Canadian layouts plus ISO-date, missing-line and no-heading cases (rows, dates, net, in/out, opening/closing, running balances, page totals, review-screen check, server preview balances) and six synthetic bills/receipts (text PDF, French invoice, receipt photos, scanned PDF) with hand-written expected fields, Document Intake screen upload/review; expected figures from the fixture generators' integer-cent arithmetic. Owner-supplied real statements were checked locally only and are not part of the package or evidence."
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "Existing companies keep the legacy tax rules until their first tax code is saved",
+        "Starter tax codes created before R141 charge PST/RST in BC, MB and SK whatever the home province; companies not registered there must deactivate those codes. Codes created from R141 are GST only outside the home province",
+        "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+        "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+        "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+        "Journals posted to 1200/2050 before R139 are not changed",
+        "Base (reporting) currency is CAD for every company, including companies outside Canada",
+        "Dashboard Figures mappings are not included in backups",
+        "Payroll Support is Canada only; companies outside Canada cannot enable it",
+        "Companies on the legacy tax rules (no tax codes saved) do not pick a code for customers outside Canada",
+        "Starter codes created before R142 keep the R141 note text until edited",
+        "Report exports are under the table's Actions menu (Export…)",
+        "GL Journal Entry excludes bank, AR, AP and tax control accounts by design",
+        "Balance Sheet shows GST/HST Recoverable under Other Assets",
+        "Employee province fields are free text",
+        "Tegh Intelligence uses rules and statistics; it can miss things or raise false alarms",
+        "Bank suggestions need at least one earlier posting of a similar line",
+        "Insight dismissals are not included in backups",
+        "The column statement reader needs a text PDF; scanned statements still need the bank's CSV/OFX",
+        "Document Intake OCR uses the bundled English model only",
+        "Statement layouts not seen before may fall back to the general reader; the balance check shows whether the rows are complete"
+      ]
+    }
+  }
+}

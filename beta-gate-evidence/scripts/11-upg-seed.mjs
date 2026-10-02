@@ -1,0 +1,14 @@
+import {S,sql,rec,need} from './lib.mjs';import fs from 'fs';
+const key=fs.readFileSync(process.env.GATE_SETUP_KEY_FILE,'utf8').trim();
+const s=new S();let r=await s.call('auth/setup',{method:'POST',json:{setupKey:key,email:'owner@gate.test',displayName:'Upgrade Owner',password:'Gate!Owner#2026pw'},company:false});console.log('setup',r.s);
+await s.login('owner@gate.test','Gate!Owner#2026pw');r=await s.call('startup/migrate',{method:'POST',json:{backupConfirmed:true},company:false});console.log('migrate',r.s,r.b?.schemaVersion);
+r=need('co',await s.call('companies',{method:'POST',json:{name:'Upgrade BC Ltd',province:'BC',businessType:'corporation',taxRegistered:true,taxNumber:'123456789RT0001',currency:'CAD',accountingBasis:'accrual',moduleMode:'both',fiscalYearEnd:'12-31',booksStartDate:'2026-01-01',pstRegistered:true,pstRate:'7'},company:false}));s.cid=r.company?.id||r.id;
+const c=need('c',await s.call('customers',{method:'POST',json:{name:'Old Customer',email:'',phone:'',billingAddress:'1 St',province:'BC'}}));const cid=c.customer?.id||c.id;
+const t=(await s.call('invoice-templates')).b;const tid=(t.templates||t.invoiceTemplates||[])[0]?.id;
+r=await s.call('invoices',{method:'POST',json:{customerId:cid,issueDate:'2026-09-10',dueDate:'2026-10-10',currency:'CAD',templateId:tid,issue:true,lines:[{description:'Pre-upgrade sale',quantity:1,unitPriceCents:100000,taxable:true}]}});console.log('invoice',r.s,JSON.stringify(r.b).slice(0,120));
+const v=need('v',await s.call('vendors',{method:'POST',json:{name:'Old Vendor',email:'',address:'',defaultTermsDays:30,currency:'CAD',defaultExpenseAccountId:null}}));
+const exp=sql(`SELECT id FROM accounts WHERE company_id='${s.cid}' AND account_type='expense' AND is_control=0 ORDER BY code LIMIT 1`);
+r=await s.call('bills',{method:'POST',json:{vendorId:v.vendor?.id||v.id,number:'OLD-1',billDate:'2026-09-11',dueDate:'2026-10-11',categoryAccountId:exp,currency:'CAD',taxEntryMode:'exclusive',applyGstHst:true,applyPst:true,foreignAmountCents:50000,issue:true}});console.log('bill',r.s,JSON.stringify(r.b).slice(0,120));
+const iid=sql(`SELECT id FROM invoices WHERE company_id='${s.cid}' LIMIT 1`);
+r=await s.call('payments',{method:'POST',json:{type:'customer',documentId:iid,paymentDate:'2026-09-20',reference:'pre',foreignAmountCents:50000,paymentAccountId:sql(`SELECT id FROM accounts WHERE company_id='${s.cid}' AND code='1000'`),operationKey:'upg-pay-000000001'}});console.log('payment',r.s);
+fs.writeFileSync('/srv/gate/t/upg.json',JSON.stringify({cid:s.cid,iid}));

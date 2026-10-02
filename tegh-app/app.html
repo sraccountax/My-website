@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+
+<html data-sr-build="5.9.9" data-sr-ui-build="5990" data-tegh-design="living-ledger" lang="en-CA">
+<head>
+<!-- Tegh 5.9.9 UI build 5990 — unified accounting controls -->
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="noindex,nofollow,noarchive" name="robots"/>
+<meta content="same-origin" name="referrer"/>
+<meta content="#081f1a" name="theme-color"/>
+<title>TEGH - The Efficient General Ledger Hub</title>
+<link href="/assets/tegh-mark-v4600.svg?v=4600" rel="icon" type="image/svg+xml"/>
+<link href="/favicon.ico?v=4600" rel="shortcut icon"/>
+<link href="/assets/tegh-icon-180-v4600.png?v=4600" rel="apple-touch-icon"/>
+<link href="https://challenges.cloudflare.com" rel="preconnect" crossorigin/>
+
+<!-- R139: no third-party analytics or session recording in the signed-in app (accounting data stays in Tegh). -->
+
+<script src="/assets/tegh-preflight-v5990.js?v=5990-r149-tegh"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script defer="" src="/assets/tegh-motion-v5700.js?v=5700-r28-s16ah-scroll-hit-test-correction"></script>
+<script defer="" src="/assets/tegh-experience-v5700.js?v=5700"></script>
+<script defer="" src="/assets/tegh-gate-v5990.js?v=5990-r149-tegh"></script>
+<meta content="5.9.9 / Build 5990" name="tegh-release"/><style>[data-registration-cta][hidden]{display:none!important}</style>
+
+
+
+
+<link rel="stylesheet" href="/assets/tegh-foundation-r22.css?v=5990-r62-statement-account-columns">
+<link rel="stylesheet" href="/assets/tegh-activity-r22.css?v=5990-r85-invoice-detail-contrast">
+<link rel="stylesheet" href="/assets/tegh-registers-r23.css?v=5990-r28-s16ag-session-settle-correction">
+<link rel="stylesheet" href="/assets/tegh-navigation-r24.css?v=5990-r36-connection-message">
+<link rel="stylesheet" href="/assets/tegh-audit-r25.css?v=5990-r28-s16ag-session-settle-correction">
+<link rel="stylesheet" href="/assets/tegh-r26.css?v=5990-r28-s16ag-session-settle-correction">
+<link rel="stylesheet" href="/assets/tegh-r27.css?v=5990-r29-s17c-reference-layouts">
+<link rel="stylesheet" href="/assets/tegh-reference-r29.css?v=5990-r64-product-gl-editor">
+<link rel="stylesheet" href="/assets/tegh-mobile-r30.css?v=5990-r98-mobile-final">
+<link rel="stylesheet" href="/assets/tegh-polish-r32.css?v=5990-r149-tegh">
+<link rel="stylesheet" href="/assets/tegh-r119.css?v=5990-r149-tegh">
+<link rel="stylesheet" href="/assets/tegh-r120.css?v=5990-r149-tegh">
+</head>
+<body>
+<section aria-label="Opening Your Workspace" aria-live="polite" class="sr-session-loader" id="sr-session-loader">
+<div aria-hidden="true" class="sr-session-loader-brand"><span>T</span></div>
+<span aria-hidden="true" class="sr-session-loader-ring"></span>
+<h1>Opening Your Workspace</h1>
+<p>Restoring your secure workspace…</p>
+</section>
+<div id="root">
+<main class="sr-gate" id="sr-gate">
+<section class="sr-gate-story">
+<div aria-label="Tegh" class="sr-gate-brand">
+<b aria-hidden="true"><span>T</span></b>
+<span><strong>Tegh</strong><small>TEGH - The Efficient General Ledger Hub</small></span>
+</div>
+<div class="sr-gate-story-copy">
+<span class="sr-gate-kicker">Quiet financial intelligence</span>
+<h1>Accounting that finally feels effortless.</h1>
+<p>Banking, invoicing, bookkeeping, payroll and reporting—organized in one calm financial workspace.</p>
+<ul>
+<li>One connected flow from source transaction to financial statement</li>
+<li>Guided Accounting for owners, Full Accounting for professionals</li>
+<li>Ask Tegh beside the work, with controls that stay accounting-safe</li>
+</ul>
+</div>
+<small>Control · Clarity · Intelligence</small>
+</section>
+<section class="sr-gate-panel">
+<div aria-label="Sign in or create an account" class="sr-gate-choice" role="tablist">
+<button aria-controls="sr-login-form" aria-selected="true" data-show-login="" id="sr-choose-login" role="tab" tabindex="0" type="button">Sign in</button>
+<button aria-controls="sr-register-form" aria-selected="false" data-registration-cta="" id="sr-choose-register" role="tab" tabindex="-1" type="button">Create account</button>
+</div>
+<form aria-labelledby="sr-choose-login" class="sr-gate-form" id="sr-login-form" novalidate="" role="tabpanel">
+<h2>Sign in</h2>
+<p>Enter your Tegh account details.</p>
+<label>Email address<input autocomplete="username" name="email" required="" type="email"/></label>
+<label>Password<input autocomplete="current-password" name="password" required="" type="password"/></label>
+<div class="sr-captcha-wrap" data-captcha-wrap="login" hidden=""><div class="sr-captcha-slot" id="sr-login-captcha"></div><small>Security check required after suspicious or repeated sign-in attempts.</small></div>
+<button class="sr-gate-primary" type="submit">Sign in securely</button>
+<a class="sr-gate-link" href="#" id="sr-forgot-password">Forgot password?</a>
+</form>
+<form aria-labelledby="sr-choose-register" class="sr-gate-form" hidden="" id="sr-register-form" novalidate="" role="tabpanel">
+<h2>Create your account</h2>
+<p>Create and manage separate company or client accounting files.</p>
+<label>Your name<input autocomplete="name" maxlength="160" name="displayName" required="" type="text"/></label>
+<label>Email address<input autocomplete="username" name="email" required="" type="email"/></label>
+<label>Password<input autocomplete="new-password" name="password" required="" type="password"/></label>
+<label>Confirm password<input autocomplete="new-password" name="confirm" required="" type="password"/></label>
+
+<label class="sr-gate-check"><input name="acceptTerms" required="" type="checkbox"/> I accept the <a href="/terms.html" rel="noopener" target="_blank">terms of use</a> and <a href="/privacy.html" rel="noopener" target="_blank">privacy notice</a>.</label>
+<label class="sr-captcha-honeypot" aria-hidden="true">Website<input autocomplete="off" name="website" tabindex="-1" type="text"/></label>
+<div class="sr-captcha-wrap" data-captcha-wrap="register" hidden=""><div class="sr-captcha-slot" id="sr-register-captcha"></div><small>This security check helps prevent automated account creation.</small></div>
+<button class="sr-gate-primary" type="submit">Create account</button>
+</form>
+<form aria-labelledby="sr-choose-register" class="sr-gate-form" hidden="" id="sr-invite-needed" novalidate="" role="tabpanel">
+<h2>Create your account</h2>
+<p data-invite-needed-message>Tegh is in an invitation-only beta. When you are invited, you receive an email titled <b>“Set up your Tegh account”</b> with a 10-character invitation code.</p>
+<label>Email address<input autocomplete="email" inputmode="email" name="inviteEmail" required="" type="email"/></label>
+<small class="sr-invite-hint">The address the invitation was sent to.</small>
+<label>Invitation code<input autocapitalize="characters" autocomplete="one-time-code" class="sr-invite-code" maxlength="11" name="inviteCode" placeholder="XXXXX-XXXXX" required="" spellcheck="false" type="text"/></label>
+<small class="sr-invite-hint">Letters and numbers from the email, for example K7M2Q-PX9RT. The code can be used once and expires 72 hours after it was sent.</small>
+<button class="sr-gate-primary" type="submit">Continue</button>
+<p class="sr-invite-alt">No invitation yet? <a href="/contact.html">Ask for beta access</a>. Already have an account? <button class="sr-gate-link" data-show-login="" type="button">Sign in</button></p>
+</form>
+<form aria-labelledby="sr-choose-register" class="sr-gate-form" hidden="" id="sr-invite-form" novalidate="" role="tabpanel">
+<h2 data-invite-title>Create your account</h2>
+<p id="sr-invite-summary">Enter a password to finish setting up your Tegh account.</p>
+<label>Invited email<input name="invitedEmail" type="email" readonly="" autocomplete="username"/></label>
+<div id="sr-invite-companies" aria-label="Invited company roles"></div>
+<label data-invite-name>Your name<input autocomplete="name" maxlength="160" name="displayName" type="text"/></label>
+<label>Password<input autocomplete="new-password" name="password" required="" type="password"/></label>
+<label data-invite-confirm>Confirm password<input autocomplete="new-password" name="confirm" required="" type="password"/></label>
+<label class="sr-gate-check"><input name="acceptTerms" type="checkbox" required=""/><span>I accept the <a href="/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</span></label>
+<button class="sr-gate-primary" type="submit">Create account</button>
+<p class="sr-invite-alt" data-invite-existing hidden>Forgot your password? <a href="#" data-invite-forgot>Reset it</a>, then enter your invitation code again.</p>
+</form>
+<form class="sr-gate-form" hidden="" id="sr-setup-form" novalidate="">
+<h2>Create the owner account</h2>
+<p>Enter the private setup key configured on the server.</p>
+<label>Setup key<input autocomplete="off" name="setupKey" required="" type="password"/></label>
+<label>Owner name<input autocomplete="name" maxlength="160" name="displayName" required="" type="text"/></label>
+<label>Owner email<input autocomplete="username" name="email" required="" type="email"/></label>
+<label>Password<input autocomplete="new-password" name="password" required="" type="password"/></label>
+<label>Confirm password<input autocomplete="new-password" name="confirm" required="" type="password"/></label>
+<button class="sr-gate-primary" type="submit">Create owner</button>
+</form>
+<section aria-live="polite" class="sr-gate-progress" id="sr-gate-progress">
+<span aria-hidden="true" class="sr-gate-dot"></span>
+<div><b id="sr-gate-status">Sign-in is ready.</b><small id="sr-gate-substatus">Saved sessions resume automatically.</small></div>
+</section>
+<section class="sr-gate-error" hidden="" id="sr-gate-error" role="alert">
+<b id="sr-gate-error-title">Tegh could not open.</b>
+<p id="sr-gate-error-message"></p>
+</section>
+<div class="sr-gate-actions">
+<button hidden="" id="sr-gate-retry" type="button">Retry</button>
+<a href="/privacy.html" rel="noopener" target="_blank">Privacy</a>
+<a href="/terms.html" rel="noopener" target="_blank">Terms</a>
+</div>
+</section>
+</main>
+<noscript><p class="sr-gate-noscript">JavaScript must be enabled to use Tegh.</p></noscript>
+</div>
+</body>
+</html>

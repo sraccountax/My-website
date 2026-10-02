@@ -1,0 +1,960 @@
+/* Tegh R120 — layout polish, navigation scrolling, dropdowns, note documents.
+   Loaded after tegh-r119.css. Selectors carry html[data-tegh-shell] so they
+   outrank the earlier R22–R32 layers without editing them. */
+
+/* 1. Sidebar: one scroller for the whole menu.
+   The open module's submenu was capped at 420px (often ~280px) with its own
+   hidden scrollbar, so its last reports were cut off ("GIFI Report", Payroll
+   "Reports"). The submenu now takes its natural height and the menu as a whole
+   scrolls. Long labels wrap instead of being cut ("Products and Servic…"). */
+html[data-tegh-shell] .sidebar>nav{align-content:start!important;grid-auto-rows:max-content!important;overflow-y:auto!important;overscroll-behavior:contain}
+html[data-tegh-shell] .sidebar .srp-subnav.is-open{max-height:none!important;overflow:visible!important;height:auto!important}
+html[data-tegh-shell] .sidebar .srp-subnav button{
+  white-space:normal!important;overflow:visible!important;text-overflow:clip!important;
+  height:auto!important;min-height:32px!important;line-height:1.3!important;
+  letter-spacing:0!important;text-align:left!important;
+}
+
+/* 2. Form labels: text, then the required dot, then the control. */
+html[data-tegh-shell] .srp-page label>.srp-required-marker,
+html[data-tegh-shell] .srp-page .srp-required-marker{
+  position:static!important;display:inline!important;inset:auto!important;
+  margin:0 0 0 4px!important;color:#c2410c!important;font-weight:800!important;line-height:inherit!important;
+}
+
+/* 3. Floating filter panels. The ageing "Ageing periods" filters opened inline
+   and pushed the whole toolbar down; they now float under their button. */
+html[data-tegh-shell] details.tegh-popover{position:relative!important;display:inline-block!important}
+html[data-tegh-shell] details.tegh-popover>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:6px 12px;border:1px solid var(--tegh-border,#cad9d1);border-radius:8px;background:var(--tegh-surface,#fff);font-weight:650;white-space:nowrap}
+html[data-tegh-shell] details.tegh-popover>summary::-webkit-details-marker{display:none}
+html[data-tegh-shell] details.tegh-popover>summary::after{content:"▾";font-size:.8em;opacity:.7}
+html[data-tegh-shell] details.tegh-popover>.tegh-popover-panel{
+  position:absolute;z-index:2100;top:calc(100% + 6px);right:0;min-width:260px;max-width:min(360px,calc(100vw - 24px));
+  display:grid;gap:10px;padding:14px;border:1px solid var(--tegh-border,#cad9d1);border-radius:10px;
+  background:var(--tegh-surface,#fff);box-shadow:0 14px 34px rgba(8,39,30,.16);
+}
+html[data-tegh-shell] details.tegh-popover>.tegh-popover-panel label{display:grid;gap:4px;margin:0}
+html[data-tegh-shell] details.tegh-popover>.tegh-popover-panel input{width:100%}
+
+/* 4. The custom drag-scrollbar layer is appended last to <body>, so its rails
+   were drawn above the search window and other modals. Hide it while any
+   modal, dialog or the phone navigation drawer is open. */
+body:has(.srp-modal-scrim) #tegh-drag-scrollbar-layer,
+body:has(dialog[open]) #tegh-drag-scrollbar-layer,
+body.r19-drawer-open #tegh-drag-scrollbar-layer{display:none!important}
+
+@media (max-width:820px){
+  /* Column chooser: a bottom sheet above the phone navigation bar, so its
+     "Show All Columns" / close buttons are never hidden behind the nav. */
+  html[data-tegh-shell] .srp-columns-panel{
+    position:fixed!important;top:auto!important;left:10px!important;right:10px!important;width:auto!important;
+    bottom:calc(var(--r30-mobile-nav,64px) + 8px + env(safe-area-inset-bottom,0px))!important;
+    max-height:calc(100dvh - var(--r30-mobile-nav,64px) - 90px)!important;overflow-y:auto!important;z-index:2150!important;
+  }
+}
+/* The column panel lives inside .srp-column-controls (z-index 7), which kept
+   it under the page head. Lift the controls while their panel is open. */
+html[data-tegh-shell] .srp-column-controls:has(.srp-columns-panel:not([hidden])){z-index:2150!important}
+
+@media (max-width:820px){
+  /* Day Book on a phone: rows were 42px grids whose cells were squeezed to
+     0px and clipped, so every entry showed as an empty box. Each entry is now
+     a compact card: date · status, reference, party/memo, account, amounts. */
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row{
+    display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto!important;grid-template-rows:none!important;grid-auto-rows:auto!important;
+    height:auto!important;min-height:0!important;max-height:none!important;gap:4px 10px!important;padding:10px 12px!important;align-items:center!important;
+  }
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td{
+    display:block!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;
+    padding:0!important;border:0!important;width:auto!important;min-width:0!important;
+  }
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r28-daybook-date{grid-column:1/3;grid-row:1;font-weight:650}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td:nth-child(8){grid-column:3;grid-row:1;justify-self:end}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r28-daybook-ref-cell{grid-column:1/3;grid-row:2}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td:nth-child(3){grid-column:3;grid-row:2;justify-self:end}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r28-daybook-memo,
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r28-daybook-account{grid-column:1/-1;overflow-wrap:anywhere}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r23-num{text-align:left!important}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td:is(.r28-daybook-date,.r28-daybook-ref-cell,.r28-daybook-memo,.r28-daybook-account,.r23-row-actions,:nth-child(3),:nth-child(8))::before{content:none!important;display:none!important}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r23-num::before{display:inline!important;margin-right:4px}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r28-daybook-memo :is(small,strong){display:block;white-space:normal!important;overflow-wrap:anywhere}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row .r28-daybook-ref{padding:0!important;justify-content:flex-start!important}
+  html[data-tegh-shell] .r28-daybook-table>thead{display:none!important}
+  html[data-tegh-shell] .r28-daybook-table tr.r28-daybook-row>td.r23-row-actions{grid-column:3;justify-self:end}
+}
+
+/* 5. Credit / debit note document — same structure as the invoice page:
+   header fields, item lines, a summary panel and one action bar. */
+html[data-tegh-shell] .tegh-note-doc{display:block!important;margin:0 0 16px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+html[data-tegh-shell] .tegh-note-doc-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,320px);gap:16px;align-items:start}
+html[data-tegh-shell] .tegh-note-doc-main{display:grid;gap:16px;min-width:0}
+html[data-tegh-shell] .tegh-note-doc-card{background:var(--tegh-surface,#fff);border:1px solid var(--tegh-border,#d8e2de);border-radius:12px;padding:18px 20px;box-shadow:0 1px 2px rgba(8,39,30,.04)}
+html[data-tegh-shell] .tegh-note-doc-card h3{margin:0;font-size:1rem;font-weight:700;color:var(--tegh-text,#132f27)}
+html[data-tegh-shell] .tegh-note-doc-card header p{margin:3px 0 0;color:var(--tegh-muted,#58706a);font-size:.86rem}
+html[data-tegh-shell] .tegh-note-doc-title{margin:0 0 14px;padding:0 0 12px;border-bottom:1px solid var(--tegh-line,#e3ece8)}
+html[data-tegh-shell] .tegh-note-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 16px}
+html[data-tegh-shell] .tegh-note-fields>label{display:grid!important;gap:6px;margin:0!important;font-size:.84rem;font-weight:650;color:var(--tegh-text,#132f27);min-width:0}
+html[data-tegh-shell] .tegh-note-fields :is(input,select){width:100%!important;min-height:40px}
+html[data-tegh-shell] .tegh-note-fields .tegh-span-2{grid-column:span 2}
+html[data-tegh-shell] .tegh-note-fields .tegh-span-4{grid-column:1/-1}
+html[data-tegh-shell] .tegh-note-lines-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 12px}
+html[data-tegh-shell] .tegh-note-lines-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+html[data-tegh-shell] .tegh-note-lines-wrap{overflow-x:auto;margin:0 -4px}
+html[data-tegh-shell] table.tegh-note-lines{width:100%;min-width:560px;border-collapse:separate;border-spacing:0;table-layout:fixed}
+html[data-tegh-shell] table.tegh-note-lines th{padding:8px 8px;font-size:.74rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--tegh-muted,#58706a);background:var(--tegh-surface-mist,#f1f6f3);border-bottom:1px solid var(--tegh-line,#e3ece8);text-align:left}
+html[data-tegh-shell] table.tegh-note-lines th:first-child{border-radius:8px 0 0 0;width:auto}
+html[data-tegh-shell] table.tegh-note-lines th:nth-child(2){width:96px}
+html[data-tegh-shell] table.tegh-note-lines th:nth-child(3){width:140px}
+html[data-tegh-shell] table.tegh-note-lines th:nth-child(4){width:120px}
+html[data-tegh-shell] table.tegh-note-lines th:last-child{width:44px;border-radius:0 8px 0 0}
+html[data-tegh-shell] table.tegh-note-lines td{padding:8px;border-bottom:1px solid var(--tegh-line,#e3ece8);vertical-align:top}
+html[data-tegh-shell] table.tegh-note-lines .num{text-align:right}
+html[data-tegh-shell] table.tegh-note-lines td input{width:100%;min-height:38px;box-sizing:border-box}
+html[data-tegh-shell] table.tegh-note-lines td.num input{text-align:right}
+html[data-tegh-shell] table.tegh-note-lines td input[readonly]{background:var(--tegh-surface-mist,#f4f8f6);color:var(--tegh-text,#132f27)}
+html[data-tegh-shell] table.tegh-note-lines td small{display:block;margin-top:4px;color:var(--tegh-muted,#58706a);font-size:.76rem}
+html[data-tegh-shell] table.tegh-note-lines td[data-line-amount]{padding-top:17px;font-weight:650;font-variant-numeric:tabular-nums}
+html[data-tegh-shell] .tegh-note-line-remove{width:32px;height:32px;margin-top:3px;border:1px solid var(--tegh-border,#d8e2de);border-radius:8px;background:transparent;color:var(--tegh-muted,#58706a);font-size:18px;line-height:1;cursor:pointer}
+html[data-tegh-shell] .tegh-note-line-remove:hover{color:#b42318;border-color:#e7b2ac;background:#fff5f4}
+html[data-tegh-shell] .tegh-note-lines-empty td{padding:22px 8px!important;text-align:center;color:var(--tegh-muted,#58706a)}
+html[data-tegh-shell] .tegh-note-doc-summary{position:sticky;top:12px;display:grid;gap:14px}
+html[data-tegh-shell] .tegh-note-doc-summary dl{display:grid;gap:8px;margin:0}
+html[data-tegh-shell] .tegh-note-doc-summary dl>div{display:flex;justify-content:space-between;gap:12px;font-size:.88rem}
+html[data-tegh-shell] .tegh-note-doc-summary dt{color:var(--tegh-muted,#58706a)}
+html[data-tegh-shell] .tegh-note-doc-summary dd{margin:0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+html[data-tegh-shell] .tegh-note-source{padding:0 0 12px;border-bottom:1px solid var(--tegh-line,#e3ece8)}
+html[data-tegh-shell] .tegh-note-grand{margin-top:4px;padding-top:10px;border-top:1px solid var(--tegh-line,#e3ece8)}
+html[data-tegh-shell] .tegh-note-grand :is(dt,dd){font-size:1.02rem;font-weight:750;color:var(--tegh-text,#132f27)}
+html[data-tegh-shell] .tegh-note-effect,html[data-tegh-shell] .tegh-note-summary-empty{margin:0;font-size:.8rem;color:var(--tegh-muted,#58706a);line-height:1.45}
+html[data-tegh-shell] .tegh-note-doc-actions{display:flex!important;justify-content:flex-end!important;gap:8px!important;margin-top:16px!important;padding:12px 0 0!important;border-top:1px solid var(--tegh-line,#e3ece8)}
+@media (max-width:1100px){
+  html[data-tegh-shell] .tegh-note-doc-grid{grid-template-columns:minmax(0,1fr)}
+  html[data-tegh-shell] .tegh-note-doc-summary{position:static}
+}
+@media (max-width:820px){
+  html[data-tegh-shell] .tegh-note-fields{grid-template-columns:minmax(0,1fr)}
+  html[data-tegh-shell] .tegh-note-fields :is(.tegh-span-2,.tegh-span-4){grid-column:auto}
+  html[data-tegh-shell] .tegh-note-doc-card{padding:14px}
+  html[data-tegh-shell] .tegh-note-lines-head{flex-direction:column}
+  html[data-tegh-shell] .tegh-note-lines-actions{justify-content:flex-start}
+  html[data-tegh-shell] .tegh-note-doc-actions{position:sticky;bottom:0;background:var(--tegh-surface,#fff);padding:10px 0!important;z-index:5}
+  html[data-tegh-shell] .tegh-note-doc-actions .srp-btn{flex:1 1 0}
+}
+html[data-tegh-shell] .tegh-notes-workspace:has(.tegh-note-doc) .tegh-note-settlement-scope{display:none!important}
+html[data-tegh-shell] .tegh-note-fields{align-items:end}
+html[data-tegh-shell] .tegh-note-doc-main{grid-template-columns:minmax(0,1fr)}
+html[data-tegh-shell] .tegh-note-doc-card{min-width:0}
+@media (max-width:820px){
+  /* Item lines as stacked cards: description on top, then qty · price · amount. */
+  html[data-tegh-shell] table.tegh-note-lines{min-width:0;display:block}
+  html[data-tegh-shell] table.tegh-note-lines thead{display:none}
+  html[data-tegh-shell] table.tegh-note-lines tbody{display:grid;gap:10px}
+  html[data-tegh-shell] table.tegh-note-lines tr{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.1fr) minmax(0,1fr) 36px;gap:8px;padding:10px;border:1px solid var(--tegh-line,#e3ece8);border-radius:10px}
+  html[data-tegh-shell] table.tegh-note-lines td{display:block;padding:0;border:0;min-width:0}
+  html[data-tegh-shell] table.tegh-note-lines td:first-child{grid-column:1/-1}
+  html[data-tegh-shell] table.tegh-note-lines td[data-line-amount]{padding-top:10px}
+  html[data-tegh-shell] table.tegh-note-lines tr.tegh-note-lines-empty{display:block;border-style:dashed}
+  html[data-tegh-shell] .tegh-note-doc-actions{flex-direction:row!important;flex-wrap:nowrap!important}
+  html[data-tegh-shell] .tegh-note-doc-actions .srp-btn{min-width:0;padding-inline:8px!important;width:auto!important}
+}
+
+/* 6. Cards that lost their inner padding (Journal Entry, Transfers and other
+   "fill" editors had padding:0, so headings and fields touched the border).
+   Report tables and the invoice form keep their own spacing. */
+html[data-tegh-shell] .r22-workspace>.srp-card.r22-fill-path:not(:has(.r23-table-host)):not(.srp-ci-workspace):not(:has(.r29-invoice-layout)):not(:has(.tegh-note-doc)){padding:18px 20px!important}
+
+/* Journal Entry: readable line headers (white text on a pale band before) and
+   a card that ends after its lines instead of an empty fixed-height box. */
+html[data-tegh-shell] .srp-journal-head,html[data-tegh-shell] .srp-journal-head *{color:var(--tegh-muted,#4f6861)!important;font-size:.76rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+html[data-tegh-shell] .srp-journal-head{border-radius:8px 8px 0 0}
+html[data-tegh-shell] .srp-journal-lines.r22-scroll-region{flex:0 1 auto!important;max-height:min(60vh,560px)}
+html[data-tegh-shell] .r22-workspace>.srp-card.r22-fill-path:has(.srp-journal-lines){flex:0 0 auto!important;height:auto!important}
+html[data-tegh-shell] .r22-workspace>.srp-card.r22-fill-path:has(.srp-journal-lines) form.r22-fill-path{flex:0 0 auto!important;height:auto!important}
+
+/* Recurring Transactions and other two-panel pages: panels size to their own
+   content instead of stretching an empty list to the height of the form. */
+html[data-tegh-shell] .sra-grid:not(.r22-fill-path){align-items:start!important}
+/* R121: where the activity shell turns the grid into a flex column (Fixed
+   Assets, Budgets directories), cards must stay full width. */
+html[data-tegh-shell] .sra-grid.r22-fill-path{align-items:stretch!important}
+html[data-tegh-shell] .sra-grid.r22-fill-path>.sra-card{width:100%!important;max-width:none!important}
+
+/* Dark hero banners (Document Intake, Collection Drafts, Payroll): body copy
+   was grey on dark green. */
+html[data-tegh-shell] :is(.tegh-native-boundary,.tegh-agent-hero) p{color:rgba(255,255,255,.82)!important}
+
+/* 7. Invoice line item: even columns, bottoms aligned, rate preset readable. */
+@media (min-width:1101px){
+  html[data-tegh-shell] .srp-ci-line-grid{grid-template-columns:minmax(0,1.25fr) minmax(0,2fr) 88px 130px 120px 170px!important;align-items:end!important;gap:10px 12px!important}
+  html[data-tegh-shell] .srp-ci-line-grid>*{min-width:0!important;width:auto!important}
+  html[data-tegh-shell] .srp-ci-line-grid select{width:100%!important;min-width:0!important}
+  html[data-tegh-shell] .srp-ci-line-grid .srp-check{align-self:center!important;padding-bottom:0!important}
+}
+html[data-tegh-shell] .r63-product-field .srp-btn{min-height:30px!important;padding:4px 10px!important;font-size:.8rem!important;justify-self:start}
+
+/* 8. Dashboard Quick Actions: one tidy row per action — icon, label, keycap.
+   Each shortcut was shown twice ("1" and "+1"), the "+1" wrapped onto a second
+   line, and the list scrolled inside the card behind a scrollbar that covered
+   the keycaps. The header already says "Ctrl + Alt". */
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list{overflow-x:hidden!important;overflow-y:auto!important;display:grid!important;align-content:start!important;gap:2px!important;padding:0 26px 0 0!important;scrollbar-width:none}
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list::-webkit-scrollbar{display:none}
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list>button{
+  display:grid!important;grid-template-columns:30px minmax(0,1fr) auto!important;align-items:center!important;gap:10px!important;
+  width:100%!important;min-height:40px!important;height:auto!important;padding:5px 8px!important;margin:0!important;
+  border:1px solid transparent!important;border-radius:10px!important;text-align:left!important;
+}
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list>button:hover,
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list>button:focus-visible{background:var(--tegh-surface-mist,#f1f6f3)!important;border-color:var(--tegh-border,#d8e2de)!important}
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list>button>.r19-shortcut-icon{grid-column:1!important;grid-row:1!important;width:30px!important;height:30px!important;display:grid!important;place-items:center!important;border-radius:8px!important;background:var(--tegh-surface-mist,#eef5f1)!important;margin:0!important}
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list>button>strong{grid-column:2!important;grid-row:1!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:.9rem!important;font-weight:650!important;margin:0!important}
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list>button>.r20-shortcut-key{
+  grid-column:3!important;grid-row:1!important;position:static!important;display:inline-grid!important;place-items:center!important;
+  min-width:24px!important;height:24px!important;padding:0 6px!important;margin:0!important;border:1px solid var(--tegh-border,#cad9d1)!important;border-bottom-width:2px!important;
+  border-radius:6px!important;background:var(--tegh-surface,#fff)!important;font:600 .75rem/1 ui-monospace,SFMono-Regular,Menlo,monospace!important;color:var(--tegh-muted,#58706a)!important;
+}
+html[data-tegh-shell] .r17-dashboard-actions .r17-quick-list>button>kbd.tegh-quick-slot{display:none!important}
+
+/* 9. Bank statement import preview (R121): the panel was a fixed
+   100dvh-24px box, taller than its scrim, so a short statement left a
+   large empty area under the footer and the bottom edge was clipped. It now
+   sizes to its content up to the viewport height. */
+.tegh-bank-verification-continuous{align-items:center!important}
+.tegh-bank-verification-panel{height:auto!important;max-height:calc(100dvh - 48px)!important}
+@media(max-width:480px){.tegh-bank-verification-panel{max-height:calc(100dvh - 12px)!important}}
+
+/* 10. Match and Post Transactions (R121)
+   - The generic floating "N rows selected" bar duplicated the workspace's own
+     "N selected" / Clear controls and covered the last visible rows.
+   - Dates were cut ("Feb 28, 2…") while the description column had room.
+   - The posting form had no inner padding; fields touched the card edge.
+   - Bulk posting list. */
+.r28-banking-workspace .sr-selection-bar{display:none!important}
+.r28-banking-workspace .r28-bank-table th:nth-child(2),.r28-banking-workspace .r28-bank-table td:nth-child(2){white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}
+.r28-banking-workspace .r28-bank-table td:nth-child(2) *{white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}
+.r28-banking-workspace .r28-post-panel>form{padding:14px 16px 16px!important;row-gap:12px}
+.r28-banking-workspace .r28-post-panel>form>footer{padding-top:4px}
+.r28-banking-workspace .r28-post-preview h4{margin:6px 0 8px}
+.r121-bulk-list{list-style:none;margin:0;padding:10px 16px 4px;display:grid;gap:4px;border-bottom:1px solid var(--tegh-line,#d6dfda)}
+.r121-bulk-list li{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:10px;align-items:baseline;font-size:13px;padding:4px 0}
+.r121-bulk-list li span{color:var(--tegh-muted,#5b6b65);white-space:nowrap}
+.r121-bulk-list li b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r121-bulk-list li em{font-style:normal;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.r121-bulk-list li.more{display:block;color:var(--tegh-muted,#5b6b65);font-size:12px}
+.r121-bulk-note{margin:0;font-size:13px;color:var(--tegh-muted,#5b6b65)}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page.srp-page .r28-banking-workspace .r15-recon-table col.date-col{width:110px!important}
+@media(max-width:1180px){html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page.srp-page .r28-banking-workspace .r15-recon-table col.date-col{width:100px!important}}
+
+/* 11. Customer receipt / vendor payment "Match bank transaction" mode (R121) */
+.r29-payment-bank-source.r121-match-focus{outline:2px solid var(--tegh-emerald,#155849);outline-offset:3px;border-radius:10px}
+
+/* 12. Match exact source pairs (R121) */
+.r121-exact-pairs{display:grid;justify-items:center;gap:6px;margin-top:18px;padding:14px 16px;border:1px solid var(--tegh-line,#d6dfda);border-radius:10px;background:var(--tegh-soft-green,#eef5f1);max-width:420px}
+.r121-exact-pairs small{color:var(--tegh-muted,#5b6b65);text-align:center}
+.r121-exact-pairs button{margin-top:4px}
+.r121-exact-pairs [role=status]{font-size:12px;color:var(--tegh-muted,#5b6b65);min-height:1em}
+
+/* 13. Label rows line up (R121). A required label (text + dot in
+   span.srp-label-text) rendered 25px tall versus 18px for an optional label,
+   so optional inputs sat 7px higher in the same row (New Employee, etc.). */
+html[data-tegh-shell] .srp-page label>.srp-label-text{display:block!important;line-height:inherit!important;padding:0!important;margin:0!important;min-height:0!important;height:auto!important;font:inherit}
+html[data-tegh-shell] .srp-page label>.srp-label-text>.srp-required-marker{font-size:inherit!important;vertical-align:baseline!important}
+/* Checkbox fields in a form grid: box and text on one line, aligned with the
+   inputs, not a centred box floating above centred text. */
+html[data-tegh-shell] .srp-page .r22-form-grid>label.srp-check{flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;align-self:end!important;gap:10px!important;min-height:40px;text-align:left!important}
+html[data-tegh-shell] .srp-page .r22-form-grid>label.srp-check>input{margin:0!important;flex:0 0 auto}
+
+/* 14. Tables that scroll sideways never break words letter by letter (R121).
+   Several layers set overflow-wrap:anywhere on cells, so auto-layout tables
+   (Payroll Verification) squeezed "Priya Sharma" and "Unverified" into
+   one-letter lines. Cells now break between words only; a table wider than
+   its container scrolls horizontally instead. Phone card layouts keep their
+   own rules. */
+html[data-tegh-shell] .srp-page table:not(.r22-stacked-table) :is(th,td){overflow-wrap:normal!important;word-break:normal!important;hyphens:manual}
+html[data-tegh-shell] .srp-page table:not(.r22-stacked-table) thead th{white-space:nowrap}
+html[data-tegh-shell] .srp-page table:not(.r22-stacked-table) .srp-status,html[data-tegh-shell] .srp-page table:not(.r22-stacked-table) [class*="status-pill"]{white-space:nowrap}
+html[data-tegh-shell] .srp-page table:not(.r22-stacked-table) td input.srp-money-input{min-width:96px;max-width:140px}
+html[data-tegh-shell] .sra-grid.r22-fill-path>.sra-card{flex:0 0 auto!important;height:auto!important;min-height:0!important}
+html[data-tegh-shell] .sra-grid.r22-fill-path>.sra-card .sra-table-wrap{flex:0 1 auto!important;min-height:0!important}
+html[data-tegh-shell] .sra-grid.r22-fill-path>.sra-card>:is(h2,h3){padding:12px 12px 4px!important;margin:0!important}
+
+/* 15. Advanced Accounting editors (R121): Recurring Transactions, Budgets and
+   similar .sra-form grids had one column, so a nine-field form ran 1,000px
+   down the page, and "full" fields were narrower than "half" ones. Half
+   fields now pair up; full fields and actions span the row. */
+html[data-tegh-shell] .srp-page .sra-form.r22-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;column-gap:14px!important}
+html[data-tegh-shell] .srp-page .sra-form.r22-form-grid>:is(.sra-field.full,.sra-actions,.sra-note,h2,h3,p,table,.sra-table-wrap,.sra-lines){grid-column:1/-1!important;max-width:none!important;width:auto!important}
+html[data-tegh-shell] .srp-page .sra-form.r22-form-grid>.sra-field.half{grid-column:auto!important;max-width:none!important}
+html[data-tegh-shell] .srp-page .sra-form.r22-form-grid>label.sra-check{align-self:center}
+@media(max-width:700px){html[data-tegh-shell] .srp-page .sra-form.r22-form-grid{grid-template-columns:minmax(0,1fr)!important}}
+html[data-tegh-shell] .srp-page .r22-form-grid>label.sra-check{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;text-align:left!important;min-height:40px}
+html[data-tegh-shell] .srp-page .r22-form-grid>label.sra-check>input{margin:0!important;flex:0 0 auto}
+
+/* 16. Invoice / bill / note detail (R121): amount headers line up with their
+   right-aligned values, and Subtotal / Tax / Total sit under the Amount
+   column like a printed invoice instead of under Description. */
+html[data-tegh-shell] .r19-invoice-lines table th.srp-money,html[data-tegh-shell] .r19-invoice-lines table th.tegh-financial-number{text-align:right!important}
+html[data-tegh-shell] .r19-invoice-lines>dl.r19-line-totals{margin-left:auto!important;margin-right:0!important;width:min(320px,100%)!important}
+
+/* 17. Sidebar submenu items on one line (R122). Labels are short; a label
+   that still does not fit is cut with an ellipsis and shown in full as the
+   tooltip, never wrapped onto a second line. */
+html[data-tegh-shell] .sidebar .srp-subnav{padding-left:10px!important}
+html[data-tegh-shell] .sidebar .srp-subnav button{padding-left:10px!important;padding-right:6px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;min-height:30px!important;letter-spacing:0!important;line-height:1.25!important}
+
+/* 18. Brand block (R122). The mark, "TEGH" and a three-line squeezed tagline
+   were packed beside the collapse button. Now: mark + spaced wordmark on the
+   first row, the tagline on its own line underneath with a small accent rule,
+   and the collapse button pinned top-right. The collapsed rail keeps the mark. */
+body:not(.sr-sidebar-collapsed) .sidebar .side-head{position:relative!important;display:block!important;padding:18px 8px 14px 12px!important;min-height:0!important;border-bottom:1px solid rgba(255,255,255,.08)!important;margin-bottom:6px!important}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head>.sr-sidebar-toggle{position:absolute!important;top:16px!important;right:12px!important;width:30px!important;height:30px!important;min-height:30px!important;border-radius:9px!important;opacity:.75;transition:opacity .15s}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head>.sr-sidebar-toggle:hover{opacity:1}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head .brand{display:grid!important;grid-template-columns:40px minmax(0,1fr)!important;grid-template-areas:"mark word" "tag tag"!important;column-gap:12px!important;row-gap:10px!important;align-items:center!important;padding:0!important;background:none!important;box-shadow:none!important;width:100%!important;cursor:pointer}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head .brand img.brand-mark.tegh-brand-image{grid-area:mark;width:40px!important;height:40px!important;min-width:40px!important;max-width:40px!important;margin:0!important;padding:6px!important;border-radius:10px;background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.04));box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 6px 16px rgba(0,0,0,.25)}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word{display:contents!important}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word strong{grid-area:word;font-size:20px!important;line-height:1!important;font-weight:800!important;letter-spacing:.2em!important;color:#fff!important;margin:0!important}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word small{grid-area:tag;display:flex!important;align-items:center;gap:6px;font-size:8.6px!important;line-height:1.2!important;font-weight:600!important;letter-spacing:.025em!important;text-transform:uppercase!important;white-space:nowrap!important;color:rgba(190,232,214,.78)!important;margin:0!important;max-width:none!important}
+body:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word small::before{content:"";flex:0 0 12px;height:2px;border-radius:2px;background:linear-gradient(90deg,#d6a34a,#f0c46a)}
+body:not(.sr-sidebar-collapsed) .sidebar>.srp-sidebar-search{margin:0!important}
+body:not(.sr-sidebar-collapsed) .sidebar>nav{margin-top:0!important}
+
+/* 19. Report selection actions (R122) */
+.r23-table-meta .r23-selection-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-left:4px}
+.r23-table-meta .r23-selection-actions[hidden]{display:none!important}
+.r23-selection-actions .r23-selection-action{min-height:32px;padding:5px 12px;border-radius:8px;font-size:13px;font-weight:650;border:1px solid var(--tegh-border,#cad9d1);background:var(--tegh-surface,#fff);color:var(--tegh-ink,#18211e);cursor:pointer}
+.r23-table-meta .r23-selection-actions button.r23-selection-action.is-primary{background:var(--tegh-emerald,#0f5c4b)!important;border-color:var(--tegh-emerald,#0f5c4b)!important;color:#fff!important}
+.r23-selection-actions .r23-selection-action:hover{filter:brightness(.97)}
+.r23-selection-actions .r23-selection-hint{font-size:12.5px;color:var(--tegh-muted,#5b6b65)}
+@media(max-width:700px){.r23-table-meta .r23-selection-actions{width:100%;margin-left:0}}
+.r28-daybook-lines>header .r122-daybook-source{margin-left:auto;min-height:28px;padding:3px 10px;font-size:12px}
+
+/* 20. Reconcile Account (R122): calculated bank balance, reconciliation statement */
+.r122-recon{display:grid;gap:14px}
+.r122-recon-filters{display:flex!important;flex-wrap:wrap;align-items:end;gap:10px 12px;padding:14px 16px!important}
+.r122-recon-filters label{display:grid;gap:4px;font-size:12px;font-weight:650;min-width:170px}
+.r122-recon-filters label:first-child{flex:1 1 240px}
+.r122-recon-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.r122-recon-cards>div{display:grid;gap:4px;padding:14px 16px;border:1px solid var(--tegh-border,#d6dfda);border-radius:12px;background:var(--tegh-surface,#fff)}
+.r122-recon-cards small{font-size:12px;color:var(--tegh-muted,#5b6b65);font-weight:600}
+.r122-recon-cards b{font-size:22px;font-variant-numeric:tabular-nums}
+.r122-recon-cards span{font-size:12px;color:var(--tegh-muted,#5b6b65)}
+.r122-recon-cards .ready{border-color:#9ccdb7;background:#eef7f2}
+.r122-recon-cards .attention{border-color:#e7c07a;background:#fdf6e8}
+.r122-recon-statement{padding:14px 16px!important}
+.r122-recon-statement h2,.r122-recon-running h2{font-size:16px;margin:0 0 8px}
+.r122-recon-statement table td{vertical-align:top}
+.r122-recon-statement td small,.r122-recon-running td small{display:block;color:var(--tegh-muted,#5b6b65);font-size:12px;font-weight:500}
+.r122-recon-line.is-empty td{color:var(--tegh-muted,#5b6b65)}
+.r122-recon-total td{font-weight:700}
+.r122-recon-total.ready td{color:#0f6b4c}
+.r122-recon-total.attention td{color:#9a5b00}
+.r122-recon-items{margin-top:6px}
+.r122-recon-items summary{cursor:pointer;font-size:12.5px;color:var(--tegh-emerald,#0f5c4b);font-weight:650}
+.r122-recon-items .srp-table-wrap{margin-top:6px;max-height:320px;overflow:auto}
+.r122-recon-running{padding:14px 16px!important}
+.r122-recon-running>summary{cursor:pointer;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;list-style:none}
+.r122-recon-running>summary span{font-size:12.5px;color:var(--tegh-muted,#5b6b65)}
+.r122-recon-running .srp-table-wrap{max-height:460px;overflow:auto;margin-top:8px}
+.r122-recon-complete{display:grid;gap:10px;padding:14px 16px!important}
+.r122-recon-complete label{display:grid;gap:4px;font-weight:650;font-size:12.5px}
+.r122-recon-complete footer{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.r122-recon-complete footer span{flex:1 1 280px;font-size:13px;color:var(--tegh-muted,#5b6b65)}
+@media(max-width:900px){.r122-recon-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.r122-recon-cards{grid-template-columns:1fr}.r122-recon-filters label{min-width:0;flex:1 1 100%}}
+.r22-workspace .r122-recon,.r122-recon>*{width:100%;max-width:none!important;box-sizing:border-box}
+.r122-recon-count{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:#eef3f0;color:var(--tegh-muted,#5b6b65);font-size:11.5px;font-weight:600}
+.r122-recon-subhead td{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--tegh-muted,#5b6b65);padding-top:14px!important}
+html[data-tegh-shell] .srp-page section.r122-recon{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:14px!important}
+html[data-tegh-shell] .srp-page section.r122-recon>*{grid-column:1/-1!important}
+.r122-report-items{display:grid;gap:8px;margin-top:14px}
+.r122-report-items h3{font-size:15px;margin:0}
+.r122-report-items details{border:1px solid var(--tegh-border,#d6dfda);border-radius:10px;padding:8px 12px;background:var(--tegh-surface,#fff)}
+.r122-report-items summary{cursor:pointer;display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px}
+.r122-report-items summary span{color:var(--tegh-muted,#5b6b65);font-size:13px}
+.r122-report-items .srp-table-wrap{margin-top:8px}
+html[data-tegh-shell] .srp-page .r28-recon-sections{display:grid!important;gap:8px!important;height:auto!important;max-height:none!important;flex:0 0 auto!important;overflow:visible!important}
+html[data-tegh-shell] .srp-page .r28-recon-sections>.r28-recon-detail-section{height:auto!important;max-height:none!important;min-height:0!important;flex:none!important;overflow:visible!important}
+
+/* 21. R123 Tegh Assist: everyday-question suggestions */
+.tegh-command-search .tegh-assist-suggestions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.tegh-command-search .tegh-assist-chip{appearance:none;border:1px solid var(--srp-line,#d9dee7);background:var(--srp-surface-2,#f6f7fb);color:inherit;border-radius:999px;padding:5px 11px;font:inherit;font-size:12.5px;line-height:1.3;cursor:pointer;white-space:nowrap}
+.tegh-command-search .tegh-assist-chip:hover,.tegh-command-search .tegh-assist-chip:focus-visible{border-color:var(--srp-accent,#b8892f);outline:none}
+@media (max-width:640px){.tegh-command-search .tegh-assist-suggestions{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;min-width:0;scrollbar-width:none}.tegh-command-search .tegh-assist-chip{flex:0 0 auto}}
+/* R123: Tegh Assist was unreachable on phones (hidden below 820px). Keep a
+   compact icon in the top bar so everyday questions are one tap away. */
+html[data-tegh-navigation-revision="r24"] .topbar [data-shell-assist].tegh-shell-utility,
+html[data-tegh-navigation-revision="r24"] .topbar[data-r24-density="mobile"] [data-shell-assist].tegh-shell-utility{display:grid;place-items:center}
+@media (max-width:430px){
+  html[data-tegh-navigation-revision="r24"] .topbar [data-shell-assist].tegh-shell-utility{flex:0 0 36px!important;width:36px!important;min-width:36px!important;max-width:36px!important;height:36px!important;min-height:36px!important;padding:0!important}
+}
+
+/* 22. R124 Tegh Assist: simple ask → answer layout */
+.tegh-assist-drawer>header p{margin:4px 0 0;color:var(--srp-muted,#5d6b66)}
+.tegh-assist-using{margin:0;padding:8px 20px;font-size:13px;background:var(--srp-surface-2,#f3f7f5);border-bottom:1px solid var(--srp-line,#dde5e1)}
+.tegh-assist-sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.tegh-assist-simple .tegh-command-search{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;align-items:center!important}
+.tegh-assist-simple .tegh-command-search .tegh-assist-ask{display:block!important;margin:0}
+.tegh-assist-simple .tegh-command-search input{height:46px;font-size:16px;border-radius:12px;padding:0 14px}
+.tegh-assist-simple .tegh-command-search>.srp-btn{height:46px;min-width:88px!important;border-radius:12px}
+.tegh-assist-simple .tegh-assist-suggestions{grid-column:1/-1;align-items:center}
+.tegh-assist-chips-label{flex:0 0 auto;white-space:nowrap;font-size:12px;font-weight:600;color:var(--srp-muted,#5d6b66);margin-right:2px}
+.tegh-assist-recent .tegh-assist-chip{background:transparent}
+.tegh-assist-simple .tegh-command-workspace:has(>[data-command-result]:empty){display:none}
+.tegh-assist-simple .tegh-command-workspace{position:static!important;max-height:none!important;overflow:visible!important}
+.tegh-assist-you{margin:0 0 10px;font-size:13px;color:var(--srp-muted,#5d6b66)}
+.tegh-assist-thinking{color:var(--srp-muted,#5d6b66);animation:tegh-assist-pulse 1.2s ease-in-out infinite}
+@keyframes tegh-assist-pulse{50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.tegh-assist-thinking{animation:none}}
+.tegh-command-result>h3{margin:0 0 2px;font-size:18px}
+.tegh-assist-period{margin:0 0 12px;font-size:13px;color:var(--srp-muted,#5d6b66)}
+.tegh-assist-answer{border-radius:12px;padding:14px 16px;margin:0 0 12px;background:var(--srp-surface-2,#f3f7f5);border-left:4px solid #6b8f82}
+.tegh-assist-answer[data-tone="good"]{border-left-color:#1f8a5b;background:#eef8f2}
+.tegh-assist-answer[data-tone="warn"]{border-left-color:#b7791f;background:#fdf6ea}
+.tegh-assist-answer[data-tone="bad"]{border-left-color:#c0392b;background:#fdf0ee}
+.tegh-assist-headline{margin:0;font-size:19px;line-height:1.35;font-weight:700;color:var(--srp-ink,#12211c)}
+.tegh-assist-detail{margin:6px 0 0;font-size:14px;color:var(--srp-muted,#4d5c57)}
+.tegh-assist-details{margin:0 0 12px}
+.tegh-assist-details>summary{cursor:pointer;font-weight:600;padding:6px 0;color:var(--srp-accent-ink,#0f5c46)}
+.tegh-assist-next{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.tegh-assist-browse-link{margin-top:8px;display:inline-block}
+.tegh-choice span{color:var(--srp-muted,#5d6b66);font-size:13px}
+.tegh-command-catalogue>summary{cursor:pointer;font-weight:600}
+.tegh-assist-group{border-top:1px solid var(--srp-line,#e2e8e5);padding:4px 0}
+.tegh-assist-group>summary{cursor:pointer;padding:10px 2px;font-weight:600}
+.tegh-assist-group>summary small{color:var(--srp-muted,#5d6b66);font-weight:400;margin-left:4px}
+.tegh-assist-group ul{list-style:none;margin:0 0 8px;padding:0;display:grid;gap:4px}
+.tegh-assist-group li{display:flex;align-items:stretch;gap:4px}
+.tegh-assist-item{flex:1;display:grid;gap:2px;text-align:left;padding:9px 12px;border:1px solid var(--srp-line,#e2e8e5);border-radius:10px;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.tegh-assist-item span{font-size:12.5px;color:var(--srp-muted,#5d6b66)}
+.tegh-assist-item:hover,.tegh-assist-item:focus-visible{border-color:var(--srp-accent,#b8892f);outline:none}
+.tegh-assist-pin{flex:0 0 40px;border:1px solid var(--srp-line,#e2e8e5);border-radius:10px;background:transparent;color:#b8892f;font-size:18px;cursor:pointer}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .tegh-assist-answer[data-tone="good"]{background:rgba(31,138,91,.14)}
+  :root:not([data-theme="light"]) .tegh-assist-answer[data-tone="warn"]{background:rgba(183,121,31,.14)}
+  :root:not([data-theme="light"]) .tegh-assist-answer[data-tone="bad"]{background:rgba(192,57,43,.14)}
+}
+@media (max-width:640px){
+  .tegh-assist-simple .tegh-command-search>.srp-btn{min-width:64px!important}
+  .tegh-assist-headline{font-size:17px}
+}
+
+/* 23. R125 friendly dashboard */
+.r125-dash-intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,420px);gap:14px 20px;align-items:center;margin:0 0 14px;padding:14px 18px;border:1px solid var(--srp-line,#dde5e1);border-radius:14px;background:var(--srp-surface,#fff)}
+.r125-dash-summary{margin:0;font-size:15.5px;line-height:1.5;color:var(--srp-ink,#12211c)}
+.r125-dash-ask{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:0}
+.r125-dash-ask label{margin:0;display:block}
+.r125-dash-ask input{width:100%;height:42px;border-radius:10px;padding:0 12px;font-size:15px}
+.r125-dash-ask .srp-btn{height:42px;min-width:72px}
+.srp-sites-stat-card .r125-term{display:block;margin-top:6px;font-style:normal;font-size:11px;letter-spacing:.02em;color:var(--srp-muted,#7a8783)}
+.srp-sites-stat-card[data-tone="bad"] strong{color:#b3261e}
+.srp-sites-stat-card[data-tone="warn"] small{color:#8a5a00}
+.srp-sites-stat-card[data-tone="good"] strong{color:#1f7a50}
+.r125-chart-plain{margin:2px 0 8px;font-size:14px;font-weight:600}
+.r125-chart-plain[data-tone="good"]{color:#1f7a50}
+.r125-chart-plain[data-tone="bad"]{color:#b3261e}
+.r17-dashboard-actions .r20-shortcut-key,.r17-dashboard-actions .r23-quick-modifiers{display:none!important}
+.r17-dashboard-actions .r17-quick-list{max-height:none!important;overflow:visible!important}
+.r19-task-grid>[hidden]{display:none!important}
+.r125-all-done{grid-column:1/-1;margin:0;padding:10px 12px;border-radius:10px;background:#eef8f2;color:#1f5a3f;font-weight:600}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .r125-all-done{background:rgba(31,138,91,.15);color:inherit}}
+@media (max-width:900px){.r125-dash-intro{grid-template-columns:1fr}}
+.srp-sites-stat-grid>.r125-dash-intro{grid-column:1/-1;margin:0}
+html[data-tegh-activity-shell] .srp-page[data-srp-page="dashboard"] .r17-dashboard-actions .r17-quick-list,
+html[data-tegh-activity-shell] .srp-page[data-srp-page="dashboard"] .r17-dashboard-actions .r17-quick-list.r22-scroll-region{max-height:none!important;overflow:visible!important;height:auto!important}
+html[data-tegh-activity-shell] .srp-page[data-srp-page="dashboard"] .r17-dashboard-actions .r20-shortcut-key{display:none!important}
+html[data-tegh-activity-shell] .srp-page[data-srp-page="dashboard"] .r17-dashboard-actions{height:auto!important;max-height:none!important}
+.r125-chart-plain{margin:10px 0 8px!important}
+/* Overview as a wrapping row: every section keeps its natural height and the page scrolls. */
+@media (min-width:1101px){
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow{display:flex!important;flex-wrap:wrap;align-content:flex-start;align-items:stretch;gap:12px}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>*{flex:1 1 100%;min-width:0;margin:0}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.r17-dashboard-charts{flex:1 1 0;order:3}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.r17-dashboard-actions{flex:0 0 320px;order:4}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.r19-attention{order:2}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.tegh-dashboard-widget-slot{order:5}
+}
+/* Phones and tablets: summary, cards, To Do, then shortcuts and chart. */
+@media (max-width:1100px){
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow{display:flex!important;flex-direction:column}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>*{margin:0 0 12px!important}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.srp-sites-stat-grid{order:1}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.r19-attention{order:2}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.r17-dashboard-actions{order:3}
+  html[data-tegh-activity-shell="r22"] [data-dashboard-view="overview"] .r22-dashboard-flow>.r17-dashboard-charts{order:4}
+  .r125-dash-intro{padding:12px 14px}
+  .r125-dash-summary{font-size:14.5px}
+}
+
+
+/* 24. R126 dark mode: dark versions for panels, labels, totals and recent additions that were light-only.
+   Applies to Dark, and to Auto on a device set to dark. */
+html[data-tegh-theme="dark"] .topbar .srp-global-search[data-global-search]{background:var(--tegh-surface,#15231f)!important;border-color:var(--tegh-line,#334b43)!important;color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] .topbar .srp-global-search[data-global-search] :is(input,button,svg){background:transparent!important;color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] .topbar .srp-global-search[data-global-search] input::placeholder{color:var(--tegh-muted,#a7bbb3)!important}
+html[data-tegh-theme="dark"] :is(.sra-embedded,.sra-body,.sra-card,.sra-table-wrap,.sra-section-head,.sra-budget-kpis article,.sra-grid article){background:var(--tegh-surface,#15231f)!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+html[data-tegh-theme="dark"] :is(.sra-note,.sra-empty){background:#1b2d28!important;color:var(--tegh-muted,#a7bbb3)!important;border-color:var(--tegh-line,#334b43)!important}
+html[data-tegh-theme="dark"] :is(.sra-embedded,.sra-card,.sra-table-wrap) :is(table,thead,tbody,tr,td,th){background-color:transparent!important;color:inherit!important;border-color:var(--tegh-line,#334b43)!important}
+html[data-tegh-theme="dark"] :is(.sra-muted,.sra-section-head p,.sra-budget-kpis small){color:var(--tegh-muted,#a7bbb3)!important}
+html[data-tegh-theme="dark"] .sra-section-head h2,html[data-tegh-theme="dark"] .sra-budget-kpis b{color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] tr.r23-summary-row>td,html[data-tegh-theme="dark"] tr.r23-summary-row>th{background:#1d332c!important;color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] :is(.r23-table-meta,.r23-table-meta span,.r23-pagination,.r23-pagination label){color:var(--tegh-muted,#a7bbb3)!important}
+html[data-tegh-theme="dark"] thead.r27-sticky-head th,html[data-tegh-theme="dark"] .srp-table thead th{color:var(--tegh-muted,#a7bbb3)!important}
+html[data-tegh-theme="dark"] tbody>tr>td[data-r22-column],html[data-tegh-theme="dark"] tbody[data-r28-bank-body]>tr>td{background-color:transparent!important;color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] tbody>tr:is(.selected,[aria-selected="true"],.is-selected)>td{background-color:#1f3a32!important}
+html[data-tegh-theme="dark"] :is(.srp-form label,.srp-form legend,.srp-label-text,.srp-form .srp-check){color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] :is(.srp-journal-grid.srp-journal-head,.srp-journal-balance,.srp-recurring-choice,.srp-bank-source,.srp-note,.srp-portal-banner,.r22-trailing-warning,.r22-source-context .srp-note){background:#1b2d28!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+html[data-tegh-theme="dark"] :is(.srp-journal-grid.srp-journal-head b,.srp-portal-banner p,.srp-portal-banner b){color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] .r22-toolbar nav.srp-segmented{background:var(--tegh-surface,#15231f)!important;border-color:var(--tegh-line,#334b43)!important}
+html[data-tegh-theme="dark"] :is(.r28-mode-question,.tegh-doc-mode,.srp-segmented) button:is([aria-pressed="true"],[aria-selected="true"],[aria-current="true"],.active,.is-active){color:#06251d!important}
+html[data-tegh-theme="dark"] .r19-net-line{color:#9fc3ff!important}
+html[data-tegh-theme="dark"] .r17-chart-legend i.net{background:#9fc3ff!important}
+html[data-tegh-theme="dark"] .r17-chart-legend,html[data-tegh-theme="dark"] .r17-profit-totals span{color:var(--tegh-muted,#a7bbb3)!important}
+html[data-tegh-theme="dark"] .r125-dash-intro{background:var(--tegh-surface,#15231f)!important;border-color:var(--tegh-line,#334b43)!important}
+html[data-tegh-theme="dark"] .r125-dash-summary{color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] .srp-sites-stat-card .r125-term{color:var(--tegh-muted,#a7bbb3)!important}
+html[data-tegh-theme="dark"] .srp-sites-stat-card[data-tone="bad"] strong,html[data-tegh-theme="dark"] .r125-chart-plain[data-tone="bad"]{color:#ff8f86!important}
+html[data-tegh-theme="dark"] .srp-sites-stat-card[data-tone="good"] strong,html[data-tegh-theme="dark"] .r125-chart-plain[data-tone="good"]{color:#6fdca6!important}
+html[data-tegh-theme="dark"] .srp-sites-stat-card[data-tone="warn"] small{color:#f2c46b!important}
+html[data-tegh-theme="dark"] .r125-all-done{background:rgba(31,138,91,.18)!important;color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] .tegh-assist-chip{background:#1b2d28!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+html[data-tegh-theme="dark"] .tegh-assist-answer{background:#1b2d28!important}
+html[data-tegh-theme="dark"] .tegh-assist-answer[data-tone="good"]{background:rgba(31,138,91,.18)!important}
+html[data-tegh-theme="dark"] .tegh-assist-answer[data-tone="warn"]{background:rgba(183,121,31,.2)!important}
+html[data-tegh-theme="dark"] .tegh-assist-answer[data-tone="bad"]{background:rgba(192,57,43,.2)!important}
+html[data-tegh-theme="dark"] :is(.tegh-assist-headline,.tegh-command-result>h3){color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] :is(.tegh-assist-detail,.tegh-assist-period,.tegh-assist-you,.tegh-assist-chips-label,.tegh-choice span,.tegh-assist-item span){color:var(--tegh-muted,#a7bbb3)!important}
+html[data-tegh-theme="dark"] .tegh-assist-details>summary{color:#6fdca6!important}
+html[data-tegh-theme="dark"] :is(.tegh-assist-item,.tegh-assist-pin,.tegh-choice){background:transparent!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+html[data-tegh-theme="dark"] .tegh-assist-drawer [data-assist-close]{background:#1b2d28!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+html[data-tegh-theme="dark"] .tegh-assist-using{background:#1b2d28!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+html[data-tegh-theme="dark"] .r122-recon-cards>div{background:#1b2d28!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+html[data-tegh-theme="dark"] .r122-recon-cards>div.ready{background:rgba(31,138,91,.18)!important}
+html[data-tegh-theme="dark"] .r122-recon-cards>div :is(small,span){color:var(--tegh-muted,#a7bbb3)!important}
+html[data-tegh-theme="dark"] .r122-recon-cards>div b{color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] tr.r122-recon-total>td{background:#1d332c!important;color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] .r122-recon-count{color:var(--tegh-muted,#a7bbb3)!important;background:#243b34!important}
+@media (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] .topbar .srp-global-search[data-global-search]{background:var(--tegh-surface,#15231f)!important;border-color:var(--tegh-line,#334b43)!important;color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] .topbar .srp-global-search[data-global-search] :is(input,button,svg){background:transparent!important;color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] .topbar .srp-global-search[data-global-search] input::placeholder{color:var(--tegh-muted,#a7bbb3)!important}
+  html[data-tegh-theme="auto"] :is(.sra-embedded,.sra-body,.sra-card,.sra-table-wrap,.sra-section-head,.sra-budget-kpis article,.sra-grid article){background:var(--tegh-surface,#15231f)!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+  html[data-tegh-theme="auto"] :is(.sra-note,.sra-empty){background:#1b2d28!important;color:var(--tegh-muted,#a7bbb3)!important;border-color:var(--tegh-line,#334b43)!important}
+  html[data-tegh-theme="auto"] :is(.sra-embedded,.sra-card,.sra-table-wrap) :is(table,thead,tbody,tr,td,th){background-color:transparent!important;color:inherit!important;border-color:var(--tegh-line,#334b43)!important}
+  html[data-tegh-theme="auto"] :is(.sra-muted,.sra-section-head p,.sra-budget-kpis small){color:var(--tegh-muted,#a7bbb3)!important}
+  html[data-tegh-theme="auto"] .sra-section-head h2,html[data-tegh-theme="auto"] .sra-budget-kpis b{color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] tr.r23-summary-row>td,html[data-tegh-theme="auto"] tr.r23-summary-row>th{background:#1d332c!important;color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] :is(.r23-table-meta,.r23-table-meta span,.r23-pagination,.r23-pagination label){color:var(--tegh-muted,#a7bbb3)!important}
+  html[data-tegh-theme="auto"] thead.r27-sticky-head th,html[data-tegh-theme="auto"] .srp-table thead th{color:var(--tegh-muted,#a7bbb3)!important}
+  html[data-tegh-theme="auto"] tbody>tr>td[data-r22-column],html[data-tegh-theme="auto"] tbody[data-r28-bank-body]>tr>td{background-color:transparent!important;color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] tbody>tr:is(.selected,[aria-selected="true"],.is-selected)>td{background-color:#1f3a32!important}
+  html[data-tegh-theme="auto"] :is(.srp-form label,.srp-form legend,.srp-label-text,.srp-form .srp-check){color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] :is(.srp-journal-grid.srp-journal-head,.srp-journal-balance,.srp-recurring-choice,.srp-bank-source,.srp-note,.srp-portal-banner,.r22-trailing-warning,.r22-source-context .srp-note){background:#1b2d28!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+  html[data-tegh-theme="auto"] :is(.srp-journal-grid.srp-journal-head b,.srp-portal-banner p,.srp-portal-banner b){color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] .r22-toolbar nav.srp-segmented{background:var(--tegh-surface,#15231f)!important;border-color:var(--tegh-line,#334b43)!important}
+  html[data-tegh-theme="auto"] :is(.r28-mode-question,.tegh-doc-mode,.srp-segmented) button:is([aria-pressed="true"],[aria-selected="true"],[aria-current="true"],.active,.is-active){color:#06251d!important}
+  html[data-tegh-theme="auto"] .r19-net-line{color:#9fc3ff!important}
+  html[data-tegh-theme="auto"] .r17-chart-legend i.net{background:#9fc3ff!important}
+  html[data-tegh-theme="auto"] .r17-chart-legend,html[data-tegh-theme="auto"] .r17-profit-totals span{color:var(--tegh-muted,#a7bbb3)!important}
+  html[data-tegh-theme="auto"] .r125-dash-intro{background:var(--tegh-surface,#15231f)!important;border-color:var(--tegh-line,#334b43)!important}
+  html[data-tegh-theme="auto"] .r125-dash-summary{color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] .srp-sites-stat-card .r125-term{color:var(--tegh-muted,#a7bbb3)!important}
+  html[data-tegh-theme="auto"] .srp-sites-stat-card[data-tone="bad"] strong,html[data-tegh-theme="auto"] .r125-chart-plain[data-tone="bad"]{color:#ff8f86!important}
+  html[data-tegh-theme="auto"] .srp-sites-stat-card[data-tone="good"] strong,html[data-tegh-theme="auto"] .r125-chart-plain[data-tone="good"]{color:#6fdca6!important}
+  html[data-tegh-theme="auto"] .srp-sites-stat-card[data-tone="warn"] small{color:#f2c46b!important}
+  html[data-tegh-theme="auto"] .r125-all-done{background:rgba(31,138,91,.18)!important;color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] .tegh-assist-chip{background:#1b2d28!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+  html[data-tegh-theme="auto"] .tegh-assist-answer{background:#1b2d28!important}
+  html[data-tegh-theme="auto"] .tegh-assist-answer[data-tone="good"]{background:rgba(31,138,91,.18)!important}
+  html[data-tegh-theme="auto"] .tegh-assist-answer[data-tone="warn"]{background:rgba(183,121,31,.2)!important}
+  html[data-tegh-theme="auto"] .tegh-assist-answer[data-tone="bad"]{background:rgba(192,57,43,.2)!important}
+  html[data-tegh-theme="auto"] :is(.tegh-assist-headline,.tegh-command-result>h3){color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] :is(.tegh-assist-detail,.tegh-assist-period,.tegh-assist-you,.tegh-assist-chips-label,.tegh-choice span,.tegh-assist-item span){color:var(--tegh-muted,#a7bbb3)!important}
+  html[data-tegh-theme="auto"] .tegh-assist-details>summary{color:#6fdca6!important}
+  html[data-tegh-theme="auto"] :is(.tegh-assist-item,.tegh-assist-pin,.tegh-choice){background:transparent!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+  html[data-tegh-theme="auto"] .tegh-assist-drawer [data-assist-close]{background:#1b2d28!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+  html[data-tegh-theme="auto"] .tegh-assist-using{background:#1b2d28!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+  html[data-tegh-theme="auto"] .r122-recon-cards>div{background:#1b2d28!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+  html[data-tegh-theme="auto"] .r122-recon-cards>div.ready{background:rgba(31,138,91,.18)!important}
+  html[data-tegh-theme="auto"] .r122-recon-cards>div :is(small,span){color:var(--tegh-muted,#a7bbb3)!important}
+  html[data-tegh-theme="auto"] .r122-recon-cards>div b{color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] tr.r122-recon-total>td{background:#1d332c!important;color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] .r122-recon-count{color:var(--tegh-muted,#a7bbb3)!important;background:#243b34!important}
+}
+html[data-tegh-theme="dark"] :is(form,.r28-bank-tools,.r28-ledger-find,.sra-field,.r22-toolbar-controls,.sra-form) label{color:#c9d8d2!important}
+html[data-tegh-theme="dark"] .r22-toolbar-controls label>span,html[data-tegh-theme="dark"] .sra-budget-search>span{color:#c9d8d2!important}
+html[data-tegh-theme="dark"] tr.r122-recon-line>td{background:transparent!important;color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] .srp-journal-balance b{color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] .srp-journal-balance .difference{color:#ff8f86!important}
+html[data-tegh-theme="dark"] .srp-status.sent,html[data-tegh-theme="dark"] .srp-status.active,html[data-tegh-theme="dark"] .srp-status.matched{color:#6fdca6!important}
+html[data-tegh-theme="dark"] button.r23-record-link,html[data-tegh-theme="dark"] a.r23-record-link{color:#7cc9ff!important}
+html[data-tegh-theme="dark"] .sra-eyebrow{color:#6fdca6!important}
+html[data-tegh-theme="dark"] .tegh-assist-drawer>header p{color:var(--tegh-muted,#a7bbb3)!important}
+@media (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] :is(form,.r28-bank-tools,.r28-ledger-find,.sra-field,.r22-toolbar-controls,.sra-form) label{color:#c9d8d2!important}
+  html[data-tegh-theme="auto"] .r22-toolbar-controls label>span,html[data-tegh-theme="auto"] .sra-budget-search>span{color:#c9d8d2!important}
+  html[data-tegh-theme="auto"] tr.r122-recon-line>td{background:transparent!important;color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] .srp-journal-balance b{color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] .srp-journal-balance .difference{color:#ff8f86!important}
+  html[data-tegh-theme="auto"] .srp-status.sent,html[data-tegh-theme="auto"] .srp-status.active,html[data-tegh-theme="auto"] .srp-status.matched{color:#6fdca6!important}
+  html[data-tegh-theme="auto"] button.r23-record-link,html[data-tegh-theme="auto"] a.r23-record-link{color:#7cc9ff!important}
+  html[data-tegh-theme="auto"] .sra-eyebrow{color:#6fdca6!important}
+  html[data-tegh-theme="auto"] .tegh-assist-drawer>header p{color:var(--tegh-muted,#a7bbb3)!important}
+}
+html[data-tegh-theme="dark"] tr.r122-recon-line,html[data-tegh-theme="dark"] tr.r122-recon-line>td{background:transparent!important}
+@media (prefers-color-scheme:dark){html[data-tegh-theme="auto"] tr.r122-recon-line,html[data-tegh-theme="auto"] tr.r122-recon-line>td{background:transparent!important}}
+html[data-tegh-theme="dark"] .tegh-guided-help-strip>span{background:#1f8a6a!important;color:#fff!important}
+@media (prefers-color-scheme:dark){html[data-tegh-theme="auto"] .tegh-guided-help-strip>span{background:#1f8a6a!important;color:#fff!important}}
+[data-top-more-list] :is(button,a) :is(span,b,strong){white-space:nowrap}
+/* R126 dark top-navigation menus */
+html[data-tegh-theme="dark"] :is(.tegh-top-module-menu,.tegh-top-overflow-options,.tegh-top-more-menu,[data-top-more-list],[data-top-more-detail]){background:var(--tegh-surface,#15231f)!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+html[data-tegh-theme="dark"] :is(.tegh-top-module-menu,.tegh-top-overflow-options) [role="group"]{background:#1b2d28!important;border-color:var(--tegh-line,#334b43)!important}
+html[data-tegh-theme="dark"] :is(.tegh-top-module-menu,.tegh-top-overflow-options,[data-top-more-list],[data-top-more-detail]) :is(button,a){background:transparent!important;color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] :is(.tegh-top-module-menu,.tegh-top-overflow-options,[data-top-more-list],[data-top-more-detail]) :is(button,a):is(:hover,:focus-visible){background:#243b34!important}
+html[data-tegh-theme="dark"] :is(.tegh-top-module-menu,.tegh-top-overflow-options) [role="group"]>small,html[data-tegh-theme="dark"] :is(.tegh-top-module-menu,.tegh-top-overflow-options) em{color:var(--tegh-muted,#a7bbb3)!important}
+@media (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] :is(.tegh-top-module-menu,.tegh-top-overflow-options,.tegh-top-more-menu,[data-top-more-list],[data-top-more-detail]){background:var(--tegh-surface,#15231f)!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+  html[data-tegh-theme="auto"] :is(.tegh-top-module-menu,.tegh-top-overflow-options) [role="group"]{background:#1b2d28!important;border-color:var(--tegh-line,#334b43)!important}
+  html[data-tegh-theme="auto"] :is(.tegh-top-module-menu,.tegh-top-overflow-options,[data-top-more-list],[data-top-more-detail]) :is(button,a){background:transparent!important;color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] :is(.tegh-top-module-menu,.tegh-top-overflow-options,[data-top-more-list],[data-top-more-detail]) :is(button,a):is(:hover,:focus-visible){background:#243b34!important}
+  html[data-tegh-theme="auto"] :is(.tegh-top-module-menu,.tegh-top-overflow-options) [role="group"]>small,html[data-tegh-theme="auto"] :is(.tegh-top-module-menu,.tegh-top-overflow-options) em{color:var(--tegh-muted,#a7bbb3)!important}
+}
+html[data-tegh-theme="dark"] .r17-dashboard-profit label,html[data-tegh-theme="dark"] .r17-dashboard-actions [data-edit-quick-actions]{color:#9fdcc2!important}
+@media (prefers-color-scheme:dark){html[data-tegh-theme="auto"] .r17-dashboard-profit label,html[data-tegh-theme="auto"] .r17-dashboard-actions [data-edit-quick-actions]{color:#9fdcc2!important}}
+html[data-tegh-theme="dark"] .r25-preview-figure>a{background:#1b2d28!important}
+@media (prefers-color-scheme:dark){html[data-tegh-theme="auto"] .r25-preview-figure>a{background:#1b2d28!important}}
+.sra-muted{color:#56655f}
+
+/* 25. R127 Match and Post: one running bank balance from imported statement lines */
+.r127-bank-balance{margin-left:auto;margin-right:14px;display:flex;align-items:center;min-width:0}
+.r127-bank-balance .r127-closing{display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+.r127-bank-balance small{font-size:12px;color:var(--tegh-muted,#5b6b65);font-weight:500}
+.r127-bank-balance b{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--tegh-ink,#12211c)}
+.r127-bank-balance b.r127-neg{color:#b3261e}
+.r127-bank-balance .r127-muted{color:var(--tegh-muted,#5b6b65);font-size:12px}
+@media (max-width:640px){.r127-bank-balance{order:3;flex-basis:100%;margin:4px 0 0}}
+html[data-tegh-theme="dark"] .r127-bank-balance small,html[data-tegh-theme="dark"] .r127-bank-balance .r127-muted{color:#a7bbb3}
+html[data-tegh-theme="dark"] .r127-bank-balance b{color:#edf6f2}
+html[data-tegh-theme="dark"] .r127-bank-balance b.r127-neg{color:#ff8f86}
+@media (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] .r127-bank-balance small,html[data-tegh-theme="auto"] .r127-bank-balance .r127-muted{color:#a7bbb3}
+  html[data-tegh-theme="auto"] .r127-bank-balance b{color:#edf6f2}
+  html[data-tegh-theme="auto"] .r127-bank-balance b.r127-neg{color:#ff8f86}
+}
+/* R127 post an opening balance after creating a customer or vendor */
+.r127-opening{border:1px solid var(--tegh-line,#dde5e1);border-radius:10px;padding:10px 12px;display:grid;gap:10px}
+.r127-opening-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.r127-opening-head span{display:grid;gap:2px}
+.r127-opening-head small,.r127-opening-fields>small{color:var(--tegh-muted,#5b6b65);font-size:12px}
+.r127-opening-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px}
+.r127-opening-fields>small,.r127-opening-actions,.r127-opening-error{grid-column:1/-1}
+.r127-opening-actions{display:flex;gap:8px;flex-wrap:wrap}
+.r127-opening-error{margin:0;color:#b3261e;font-size:13px}
+.r127-opening-error:empty{display:none}
+.r127-opening-fields[hidden]{display:none}
+@media (max-width:640px){.r127-opening-fields{grid-template-columns:1fr}}
+
+/* 26. R129: edit a bank line from the Transactions Report */
+.r129-bank-edit{grid-template-columns:1fr!important}
+.r129-bank-edit label{display:grid;gap:5px}
+.r129-bank-edit textarea{resize:vertical;min-height:58px;font:inherit}
+.r129-bank-edit-pair{display:grid;grid-template-columns:minmax(120px,1fr) minmax(140px,1.4fr);gap:12px}
+@media(max-width:480px){.r129-bank-edit-pair{grid-template-columns:1fr}}
+html[data-tegh-theme="dark"] .r129-bank-edit :is(input,select,textarea){background:var(--tegh-surface,#15231f)!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+@media (prefers-color-scheme:dark){html[data-tegh-theme="auto"] .r129-bank-edit :is(input,select,textarea){background:var(--tegh-surface,#15231f)!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}}
+.r23-dialog-foot .r23-btn.is-primary{background:var(--tegh-emerald,#0f5c4b)!important;border-color:var(--tegh-emerald,#0f5c4b)!important;color:#fff!important}
+/* R129: on phones the bank balance takes its own line so the panel header never squeezes. */
+@media (max-width:640px){.r28-bank-panel>header:has(.r127-bank-balance){flex-wrap:wrap!important;row-gap:6px}.r28-bank-panel>header:has(.r127-bank-balance)>div:first-child{flex:1 1 auto;min-width:0}.r28-bank-panel>header .r127-bank-balance{order:3;flex:1 0 100%!important;margin:0!important}.r28-bank-panel>header .r127-bank-balance .r127-closing{white-space:normal;flex-wrap:wrap}}
+
+/* 27. R130: Payroll Support notice and pay-run review confirmation */
+.payroll-support-notice{display:grid!important;gap:4px;margin:0 0 14px;padding:12px 14px;border:1px solid #e3cf8f;border-left:4px solid #b7862b;border-radius:10px;background:#fdf8ea;color:#4a3b12;font-size:13px;line-height:1.45}
+.payroll-support-notice b{font-size:13.5px;color:#3d300c}
+.payroll-support-notice span{color:#4a3b12}
+.srp-page>.payroll-support-notice{margin:12px 16px 2px}
+.r130-finalize-dialog form{display:grid;gap:12px}
+.r130-finalize-dialog label{display:grid;gap:5px}
+.r130-finalize-dialog .r130-review-check{display:flex!important;align-items:flex-start;gap:9px;padding:10px 12px;border:1px solid var(--tegh-line,#dde5e1);border-radius:9px;font-weight:600;line-height:1.4}
+.r130-finalize-dialog .r130-review-check input{margin-top:3px;flex:none;width:18px;height:18px}
+.r130-finalize-error{margin:0;color:#b3261e;font-size:13px}
+.r130-finalize-dialog button[type="submit"]:disabled{opacity:.55;cursor:not-allowed}
+html[data-tegh-theme="dark"] .payroll-support-notice{background:#2a2412;border-color:#6b5820;border-left-color:#d4a53d;color:#f1e6c4}
+html[data-tegh-theme="dark"] .payroll-support-notice b{color:#fbefcb}
+html[data-tegh-theme="dark"] .payroll-support-notice span{color:#eadfbe}
+html[data-tegh-theme="dark"] .r130-finalize-error{color:#ff8f86}
+@media (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] .payroll-support-notice{background:#2a2412;border-color:#6b5820;border-left-color:#d4a53d;color:#f1e6c4}
+  html[data-tegh-theme="auto"] .payroll-support-notice b{color:#fbefcb}
+  html[data-tegh-theme="auto"] .payroll-support-notice span{color:#eadfbe}
+  html[data-tegh-theme="auto"] .r130-finalize-error{color:#ff8f86}
+}
+.tegh-action-dialog.r130-finalize-dialog{width:min(36rem,calc(100vw - 24px))!important;max-width:calc(100vw - 24px)!important}
+html[data-tegh-theme="dark"] .r130-finalize-dialog>header{background:transparent!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+html[data-tegh-theme="dark"] .r130-finalize-dialog>header h2{color:var(--tegh-ink,#edf6f2)!important}
+html[data-tegh-theme="dark"] .r130-finalize-dialog>header small{color:var(--tegh-muted,#a7bbb3)!important}
+html[data-tegh-theme="dark"] .r130-finalize-dialog>header button{background:transparent!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+@media (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] .r130-finalize-dialog>header{background:transparent!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+  html[data-tegh-theme="auto"] .r130-finalize-dialog>header h2{color:var(--tegh-ink,#edf6f2)!important}
+  html[data-tegh-theme="auto"] .r130-finalize-dialog>header small{color:var(--tegh-muted,#a7bbb3)!important}
+  html[data-tegh-theme="auto"] .r130-finalize-dialog>header button{background:transparent!important;color:var(--tegh-ink,#edf6f2)!important;border-color:var(--tegh-line,#334b43)!important}
+}
+/* R130: the Verified pay-run status stays readable in dark mode (matches Posted). */
+html[data-tegh-theme="dark"] .srp-page .srp-status.verified{color:var(--tegh-ink,#edf6f2)!important;background:rgba(20,120,160,.28)!important;border-color:var(--tegh-line,#334b43)!important}
+@media (prefers-color-scheme:dark){html[data-tegh-theme="auto"] .srp-page .srp-status.verified{color:var(--tegh-ink,#edf6f2)!important;background:rgba(20,120,160,.28)!important;border-color:var(--tegh-line,#334b43)!important}}
+
+/* 28. R131: phone sidebar — modules only, no submenus, reliable touch scrolling */
+@media (max-width:820px){
+  .sidebar .srp-subnav{display:none!important}
+  .sidebar .srp-nav-parent .srp-chevron{display:none!important}
+  .sidebar nav{min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
+}
+/* R131: drawer header — logo and TEGH wordmark sit above the company chip (no overlap). */
+@media (max-width:820px){
+  body.r19-drawer-open:not(.sr-sidebar-collapsed) .sidebar .side-head{height:auto!important;min-height:0!important;flex:none!important}
+  body.r19-drawer-open:not(.sr-sidebar-collapsed) .sidebar .side-head .brand{height:auto!important;min-height:44px!important;max-height:none!important;overflow:visible!important;grid-template-areas:"mark word"!important;flex:none!important}
+  body.r19-drawer-open:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word small{display:none!important}
+  body.r19-drawer-open:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word strong{color:var(--r22-ink,#12211c)!important}
+  html[data-tegh-theme="dark"] body.r19-drawer-open:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word strong{color:#edf6f2!important}
+}
+@media (max-width:820px) and (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] body.r19-drawer-open:not(.sr-sidebar-collapsed) .sidebar .side-head .brand .brand-word strong{color:#edf6f2!important}
+}
+/* R131: drawer readable in dark mode (tegh-mobile-r30 assumed a white drawer). */
+@media (max-width:820px){
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar{background:#10201c!important;color:#edf6f2!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar nav .srp-nav-parent:not([aria-current="page"]),html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar nav [data-srp-label]:not([aria-current="page"]){color:#e3eee9!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar :is(.srp-company-trigger,.srp-company-switcher,.book-context){background:#16302a!important;border-color:#334b43!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar nav :is(.srp-nav-parent,[data-srp-label])[aria-current="page"]{background:#1d3a33!important;color:#9ff0cf!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar .srp-company-trigger :is(b, small, span){color:#edf6f2!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar nav :is(.srp-nav-parent,[data-srp-label])[aria-current="page"] :is(b,span:not(.srp-chevron),svg){color:#9ff0cf!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar section button,html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar section button :is(span,b,svg){color:#edf6f2!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar .srp-company-trigger small{color:#a7bbb3!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar :is(.side-foot button,.side-foot a,[data-r19-drawer-account] b,[data-r19-drawer-account] strong){color:#edf6f2!important}
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar :is(.side-foot small,[data-r19-drawer-account] small){color:#a7bbb3!important}
+  html[data-tegh-theme="dark"] body.r19-drawer-open .r19-drawer-close{background:transparent!important;color:#edf6f2!important;border-color:#334b43!important}
+}
+@media (max-width:820px) and (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar{background:#10201c!important;color:#edf6f2!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar nav .srp-nav-parent:not([aria-current="page"]),html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar nav [data-srp-label]:not([aria-current="page"]){color:#e3eee9!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar :is(.srp-company-trigger,.srp-company-switcher,.book-context){background:#16302a!important;border-color:#334b43!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar nav :is(.srp-nav-parent,[data-srp-label])[aria-current="page"]{background:#1d3a33!important;color:#9ff0cf!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar .srp-company-trigger :is(b, small, span){color:#edf6f2!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar nav :is(.srp-nav-parent,[data-srp-label])[aria-current="page"] :is(b,span:not(.srp-chevron),svg){color:#9ff0cf!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar section button,html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar section button :is(span,b,svg){color:#edf6f2!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar .srp-company-trigger small{color:#a7bbb3!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar :is(.side-foot button,.side-foot a,[data-r19-drawer-account] b,[data-r19-drawer-account] strong){color:#edf6f2!important}
+  html[data-tegh-theme="auto"][data-tegh-shell] body.r19-drawer-open .sidebar :is(.side-foot small,[data-r19-drawer-account] small){color:#a7bbb3!important}
+  html[data-tegh-theme="auto"] body.r19-drawer-open .r19-drawer-close{background:transparent!important;color:#edf6f2!important;border-color:#334b43!important}
+}
+
+/* 29. R132: dashboard shows five summary cards (tax summary added). */
+@media (min-width:1280px){
+  html[data-tegh-activity-shell] body .r22-dashboard-flow>.srp-sites-stat-grid:has(>[data-dashboard-kpi="4"]),
+  html[data-tegh-design] body .srp-sites-stat-grid:has(>[data-dashboard-kpi="4"]){grid-template-columns:repeat(5,minmax(0,1fr))!important}
+}
+@media (max-width:1279px){
+  html body .srp-sites-stat-grid>[data-dashboard-kpi="4"]{grid-column:1/-1}
+}
+
+/* 30. R133: Client Viewing Links (Settings) */
+.srp-page .r133-report-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px 18px;margin:4px 0 6px}
+.srp-page .r133-report-grid label.srp-check{display:flex!important;align-items:center;gap:9px;margin:0!important;font-weight:500!important;min-height:34px;grid-template-columns:none!important}
+.srp-page .r133-report-grid label.srp-check input{width:18px!important;height:18px!important;min-height:0!important;flex:none;margin:0}
+.srp-page .r133-form fieldset{border:1px solid var(--tegh-line,#dde5e1);border-radius:10px;padding:10px 14px}
+.srp-page .r133-form label.r133-email-now{display:flex!important;align-items:center;gap:9px;align-self:end;font-weight:600}
+.srp-page .r133-form label.r133-email-now input{width:18px!important;height:18px!important;min-height:0!important}
+.srp-page .r133-muted{color:var(--tegh-muted,#5b6b65);font-size:13px}
+.srp-page .r133-error{color:#b3261e;margin:0}
+.srp-page .r133-intro ol{margin:6px 0 8px;padding-left:20px;line-height:1.6}
+.srp-page .r133-result{margin-top:14px;padding:14px;border:1px solid #9fd8c3;border-left:4px solid #0f5c4b;border-radius:10px;background:#eef8f3}
+.srp-page .r133-result h3{margin:0 0 4px}
+.srp-page .r133-copy{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.srp-page .r133-copy input{flex:1 1 320px;min-width:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+.srp-page .r133-status{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:700;background:#e7f4ee;color:#0f5c4b}
+.srp-page .r133-status[data-state="expired"]{background:#fdf3e1;color:#8a5a00}
+.srp-page .r133-status[data-state="revoked"]{background:#f1f3f2;color:#5b6b65}
+.srp-page .r133-actions{display:flex;gap:6px;flex-wrap:wrap}
+.srp-page .r133-actions .srp-btn{min-height:32px;padding:4px 10px;font-size:13px}
+.srp-page .r133-edit{padding:8px 4px}
+html[data-tegh-theme="dark"] .srp-page .r133-result{background:#12302a;border-color:#2f6b5a;border-left-color:#2f9f83}
+html[data-tegh-theme="dark"] .srp-page .r133-status{background:#1d3a33;color:#9ff0cf}
+html[data-tegh-theme="dark"] .srp-page .r133-status[data-state="expired"]{background:#3a2e12;color:#f2c46a}
+html[data-tegh-theme="dark"] .srp-page .r133-status[data-state="revoked"]{background:#22302c;color:#a7bbb3}
+html[data-tegh-theme="dark"] .srp-page .r133-error{color:#ff8f86}
+@media (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] .srp-page .r133-result{background:#12302a;border-color:#2f6b5a;border-left-color:#2f9f83}
+  html[data-tegh-theme="auto"] .srp-page .r133-status{background:#1d3a33;color:#9ff0cf}
+  html[data-tegh-theme="auto"] .srp-page .r133-status[data-state="expired"]{background:#3a2e12;color:#f2c46a}
+  html[data-tegh-theme="auto"] .srp-page .r133-status[data-state="revoked"]{background:#22302c;color:#a7bbb3}
+  html[data-tegh-theme="auto"] .srp-page .r133-error{color:#ff8f86}
+}
+
+/* 31. R135: sales tax guide (company setup) and GST/HST + PST on invoices */
+.srp-page .r135-tax-heading{border-top:1px solid #dce6e1;padding-top:12px;margin-top:4px}
+.srp-page .r135-tax-heading h3{margin:0 0 2px;font-size:1rem}
+.srp-page .r135-tax-heading p{margin:0;color:#5b6f68;font-size:.875rem}
+/* The PST checkbox adds a seventh cell to the desktop invoice line; keep the override reason wide. */
+@media (min-width:1101px){html[data-tegh-activity-shell="r22"] .r29-invoice-main .srp-ci-line-grid:has(input[name="pst"])>label.full:has(input[name="taxOverrideReason"]){grid-column:3/-1!important}}
+.srp-page .r135-tax-guide{border:1px solid #cfe3da;border-left:4px solid #1f8a6d;border-radius:12px;background:#f5fbf8;padding:14px 16px;color:#1d2c27;line-height:1.5}
+.srp-page .r135-tax-guide h3{margin:0 0 6px;font-size:1rem}
+.srp-page .r135-tax-guide p{margin:0 0 8px}
+.srp-page .r135-tax-guide ul{margin:8px 0;padding-left:20px}
+.srp-page .r135-tax-guide li{margin:3px 0}
+.srp-page .r135-tax-example{border-collapse:collapse;min-width:min(100%,380px);margin:6px 0 8px;font-variant-numeric:tabular-nums}
+.srp-page .r135-tax-example caption{text-align:left;font-weight:600;padding-bottom:4px;color:#3f5550}
+.srp-page .r135-tax-example td{padding:4px 10px 4px 0;border-bottom:1px solid #dce9e3}
+.srp-page .r135-tax-example td:last-child{text-align:right;padding-right:0;white-space:nowrap}
+.srp-page .r135-tax-example small{display:block;color:#5b6f68;font-size:.78rem}
+.srp-page .r135-tax-example .r135-total td{font-weight:700;border-bottom:0;border-top:2px solid #1f8a6d}
+.srp-page .r135-warn{background:#fdf6e6;border:1px solid #efd9a6;border-radius:8px;padding:8px 10px;color:#5d4300}
+.srp-page .r135-fine{font-size:.82rem;color:#5b6f68;margin:6px 0 0}
+.srp-page .srp-ci-totals.r135-has-pst{grid-template-columns:repeat(4,minmax(0,1fr))}
+.srp-page .srp-ci-line-total [data-ci-tax-split]{display:block;font-size:.75rem;color:#5b6f68;font-weight:400}
+.srp-page .srp-ci-line-total [data-ci-tax-split]:empty{display:none}
+@media (max-width:900px){.srp-page .srp-ci-totals.r135-has-pst{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.srp-page .srp-ci-totals.r135-has-pst{grid-template-columns:1fr}}
+html[data-tegh-theme="dark"] .srp-page .r135-tax-heading{border-color:#2f4a42}html[data-tegh-theme="dark"] .srp-page .r135-tax-heading p{color:#a9bdb6}
+html[data-tegh-theme="dark"] .srp-page .r135-tax-guide{background:#12251f;border-color:#2f5a4c;border-left-color:#2f9f83;color:#e3eeea}
+html[data-tegh-theme="dark"] .srp-page .r135-tax-example caption,html[data-tegh-theme="dark"] .srp-page .r135-tax-example small,html[data-tegh-theme="dark"] .srp-page .r135-fine,html[data-tegh-theme="dark"] .srp-page .srp-ci-line-total [data-ci-tax-split]{color:#a9bdb6}
+html[data-tegh-theme="dark"] .srp-page .r135-tax-example td{border-color:#2a4038}
+html[data-tegh-theme="dark"] .srp-page .r135-warn{background:#3a2e12;border-color:#6b5520;color:#f6dca0}
+@media (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] .srp-page .r135-tax-heading{border-color:#2f4a42}html[data-tegh-theme="auto"] .srp-page .r135-tax-heading p{color:#a9bdb6}
+  html[data-tegh-theme="auto"] .srp-page .r135-tax-guide{background:#12251f;border-color:#2f5a4c;border-left-color:#2f9f83;color:#e3eeea}
+  html[data-tegh-theme="auto"] .srp-page .r135-tax-example caption,html[data-tegh-theme="auto"] .srp-page .r135-tax-example small,html[data-tegh-theme="auto"] .srp-page .r135-fine,html[data-tegh-theme="auto"] .srp-page .srp-ci-line-total [data-ci-tax-split]{color:#a9bdb6}
+  html[data-tegh-theme="auto"] .srp-page .r135-tax-example td{border-color:#2a4038}
+  html[data-tegh-theme="auto"] .srp-page .r135-warn{background:#3a2e12;border-color:#6b5520;color:#f6dca0}
+}
+
+/* 32. R137: Tax Codes page, tax code pickers and per-tax invoice totals */
+.srp-page .r137-comps{display:grid;gap:12px}
+.srp-page .r137-comp{border:1px solid #dce6e1;border-radius:12px;padding:10px 14px 14px;margin:0;display:grid;grid-template-columns:minmax(120px,1fr) minmax(90px,.6fr) minmax(180px,1.4fr) minmax(180px,1.4fr) auto;gap:10px 14px;align-items:end}
+.srp-page .r137-comp legend{font-weight:700;padding:0 6px}
+.srp-page .r137-comp label{display:flex;flex-direction:column;gap:4px;min-width:0}
+.srp-page .r137-starter{display:flex;flex-direction:column;gap:4px;max-width:340px}
+.srp-page .r137-starter small{color:#5b6f68}
+.srp-page .r137-example{display:grid;grid-template-columns:minmax(260px,1fr) minmax(220px,1fr);gap:8px 24px;align-items:start}
+.srp-page .r137-example ul{margin:4px 0;padding-left:20px}
+.srp-page .r137-codes td small{display:block;color:#5b6f68}
+.srp-page .r137-codes td>div+div{margin-top:4px}
+.srp-page .srp-ci-totals.r137-totals{grid-template-columns:repeat(var(--r137-cols,3),minmax(0,1fr))}
+.srp-page .r137-line-code small,.srp-page .r137-purchase-code small{color:#5b6f68;font-weight:400}
+@media (max-width:900px){.srp-page .r137-comp{grid-template-columns:1fr 1fr}.srp-page .r137-example{grid-template-columns:1fr}.srp-page .srp-ci-totals.r137-totals{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.srp-page .r137-comp{grid-template-columns:1fr}.srp-page .srp-ci-totals.r137-totals{grid-template-columns:1fr}}
+html[data-tegh-theme="dark"] .srp-page .r137-comp{border-color:#2f4a42}
+html[data-tegh-theme="dark"] .srp-page :is(.r137-codes td small,.r137-starter small,.r137-line-code small,.r137-purchase-code small){color:#a9bdb6}
+@media (prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] .srp-page .r137-comp{border-color:#2f4a42}
+  html[data-tegh-theme="auto"] .srp-page :is(.r137-codes td small,.r137-starter small,.r137-line-code small,.r137-purchase-code small){color:#a9bdb6}
+}
+@media (min-width:1101px){html[data-tegh-activity-shell="r22"] .r29-invoice-main .srp-ci-line-grid>label.full.r137-line-code,html[data-tegh-activity-shell="r22"] .srp-ci-line-grid>label.r137-line-code{grid-column:span 2!important}}
+.srp-page .r137-line-code select{min-width:0;width:100%}
+.srp-page .r137-codes td small,.srp-page .r137-codes td>div{white-space:normal;overflow-wrap:anywhere}
+.srp-page .srp-ci-line-total>span:has([data-ci-tax-split]){flex-wrap:wrap;row-gap:2px}
+.srp-page .srp-ci-line-total [data-ci-tax-split]{flex-basis:100%}
+.srp-page .r138-seed{align-items:center;gap:12px;margin:8px 0}
+.srp-page .r138-seed small{color:#5b6f68;max-width:640px}
+html[data-tegh-theme="dark"] .srp-page .r138-seed small{color:#a9bdb6}
+
+/* R140: an invoice/vendor-invoice layout that is not the page's designated
+   scroll area (no r22-fill-path) must not be a scroll box. As a non-scrolling
+   overflow:auto box with overscroll-behavior:contain it captured touch swipes
+   on phones (iOS Safari), so the New Vendor Invoice form could not be scrolled.
+   The workspace or page scrolls instead, as on the customer invoice form. */
+html[data-tegh-shell] .srp-page[data-r29-reference] .r29-invoice-layout:not(.r22-fill-path){overflow:visible!important;overscroll-behavior:auto!important}
+
+/* R141: dashboard figures, tax code report, country + province fields. */
+.srp-page .r141-dash-card{border:1px solid var(--tegh-line,#cad5df);border-radius:10px;padding:12px 14px;margin:12px 0;display:grid;gap:8px;min-width:0}
+.srp-page .r141-dash-card legend{padding:0 6px}
+.srp-page .r141-dash-card legend small{color:#5b6f68;margin-left:6px}
+.srp-page .r141-dash-list{display:grid;gap:6px;margin-top:6px;min-width:0}
+.srp-page .r141-dash-accounts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 14px;max-height:240px;overflow:auto;padding:6px;border:1px solid var(--tegh-line,#cad5df);border-radius:8px}
+.srp-page .r141-tcr-actions{align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0}
+.srp-page .r141-tcr td small{line-height:1.35}
+.srp-modal .r141-location,.srp-page .r141-location{display:grid;gap:8px;min-width:0}
+html[data-tegh-theme="dark"] .srp-page .r141-dash-card legend small{color:#a9bdb6}
+@media(max-width:720px){.srp-page .r141-dash-accounts{grid-template-columns:1fr}}
+
+/* R142: CRA rate tables line under the Payroll Support notice */
+.payroll-support-notice [data-payroll-rate-tables]{display:block;grid-column:1/-1;flex-basis:100%;margin-top:4px;font-size:.85em;line-height:1.4;opacity:.85}
+.payroll-support-notice [data-payroll-rate-tables][hidden]{display:none}
+
+/* R143: recorded payment found for a bank line (Match and Post) */
+.r143-recorded-payment{margin:0 0 14px;padding:12px 14px;border:1px solid #9fd3c7;border-left:4px solid #0f766e;border-radius:10px;background:#ecfdf8;color:#134e48}
+.r143-recorded-payment>b{display:block;font-size:14px;margin-bottom:2px}
+.r143-recorded-payment p{margin:0 0 8px;font-size:13px}
+.r143-recorded-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px solid #c7e9e0}
+.r143-recorded-row span{font-size:13px;min-width:0;overflow-wrap:anywhere}
+html[data-tegh-theme="dark"] .r143-recorded-payment{background:#0f2f2b;border-color:#1f5f56;border-left-color:#2dd4bf;color:#d5f5ee}
+html[data-tegh-theme="dark"] .r143-recorded-row{border-top-color:#1f5f56}
+
+/* R144: Tegh Intelligence */
+.r144-brief{grid-column:1/-1;margin-top:12px;padding:14px 16px;border:1px solid #cfe5df;border-radius:12px;background:#f6fbf9}
+.r144-brief header,.r144-card .srp-section-title{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.r144-brief header b{font-size:15px;color:#0f3d36}.r144-brief header small{color:#5b6f6a}.r144-brief header .srp-btn{margin-left:auto}
+.r144-brief-list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.r144-brief-list li{display:flex;gap:10px;align-items:flex-start}
+.r144-brief-list button{all:unset;cursor:pointer;color:#173b34;line-height:1.45;font-size:14px}
+.r144-brief-list button:hover,.r144-brief-list button:focus-visible{text-decoration:underline;outline:none}
+.r144-dot{flex:0 0 8px;height:8px;margin-top:7px;border-radius:50%;background:#7b8b87}
+.r144-brief-list li[data-tone="good"] .r144-dot{background:#0f766e}.r144-brief-list li[data-tone="warn"] .r144-dot{background:#b7862b}.r144-brief-list li[data-tone="bad"] .r144-dot{background:#b42318}
+.r144-muted,.r144-empty{color:#5b6f6a;margin:8px 0 0}
+.r144-findings,.r144-chase{margin:12px 0 0;padding:0;display:grid;gap:10px}
+.r144-findings{list-style:none}
+.r144-findings li{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:space-between;padding:12px 14px;border:1px solid #e3e8e6;border-left:4px solid #b7862b;border-radius:10px;background:#fff}
+.r144-findings li[data-severity="high"]{border-left-color:#b42318}.r144-findings li[data-dismissed]{opacity:.6}
+.r144-findings li>div:first-child{flex:1 1 320px;min-width:0}.r144-findings p{margin:4px 0 0;color:#40514d;overflow-wrap:anywhere}
+.r144-sev{display:inline-block;margin-right:8px;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:700;background:#fdf3dd;color:#7a5410}
+.r144-findings li[data-severity="high"] .r144-sev{background:#fde7e5;color:#912018}
+.r144-actions{display:flex;gap:8px;align-items:center}
+.r144-chase{padding-left:20px}.r144-chase li span{display:block;color:#40514d;font-size:13px}
+.r144-runway{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:flex-end;margin-top:10px}
+.r144-runway small{display:block;color:#5b6f6a}.r144-runway strong{font-size:22px;color:#0f3d36}
+.r144-whatif{display:grid;gap:4px;flex:1 1 260px;font-size:13px}.r144-whatif input{max-width:200px}
+.r144-chart{margin:14px 0 0}.r144-chart svg{width:100%;max-width:620px;height:auto;display:block}
+.r144-chart .r144-axis{stroke:#9aa9a5;stroke-width:1}
+.r144-chart .r144-bar.up rect{fill:#0d9488}.r144-chart .r144-bar.down rect{fill:#c2410c}
+.r144-chart text{font-size:11px;fill:#40514d}.r144-chart figcaption{font-size:12px;color:#5b6f6a}
+.r144-table{margin-top:8px}
+.r144-suggestion{margin:0 0 14px;padding:12px 14px;border:1px solid #c8d8f0;border-left:4px solid #2f5fa7;border-radius:10px;background:#f2f6fc;color:#1c3557}
+.r144-suggestion-head{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}.r144-suggestion p{margin:4px 0 8px;font-size:13px}
+.r144-confidence{padding:1px 8px;border-radius:999px;font-size:12px;font-weight:700;background:#e3ecf9}
+.r144-confidence[data-level="high"]{background:#dff3ec;color:#0b5d55}.r144-confidence[data-level="low"]{background:#fdf3dd;color:#7a5410}
+.r144-books-answer{display:grid;gap:8px}.r144-answer-text{font-size:15px;margin:0}.r144-books-answer small{color:#5b6f6a}
+html[data-tegh-theme="dark"] .r144-brief{background:#11221f;border-color:#244a43}
+html[data-tegh-theme="dark"] .r144-brief header b,html[data-tegh-theme="dark"] .r144-runway strong{color:#d5f5ee}
+html[data-tegh-theme="dark"] .r144-brief-list button{color:#e3ece9}
+html[data-tegh-theme="dark"] .r144-findings li{background:#162321;border-color:#2b3b38}
+html[data-tegh-theme="dark"] .r144-findings p,html[data-tegh-theme="dark"] .r144-chase li span,html[data-tegh-theme="dark"] .r144-muted,html[data-tegh-theme="dark"] .r144-empty,html[data-tegh-theme="dark"] .r144-runway small,html[data-tegh-theme="dark"] .r144-chart figcaption,html[data-tegh-theme="dark"] .r144-books-answer small{color:#b6c6c2}
+html[data-tegh-theme="dark"] .r144-chart text{fill:#b6c6c2}
+html[data-tegh-theme="dark"] .r144-chart .r144-bar.up rect{fill:#11a090}html[data-tegh-theme="dark"] .r144-chart .r144-bar.down rect{fill:#e06c2c}
+html[data-tegh-theme="dark"] .r144-suggestion{background:#14213a;border-color:#2c4672;border-left-color:#7aa7ee;color:#dbe7fb}
+html[data-tegh-theme="dark"] .r144-confidence{background:#22365a;color:#dbe7fb}
+html[data-tegh-theme="dark"] .r144-sev{background:#3a2f12;color:#f6d58b}html[data-tegh-theme="dark"] .r144-findings li[data-severity="high"] .r144-sev{background:#3d1714;color:#f7b4ad}
+@media (max-width:640px){.r144-brief header .srp-btn{margin-left:0}.r144-actions{width:100%}.r144-actions .srp-btn{flex:1}.r144-runway strong{font-size:19px}}
+/* R145 Document Intake review aids */
+.tegh-date-choices{margin:0;padding:10px 12px;border:1px solid #e7b56a;border-radius:9px;background:#fff6e6;color:#6b3d00;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tegh-date-choices [aria-pressed=true]{outline:2px solid #0d9488;outline-offset:1px}
+.tegh-amount-check{margin:0;font-weight:600;min-height:1em}.tegh-amount-check[data-state=ok]{color:#0f6b4f}.tegh-amount-check[data-state=warn]{color:#8a4b00}
+html[data-tegh-theme="dark"] .tegh-date-choices{background:#352605;border-color:#8a5d16;color:#ffe2b0}
+html[data-tegh-theme="dark"] .tegh-amount-check[data-state=ok]{color:#7ee0b8}html[data-tegh-theme="dark"] .tegh-amount-check[data-state=warn]{color:#ffc46b}
+/* R145 DEF-14: inside the header "Upload document" menu the three-column upload grid squeezed the submit button to ~35px wide and pushed it off the panel. Stack it. */
+.r22-menu-panel :is(.tegh-document-upload,.tegh-collection-prepare){display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px;align-items:stretch!important}
+.r22-menu-panel :is(.tegh-document-upload,.tegh-collection-prepare)>*{min-width:0;max-width:100%}
+.r22-menu-panel :is(.tegh-document-upload,.tegh-collection-prepare) button[type=submit]{width:100%;height:auto;min-height:40px;white-space:normal}
+.r22-menu-panel :is(.tegh-document-upload,.tegh-collection-prepare) input[type=file]{width:100%;max-width:100%}
+/* R148 Create account tab: invitation-only explanation, pasted link, invitation details */
+#sr-invite-needed .sr-invite-steps{margin:0 0 14px;padding-left:20px;display:grid;gap:6px;color:var(--color-muted,#4f625b);line-height:1.5}
+#sr-invite-needed [data-invite-needed-message][data-state=error]{padding:10px 12px;border-radius:10px;border:1px solid #e7b56a;background:#fff6e6;color:#6b3d00}
+.sr-invite-hint{display:block;margin:-6px 0 12px;color:var(--color-muted,#4f625b);font-size:.85rem}
+.sr-invite-alt{margin:14px 0 0;font-size:.9rem;color:var(--color-muted,#4f625b);line-height:1.6}
+.sr-invite-alt .sr-gate-link{display:inline;padding:0;border:0;background:none;font:inherit;color:inherit;text-decoration:underline;cursor:pointer}
+#sr-invite-companies:not(:empty){margin:0 0 12px;padding:10px 12px;border-radius:10px;background:var(--color-paper,#f4f7f5);font-weight:600}
+.sr-gate-choice [role=tab]:focus-visible{outline:3px solid #0d9488;outline-offset:2px}
+html[data-tegh-theme="dark"] #sr-invite-needed [data-invite-needed-message][data-state=error]{background:#352605;border-color:#8a5d16;color:#ffe2b0}
+html[data-tegh-theme="dark"] #sr-invite-companies:not(:empty){background:#13211d}
+/* R148: Terms acceptance on the invitation and sign-up forms — a normal checkbox beside its text (a general input style
+   stretched it into a large box on its own line) */
+.sr-gate-form .sr-gate-check{display:flex!important;flex-direction:row!important;align-items:flex-start;gap:10px;font-weight:500}
+.sr-gate-form .sr-gate-check input[type=checkbox]{width:18px!important;height:18px!important;min-width:18px;min-height:0!important;flex:0 0 18px;margin:2px 0 0!important;padding:0!important;border-radius:4px;box-shadow:none!important;accent-color:#0d7d68}
+/* R149 invitation code field */
+#sr-invite-needed .sr-invite-code{font-family:Consolas,Menlo,"SFMono-Regular",monospace;font-size:1.15rem;letter-spacing:.18em;text-transform:uppercase}
+#sr-invite-needed [aria-invalid=true]{border-color:#b45309!important;box-shadow:0 0 0 3px #f59e0b33!important}
