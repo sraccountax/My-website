@@ -1,4 +1,4 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R148 IONOS STAGING CANDIDATE
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R149 IONOS STAGING CANDIDATE
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -37,10 +37,11 @@ R145: Bank Statement Converter reads statements by column position (withdrawals/
 R146: fixes the R145 OCR clean-up, which blacked out clean scans with little text so OCR read nothing (DEF-16). No migration. See R146-CHANGES.md.
 R147: the owner's public-page update (17 pages, including Privacy and Terms version 2026-10-01, which need owner/legal approval) and the site root now opens the home page instead of the app; Sign In and all emailed links still go to app.html. No application change, no migration. See R147-CHANGES.md.
 R148: the sign-in screen has two tabs, Sign in and Create account. Opening an invitation link creates the account on the Create account tab (name, password, terms); without a link the tab explains the invitation-only beta and accepts a pasted invitation link; expired links are explained. The person's typed name is stored. No migration. See R148-CHANGES.md.
+R149: invitations carry a 10-character invitation code instead of a link. The invited person enters their email address and the code on the Create account tab, then their name and password. Codes work only with the invited email, once, for 72 hours; wrong codes are limited to 10 per 15 minutes. Links sent before R149 keep working until they expire. No migration. See R149-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json
-and tegh-build.json all identify this package as R148; per-file hashes kept in
+and tegh-build.json all identify this package as R149; per-file hashes kept in
 their "history" sections record earlier releases and are not expected to match.
 
 Fresh installation (empty database): upload the package, put config.php outside

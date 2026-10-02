@@ -955,3 +955,6 @@ html[data-tegh-theme="dark"] #sr-invite-companies:not(:empty){background:#13211d
    stretched it into a large box on its own line) */
 .sr-gate-form .sr-gate-check{display:flex!important;flex-direction:row!important;align-items:flex-start;gap:10px;font-weight:500}
 .sr-gate-form .sr-gate-check input[type=checkbox]{width:18px!important;height:18px!important;min-width:18px;min-height:0!important;flex:0 0 18px;margin:2px 0 0!important;padding:0!important;border-radius:4px;box-shadow:none!important;accent-color:#0d7d68}
+/* R149 invitation code field */
+#sr-invite-needed .sr-invite-code{font-family:Consolas,Menlo,"SFMono-Regular",monospace;font-size:1.15rem;letter-spacing:.18em;text-transform:uppercase}
+#sr-invite-needed [aria-invalid=true]{border-color:#b45309!important;box-shadow:0 0 0 3px #f59e0b33!important}

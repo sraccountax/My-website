@@ -16,7 +16,7 @@
 
 <!-- R139: no third-party analytics or session recording in the signed-in app (accounting data stays in Tegh). -->
 
-<script src="/assets/tegh-preflight-v5990.js?v=5990-r148-tegh"></script>
+<script src="/assets/tegh-preflight-v5990.js?v=5990-r149-tegh"></script>
 
 
 
@@ -39,7 +39,7 @@
 
 <script defer="" src="/assets/tegh-motion-v5700.js?v=5700-r28-s16ah-scroll-hit-test-correction"></script>
 <script defer="" src="/assets/tegh-experience-v5700.js?v=5700"></script>
-<script defer="" src="/assets/tegh-gate-v5990.js?v=5990-r148-tegh"></script>
+<script defer="" src="/assets/tegh-gate-v5990.js?v=5990-r149-tegh"></script>
 <meta content="5.9.9 / Build 5990" name="tegh-release"/><style>[data-registration-cta][hidden]{display:none!important}</style>
 
 
@@ -54,9 +54,9 @@
 <link rel="stylesheet" href="/assets/tegh-r27.css?v=5990-r29-s17c-reference-layouts">
 <link rel="stylesheet" href="/assets/tegh-reference-r29.css?v=5990-r64-product-gl-editor">
 <link rel="stylesheet" href="/assets/tegh-mobile-r30.css?v=5990-r98-mobile-final">
-<link rel="stylesheet" href="/assets/tegh-polish-r32.css?v=5990-r148-tegh">
-<link rel="stylesheet" href="/assets/tegh-r119.css?v=5990-r148-tegh">
-<link rel="stylesheet" href="/assets/tegh-r120.css?v=5990-r148-tegh">
+<link rel="stylesheet" href="/assets/tegh-polish-r32.css?v=5990-r149-tegh">
+<link rel="stylesheet" href="/assets/tegh-r119.css?v=5990-r149-tegh">
+<link rel="stylesheet" href="/assets/tegh-r120.css?v=5990-r149-tegh">
 </head>
 <body>
 <section aria-label="Opening Your Workspace" aria-live="polite" class="sr-session-loader" id="sr-session-loader">
@@ -113,11 +113,12 @@
 </form>
 <form aria-labelledby="sr-choose-register" class="sr-gate-form" hidden="" id="sr-invite-needed" novalidate="" role="tabpanel">
 <h2>Create your account</h2>
-<p data-invite-needed-message>Tegh is in an invitation-only beta. Accounts are created from the invitation email sent by a Tegh administrator or by the company that is adding you.</p>
-<ol class="sr-invite-steps"><li>Open the email titled <b>“Set up your Tegh account”</b>.</li><li>Select the link in the email. This page opens with your invitation.</li><li>Enter your name and choose a password.</li></ol>
-<label>Invitation link<input autocomplete="off" name="inviteLink" placeholder="Paste the link from your invitation email" type="text"/></label>
-<small class="sr-invite-hint">If the link in the email does not open, copy it and paste it here.</small>
-<button class="sr-gate-primary" type="submit">Continue with invitation</button>
+<p data-invite-needed-message>Tegh is in an invitation-only beta. When you are invited, you receive an email titled <b>“Set up your Tegh account”</b> with a 10-character invitation code.</p>
+<label>Email address<input autocomplete="email" inputmode="email" name="inviteEmail" required="" type="email"/></label>
+<small class="sr-invite-hint">The address the invitation was sent to.</small>
+<label>Invitation code<input autocapitalize="characters" autocomplete="one-time-code" class="sr-invite-code" maxlength="11" name="inviteCode" placeholder="XXXXX-XXXXX" required="" spellcheck="false" type="text"/></label>
+<small class="sr-invite-hint">Letters and numbers from the email, for example K7M2Q-PX9RT. The code can be used once and expires 72 hours after it was sent.</small>
+<button class="sr-gate-primary" type="submit">Continue</button>
 <p class="sr-invite-alt">No invitation yet? <a href="/contact.html">Ask for beta access</a>. Already have an account? <button class="sr-gate-link" data-show-login="" type="button">Sign in</button></p>
 </form>
 <form aria-labelledby="sr-choose-register" class="sr-gate-form" hidden="" id="sr-invite-form" novalidate="" role="tabpanel">
@@ -130,7 +131,7 @@
 <label data-invite-confirm>Confirm password<input autocomplete="new-password" name="confirm" required="" type="password"/></label>
 <label class="sr-gate-check"><input name="acceptTerms" type="checkbox" required=""/><span>I accept the <a href="/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</span></label>
 <button class="sr-gate-primary" type="submit">Create account</button>
-<p class="sr-invite-alt" data-invite-existing hidden>Forgot your password? <a href="#" data-invite-forgot>Reset it</a>, then open this invitation link again.</p>
+<p class="sr-invite-alt" data-invite-existing hidden>Forgot your password? <a href="#" data-invite-forgot>Reset it</a>, then enter your invitation code again.</p>
 </form>
 <form class="sr-gate-form" hidden="" id="sr-setup-form" novalidate="">
 <h2>Create the owner account</h2>

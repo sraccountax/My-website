@@ -3,7 +3,7 @@
 
   const VERSION = '5.9.9';
   const BUILD = '5990';
-  const ASSET_REVISION = '5990-r148-tegh';
+  const ASSET_REVISION = '5990-r149-tegh';
   const AUTH_CACHE_MS = 60000;
   const POST_COMMIT_SESSION_GRACE_MS = 45000;
   const RECOVERY_MARKER_KEY = 'tegh-session-recovery-v5990';
@@ -96,6 +96,9 @@
   // Referer headers. Older links with ?accountSetup= still work.
   const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
   let inviteToken = hashParams.get('accountSetup') || params.get('accountSetup') || params.get('invite') || '';
+  // R149: invitations are opened with the invited email + the 10-character code from the email ({email, code}).
+  let inviteCode = null;
+  const inviteRequestBody = () => inviteToken ? {token: inviteToken} : {email: inviteCode?.email || '', code: inviteCode?.code || ''};
   const passwordResetToken = hashParams.get('passwordReset') || params.get('passwordReset') || '';
   if ((hashParams.has('accountSetup') || hashParams.has('passwordReset')) && window.history?.replaceState) {
     // Keep the token in memory only; remove it from the address bar and history.
@@ -1111,7 +1114,7 @@
     authSecurityPromise = request('auth/security', {method:'GET'}, 8000).then((profile) => {
       // R148: the Create account tab is always shown. Without public sign-up it explains the invitation flow.
       if(showRegisterButton)showRegisterButton.hidden=false;
-      if(!profile.publicSignupEnabled&&!inviteToken&&registerForm&&!registerForm.hidden)showInviteNeeded();
+      if(!profile.publicSignupEnabled&&!inviteToken&&!inviteCode&&registerForm&&!registerForm.hidden)showInviteNeeded();
       authSecurity = {...authSecurity, ...(profile || {})};
       authSecurity.loginFailureThreshold = Math.max(1, Number(authSecurity.loginFailureThreshold || 2));
       return authSecurity;
@@ -1578,7 +1581,7 @@
       const selected=button.id===(which==='register'?'sr-choose-register':'sr-choose-login');
       button.setAttribute('aria-selected',selected?'true':'false');
       button.tabIndex=selected?0:-1;
-      if(button.id==='sr-choose-register')button.setAttribute('aria-controls',inviteToken?'sr-invite-form':(registerForm&&!registerForm.hidden?'sr-register-form':'sr-invite-needed'));
+      if(button.id==='sr-choose-register')button.setAttribute('aria-controls',(inviteToken||inviteCode)?'sr-invite-form':(registerForm&&!registerForm.hidden?'sr-register-form':'sr-invite-needed'));
       button.classList.toggle('active',selected);
     });
   }
@@ -1804,7 +1807,7 @@
   // sign-up when the server allows it, else an explanation of the invitation-only beta with a paste box.
   async function openCreateAccount(){
     clearError();
-    if(inviteToken){if(inviteDetails){showOnlyForm(inviteForm);markChoice('register');setProgress('Account setup is ready.','Enter your details to continue.',false);return}return showInvitation()}
+    if(inviteToken||inviteCode){if(inviteDetails){showOnlyForm(inviteForm);markChoice('register');setProgress('Account setup is ready.','Enter your details to continue.',false);return}return showInvitation()}
     const p=await loadAuthSecurity(true);
     if(!p.publicSignupEnabled)return showInviteNeeded();
     showOnlyForm(registerForm);markChoice('register');setProgress('Create your Tegh account.','All released native modules are included; company permissions still apply.',false);await renderCaptcha('register')}
@@ -1812,20 +1815,20 @@
     document.documentElement.classList.remove('sr-gate-session-pending');
     showOnlyForm(inviteNeeded);markChoice('register');
     const note=inviteNeeded?.querySelector('[data-invite-needed-message]');
-    if(note){note.dataset.state=message?'error':'';note.textContent=message||'Tegh is in an invitation-only beta. Accounts are created from the invitation email sent by a Tegh administrator or by the company that is adding you.'}
-    setProgress(message?'This invitation can’t be used.':'Create your account from your invitation.',message?'Ask the person who invited you to send a new invitation, or sign in if you already have an account.':'Open the link in your invitation email, or paste it here.',false);
+    if(note){note.dataset.state=message?'error':'';if(message)note.textContent=message;else note.innerHTML='Tegh is in an invitation-only beta. When you are invited, you receive an email titled <b>“Set up your Tegh account”</b> with a 10-character invitation code.'}
+    setProgress(message?'Check the email address and code.':'Create your account with your invitation code.',message?'Ask the person who invited you to send a new invitation if the code has expired, or sign in if you already have an account.':'Enter the email address the invitation was sent to and the code from the email.',false);
   }
-  // Accepts the full emailed link (token after # or ?) or the bare token.
-  function tokenFromInviteLink(value){
-    const text=String(value||'').trim();if(!text)return '';
-    try{const url=new URL(text,window.location.origin);const h=new URLSearchParams((url.hash||'').replace(/^#/,''));const t=h.get('accountSetup')||url.searchParams.get('accountSetup')||url.searchParams.get('invite')||'';if(t)return t}catch(_){}
-    return /^[A-Za-z0-9_-]{32,256}$/.test(text)?text:'';
-  }
+  const INVITE_CODE_ALPHABET='23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+  const normalizeInviteCode=value=>String(value||'').toUpperCase().replace(/[\s-]+/g,'');
+  // Show the code as XXXXX-XXXXX while it is typed or pasted.
+  inviteNeeded?.inviteCode?.addEventListener('input',(event)=>{const input=event.target;const raw=normalizeInviteCode(input.value).replace(/[^A-Z0-9]/g,'').slice(0,10);input.value=raw.length>5?`${raw.slice(0,5)}-${raw.slice(5)}`:raw;input.removeAttribute('aria-invalid')});
   inviteNeeded?.addEventListener('submit',(event)=>{
     event.preventDefault();clearError();
-    const token=tokenFromInviteLink(inviteNeeded.inviteLink.value);
-    if(!token){inviteNeeded.inviteLink.setAttribute('aria-invalid','true');const note=inviteNeeded.querySelector('[data-invite-needed-message]');if(note){note.dataset.state='error';note.textContent='That doesn’t look like a Tegh invitation link. Copy the whole link from the “Set up your Tegh account” email and paste it again.'}inviteNeeded.inviteLink.focus();return}
-    inviteNeeded.inviteLink.removeAttribute('aria-invalid');inviteToken=token;inviteDetails=null;inviteNeeded.inviteLink.value='';showInvitation();
+    const email=String(inviteNeeded.inviteEmail.value||'').trim(),code=normalizeInviteCode(inviteNeeded.inviteCode.value);
+    const note=inviteNeeded.querySelector('[data-invite-needed-message]');const say=(text,field)=>{if(note){note.dataset.state='error';note.textContent=text}field?.setAttribute('aria-invalid','true');field?.focus()};
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return say('Enter the email address the invitation was sent to.',inviteNeeded.inviteEmail);
+    if(code.length!==10||[...code].some(c=>!INVITE_CODE_ALPHABET.includes(c)))return say('The invitation code has 10 letters and numbers, for example K7M2Q-PX9RT. It never contains 0, 1, O, I or L.',inviteNeeded.inviteCode);
+    inviteToken='';inviteCode={email,code};inviteDetails=null;showInvitation();
   });
   // Left/right arrow keys move between the two tabs (WAI-ARIA tabs pattern).
   document.querySelector('.sr-gate-choice')?.addEventListener('keydown',(event)=>{
@@ -1849,7 +1852,7 @@
     document.documentElement.classList.remove('sr-gate-session-pending');
     setProgress('Checking account setup…','Confirming the secure link.',true);
     try{
-      inviteDetails=await request('platform/invite-details',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:inviteToken})},88000);
+      inviteDetails=await request('platform/invite-details',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(inviteRequestBody())},88000);
       const item=inviteDetails.invitation||{};
       inviteForm.invitedEmail.value=item.email||'';
       const invitedCompanies=document.getElementById('sr-invite-companies');if(invitedCompanies)invitedCompanies.textContent=(item.assignments||[]).map(x=>`${x.companyName} — ${x.roleLabel||x.role}`).join(' · ')||(item.scope==='workspace'?'Independent workspace':'');
@@ -1863,8 +1866,10 @@
       setProgress('Account setup is ready.','Enter your password to continue.',false);
     }catch(error){
       // Expired, used or mistyped links: explain in the Create account tab and keep Sign in one click away.
-      inviteToken='';inviteDetails=null;
-      if(error?.status===410||error?.status===404||/invitation/i.test(String(error?.code||'')))showInviteNeeded('This invitation link has expired or has already been used.');
+      const byCode=!!inviteCode;inviteToken='';inviteCode=null;inviteDetails=null;
+      if(error?.status===429)showInviteNeeded('Too many attempts. Wait 15 minutes, then try again.');
+      else if(byCode&&(error?.status===410||error?.status===422))showInviteNeeded('That email address and invitation code don’t match an open invitation. Check both against your email. Codes expire 72 hours after they are sent.');
+      else if(error?.status===410||error?.status===404||/invitation/i.test(String(error?.code||'')))showInviteNeeded('This invitation link has expired or has already been used. Ask for a new invitation; new invitations use a code.');
       else showError(error,'platform/invite-details');
     }
   }
@@ -1874,7 +1879,7 @@
     event.preventDefault();if(opening)return;clearError();const form=event.currentTarget;if(!form.reportValidity())return;
     const button=form.querySelector('button[type="submit"]');if(!button)return;button.disabled=true;setProgress('Setting up your account…','Opening your secure workspace.',true);
     try{
-      const result=await request('platform/invite-accept',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:inviteToken,displayName:inviteDetails?.invitation?.existingUser?'':(form.displayName?.value||'').trim(),password:form.password.value,confirmPassword:form.confirm.value,acceptTerms:form.acceptTerms.checked,termsVersion:inviteDetails?.invitation?.termsVersion,privacyVersion:inviteDetails?.invitation?.privacyVersion})},90000);
+      const result=await request('platform/invite-accept',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...inviteRequestBody(),displayName:inviteDetails?.invitation?.existingUser?'':(form.displayName?.value||'').trim(),password:form.password.value,confirmPassword:form.confirm.value,acceptTerms:form.acceptTerms.checked,termsVersion:inviteDetails?.invitation?.termsVersion,privacyVersion:inviteDetails?.invitation?.privacyVersion})},90000);
       if(!result.auth) throw Object.assign(new Error('The account was set up. Sign in using the email that received the setup link.'),{route:'platform/invite-accept',code:'account_setup_signin_required'});
       history.replaceState({},'','/app.html');await openApplication(await confirmFreshSession(result.auth));
     }catch(error){button.disabled=false;showError(error,'platform/invite-accept')}

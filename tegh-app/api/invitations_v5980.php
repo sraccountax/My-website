@@ -42,12 +42,45 @@ function tegh_invitation_cipher(string $value,bool $decrypt=false): string
     $raw=base64_decode($value,true);if($raw===false||strlen($raw)<29)throw new RuntimeException('Invalid encrypted invitation record.');
     $plain=openssl_decrypt(substr($raw,28),'aes-256-gcm',$key,OPENSSL_RAW_DATA,substr($raw,0,12),substr($raw,12,16),'Tegh invitation token');if($plain===false)throw new RuntimeException('Invitation outbox could not be decrypted.');return $plain;
 }
+// R149: invitations carry a 10-character code instead of a link. The code is typed on the Create account tab together
+// with the invited email. Only a fingerprint of (email, code) is stored, so a code is useless with any other address.
+// Letters and digits that are easy to confuse (0/O, 1/I/L) are never used.
+const TEGH_INVITATION_CODE_ALPHABET='23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+function tegh_invitation_new_code(): string
+{
+    $out='';$n=strlen(TEGH_INVITATION_CODE_ALPHABET);for($i=0;$i<10;$i++)$out.=TEGH_INVITATION_CODE_ALPHABET[random_int(0,$n-1)];return $out;
+}
+function tegh_invitation_code_normalize(string $code): string
+{
+    $c=strtoupper((string)preg_replace('/[\s\-]+/','',$code));
+    return preg_match('/^['.TEGH_INVITATION_CODE_ALPHABET.']{10}$/D',$c)?$c:'';
+}
+function tegh_invitation_code_display(string $code): string { return substr($code,0,5).'-'.substr($code,5); }
+function tegh_invitation_code_token(string $email,string $code): string
+{
+    return base64url_encode(hash_hmac('sha256',strtolower(trim($email)).'|'.$code,'tegh-invitation-code-v1',true));
+}
+/** The invitation token for this request: an emailed link's token, or the email + code typed on the Create account tab. */
+function tegh_invitation_request_token(array $input): array
+{
+    $email=strtolower(trim((string)($input['email']??'')));$rawCode=trim((string)($input['code']??''));
+    if($email===''&&$rawCode===''){$token=trim((string)($input['token']??''));tegh_invitation_accept_rate_limit($token);return ['token'=>$token,'byCode'=>false];}
+    // Guessing is limited: wrong codes count against the email and the network address (10 per 15 minutes); a correct
+    // code never uses up the allowance, so an office inviting several people from one network is not blocked.
+    $key='invitation-code|'.$email;tegh_invitation_attempt_check($key);
+    $code=tegh_invitation_code_normalize($rawCode);
+    if($email===''||!filter_var($email,FILTER_VALIDATE_EMAIL)||$code===''){tegh_invitation_attempt_record($key);fail('Enter the email address the invitation was sent to and the 10-character code from the email.',422,'invitation_code_format');}
+    $token=tegh_invitation_code_token($email,$code);
+    try{tegh_service_boundary(fn()=>tegh_invitation_validate_token($token));}catch(TeghServiceFailure $error){tegh_invitation_attempt_record($key);fail('That email address and invitation code don’t match an open invitation. Check the code in your email, or ask for a new invitation.',410,'invitation_code_invalid');}
+    return ['token'=>$token,'byCode'=>true];
+}
 function tegh_invitation_queue(string $parentId,string $operationKey): string
 {
-    // Called inside the parent transaction. Existing usable tokens remain valid until a replacement is sent.
-    $token=base64url_encode(random_bytes(32));$tokenId=new_id('invtoken');$mailId=new_id('invmail');$expires=gmdate('Y-m-d H:i:s',time()+72*3600);
+    // Called inside the parent transaction. Existing usable codes remain valid until a replacement is sent.
+    $e=db()->prepare('SELECT email FROM account_invitations WHERE id=?');$e->execute([$parentId]);$email=(string)$e->fetchColumn();
+    $code=tegh_invitation_new_code();$token=tegh_invitation_code_token($email,$code);$tokenId=new_id('invtoken');$mailId=new_id('invmail');$expires=gmdate('Y-m-d H:i:s',time()+72*3600);
     db()->prepare("INSERT INTO account_invitation_tokens (id,invitation_id,token_hash,expires_at) VALUES (?,?,?,?)")->execute([$tokenId,$parentId,secret_hash($token),$expires]);
-    db()->prepare('INSERT INTO account_invitation_mail (id,invitation_id,token_id,token_cipher,operation_key) VALUES (?,?,?,?,?)')->execute([$mailId,$parentId,$tokenId,tegh_invitation_cipher($token),$operationKey]);
+    db()->prepare('INSERT INTO account_invitation_mail (id,invitation_id,token_id,token_cipher,operation_key) VALUES (?,?,?,?,?)')->execute([$mailId,$parentId,$tokenId,tegh_invitation_cipher($code),$operationKey]);
     db()->prepare('UPDATE account_invitations SET expires_at=? WHERE id=?')->execute([$expires,$parentId]);return $mailId;
 }
 function tegh_invitation_mail_payload(array $row): array
@@ -87,12 +120,19 @@ function tegh_invitation_send(array $user,string $mailId): array
         $s=db()->prepare('SELECT a.company_id,a.role,c.name FROM account_invitation_companies a LEFT JOIN companies c ON c.id=a.company_id WHERE a.invitation_id=? ORDER BY a.company_id');$s->execute([$row['invitation_id']]);$assignments=$s->fetchAll();
         $actor=['id'=>$row['invited_by']];tegh_service_boundary(fn()=>tegh_invitation_assignments($actor,array_map(static fn($r)=>['companyId'=>$r['company_id'],'role'=>$r['role']],$assignments),(string)$row['scope']));
         $summary=$row['scope']==='workspace'?'an independent Tegh workspace':implode('; ',array_map(static fn($r)=>$r['name'].' ('.company_role_label($r['role']).')',$assignments));
-        $link=$base.'/app.html#accountSetup='.rawurlencode(tegh_invitation_cipher($row['token_cipher'],true));
-        $text="You have been invited to $summary.\n\nOpen this single-use password-setup link:\n$link\n\nThe link expires in 72 hours. An existing Tegh account must confirm its current password; an invitation never replaces an existing password. If you did not expect this invitation, ignore this email.";
-        $html='<p>'.htmlspecialchars("You have been invited to $summary.",ENT_QUOTES,'UTF-8').'</p><p><a href="'.htmlspecialchars($link,ENT_QUOTES,'UTF-8').'">Set Up My Password</a></p><p>The link is single-use and expires in 72 hours. Existing users must confirm their current password.</p>';
+        $secret=tegh_invitation_cipher($row['token_cipher'],true);
+        if(tegh_invitation_code_normalize($secret)!==''){
+            $code=tegh_invitation_code_display($secret);$page=$base.'/app.html?register=1';$h=static fn(string $v):string=>htmlspecialchars($v,ENT_QUOTES,'UTF-8');
+            $text="You have been invited to $summary.\n\nYour invitation code: $code\n\nTo create your account:\n1. Go to $page\n2. Choose Create account.\n3. Enter this email address (".$row['email'].") and the code above.\n4. Enter your name and choose a password.\n\nThe code works only with this email address, can be used once and expires in 72 hours. If you already have a Tegh account, enter the code and confirm your current password; an invitation never replaces an existing password. If you did not expect this invitation, ignore this email.";
+            $html='<p>'.$h("You have been invited to $summary.").'</p><p style="margin:18px 0 6px">Your invitation code</p><p style="font:700 26px/1.2 Consolas,Menlo,monospace;letter-spacing:3px;margin:0 0 18px">'.$h($code).'</p><ol><li>Go to <a href="'.$h($page).'">'.$h($page).'</a></li><li>Choose <b>Create account</b>.</li><li>Enter this email address (<b>'.$h((string)$row['email']).'</b>) and the code above.</li><li>Enter your name and choose a password.</li></ol><p>The code works only with this email address, can be used once and expires in 72 hours. Existing users confirm their current password instead.</p>';
+        }else{
+            $link=$base.'/app.html#accountSetup='.rawurlencode($secret);
+            $text="You have been invited to $summary.\n\nOpen this single-use password-setup link:\n$link\n\nThe link expires in 72 hours. An existing Tegh account must confirm its current password; an invitation never replaces an existing password. If you did not expect this invitation, ignore this email.";
+            $html='<p>'.htmlspecialchars("You have been invited to $summary.",ENT_QUOTES,'UTF-8').'</p><p><a href="'.htmlspecialchars($link,ENT_QUOTES,'UTF-8').'">Set Up My Password</a></p><p>The link is single-use and expires in 72 hours. Existing users must confirm their current password.</p>';
+        }
         $mail=sr_mail_send(null,(string)$user['id'],(string)$row['email'],'account_invitation_5980','Set up your Tegh account',$text,$html,[],['operationKey'=>hash('sha256','invitation-mail|'.$mailId)]);
         $status=in_array(($mail['status']??''),['sent','sent_warning','deferred','manual_review','failed'],true)?$mail['status']:'manual_review';
-        $diagnostic=['stage'=>(string)($mail['stage']??'unknown'),'smtpCode'=>$mail['smtpCode']??null,'reference'=>request_id(),'message'=>portal_mail_sanitize_diagnostic((string)($mail['message']??'Review Email Delivery Health.')),'nextAction'=>in_array($status,['sent','sent_warning'],true)?'Recipient can use the new link.':'Check Email Delivery Health. A previously sent link remains valid until a replacement is confirmed sent.'];
+        $diagnostic=['stage'=>(string)($mail['stage']??'unknown'),'smtpCode'=>$mail['smtpCode']??null,'reference'=>request_id(),'message'=>portal_mail_sanitize_diagnostic((string)($mail['message']??'Review Email Delivery Health.')),'nextAction'=>in_array($status,['sent','sent_warning'],true)?'Recipient can use the new invitation code.':'Check Email Delivery Health. A previously sent code remains valid until a replacement is confirmed sent.'];
     }catch(Throwable $error){
         $status=$error instanceof TeghServiceFailure?'failed':'manual_review';$mail=['id'=>null];$diagnostic=['stage'=>$error instanceof TeghServiceFailure?'configuration':'outcome_unknown','smtpCode'=>null,'reference'=>request_id(),'message'=>$error instanceof TeghServiceFailure?$error->getMessage():'Delivery outcome could not be verified. Review the email receipt before resending.','nextAction'=>'Review Email Delivery Health. Do not repeatedly resend an unknown outcome.'];
     }
@@ -163,6 +203,15 @@ function tegh_invitation_validate_token(string $token,bool $lock=false): array
     $invite['assignments']=tegh_invitation_assignments(['id'=>$invite['invited_by']],array_map(static fn($r)=>['companyId'=>$r['company_id'],'role'=>$r['role']],$raw),(string)$invite['scope'],$lock);
     return $invite;
 }
+function tegh_invitation_attempt_check(string $key): void
+{
+    $s=db()->prepare('SELECT COUNT(*) FROM invitation_attempts WHERE created_at>UTC_TIMESTAMP()-INTERVAL 15 MINUTE AND (token_hash=? OR ip_hash=?)');$s->execute([secret_hash($key),client_ip_hash()]);
+    if((int)$s->fetchColumn()>=10)fail('Too many invitation attempts. Try again later.',429,'invitation_rate_limited');
+}
+function tegh_invitation_attempt_record(string $key): void
+{
+    db()->prepare('INSERT INTO invitation_attempts (token_hash,ip_hash) VALUES (?,?)')->execute([secret_hash($key),client_ip_hash()]);
+}
 function tegh_invitation_accept_rate_limit(string $token): void
 {
     $tokenHash=secret_hash($token);$ip=client_ip_hash();$s=db()->prepare('SELECT COUNT(*) FROM invitation_attempts WHERE created_at>UTC_TIMESTAMP()-INTERVAL 15 MINUTE AND (token_hash=? OR ip_hash=?)');$s->execute([$tokenHash,$ip]);if((int)$s->fetchColumn()>=10)fail('Too many invitation attempts. Try again later.',429,'invitation_rate_limited');
@@ -170,14 +219,15 @@ function tegh_invitation_accept_rate_limit(string $token): void
 }
 function tegh_handle_invite_details(): never
 {
-    require_method('GET','POST');tegh_schema44_require();if(request_method()==='POST')assert_same_origin();$token=trim((string)(request_method()==='POST'?(request_json()['token']??''):($_GET['token']??'')));
-    try{$invite=tegh_service_boundary(fn()=>tegh_invitation_validate_token($token));}catch(Throwable $error){if($error instanceof TeghServiceFailure)fail('This invitation is unavailable or expired.',410,'invitation_unavailable');throw $error;}
+    require_method('GET','POST');tegh_schema44_require();if(request_method()==='POST')assert_same_origin();$input=request_method()==='POST'?request_json():['token'=>$_GET['token']??''];
+    $req=tegh_invitation_request_token($input);$token=$req['token'];
+    try{$invite=tegh_service_boundary(fn()=>tegh_invitation_validate_token($token));}catch(Throwable $error){if($error instanceof TeghServiceFailure)fail($req['byCode']?'That email address and invitation code don’t match an open invitation. Check the code in your email, or ask for a new invitation.':'This invitation is unavailable or expired.',410,$req['byCode']?'invitation_code_invalid':'invitation_unavailable');throw $error;}
     $s=db()->prepare('SELECT id,active,deleted_at FROM users WHERE email=?');$s->execute([$invite['email']]);$u=$s->fetch();if($u&&((int)$u['active']!==1||$u['deleted_at']!==null))fail('This invitation is unavailable or expired.',410,'invitation_unavailable');
     header('Cache-Control: no-store');header('Referrer-Policy: no-referrer');json_response(['invitation'=>['email'=>$invite['email'],'scope'=>$invite['scope'],'existingUser'=>(bool)$u,'suggestedName'=>$u?'':platform_default_display_name((string)$invite['email']),'assignments'=>$invite['assignments'],'termsVersion'=>TEGH_TERMS_VERSION,'privacyVersion'=>TEGH_PRIVACY_VERSION]]);
 }
 function tegh_handle_invite_accept(): never
 {
-    require_method('POST');assert_same_origin();tegh_schema44_require();$input=request_json();$token=trim((string)($input['token']??''));tegh_invitation_accept_rate_limit($token);
+    require_method('POST');assert_same_origin();tegh_schema44_require();$input=request_json();$token=tegh_invitation_request_token($input)['token'];
     if(empty($input['acceptTerms'])||($input['termsVersion']??'')!==TEGH_TERMS_VERSION||($input['privacyVersion']??'')!==TEGH_PRIVACY_VERSION)fail('Read and accept the current Terms and Privacy Notice.',422,'terms_required');
     try{$user=tegh_service_boundary(fn()=>db_transaction_retry(function()use($input,$token):array{
         $invite=tegh_invitation_validate_token($token,true);$password=(string)($input['password']??'');
