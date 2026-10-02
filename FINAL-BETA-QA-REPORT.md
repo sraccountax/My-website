@@ -854,3 +854,51 @@ From R148 on, the gate pins the host clock to 2026-10-01: PHP-FPM and MariaDB th
 One cosmetic flaw was found in the screenshots and fixed before the final ZIP: the Terms checkbox on the invitation form had been stretched into a large box.
 
 **Verdict for R148: NOT READY.** As before, only host acceptance (§11), production email (§1 item 2) and owner/legal approval of Privacy/Terms 2026-10-01 are open. Deploy **R148** to staging.
+
+## Addendum: R149 (invitation codes instead of links)
+
+| | R149 |
+|---|---|
+| Package | `…-Hotfix-R149-Consolidated-IONOS-STAGING.zip` |
+| SHA-256 | `31d022c726e099872760aebb4abf652e5109321c1853ea8b8cae7136e7744833` |
+| FILE-MANIFEST.sha256 | 352 entries, all OK |
+| ZIP entries not 0644 | 0 |
+| Cache token | `5990-r149-tegh` |
+| Migration | none (uses the existing `invitation_attempts` table) |
+| productionReady / acceptanceComplete | false / false |
+
+**What changed (owner request: "Whoever is invited will get invitation code in their mail box that they will need to put to create account")**
+- **The invitation email carries a code, not a link.** It shows:
+  - a 10-character code, for example `K7M2Q-PX9RT`, which never contains 0, O, 1, I or L;
+  - the invited email address;
+  - the steps: open Create account (`app.html?register=1`), enter the email and code, then a name and password.
+- **Create account tab.** It asks for the email address and the invitation code. The code is formatted as it is typed; lower case and spaces are accepted. Then the tab shows the invited companies and roles, Your name, password and terms. Existing users accept with their current password.
+- **Security.**
+  - Each code is tied to the invited email address. The server stores only a keyed hash of email and code.
+  - Codes are single-use and expire after 72 hours.
+  - Wrong attempts are limited to 10 per 15 minutes per email and per network address, which gives a 429 and a "wait 15 minutes" message. Correct look-ups are not counted.
+  - Wrong code, wrong email, used and expired codes all get the same message, so the reply does not reveal which invitations exist.
+- **Compatibility.** Invitation links emailed before R149 still open the account form.
+- **Unchanged.** The existing limit of 30 new invitations per hour per inviter is unchanged. The test suite ages its own earlier test invitations instead of relaxing that limit.
+
+**Results on the exact R149 ZIP (host clock pinned to 2026-10-01)**
+
+| Area | Result |
+|---|---|
+| Full suite | **438 PASS / 0 FAIL / 7 INFO** |
+| R149 invitation-code tests (18-r149) | 20 PASS. They cover:<ul><li>the code email;</li><li>tabs and code formatting;</li><li>account creation with name, role and terms stored;</li><li>wrong code, other email, used code and invalid letters;</li><li>the attempt limit, in the server and the screen;</li><li>correct look-ups not counted;</li><li>existing users;</li><li>phone width;</li><li>name validation;</li><li>a pre-R149 link;</li><li>no JS errors.</li></ul> |
+| Earlier invitation tests (02b, OB-01 to OB-05) | Rewritten to use codes; all PASS |
+| Upgrade R118 → R149 | 13/13 |
+| Paths and headers | 42 PASS |
+| UI matrix | 0 screens with issues |
+| Swipe traps | 0 |
+| Public pages | 34/34 renders clean; 0 bad links |
+
+Evidence: `beta-gate-evidence/r149/` (identity, summary, test matrix, `r149.json`, screenshots). The test scripts are in `beta-gate-evidence/scripts/`.
+
+**Verdict for R149: NOT READY.** As before, only these remain open:
+- host acceptance (§11);
+- production email (§1 item 2);
+- owner/legal approval of Privacy/Terms 2026-10-01.
+
+Deploy **R149** to staging. After deploying, invite a test address and check that the email shows a code and that the code creates the account.
