@@ -24,10 +24,10 @@
   "flatRoot": true,
   "packageType": "cumulative-full-application",
   "activeEntry": "app.html",
-  "generatedAt": "2026-10-02T08:24:29Z",
+  "generatedAt": "2026-10-02T08:53:35Z",
   "sourceRepository": "sraccountax/My-website",
   "sourceBranch": "claude/invoice-credit-debit-audit-e2y8wc",
-  "sourceParentCommit": "aea1e72e420d39a0570e0dd188c48bbfd76b5abd",
+  "sourceParentCommit": "a4f23c2fe5705fa200e91a65fc9b64905aac40fe",
   "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
   "databaseMigrationRequired": false,
   "databaseMigrationNote": "No manual migration since R118. R144 creates company_insight_dismissals on the first dismissal. R141 adds companies.country, widens province to VARCHAR(10) on companies/customers/vendors and creates company_dashboard_mappings on the first request. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
@@ -1959,11 +1959,11 @@
       ]
     },
     "r147Identity": {
-      "release": "R147",
-      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R147-Consolidated-IONOS-STAGING",
-      "generatedAt": "2026-10-02T07:41:57Z",
-      "sourceParentCommit": "c2954b1e6d77b04855ec47f03e9f8b2816438d95",
-      "testStatus": "R147 = R146 plus the owner's public-page update and the home page at the site root. Re-run through the full gate suite (now also checking that / serves the home page, that /?invite= still reaches the app and that every ZIP entry is 0644), the click-through workflow suite, the R144/R145 tests, the UI matrix, a render check of all public pages at desktop and phone, and the R118->R147 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R147 addendum). Host acceptance has not started; productionReady is false.",
+      "release": "R148",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R148-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-10-02T08:24:29Z",
+      "sourceParentCommit": "aea1e72e420d39a0570e0dd188c48bbfd76b5abd",
+      "testStatus": "R148 = R147 plus the Sign in / Create account tabs with account creation through an invitation link. Re-run through the full gate suite with the host clock pinned to 2026-10-01 (the date the hand-computed expectations use), including 17-r148 (invitation tabs, account creation, pasted and expired links, existing users, phone, name validation), the root and ZIP-permission checks, the UI matrix, a public-page render check and the R118->R148 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R147/R148 addendum). Host acceptance has not started; productionReady is false.",
       "executedLocalGates": {
         "betaGateR138Baseline": {
           "passed": false,
