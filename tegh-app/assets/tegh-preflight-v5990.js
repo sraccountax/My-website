@@ -15,7 +15,7 @@
     // R141: invitation and password-reset tokens arrive after '#'.
     new URLSearchParams((location.hash || '').replace(/^#/, '')).forEach((value, key) => { if (['accountSetup','passwordReset'].includes(key) && !params.has(key)) params.set(key, value); });
     const version = '5990';
-    const assetRevision = '5990-r146-tegh';
+    const assetRevision = '5990-r148-tegh';
     const signedOut = params.get('signed-out') === '1';
     if (signedOut) {
       document.documentElement.dataset.signedOut = '1';
@@ -50,7 +50,7 @@
       if('caches' in window)caches.keys().then(keys=>Promise.all(keys.filter(key=>key.toLowerCase().includes(legacyPrefix)||/^tegh-/i.test(key)).map(key=>caches.delete(key)))).catch(()=>{});
       if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(rows=>Promise.all(rows.map(row=>row.unregister()))).catch(()=>{});
     }
-    if(params.has('accountSetup')||params.has('invite'))document.documentElement.classList.add('sr-invite-only');
+    // R148: invitation links open the normal sign-in screen on its Create account tab, so no single-form invite mode.
     if(params.has('passwordReset'))document.documentElement.classList.add('sr-reset-only');
     if (!signedOut && !params.has('forceSignIn') && !params.has('accountSetup') && !params.has('invite') && !params.has('passwordReset')) {
       document.documentElement.classList.add('sr-gate-session-pending');

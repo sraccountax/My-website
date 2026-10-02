@@ -3,7 +3,7 @@
 
   const VERSION = '5.9.9';
   const BUILD = '5990';
-  const ASSET_REVISION = '5990-r146-tegh';
+  const ASSET_REVISION = '5990-r148-tegh';
   const AUTH_CACHE_MS = 60000;
   const POST_COMMIT_SESSION_GRACE_MS = 45000;
   const RECOVERY_MARKER_KEY = 'tegh-session-recovery-v5990';
@@ -1824,7 +1824,7 @@
   inviteNeeded?.addEventListener('submit',(event)=>{
     event.preventDefault();clearError();
     const token=tokenFromInviteLink(inviteNeeded.inviteLink.value);
-    if(!token){inviteNeeded.inviteLink.setAttribute('aria-invalid','true');showError(Object.assign(new Error('That doesn’t look like a Tegh invitation link. Copy the whole link from the “Set up your Tegh account” email.'),{route:'auth/invitation',code:'invitation_link_invalid'}));return}
+    if(!token){inviteNeeded.inviteLink.setAttribute('aria-invalid','true');const note=inviteNeeded.querySelector('[data-invite-needed-message]');if(note){note.dataset.state='error';note.textContent='That doesn’t look like a Tegh invitation link. Copy the whole link from the “Set up your Tegh account” email and paste it again.'}inviteNeeded.inviteLink.focus();return}
     inviteNeeded.inviteLink.removeAttribute('aria-invalid');inviteToken=token;inviteDetails=null;inviteNeeded.inviteLink.value='';showInvitation();
   });
   // Left/right arrow keys move between the two tabs (WAI-ARIA tabs pattern).

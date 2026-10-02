@@ -1,4 +1,4 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R147 IONOS STAGING CANDIDATE
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R148 IONOS STAGING CANDIDATE
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -36,10 +36,11 @@ R144: Tegh Intelligence, built into Tegh with no external AI: a Tegh brief on th
 R145: Bank Statement Converter reads statements by column position (withdrawals/deposits/balance, card transaction and posting dates, wrapped descriptions, years from the statement period) and checks the rows against the statement's own opening, running and closing balances and page totals, shown in green or amber on the review screen. Document Intake reads more bills and receipts correctly (labels on the next line, French/Québec labels and amounts, several tax lines, receipt numbers, Net 30 due dates; an ambiguous date such as 03/04/2026 is offered both ways, never guessed), cleans up photos before OCR, and reads scanned PDFs in browsers without Map.getOrInsertComputed. Fixes the hidden Upload button in Document Intake (DEF-14). No migration. See R145-CHANGES.md.
 R146: fixes the R145 OCR clean-up, which blacked out clean scans with little text so OCR read nothing (DEF-16). No migration. See R146-CHANGES.md.
 R147: the owner's public-page update (17 pages, including Privacy and Terms version 2026-10-01, which need owner/legal approval) and the site root now opens the home page instead of the app; Sign In and all emailed links still go to app.html. No application change, no migration. See R147-CHANGES.md.
+R148: the sign-in screen has two tabs, Sign in and Create account. Opening an invitation link creates the account on the Create account tab (name, password, terms); without a link the tab explains the invitation-only beta and accepts a pasted invitation link; expired links are explained. The person's typed name is stored. No migration. See R148-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json
-and tegh-build.json all identify this package as R147; per-file hashes kept in
+and tegh-build.json all identify this package as R148; per-file hashes kept in
 their "history" sections record earlier releases and are not expected to match.
 
 Fresh installation (empty database): upload the package, put config.php outside
