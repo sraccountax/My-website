@@ -24,8 +24,8 @@ ErrorDocument 404 /404.html
   RewriteRule ^$ /app.html [R=302,L,NE]
 
 
-  # Sites root opens the accounting application. /index.html remains available.
-  RewriteRule ^$ /app.html [R=302,L]
+  # R147: the site root shows the public home page (index.html, via DirectoryIndex). Sign In links and every emailed
+  # link point at /app.html directly; old links that carry sign-in parameters on the root are redirected above.
 
   # Existing files/directories are served normally. Unknown paths fall through to a real 404.
   RewriteCond %{REQUEST_FILENAME} -f [OR]
