@@ -902,3 +902,43 @@ Evidence: `beta-gate-evidence/r149/` (identity, summary, test matrix, `r149.json
 - owner/legal approval of Privacy/Terms 2026-10-01.
 
 Deploy **R149** to staging. After deploying, invite a test address and check that the email shows a code and that the code creates the account.
+
+## Addendum: R150 (public pages always light; the main URL)
+
+| | R150 |
+|---|---|
+| Package | `…-Hotfix-R150-Consolidated-IONOS-STAGING.zip` |
+| SHA-256 | `5e8b72a4fd6d84cdf36b939cfe10d37144f23897b778452ef63afeabe3435e61` |
+| FILE-MANIFEST.sha256 | 353 entries, all OK |
+| ZIP entries not 0644 | 0 |
+| Cache token | app `5990-r149-tegh` (unchanged); public-page stylesheets `?v=5990-r150` |
+| Migration | none |
+| productionReady / acceptanceComplete | false / false |
+
+**Owner report (2026-10-05)**
+
+**1. "Main URL is redirecting to app.html."**
+- The ZIP the owner uploaded is the R146 Marketing-Aligned package again (SHA-256 `6fb6db08…28dd`). Its `.htaccess` still contains `RewriteRule ^$ /app.html [R=302,L]`, and its files are mode 0600 (AUD-1).
+- Both were fixed in R147 and are absent from R150: the gate's paths check shows "/ serves the home page" PASS.
+- The fix is to deploy R150 including `.htaccess`.
+
+**2. "index.html is opening the page in dark mode."**
+- Reproduced. Since R27 the public stylesheets followed the device setting (`prefers-color-scheme: dark`), and the dark version had low-contrast text and a grey haze over the hero.
+- R150 removes the public-page dark mode and declares `color-scheme: only light` in CSS and in a meta tag on all 17 pages. Browsers' automatic dark mode leaves the pages alone.
+- The app keeps its own Light / Dark / System setting.
+
+**Results on the exact R150 ZIP (host clock pinned to 2026-10-01)**
+
+| Area | Result |
+|---|---|
+| Full suite | **438 PASS / 0 FAIL / 7 INFO** |
+| Public pages in a dark-mode browser (`dark-check.mjs`, 390×844, device dark and Chrome forced dark) | **34/34 light**. Before the fix: 0/34 |
+| Upgrade R118 → R150 | 13/13 |
+| Paths and headers | 42 PASS |
+| UI matrix | 0 screens with issues |
+| Swipe traps | 0 |
+| Public pages | 34/34 renders clean; 0 bad links |
+
+Evidence: `beta-gate-evidence/r150/` (including before/after screenshots of the home page in dark mode).
+
+**Verdict for R150: NOT READY.** The open items are unchanged: host acceptance, production email, and owner/legal approval of Privacy/Terms 2026-10-01. Deploy **R150** to staging.
