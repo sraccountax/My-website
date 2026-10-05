@@ -278,15 +278,7 @@ body.agency-built .agency-footer .footer-grid{padding-top:48px;grid-template-col
 
 body.page-404 .page-hero{background:linear-gradient(135deg,var(--tegh-canvas),var(--tegh-soft))}
 
-/* R27 public-page dark mode follows the device; authenticated theme ownership
-   remains exclusively in the application preference service. */
-@media(prefers-color-scheme:dark){
-  :root{--tegh-ink:#edf7f3;--tegh-forest:#63d0b7;--tegh-emerald:#65d6ba;--tegh-canvas:#091411;--tegh-surface:#12231e;--tegh-line:#365048;--tegh-muted:#a8bbb4;--tegh-mist:#173a31;--tegh-soft:#10201b;--agency-ink:#edf7f3;--agency-forest:#69d8be;--agency-emerald:#65d6ba;--agency-paper:#091411;--agency-warm:#14231f;--agency-mist:#10201b;--agency-line:rgba(204,235,224,.16);--agency-line-strong:rgba(204,235,224,.25);--agency-muted:#a8bbb4;--agency-shadow:0 22px 60px rgba(0,0,0,.3);--agency-shadow-deep:0 34px 90px rgba(0,0,0,.45)}
-  html{color-scheme:dark}body,.site-shell,.page,.signature-hero,.section-soft,.mobile-nav{background:var(--tegh-canvas);color:var(--tegh-ink)}
-  p,.lead,.signature-trust,.hero-note,.mega-link small,.field>span,.legal-updated,.legal-content p{color:var(--tegh-muted)!important}
-  .site-header.scrolled,.site-header.menu-active,.mega-menu,.app-window,.app-main,.pulse,.attention,.ask-card,.chat-demo,.mode-card,.persona-card,.proof-card,.feature-card,.resource-card,.principle-card,.mock-surface,.legal-content,.contact-form,.pricing-card,.beta-card{background:var(--tegh-surface)!important;color:var(--tegh-ink)!important;border-color:var(--tegh-line)!important}
-  .nav-link,.nav-trigger,.text-link{color:var(--tegh-ink)}.nav-link:hover,.nav-trigger:hover,.mega-link:hover{background:var(--tegh-soft);color:var(--tegh-ink)}
-  .button-secondary,.mobile-toggle,input,select,textarea,.form-token-retry{background:var(--tegh-surface)!important;color:var(--tegh-ink)!important;border-color:var(--tegh-line)!important}
-  .app-main,.report-sheet,.result-head,.attention-row,.hero-bank-row,.intelligence-row,.mode-list span,.age-strip div{background:var(--tegh-soft)!important;color:var(--tegh-ink)!important}
-  .core-plane,.source-chip,.hero-ask{background:color-mix(in srgb,var(--tegh-surface) 96%,transparent)!important;color:var(--tegh-ink)!important;border-color:var(--tegh-line)!important}
-}
+/* R150: public pages are always shown in the light design, whatever the device
+   setting. "only light" also stops browsers (for example Chrome and Samsung Internet
+   on Android) from darkening the page automatically. The app keeps its own theme. */
+:root{color-scheme:only light}

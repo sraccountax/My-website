@@ -263,11 +263,7 @@ body.agency-built .agency-footer .footer-grid{padding-top:48px;grid-template-col
 /* Tegh 4.1.4 launch accessibility and conversion polish */
 .skip-link{position:fixed;z-index:1000;left:16px;top:12px;padding:11px 14px;border-radius:10px;background:#091512;color:#fff;font-size:14px;font-weight:750;transform:translateY(-160%);transition:transform .16s ease}.skip-link:focus{transform:none;outline:3px solid #a8d8ca;outline-offset:3px}.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.site-shell :focus-visible{outline:3px solid rgba(35,110,94,.38);outline-offset:3px}.source-chip>svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}.form-token-retry{margin-top:9px;min-height:40px;padding:0 14px;border:1px solid #cbd7d1;border-radius:10px;background:#fff;color:#123d34;font-weight:750;cursor:pointer}.form-token-retry:hover,.form-token-retry:focus-visible{background:#f1f5f2}.form-status[role="alert"]{border:1px solid rgba(147,59,50,.22)}body.nav-open .page,body.nav-open .site-footer{pointer-events:none}.mobile-nav[aria-hidden="true"]{visibility:hidden}.mobile-nav[aria-hidden="false"]{visibility:visible}
 @media(max-width:760px){.source-chip>svg{width:17px;height:17px}.financial-field[aria-hidden="true"] [tabindex]{pointer-events:none}}
-/* R27: retained Resources page uses this legacy owner; add device dark mode
-   without replacing or deleting its dependency graph. */
-@media(prefers-color-scheme:dark){
-  html{color-scheme:dark}body,.site-shell,.page,.mobile-nav{background:#091411!important;color:#edf7f3!important}
-  p,.lead,.mega-link small,.resource-card p{color:#a8bbb4!important}
-  .site-header.scrolled,.site-header.menu-active,.mega-menu,.resource-card,.feature-card,.principle-card,.button-secondary{background:#12231e!important;color:#edf7f3!important;border-color:#365048!important}
-  .nav-link,.nav-trigger,.text-link{color:#edf7f3!important}.mega-link:hover,.nav-link:hover,.nav-trigger:hover{background:#10201b!important;color:#edf7f3!important}
-}
+/* R150: public pages are always shown in the light design, whatever the device
+   setting. "only light" also stops browsers (for example Chrome and Samsung Internet
+   on Android) from darkening the page automatically. The app keeps its own theme. */
+:root{color-scheme:only light}
