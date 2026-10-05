@@ -1,7 +1,7 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R150 IONOS STAGING DEPLOYMENT
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R151 IONOS STAGING DEPLOYMENT
 
-This package contains every release through R150 (R118–R150 change notes are
-included). R150 keeps the public pages in the light design on dark-mode devices. R149 replaces the invitation link with an invitation code. R148 adds the Sign in / Create account tabs with account creation through an invitation link. R147 brings the owner's public-page update and opens the home page at the site root. R146 fixes the R145 OCR clean-up on clean scans (DEF-16). R145 improves the PDF statement converter and Document Intake. R144 adds Tegh Intelligence (no external AI). R143 fixes defects found by a click-through test of every daily
+This package contains every release through R151 (R118–R151 change notes are
+included). R151 brings one form for invoices, credit notes and debit notes, itemized vendor invoices, Edit on the main screen and the scrolling fixes. R150 keeps the public pages in the light design on dark-mode devices. R149 replaces the invitation link with an invitation code. R148 adds the Sign in / Create account tabs with account creation through an invitation link. R147 brings the owner's public-page update and opens the home page at the site root. R146 fixes the R145 OCR clean-up on clean scans (DEF-16). R145 improves the PDF statement converter and Document Intake. R144 adds Tegh Intelligence (no external AI). R143 fixes defects found by a click-through test of every daily
 workflow. R142 applies the owner-approved wording (payroll outside Quebec,
 sales tax guide, Product Activity note). R141 adds the gate follow-ups (DEF-08, OBS-2, Clarity), countries,
 the Tax Code Report and Dashboard Figures. R140 fixes vendor invoice scrolling on phones. R139 contains only the fixes from the invite-only beta release gate
@@ -97,7 +97,14 @@ Notes (the database user needs CREATE privilege, as for the original install).
    For R150: assets/tegh-marketing-v5900.css, assets/tegh-marketing-v4140.css
    and the 17 public pages (index.html … guides/*.html). Also upload .htaccess:
    an .htaccess older than R147 still sends the site root to app.html. No migration.
-5. Upload all assets together; the cache token is r149-tegh (the client-view
+   For R151: api/documents_r151.php (new), api/books.php, api/accounting.php,
+   api/accounting_notes.php, api/backup.php, api/index.php,
+   api/report_loaders_v5980.php, api/report_subledgers_v5980.php, app.html,
+   assets/tegh-portal-v5990.js, assets/tegh-registers-r23.js,
+   assets/tegh-invoice-reports-r20.js, assets/tegh-r120.css, assets/tegh-gate-v5990.js,
+   assets/tegh-preflight-v5990.js. The database additions (bill_lines; note
+   reference and line columns) are made automatically on first use.
+5. Upload all assets together; the cache token is r151-tegh (the client-view
    page loads its output script with r145-tegh too; its other assets stay on
    5990-r135). A partial upload can
    leave browsers on a stale portal.
@@ -219,6 +226,15 @@ Verify after upload
 - R150: with the phone or computer in dark mode, open
   https://books.sraccountax.ca/ (a private window avoids the cached stylesheet):
   the home page shows the light design, and so do Product and the guides.
+- R151: (1) Receivables > Customer Invoices: the form shows Document type,
+  details on top and the line grid below; click + Add line several times —
+  the page does not jump to the top. (2) Payables > Vendor Invoices: two lines
+  with different GL accounts post each line to its own account (Day Book).
+  (3) Customer credit note: type an invoice number that is not in Tegh — the
+  form says so and the note posts as an open credit; type an existing number —
+  it links and "Return items" fills the lines. (4) Invoice register > row
+  Actions > Edit opens the invoice on the main screen. (5) Scroll the sidebar
+  menu with the mouse wheel right after choosing a menu item.
 - In the browser console: window.TeghPortal exists.
 - Tegh Assist (top bar, also on phones): ask "who owes me money?" and the
   answer starts with a plain sentence ("Customers owe you $…") in about a second; "pay my supplier" opens Vendor

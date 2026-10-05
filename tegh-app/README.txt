@@ -1,4 +1,4 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R150 IONOS STAGING CANDIDATE
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R151 IONOS STAGING CANDIDATE
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -39,10 +39,11 @@ R147: the owner's public-page update (17 pages, including Privacy and Terms vers
 R148: the sign-in screen has two tabs, Sign in and Create account. Opening an invitation link creates the account on the Create account tab (name, password, terms); without a link the tab explains the invitation-only beta and accepts a pasted invitation link; expired links are explained. The person's typed name is stored. No migration. See R148-CHANGES.md.
 R149: invitations carry a 10-character invitation code instead of a link. The invited person enters their email address and the code on the Create account tab, then their name and password. Codes work only with the invited email, once, for 72 hours; wrong codes are limited to 10 per 15 minutes. Links sent before R149 keep working until they expire. No migration. See R149-CHANGES.md.
 R150: the public pages (home page, Product, Pricing, guides …) always open in the light design. They no longer turn dark when the phone or computer is in dark mode, or when the browser darkens pages automatically. The app keeps its own theme setting. No application change, no migration. See R150-CHANGES.md.
+R151: one form for invoices, credit notes and debit notes (customer and vendor): Document type drop-down on top, details on top and a highlighted spreadsheet-style line grid below (product/service, description, qty, rate, tax, amount, total, GL account), no side summary; adding lines no longer scrolls the page to the top. Vendor invoices have real lines, each posted to its own GL account with its own tax. Notes take a typed original invoice number: linked when it is in Tegh, otherwise recorded against the customer/vendor with its own tax and GL per line. Edit on the registers opens the document on the main screen (drafts in full; issued documents: dates and notes only). Sidebar menu scrolling fixed. Automatic database additions (bill_lines, note reference and line columns). See R151-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json
-and tegh-build.json all identify this package as R150; per-file hashes kept in
+and tegh-build.json all identify this package as R151; per-file hashes kept in
 their "history" sections record earlier releases and are not expected to match.
 
 Fresh installation (empty database): upload the package, put config.php outside

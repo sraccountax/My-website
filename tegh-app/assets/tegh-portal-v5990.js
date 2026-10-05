@@ -3820,6 +3820,7 @@ const TeghPortal = (() => {
             <div class="r151-lines-foot"><button type="button" class="srp-btn secondary" data-r151-add ${state.locked?'hidden':''}>+ Add line</button><div class="r151-totals" data-r151-totals aria-live="polite">${totalsHtml()}</div></div>
           </section>
           <label class="r151-memo"><span data-r151-memo-label>${esc(memoLabel())}</span><textarea name="message" rows="2" maxlength="${customer&&state.kind==='invoice'?1000:400}" ${state.locked&&state.status!=='issued'?'disabled':''}>${esc(state.message)}</textarea></label>
+          ${!customer&&state.status==='new'?`<fieldset class="srp-recurring-choice r151-recurring" data-r151-recurring ${state.kind==='invoice'?'':'hidden'}><legend>Recurring schedule</legend><label class="srp-check"><input type="checkbox" data-recurring-bill> Make this a recurring vendor invoice</label><div class="srp-recurring-options" data-recurring-bill-options hidden><label>Frequency<select data-recurring-frequency><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option><option value="yearly">Yearly</option></select></label><label>Next vendor invoice date<input data-recurring-next type="date" value="${esc(addDaysIso(todayIso(),30))}"></label><label>Schedule name<input data-recurring-name maxlength="160" placeholder="e.g. Monthly rent"></label><label class="srp-check"><input type="checkbox" data-recurring-auto> Post automatically when run</label><small>Each scheduled copy repeats this invoice’s total on the first line’s GL account.</small></div></fieldset>`:''}
           <footer class="srp-actions r151-actions" data-r151-actions>${actionsHtml()}</footer>
         </form></section>`;
       const form=$('[data-r151-form]',body),tbody=$('[data-r151-body]',body),fields=$('[data-r151-fields]',body);bindDirtyForm(form);
@@ -3833,7 +3834,8 @@ const TeghPortal = (() => {
       // ----- wiring -----
       function wireRow(line){const row=tbody.querySelector(`tr[data-r151-line="${CSS.escape(line.key)}"]`);if(!row)return;
         const q=n=>$(`[name="${n}"]`,row);
-        q('productServiceId')?.addEventListener('change',e=>{const p=products.find(x=>x.id===e.target.value);line.productServiceId=e.target.value;if(p){line.description=p.description||p.name||line.description;line.rate=customer?(Number(p.unitPriceCents||0)/100).toFixed(2):line.rate;if(customer&&p.incomeAccountId)line.accountId=p.incomeAccountId;if(!p.taxable&&state.kind==='invoice')line.taxKey=codesMode?'':'none';q('description').value=line.description;q('rate').value=line.rate;q('accountId').value=line.accountId;q('taxKey').value=line.taxKey}repaintRow(row);paintTotals();form.dataset.srpDirty='1'});
+        if(!state.locked&&!line.sourceLineId)wireQuickEntityOption(q('productServiceId'),'item',{onCreated:item=>{if(!products.some(x=>x.id===item.id))products.push(item);line.productServiceId=item.id;line.description=item.description||item.name||line.description;if(customer)line.rate=(Number(item.unitPriceCents||0)/100).toFixed(2);if(customer&&item.incomeAccountId)line.accountId=item.incomeAccountId;row.outerHTML=rowHtml(line,lines.indexOf(line));wireRow(line);paintTotals()}});
+        q('productServiceId')?.addEventListener('change',e=>{if(String(e.target.value).startsWith('__create_'))return;const p=products.find(x=>x.id===e.target.value);line.productServiceId=e.target.value;if(p){line.description=p.description||p.name||line.description;line.rate=customer?(Number(p.unitPriceCents||0)/100).toFixed(2):line.rate;if(customer&&p.incomeAccountId)line.accountId=p.incomeAccountId;if(!p.taxable&&state.kind==='invoice')line.taxKey=codesMode?'':'none';q('description').value=line.description;q('rate').value=line.rate;q('accountId').value=line.accountId;q('taxKey').value=line.taxKey}repaintRow(row);paintTotals();form.dataset.srpDirty='1'});
         ['description','qty','rate'].forEach(n=>q(n)?.addEventListener('input',e=>{line[n]=e.target.value;if(n==='qty'&&line.sourceLineId&&Math.round(Number(line.qty)*1000)>line.maxMilli){line.qty=String(line.maxMilli/1000);e.target.value=line.qty;toast('Quantity limited',`Only ${line.maxMilli/1000} can still be returned for this item.`,'warning')}repaintRow(row);paintTotals()}));
         q('taxKey')?.addEventListener('change',e=>{line.taxKey=e.target.value;paintTotals()});
         q('accountId')?.addEventListener('change',e=>{line.accountId=e.target.value});
@@ -3842,7 +3844,8 @@ const TeghPortal = (() => {
         row.addEventListener('keydown',e=>{if(e.key!=='Enter'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;e.preventDefault();if(row===tbody.lastElementChild&&!state.locked)appendLine();else $('[name="description"]',row.nextElementSibling||row)?.focus({preventScroll:true})})}
       const appendLine=(extra={})=>{const line=addLine(extra);tbody.insertAdjacentHTML('beforeend',rowHtml(line,lines.length-1));wireRow(line);paintTotals();const row=tbody.lastElementChild;row.scrollIntoView({block:'nearest'});($('[name="productServiceId"]',row)||$('[name="description"]',row))?.focus({preventScroll:true});form.dataset.srpDirty='1';return line};
       function wireHeader(){const f=n=>$(`[name="${n}"]`,fields);
-        f('partyId')?.addEventListener('change',e=>{state.partyId=e.target.value;if(state.kind!=='invoice'){resolveLink()}applyPartyDefaults();refreshHeader();rebuildRows()});
+        if(!state.locked)wireQuickEntityOption(f('partyId'),customer?'customer':'vendor',{onCreated:entity=>{if(!parties.some(x=>x.id===entity.id))parties.push(entity);state.partyId=entity.id;applyPartyDefaults();refreshHeader();rebuildRows()}});
+        f('partyId')?.addEventListener('change',e=>{if(String(e.target.value).startsWith('__create_'))return;state.partyId=e.target.value;if(state.kind!=='invoice'){resolveLink()}applyPartyDefaults();refreshHeader();rebuildRows()});
         f('number')?.addEventListener('input',e=>{state.number=e.target.value;if(state.kind==='invoice')return;const before=state.linkedId;resolveLink();if(before!==state.linkedId){if(state.linkedId)lines.forEach(l=>{l.taxKey='__orig'});else lines.forEach(l=>{if(l.taxKey==='__orig'){l.taxKey=codesMode?'__auto':(org.taxRegistered?'gst':'none')}l.sourceLineId='';l.maxMilli=0});refreshHeader();rebuildRows();$('[name="number"]',fields)?.focus({preventScroll:true});const inp=$('[name="number"]',fields);if(inp)inp.setSelectionRange(inp.value.length,inp.value.length)}else{$('.r151-link-row',fields).innerHTML=linkHint()}});
         f('date')?.addEventListener('change',e=>{state.date=e.target.value;if(state.kind==='invoice'&&state.status==='new'){const p=party();state.dueDate=addDaysIso(state.date,Number(p?.defaultTermsDays??30));const due=f('dueDate');if(due){due.value=state.dueDate;due.min=state.date}}});
         f('dueDate')?.addEventListener('change',e=>{state.dueDate=e.target.value});
@@ -3854,7 +3857,8 @@ const TeghPortal = (() => {
         f('rate')?.addEventListener('input',e=>{state.rate=e.target.value})}
       function wireActions(){$('[data-r151-cancel]',body).onclick=()=>{if(confirmDiscard(form))goBack()}}
       const goBack=(focusId='')=>{if(state.kind==='invoice')return customer?openInvoices({focusId}):openBills('',focusId);return openAccountingNotes(side,noteKind(state.kind),'',focusId,false)};
-      $('[data-r151-type]',body).addEventListener('change',e=>{state.kind=e.target.value;state.number='';state.linkedId='';if(state.kind!=='invoice')lines.forEach(l=>{if(!l.sourceLineId&&l.taxKey==='__orig')l.taxKey=codesMode?'__auto':'none'});$('[data-r151-title]',body).textContent=title();refreshHeader();rebuildRows()});
+      $('[data-recurring-bill]',body)?.addEventListener('change',e=>{const o=$('[data-recurring-bill-options]',body);if(o)o.hidden=!e.target.checked});
+      $('[data-r151-type]',body).addEventListener('change',e=>{const rec=$('[data-r151-recurring]',body);if(rec)rec.hidden=e.target.value!=='invoice';state.kind=e.target.value;state.number='';state.linkedId='';if(state.kind!=='invoice')lines.forEach(l=>{if(!l.sourceLineId&&l.taxKey==='__orig')l.taxKey=codesMode?'__auto':'none'});$('[data-r151-title]',body).textContent=title();refreshHeader();rebuildRows()});
       $('[data-r151-add]',body).addEventListener('click',()=>appendLine());
       $('[data-r151-return]',body).addEventListener('click',()=>{const src=linked();const have=new Set(lines.map(l=>l.sourceLineId).filter(Boolean));const added=sourceLines(src).filter(s=>!have.has(s.id)).map(s=>({s,max:Math.max(0,s.qtyMilli-returnedMilli(s.id))})).filter(x=>x.max>0);
         if(!added.length){toast('Nothing left to return',`Every item on ${src?.number||'the original'} has already been returned on another note.`,'warning');return}
@@ -3888,6 +3892,8 @@ const TeghPortal = (() => {
           if(state.kind==='invoice'){
             if(mode==='details'){await api('bills',{method:'PATCH',json:{action:'update_details',billId:editId,dueDate:state.dueDate,memo:state.message}});form.dataset.srpDirty='0';toast('Vendor invoice saved','Due date and memo were updated. Amounts are unchanged.','success');invalidateWorkspaceState('bills');return openBills('',editId)}
             const payload={vendorId:state.partyId,number:state.number.trim(),billDate:state.date,dueDate:state.dueDate,currency:state.currency,exchangeRateMicros:rateMicros(),taxEntryMode:state.taxMode,memo:state.message,lines:used().map(l=>({productServiceId:l.productServiceId||undefined,description:l.description.trim(),quantity:Number(l.qty),unitPriceCents:Math.round(Number(l.rate)*100),accountId:l.accountId,...taxFields(l,false)}))};
+            const recurring=!editId&&!!$('[data-recurring-bill]',body)?.checked;
+            if(recurring){const first=used()[0],tf=taxFields(first,false);Object.assign(payload,{isRecurring:true,categoryAccountId:first.accountId,foreignAmountCents:used().reduce((a,l)=>a+lineNet(l),0),applyGstHst:codesMode?first.taxKey!=='':!!tf.applyGstHst,applyPst:codesMode?false:!!tf.applyPst})}
             let id=editId;
             if(editId){await api('bills',{method:'PATCH',json:{action:'update',billId:editId,...payload}});if(mode==='post')await api('bills',{method:'PATCH',json:{action:'issue',billId:editId}})}
             else{const result=await api('bills',{method:'POST',json:{...payload,issue:mode==='post'}});id=result.bill?.id||''}
@@ -7397,8 +7403,25 @@ const TeghPortal = (() => {
   init();
     // R137: after a company is created, open Tax Codes so the owner sets up the taxes first.
   try{if(sessionStorage.getItem('tegh-r137-open')==='tax-codes'){sessionStorage.removeItem('tegh-r137-open');let tries=0;const go=()=>{if(document.querySelector('.sidebar')&&typeof openTaxCodes==='function'){openTaxCodes();return}if(++tries<40)setTimeout(go,300)};setTimeout(go,1500)}}catch{}
+  /* R151: the sidebar menu scrolls with the mouse wheel and trackpad every time.
+     Right after choosing a menu item the browser could keep a stale scroll target,
+     so the first scroll over the menu was lost ("the sidebar does not scroll").
+     A wheel over the menu now moves the menu itself by exactly the wheel amount.
+     The listener is on the sidebar only, so the rest of the app keeps native
+     scrolling; an inner list that can still scroll keeps the event. */
+  (function sidebarWheel(){
+    const bind=()=>{const aside=document.querySelector('aside.sidebar');if(!aside||aside.dataset.r151Wheel)return;aside.dataset.r151Wheel='1';
+      aside.addEventListener('wheel',event=>{if(event.defaultPrevented||event.ctrlKey||event.metaKey)return;const nav=event.target?.closest?.('nav');if(!nav||!aside.contains(nav))return;
+        const max=nav.scrollHeight-nav.clientHeight;if(max<=1)return;
+        for(let el=event.target;el&&el!==nav;el=el.parentElement){const st=getComputedStyle(el);if(/auto|scroll/.test(st.overflowY)&&el.scrollHeight>el.clientHeight+1&&((event.deltaY>0&&el.scrollTop<el.scrollHeight-el.clientHeight-1)||(event.deltaY<0&&el.scrollTop>1)))return}
+        let dy=event.deltaY;if(event.deltaMode===1)dy*=40;else if(event.deltaMode===2)dy*=nav.clientHeight;if(!dy||Math.abs(event.deltaX)>Math.abs(event.deltaY))return;
+        const next=Math.max(0,Math.min(max,nav.scrollTop+dy));if(next===nav.scrollTop)return;
+        event.preventDefault();const prev=nav.style.scrollBehavior;nav.style.scrollBehavior='auto';nav.scrollTop=next;nav.style.scrollBehavior=prev;
+      },{passive:false});};
+    bind();document.addEventListener('DOMContentLoaded',bind);setInterval(bind,2000);
+  })();
   return {
-    openDocumentEditor,editInvoice:id=>openDocumentEditor('customer',{editId:id,editType:'invoice'}),
+    openDocumentEditor,openInvoiceDetails,editInvoice:id=>openDocumentEditor('customer',{editId:id,editType:'invoice'}),
     openWorkspaceSearch,triggerTeghSignOut,switchBookkeepingMode,openDashboard,openAgentCenter,openPayrollTaxCenter,openMonthEndClose,openNativeAgentSettings,openDocumentIntake,openCollectionDrafts,openBookkeepingWorkspace,openGuidedBookkeeping,openGuidedTransactionQueue,openGuidedMonthEnd,openModule:moduleDashboard,getPageContext,openReports:openReportsDashboard,openAdvancedDashboard,returnFromAdvanced,
     invokeMenuAction,getModuleNavigationSections:(module)=>Object.fromEntries(Object.entries(moduleSections[module]||{}).map(([group,names])=>[group,names.map(name=>({id:menuActionId(module,name),name}))])),
     openVoidTransaction,openVoidRegister,openImportedTransactions,
