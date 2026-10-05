@@ -4,10 +4,10 @@
   "build": 5990,
   "schema": 46,
   "schemaTarget": 46,
-  "release": "R149",
-  "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R149-Consolidated-IONOS-STAGING",
-  "packageFile": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R149-Consolidated-IONOS-STAGING.zip",
-  "revision": "Cumulative R118–R149 over the Sites R117 frontend. R149: invitations are sent as an invitation code instead of a link; the invited person opens Create account (app.html?register=1), enters their email address and the 10-character code (XXXXX-XXXXX, no 0/O/1/I/L), then their name, password and terms; codes are tied to the invited email, single-use and expire after 72 hours; wrong attempts are limited to 10 per 15 minutes per email and per network address (correct look-ups are not counted); invitation links sent before R149 still work. R148: the sign-in screen has two tabs, Sign in and Create account; an invitation link opens Create account with the invited email, companies and roles, Your name, password and terms (existing users accept with their current password); without a link the tab explains the invitation-only beta and accepts a pasted invitation link; expired or used links are explained; the typed name is stored on acceptance. R147: the owner's public-page update (17 pages from the owner's R146 Marketing-Aligned package, original SHA-256 6fb6db08…28dd; Privacy and Terms version 2026-10-01 pending owner/legal approval) and the site root now serves the home page instead of redirecting to app.html (Sign In and all emailed links use /app.html; old root links with sign-in parameters still redirect); files shipped 0644 / folders 0755 (the owner package was 0600, AUD-1). No application or asset change; cache token unchanged. R146: OCR clean-up no longer blacks out clean scans with little text (DEF-16); the contrast stretch applies only to genuinely low-contrast pages. R145: Bank Statement Converter reads text PDF statements by column position (withdrawal/deposit/amount/balance columns, transaction and posting dates, wrapped descriptions, side panels ignored, years from the statement period, card sign convention) and checks the rows against the statement's opening, running and closing balances and page totals on the review screen; Document Intake field reader rewritten (labels with values on the next line, French/Québec labels and amounts, several tax lines, receipt numbers, Net-N due dates, ambiguous numeric dates offered both ways, never guessed), photo clean-up before OCR, scanned-PDF OCR fixed in browsers without Map.getOrInsertComputed, live subtotal + tax = total check, hidden Upload button in the Document Intake menu fixed (DEF-14). R144: Tegh Intelligence built into Tegh with no external AI (dashboard brief; anomaly watch with dismissals; who to chase first; cash runway with what-if; bank suggestions with confidence and reason; Assist answers spending, sales, top expenses and top customers from the posted books). R143: fixes from a click-through test of every daily workflow (stale statement preview replaced on re-upload; Match and Post links a bank line to a payment recorded by hand; Tegh Assist bank-balance and payables phrasings; invoice screen Total incl. tax; reconciliation wording for future period ends). R142: owner-approved wording: Payroll Support for Canadian payroll outside Quebec with the loaded CRA T4127 rate tables listed on payroll screens; sales tax guide (where tax applies, zero-rated vs exempt, small supplier, input tax credit receipts, foreign rates), short registration guide updated for GST-only starter codes outside the home province, starter-code note, Product Activity note (specific identification, no LIFO, count-based steps). R141: starter tax codes charge PST/RST/QST only in the company's home province (DEF-08); invitation, account-setup and password-reset tokens carried after # and looked up by same-origin POST (OBS-2); Clarity removed from the Content-Security-Policy; country and province/state on companies, customers and vendors with tax codes for other countries (country or country-state regions); Tax Code Report with Edit selected; Dashboard Figures GL mapping per card; Payroll Support marked Canada only and refused for companies outside Canada. R140: New Vendor Invoice form scrolls on phones (a non-scrolling nested scroll box no longer captures swipes). R139: beta release gate fixes only: no Clarity session recording in app.html; manual/recurring journals refused on AR 1200 and AP 2050; companies not registered for GST/HST are not charged tax automatically and their purchase tax becomes cost; dashboard tax card shows other tax-code accounts; accepted-mail message; damaged backup returns 422; root config*.php denied. R138: tax code picker in bank posting screens (Match and Post, review panel, guided review), QST on its own GL accounts (2115/1115) with QST remittance, and editable Canadian starter tax codes for every province and territory plus GST-only on new Default-chart companies, with an Add Canadian tax codes button for existing companies. R137: user-defined tax codes (named taxes such as GST+QST or CGST+SGST, each with its own rate and sales/purchase GL accounts, one active code per province) used by invoices, bills, expenses, notes, cash-basis settlements and the bank feed; new companies start with no codes; existing companies switch on their first code. R136: PST/QST/RST rates stored and calculated exactly in thousandths of a percent (QST 9.975%), companies.pst_rate_mpct added automatically. R135: customer-invoice PST/QST/RST recorded and posted separately from GST/HST (2110 vs 2100) on create, draft edit, issue, recurring, notes and cash-basis receipts; plain-language sales tax guide at company registration and Company Details; Inventory Report renamed Product Activity with an ASPE 3031 / IAS 2 scope note; release manifests regenerated with one identity.",
+  "release": "R150",
+  "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R150-Consolidated-IONOS-STAGING",
+  "packageFile": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R150-Consolidated-IONOS-STAGING.zip",
+  "revision": "Cumulative R118–R150 over the Sites R117 frontend. R150: the 17 public pages always open in the light design (the R27 device dark mode is removed from the public-page stylesheets, which now declare color-scheme only light, and each page carries a color-scheme meta so browsers do not darken it automatically); public-page stylesheet links use ?v=5990-r150; the app and client viewing page are unchanged. R149: invitations are sent as an invitation code instead of a link; the invited person opens Create account (app.html?register=1), enters their email address and the 10-character code (XXXXX-XXXXX, no 0/O/1/I/L), then their name, password and terms; codes are tied to the invited email, single-use and expire after 72 hours; wrong attempts are limited to 10 per 15 minutes per email and per network address (correct look-ups are not counted); invitation links sent before R149 still work. R148: the sign-in screen has two tabs, Sign in and Create account; an invitation link opens Create account with the invited email, companies and roles, Your name, password and terms (existing users accept with their current password); without a link the tab explains the invitation-only beta and accepts a pasted invitation link; expired or used links are explained; the typed name is stored on acceptance. R147: the owner's public-page update (17 pages from the owner's R146 Marketing-Aligned package, original SHA-256 6fb6db08…28dd; Privacy and Terms version 2026-10-01 pending owner/legal approval) and the site root now serves the home page instead of redirecting to app.html (Sign In and all emailed links use /app.html; old root links with sign-in parameters still redirect); files shipped 0644 / folders 0755 (the owner package was 0600, AUD-1). No application or asset change; cache token unchanged. R146: OCR clean-up no longer blacks out clean scans with little text (DEF-16); the contrast stretch applies only to genuinely low-contrast pages. R145: Bank Statement Converter reads text PDF statements by column position (withdrawal/deposit/amount/balance columns, transaction and posting dates, wrapped descriptions, side panels ignored, years from the statement period, card sign convention) and checks the rows against the statement's opening, running and closing balances and page totals on the review screen; Document Intake field reader rewritten (labels with values on the next line, French/Québec labels and amounts, several tax lines, receipt numbers, Net-N due dates, ambiguous numeric dates offered both ways, never guessed), photo clean-up before OCR, scanned-PDF OCR fixed in browsers without Map.getOrInsertComputed, live subtotal + tax = total check, hidden Upload button in the Document Intake menu fixed (DEF-14). R144: Tegh Intelligence built into Tegh with no external AI (dashboard brief; anomaly watch with dismissals; who to chase first; cash runway with what-if; bank suggestions with confidence and reason; Assist answers spending, sales, top expenses and top customers from the posted books). R143: fixes from a click-through test of every daily workflow (stale statement preview replaced on re-upload; Match and Post links a bank line to a payment recorded by hand; Tegh Assist bank-balance and payables phrasings; invoice screen Total incl. tax; reconciliation wording for future period ends). R142: owner-approved wording: Payroll Support for Canadian payroll outside Quebec with the loaded CRA T4127 rate tables listed on payroll screens; sales tax guide (where tax applies, zero-rated vs exempt, small supplier, input tax credit receipts, foreign rates), short registration guide updated for GST-only starter codes outside the home province, starter-code note, Product Activity note (specific identification, no LIFO, count-based steps). R141: starter tax codes charge PST/RST/QST only in the company's home province (DEF-08); invitation, account-setup and password-reset tokens carried after # and looked up by same-origin POST (OBS-2); Clarity removed from the Content-Security-Policy; country and province/state on companies, customers and vendors with tax codes for other countries (country or country-state regions); Tax Code Report with Edit selected; Dashboard Figures GL mapping per card; Payroll Support marked Canada only and refused for companies outside Canada. R140: New Vendor Invoice form scrolls on phones (a non-scrolling nested scroll box no longer captures swipes). R139: beta release gate fixes only: no Clarity session recording in app.html; manual/recurring journals refused on AR 1200 and AP 2050; companies not registered for GST/HST are not charged tax automatically and their purchase tax becomes cost; dashboard tax card shows other tax-code accounts; accepted-mail message; damaged backup returns 422; root config*.php denied. R138: tax code picker in bank posting screens (Match and Post, review panel, guided review), QST on its own GL accounts (2115/1115) with QST remittance, and editable Canadian starter tax codes for every province and territory plus GST-only on new Default-chart companies, with an Add Canadian tax codes button for existing companies. R137: user-defined tax codes (named taxes such as GST+QST or CGST+SGST, each with its own rate and sales/purchase GL accounts, one active code per province) used by invoices, bills, expenses, notes, cash-basis settlements and the bank feed; new companies start with no codes; existing companies switch on their first code. R136: PST/QST/RST rates stored and calculated exactly in thousandths of a percent (QST 9.975%), companies.pst_rate_mpct added automatically. R135: customer-invoice PST/QST/RST recorded and posted separately from GST/HST (2110 vs 2100) on create, draft edit, issue, recurring, notes and cash-basis receipts; plain-language sales tax guide at company registration and Company Details; Inventory Report renamed Product Activity with an ASPE 3031 / IAS 2 scope note; release manifests regenerated with one identity.",
   "releaseStatus": "STAGING CANDIDATE — host acceptance open (see hostAcceptance)",
   "sealed": false,
   "productionReady": false,
@@ -24,10 +24,10 @@
   "flatRoot": true,
   "packageType": "cumulative-full-application",
   "activeEntry": "app.html",
-  "generatedAt": "2026-10-02T11:53:55Z",
+  "generatedAt": "2026-10-05T10:01:33Z",
   "sourceRepository": "sraccountax/My-website",
   "sourceBranch": "claude/invoice-credit-debit-audit-e2y8wc",
-  "sourceParentCommit": "64938520a345407715b607989efe1ee30b3e0241",
+  "sourceParentCommit": "ccfc823ce1db78dd112b3747f9b216b0a576222c",
   "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
   "databaseMigrationRequired": false,
   "databaseMigrationNote": "No manual migration since R118. R144 creates company_insight_dismissals on the first dismissal. R141 adds companies.country, widens province to VARCHAR(10) on companies/customers/vendors and creates company_dashboard_mappings on the first request. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
@@ -39,11 +39,11 @@
   "fileManifest": {
     "path": "FILE-MANIFEST.sha256",
     "algorithm": "SHA-256",
-    "entries": 352,
+    "entries": 353,
     "authoritative": true,
     "note": "The only authoritative per-file hash list for this package. Per-file hashes under history record earlier releases and are not expected to match current files."
   },
-  "testStatus": "R149 = R148 with invitation codes: the invitation email carries a code that the invited person enters with their email address on the Create account tab. Re-run through the full gate suite with the host clock pinned to 2026-10-01, including 18-r149 (code email, tabs, code entry and formatting, account creation, wrong/used/other-email codes, attempt limit, existing users, phone, name validation, links sent before R149), the root and ZIP-permission checks, the UI matrix, a public-page render check and the R118->R149 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R149 addendum). Host acceptance has not started; productionReady is false.",
+  "testStatus": "R150 = R149 with the public pages always in the light design (no device or browser dark mode on public pages). Re-run through the full gate suite with the host clock pinned to 2026-10-01, the root and ZIP-permission checks, the UI matrix, the public-page render check, a dark-mode check of every public page (device dark preference and Chrome forced dark) and the R118->R150 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R150 addendum). Host acceptance has not started; productionReady is false.",
   "executedLocalGates": {
     "betaGateR138Baseline": {
       "passed": false,
@@ -83,6 +83,10 @@
     "r149InvitationCodes": {
       "passed": null,
       "detail": "18-r149 on the gate host: invitation email shows the code and no link; Create account tab with email and code fields; code formatting; account creation with typed name, role and terms stored; wrong code, other email, used code and invalid letters refused with plain messages; 10 wrong tries per 15 minutes answered 429 with a wait message while correct look-ups are never counted; existing users accept with their password; phone width fits; legacy links still open the account form. Counts in FINAL-BETA-QA-REPORT.md."
+    },
+    "r150PublicPagesLight": {
+      "passed": null,
+      "detail": "dark-check.mjs: the 17 public pages at 390x844 in a browser with dark preference and again with Chrome forced dark; body background and rendered page brightness must be light. Before the fix 34 of 34 rendered dark; counts on the exact ZIP in FINAL-BETA-QA-REPORT.md."
     }
   },
   "notExecuted": [
@@ -163,6 +167,36 @@
     "Document Intake OCR uses the bundled English model only",
     "Statement layouts not seen before may fall back to the general reader; the balance check shows whether the rows are complete"
   ],
+  "r150Files": [
+    "assets/tegh-marketing-v5900.css",
+    "assets/tegh-marketing-v4140.css",
+    "index.html",
+    "product.html",
+    "ask-tegh.html",
+    "solutions.html",
+    "subscriptions.html",
+    "resources.html",
+    "company.html",
+    "security.html",
+    "contact.html",
+    "migration.html",
+    "privacy.html",
+    "terms.html",
+    "404.html",
+    "guides/ar-aging.html",
+    "guides/balance-sheet.html",
+    "guides/bank-reconciliation.html",
+    "guides/cash-vs-accrual.html",
+    "R150-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r150Migration": "none",
+  "r150CacheToken": "5990-r149-tegh (app unchanged); public-page stylesheets ?v=5990-r150",
   "r149Files": [
     "api/invitations_v5980.php",
     "app.html",
@@ -2081,6 +2115,80 @@
         "r145ConverterAndIntake": {
           "passed": null,
           "detail": "16-r145: six synthetic statements in three Canadian layouts plus ISO-date, missing-line and no-heading cases (rows, dates, net, in/out, opening/closing, running balances, page totals, review-screen check, server preview balances) and six synthetic bills/receipts (text PDF, French invoice, receipt photos, scanned PDF) with hand-written expected fields, Document Intake screen upload/review; expected figures from the fixture generators' integer-cent arithmetic. Owner-supplied real statements were checked locally only and are not part of the package or evidence."
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "Existing companies keep the legacy tax rules until their first tax code is saved",
+        "Starter tax codes created before R141 charge PST/RST in BC, MB and SK whatever the home province; companies not registered there must deactivate those codes. Codes created from R141 are GST only outside the home province",
+        "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+        "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+        "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+        "Journals posted to 1200/2050 before R139 are not changed",
+        "Base (reporting) currency is CAD for every company, including companies outside Canada",
+        "Dashboard Figures mappings are not included in backups",
+        "Payroll Support is Canada only; companies outside Canada cannot enable it",
+        "Companies on the legacy tax rules (no tax codes saved) do not pick a code for customers outside Canada",
+        "Starter codes created before R142 keep the R141 note text until edited",
+        "Report exports are under the table's Actions menu (Export…)",
+        "GL Journal Entry excludes bank, AR, AP and tax control accounts by design",
+        "Balance Sheet shows GST/HST Recoverable under Other Assets",
+        "Employee province fields are free text",
+        "Tegh Intelligence uses rules and statistics; it can miss things or raise false alarms",
+        "Bank suggestions need at least one earlier posting of a similar line",
+        "Insight dismissals are not included in backups",
+        "The column statement reader needs a text PDF; scanned statements still need the bank's CSV/OFX",
+        "Document Intake OCR uses the bundled English model only",
+        "Statement layouts not seen before may fall back to the general reader; the balance check shows whether the rows are complete"
+      ]
+    },
+    "r149Identity": {
+      "release": "R149",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R149-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-10-02T11:53:55Z",
+      "sourceParentCommit": "64938520a345407715b607989efe1ee30b3e0241",
+      "testStatus": "R149 = R148 with invitation codes: the invitation email carries a code that the invited person enters with their email address on the Create account tab. Re-run through the full gate suite with the host clock pinned to 2026-10-01, including 18-r149 (code email, tabs, code entry and formatting, account creation, wrong/used/other-email codes, attempt limit, existing users, phone, name validation, links sent before R149), the root and ZIP-permission checks, the UI matrix, a public-page render check and the R118->R149 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R149 addendum). Host acceptance has not started; productionReady is false.",
+      "executedLocalGates": {
+        "betaGateR138Baseline": {
+          "passed": false,
+          "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
+        },
+        "betaGateR139Retest": {
+          "passed": null,
+          "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
+        },
+        "history": {
+          "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
+        },
+        "r140VendorInvoicePhoneScroll": {
+          "passed": true,
+          "detail": "Chromium 390x844 swipe-trap scan of all 46 menu screens: 1 trap before (New Vendor Invoice), 0 after. Touch swipe and wheel scroll the vendor invoice form at 1440, 1024, 768, 390 and 360 px widths. iOS Safari not available in the build environment."
+        },
+        "r141GateRetest": {
+          "passed": null,
+          "detail": "Full gate suite, 13-r141 tests (DEF-08, countries, foreign tax codes, OBS-2, tax code report usage, dashboard mappings, Clarity, payroll Canada only), R141 browser journeys at 1440x900 and 390x844, and R118->R141 upgrade on the exact R141 ZIP; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r142WordingRetest": {
+          "passed": null,
+          "detail": "14-r142 tests (exact starter-code notes, guide sentences, Product Activity, payroll notice and pages, Quebec employee refused, rate tables) and R142 browser journeys; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r143ClickThroughWorkflows": {
+          "passed": null,
+          "detail": "Click-through workflow suite on a fresh synthetic company (customer to payroll, Assist, PDF and export), every result checked against the database with hand-computed expectations; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r144Intelligence": {
+          "passed": null,
+          "detail": "15-r144 on a seeded synthetic company with hand-computed expectations (anomalies, brief, chase list, cash, bank suggestions, ask-your-books, dismissals, read-only, isolation, no outbound calls) and journeys144 at 1440x900 and 390x844."
+        },
+        "r145ConverterAndIntake": {
+          "passed": null,
+          "detail": "16-r145: six synthetic statements in three Canadian layouts plus ISO-date, missing-line and no-heading cases (rows, dates, net, in/out, opening/closing, running balances, page totals, review-screen check, server preview balances) and six synthetic bills/receipts (text PDF, French invoice, receipt photos, scanned PDF) with hand-written expected fields, Document Intake screen upload/review; expected figures from the fixture generators' integer-cent arithmetic. Owner-supplied real statements were checked locally only and are not part of the package or evidence."
+        },
+        "r149InvitationCodes": {
+          "passed": null,
+          "detail": "18-r149 on the gate host: invitation email shows the code and no link; Create account tab with email and code fields; code formatting; account creation with typed name, role and terms stored; wrong code, other email, used code and invalid letters refused with plain messages; 10 wrong tries per 15 minutes answered 429 with a wait message while correct look-ups are never counted; existing users accept with their password; phone width fits; legacy links still open the account form. Counts in FINAL-BETA-QA-REPORT.md."
         }
       },
       "knownLimitations": [
