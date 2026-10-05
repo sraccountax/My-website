@@ -82,7 +82,7 @@ function tegh_subledger_sources_5980(array $company, bool $ar): array
         [$cid,$partyType.'.advance_applied',$partyType.'.payment_posted',$partyType.'.payment_recorded_from_bank']
     );
     $notes = schema_table_exists('accounting_notes') ? tegh_report_query_5980(
-        "SELECT n.id,n.party_id partyId,n.source_id documentId,n.number,n.note_date noteDate,
+        "SELECT n.id,n.party_id partyId,n.source_id documentId,".(schema_column_exists('accounting_notes','reference_number')?"n.reference_number referenceNumber,":"NULL referenceNumber,")."n.number,n.note_date noteDate,
                 n.note_kind noteKind,n.status,n.applied_cents appliedCents,n.total_cents totalCents,
                 n.journal_entry_id journalId,je.status journalStatus,
                 n.reversal_journal_entry_id reversalJournalId,rje.status reversalStatus,
@@ -223,8 +223,10 @@ function tegh_subledger_events_5980(array $source, string $basis, bool $ar): arr
         if ((string)$note['noteKind']==='customer_debit') continue;
         $id=(string)$note['id'];
         if ($note['journalId']===null) continue; // a draft void has no posting
+        // R151: a note recorded against the party with a typed reference has no original in Tegh.
+        $linkedNote=(string)($note['documentId']??'')!=='';
         $sourceKey='document:'.(string)$note['documentId'];
-        if (!isset($items[$sourceKey]) || (string)$items[$sourceKey]['partyId']!==(string)$note['partyId'])
+        if ($linkedNote && (!isset($items[$sourceKey]) || (string)$items[$sourceKey]['partyId']!==(string)$note['partyId']))
             fail('A linked note points to an unavailable or different-party document.',409,'report_note_source_invalid',false);
         if ((string)$note['journalStatus']!=='posted')
             fail('A linked note has no active original journal.',409,'report_note_posting_missing',false);
@@ -237,7 +239,7 @@ function tegh_subledger_events_5980(array $source, string $basis, bool $ar): arr
         $date=tegh_subledger_date_5980($note['noteDate'],$id);$key='note:'.$id;
         $putItem($key,['partyId'=>(string)$note['partyId'],'documentId'=>null,'number'=>(string)$note['number'],
             'documentDate'=>$date,'effectiveDate'=>$date,'dueDate'=>$date,
-            'description'=>'Linked note for '.(string)$items[$sourceKey]['number'],
+            'description'=>$linkedNote?'Linked note for '.(string)$items[$sourceKey]['number']:'Note · reference '.(string)($note['referenceNumber']??''),
             'kind'=>'Open credit / debit note','affectsControl'=>true,'isOpening'=>false]);
         $add($key,$date,-$total,'Note posted',(string)$note['number'],(string)$note['journalId'],20);
         $refundTotal=0;$applicationTotal=0;

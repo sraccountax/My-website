@@ -251,6 +251,7 @@ function bill_posting_lines_rows(string $companyId, string $categoryAccountId, i
 /** Posting lines for a saved bill: tax-code components when saved, else the legacy GST/HST + PST rule. */
 function bill_saved_posting_lines(string $companyId, array $company, array $bill): array
 {
+    if (function_exists('r151_bill_saved_posting_lines') && ($itemized = r151_bill_saved_posting_lines($companyId, $company, $bill)) !== null) return $itemized;
     $rows = function_exists('document_tax_rows_get') ? document_tax_rows_get($companyId, 'bill', (string)$bill['id']) : [];
     if ($rows || (function_exists('tax_setup_mode') && tax_setup_mode($company) === 'codes' && (int)$bill['tax_cents'] === 0)) return bill_posting_lines_rows($companyId, (string)$bill['category_account_id'], (int)$bill['subtotal_cents'], $rows, (int)$bill['total_cents']);
     $fx = bill_fx_rounding_cents((int)$bill['foreign_subtotal_cents'], (int)$bill['foreign_gst_hst_cents'], (int)$bill['foreign_pst_cents'], (int)$bill['exchange_rate_micros'], (int)$bill['total_cents']);
@@ -260,6 +261,7 @@ function bill_saved_posting_lines(string $companyId, array $company, array $bill
 /** R137: cash-basis recognition of a bill's tax-code components for an applied amount, or null for legacy bills. */
 function bill_tax_recognition_lines(string $companyId, array $bill, int $amount): ?array
 {
+    if (function_exists('r151_bill_cash_lines') && ($itemized = r151_bill_cash_lines($companyId, null, $bill, $amount, (string)$bill['number'])) !== null) return $itemized;
     $rows = function_exists('document_tax_rows_get') ? document_tax_rows_get($companyId, 'bill', (string)$bill['id']) : [];
     if (!$rows) return null;
     $foreignTotal = max(1, (int)$bill['foreign_total_cents']);
@@ -303,6 +305,8 @@ function bill_posting_description(string $vendorName, string $number, string $bi
 /** @return array<string,mixed> */
 function bill_input_values(array $company, array $input): array
 {
+    // R151: an itemized vendor invoice (GL account and tax per line).
+    if(function_exists('r151_bill_has_lines_input')&&r151_bill_has_lines_input($input))return r151_bill_input_values($company,$input);
     $companyId=(string)$company['id'];
     $vendorId=clean_text($input['vendorId']??'', 'Vendor',64);
     $stmt=db()->prepare('SELECT id,name,default_expense_account_id,default_currency,default_terms_days FROM vendors WHERE id=? AND company_id=? AND active=1');
@@ -397,10 +401,11 @@ if($importReference!==null){$dup=db()->prepare('SELECT 1 FROM bills WHERE compan
 if($issue)assert_period_open($companyId,$v['billDate']);$id=new_id('bill');$requiresApproval=$issue&&$v['total']>company_materiality_threshold_cents($companyId);$requestedStatus=$requiresApproval?'draft':($issue?'open':'draft');$ownsTransaction=!db()->inTransaction();if($ownsTransaction)db()->beginTransaction();
 try{
     if(function_exists('voucher_register_saved'))voucher_register_saved($user,$companyId,'VI','AP','bill',$id,$v['billDate'],'Vendor invoice '.$v['number'],$v['total'],null,false);
-    $entryId=null;if($issue&&!$requiresApproval&&(string)$company['accounting_basis']==='accrual')$entryId=add_journal_entry($user,$companyId,$v['billDate'],'bill',$id,bill_posting_description((string)$v['vendor']['name'],$v['number'],$v['billDate'],(string)$v['category']['name']),(!empty($v['codesMode'])?bill_posting_lines_rows($companyId,$v['categoryId'],$v['subtotal'],$v['taxRows'],$v['total']):bill_posting_lines($companyId,$v['categoryId'],$v['subtotal'],$v['gst'],$v['pst'],$v['total'],(bool)($company['pst_recoverable']??false),(int)$v['fxRounding'])));
+    $entryId=null;if($issue&&!$requiresApproval&&(string)$company['accounting_basis']==='accrual')$entryId=add_journal_entry($user,$companyId,$v['billDate'],'bill',$id,bill_posting_description((string)$v['vendor']['name'],$v['number'],$v['billDate'],(string)$v['category']['name']),(!empty($v['r151Lines'])?r151_bill_posting_lines($companyId,$company,$v['r151Lines'],$v['taxRows'],$v['total']):(!empty($v['codesMode'])?bill_posting_lines_rows($companyId,$v['categoryId'],$v['subtotal'],$v['taxRows'],$v['total']):bill_posting_lines($companyId,$v['categoryId'],$v['subtotal'],$v['gst'],$v['pst'],$v['total'],(bool)($company['pst_recoverable']??false),(int)$v['fxRounding']))));
     db()->prepare("INSERT INTO bills (id,company_id,vendor_id,product_service_id,quantity_milli,number,bill_date,due_date,status,category_account_id,payment_terms_days,subtotal_cents,gst_hst_cents,pst_cents,tax_cents,tax_entry_mode,total_cents,balance_cents,currency,exchange_rate_micros,foreign_subtotal_cents,foreign_gst_hst_cents,foreign_pst_cents,foreign_tax_cents,foreign_total_cents,foreign_balance_cents,memo,import_reference,issued_journal_entry_id,is_recurring) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
       ->execute([$id,$companyId,$v['vendorId'],$v['productServiceId'],$v['quantityMilli'],$v['number'],$v['billDate'],$v['dueDate'],$requestedStatus,$v['categoryId'],$v['termsDays'],$v['subtotal'],$v['gst'],$v['pst'],$v['taxTotal'],$v['mode'],$v['total'],$v['total'],$v['currency'],$v['rate'],$v['foreignSubtotal'],$v['foreignGst'],$v['foreignPst'],$v['foreignGst']+$v['foreignPst'],$v['foreignTotal'],$v['foreignTotal'],$v['memo'],$importReference,$entryId,$isRecurring?1:0]);
     if(!empty($v['codesMode'])){document_tax_rows_save($companyId,'bill',$id,$v['taxRows']);db()->prepare('UPDATE bills SET tax_code_id=? WHERE id=? AND company_id=?')->execute([$v['taxCodeId'],$id,$companyId]);}
+    if(!empty($v['r151Lines']))r151_bill_store_lines($companyId,$id,$v['r151Lines']);
     $approvalId=null;
     if($requiresApproval){$billRow=['id'=>$id,'company_id'=>$companyId,'vendor_id'=>$v['vendorId'],'number'=>$v['number'],'bill_date'=>$v['billDate'],'due_date'=>$v['dueDate'],'category_account_id'=>$v['categoryId'],'subtotal_cents'=>$v['subtotal'],'gst_hst_cents'=>$v['gst'],'pst_cents'=>$v['pst'],'tax_cents'=>$v['taxTotal'],'total_cents'=>$v['total'],'currency'=>$v['currency'],'exchange_rate_micros'=>$v['rate'],'foreign_total_cents'=>$v['foreignTotal'],'memo'=>$v['memo']];$approvalId=bill_submit_for_approval($user,$companyId,$billRow);}
     if($issue&&!$requiresApproval&&function_exists('voucher_mark_posted'))voucher_mark_posted($user,$companyId,'bill',$id,$entryId);
@@ -446,6 +451,7 @@ function bill_approval_transition(array $user,array $company,string $billId,stri
 function handle_bills(): never
 {
     require_method('POST','PATCH','DELETE');require_csrf();$user=require_user();$company=require_company($user);require_company_role($company,'owner','bookkeeper');$companyId=(string)$company['id'];$input=request_json();
+    if(function_exists('r151_schema_ready'))r151_schema_ready();
     if(request_method()==='DELETE'){
         $billId=clean_text($input['billId']??'','Vendor invoice',64);db()->beginTransaction();
         try{
@@ -460,6 +466,7 @@ function handle_bills(): never
     if(request_method()==='PATCH'){
         $action=(string)($input['action']??'');$billId=clean_text($input['billId']??'','Vendor invoice',64);
         if(in_array($action,['approve','post'],true))json_response(['bill'=>bill_approval_transition($user,$company,$billId,$action,$input)]);
+        if($action==='update_details'){require_company_permission($company,'bills.write');json_response(['bill'=>r151_bill_update_details($user,$company,$billId,$input)]);}
         if($action==='update'){
             $v=bill_input_values($company,$input);db()->beginTransaction();
             try{
@@ -469,6 +476,8 @@ function handle_bills(): never
                 db()->prepare("UPDATE bills SET vendor_id=?,product_service_id=?,quantity_milli=?,number=?,bill_date=?,due_date=?,category_account_id=?,payment_terms_days=?,subtotal_cents=?,gst_hst_cents=?,pst_cents=?,tax_cents=?,tax_entry_mode=?,total_cents=?,balance_cents=?,currency=?,exchange_rate_micros=?,foreign_subtotal_cents=?,foreign_gst_hst_cents=?,foreign_pst_cents=?,foreign_tax_cents=?,foreign_total_cents=?,foreign_balance_cents=?,memo=? WHERE id=? AND company_id=? AND status='draft'")
                   ->execute([$v['vendorId'],$v['productServiceId'],$v['quantityMilli'],$v['number'],$v['billDate'],$v['dueDate'],$v['categoryId'],$v['termsDays'],$v['subtotal'],$v['gst'],$v['pst'],$v['taxTotal'],$v['mode'],$v['total'],$v['total'],$v['currency'],$v['rate'],$v['foreignSubtotal'],$v['foreignGst'],$v['foreignPst'],$v['foreignGst']+$v['foreignPst'],$v['foreignTotal'],$v['foreignTotal'],$v['memo'],$billId,$companyId]);
                 if(!empty($v['codesMode'])){document_tax_rows_save($companyId,'bill',$billId,$v['taxRows']);db()->prepare('UPDATE bills SET tax_code_id=? WHERE id=? AND company_id=?')->execute([$v['taxCodeId'],$billId,$companyId]);}
+                elseif(function_exists('document_tax_rows_save'))document_tax_rows_save($companyId,'bill',$billId,[]);
+                if(!empty($v['r151Lines']))r151_bill_store_lines($companyId,$billId,$v['r151Lines']);elseif(schema_table_exists('bill_lines'))db()->prepare('DELETE FROM bill_lines WHERE company_id=? AND bill_id=?')->execute([$companyId,$billId]);
                 if(function_exists('voucher_update_saved'))voucher_update_saved($companyId,'bill',$billId,$v['billDate'],'Vendor invoice '.$v['number'],$v['total']);
                 audit_event($user,$companyId,'bill.draft_updated','bill',$billId,['number'=>$v['number'],'totalCents'=>$v['total'],'taxEntryMode'=>$v['mode'],'gstHstCents'=>$v['gst'],'pstCents'=>$v['pst']]);db()->commit();
             }catch(Throwable $e){if(db()->inTransaction())db()->rollBack();if($e instanceof PDOException&&(string)$e->getCode()==='23000')fail('That vendor invoice number already exists.',409,'duplicate_bill_number');throw $e;}
@@ -1039,7 +1048,7 @@ function books_workspace_data(array $company): array
     return [
         'companyCurrencies' => $currencies,
         'vendors' => $vendors,
-        'bills' => $bills,
+        'bills' => (function(array $bills) use ($companyId): array { if(!function_exists('r151_bill_lines_by_bill'))return $bills; $by=r151_bill_lines_by_bill($companyId); foreach($bills as &$b){$b['lines']=$by[$b['id']]??[];$b['itemized']=isset($by[$b['id']]);} unset($b); return $bills; })($bills),
         'accountingControls' => ['closedThroughDate' => $closedThrough !== false && $closedThrough !== null ? (string)$closedThrough : null],
         'payableAging' => $payableAging,
         'vendorOpeningTotalCents'=>$vendorOpeningTotal,

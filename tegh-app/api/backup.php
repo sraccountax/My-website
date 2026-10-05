@@ -153,6 +153,9 @@ function backup_record_queries(): array
     if(schema_table_exists('tax_codes'))$queries['taxCodes']='SELECT id,company_id,code,name,region,description,status,created_by,updated_by,created_at,updated_at FROM tax_codes WHERE company_id = ? ORDER BY code,id';
     if(schema_table_exists('tax_code_components'))$queries['taxCodeComponents']='SELECT * FROM tax_code_components WHERE company_id = ? ORDER BY tax_code_id,sort_order,id';
     if(schema_table_exists('document_tax_lines'))$queries['documentTaxLines']='SELECT * FROM document_tax_lines WHERE company_id = ? ORDER BY document_type,document_id,sort_order,id';
+    // R151: itemized vendor invoice lines and credit/debit note lines.
+    if(schema_table_exists('bill_lines'))$queries['billLines']='SELECT * FROM bill_lines WHERE company_id = ? ORDER BY bill_id,sort_order,id';
+    if(schema_table_exists('accounting_note_lines'))$queries['accountingNoteLines']='SELECT * FROM accounting_note_lines WHERE company_id = ? ORDER BY note_id,sort_order,id';
     return $queries;
 }
 
@@ -187,6 +190,8 @@ function backup_slug(string $name): string
 
 function handle_backup_export(): never
 {
+    // R151: line tables are created on first use; make sure they exist before export/restore.
+    if(function_exists('note_lines_ready'))note_lines_ready();if(function_exists('r151_schema_ready'))r151_schema_ready();
     require_method('POST');require_csrf();$user=require_user();$company=require_company($user);require_company_permission($company,'company.backup');
     if(!class_exists('ZipArchive'))fail('The server ZIP extension is required for Tegh backups.',503,'zip_unavailable');
     $snapshot=backup_capture_snapshot($company);$backupId=new_id('backup');$companyId=(string)$company['id'];
@@ -231,6 +236,8 @@ function backup_restore_map(): array
     if(schema_table_exists('tax_codes'))$map['taxCodes']='tax_codes';
     if(schema_table_exists('tax_code_components'))$map['taxCodeComponents']='tax_code_components';
     if(schema_table_exists('document_tax_lines'))$map['documentTaxLines']='document_tax_lines';
+    if(schema_table_exists('bill_lines'))$map['billLines']='bill_lines';
+    if(schema_table_exists('accounting_note_lines'))$map['accountingNoteLines']='accounting_note_lines';
     return $map;
 }
 
@@ -287,6 +294,8 @@ function backup_rehash_journal_entries(string $companyId): void
 
 function handle_backup_restore(): never
 {
+    // R151: line tables are created on first use; make sure they exist before export/restore.
+    if(function_exists('note_lines_ready'))note_lines_ready();if(function_exists('r151_schema_ready'))r151_schema_ready();
     require_method('POST');require_csrf();$user=require_user();
     $selectedCompanyId=trim((string)($_SERVER['HTTP_X_COMPANY_ID']??$_GET['companyId']??''));
     if($selectedCompanyId!==''){$membership=db()->prepare("SELECT role FROM company_members WHERE company_id=? AND user_id=? AND status='active'");$membership->execute([$selectedCompanyId,$user['id']]);if($membership->fetchColumn()!=='owner')fail('Only the Company Owner can restore a Tegh backup.',403,'role_forbidden');}

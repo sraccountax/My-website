@@ -150,12 +150,12 @@ function note_posting_lines(string $companyId,array $company,array $note,array $
         if($isCustomer){
             $increase=$kind==='customer_debit';
             $result=[['accountId'=>note_control_account_id($companyId,true),'debitCents'=>$increase?$carrying:0,'creditCents'=>$increase?0:$carrying,'memo'=>'Accounts receivable']];
-            $result=array_merge($result,note_customer_revenue_lines($companyId,(string)$source['id'],$net,!$increase));
+            $result=array_merge($result,r151_note_revenue_lines($companyId,$note,(string)$source['id'],$net,!$increase));
             return array_merge($result,tax_rows_sales_lines($companyId,$part,!$increase));
         }
         $purchase=tax_rows_purchase_lines($companyId,$part,true);
         $result=[['accountId'=>note_control_account_id($companyId,false),'debitCents'=>$carrying,'creditCents'=>0,'memo'=>'Accounts payable']];
-        $result[]=['accountId'=>(string)$source['category_account_id'],'debitCents'=>0,'creditCents'=>$net+$purchase['costCents'],'memo'=>'Original vendor invoice cost adjustment'];
+        $result=array_merge($result,r151_note_cost_lines($companyId,$note,$source,$net+$purchase['costCents']));
         return array_merge($result,$purchase['lines']);
     }
     $sourceTax=(int)$source['tax_cents'];$sourceGst=(int)$source['gst_hst_cents'];$sourcePst=(int)$source['pst_cents'];
@@ -165,7 +165,7 @@ function note_posting_lines(string $companyId,array $company,array $note,array $
     if($kind==='customer_debit' || $kind==='customer_credit'){
         $increase=$kind==='customer_debit';
         $result=[['accountId'=>note_control_account_id($companyId,true),'debitCents'=>$increase?$carrying:0,'creditCents'=>$increase?0:$carrying,'memo'=>'Accounts receivable']];
-        $result=array_merge($result,note_customer_revenue_lines($companyId,(string)$source['id'],$net,!$increase));
+        $result=array_merge($result,r151_note_revenue_lines($companyId,$note,(string)$source['id'],$net,!$increase));
         if($gst>0)$result[]=['accountId'=>account_by_code($companyId,'2100'),'debitCents'=>$increase?0:$gst,'creditCents'=>$increase?$gst:0,'memo'=>'GST/HST adjustment'];
         if($pst>0)$result[]=['accountId'=>account_by_code($companyId,'2110'),'debitCents'=>$increase?0:$pst,'creditCents'=>$increase?$pst:0,'memo'=>'PST adjustment'];
         return $result;
@@ -173,7 +173,7 @@ function note_posting_lines(string $companyId,array $company,array $note,array $
     $recoverable=!empty($company['pst_recoverable']);
     $result=[['accountId'=>note_control_account_id($companyId,false),'debitCents'=>$carrying,'creditCents'=>0,'memo'=>'Accounts payable']];
     $cost=$net+($recoverable?0:$pst);
-    $result[]=['accountId'=>(string)$source['category_account_id'],'debitCents'=>0,'creditCents'=>$cost,'memo'=>'Original vendor invoice cost adjustment'];
+    $result=array_merge($result,r151_note_cost_lines($companyId,$note,$source,$cost));
     if($gst>0)$result[]=['accountId'=>account_by_code($companyId,'1100'),'debitCents'=>0,'creditCents'=>$gst,'memo'=>'GST/HST recoverable adjustment'];
     if($pst>0&&$recoverable)$result[]=['accountId'=>account_by_code($companyId,'1110'),'debitCents'=>0,'creditCents'=>$pst,'memo'=>'PST recoverable adjustment'];
     return $result;
@@ -368,12 +368,12 @@ function note_void(array $user,array $company,array $note,array $input): array
     note_assert_settlement_date_order($companyId,(string)$note['id'],$voidDate);
     $amounts=note_remaining_amounts($companyId,$note);
     if($amounts['settlementCount']>0)fail('This note has applications or refunds. Reverse those settlements before voiding the note.',409,'note_has_settlements');
-    $source=note_source($companyId,$spec['source'],(string)$note['source_id']);$increase=$spec['direction']==='increase';
+    $source=(string)($note['source_id']??'')!==''?note_source($companyId,$spec['source'],(string)$note['source_id']):null;$increase=$spec['direction']==='increase';
     if($increase){
         $id=(string)$note['debit_document_id'];$document=note_source($companyId,'invoice',$id);
         if((string)$document['status']!=='sent'||(int)$document['balance_cents']!==(int)$document['total_cents']||(int)$document['foreign_balance_cents']!==(int)$document['foreign_total_cents'])fail('Reverse the debit note payment before voiding it.',409,'note_has_payments');
         db()->prepare("UPDATE invoices SET status='void',balance_cents=0,foreign_balance_cents=0 WHERE id=? AND company_id=? AND status='sent'")->execute([$id,$companyId]);
-    }elseif((int)$note['applied_cents']>0){
+    }elseif((int)$note['applied_cents']>0&&$source!==null){
         $table=$spec['source']==='invoice'?'invoices':'bills';$open=$spec['source']==='invoice'?'sent':'open';
         if(!in_array((string)$source['status'],['paid',$open],true))fail('The original invoice is unavailable for note reversal.',409,'note_source_unavailable');
         $new=(int)$source['balance_cents']+(int)$note['applied_cents'];$foreign=(int)$source['foreign_balance_cents']+(int)$note['foreign_total_cents'];
@@ -471,6 +471,7 @@ function handle_accounting_notes(): never
 {
     require_method('GET','POST','PATCH');$user=require_user();$company=require_company($user);$companyId=(string)$company['id'];tegh_notes_r67_require();
     note_lines_ready();
+    if(function_exists('r151_schema_ready'))r151_schema_ready();
     if(request_method()==='GET'){
         $sourceId=trim((string)($_GET['sourceId']??''));$where='company_id=?';$params=[$companyId];
         if($sourceId!==''){$where.=' AND source_id=?';$params[]=clean_text($sourceId,'Original invoice',64);}
@@ -496,13 +497,13 @@ function handle_accounting_notes(): never
             $foreignApplied=isset($parts['application'])?(int)$parts['application']['foreign_total']:($applied>0?(int)$row['foreign_total_cents']:0);
             $refunded=(int)($parts['refund']['base_total']??0);$foreignRefunded=(int)($parts['refund']['foreign_total']??0);
             $legacy=$applied>0&&!isset($parts['application']);
-            return ['id'=>$row['id'],'kind'=>$row['note_kind'],'number'=>$row['number'],'sourceType'=>$row['source_type'],'sourceId'=>$row['source_id'],'partyId'=>$row['party_id'],'date'=>$row['note_date'],'status'=>$row['status'],'currency'=>$row['currency'],'exchangeRateMicros'=>(int)$row['exchange_rate_micros'],'foreignSubtotalCents'=>(int)$row['foreign_subtotal_cents'],'foreignTaxCents'=>(int)$row['foreign_tax_cents'],'foreignTotalCents'=>(int)$row['foreign_total_cents'],'subtotalCents'=>(int)$row['subtotal_cents'],'taxCents'=>(int)$row['tax_cents'],'totalCents'=>(int)$row['total_cents'],'appliedCents'=>$applied,'foreignAppliedCents'=>$foreignApplied,'refundedCents'=>$refunded,'foreignRefundedCents'=>$foreignRefunded,'remainingCents'=>max(0,($legacy?$applied:(int)$row['total_cents'])-$applied-$refunded),'foreignRemainingCents'=>max(0,(int)$row['foreign_total_cents']-$foreignApplied-$foreignRefunded),'debitDocumentId'=>$row['debit_document_id'],'journalEntryId'=>$row['journal_entry_id'],'memo'=>$row['memo']];
+            return ['id'=>$row['id'],'kind'=>$row['note_kind'],'number'=>$row['number'],'sourceType'=>$row['source_type'],'sourceId'=>$row['source_id'],'referenceNumber'=>$row['reference_number']??null,'partyId'=>$row['party_id'],'date'=>$row['note_date'],'status'=>$row['status'],'currency'=>$row['currency'],'exchangeRateMicros'=>(int)$row['exchange_rate_micros'],'foreignSubtotalCents'=>(int)$row['foreign_subtotal_cents'],'foreignTaxCents'=>(int)$row['foreign_tax_cents'],'foreignTotalCents'=>(int)$row['foreign_total_cents'],'subtotalCents'=>(int)$row['subtotal_cents'],'taxCents'=>(int)$row['tax_cents'],'totalCents'=>(int)$row['total_cents'],'appliedCents'=>$applied,'foreignAppliedCents'=>$foreignApplied,'refundedCents'=>$refunded,'foreignRefundedCents'=>$foreignRefunded,'remainingCents'=>max(0,($legacy?$applied:(int)$row['total_cents'])-$applied-$refunded),'foreignRemainingCents'=>max(0,(int)$row['foreign_total_cents']-$foreignApplied-$foreignRefunded),'debitDocumentId'=>$row['debit_document_id'],'journalEntryId'=>$row['journal_entry_id'],'memo'=>$row['memo']];
         },$rows);
         if($notes&&note_lines_ready()){
             $ids=array_column($notes,'id');$marks=implode(',',array_fill(0,count($ids),'?'));
-            $q=db()->prepare("SELECT note_id,source_line_id,product_service_id,description,quantity_milli,foreign_unit_price_cents,foreign_amount_cents FROM accounting_note_lines WHERE company_id=? AND note_id IN ($marks) ORDER BY note_id,sort_order");
+            $r151Cols=schema_column_exists('accounting_note_lines','account_id')?',account_id,tax_code_id,apply_gst,apply_pst,foreign_tax_cents':'';$q=db()->prepare("SELECT note_id,source_line_id,product_service_id,description,quantity_milli,foreign_unit_price_cents,foreign_amount_cents$r151Cols FROM accounting_note_lines WHERE company_id=? AND note_id IN ($marks) ORDER BY note_id,sort_order");
             $q->execute(array_merge([$companyId],$ids));$byNote=[];
-            foreach($q->fetchAll(PDO::FETCH_ASSOC) as $l)$byNote[(string)$l['note_id']][]=['sourceLineId'=>$l['source_line_id'],'productServiceId'=>$l['product_service_id'],'description'=>$l['description'],'quantityMilli'=>(int)$l['quantity_milli'],'foreignUnitPriceCents'=>(int)$l['foreign_unit_price_cents'],'foreignAmountCents'=>(int)$l['foreign_amount_cents']];
+            foreach($q->fetchAll(PDO::FETCH_ASSOC) as $l)$byNote[(string)$l['note_id']][]=['sourceLineId'=>$l['source_line_id'],'productServiceId'=>$l['product_service_id'],'description'=>$l['description'],'quantityMilli'=>(int)$l['quantity_milli'],'foreignUnitPriceCents'=>(int)$l['foreign_unit_price_cents'],'foreignAmountCents'=>(int)$l['foreign_amount_cents'],'accountId'=>$l['account_id']??null,'taxCodeId'=>$l['tax_code_id']??null,'applyGstHst'=>!empty($l['apply_gst']),'applyPst'=>!empty($l['apply_pst']),'foreignTaxCents'=>(int)($l['foreign_tax_cents']??0)];
             foreach($notes as &$n)$n['lines']=$byNote[(string)$n['id']]??[];unset($n);
         }
         json_response(['notes'=>$notes,'settlements'=>$settlements,'settlementReady'=>true,'linesReady'=>note_lines_ready()]);
@@ -520,16 +521,22 @@ function handle_accounting_notes(): never
                 if(!hash_equals((string)$previous['payload_hash'],$payloadHash)||(string)$previous['created_by']!==(string)$user['id'])fail('The operation key was already used for a different note.',409,'note_operation_key_conflict');
                 return ['id'=>$previous['id'],'number'=>$previous['number'],'status'=>$previous['status'],'idempotent'=>true];
             }
-            $values=note_prepare($company,$input);$lines=note_prepare_lines($companyId,$values,$input['lines']??null);$kind=$values['kind'];$spec=$values['spec'];$source=$values['source'];$number=note_reserve_number($companyId,$kind,$spec['prefix']);$id=new_id('note');
+            // R151: no original in Tegh — the note is recorded against the party with the typed reference.
+            if(trim((string)($input['sourceId']??''))===''){
+                $unlinkedHash=hash('sha256',json_encode(['companyId'=>$companyId,'actorId'=>$user['id']]+array_diff_key($input,['operationKey'=>1]),JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR));
+                return r151_note_create_unlinked($user,$company,$input,$operationKey,$unlinkedHash);
+            }
+            $values=note_prepare($company,$input);$lines=note_prepare_lines($companyId,$values,$input['lines']??null);
+            $lineAccounts=r151_note_line_accounts($companyId,$values['spec']['source']==='invoice',is_array($input['lines']??null)?$input['lines']:[],false);$kind=$values['kind'];$spec=$values['spec'];$source=$values['source'];$number=note_reserve_number($companyId,$kind,$spec['prefix']);$id=new_id('note');
             db()->prepare("INSERT INTO accounting_notes(id,company_id,source_type,source_id,party_id,note_kind,number,note_date,status,currency,exchange_rate_micros,foreign_subtotal_cents,foreign_tax_cents,foreign_total_cents,subtotal_cents,tax_cents,total_cents,memo,operation_key,payload_hash,created_by) VALUES(?,?,?,?,?,?,?,?,'draft',?,?,?,?,?,?,?,?,?,?,?,?)")
                 ->execute([$id,$companyId,$spec['source'],$source['id'],$source[$spec['source']==='invoice'?'customer_id':'vendor_id'],$kind,$number,$values['date'],$source['currency'],$values['rate'],$values['net'],$values['tax'],$values['foreignTotal'],$values['baseNet'],$values['baseTax'],$values['total'],$values['memo'],$operationKey,$payloadHash,$user['id']]);
-            note_store_lines($companyId,$id,$lines);
+            r151_note_store_lines($companyId,$id,$lines,$lineAccounts);
             if(function_exists('voucher_register_saved'))voucher_register_saved($user,$companyId,$spec['prefix'],$spec['source']==='invoice'?'AR':'AP','accounting_note',$id,$values['date'],$number.' · '.(string)$source['number'],$values['total'],null,false);
             audit_event($user,$companyId,'accounting_note.created','accounting_note',$id,['kind'=>$kind,'number'=>$number,'sourceId'=>$source['id']]);
             return ['id'=>$id,'number'=>$number,'status'=>'draft'];
         });json_response(['note'=>$result],201);
     }
-    $noteId=clean_text($input['noteId']??'','Note',64);$action=(string)($input['action']??'');if(!in_array($action,['post','apply','unapply','void'],true))fail('Choose post, apply, unapply or void for the note.');
+    $noteId=clean_text($input['noteId']??'','Note',64);$action=(string)($input['action']??'');if(!in_array($action,['post','apply','unapply','void','update'],true))fail('Choose post, apply, unapply, update or void for the note.');
     $result=db_transaction_retry(static function()use($user,$company,$companyId,$noteId,$action,$input):array{
         $company=tegh_bank_reauthorize_mutation($user,$company,'');
         $q=db()->prepare('SELECT * FROM accounting_notes WHERE id=? AND company_id=? FOR UPDATE');$q->execute([$noteId,$companyId]);$note=$q->fetch();
@@ -537,8 +544,10 @@ function handle_accounting_notes(): never
         if($action==='post'){
             $mode=(string)($input['settlementMode']??'original');
             if(!in_array($mode,['original','open'],true))fail('Choose how the note will be settled.',422,'note_settlement_mode_invalid');
+            if((string)($note['source_id']??'')==='')return r151_note_issue_unlinked($user,$company,$note);
             return note_issue($user,$company,$note,$mode==='open');
         }
+        if($action==='update'){require_company_permission($company,note_kind_spec((string)$note['note_kind'])['permission']);return r151_note_update_draft($user,$company,$note,array_diff_key($input,['noteId'=>1,'action'=>1]));}
         if($action==='apply')return note_apply($user,$company,$note,$input);
         if($action==='unapply')return note_unapply($user,$company,$note,$input);
         return note_void($user,$company,$note,$input);

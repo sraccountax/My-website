@@ -1535,6 +1535,8 @@ function bank_transaction_post_service_once(array $user, array $company, array $
                     if ($taxPortion > 0) {
                         $lines[] = ['accountId' => account_by_code($companyId, '1100'), 'debitCents' => $taxPortion, 'creditCents' => 0];
                     }
+                    // R151: an itemized vendor invoice is recognized line by line.
+                    if (function_exists('r151_bill_cash_lines') && ($itemized = r151_bill_cash_lines($companyId, $company, $bill, $payment, (string)$bill['number'])) !== null) $lines = $itemized;
                     $lines[] = ['accountId' => $bankLedgerId, 'debitCents' => 0, 'creditCents' => $payment];
                 }
                 $entryId = add_journal_entry($user, $companyId, (string)$transaction['transaction_date'], 'bank_transaction', $transactionId, 'Payment matched to bill ' . $bill['number'], $lines);
@@ -2051,6 +2053,7 @@ function handle_bank_transaction_reassign(): never
                 $decidedAccount = (string)$bill['category_account_id'];
                 $replacement = [['accountId'=>$decidedAccount,'debitCents'=>$categoryPortion,'creditCents'=>0]];
                 if ($taxPortion > 0) $replacement[]=['accountId'=>account_by_code($companyId,'1100'),'debitCents'=>$taxPortion,'creditCents'=>0];
+                if (function_exists('r151_bill_cash_lines') && ($itemized = r151_bill_cash_lines($companyId, $company, $bill, $payment, (string)$bill['number'])) !== null) $replacement = $itemized;
                 $replacement[]=['accountId'=>$bankLedgerId,'debitCents'=>0,'creditCents'=>$payment];
             }
             $correctionLines = bank_reassignment_lines($companyId,$transaction,$bankLedgerId,$replacement);

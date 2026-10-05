@@ -958,3 +958,58 @@ html[data-tegh-theme="dark"] #sr-invite-companies:not(:empty){background:#13211d
 /* R149 invitation code field */
 #sr-invite-needed .sr-invite-code{font-family:Consolas,Menlo,"SFMono-Regular",monospace;font-size:1.15rem;letter-spacing:.18em;text-transform:uppercase}
 #sr-invite-needed [aria-invalid=true]{border-color:#b45309!important;box-shadow:0 0 0 3px #f59e0b33!important}
+/* R151: one document form — details on top, a highlighted spreadsheet-style line grid below, full width (no side summary) */
+.r151-doc{padding:22px 24px}
+.r151-doc-head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:16px}
+.r151-doc-head small{text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--color-muted,#5b6d66)}
+.r151-doc-head h2{margin:2px 0 4px}
+.r151-doc-head p{margin:0;max-width:70ch;color:var(--color-muted,#5b6d66)}
+.r151-type{display:grid;gap:4px;font-weight:700;min-width:220px}
+.r151-type select{font-weight:700;min-height:42px;border:2px solid #0d7d68;border-radius:10px}
+.r151-fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px 16px;padding:16px;border:1px solid var(--color-border,#d7e0dc);border-radius:14px;background:var(--color-surface,#fff)}
+.r151-fields label{display:grid;gap:4px;font-weight:600;font-size:13px;min-width:0}
+.r151-fields input,.r151-fields select{width:100%;min-width:0}
+.r151-fields .r151-ref input{font-weight:700}
+.r151-link-row{grid-column:1/-1;min-height:0}
+.r151-link{display:block;font-size:13px;color:var(--color-muted,#5b6d66)}
+.r151-link.ok{color:#0b6b57;font-weight:600}
+.r151-lines{margin-top:16px;border:2px solid #0d7d68;border-radius:14px;background:#f2faf7;padding:12px 12px 14px}
+.r151-lines>header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:0 4px 10px}
+.r151-lines h3{margin:0}.r151-lines>header p{margin:2px 0 0;font-size:13px;color:var(--color-muted,#5b6d66)}
+.r151-grid-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;background:#fff;border:1px solid #c9ddd5}
+.r151-grid{width:100%;min-width:1080px;border-collapse:collapse;table-layout:fixed;font-size:13px}
+.r151-grid th{position:sticky;top:0;background:#e3f2ec;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.04em;padding:8px 6px;border-bottom:1px solid #c9ddd5;color:#24443b}
+.r151-grid td{padding:4px;border-bottom:1px solid #e3ece8;border-right:1px solid #eef3f1;vertical-align:top}
+.r151-grid th:nth-child(1){width:34px}.r151-grid th:nth-child(2){width:15%}.r151-grid th:nth-child(3){width:22%}.r151-grid th:nth-child(4){width:70px}.r151-grid th:nth-child(5){width:96px}.r151-grid th:nth-child(6){width:14%}.r151-grid th:nth-child(7),.r151-grid th:nth-child(8){width:104px}.r151-grid th:nth-child(9){width:17%}.r151-grid th:nth-child(10){width:36px}
+.r151-grid input,.r151-grid select{width:100%;min-width:0;min-height:34px;border:1px solid transparent;border-radius:6px;background:transparent;padding:4px 6px;font:inherit}
+.r151-grid input:hover,.r151-grid select:hover{border-color:#c9ddd5}
+.r151-grid input:focus,.r151-grid select:focus{border-color:#0d7d68;background:#fff;outline:2px solid #0d7d6833}
+.r151-grid td small{display:block;padding:0 6px;color:var(--color-muted,#5b6d66);font-size:11px}
+.r151-grid .num{text-align:right}.r151-grid .num input{text-align:right}
+.r151-grid td.num[data-r151-net],.r151-grid td.num[data-r151-total]{padding:10px 8px;font-variant-numeric:tabular-nums}
+.r151-grid td[data-r151-total]{font-weight:700}
+.r151-n{color:var(--color-muted,#5b6d66);text-align:center;padding-top:10px!important}
+.r151-remove{width:30px;height:30px;border:0;border-radius:6px;background:transparent;font-size:18px;line-height:1;cursor:pointer;color:#8a2c22}
+.r151-remove:hover{background:#fbe9e7}
+.r151-lines-foot{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;padding:12px 4px 0}
+.r151-totals{display:flex;gap:22px;flex-wrap:wrap;margin-left:auto}
+.r151-totals div{display:grid;justify-items:end;gap:2px}.r151-totals small{font-size:12px;color:var(--color-muted,#5b6d66)}
+.r151-totals b{font-size:16px;font-variant-numeric:tabular-nums}.r151-totals .r151-grand b{font-size:20px;color:#0b6b57}
+.r151-memo{display:grid;gap:4px;margin-top:16px;font-weight:600;font-size:13px}
+.r151-actions{margin-top:16px;justify-content:flex-end}
+@media (max-width:760px){.r151-doc{padding:16px 12px}.r151-type{min-width:0;width:100%}.r151-fields{grid-template-columns:1fr 1fr}.r151-totals{margin-left:0;width:100%;justify-content:space-between}}
+@media (max-width:420px){.r151-fields{grid-template-columns:1fr}}
+html[data-tegh-theme="dark"] .r151-lines{background:#0f1f1a;border-color:#2f8f78}
+html[data-tegh-theme="dark"] .r151-grid-wrap{background:#111d19;border-color:#2b4038}
+html[data-tegh-theme="dark"] .r151-grid th{background:#183028;color:#d7ece4;border-color:#2b4038}
+html[data-tegh-theme="dark"] .r151-grid td{border-color:#21332d}
+html[data-tegh-theme="dark"] .r151-grid input:focus,html[data-tegh-theme="dark"] .r151-grid select:focus{background:#0c1714}
+html[data-tegh-theme="dark"] .r151-fields{background:#111d19;border-color:#2b4038}
+html[data-tegh-theme="dark"] .r151-link.ok,html[data-tegh-theme="dark"] .r151-totals .r151-grand b{color:#6fd3b6}
+html[data-tegh-theme="dark"] .r151-remove:hover{background:#3a1b17}
+@media (prefers-color-scheme:dark){html[data-tegh-theme="auto"] .r151-lines{background:#0f1f1a;border-color:#2f8f78}html[data-tegh-theme="auto"] .r151-grid-wrap,html[data-tegh-theme="auto"] .r151-fields{background:#111d19;border-color:#2b4038}html[data-tegh-theme="auto"] .r151-grid th{background:#183028;color:#d7ece4}html[data-tegh-theme="auto"] .r151-grid input:focus,html[data-tegh-theme="auto"] .r151-grid select:focus{background:#0c1714}}
+/* R151: sidebar scrolling — size to the visible screen (phones hide part of 100vh behind the browser bar),
+   allow touch scrolling, and keep the list scrollable when sections are open */
+aside.sidebar{height:100vh;height:100dvh;min-height:0!important;max-height:100dvh}
+aside.sidebar nav{min-height:0!important;overflow-y:auto!important;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+aside.sidebar nav>.srp-subnav.is-open{max-height:none}

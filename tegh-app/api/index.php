@@ -187,6 +187,7 @@ require_once __DIR__ . '/report_subledgers_v5980.php';
 require_once __DIR__ . '/report_comparison_r20.php';
     require_once __DIR__ . '/invoice_documents_r20.php';
     require_once __DIR__ . '/accounting_notes.php';
+    require_once __DIR__ . '/documents_r151.php';
     require_once __DIR__ . '/tax_presets.php';
     require_once __DIR__ . '/tax_codes_r137.php';
     require_once __DIR__ . '/regions_r141.php';
