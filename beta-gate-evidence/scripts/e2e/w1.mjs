@@ -9,11 +9,12 @@ try{
  check('W1-01',A,'New Customer form saves the customer with province and terms',q(`SELECT CONCAT(province,'|',default_terms_days) FROM customers WHERE company_id='${cid}' AND name='Maple Leaf Cafe'`),'ON|30');
 }catch(e){rec('W1-01',A,'New Customer form saves the customer','FAIL',e.message.slice(0,200))}
 try{
- await menu(p,'Receivables','Customer Invoices',3500);const f=pageEl(p).locator('[data-ci-form]');
- await selectByText(f.locator('[name=customerId]'),'Maple Leaf Cafe');await p.waitForTimeout(800);
- await f.locator('[name=description]').first().fill('Catering for launch');await f.locator('[name=quantity]').first().fill('2');await f.locator('[name=unitPrice]').first().fill('500');await p.waitForTimeout(600);
+ // R151: the shared document form (details on top, line grid below).
+ await menu(p,'Receivables','Customer Invoices',3500);const f=pageEl(p).locator('[data-r151-form]');
+ await selectByText(f.locator('[name=partyId]'),'Maple Leaf Cafe');await p.waitForTimeout(800);
+ await f.locator('[name=description]').first().fill('Catering for launch');await f.locator('[name=qty]').first().fill('2');await f.locator('[name=rate]').first().fill('500');await p.waitForTimeout(600);
  const shown=await f.evaluate(el=>el.textContent.match(/1,130\.00/)?'1130 shown':'total not shown');
- await f.getByRole('button',{name:'Issue Invoice'}).click();await confirm(p);await p.waitForTimeout(2500);
+ await f.locator('[data-r151-save=post]').click();await confirm(p);await p.waitForTimeout(2500);
  const inv=q(`SELECT CONCAT(number,'|',total_cents,'|',status) FROM invoices WHERE company_id='${cid}' ORDER BY created_at DESC LIMIT 1`);
  rec('W2-01',A,'New Invoice form: 2 × $500 to an Ontario customer issues for $1,130.00 (HST 13%)',/\|113000\|/.test(inv)?'PASS':'FAIL',inv+' / '+shown);
  const id=q(`SELECT id FROM invoices WHERE company_id='${cid}' ORDER BY created_at DESC LIMIT 1`);

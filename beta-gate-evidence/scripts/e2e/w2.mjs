@@ -10,9 +10,9 @@ if(q(`SELECT COUNT(*) FROM accounting_notes WHERE company_id='${cid}'`)==='0')aw
  await menu(p,'Receivables','Customer Invoice Register',3500);const pg=pageEl(p);
  await pg.locator('tbody input[type=checkbox]').first().check({force:true});await p.waitForTimeout(600);
  await pg.locator('button:visible',{hasText:/^Credit Note$/}).first().click();await p.waitForTimeout(3000);
- const f=visForm('[data-note-form]');await f.locator('button',{hasText:/Return Items from/}).click();await p.waitForTimeout(1200);
- await f.locator('[name=qty]').first().fill('1');await f.locator('[name=reason]').selectOption('Product return');await f.locator('[name=memo]').fill('One tray returned');
- await f.locator('button',{hasText:/^Save & Post$/}).click();await confirm(p);await p.waitForTimeout(2500);
+ const f=visForm('[data-r151-form]');await f.locator('[data-r151-return]').click();await p.waitForTimeout(1200);
+ await f.locator('[name=qty]').first().fill('1');await f.locator('[name=reason]').selectOption('Product return');await f.locator('[name=message]').fill('One tray returned');
+ await f.locator('[data-r151-save=post]').click();await confirm(p);await p.waitForTimeout(2500);
  const n=q(`SELECT CONCAT(journal_entry_id,'|',total_cents) FROM accounting_notes WHERE company_id='${cid}' ORDER BY created_at DESC LIMIT 1`);const [nid,tot]=n.split('|');
  check('W3-01',A,'Credit note from the register: return 1 × $500 posts Dr 4000 $500, Dr 2100 $65, Cr 1200 $565',[tot,post(nid)],['56500','1200:-56500,2100:6500,4000:50000']);
  check('W3-02',A,'Invoice outstanding after credit note = $565.00',q(`SELECT balance_cents FROM invoices WHERE id='${inv}'`),'56500');
@@ -39,14 +39,15 @@ if(q(`SELECT COUNT(*) FROM vendors WHERE company_id='${cid}'`)==='0')await step(
 });
 // W6 vendor invoice
 await step('W6-01','New Vendor Invoice: $200 + HST posts Dr 6400 $200, Dr 1100 $26, Cr 2050 $226',async()=>{
- await menu(p,'Payables','Vendor Invoices',3500);const f=visForm('[data-bill-form]');
- await selectByText(f.locator('[name=vendorId]'),'Northern Office Supply');await p.waitForTimeout(1000);
+ // R151: the shared document form; the vendor's default account (6400) fills the line's GL.
+ await menu(p,'Payables','Vendor Invoices',3500);const f=visForm('[data-r151-form]');
+ await selectByText(f.locator('[name=partyId]'),'Northern Office Supply');await p.waitForTimeout(1000);
  await f.locator('[name=number]').fill('NOS-5521');
- const cat=f.locator('[name=categoryAccountId]').first();if(!(await cat.inputValue()))await selectByText(cat,'6400');
- await f.locator('label',{hasText:/^Description/}).locator('input').first().fill('Printer paper and toner');await f.locator('[name=quantity]').first().fill('1');await f.locator('label',{hasText:/^Rate/}).locator('input').first().fill('200');await p.waitForTimeout(500);
- await f.locator('[name=taxEntryMode]').first().selectOption('exclusive');await p.waitForTimeout(300);const amt=f.locator('[name=amount]').first();if(await amt.isEditable()&&!(await amt.inputValue()))await amt.fill('200');
- await selectByText(f.locator('[name=taxCodeId]').first(),'ON ·');await p.waitForTimeout(600);
- await f.locator('button',{hasText:/^Record and Post$/}).click();await confirm(p);await p.waitForTimeout(3000);
+ const cat=f.locator('[name=accountId]').first();if(!(await cat.inputValue()))await selectByText(cat,'6400');
+ await f.locator('[name=description]').first().fill('Printer paper and toner');await f.locator('[name=qty]').first().fill('1');await f.locator('[name=rate]').first().fill('200');await p.waitForTimeout(500);
+ await f.locator('[name=taxMode]').selectOption('exclusive');await p.waitForTimeout(300);
+ await selectByText(f.locator('[name=taxKey]').first(),'ON ·');await p.waitForTimeout(600);
+ await f.locator('[data-r151-save=post]').click();await confirm(p);await p.waitForTimeout(3000);
  const bl=q(`SELECT CONCAT(id,'|',total_cents,'|',status) FROM bills WHERE company_id='${cid}' ORDER BY created_at DESC LIMIT 1`);const [bid,tot,st]=bl.split('|');
  check('W6-01',A,'New Vendor Invoice: $200 + HST posts Dr 6400 $200, Dr 1100 $26, Cr 2050 $226',[tot,post(bid)],['22600','1100:2600,2050:-22600,6400:20000']);
  fs.writeFileSync('/srv/gate/t/e2e/state.json',JSON.stringify({bid}));
