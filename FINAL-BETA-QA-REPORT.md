@@ -942,3 +942,66 @@ Deploy **R149** to staging. After deploying, invite a test address and check tha
 Evidence: `beta-gate-evidence/r150/` (including before/after screenshots of the home page in dark mode).
 
 **Verdict for R150: NOT READY.** The open items are unchanged: host acceptance, production email, and owner/legal approval of Privacy/Terms 2026-10-01. Deploy **R150** to staging.
+
+## Addendum: R151 (one document form, itemized vendor invoices, notes with typed references, in-page Edit, scrolling)
+
+| | R151 |
+|---|---|
+| Package | `…-Hotfix-R151-Consolidated-IONOS-STAGING.zip` |
+| SHA-256 | `d9db2ec5fe401a51eb1815a9e496f8f4255b1c8feb3ae91844456c2025d765e3` |
+| FILE-MANIFEST.sha256 | 355 entries, all OK |
+| ZIP entries not 0644 | 0 |
+| Cache token | `5990-r151-tegh` |
+| Migration | Automatic on first use: `bill_lines`; `accounting_notes.reference_number` and nullable `source_id`; new note-line columns |
+| productionReady / acceptanceComplete | false / false |
+
+The owner requests and what changed are listed in `tegh-app/R151-CHANGES.md`. Owner decisions recorded on 2026-10-05:
+
+- A typed note number links to the invoice when it is in Tegh. Otherwise the note is recorded against the party with its own tax and GL per line.
+- Issued documents can be edited for dates and notes only.
+
+**Results on the exact R151 ZIP (host clock pinned to 2026-10-01)**
+
+| Area | Result |
+|---|---|
+| Full suite including upgrade | **497 PASS / 0 FAIL / 7 INFO** |
+| 19-r151 server accounting | 40/40, all postings hand-computed; see the list below |
+| 20-r151ui browser | 19/19; see the list below |
+| Click-through journeys (E2E, rewritten for the new form, same expected figures) | 51/51 |
+| Upgrade R118 → R151 | 13/13 |
+| Paths and headers | 42 PASS |
+| UI matrix | 0 screens with issues |
+| Swipe traps | 0 |
+| Public pages | 34/34 renders clean |
+| Public pages in dark mode | 34/34 light |
+
+**19-r151 covers:**
+- per-line posting, including non-recoverable PST added to the line's account;
+- tax-inclusive lines;
+- draft edit and edit of an issued document's details;
+- validation and company isolation;
+- single-amount compatibility;
+- cash-basis recognition by line, checked to the cent;
+- linked and unlinked notes, open-credit application, the unlinked debit-note receivable, voids;
+- receivable and payable trial balances, ledgers, registers and backup.
+
+**20-r151ui covers:**
+- the shared form;
+- Add line keeping the scroll position;
+- saves checked in the database;
+- linking by typed number;
+- Edit from the register Actions menu, the invoice detail page and the note register, with no pop-ups;
+- the recurring schedule and quick-add;
+- the sidebar wheel moving the menu by exact amounts right after navigation;
+- phone width.
+
+**Defects found and fixed during R151 testing (before the final ZIP)**
+
+| Defect | Fix |
+|---|---|
+| The first sidebar fix double-scrolled. A passive wheel can be applied before the page sees it. | The wheel over the menu is now handled on the sidebar itself. |
+| The form's exchange-rate field shared the name `rate` with the line rate. A screen reader or form filler could pick the wrong one. | The first full gate run caught it in 13 journey checks. The field was renamed and the ZIP rebuilt and re-gated. |
+
+**Sidebar caveat.** The owner's exact sidebar symptom could not be reproduced in Chromium. The fix addresses the lost first wheel after navigation and nested scroll boxes; the owner's browser and device are requested.
+
+**Verdict for R151: NOT READY.** As before, the open items are host acceptance, production email, and owner/legal approval of Privacy/Terms. Deploy **R151** to staging.
