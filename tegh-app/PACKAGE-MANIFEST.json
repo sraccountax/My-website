@@ -4,10 +4,10 @@
   "build": 5990,
   "schema": 46,
   "schemaTarget": 46,
-  "release": "R152",
-  "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R152-Consolidated-IONOS-STAGING",
-  "packageFile": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R152-Consolidated-IONOS-STAGING.zip",
-  "revision": "Cumulative R118–R152 over the Sites R117 frontend. R152: statement reader for more Canadian bank and card layouts in English and French (two-line headings, French amounts and month names, numeric day/month order from the statement period, DR/CR and OD, amounts split into pieces, amounts on the line under the description) and PDFs that hold several statements (picker; statements of one account read together with a chain check); invoice reader that reads line items as a table with quantity × price checks, supplier memory learned from verified corrections (date order, invoice-number pattern, which amount is the total; no document text stored), account and tax suggestions from the vendor's earlier invoices, duplicate warnings with a confirmation before a draft, and all lines handed to the vendor invoice form, which links the document when saved. R151: one document form for invoices, credit notes and debit notes.",
+  "release": "R153",
+  "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R153-Consolidated-IONOS-STAGING",
+  "packageFile": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R153-Consolidated-IONOS-STAGING.zip",
+  "revision": "Cumulative R118–R153 over the Sites R117 frontend. R153: company street address, city, postal code, phone, business email and short name in company setup and Company Details; customer invoices print the company address unless the invoice template has its own (frozen at issue); when several companies are selected, report lines carry a Co. column with the company short name and reports that cannot be combined ask for one company; side menu groups expand and collapse with an arrow; light/dark/system theme switch with icons in the top bar (System follows the device). R152: statement reader for more Canadian bank and card layouts in English and French (two-line headings, French amounts and month names, numeric day/month order from the statement period, DR/CR and OD, amounts split into pieces, amounts on the line under the description) and PDFs that hold several statements (picker; statements of one account read together with a chain check); invoice reader that reads line items as a table with quantity × price checks, supplier memory learned from verified corrections (date order, invoice-number pattern, which amount is the total; no document text stored), account and tax suggestions from the vendor's earlier invoices, duplicate warnings with a confirmation before a draft, and all lines handed to the vendor invoice form, which links the document when saved. R151: one document form for invoices, credit notes and debit notes.",
   "releaseStatus": "STAGING CANDIDATE — host acceptance open (see hostAcceptance)",
   "sealed": false,
   "productionReady": false,
@@ -24,14 +24,14 @@
   "flatRoot": true,
   "packageType": "cumulative-full-application",
   "activeEntry": "app.html",
-  "generatedAt": "2026-10-06T14:36:57Z",
+  "generatedAt": "2026-10-06T16:21:04Z",
   "sourceRepository": "sraccountax/My-website",
   "sourceBranch": "claude/invoice-credit-debit-audit-e2y8wc",
-  "sourceParentCommit": "dbd76f0cab80e93e5d9e3050ecb081a4fb7a7d69",
+  "sourceParentCommit": "8d959e6118a917b757a4d7b5f8cc410653f4025f",
   "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
   "databaseMigrationRequired": false,
-  "databaseMigrationNote": "No manual migration since R118. R144 creates company_insight_dismissals on the first dismissal. R141 adds companies.country, widens province to VARCHAR(10) on companies/customers/vendors and creates company_dashboard_mappings on the first request. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
-  "cacheToken": "5990-r152-tegh",
+  "databaseMigrationNote": "No manual migration since R118. R153 adds nullable company profile columns (short_name, address_line1, address_line2, city, postal_code, phone, contact_email) on first use. R144 creates company_insight_dismissals on the first dismissal. R141 adds companies.country, widens province to VARCHAR(10) on companies/customers/vendors and creates company_dashboard_mappings on the first request. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
+  "cacheToken": "5990-r153-tegh",
   "clientViewCacheToken": "5990-r135 (output script 5990-r145-tegh)",
   "doNotRepost": [
     "DN-1001"
@@ -39,11 +39,11 @@
   "fileManifest": {
     "path": "FILE-MANIFEST.sha256",
     "algorithm": "SHA-256",
-    "entries": 357,
+    "entries": 359,
     "authoritative": true,
     "note": "The only authoritative per-file hash list for this package. Per-file hashes under history record earlier releases and are not expected to match current files."
   },
-  "testStatus": "R152 = R151 with the Stage 1 statement reader (more Canadian bank and card layouts in English and French, PDFs holding several statements) and the Stage 2 invoice reader (line items as a table, supplier memory, account/tax suggestions from history, duplicate checks, lines handed to the vendor invoice form). Re-run through the full gate suite with the host clock pinned to 2026-10-01, including 21-r152 (13 synthetic statement layouts, multi-statement selection, date-order ambiguity, R145 regression, 6 synthetic invoices through the Document Intake screen), the updated suite list, the UI matrix, the public-page checks and the R118->R152 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R152 addendum). Host acceptance has not started; productionReady is false.",
+  "testStatus": "R153 = R152 with company address and short name in company setup (address printed on customer invoices), company labels (Co. column with the short name) on report lines when several companies are selected, side menu groups that expand and collapse with an arrow, and a light/dark/system theme switch with icons. Re-run through the full gate suite with the host clock pinned to 2026-10-01, including 22-r153 (company profile create/edit/validation, invoice address and frozen snapshot, two-company report figures checked against independently entered amounts, single-company notices, Excel export with the company column, sidebar arrows, theme switch on desktop and phone with a dark device), the UI matrix, the public-page checks and the R118->R153 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R153 addendum). Host acceptance has not started; productionReady is false.",
   "executedLocalGates": {
     "betaGateR138Baseline": {
       "passed": false,
@@ -95,6 +95,10 @@
     "r152Readers": {
       "passed": null,
       "detail": "21-r152: statement layouts G–S (RBC-, BMO-, Scotia-, Desjardins-, National Bank-, Tangerine-style, Amex-style and French Visa cards, MM/DD card across the year end, credit union DR/CR with OD balances, two-line rows, split French amounts) each with rows, net, opening/closing and first/last dates checked against generator figures; a PDF holding three statements (picker, same-account chain); ambiguous numeric dates not guessed; R145 statements unchanged; invoice line items with qty × price checks (EN and FR), verification storing only the reader's candidate, coding suggestions from history, hand-off into the vendor invoice form with linking, duplicate warning and confirmation, supplier memory for date order and number pattern, privacy of requests, company isolation, backup. Counts in FINAL-BETA-QA-REPORT.md."
+    },
+    "r153CompanyLabelsAndTheme": {
+      "passed": null,
+      "detail": "22-r153: company profile fields saved on create and edit with validation; customer invoice prints the company address (template address wins; issued invoices keep their snapshot); with two companies selected, P&L, ageing, Day Book, Audit History, Tax Code Report and Trial Balance lines carry the company short name and totals equal the sum of independently entered amounts; GL/bank account reports and Budgets ask for one company; Excel export includes the company column; one selected company shows no company column; sidebar arrows expand/collapse without reopening; theme switch Light/Dark/System on desktop, phone cycle, and System on a dark device. Counts in FINAL-BETA-QA-REPORT.md."
     }
   },
   "notExecuted": [
@@ -176,8 +180,36 @@
     "Document Intake OCR uses the bundled English model only",
     "Statement layouts not seen before may fall back to the general reader; the balance check shows whether the rows are complete",
     "Invoice line items are read as a table only from text PDFs; scanned invoices and photos use line-by-line reading",
-    "Supplier memory covers date order, invoice-number pattern and which amount is the total; it does not learn field positions"
+    "Supplier memory covers date order, invoice-number pattern and which amount is the total; it does not learn field positions",
+    "With several companies selected, GL Account Report, Bank GL Report and Budgets need one company; Bank Reconciliation and Fixed Assets show a combined list with a per-company summary note",
+    "Combined multi-company reports need the companies to share one currency",
+    "The company short name is generated from the name until the owner sets one"
   ],
+  "r153Files": [
+    "api/company_profile_r153.php",
+    "api/index.php",
+    "api/companies.php",
+    "api/auth.php",
+    "api/accounting.php",
+    "api/invoicing.php",
+    "app.html",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-professional-output-v5990.js",
+    "assets/tegh-registers-r23.js",
+    "assets/tegh-r120.css",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "assets/tegh-bank-converter-v5990.js",
+    "R153-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt",
+    "RELEASE-MANIFEST.json",
+    "PACKAGE-MANIFEST.json",
+    "tegh-build.json",
+    "FILE-MANIFEST.sha256"
+  ],
+  "r153Migration": "automatic on first use: nullable companies columns short_name, address_line1, address_line2, city, postal_code, phone, contact_email",
+  "r153CacheToken": "5990-r153-tegh",
   "r152Files": [
     "api/intake_r152.php",
     "api/native_ap_ar_v5600.php",
@@ -2369,6 +2401,94 @@
       "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R152-Consolidated-IONOS-STAGING",
       "generatedAt": "2026-10-06T13:54:48Z",
       "sourceParentCommit": "b743d852436931032f06d2792aa2ec0db4327f71",
+      "testStatus": "R152 = R151 with the Stage 1 statement reader (more Canadian bank and card layouts in English and French, PDFs holding several statements) and the Stage 2 invoice reader (line items as a table, supplier memory, account/tax suggestions from history, duplicate checks, lines handed to the vendor invoice form). Re-run through the full gate suite with the host clock pinned to 2026-10-01, including 21-r152 (13 synthetic statement layouts, multi-statement selection, date-order ambiguity, R145 regression, 6 synthetic invoices through the Document Intake screen), the updated suite list, the UI matrix, the public-page checks and the R118->R152 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R152 addendum). Host acceptance has not started; productionReady is false.",
+      "executedLocalGates": {
+        "betaGateR138Baseline": {
+          "passed": false,
+          "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
+        },
+        "betaGateR139Retest": {
+          "passed": null,
+          "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
+        },
+        "history": {
+          "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
+        },
+        "r140VendorInvoicePhoneScroll": {
+          "passed": true,
+          "detail": "Chromium 390x844 swipe-trap scan of all 46 menu screens: 1 trap before (New Vendor Invoice), 0 after. Touch swipe and wheel scroll the vendor invoice form at 1440, 1024, 768, 390 and 360 px widths. iOS Safari not available in the build environment."
+        },
+        "r141GateRetest": {
+          "passed": null,
+          "detail": "Full gate suite, 13-r141 tests (DEF-08, countries, foreign tax codes, OBS-2, tax code report usage, dashboard mappings, Clarity, payroll Canada only), R141 browser journeys at 1440x900 and 390x844, and R118->R141 upgrade on the exact R141 ZIP; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r142WordingRetest": {
+          "passed": null,
+          "detail": "14-r142 tests (exact starter-code notes, guide sentences, Product Activity, payroll notice and pages, Quebec employee refused, rate tables) and R142 browser journeys; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r143ClickThroughWorkflows": {
+          "passed": null,
+          "detail": "Click-through workflow suite on a fresh synthetic company (customer to payroll, Assist, PDF and export), every result checked against the database with hand-computed expectations; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r144Intelligence": {
+          "passed": null,
+          "detail": "15-r144 on a seeded synthetic company with hand-computed expectations (anomalies, brief, chase list, cash, bank suggestions, ask-your-books, dismissals, read-only, isolation, no outbound calls) and journeys144 at 1440x900 and 390x844."
+        },
+        "r145ConverterAndIntake": {
+          "passed": null,
+          "detail": "16-r145: six synthetic statements in three Canadian layouts plus ISO-date, missing-line and no-heading cases (rows, dates, net, in/out, opening/closing, running balances, page totals, review-screen check, server preview balances) and six synthetic bills/receipts (text PDF, French invoice, receipt photos, scanned PDF) with hand-written expected fields, Document Intake screen upload/review; expected figures from the fixture generators' integer-cent arithmetic. Owner-supplied real statements were checked locally only and are not part of the package or evidence."
+        },
+        "r149InvitationCodes": {
+          "passed": null,
+          "detail": "18-r149 on the gate host: invitation email shows the code and no link; Create account tab with email and code fields; code formatting; account creation with typed name, role and terms stored; wrong code, other email, used code and invalid letters refused with plain messages; 10 wrong tries per 15 minutes answered 429 with a wait message while correct look-ups are never counted; existing users accept with their password; phone width fits; legacy links still open the account form. Counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r150PublicPagesLight": {
+          "passed": null,
+          "detail": "dark-check.mjs: the 17 public pages at 390x844 in a browser with dark preference and again with Chrome forced dark; body background and rendered page brightness must be light. Before the fix 34 of 34 rendered dark; counts on the exact ZIP in FINAL-BETA-QA-REPORT.md."
+        },
+        "r151Documents": {
+          "passed": null,
+          "detail": "19-r151: itemized vendor invoices (posting by line, recoverable vs cost tax, tax-inclusive lines, draft edit, issued detail edit, validation, company isolation, single-amount compatibility), cash-basis recognition by line, linked and unlinked customer/vendor notes with GL per line, open-credit application, unlinked debit note receivable, draft note edit, voids, receivable/payable trial balances, ledgers, registers and backup. 20-r151ui: the shared form, add-line scroll position, saves checked in the database, typed-number linking, edit from the registers and the invoice detail page without pop-ups, recurring schedule, quick-add, sidebar wheel, phone width. Counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r152Readers": {
+          "passed": null,
+          "detail": "21-r152: statement layouts G–S (RBC-, BMO-, Scotia-, Desjardins-, National Bank-, Tangerine-style, Amex-style and French Visa cards, MM/DD card across the year end, credit union DR/CR with OD balances, two-line rows, split French amounts) each with rows, net, opening/closing and first/last dates checked against generator figures; a PDF holding three statements (picker, same-account chain); ambiguous numeric dates not guessed; R145 statements unchanged; invoice line items with qty × price checks (EN and FR), verification storing only the reader's candidate, coding suggestions from history, hand-off into the vendor invoice form with linking, duplicate warning and confirmation, supplier memory for date order and number pattern, privacy of requests, company isolation, backup. Counts in FINAL-BETA-QA-REPORT.md."
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "Existing companies keep the legacy tax rules until their first tax code is saved",
+        "Starter tax codes created before R141 charge PST/RST in BC, MB and SK whatever the home province; companies not registered there must deactivate those codes. Codes created from R141 are GST only outside the home province",
+        "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+        "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+        "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+        "Journals posted to 1200/2050 before R139 are not changed",
+        "Base (reporting) currency is CAD for every company, including companies outside Canada",
+        "Dashboard Figures mappings are not included in backups",
+        "Payroll Support is Canada only; companies outside Canada cannot enable it",
+        "Companies on the legacy tax rules (no tax codes saved) do not pick a code for customers outside Canada",
+        "Starter codes created before R142 keep the R141 note text until edited",
+        "Report exports are under the table's Actions menu (Export…)",
+        "GL Journal Entry excludes bank, AR, AP and tax control accounts by design",
+        "Balance Sheet shows GST/HST Recoverable under Other Assets",
+        "Employee province fields are free text",
+        "Tegh Intelligence uses rules and statistics; it can miss things or raise false alarms",
+        "Bank suggestions need at least one earlier posting of a similar line",
+        "Insight dismissals are not included in backups",
+        "The column statement reader needs a text PDF; scanned statements still need the bank's CSV/OFX",
+        "Document Intake OCR uses the bundled English model only",
+        "Statement layouts not seen before may fall back to the general reader; the balance check shows whether the rows are complete",
+        "Invoice line items are read as a table only from text PDFs; scanned invoices and photos use line-by-line reading",
+        "Supplier memory covers date order, invoice-number pattern and which amount is the total; it does not learn field positions"
+      ]
+    },
+    "r152Identity": {
+      "release": "R152",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R152-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-10-06T14:36:57Z",
+      "sourceParentCommit": "dbd76f0cab80e93e5d9e3050ecb081a4fb7a7d69",
       "testStatus": "R152 = R151 with the Stage 1 statement reader (more Canadian bank and card layouts in English and French, PDFs holding several statements) and the Stage 2 invoice reader (line items as a table, supplier memory, account/tax suggestions from history, duplicate checks, lines handed to the vendor invoice form). Re-run through the full gate suite with the host clock pinned to 2026-10-01, including 21-r152 (13 synthetic statement layouts, multi-statement selection, date-order ambiguity, R145 regression, 6 synthetic invoices through the Document Intake screen), the updated suite list, the UI matrix, the public-page checks and the R118->R152 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R152 addendum). Host acceptance has not started; productionReady is false.",
       "executedLocalGates": {
         "betaGateR138Baseline": {
