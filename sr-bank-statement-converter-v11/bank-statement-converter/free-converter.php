@@ -24,7 +24,7 @@ $turnstile = sr_turnstile_config();
   <meta name="twitter:card" content="summary_large_image">
   <title>Free PDF Bank Statement Converter to CSV | SR AccounTax</title>
 <link rel="stylesheet" href="styles.css?v=20260908-1">
-  <link rel="stylesheet" href="bank-converter.css?v=20261001-10">
+  <link rel="stylesheet" href="bank-converter.css?v=20261006-11">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "SR AccounTax Free PDF Bank Statement Converter", "url": "https://bankstatementconverter.sraccountax.ca/free-converter.php", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern web browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "CAD"}, "featureList": ["One searchable PDF per conversion", "Up to 25 pages", "Editable review table", "CSV export for up to 25 transactions", "Clipboard-ready CSV", "Local browser processing"]}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Converter overview","item":"https://bankstatementconverter.sraccountax.ca/"},{"@type":"ListItem","position":2,"name":"Free converter","item":"https://bankstatementconverter.sraccountax.ca/free-converter.php"}]}</script>
 <link rel="stylesheet" href="utility.css?v=20260908-1"><?php if (sr_turnstile_enabled()): ?><script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script><?php endif; ?>
@@ -240,8 +240,8 @@ window.BSC_ACCESS_CONFIG = <?= json_encode([
 ], JSON_UNESCAPED_SLASHES) ?>;
 </script>
 <script src="script.js?v=20260805-1"></script>
-<script src="bank-converter-core.js?v=20261001-10"></script>
-<script src="bank-statement-layout.js?v=20261001-10"></script>
-<script type="module" src="bank-statement-converter-free.js?v=20261001-10"></script>
+<script src="bank-converter-core.js?v=20261006-11"></script>
+<script src="bank-statement-layout.js?v=20261006-11"></script>
+<script type="module" src="bank-statement-converter-free.js?v=20261006-11"></script>
 </body>
 </html>

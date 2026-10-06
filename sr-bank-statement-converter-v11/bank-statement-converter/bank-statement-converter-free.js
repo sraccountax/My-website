@@ -19,7 +19,7 @@ const state = {
   checks: [],
 };
 
-const CONVERTER_BUILD = '10.0.0';
+const CONVERTER_BUILD = '11.0.0';
 const MAX_FILES = 1;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const MAX_TOTAL_PAGES = 25;
@@ -58,12 +58,12 @@ const els = {
   exportButtons: document.querySelectorAll('[data-export]'),
 };
 
-// ---- v10: column-aware reader, statement checks and statement chain ----
+// ---- v10/v11: column-aware reader, statement checks and statement chain ----
 const Layout = globalThis.BankStatementLayout || null;
 function parseDocument(documentData, settings) {
   const core = Core.parseStatement(documentData.lines, settings);
   const read = Layout && settings.layout === 'auto'
-    ? Layout.convert(documentData.lines, {accountType: settings.accountType, fallbackYear: settings.year, categorize: Core.categorize})
+    ? Layout.convert(documentData.lines, {accountType: settings.accountType, fallbackYear: settings.year, dateOrder: settings.dateOrder, categorize: Core.categorize})
     : null;
   if (read) {
     const coreGood = core.rows.filter(row => row.date && row.confidence >= 65).length;
@@ -71,6 +71,19 @@ function parseDocument(documentData, settings) {
     if (read.check.balanced || read.rows.length >= coreGood) return {rows: read.rows, warnings: [], check: read.check, reader: 'column'};
   }
   return {rows: core.rows, warnings: core.warnings, check: null, reader: 'general'};
+}
+// v11: a PDF that holds several statements (more months, or more accounts) is read one statement at a time, so each
+// statement gets its own check and consecutive statements of one account are chained.
+function statementsIn(documentData, settings) {
+  const text = (documentData.rawPageText || []).join('\n');
+  const accountOf = () => (Layout && Layout.statementAccountIds ? Layout.statementAccountIds(text) : [])[0] || '';
+  if (!Layout || !Layout.splitStatements || settings.layout !== 'auto') return [{ ...documentData, account: accountOf() }];
+  const sections = Layout.splitStatements(documentData.lines);
+  if (sections.length < 2) return [{ ...documentData, account: sections[0] && sections[0].account || accountOf() }];
+  return sections.map((section, index) => {
+    const account = section.account ? `, account …${section.account}` : '';
+    return { ...documentData, lines: section.lines, account: section.account || '', fileName: `${documentData.fileName} (statement ${index + 1} of ${sections.length}${account})` };
+  });
 }
 function statementCheckBox() {
   let box = document.getElementById('statement-check');
@@ -447,10 +460,12 @@ function reparseDocuments() {
   const warnings = [];
   state.checks = [];
   for (const documentData of state.extractedDocuments) {
-    const parsed = parseDocument(documentData, settings);
-    parsed.rows.forEach(row => combined.push({ ...row, sourceFile: documentData.fileName }));
-    warnings.push(...parsed.warnings.map(warning => `${documentData.fileName}: ${warning}`));
-    state.checks.push({ fileName: documentData.fileName, check: parsed.check, reader: parsed.reader, rows: parsed.rows.length, account: Core.statementAccountLastFour ? Core.statementAccountLastFour((documentData.rawPageText || []).join('\n')) || '' : '' });
+    for (const statement of statementsIn(documentData, settings)) {
+      const parsed = parseDocument(statement, settings);
+      parsed.rows.forEach(row => combined.push({ ...row, sourceFile: statement.fileName }));
+      warnings.push(...parsed.warnings.map(warning => `${statement.fileName}: ${warning}`));
+      state.checks.push({ fileName: statement.fileName, check: parsed.check, reader: parsed.reader, rows: parsed.rows.length, account: statement.account });
+    }
   }
   const detectedCount = combined.length;
   const rowLimit = Number(state.accessRowLimit || 25);
