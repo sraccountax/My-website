@@ -85,6 +85,9 @@ A verified vendor invoice now has **Open in Vendor Invoice Form**:
 - A note at the top says the form was prefilled from Document Intake.
 - Saving the vendor invoice links the intake document to it automatically.
 
+## Fix found by the gate
+The save message that appears at the top right for about 6 seconds covered the page-header buttons (for example **Upload document** on Document Intake), so they could not be clicked until it went away. The message has no controls, so clicks now pass through it (`assets/tegh-r120.css`).
+
 ## Database
 These are made automatically on first use:
 - the nullable column `native_agent_documents.extracted_json`;

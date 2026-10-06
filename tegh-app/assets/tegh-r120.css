@@ -1052,3 +1052,5 @@ html[data-tegh-theme="auto"] .tegh-intake-line-check[data-state="warn"]{color:#f
 html[data-tegh-theme="auto"] .tegh-duplicate-warning{background:#2c2110;border-color:#8a6a24;color:#f6e3bd}
 html[data-tegh-theme="auto"] .tegh-supplier-memory{background:#122334;border-color:#2f5878;color:#d5e7f7}
 }
+/* R152: the save/notice message sits over the page-header buttons for about 6 s; it has no controls, so clicks pass through to what is under it */
+.srp-toast{pointer-events:none!important}
