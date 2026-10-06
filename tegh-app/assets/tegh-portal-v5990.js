@@ -6347,7 +6347,7 @@ const TeghPortal = (() => {
     if(kind==='profit-loss'&&window.TeghInvoiceReportsR20){
       const origin=companyId();
       return showPage('financial-profit-loss','Profit and Loss','Posted monthly results with a defined comparison period.',async body=>{
-        if(isConsolidated()){body.innerHTML='<section class="srp-card" role="status"><h2>Select one company</h2><p>Monthly comparison output requires one company and one base currency. No partial consolidated figures have been displayed.</p></section>';return;}
+        if(oneCompanyNotice(body,'The monthly comparison columns need one company.',true))return;
         await window.TeghInvoiceReportsR20.mountProfit({body,api,initial:{...reportPeriodPreference('profit_loss','range'),...context},setOutput:c=>setPageReportOutput(body,c),savePreference:p=>saveReportPeriodPreference('profit_loss',p),isCurrent:()=>body.isConnected&&companyId()===origin});
       },{module:'Reports',route:'financial-profit-loss',back:openReportsDashboard,cache:false});
     }

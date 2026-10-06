@@ -62,8 +62,9 @@ await t('UI-01','Company Details shows the address block and short name; saving 
 await select([CA.id,CB.id]);
 await t('MC-01','Customer Invoice & Note Register with both companies: every line has a Co. label — ALP twice, BTA once',async()=>{const r=await report('Customer Invoice & Note Register');await p.screenshot({path:'/srv/gate/ev/shots/r153-mc-register.png'});
   const counts={};r.cos.forEach(c=>counts[c]=(counts[c]||0)+1);return {ok:r.head.includes('Co.')&&counts.ALP===2&&counts.BTA===1&&r.rows===3,info:`${r.head.slice(0,4).join('|')} · ${JSON.stringify(counts)}`}});
-await t('MC-02','Profit and Loss with both companies: lines labelled ALP and BTA and total income $1,300.00 (ALP $1,050.00 + BTA $250.00)',async()=>{const r=await report('Profit and Loss');await p.screenshot({path:'/srv/gate/ev/shots/r153-mc-pl.png'});
-  return {ok:r.head.includes('Co.')&&r.cos.includes('ALP')&&r.cos.includes('BTA')&&/Total Income[^\n]*1,300\.00/.test(r.text),info:(r.text.match(/Total Income[^\n]*/)||[''])[0]}});
+await t('MC-02','Profit and Loss with both companies: lines labelled ALP and BTA and total income $1,300.00 (ALP $1,050.00 + BTA $250.00), with no notice saying the figures were withheld',async()=>{const r=await report('Profit and Loss');await p.screenshot({path:'/srv/gate/ev/shots/r153-mc-pl.png'});
+  const page=await p.locator('.srp-page:visible').first().innerText();const contradicts=/No partial consolidated figures|Select one company/i.test(page);
+  return {ok:r.head.includes('Co.')&&r.cos.includes('ALP')&&r.cos.includes('BTA')&&/Total Income[^\n]*1,300\.00/.test(r.text)&&!contradicts,info:(r.text.match(/Total Income[^\n]*/)||[''])[0]+` | page says "select one company": ${contradicts}`}});
 await t('MC-03','Receivable Ageing with both companies: the three open invoices are listed with their company',async()=>{const r=await report('Receivable Ageing');const lines=r.cos.filter(c=>['ALP','BTA'].includes(c));
   return {ok:r.head.includes('Co.')&&lines.filter(c=>c==='ALP').length===2&&lines.filter(c=>c==='BTA').length===1,info:JSON.stringify(r.cos)}});
 await t('MC-04','Day Book with both companies: each voucher row shows its company; the two companies\' entries are not merged',async()=>{const r=await report('Day Book');await p.screenshot({path:'/srv/gate/ev/shots/r153-mc-daybook.png'});
