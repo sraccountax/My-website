@@ -24,10 +24,10 @@
   "flatRoot": true,
   "packageType": "cumulative-full-application",
   "activeEntry": "app.html",
-  "generatedAt": "2026-10-05T23:56:54Z",
+  "generatedAt": "2026-10-06T00:43:25Z",
   "sourceRepository": "sraccountax/My-website",
   "sourceBranch": "claude/invoice-credit-debit-audit-e2y8wc",
-  "sourceParentCommit": "505ffff78aaca7a6a0d59b593d57544bbe9ab4e6",
+  "sourceParentCommit": "458052e476423c001b1e127e495fba0b6323a707",
   "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
   "databaseMigrationRequired": false,
   "databaseMigrationNote": "No manual migration since R118. R144 creates company_insight_dismissals on the first dismissal. R141 adds companies.country, widens province to VARCHAR(10) on companies/customers/vendors and creates company_dashboard_mappings on the first request. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
@@ -2249,11 +2249,11 @@
       ]
     },
     "r150Identity": {
-      "release": "R150",
-      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R150-Consolidated-IONOS-STAGING",
-      "generatedAt": "2026-10-05T10:01:33Z",
-      "sourceParentCommit": "ccfc823ce1db78dd112b3747f9b216b0a576222c",
-      "testStatus": "R150 = R149 with the public pages always in the light design (no device or browser dark mode on public pages). Re-run through the full gate suite with the host clock pinned to 2026-10-01, the root and ZIP-permission checks, the UI matrix, the public-page render check, a dark-mode check of every public page (device dark preference and Chrome forced dark) and the R118->R150 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R150 addendum). Host acceptance has not started; productionReady is false.",
+      "release": "R151",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R151-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-10-05T23:56:54Z",
+      "sourceParentCommit": "505ffff78aaca7a6a0d59b593d57544bbe9ab4e6",
+      "testStatus": "R151 = R150 with one document form for invoices, credit notes and debit notes (customer and vendor), itemized vendor invoices with GL and tax per line, notes with GL per line and a typed original invoice number, Edit on the main screen, and the add-line and sidebar scrolling fixes. Re-run through the full gate suite with the host clock pinned to 2026-10-01, including 19-r151 (server accounting with hand-computed postings) and 20-r151ui (browser), the updated click-through journeys, the root and ZIP-permission checks, the UI matrix, the public-page checks and the R118->R151 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R151 addendum). Host acceptance has not started; productionReady is false.",
       "executedLocalGates": {
         "betaGateR138Baseline": {
           "passed": false,
@@ -2297,6 +2297,10 @@
         "r150PublicPagesLight": {
           "passed": null,
           "detail": "dark-check.mjs: the 17 public pages at 390x844 in a browser with dark preference and again with Chrome forced dark; body background and rendered page brightness must be light. Before the fix 34 of 34 rendered dark; counts on the exact ZIP in FINAL-BETA-QA-REPORT.md."
+        },
+        "r151Documents": {
+          "passed": null,
+          "detail": "19-r151: itemized vendor invoices (posting by line, recoverable vs cost tax, tax-inclusive lines, draft edit, issued detail edit, validation, company isolation, single-amount compatibility), cash-basis recognition by line, linked and unlinked customer/vendor notes with GL per line, open-credit application, unlinked debit note receivable, draft note edit, voids, receivable/payable trial balances, ledgers, registers and backup. 20-r151ui: the shared form, add-line scroll position, saves checked in the database, typed-number linking, edit from the registers and the invoice detail page without pop-ups, recurring schedule, quick-add, sidebar wheel, phone width. Counts in FINAL-BETA-QA-REPORT.md."
         }
       },
       "knownLimitations": [
