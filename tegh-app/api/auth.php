@@ -142,6 +142,8 @@ function auth_payload(array $user, ?array $session = null): array
         'aiConfigured' => false, // Release is native-only; do not expose provider configuration.
         'publicSignupEnabled' => public_signup_enabled(),
         'freePreview' => false,
+        // R155: optional notice shown under the top bar, e.g. for a private beta (config app.beta_notice).
+        'betaNotice' => mb_substr(trim((string)(config('app.beta_notice') ?? '')), 0, 300),
     ];
 }
 

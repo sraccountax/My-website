@@ -6,8 +6,8 @@ function tegh_connected_release_enabled(): bool { return false; }
 const TEGH_BANK_READY_CONFIDENCE = 90;
 const TEGH_CATEGORY_WORKBOOK_LIMIT = 5000;
 const TEGH_REPORT_OUTPUT_LIMIT = 25000;
-const TEGH_TERMS_VERSION = '2026-09-09';
-const TEGH_PRIVACY_VERSION = '2026-09-09';
+const TEGH_TERMS_VERSION = '2026-10-01';
+const TEGH_PRIVACY_VERSION = '2026-10-01';
 
 final class TeghServiceFailure extends RuntimeException
 {

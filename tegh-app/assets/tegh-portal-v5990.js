@@ -278,7 +278,7 @@ const TeghPortal = (() => {
     const b=await r.json().catch(()=>({}));
     if(requestGeneration!==authRequestGeneration||selection!==JSON.stringify(selectedCompanyIds()))throw staleClientRead();
     if(!r.ok){if(r.status===401||r.status===403){authCache=null;authLoadedAt=0;clearClientScope()}throw Object.assign(Error(userFacingError(b.error||'Sign in is required.','Sign in is required.')),{status:r.status,code:'authentication_required'})}
-    authCache=reconcileCompanySelection(b);authLoadedAt=Date.now();window.TeghReferenceUI?.setIdentity?.(authCache.user||{});window.TeghRegistersR23?.setUser(authCache.user?.id||'');observeClientScope();return authCache;
+    authCache=reconcileCompanySelection(b);authLoadedAt=Date.now();installBetaNotice();window.TeghReferenceUI?.setIdentity?.(authCache.user||{});window.TeghRegistersR23?.setUser(authCache.user?.id||'');observeClientScope();return authCache;
   }
   function confirmedAccountingCommit(route,method,input,result){
     if(['GET','HEAD','OPTIONS'].includes(method))return null;
@@ -1231,7 +1231,7 @@ const TeghPortal = (() => {
   }
   async function guidedExtractStatement(file,onProgress,context={}){
     const ext=String(file?.name||'').split('.').pop().toLowerCase();
-    if(ext==='pdf'){const mod=await import('./tegh-bank-converter-v5990.js?v=5990-r154-tegh');return await mod.extractAndReview(file,{...context,onProgress})}
+    if(ext==='pdf'){const mod=await import('./tegh-bank-converter-v5990.js?v=5990-r155-tegh');return await mod.extractAndReview(file,{...context,onProgress})}
     if(ext==='xlsx'||ext==='xls'){const mod=await import('./spreadsheetStatementImport-R-lkb343-v211.js?v=4600');return await mod.extractSpreadsheetStatement(file,onProgress)}
     return null;
   }
@@ -2392,6 +2392,14 @@ const TeghPortal = (() => {
   const systemDarkQuery=(()=>{try{return window.matchMedia('(prefers-color-scheme: dark)')}catch{return null}})();
   try{systemDarkQuery?.addEventListener('change',()=>{if(!['light','dark'].includes(teghPreferences().theme))applyTeghPreferences()})}catch{}
   const currentThemeChoice=()=>{const theme=teghPreferences().theme;return ['light','dark'].includes(theme)?theme:'auto'};
+  // R155: private beta notice under the top bar (text from config app.beta_notice; nothing shown when it is blank).
+  function installBetaNotice(){
+    const text=String(authCache?.betaNotice||'').trim(),bar=$('.topbar');let note=$('[data-r155-beta-notice]');
+    if(!text){note?.remove();return}
+    if(!bar){setTimeout(installBetaNotice,300);return}
+    if(!note){note=document.createElement('div');note.className='r155-beta-notice';note.dataset.r155BetaNotice='1';note.setAttribute('role','note');bar.after(note)}
+    note.textContent=text;
+  }
   function installThemeSwitch(){
     const bar=$('.topbar .top-actions');if(!bar)return false;let group=$('[data-r153-theme]',bar);
     if(!group){group=document.createElement('div');group.className='r153-theme-switch';group.dataset.r153Theme='1';group.setAttribute('role','group');group.setAttribute('aria-label','Colour theme');
@@ -6825,7 +6833,7 @@ const TeghPortal = (() => {
     if(nativeAPARModulePromise)return nativeAPARModulePromise;
     if(window.TeghLoadFeature){nativeAPARModulePromise=window.TeghLoadFeature('native-ap-ar').then(()=>{if(!window.TeghNativeAPAR)throw new Error('The Document workspace did not initialize.');return window.TeghNativeAPAR}).catch(error=>{nativeAPARModulePromise=null;throw error});return nativeAPARModulePromise}
     nativeAPARModulePromise=new Promise((resolve,reject)=>{
-      const source='/assets/tegh-native-ap-ar-v5600.js?v=5990-r154-tegh',existing=document.querySelector(`script[src^="/assets/tegh-native-ap-ar-v5600.js"]`);
+      const source='/assets/tegh-native-ap-ar-v5600.js?v=5990-r155-tegh',existing=document.querySelector(`script[src^="/assets/tegh-native-ap-ar-v5600.js"]`);
       const ready=()=>window.TeghNativeAPAR?resolve(window.TeghNativeAPAR):reject(new Error('The Native AP/AR workspace did not initialize.'));
       if(existing){existing.addEventListener('load',ready,{once:true});existing.addEventListener('error',()=>reject(new Error('The Native AP/AR workspace could not be loaded.')),{once:true});setTimeout(()=>window.TeghNativeAPAR&&resolve(window.TeghNativeAPAR),0);return}
       const script=document.createElement('script');script.src=source;script.async=true;script.onload=ready;script.onerror=()=>reject(new Error('The Native AP/AR workspace could not be loaded.'));document.head.append(script);
