@@ -1005,3 +1005,71 @@ The owner requests and what changed are listed in `tegh-app/R151-CHANGES.md`. Ow
 **Sidebar caveat.** The owner's exact sidebar symptom could not be reproduced in Chromium. The fix addresses the lost first wheel after navigation and nested scroll boxes; the owner's browser and device are requested.
 
 **Verdict for R151: NOT READY.** As before, the open items are host acceptance, production email, and owner/legal approval of Privacy/Terms. Deploy **R151** to staging.
+
+## Addendum: R152 (statement reader Stage 1, invoice reader Stage 2)
+
+| | R152 |
+|---|---|
+| Package | `…-Hotfix-R152-Consolidated-IONOS-STAGING.zip` |
+| SHA-256 | `db1f4ae401bd562e7f136d7a06ee0283b483c9524154179c77fc3c3e886ae24c` |
+| FILE-MANIFEST.sha256 | 357 entries, all OK |
+| ZIP entries not 0644 | 0 |
+| Cache token | `5990-r152-tegh` |
+| Migration | Automatic on first use: `native_agent_documents.extracted_json`, table `vendor_document_memory` |
+| productionReady / acceptanceComplete | false / false |
+
+The owner asked for "stage 1 and 2" of the OCR plan: improvements to the existing readers, with no external AI. What changed is listed in `tegh-app/R152-CHANGES.md`.
+
+**Results on the exact R152 ZIP (host clock pinned to 2026-10-01)**
+
+| Area | Result |
+|---|---|
+| Full suite including upgrade | **528 PASS / 0 FAIL / 7 INFO** |
+| 21-r152 statement and invoice readers | 31/31; see the list below |
+| Earlier suites (R145 converter and intake, R151 documents and UI, journeys) | unchanged: 45 + 1 INFO, 40, 19, 51 |
+| Upgrade R118 → R152 | 13/13 |
+| Paths and headers | 42 PASS |
+| UI matrix | 0 screens with issues; 0 swipe traps |
+| Public pages | 34/34 renders clean; 34/34 light in dark mode |
+
+**21-r152 covers:**
+
+*Statements* (synthetic; fictional banks; expected figures from the generator's own integer-cent arithmetic):
+- **12 single-statement layouts**, each with row count, net, opening and closing balances, first and last dates, sample rows and the balance check:
+  - RBC-, BMO- (two-line headings), Scotia- (MM/DD, overdrawn), Desjardins- (French, code column), National Bank- (DD/MM) and Tangerine-style accounts;
+  - Amex-style and French Visa cards;
+  - a card with MM/DD dates across December–January;
+  - a credit union with DR/CR and OD balances;
+  - two-line rows;
+  - French amounts split into pieces.
+- **A PDF with three statements**: all listed; the same account read together with the chain check; the other account chosen alone; also through the converter screen.
+- **Numeric dates that read both ways**: not guessed.
+- **The six R145 statements**: unchanged.
+
+*Invoices* (6 synthetic invoices through the Document Intake screen):
+- line items as a table, with quantity × price checks, in English and French;
+- verification stores the reader's candidate, not the document text;
+- account suggestions from the vendor's history, by wording and by most-used account;
+- hand-off of all lines into the vendor invoice form, with a check against the document's total and automatic linking;
+- duplicate warning, and refusal without confirmation;
+- supplier memory for the day/month order and for an invoice-number pattern;
+- requests carry only identity fields;
+- company isolation;
+- backup.
+
+**Owner's real statements.** The three statements the owner provided earlier stay local and were not copied or committed. They were re-read with the R152 reader and give the same rows, dates, amounts and balance checks as R151. The first R152 draft split one of them into two statements: a summary box printed a date range. The rule was tightened before the gate, so a different period now starts a statement only on a page that also shows an opening balance.
+
+**Defects found and fixed during R152 testing (before the final ZIP)**
+
+| Defect | Fix |
+|---|---|
+| The save message at the top right covered the page-header buttons (for example **Upload document**) for about 6 seconds after a save. Found by the first R152 gate run (IN-09, IN-10). | Clicks now pass through the message, which has no controls. ZIP rebuilt and re-gated. |
+| The vendor invoice form prefilled from an invoice picked the vendor's province tax code (NS HST 14%) while the supplier charged GST 5%. The form total silently differed from the document. Seen in the gate screenshot. | The form now compares its total with the document's printed total. It warns until they match. 21-r152 IN-04 checks the warning and the match. ZIP rebuilt and re-gated. |
+| Coding by wording missed "Toner cartridge HP 26A (high yield, black)" against an earlier "Toner cartridge HP 26A" line. | Matching now measures the share of the shorter description's words. |
+
+**Limits.**
+- Line items are read as a table only from text PDFs; scans use line-by-line reading.
+- Supplier memory does not learn field positions.
+- The statement layouts are synthetic copies of common styles. Real statements from other banks are still needed (host acceptance item "Real bank statement files").
+
+**Verdict for R152: NOT READY.** The open items are unchanged from R151: host acceptance, production email, and owner/legal approval of Privacy/Terms. Deploy **R152** to staging.
