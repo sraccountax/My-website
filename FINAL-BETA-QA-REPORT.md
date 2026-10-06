@@ -1232,3 +1232,80 @@ With several companies selected, three screens that asked for one company in R15
 - **Fixed in v11:** the chain check skipped an account's statements when another account's statements fell between them by date.
 
 **Verdict for R154: NOT READY.** The open items are unchanged: host acceptance, production email, and owner/legal approval of Privacy/Terms. Deploy **R154** to staging. Upload the converter v11 files to the converter site using `INSTALL-v11.txt`.
+
+## Addendum: R155 (private beta package and beta-readiness checks)
+
+| | R155 |
+|---|---|
+| Package | `Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R155-PRIVATE-BETA.zip` |
+| SHA-256 | `e7e998dd439c73570d97386dc8a90468367116c21d7920bb70b91fe56242703c` |
+| FILE-MANIFEST.sha256 | 361 entries, all OK |
+| ZIP entries not 0644 | 0 |
+| Cache token | `5990-r155-tegh` |
+| Migration | None (optional config `app.beta_notice`) |
+| productionReady / acceptanceComplete | false / false |
+
+The owner asked for the build-side steps of an invitation-only, sample-data beta. The readiness evidence, mapped to the owner's pre-invitation checklist, is in `beta-kit/BETA-READINESS.md`.
+
+**Release package review (owner's step 2)**
+
+| Finding | Action |
+|---|---|
+| README said the three manifests "identify this package as R151". | Corrected. The manifest generator now keeps that sentence in step with the release. |
+| Manifest history entries were off by one: `r150Identity` held R151, …, `r152Identity` held the first R153 build. Each rebuild of a release had moved the outgoing manifest into a fixed key. | Every `rNNNIdentity` (R135–R154) is rebuilt from the last manifest committed for that release in git. All 20 now name their own release. |
+| **DEF-17 (Medium, privacy/legal record):** the Terms and Privacy pages show "document version: 2026-10-01", but their meta tag and the version Tegh records at invitation acceptance were 2026-09-09. Every acceptance named a version the person had not been shown. | Fixed: both set to 2026-10-01. 24-beta BS-07 compares the recorded version with the text printed on the pages. Acceptances recorded before R155 keep 2026-09-09. |
+| The DEF-10 regression checks W9-03/W9-04 (re-uploading a statement) only ran on a database where the statement was already imported, so a fresh gate run never executed them. They were missing from the R154 results. | The journey now uploads the same statement a second time in every run. Both pass, and E2E rose from 51 to 53. |
+| Earlier findings DEF-01…16 and OBS-1…4 | Their regression tests (listed in the earlier addenda) were re-checked on R154 and R155 and all pass. DEF-13 is screenshot-based. DEF-09 is covered by the swipe-trap scan, which found 0. |
+
+**New gate suite 24-beta (14 checks), all PASS on the exact ZIP**
+- **Public sign-up:** registration without an invitation is refused with 403 (BS-01).
+- **Uploaded files:** a Document Intake file and an invoice attachment cannot be downloaded through another company (404) or by a user without access (403). Their own company gets the same bytes (BS-02, BS-03).
+- **Removed member:** the session they are signed in with is refused at once, and a fresh sign-in has no access (BS-04).
+- **Revoked invitation:** it cannot be accepted (410) (BS-05).
+- **Password reset:**
+  - the email link works once;
+  - the new password works and the old one is refused;
+  - earlier sessions end (401).
+
+  (BS-06)
+- **Terms version:** the recorded version equals the version printed on the pages, 2026-10-01 (BS-07).
+- **Backup with files:** a company backup restored into a new company returns the Document Intake file and the invoice attachment byte for byte (BR-10).
+- **Repeated requests:**
+  - the same payment sent three times (two at once) is recorded once, and the balance is $300.00 = $400.00 − $100.00 (BA-01);
+  - double-clicking Save & Issue creates one invoice and one journal (BA-03).
+- **Balancing:** every posted entry on the gate database balances, and every company nets to zero (BA-02).
+- **Currency:** a company cannot be created with a non-CAD ledger. A USD 1,000.00 invoice at 1.35 shows in USD on its line, and the combined totals add CAD 1,350.00. The expected total CAD 1,873.45 was worked out by hand (BM-01).
+- **Beta notice:** the badge is visible in the top bar and not covered, at desktop and phone width; contrast is 6.8:1 light and 10.0:1 dark; tapping it shows the full text (BN-01).
+- No page errors.
+
+**Found and fixed during R155 testing**
+
+| Defect | Fix |
+|---|---|
+| The first R155 build drew the beta notice as a line under the top bar. The page header covered it, so it was invisible, although BN-01 passed because it only checked the element and its colours. Found in the BN-01 screenshot. | The notice is now a badge inside the top bar, beside the company selector. BN-01 now checks that nothing covers the badge at three points, at 1440 and 390 px. ZIP rebuilt and re-gated. |
+
+**Gate runs**
+
+| Run | ZIP | Result |
+|---|---|---|
+| 1 | `79b19d16…` (first R155 build) | 575 PASS / 0 FAIL / 7 INFO. Not shipped: the notice-visibility defect above. |
+| 2 | `e7e998dd…` (final) | **575 PASS / 0 FAIL / 7 INFO**, including BETA 14/14, E2E 53, upgrade R118 → R155 13/13, 42 path and header checks, 20 layout runs with 0 issues, and 34 public pages. |
+
+**Host-level backup and restore (owner's step 5).** On the exact R155 installation after run 2:
+- `beta-ops/tegh-backup.sh` backed up the database and upload folder, with an off-site copy simulated as a second folder.
+- `tegh-restore-verify.sh` restored them into a separate database and folder. Result: `RESTORE VERIFIED`. All 24 files were identical, the row counts of 167 tables were equal, and the posted totals of 19 companies were equal.
+- A separate HTTPS installation served from the restored data loaded identical trial balances for all 25 companies (120 account rows) and identical uploaded files (7 compared).
+- A backup with one changed byte was refused.
+
+The runbook is `beta-ops/RECOVERY-AND-ROLLBACK.md`.
+
+**Not established here.** These need the owner, the host or an independent reviewer:
+- the beta host's HTTPS, configuration, scheduled backups and restore test;
+- real email delivery to an external mailbox;
+- an independent security review;
+- the privacy and terms text and its legal review, including a procedure for deleting a person's user account, which the app cannot do today;
+- the owner's accountant walkthrough;
+- a real iPhone/Safari check;
+- the host acceptance items.
+
+**Verdict for R155:** suitable to begin the **invitation-only, sample-data beta** once the owner's open items in `beta-kit/BETA-READINESS.md` are closed. **NOT READY** for real client or employee information.

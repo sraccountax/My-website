@@ -1,0 +1,9 @@
+PASS  backup files match SHA256SUMS
+PASS  database restored into tegh_restore_test
+PASS  upload folder restored into /srv/rst/sr-accountax-private/storage
+PASS  all 24 uploaded files restored with the same SHA-256
+PASS  row counts of 167 tables equal the backup checks
+PASS  posted debits/credits of 19 companies equal the backup checks
+PASS  every restored company's posted entries balance
+
+RESTORE VERIFIED: /srv/gate/backups/tegh-20261006-224437
