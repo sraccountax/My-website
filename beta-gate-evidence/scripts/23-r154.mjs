@@ -1,7 +1,7 @@
 // R154: with several companies selected, the General Ledger Account Report, the Bank General Ledger Report and Budgets
 // run for every selected company, each line labelled with its company.
 // Expected figures are worked out here from the documents this test creates, never with Tegh's code.
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';import fs from 'fs';import {execFileSync} from 'child_process';import {S,sql,rec,need} from './lib.mjs';
+import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';import fs from 'fs';import {execFileSync} from 'child_process';import {S,sql,rec,need,save} from './lib.mjs';
 const A='R154';const o=new S();await o.login('owner@gate.test','Gate!Owner#2026pw');const stamp=Date.now().toString(36);
 const t=async(id,title,fn)=>{try{const r=await fn();rec(id,A,title,r.ok?'PASS':'FAIL',r.info||'')}catch(e){rec(id,A,title,'FAIL',e.message.replace(/\s+/g,' ').slice(0,300))}};
 const as=co=>({headers:{'X-Company-Id':co.id},company:false});
@@ -87,4 +87,4 @@ await t('ONE-01','With one company selected the GL Account Report, Bank GL Repor
   await run('Advanced accounting','Budgets');await p.waitForTimeout(1500);const list=await p.locator('[data-r154-budget-list]').count(),own=await p.locator('.srp-advanced-host').count();
   return {ok:gl===1&&bank===0&&list===0&&own===1,info:`GL account picker ${gl}; bank pickers ${bank}; combined budget list ${list}; budgets workspace ${own}`}});
 rec('R154-JS',A,'No page errors during the R154 journeys',errs.length?'FAIL':'PASS',errs.slice(0,3).join(' | '));
-await b.close();
+await b.close();save('r154.json');
