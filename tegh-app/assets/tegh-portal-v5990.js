@@ -1185,7 +1185,7 @@ const TeghPortal = (() => {
   }
   async function guidedExtractStatement(file,onProgress,context={}){
     const ext=String(file?.name||'').split('.').pop().toLowerCase();
-    if(ext==='pdf'){const mod=await import('./tegh-bank-converter-v5990.js?v=5990-r145-tegh');return await mod.extractAndReview(file,{...context,onProgress})}
+    if(ext==='pdf'){const mod=await import('./tegh-bank-converter-v5990.js?v=5990-r152-tegh');return await mod.extractAndReview(file,{...context,onProgress})}
     if(ext==='xlsx'||ext==='xls'){const mod=await import('./spreadsheetStatementImport-R-lkb343-v211.js?v=4600');return await mod.extractSpreadsheetStatement(file,onProgress)}
     return null;
   }
@@ -3802,14 +3802,16 @@ const TeghPortal = (() => {
           if(state.kind!=='invoice'&&opts.sourceId){const src=documents.find(d=>d.id===opts.sourceId);if(src){state.partyId=src[customer?'customerId':'vendorId'];state.number=src.number;state.linkedId=src.id}}
           if(opts.partyName&&!state.partyId){const hit=parties.find(p=>String(p.name||'').trim().toLowerCase()===String(opts.partyName).trim().toLowerCase());if(hit)state.partyId=hit.id}
           if(state.kind==='invoice'&&opts.number)state.number=String(opts.number);if(opts.date)state.date=String(opts.date);if(opts.message)state.message=String(opts.message);
-          const prepared=opts.line||{};addLine({description:String(prepared.description||''),qty:String(prepared.quantity||'1'),rate:Number(prepared.unitPriceCents||0)>0?(Number(prepared.unitPriceCents)/100).toFixed(2):'',accountId:String(opts.accountId||'')});
+          // R152: lines read from a reviewed intake document arrive with their suggested account and tax code.
+          if(Array.isArray(opts.lines)&&opts.lines.length)opts.lines.slice(0,100).forEach(l=>addLine({description:String(l.description||''),qty:String(l.quantity||'1'),rate:Number(l.unitPriceCents||0)>0?(Number(l.unitPriceCents)/100).toFixed(2):'',accountId:String(l.accountId||opts.accountId||''),...(l.taxCodeId&&codesMode?{taxKey:String(l.taxCodeId)}:{})}));
+          else{const prepared=opts.line||{};addLine({description:String(prepared.description||''),qty:String(prepared.quantity||'1'),rate:Number(prepared.unitPriceCents||0)>0?(Number(prepared.unitPriceCents)/100).toFixed(2):'',accountId:String(opts.accountId||'')})}
         }
       }catch(error){body.innerHTML=`<section class="srp-card"><div class="srp-empty"><b>Document unavailable</b><p>${esc(userFacingError(error))}</p></div></section>`;return}
       const applyPartyDefaults=()=>{const p=party();if(!p||state.status!=='new')return;const days=Number(p.defaultTermsDays??30);if(state.kind==='invoice'){state.dueDate=addDaysIso(state.date,days);if(customer&&!state.message)state.message=`Thank you for your business. Payment terms: ${days===0?'Due on Receipt':`Net ${days}`}.`}if(!customer&&p.currency&&!lines.some(l=>lineNet(l)>0))state.currency=p.currency||state.currency;if(!customer)lines.forEach(l=>{if(!l.sourceLineId&&!l.productServiceId)l.accountId=p.defaultExpenseAccountId||l.accountId})};
-      if(state.status==='new'){const keepAccount=lines.map(l=>l.accountId);applyPartyDefaults();if(opts.accountId)lines.forEach((l,i)=>{l.accountId=keepAccount[i]||l.accountId});if(opts.dueDate)state.dueDate=String(opts.dueDate);if(!state.dueDate)state.dueDate=addDaysIso(state.date,30)}
+      if(state.status==='new'){const keepAccount=lines.map(l=>l.accountId);applyPartyDefaults();if(opts.accountId||opts.lines)lines.forEach((l,i)=>{l.accountId=keepAccount[i]||l.accountId});if(opts.dueDate)state.dueDate=String(opts.dueDate);if(!state.dueDate)state.dueDate=addDaysIso(state.date,30)}
       // ----- render (once; later updates touch only the parts that change) -----
       const title=()=>editId?(state.status==='issued'?`Edit ${kindLabel.invoice.toLowerCase()} ${state.number} (issued)`:`Edit ${kindLabel[state.kind].toLowerCase()} ${state.noteNumber||state.number||''}`):`New ${customer?'customer':'vendor'} document`;
-      body.innerHTML=`<section class="srp-card r151-doc" data-r151-side="${side}">
+      body.innerHTML=`<section class="srp-card r151-doc" data-r151-side="${side}">${opts.intake?`<p class="r151-intake-note" data-r151-intake role="note"><b>Prefilled from Document Intake${opts.intake.name?`: ${esc(opts.intake.name)}`:''}.</b> Check every line, account and tax code against the source before saving. Saving links this vendor invoice to the source.</p>`:''}
         <header class="r151-doc-head"><div><small>${esc(module)}</small><h2 data-r151-title>${esc(title())}</h2><p data-r151-sub>${state.status==='issued'?'This document is posted. You can change the due date and notes; amounts, lines and the customer or vendor stay as posted. Use a credit or debit note to change amounts.':'Fill in the details on top, then the lines below. Totals update as you type.'}</p></div>
           <label class="r151-type">Document type<select name="docType" data-r151-type ${editId?'disabled':''}>${['invoice','credit','debit'].map(k=>`<option value="${k}" ${state.kind===k?'selected':''}>${esc(kindLabel[k])}</option>`).join('')}</select></label></header>
         <form class="r151-form" data-r151-form novalidate>
@@ -3897,7 +3899,10 @@ const TeghPortal = (() => {
             let id=editId;
             if(editId){await api('bills',{method:'PATCH',json:{action:'update',billId:editId,...payload}});if(mode==='post')await api('bills',{method:'PATCH',json:{action:'issue',billId:editId}})}
             else{const result=await api('bills',{method:'POST',json:{...payload,issue:mode==='post'}});id=result.bill?.id||''}
-            form.dataset.srpDirty='0';toast(mode==='post'?'Vendor invoice posted':'Draft saved',`${payload.number} ${mode==='post'?'was posted':'was saved as a draft'}.`,'success');invalidateWorkspaceState('bills');return openBills('',id);
+            form.dataset.srpDirty='0';toast(mode==='post'?'Vendor invoice posted':'Draft saved',`${payload.number} ${mode==='post'?'was posted':'was saved as a draft'}.`,'success');invalidateWorkspaceState('bills');
+            // R152: a vendor invoice opened from Document Intake is linked back to its private source once saved.
+            if(!editId&&id&&opts.intake?.documentId){try{await api('native-ap-ar/document/link',{method:'POST',json:{documentId:opts.intake.documentId,targetId:id,sourceRevisionHash:opts.intake.sourceRevisionHash}});toast('Source linked',`${payload.number} is linked to the reviewed document in Document Intake.`,'success')}catch(error){toast('Source not linked',`${userFacingError(error)} Link it from Document Intake.`,'error')}}
+            return openBills('',id);
           }
           // Credit or debit note — linked to an original in Tegh, or recorded with the typed reference.
           const src=linked(),kind=noteKind(state.kind),memo=[state.reason,state.message.trim()].filter(Boolean).join(' — ').slice(0,500);let json;
@@ -4136,7 +4141,7 @@ const TeghPortal = (() => {
 
   function openBills(mode='',focusId='',options={}){
     // R151: new and edited vendor invoices use the shared document form.
-    if(mode==='new')return openDocumentEditor('vendor',{kind:'invoice',partyId:String(options?.vendorId||''),number:String(options?.number||options?.documentNumber||''),date:String(options?.billDate||options?.documentDate||''),dueDate:String(options?.dueDate||''),message:String(options?.memo||''),accountId:String(options?.categoryAccountId||''),line:Number(options?.amountCents||options?.subtotalCents||options?.totalCents||0)>0?{description:String(options?.description||options?.memo||''),quantity:1,unitPriceCents:Number(options?.amountCents||options?.subtotalCents||options?.totalCents||0)}:undefined});
+    if(mode==='new')return openDocumentEditor('vendor',{kind:'invoice',partyId:String(options?.vendorId||''),number:String(options?.number||options?.documentNumber||''),date:String(options?.billDate||options?.documentDate||''),dueDate:String(options?.dueDate||''),message:String(options?.memo||''),accountId:String(options?.categoryAccountId||''),lines:Array.isArray(options?.lines)?options.lines:undefined,intake:options?.documentId&&options?.sourceRevisionHash?{documentId:String(options.documentId),sourceRevisionHash:String(options.sourceRevisionHash),name:String(options?.intakeName||'')}:undefined,line:Number(options?.amountCents||options?.subtotalCents||options?.totalCents||0)>0?{description:String(options?.description||options?.memo||''),quantity:1,unitPriceCents:Number(options?.amountCents||options?.subtotalCents||options?.totalCents||0)}:undefined});
     if(mode==='edit')return openDocumentEditor('vendor',{editId:focusId,editType:'bill'});
     const returnModule=options?.returnModule||'Payables',route=options?.route||(mode==='new'||mode==='edit'?'bills':'report-bill-register');
     const reopenRegister=(nextMode='',nextFocusId='')=>openBills(nextMode,nextFocusId,options);
@@ -6692,7 +6697,7 @@ const TeghPortal = (() => {
     if(nativeAPARModulePromise)return nativeAPARModulePromise;
     if(window.TeghLoadFeature){nativeAPARModulePromise=window.TeghLoadFeature('native-ap-ar').then(()=>{if(!window.TeghNativeAPAR)throw new Error('The Document workspace did not initialize.');return window.TeghNativeAPAR}).catch(error=>{nativeAPARModulePromise=null;throw error});return nativeAPARModulePromise}
     nativeAPARModulePromise=new Promise((resolve,reject)=>{
-      const source='/assets/tegh-native-ap-ar-v5600.js?v=5990-r145-tegh',existing=document.querySelector(`script[src^="/assets/tegh-native-ap-ar-v5600.js"]`);
+      const source='/assets/tegh-native-ap-ar-v5600.js?v=5990-r152-tegh',existing=document.querySelector(`script[src^="/assets/tegh-native-ap-ar-v5600.js"]`);
       const ready=()=>window.TeghNativeAPAR?resolve(window.TeghNativeAPAR):reject(new Error('The Native AP/AR workspace did not initialize.'));
       if(existing){existing.addEventListener('load',ready,{once:true});existing.addEventListener('error',()=>reject(new Error('The Native AP/AR workspace could not be loaded.')),{once:true});setTimeout(()=>window.TeghNativeAPAR&&resolve(window.TeghNativeAPAR),0);return}
       const script=document.createElement('script');script.src=source;script.async=true;script.onload=ready;script.onerror=()=>reject(new Error('The Native AP/AR workspace could not be loaded.'));document.head.append(script);

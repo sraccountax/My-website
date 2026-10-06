@@ -224,7 +224,7 @@
   }
   const cents = value => { const found = moneyIn(String(value || ''), false); return found.length ? found[found.length - 1] : null; };
 
-  function candidateFromText(rawText) {
+  function candidateFromText(rawText, pageRows = null) {
     const text = normalizeText(rawText), lines = text.split('\n').map(x => x.trim()).filter(Boolean), folded = lines.map(x => fold(x));
     const french = /\b(TPS|TVQ|TVH|sous-?total|montant|facture|re[cç]u|payer|taxes?\s+incluses)\b/i.test(fold(text)) && !/\b\d{1,3}(,\d{3})*\.\d{2}\b/.test(text);
     // A labelled amount: the label starts the line (or follows a short prefix), the amount is the last on that line,
@@ -301,7 +301,7 @@
     const candidate = {partyName: partyLine, partyEmail: text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)?.[0] || '', businessIdentifier: identifier, documentNumber: number,
       documentDate: docDate?.iso || '', dueDate: dueDate?.iso || '',
       currency: /\bUSD\b|US\$/i.test(text) ? 'USD' : /\bEUR\b|€/.test(text) ? 'EUR' : /\bGBP\b|£/.test(text) ? 'GBP' : 'CAD', paymentTerms: termsText.trim(), confidenceBps: 0, alternatives: [], lineItems: []};
-    if (docDate && !docDate.iso) candidate.alternatives = docDate.alternatives.map(documentDate => ({documentDate}));
+    if (docDate && !docDate.iso) candidate.alternatives = docDate.alternatives.map((documentDate, index) => ({documentDate, dateOrder: index === 0 ? 'mdy' : 'dmy'}));
     // "Net 30" with a known date gives the due date by plain day arithmetic; the reviewer still confirms it.
     const net = /\bnet\s*(\d{1,3})\b/i.exec(candidate.paymentTerms);
     if (!candidate.dueDate && candidate.documentDate && net) candidate.dueDate = new Date(Date.parse(candidate.documentDate + 'T00:00:00Z') + Number(net[1]) * 86400000).toISOString().slice(0, 10);
@@ -313,19 +313,31 @@
     if (Number.isInteger(subtotal) && subtotal >= 0) candidate.subtotalCents = subtotal;
     // Derive only exact arithmetic; inconsistent printed totals remain for human review.
     if (Number.isInteger(candidate.totalCents) && Number.isInteger(candidate.taxCents) && candidate.subtotalCents === undefined && candidate.totalCents >= candidate.taxCents) candidate.subtotalCents = candidate.totalCents - candidate.taxCents;
-    // Line items: rows under a heading that names a description and a money column.
-    const heading = folded.findIndex(x => /^(?:description|item\s+description|items?|articles?|produits?)\b/i.test(x) || (/\b(description|item|article)\b/i.test(x) && /\b(amount|price|total|montant|prix|qty|quantity|quantite)\b/i.test(x)));
+    // R152: line items read as a table from positioned PDF text (description, quantity, unit price, amount, tax).
+    const table = Array.isArray(pageRows) ? pageRows.flatMap(rows => lineItemsFromRows(rows, french)) : [];
+    if (table.length) candidate.lineItems = table.slice(0, 100);
+    // Otherwise: rows under a heading that names a description and a money column.
+    const heading = candidate.lineItems.length ? -1 : folded.findIndex(x => /^(?:description|item\s+description|items?|articles?|produits?)\b/i.test(x) || (/\b(description|item|article)\b/i.test(x) && /\b(amount|price|total|montant|prix|qty|quantity|quantite)\b/i.test(x)));
     if (heading >= 0) {
       for (const line of lines.slice(heading + 1)) {
         if (TAXWORD.test(fold(line)) || /^(sub\s*-?\s*total|sous\s*-?\s*total|grand\s+total|total|amount\s+(due|payable)|balance\s+due|payment|terms|montant)\b/i.test(fold(line))) break;
         const amounts = moneyIn(line, french);
         if (!amounts.length || !/[A-Za-z]{2}/.test(line)) continue;
+        const full = lineItemFromText(line, french);
+        if (full) { candidate.lineItems.push(full); if (candidate.lineItems.length >= 100) break; continue; }
         const description = line.replace(/(?:\s+(?:CAD|USD|\$)?\s*-?\(?\$?\d[\d ,.]*\)?\s*\$?)+\s*$/, '').replace(/^\d+(?:\.\d+)?\s*[x×]?\s+/, '').trim();
         if (description && amounts[amounts.length - 1] > 0) candidate.lineItems.push({description: description.slice(0, 300), amountCents: amounts[amounts.length - 1]});
         if (candidate.lineItems.length >= 100) break;
       }
     }
     if (candidate.lineItems.length) candidate.memo = candidate.lineItems.map(x => x.description).join('; ').slice(0, 500);
+    // The lines must add up to the subtotal (or to the total when no tax is printed) before they are trusted as a set.
+    if (candidate.lineItems.length) {
+      const sum = candidate.lineItems.reduce((n, x) => n + x.amountCents, 0);
+      candidate.lineCheck = Number.isInteger(candidate.subtotalCents) && sum === candidate.subtotalCents ? 'subtotal'
+        : !candidate.taxCents && Number.isInteger(candidate.totalCents) && sum === candidate.totalCents ? 'total'
+        : Number.isInteger(candidate.subtotalCents) || Number.isInteger(candidate.totalCents) ? 'differs' : 'none';
+    }
     const known = [candidate.partyName, candidate.documentNumber, candidate.documentDate, candidate.totalCents].filter(x => x !== '' && x !== undefined).length;
     candidate.confidenceBps = Math.min(9000, 2000 + known * 1500 + (identifier ? 500 : 0));
     if (Number.isInteger(candidate.subtotalCents) && Number.isInteger(candidate.taxCents) && Number.isInteger(candidate.totalCents)) {
@@ -380,6 +392,148 @@
     } finally { bitmap.close?.(); }
   }
 
+  // R152: invoice line items as a table. PDF text keeps every word's position, so the reader finds the heading row
+  // (description, quantity, unit price, amount, tax), places each value under its heading, joins wrapped descriptions,
+  // and checks quantity × unit price = amount on every line. Summary rows (subtotal, taxes, total) end the table.
+  function positionedRows(items) {
+    const runs = (items || []).filter(item => typeof item.str === 'string' && item.str.trim()).map((item, index) => ({
+      text: item.str.trim(), x: Number(item.transform?.[4]), y: Number(item.transform?.[5]), w: Number(item.width || 0),
+      h: Math.abs(Number(item.height || item.transform?.[3] || 10)) || 10, index}));
+    if (!runs.length || runs.some(run => !Number.isFinite(run.x) || !Number.isFinite(run.y))) return [];
+    const rows = [];
+    for (const run of runs) {
+      const tolerance = Math.max(2, Math.min(5, run.h * 0.3));
+      let row = rows.find(row => Math.abs(row.y - run.y) <= tolerance);
+      if (!row) { row = {y: run.y, h: run.h, cells: []}; rows.push(row); }
+      row.cells.push(run);
+    }
+    rows.sort((a, b) => b.y - a.y);
+    return rows.map(row => {
+      const cells = [];
+      for (const run of row.cells.sort((a, b) => a.x - b.x || a.index - b.index)) {
+        const r = run.x + (run.w || run.text.length * run.h * 0.5), prev = cells[cells.length - 1];
+        // Words of one phrase arrive as separate runs; join them when the gap is under a third of the text height.
+        if (prev && run.x - prev.r < run.h * 0.33) { prev.text += ' ' + run.text; prev.r = r; } else cells.push({text: run.text, x: run.x, r});
+      }
+      return {y: row.y, h: row.h, cells};
+    });
+  }
+  const LINE_HEADINGS = [
+    ['qty', /^(?:qty|qte|quantity|quantite|units|hrs|hours|heures|nbre|nombre)\.?$/],
+    ['unit', /^(?:unit\s*price|price|rate|unit\s*cost|prix(?:\s+unitaire)?|p\.?\s*u\.?|taux|tarif|each|cost|price\s*\/\s*unit|prix\s*\/\s*unite)$/],
+    ['amount', /^(?:amount|total|line\s+total|ext(?:ended|\.)?\s*(?:price|amount)?|montant|total\s+(?:de\s+la\s+)?ligne|net\s+amount)$/],
+    ['tax', /^(?:tax(?:es)?|tx|tax\s*code|code\s+(?:de\s+)?taxe|taxable|gst\s*\/\s*hst|tps\s*\/\s*tvq)$/],
+    ['desc', /^(?:description|items?|item\s+description|articles?|produits?|products?|services?|products?\s*(?:\/|&|and)\s*services?|produits?\s*(?:\/|et)\s*services?|details?|designation|libelle|particulars|description\s+de\s+l'article)$/],
+    ['code', /^(?:sku|code|item\s*(?:#|no\.?|code)|part\s*(?:#|no\.?)|no\.?\s*d'article|ref\.?)$/],
+  ];
+  const LINE_STOP = /^(?:sub\s*-?\s*total|sous\s*-?\s*total|total|grand\s+total|(?:gst|hst|pst|qst|rst|tps|tvq|tvh|tvp|vat|tax|taxes)\b|amount\s+(?:due|payable)|balance\s+(?:due|owing)|montant\s+(?:du|total|a\s+payer|exigible)|notes?\b|thank|merci|payment|paiement|terms\b|conditions\b|previous\s+balance|solde)/;
+  const headingOf = text => { const t = fold(text).toLowerCase().replace(/\s+/g, ' ').replace(/\s*\((?:\$|cad|usd)\)$/, '').replace(/[:.]$/, '').trim(); return LINE_HEADINGS.find(([, re]) => re.test(t))?.[0] || null; };
+  const quantityText = text => { const t = String(text || '').trim(); return /^\d{1,7}(?:[.,]\d{1,3})?$/.test(t) ? t.replace(',', '.').replace(/\.0+$/, '').replace(/(\.\d*?)0+$/, '$1') : null; };
+  const quantityMilli = q => { const [w, f = ''] = String(q).split('.'); return Number(w) * 1000 + Number((f + '000').slice(0, 3)); };
+  function lineItemsFromRows(rows, french) {
+    for (let h = 0; h < rows.length; h++) {
+      const cols = rows[h].cells.map(cell => ({role: headingOf(cell.text), x: cell.x, r: cell.r})).filter(col => col.role);
+      const roles = new Set(cols.map(col => col.role));
+      if (!roles.has('desc') || !(roles.has('amount') || (roles.has('qty') && roles.has('unit'))) || cols.length < 2) continue;
+      cols.sort((a, b) => a.x - b.x);
+      // "Item" beside a "Description" column holds item codes: the description column is the one named so.
+      const descCols = cols.filter(col => col.role === 'desc');
+      if (descCols.length > 1) { const named = descCols.find(col => /descr|designation|libelle|details?/.test(fold(rows[h].cells.find(cell => cell.x === col.x)?.text || '').toLowerCase())) || descCols.at(-1); descCols.forEach(col => { if (col !== named) col.role = 'code'; }); }
+      const firstNumeric = Math.min(...cols.filter(col => ['qty', 'unit', 'amount'].includes(col.role)).map(col => col.x));
+      // A heading owns the space up to the next heading: numbers by their right edge (right-aligned), words by their left.
+      const owner = (cell, numeric) => {
+        const edge = numeric ? cell.r : cell.x;
+        const index = cols.findIndex((col, i) => edge >= col.x - 3 && (i + 1 >= cols.length || edge < cols[i + 1].x - 1));
+        if (index >= 0 && (!numeric || index + 1 < cols.length || edge <= cols[index].r + 120)) return cols[index];
+        let best = null, distance = Infinity;
+        for (const col of cols) { const d = Math.abs(edge - (numeric ? col.r : col.x)); if (d < distance) { distance = d; best = col; } }
+        return distance < 60 ? best : null;
+      };
+      const items = [];
+      let previous = null, lastY = rows[h].y;
+      for (const row of rows.slice(h + 1)) {
+        const values = {}, words = [];
+        for (const cell of row.cells) {
+          const qty = quantityText(cell.text), money = moneyIn(cell.text, french), numeric = qty !== null || (money.length === 1 && /^[\s$(\-]*[\d]/.test(cell.text.replace(/^(?:CAD|USD|C\$|US\$)\s*/i, '')));
+          const col = owner(cell, numeric);
+          if (numeric && col && ['qty', 'unit', 'amount'].includes(col.role) && values[col.role] === undefined) {
+            if (col.role === 'qty' && qty !== null) { values.qty = qty; continue; }
+            if (col.role !== 'qty' && money.length === 1) { values[col.role] = money[0]; continue; }
+            if (col.role !== 'qty' && qty !== null && /^\d+$/.test(qty)) { values[col.role] = Number(qty) * 100; continue; }
+          }
+          if (col?.role === 'tax' && cell.text.length <= 16) { values.tax = cell.text.trim(); continue; }
+          words.push({...cell, role: col?.role || null});
+        }
+        const labels = words.map(word => fold(word.text).toLowerCase().trim());
+        if (values.qty === undefined && labels.some(label => LINE_STOP.test(label))) break;
+        const description = words.filter(word => word.role === 'desc' || (!word.role && word.x < firstNumeric - 2)).map(word => word.text).join(' ').replace(/\s+/g, ' ').trim();
+        if (values.amount === undefined && values.qty !== undefined && values.unit !== undefined) values.amount = Math.round(quantityMilli(values.qty) * values.unit / 1000);
+        if (values.amount === undefined) {
+          // A text-only line just under an item continues its description.
+          if (description && previous && lastY - row.y <= row.h * 2.4 && values.qty === undefined && values.unit === undefined) { previous.description = `${previous.description} ${description}`.slice(0, 300); lastY = row.y; }
+          continue;
+        }
+        if (!description || values.amount < 0) { previous = null; continue; }
+        const item = {description: description.slice(0, 300), amountCents: values.amount};
+        if (values.qty !== undefined) item.quantity = values.qty;
+        if (values.unit !== undefined) item.unitCents = values.unit;
+        if (values.qty !== undefined && values.unit === undefined && quantityMilli(values.qty) > 0 && (values.amount * 1000) % quantityMilli(values.qty) === 0) item.unitCents = values.amount * 1000 / quantityMilli(values.qty);
+        if (values.qty === undefined && values.unit !== undefined && values.unit > 0 && values.amount % values.unit === 0) item.quantity = String(values.amount / values.unit);
+        item.checked = item.quantity !== undefined && item.unitCents !== undefined && Math.abs(Math.round(quantityMilli(item.quantity) * item.unitCents / 1000) - item.amountCents) <= 1;
+        if (values.tax) item.taxHint = values.tax.slice(0, 16);
+        items.push(item); previous = item; lastY = row.y;
+        if (items.length >= 100) break;
+      }
+      if (items.length) return items;
+    }
+    return [];
+  }
+  /** One line of OCR text: "Description  2  45.00  90.00  G" → a checked item when quantity × price = amount. */
+  function lineItemFromText(line, french) {
+    const M = french ? '\\$?\\s?\\d{1,3}(?:[ \\u00a0\\u202f.]\\d{3})*,\\d{2}(?:\\s?\\$)?' : '(?:CAD|USD|C\\$|US\\$|\\$)?\\s?\\d{1,3}(?:,\\d{3})*\\.\\d{2}';
+    const m = new RegExp(`^(.*?[A-Za-zÀ-ÿ].*?)\\s+(\\d{1,6}(?:[.,]\\d{1,3})?)\\s*(?:x|×|@)?\\s+(${M})\\s+(${M})(?:\\s+([A-Z]{1,4}))?\\s*$`).exec(String(line || '').trim());
+    if (!m) return null;
+    const quantity = quantityText(m[2]), unit = moneyIn(m[3], french)[0], amount = moneyIn(m[4], french)[0];
+    if (quantity === null || !Number.isInteger(unit) || !Number.isInteger(amount) || amount < 0) return null;
+    if (Math.abs(Math.round(quantityMilli(quantity) * unit / 1000) - amount) > 1) return null;
+    const item = {description: m[1].trim().slice(0, 300), quantity, unitCents: unit, amountCents: amount, checked: true};
+    if (m[5]) item.taxHint = m[5];
+    return item;
+  }
+
+  // R152: supplier memory. What the reviewer confirmed on earlier invoices from the same supplier (date order, the
+  // shape of its invoice numbers, which printed amount is the invoice total) is applied to a new extraction here,
+  // in the browser, while the extracted text is still in memory. The text itself is never sent or stored.
+  const numberShape = value => String(value || '').trim().replace(/[A-Za-z]/g, 'A').replace(/\d/g, '9').slice(0, 80);
+  function shapePattern(shape) {
+    const body = String(shape).replace(/A+|9+|[^A9]/g, token => token[0] === 'A' ? `[A-Za-z]{${token.length}}` : token[0] === '9' ? `\\d{${token.length}}` : token.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&'));
+    return `(?<![A-Za-z0-9])${body}(?![A-Za-z0-9])`;
+  }
+  function applySupplierMemory(candidate, rawText, memory) {
+    const out = {...candidate, alternatives: [...(candidate?.alternatives || [])], lineItems: [...(candidate?.lineItems || [])]}, learned = [];
+    if (!memory || typeof memory !== 'object') return out;
+    if (!out.documentDate && (memory.dateOrder === 'dmy' || memory.dateOrder === 'mdy')) {
+      const pick = out.alternatives.find(alt => alt.dateOrder === memory.dateOrder && /^\d{4}-\d{2}-\d{2}$/.test(String(alt.documentDate || '')));
+      if (pick) { out.documentDate = pick.documentDate; out.alternatives = out.alternatives.filter(alt => !alt.documentDate); learned.push(`Date read as ${memory.dateOrder === 'dmy' ? 'day/month' : 'month/day'}/year, as confirmed on earlier invoices from this supplier.`); }
+    }
+    const shape = String(memory.numberShape || '');
+    // Only distinctive shapes (with a letter or separator, or 6+ digits) are searched, and only a single match is used.
+    if (shape && /\d|9/.test(shape) && (/[^9]/.test(shape) || shape.length >= 6)) {
+      const exact = new RegExp(`^${shapePattern(shape)}$`);
+      if (!out.documentNumber || !exact.test(out.documentNumber)) {
+        const found = [...new Set([...String(rawText || '').matchAll(new RegExp(shapePattern(shape), 'g'))].map(match => match[0]))];
+        if (found.length === 1) { learned.push(`Invoice number ${found[0]} found by the number pattern confirmed on earlier invoices from this supplier${out.documentNumber ? ` (the reader had ${out.documentNumber})` : ''}.`); out.documentNumber = found[0]; }
+      }
+    }
+    if (memory.totalSource === 'amountDue' && Number.isInteger(out.amountDueCents) && out.amountDueCents > 0 && out.amountDueCents !== out.totalCents) {
+      out.totalCents = out.amountDueCents;
+      if (Number.isInteger(out.subtotalCents) && Number.isInteger(out.taxCents) && out.subtotalCents + out.taxCents !== out.totalCents) delete out.subtotalCents;
+      learned.push('Total taken from the amount due, as confirmed on earlier invoices from this supplier.');
+    }
+    if (learned.length) out.learned = learned.slice(0, 5);
+    return out;
+  }
+
   async function recognize(worker, source) {
     const result = await worker.recognize(source, {}, { text: true });
     return normalizeText(result?.data?.text || '');
@@ -395,12 +549,14 @@
     let worker = null;
     let text = '';
     let usedOcr = false;
+    const pageRows = [];
     try {
       for (let index = 1; index <= pages; index += 1) {
         progress(onProgress, 'reading_pdf', (index - 1) / Math.max(1, pages), `Page ${index} of ${pages}`);
         const page = await document.getPage(index);
         const content = await page.getTextContent();
         let pageText = layoutTextFromItems(content.items);
+        const rows = positionedRows(content.items);
         if (pageText.replace(/\s/g, '').length < 55 && !/(?:invoice|bill|document)\s*(?:number|no\.?|#)|(?:amount|balance)\s+due/i.test(pageText)) {
           worker ||= await createOcrWorker(onProgress);
           const viewport = page.getViewport({ scale: 2.5 });
@@ -413,7 +569,7 @@
           canvas.width = 1;
           canvas.height = 1;
           usedOcr = true;
-        }
+        } else pageRows.push(rows);
         text = normalizeText(`${text}\n${pageText}`);
         page.cleanup();
       }
@@ -421,7 +577,7 @@
       await worker?.terminate().catch(() => {});
       await document.destroy().catch(() => {});
     }
-    return { text, method: usedOcr ? 'ocr' : 'pdf_text', pageCount: pages, truncatedPages: totalPages > pages };
+    return { text, method: usedOcr ? 'ocr' : 'pdf_text', pageCount: pages, truncatedPages: totalPages > pages, pageRows };
   }
 
   async function extractImage(file, onProgress) {
@@ -443,7 +599,9 @@
     progress(options.onProgress, 'starting', 0, 'Preparing local extraction');
     const result = type === 'application/pdf' ? await extractPdf(file, options.onProgress) : await extractImage(file, options.onProgress);
     const rawText = normalizeText(result.text);
-    const candidate = candidateFromText(rawText);
+    let candidate = candidateFromText(rawText, result.pageRows || null);
+    // R152: supplier memory (looked up by the caller from the extracted identity) is applied while the text is still here.
+    if (typeof options.memory === 'function') { try { const memory = await options.memory(candidate); if (memory) candidate = applySupplierMemory(candidate, rawText, memory); } catch (_) {} }
     progress(options.onProgress, 'complete', 1, 'Ready for human review');
     return Object.freeze({
       candidate,
@@ -529,6 +687,10 @@
     extract,
     candidateFromText,
     layoutTextFromItems,
+    positionedRows,
+    lineItemsFromRows,
+    applySupplierMemory,
+    numberShape,
     extractStatementPages,
   });
 })();

@@ -1013,3 +1013,42 @@ html[data-tegh-theme="dark"] .r151-remove:hover{background:#3a1b17}
 aside.sidebar{height:100vh;height:100dvh;min-height:0!important;max-height:100dvh}
 aside.sidebar nav{min-height:0!important;overflow-y:auto!important;touch-action:pan-y;-webkit-overflow-scrolling:touch}
 aside.sidebar nav>.srp-subnav.is-open{max-height:none}
+/* R152: Document Intake — invoice lines, duplicate warning, supplier memory; intake note on the vendor invoice form */
+.r151-intake-note{margin:0 0 14px;padding:10px 14px;border-radius:10px;border:1px solid #9cd3c3;background:#eef8f4;color:#183c33;font-size:14px}
+.tegh-intake-lines{border:1px solid #c9ddd5;border-radius:12px;padding:10px 12px;min-width:0}
+.tegh-intake-lines legend{font-weight:700;padding:0 6px}
+.tegh-intake-line-check{margin:2px 0 8px;font-size:13px;font-weight:600;color:#0b6b57}
+.tegh-intake-line-check[data-state="warn"]{color:#8a4b00}
+.tegh-intake-line-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tegh-intake-lines table{width:100%;min-width:560px;border-collapse:collapse;font-size:13px}
+.tegh-intake-lines th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.04em;padding:6px;color:#24443b;border-bottom:1px solid #c9ddd5}
+.tegh-intake-lines td{padding:4px 6px;vertical-align:middle}
+.tegh-intake-lines td:first-child{width:48%}
+.tegh-intake-lines td input{width:100%;min-width:0}
+.tegh-intake-lines td:last-child{width:52px;white-space:nowrap;text-align:center}
+.tegh-line-ok{color:#0b6b57;font-weight:700}
+.tegh-intake-lines td small{display:block;font-size:11px;color:var(--color-muted,#5b6d66)}
+.tegh-duplicate-warning{margin:0 0 12px;padding:12px 14px;border-radius:12px;border:1px solid #e3b65c;background:#fff7e6;color:#4a3000}
+.tegh-duplicate-warning h3{margin:0 0 6px;font-size:15px}
+.tegh-duplicate-warning ul{margin:0 0 8px;padding-left:20px;font-size:13px}
+.tegh-supplier-memory{margin:0 0 12px;padding:10px 14px;border-radius:12px;border:1px solid #b9d6ee;background:#f1f7fd;color:#173a57}
+.tegh-supplier-memory h3{margin:0 0 4px;font-size:15px}
+.tegh-supplier-memory ul{margin:0 0 4px;padding-left:20px;font-size:13px}
+.tegh-supplier-memory small{font-size:12px}
+[data-coding-reason]{display:block;font-weight:400;font-size:12px;color:var(--color-muted,#5b6d66)}
+html[data-tegh-theme="dark"] .r151-intake-note{background:#10261f;border-color:#2f8f78;color:#d7efe7}
+html[data-tegh-theme="dark"] .tegh-intake-lines{border-color:#2d4a41}
+html[data-tegh-theme="dark"] .tegh-intake-lines th{color:#bfe0d4;border-color:#2d4a41}
+html[data-tegh-theme="dark"] .tegh-intake-line-check,html[data-tegh-theme="dark"] .tegh-line-ok{color:#6fd3b6}
+html[data-tegh-theme="dark"] .tegh-intake-line-check[data-state="warn"]{color:#f2c46b}
+html[data-tegh-theme="dark"] .tegh-duplicate-warning{background:#2c2110;border-color:#8a6a24;color:#f6e3bd}
+html[data-tegh-theme="dark"] .tegh-supplier-memory{background:#122334;border-color:#2f5878;color:#d5e7f7}
+@media (prefers-color-scheme:dark){
+html[data-tegh-theme="auto"] .r151-intake-note{background:#10261f;border-color:#2f8f78;color:#d7efe7}
+html[data-tegh-theme="auto"] .tegh-intake-lines{border-color:#2d4a41}
+html[data-tegh-theme="auto"] .tegh-intake-lines th{color:#bfe0d4;border-color:#2d4a41}
+html[data-tegh-theme="auto"] .tegh-intake-line-check,html[data-tegh-theme="auto"] .tegh-line-ok{color:#6fd3b6}
+html[data-tegh-theme="auto"] .tegh-intake-line-check[data-state="warn"]{color:#f2c46b}
+html[data-tegh-theme="auto"] .tegh-duplicate-warning{background:#2c2110;border-color:#8a6a24;color:#f6e3bd}
+html[data-tegh-theme="auto"] .tegh-supplier-memory{background:#122334;border-color:#2f5878;color:#d5e7f7}
+}

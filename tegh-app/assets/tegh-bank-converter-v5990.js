@@ -1,5 +1,5 @@
 import './tegh-bank-converter-core-v5990.js?v=5990-r62-statement-account-columns';
-import {parseStatementLayout} from './tegh-statement-layout-r145.js?v=5990-r145-tegh';
+import {parseStatementLayout, splitStatements, statementAccountIds} from './tegh-statement-layout-r152.js?v=5990-r152-tegh';
 
 const Core = globalThis.BankStatementCore;
 export const ENGINE = 'tegh-statement-converter-v5990';
@@ -84,7 +84,7 @@ export function detectDateEvidence(lines, chosenOrder='auto') {
 const signedText = cents => `${cents < 0 ? '-' : ''}$${(Math.abs(cents) / 100).toLocaleString('en-CA', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 /** R145: rows from the column-aware reader, in the review shape. Returns null when that reader found no table. */
 export function convertWithLayout(lines, options={}) {
-  const layout = parseStatementLayout(lines, {accountType: options.accountType});
+  const layout = parseStatementLayout(lines, {accountType: options.accountType, dateOrder: options.dateOrder});
   if (!layout || !layout.rows.length || layout.undated) return null;
   const balanced = layout.reconciled === true, pagesOk = layout.pageChecks.every(check => check.ok);
   const rows = layout.rows.map((row, index) => {
@@ -98,8 +98,58 @@ export function convertWithLayout(lines, options={}) {
   });
   return {rows, layout, balanced, pagesOk};
 }
+const isoPeriod = period => period?.end ? `${period.start || '…'} to ${period.end}` : '';
+/** R152: plain label for one statement inside a PDF that holds several. */
+export function statementLabel(statement) {
+  const period = statement.period?.end ? `${displayDate(statement.period.start) === 'Date correction required' ? '…' : displayDate(statement.period.start)} – ${displayDate(statement.period.end)}` : `pages ${statement.pages.join(', ')}`;
+  return `Statement ${statement.index + 1}: ${period}${statement.account ? ` · account …${statement.account}` : ''} · ${statement.rows} rows${statement.balanced ? ' · balances agree' : ''}`;
+}
+/** R152: several statements of one account read together; each must start at the previous closing balance. */
+function combineSections(parts) {
+  const rows = [];
+  parts.forEach(part => part.rows.forEach(row => rows.push({...row, sourceRow: rows.length + 1})));
+  const first = parts[0], last = parts.at(-1), checks = parts.map(part => part.layoutCheck), c = v => Math.round(v * 100);
+  const chain = [];
+  for (let i = 1; i < parts.length; i++) {
+    const before = parts[i - 1].metadata?.closingBalance, after = parts[i].metadata?.openingBalance;
+    chain.push({from: i, to: i + 1, ok: before != null && after != null && c(before) === c(after)});
+  }
+  const out = {rows, metadata: {openingBalance: first.metadata?.openingBalance ?? null, closingBalance: last.metadata?.closingBalance ?? null}, blocksExamined: rows.length, unparsedBlocks: [],
+    warnings: parts.flatMap(part => part.warnings || []), format: first.format, dateEvidence: first.dateEvidence};
+  if (checks.every(Boolean)) {
+    const chainOk = chain.every(link => link.ok), sum = key => checks.reduce((n, check) => n + (check[key] || 0), 0);
+    out.layoutCheck = {...checks[0], balanced: checks.every(check => check.balanced) && chainOk, pagesOk: checks.every(check => check.pagesOk), reconciled: checks.every(check => check.reconciled) && chainOk,
+      openingBalance: out.metadata.openingBalance, closingBalance: out.metadata.closingBalance, closingFromLastRow: last.layoutCheck.closingFromLastRow, netCents: sum('netCents'), balanceChecks: sum('balanceChecks'),
+      balanceMismatches: sum('balanceMismatches'), pageChecks: checks.flatMap(check => check.pageChecks || []), notes: checks.flatMap(check => check.notes || []), statementCount: parts.length, chain};
+  }
+  return out;
+}
+/**
+ * Read the statement pages. R152: a PDF holding several statements (more months, or more accounts) is split; the rows
+ * returned are the chosen statement's (options.section: 'all', 'acct:1234' or a statement number from 0), and
+ * parsed.statements lists every statement found so the review screen can offer the others.
+ */
 export function convertPages(pages, options={}) {
   const lines = pages.flatMap(page => page.method === 'Text' ? Core.groupTextItemsToLines(page.items,page.page) : Core.plainTextToLines(page.text,page.page));
+  const sections = splitStatements(lines);
+  if (sections.length < 2) return convertSection(lines, options);
+  const read = sections.map(section => { try { return convertSection(section.lines, options); } catch (error) { return {rows: [], metadata: {}, error: error.message}; } });
+  const statements = sections.map((section, index) => ({index, account: section.account, period: section.period ? {start: section.period.start, end: section.period.end} : null, pages: section.pages,
+    rows: read[index].rows.length, balanced: !!read[index].layoutCheck?.balanced, error: read[index].error || null}));
+  const accounts = [...new Set(statements.map(statement => statement.account))];
+  let pick = String(options.section || 'auto');
+  if (pick === 'auto') pick = options.accountLastFour && accounts.includes(options.accountLastFour) ? `acct:${options.accountLastFour}` : accounts.length === 1 ? 'all' : '0';
+  const chosen = pick === 'all' ? statements : pick.startsWith('acct:') ? statements.filter(statement => statement.account === pick.slice(5)) : statements.filter(statement => String(statement.index) === pick);
+  if (!chosen.length) throw new Error('Choose one of the statements found in this PDF.');
+  const usable = chosen.filter(statement => read[statement.index].rows.length);
+  if (!usable.length) throw new Error(read[chosen[0].index].error || 'No transactions were detected in the chosen statement.');
+  const parsed = usable.length === 1 ? read[usable[0].index] : combineSections(usable.map(statement => read[statement.index]));
+  const chosenAccounts = [...new Set(usable.map(statement => statement.account).filter(Boolean))];
+  parsed.statements = statements; parsed.section = pick; parsed.accountLastFour = chosenAccounts.length === 1 ? chosenAccounts[0] : null;
+  if (parsed.dateEvidence && usable.length > 1) parsed.dateEvidence = {...parsed.dateEvidence, periodEvidence: `Statements ${usable.map(statement => statement.index + 1).join(', ')}: ${usable.map(statement => isoPeriod(statement.period) || 'row dates').join('; ')}`};
+  return parsed;
+}
+function convertSection(lines, options={}) {
   const columnRead = !options.layout || options.layout === 'auto' ? convertWithLayout(lines, options) : null;
   if (columnRead?.balanced || (columnRead && options.preferColumns)) return layoutParsed(columnRead, options.accountType);
   const evidence=detectDateEvidence(lines,options.dateOrder||'auto');
@@ -139,6 +189,11 @@ export function balanceCheckText(check) {
   } else parts.push('The statement shows no opening and closing balance to check against. Compare the totals with the statement.');
   if (check.balanceChecks) parts.push(check.balanceMismatches ? `${check.balanceMismatches} of ${check.balanceChecks} running balances differ (marked on the rows).` : `All ${check.balanceChecks} running balances agree.`);
   if (check.isCard && check.accountType === 'bank') parts.unshift('This looks like a credit card statement, but a bank account is selected. Choose the credit card account if that is the right one.');
+  if (check.statementCount > 1) {
+    const broken = (check.chain || []).filter(link => !link.ok);
+    parts.unshift(`${check.statementCount} statements from this PDF are read together.`);
+    parts.push(broken.length ? `Statement ${broken.map(link => link.to).join(', ')} does not start at the closing balance of the statement before it. Check for a missing statement.` : 'Each statement starts at the closing balance of the one before it ✓');
+  }
   if (check.pageChecks?.length) { const bad = check.pageChecks.filter(p => !p.ok).length; parts.push(bad ? `${bad} of ${check.pageChecks.length} page totals differ.` : `All ${check.pageChecks.length} page totals agree.`); }
   return parts.join(' ');
 }
@@ -188,7 +243,7 @@ export async function extractAndReview(file,{bank,accounts=[],onProgress=()=>{},
   installStyles();if(!Core?.parseStatement)throw new Error('The statement converter did not load. Refresh and try again.');
   const abort=new AbortController(),previousFocus=document.activeElement,modal=document.createElement('div');
   modal.className='tegh-converter-scrim';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-labelledby','tegh-converter-title');
-  modal.innerHTML=`<section class="tegh-converter-panel"><header><div><h2 id="tegh-converter-title">Review your PDF statement</h2><p>${esc(file.name)} · ${esc(bank?.name||'Selected account')} · ${esc(bank?.currency||'CAD')}</p></div><button type="button" data-converter-cancel aria-label="Cancel statement conversion">×</button></header><p role="status" aria-live="polite" data-converter-status>Preparing local PDF reader…</p><form data-converter-options hidden><div class="tegh-converter-options"><label>Date Format<select name="dateOrder"><option value="auto">Use unambiguous statement evidence</option><option value="mdy">Month / day / year</option><option value="dmy">Day / month / year</option></select></label><label>Statement columns<select name="layout"><option value="auto">Detect columns</option><option value="amount">Signed amount</option><option value="amount-balance">Amount and balance</option><option value="debit-credit">Money out and money in</option><option value="debit-credit-balance">Money out, money in and balance</option></select></label><button type="submit">Read transactions</button></div></form><div data-converter-review></div><p data-converter-error role="alert"></p><footer><label class="tegh-converter-confirm"><input type="checkbox" data-reviewed-confirm disabled> I checked the selected rows against the statement, including dates and money-in/out direction.</label><div><button type="button" data-converter-cancel>Cancel</button><button type="button" data-converter-continue disabled>Validate reviewed rows</button></div></footer></section>`;
+  modal.innerHTML=`<section class="tegh-converter-panel"><header><div><h2 id="tegh-converter-title">Review your PDF statement</h2><p>${esc(file.name)} · ${esc(bank?.name||'Selected account')} · ${esc(bank?.currency||'CAD')}</p></div><button type="button" data-converter-cancel aria-label="Cancel statement conversion">×</button></header><p role="status" aria-live="polite" data-converter-status>Preparing local PDF reader…</p><form data-converter-options hidden><div class="tegh-converter-options"><label>Date Format<select name="dateOrder"><option value="auto">Use unambiguous statement evidence</option><option value="mdy">Month / day / year</option><option value="dmy">Day / month / year</option></select></label><label>Statement columns<select name="layout"><option value="auto">Detect columns</option><option value="amount">Signed amount</option><option value="amount-balance">Amount and balance</option><option value="debit-credit">Money out and money in</option><option value="debit-credit-balance">Money out, money in and balance</option></select></label><label data-converter-section-label hidden>Statement in this PDF<select name="section"><option value="auto">Detect</option></select></label><button type="submit">Read transactions</button></div></form><div data-converter-review></div><p data-converter-error role="alert"></p><footer><label class="tegh-converter-confirm"><input type="checkbox" data-reviewed-confirm disabled> I checked the selected rows against the statement, including dates and money-in/out direction.</label><div><button type="button" data-converter-cancel>Cancel</button><button type="button" data-converter-continue disabled>Validate reviewed rows</button></div></footer></section>`;
   document.body.append(modal);previousFocus?.blur();
   const panel=modal.querySelector('.tegh-converter-panel'),status=modal.querySelector('[data-converter-status]'),errorNode=modal.querySelector('[data-converter-error]'),review=modal.querySelector('[data-converter-review]'),form=modal.querySelector('form'),next=modal.querySelector('[data-converter-continue]'),confirmReview=modal.querySelector('[data-reviewed-confirm]');
   let settled=false,pageData=null,parsed=null,options={},specialised=null,observer=null,filtered=[],mounted=0,query='';const invalidFields=new Set();let resolveDone,rejectDone;
@@ -211,17 +266,27 @@ export async function extractAndReview(file,{bank,accounts=[],onProgress=()=>{},
     let debounce;review.querySelector('[data-converter-search]').oninput=event=>{const input=event.target,value=input.value;clearTimeout(debounce);debounce=setTimeout(()=>{if(settled)return;query=value.toLocaleLowerCase();renderRows();const restored=review.querySelector('[data-converter-search]');restored.focus();restored.setSelectionRange?.(value.length,value.length)},160)};
   }
   review.addEventListener('change',event=>{const input=event.target.closest('[data-field]');if(!input||!parsed)return;const tr=input.closest('[data-converter-row]'),row=parsed.rows[Number(tr.dataset.converterRow)-1];try{updateReviewedRow(row,input.dataset.field,input.type==='checkbox'?input.checked:input.value);if(input.dataset.field==='date'&&!validDate(row.date))throw Error(`Row ${row.sourceRow} needs a valid date.`);invalidFields.delete(`${row.sourceRow}:${input.dataset.field}`);input.removeAttribute('aria-invalid');tr.querySelector('[data-row-check]').textContent='Edited';tr.querySelector('[data-date-display]').textContent=displayDate(row.date);errorNode.textContent='';totals()}catch(error){invalidFields.add(`${row.sourceRow}:${input.dataset.field}`);input.setAttribute('aria-invalid','true');errorNode.textContent=error.message}invalidate()});
+  const selectedLastFour=()=>{const digits=String(bank?.maskedNumber||'').replace(/\D/g,'').slice(-4);return digits.length===4?digits:''};
+  // R152: when the PDF holds several statements, list them so the user can choose which to read (or all of one account).
+  function sectionChoices(){const label=form.querySelector('[data-converter-section-label]'),select=form.elements.section;if(!parsed?.statements?.length){label.hidden=true;return}
+    const accounts=[...new Set(parsed.statements.map(statement=>statement.account))],choices=[];
+    if(accounts.length===1)choices.push(['all',`All ${parsed.statements.length} statements${accounts[0]?` for account …${accounts[0]}`:''}, read together`]);
+    else for(const account of accounts.filter(Boolean)){const count=parsed.statements.filter(statement=>statement.account===account).length;if(count>1)choices.push([`acct:${account}`,`All ${count} statements for account …${account}, read together`])}
+    for(const statement of parsed.statements)choices.push([String(statement.index),statementLabel(statement)]);
+    select.innerHTML=choices.map(([value,text])=>`<option value="${esc(value)}">${esc(text)}</option>`).join('');select.value=parsed.section;if(select.value!==parsed.section&&parsed.statements.length)select.value=choices[0][0];label.hidden=false;
+    status.dataset.statements=String(parsed.statements.length)}
   const hasIncludedInvalid=()=>[...invalidFields].some(key=>parsed?.rows[Number(key.split(':')[0])-1]?.included);
   confirmReview.onchange=()=>{next.disabled=!confirmReview.checked||!parsed?.rows.some(row=>row.included)||hasIncludedInvalid()};
-  function readRows(){try{options=Object.fromEntries(new FormData(form));parsed=convertPages(specialised?[]:pageData.pages,{...options,accountType:bank?.accountType});if(specialised){parsed.rows=specialised.rows.map((row,index)=>({date:row.date,description:row.description,reference:row.reference||'',amount:row.amountCents/100,balance:null,category:Core.categorize(row.description,row.amountCents/100),sourceRow:index+1,page:row.page||1,raw:`${row.date} ${row.description} ${displayAmount(row.amountCents)}`,originalDate:row.date,sourceDateToken:row.date,originalDateAmbiguous:false,dateCorrected:false,originalDescription:row.description,originalAmountCents:row.amountCents,confidence:0,issues:'Statement-specific totals verified; review category and direction.',included:true,duplicate:false,extractionMethod:'Text',userReviewed:false,reviewedCategory:false,reviewedAccountId:null}));parsed.metadata={openingBalance:null,closingBalance:null}}
-      if(!parsed.rows.length)throw Error('No transactions were detected. Check the column layout, or use your bank’s CSV or XLSX download.');invalidFields.clear();query='';invalidate();renderRows();const ambiguous=parsed.rows.filter(row=>!row.date).length,unresolved=parsed.rows.filter(row=>row.needsManualAmount).length;status.textContent=`${parsed.rows.length} dated rows · Nothing imported or posted.${unresolved?` ${unresolved} need an amount correction or exclusion.`:''}${ambiguous?` ${ambiguous} dates need a Date Format choice or individual correction.`:''}`;errorNode.textContent='';
+  function readRows(){try{options=Object.fromEntries(new FormData(form));parsed=convertPages(specialised?[]:pageData.pages,{...options,accountType:bank?.accountType,accountLastFour:selectedLastFour()||null});if(specialised){parsed.rows=specialised.rows.map((row,index)=>({date:row.date,description:row.description,reference:row.reference||'',amount:row.amountCents/100,balance:null,category:Core.categorize(row.description,row.amountCents/100),sourceRow:index+1,page:row.page||1,raw:`${row.date} ${row.description} ${displayAmount(row.amountCents)}`,originalDate:row.date,sourceDateToken:row.date,originalDateAmbiguous:false,dateCorrected:false,originalDescription:row.description,originalAmountCents:row.amountCents,confidence:0,issues:'Statement-specific totals verified; review category and direction.',included:true,duplicate:false,extractionMethod:'Text',userReviewed:false,reviewedCategory:false,reviewedAccountId:null}));parsed.metadata={openingBalance:null,closingBalance:null}}
+      sectionChoices();
+      if(!parsed.rows.length)throw Error('No transactions were detected. Check the column layout, or use your bank’s CSV or XLSX download.');invalidFields.clear();query='';invalidate();renderRows();const ambiguous=parsed.rows.filter(row=>!row.date).length,unresolved=parsed.rows.filter(row=>row.needsManualAmount).length;status.textContent=`${parsed.statements?.length?`This PDF holds ${parsed.statements.length} statements; choose which to read under Statement in this PDF. `:''}${parsed.rows.length} dated rows · Nothing imported or posted.${unresolved?` ${unresolved} need an amount correction or exclusion.`:''}${ambiguous?` ${ambiguous} dates need a Date Format choice or individual correction.`:''}`;errorNode.textContent='';
     }catch(error){parsed=null;review.innerHTML='';invalidate();errorNode.textContent=error.message}}
   form.onsubmit=event=>{event.preventDefault();if(form.reportValidity())readRows()};form.onchange=()=>{parsed=null;review.innerHTML='';invalidate();status.textContent='Date/layout settings changed. Read transactions again before confirming.'};
-  next.onclick=()=>{try{if(!isCurrent())throw cancelled();if(!confirmReview.checked)throw Error('Confirm the statement review before continuing.');if(hasIncludedInvalid())throw Error('Correct invalid selected row fields before continuing.');const result=reviewedExtraction(parsed,options,pageData.pageCount);result.accountLastFour=pageData.accountLastFour||null;finish(result)}catch(error){errorNode.textContent=error.message}};
+  next.onclick=()=>{try{if(!isCurrent())throw cancelled();if(!confirmReview.checked)throw Error('Confirm the statement review before continuing.');if(hasIncludedInvalid())throw Error('Correct invalid selected row fields before continuing.');const result=reviewedExtraction(parsed,options,pageData.pageCount);result.accountLastFour=parsed.accountLastFour||pageData.accountLastFour||null;const selected=selectedLastFour();if(result.accountLastFour&&selected&&result.accountLastFour!==selected)throw Error('The chosen statement is for account …'+result.accountLastFour+', not the selected account. Choose the matching statement.');finish(result)}catch(error){errorNode.textContent=error.message}};
   void(async()=>{try{
     if(globalThis.TeghLoadFeature)await globalThis.TeghLoadFeature('ocr');else await import('./tegh-native-ocr-v5220.js?v=5990-r145-tegh');if(settled)return;
     pageData=await globalThis.TeghNativeOCR.extractStatementPages(file,{signal:abort.signal,onPassword:retry=>window.TeghPrompt?window.TeghPrompt(retry?'That PDF password did not work. Try again:':'Enter this PDF’s password. It stays in this browser.'):window.prompt(retry?'That PDF password did not work. Try again:':'Enter this PDF’s password. It stays in this browser.'),onProgress:progress=>{if(settled)return;status.textContent=progress.detail||'Reading statement…';onProgress(progress.detail||'Reading statement…',8+Math.round(progress.progress*70))}});if(settled)return;
-    const text=pageData.pages.map(page=>page.text).join('\n');pageData.accountLastFour=statementAccountLastFour(text);const selectedLastFour=String(bank?.maskedNumber||'').replace(/\D/g,'').slice(-4);if(pageData.accountLastFour&&selectedLastFour.length===4&&pageData.accountLastFour!==selectedLastFour)throw Error('The statement account number does not match the selected account.');
+    const text=pageData.pages.map(page=>page.text).join('\n');const ids=statementAccountIds(text);pageData.accountIds=ids;pageData.accountLastFour=ids.length===1?ids[0]:null;const selected=selectedLastFour();if(pageData.accountLastFour&&selected&&pageData.accountLastFour!==selected)throw Error('The statement account number does not match the selected account.');
     if((/Business Account/i.test(text)&&/Withdrawals\/Debits/i.test(text)&&/Deposits\/Credits/i.test(text))||/ScotiaLine\s*for business/i.test(text)){const legacy=await import('./pdfStatementImport-BTobSMtl-v211.js?v=4600');specialised=await legacy.extractPdfStatement(file,onProgress);if(!specialised.summaryVerified)throw Error('Statement-specific totals could not be verified. Use the bank’s CSV or XLSX download.');if(specialised.accountType&&specialised.accountType!==bank?.accountType)throw Error('This statement does not match the selected bank or credit-account type.');pageData.accountLastFour=specialised.accountLastFour||pageData.accountLastFour}
     if(settled)return;form.hidden=false;readRows();
   }catch(error){if(settled)return;errorNode.textContent=error.name==='AbortError'?'Conversion cancelled.':error.message;status.textContent='No transactions were imported. Close and try the file again.'}})();
