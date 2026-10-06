@@ -24,10 +24,10 @@
   "flatRoot": true,
   "packageType": "cumulative-full-application",
   "activeEntry": "app.html",
-  "generatedAt": "2026-10-06T16:21:04Z",
+  "generatedAt": "2026-10-06T17:27:43Z",
   "sourceRepository": "sraccountax/My-website",
   "sourceBranch": "claude/invoice-credit-debit-audit-e2y8wc",
-  "sourceParentCommit": "8d959e6118a917b757a4d7b5f8cc410653f4025f",
+  "sourceParentCommit": "ade0b6a2d7f1670217bb0755dc882006e6a5f0df",
   "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
   "databaseMigrationRequired": false,
   "databaseMigrationNote": "No manual migration since R118. R153 adds nullable company profile columns (short_name, address_line1, address_line2, city, postal_code, phone, contact_email) on first use. R144 creates company_insight_dismissals on the first dismissal. R141 adds companies.country, widens province to VARCHAR(10) on companies/customers/vendors and creates company_dashboard_mappings on the first request. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
@@ -2485,11 +2485,11 @@
       ]
     },
     "r152Identity": {
-      "release": "R152",
-      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R152-Consolidated-IONOS-STAGING",
-      "generatedAt": "2026-10-06T14:36:57Z",
-      "sourceParentCommit": "dbd76f0cab80e93e5d9e3050ecb081a4fb7a7d69",
-      "testStatus": "R152 = R151 with the Stage 1 statement reader (more Canadian bank and card layouts in English and French, PDFs holding several statements) and the Stage 2 invoice reader (line items as a table, supplier memory, account/tax suggestions from history, duplicate checks, lines handed to the vendor invoice form). Re-run through the full gate suite with the host clock pinned to 2026-10-01, including 21-r152 (13 synthetic statement layouts, multi-statement selection, date-order ambiguity, R145 regression, 6 synthetic invoices through the Document Intake screen), the updated suite list, the UI matrix, the public-page checks and the R118->R152 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R152 addendum). Host acceptance has not started; productionReady is false.",
+      "release": "R153",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R153-Consolidated-IONOS-STAGING",
+      "generatedAt": "2026-10-06T16:21:04Z",
+      "sourceParentCommit": "8d959e6118a917b757a4d7b5f8cc410653f4025f",
+      "testStatus": "R153 = R152 with company address and short name in company setup (address printed on customer invoices), company labels (Co. column with the short name) on report lines when several companies are selected, side menu groups that expand and collapse with an arrow, and a light/dark/system theme switch with icons. Re-run through the full gate suite with the host clock pinned to 2026-10-01, including 22-r153 (company profile create/edit/validation, invoice address and frozen snapshot, two-company report figures checked against independently entered amounts, single-company notices, Excel export with the company column, sidebar arrows, theme switch on desktop and phone with a dark device), the UI matrix, the public-page checks and the R118->R153 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R153 addendum). Host acceptance has not started; productionReady is false.",
       "executedLocalGates": {
         "betaGateR138Baseline": {
           "passed": false,
@@ -2541,6 +2541,10 @@
         "r152Readers": {
           "passed": null,
           "detail": "21-r152: statement layouts G–S (RBC-, BMO-, Scotia-, Desjardins-, National Bank-, Tangerine-style, Amex-style and French Visa cards, MM/DD card across the year end, credit union DR/CR with OD balances, two-line rows, split French amounts) each with rows, net, opening/closing and first/last dates checked against generator figures; a PDF holding three statements (picker, same-account chain); ambiguous numeric dates not guessed; R145 statements unchanged; invoice line items with qty × price checks (EN and FR), verification storing only the reader's candidate, coding suggestions from history, hand-off into the vendor invoice form with linking, duplicate warning and confirmation, supplier memory for date order and number pattern, privacy of requests, company isolation, backup. Counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r153CompanyLabelsAndTheme": {
+          "passed": null,
+          "detail": "22-r153: company profile fields saved on create and edit with validation; customer invoice prints the company address (template address wins; issued invoices keep their snapshot); with two companies selected, P&L, ageing, Day Book, Audit History, Tax Code Report and Trial Balance lines carry the company short name and totals equal the sum of independently entered amounts; GL/bank account reports and Budgets ask for one company; Excel export includes the company column; one selected company shows no company column; sidebar arrows expand/collapse without reopening; theme switch Light/Dark/System on desktop, phone cycle, and System on a dark device. Counts in FINAL-BETA-QA-REPORT.md."
         }
       },
       "knownLimitations": [
@@ -2569,7 +2573,10 @@
         "Document Intake OCR uses the bundled English model only",
         "Statement layouts not seen before may fall back to the general reader; the balance check shows whether the rows are complete",
         "Invoice line items are read as a table only from text PDFs; scanned invoices and photos use line-by-line reading",
-        "Supplier memory covers date order, invoice-number pattern and which amount is the total; it does not learn field positions"
+        "Supplier memory covers date order, invoice-number pattern and which amount is the total; it does not learn field positions",
+        "With several companies selected, GL Account Report, Bank GL Report and Budgets need one company; Bank Reconciliation and Fixed Assets show a combined list with a per-company summary note",
+        "Combined multi-company reports need the companies to share one currency",
+        "The company short name is generated from the name until the owner sets one"
       ]
     }
   }
