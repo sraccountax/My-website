@@ -3774,7 +3774,7 @@ const TeghPortal = (() => {
           ${isInv&&customer?`<label>Template<select name="templateId" ${dis}>${templates.map(t=>`<option value="${esc(t.id)}" ${t.id===state.templateId?'selected':''}>${esc(t.name)}${t.isDefault?' · Default':''}</option>`).join('')}</select></label><label>Purchase order<input name="purchaseOrder" value="${esc(state.purchaseOrder)}" maxlength="80" ${state.status==='issued'?'':dis}></label>`:''}
           ${isInv&&!customer?`<label>Line amounts are<select name="taxMode" ${dis}><option value="exclusive" ${state.taxMode==='exclusive'?'selected':''}>Before tax</option><option value="inclusive" ${state.taxMode==='inclusive'?'selected':''}>Including tax</option></select></label>`:''}
           <label>Currency<select name="currency" ${dis||src?'disabled':''}>${currencyOptions(w,src?src.currency:state.currency)}</select></label>
-          <label ${showRate?'':'hidden'} data-r151-rate>1 ${esc(src?src.currency:state.currency)} in ${esc(base)}<input name="rate" type="number" min="0.000001" step="0.000001" value="${esc(src?(Number(src.exchangeRateMicros||1000000)/1000000).toFixed(6):state.rate)}" ${dis||src?'disabled':''}></label>
+          <label ${showRate?'':'hidden'} data-r151-rate>1 ${esc(src?src.currency:state.currency)} in ${esc(base)}<input name="exchangeRate" type="number" min="0.000001" step="0.000001" value="${esc(src?(Number(src.exchangeRateMicros||1000000)/1000000).toFixed(6):state.rate)}" ${dis||src?'disabled':''}></label>
           <div class="r151-link-row">${linkHint()}</div>`};
       const memoLabel=()=>state.kind==='invoice'?(customer?'Message to customer':'Memo'):'Memo (shown on the note)';
       const actionsHtml=()=>{if(state.status==='issued')return `<button type="button" class="srp-btn secondary" data-r151-cancel>Cancel</button><button type="submit" class="srp-btn" data-r151-save="details">Save changes</button>`;
@@ -3854,7 +3854,7 @@ const TeghPortal = (() => {
         f('purchaseOrder')?.addEventListener('input',e=>{state.purchaseOrder=e.target.value});
         f('taxMode')?.addEventListener('change',e=>{state.taxMode=e.target.value;paintTotals()});
         f('currency')?.addEventListener('change',e=>{state.currency=e.target.value;state.rate=(Number((w.companyCurrencies||[]).find(c=>c.code===state.currency)?.rateToBaseMicros||1000000)/1000000).toFixed(6);refreshHeader();paintTotals()});
-        f('rate')?.addEventListener('input',e=>{state.rate=e.target.value})}
+        f('exchangeRate')?.addEventListener('input',e=>{state.rate=e.target.value})}
       function wireActions(){$('[data-r151-cancel]',body).onclick=()=>{if(confirmDiscard(form))goBack()}}
       const goBack=(focusId='')=>{if(state.kind==='invoice')return customer?openInvoices({focusId}):openBills('',focusId);return openAccountingNotes(side,noteKind(state.kind),'',focusId,false)};
       $('[data-recurring-bill]',body)?.addEventListener('change',e=>{const o=$('[data-recurring-bill-options]',body);if(o)o.hidden=!e.target.checked});
