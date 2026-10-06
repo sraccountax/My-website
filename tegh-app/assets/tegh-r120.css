@@ -1054,3 +1054,7 @@ html[data-tegh-theme="auto"] .tegh-supplier-memory{background:#122334;border-col
 }
 /* R152: the save/notice message sits over the page-header buttons for about 6 s; it has no controls, so clicks pass through to what is under it */
 .srp-toast{pointer-events:none!important}
+.r151-intake-check{flex-basis:100%;margin:6px 0 0;font-size:13px;font-weight:600;color:#0b6b57;text-align:right}
+.r151-intake-check[data-state="warn"]{color:#8a4b00}
+html[data-tegh-theme="dark"] .r151-intake-check{color:#6fd3b6}html[data-tegh-theme="dark"] .r151-intake-check[data-state="warn"]{color:#f2c46b}
+@media (prefers-color-scheme:dark){html[data-tegh-theme="auto"] .r151-intake-check{color:#6fd3b6}html[data-tegh-theme="auto"] .r151-intake-check[data-state="warn"]{color:#f2c46b}}

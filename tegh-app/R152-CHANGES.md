@@ -83,6 +83,7 @@ For a same-number duplicate, you must tick **"I checked: this is a different inv
 A verified vendor invoice now has **Open in Vendor Invoice Form**:
 - It opens the R151 form with every line, using its quantity, unit price, suggested account and tax code.
 - A note at the top says the form was prefilled from Document Intake.
+- Under the totals, the form compares itself with the totals printed on the document. For example: "The document shows a total of $611.54 with tax of $29.12. This form comes to $663.96 — the lines agree, so check the tax code on each line." Once they match, it shows "Matches the document total ✓". This catches a tax code that differs from the one the supplier charged.
 - Saving the vendor invoice links the intake document to it automatically.
 
 ## Fix found by the gate
