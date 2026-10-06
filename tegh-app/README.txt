@@ -1,4 +1,4 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R151 IONOS STAGING CANDIDATE
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R152 IONOS STAGING CANDIDATE
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -40,6 +40,7 @@ R148: the sign-in screen has two tabs, Sign in and Create account. Opening an in
 R149: invitations carry a 10-character invitation code instead of a link. The invited person enters their email address and the code on the Create account tab, then their name and password. Codes work only with the invited email, once, for 72 hours; wrong codes are limited to 10 per 15 minutes. Links sent before R149 keep working until they expire. No migration. See R149-CHANGES.md.
 R150: the public pages (home page, Product, Pricing, guides …) always open in the light design. They no longer turn dark when the phone or computer is in dark mode, or when the browser darkens pages automatically. The app keeps its own theme setting. No application change, no migration. See R150-CHANGES.md.
 R151: one form for invoices, credit notes and debit notes (customer and vendor): Document type drop-down on top, details on top and a highlighted spreadsheet-style line grid below (product/service, description, qty, rate, tax, amount, total, GL account), no side summary; adding lines no longer scrolls the page to the top. Vendor invoices have real lines, each posted to its own GL account with its own tax. Notes take a typed original invoice number: linked when it is in Tegh, otherwise recorded against the customer/vendor with its own tax and GL per line. Edit on the registers opens the document on the main screen (drafts in full; issued documents: dates and notes only). Sidebar menu scrolling fixed. Automatic database additions (bill_lines, note reference and line columns). See R151-CHANGES.md.
+R152: statement reader for more Canadian bank and card layouts in English and French and for PDFs holding several statements (picker; one account's statements read together with a balance chain check); Document Intake reads invoice line items as a table, learns per-supplier date order, number pattern and total from your corrections, suggests accounts and tax codes from the vendor's earlier invoices, warns about duplicates and opens all lines in the vendor invoice form. Additive column and table created on first use. See R152-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json

@@ -1,7 +1,7 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R151 IONOS STAGING DEPLOYMENT
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R152 IONOS STAGING DEPLOYMENT
 
-This package contains every release through R151 (R118–R151 change notes are
-included). R151 brings one form for invoices, credit notes and debit notes, itemized vendor invoices, Edit on the main screen and the scrolling fixes. R150 keeps the public pages in the light design on dark-mode devices. R149 replaces the invitation link with an invitation code. R148 adds the Sign in / Create account tabs with account creation through an invitation link. R147 brings the owner's public-page update and opens the home page at the site root. R146 fixes the R145 OCR clean-up on clean scans (DEF-16). R145 improves the PDF statement converter and Document Intake. R144 adds Tegh Intelligence (no external AI). R143 fixes defects found by a click-through test of every daily
+This package contains every release through R152 (R118–R152 change notes are
+included). R152 reads more statement layouts and multi-statement PDFs, and reads invoice lines with supplier memory, suggestions and duplicate checks. R151 brings one form for invoices, credit notes and debit notes, itemized vendor invoices, Edit on the main screen and the scrolling fixes. R150 keeps the public pages in the light design on dark-mode devices. R149 replaces the invitation link with an invitation code. R148 adds the Sign in / Create account tabs with account creation through an invitation link. R147 brings the owner's public-page update and opens the home page at the site root. R146 fixes the R145 OCR clean-up on clean scans (DEF-16). R145 improves the PDF statement converter and Document Intake. R144 adds Tegh Intelligence (no external AI). R143 fixes defects found by a click-through test of every daily
 workflow. R142 applies the owner-approved wording (payroll outside Quebec,
 sales tax guide, Product Activity note). R141 adds the gate follow-ups (DEF-08, OBS-2, Clarity), countries,
 the Tax Code Report and Dashboard Figures. R140 fixes vendor invoice scrolling on phones. R139 contains only the fixes from the invite-only beta release gate
@@ -104,7 +104,14 @@ Notes (the database user needs CREATE privilege, as for the original install).
    assets/tegh-invoice-reports-r20.js, assets/tegh-r120.css, assets/tegh-gate-v5990.js,
    assets/tegh-preflight-v5990.js. The database additions (bill_lines; note
    reference and line columns) are made automatically on first use.
-5. Upload all assets together; the cache token is r151-tegh (the client-view
+   For R152: api/intake_r152.php (new), api/native_ap_ar_v5600.php,
+   api/backup.php, api/index.php, app.html, assets/tegh-statement-layout-r152.js
+   (new; delete assets/tegh-statement-layout-r145.js), assets/tegh-bank-converter-v5990.js,
+   assets/tegh-native-ocr-v5220.js, assets/tegh-native-ap-ar-v5600.js,
+   assets/tegh-portal-v5990.js, assets/tegh-r120.css, assets/tegh-gate-v5990.js,
+   assets/tegh-preflight-v5990.js. native_agent_documents.extracted_json and the
+   vendor_document_memory table are added automatically on first use.
+5. Upload all assets together; the cache token is r152-tegh (the client-view
    page loads its output script with r145-tegh too; its other assets stay on
    5990-r135). A partial upload can
    leave browsers on a stale portal.
@@ -235,6 +242,13 @@ Verify after upload
   it links and "Return items" fills the lines. (4) Invoice register > row
   Actions > Edit opens the invoice on the main screen. (5) Scroll the sidebar
   menu with the mouse wheel right after choosing a menu item.
+- R152: (1) Banking > Upload Statement: convert a French statement or a PDF
+  holding two months of one account — the review says the balances agree and,
+  for two months, that each statement starts at the previous closing balance.
+  (2) Payables > Document Intake: upload a text-PDF vendor invoice with a
+  line table — the lines show with ✓; verify it, then Open in Vendor Invoice
+  Form — the lines arrive with accounts; save — the document shows Linked.
+  (3) Upload the same invoice again — the duplicate warning appears.
 - In the browser console: window.TeghPortal exists.
 - Tegh Assist (top bar, also on phones): ask "who owes me money?" and the
   answer starts with a plain sentence ("Customers owe you $…") in about a second; "pay my supplier" opens Vendor
