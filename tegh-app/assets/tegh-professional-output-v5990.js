@@ -204,6 +204,47 @@
   }
   function markReportLayout(page,context){page.dataset.teghReportSurface=context?.model?'ready':'loading';if(context?.model?.groupBy)page.dataset.teghGroupedReport='1';else delete page.dataset.teghGroupedReport}
   function ensureReportSlot(page){let slot=q('[data-tegh-report-actions]',page);if(!slot){slot=document.createElement('div');slot.dataset.teghReportActions='';(q('.srp-page-head',page)||page).append(slot)}return slot}
+  // R153: multi-company reports. Short names come from the company list (Company Details › Short Name).
+  function selectedCompanyIds(){try{const ids=JSON.parse(localStorage.getItem('sr-accountax-companies')||'[]');return Array.isArray(ids)?ids.map(String).filter(Boolean):[]}catch{return[]}}
+  function companyLabel(id){const labels=window.TeghPortal?.companyLabels?.()||{},entry=labels[id]||{};return {short:entry.short||entry.name||'Company',name:entry.name||entry.short||'Company'}}
+  // Reports about one record (a document, an account, a customer, a bank account, a pay run) belong to one company; the rest are combined.
+  const RECORD_PARAMS=['partyId','customerId','vendorId','accountId','bankAccountId','documentId','invoiceId','billId','runId','payRunId','employeeId','sourceId','remittanceId'];
+  function multiCompanyScope(route,params,selected){
+    if(selected.length<2)return'single';
+    if(['customer-invoice','vendor-bill','payroll-detail'].includes(route))return'single';
+    return RECORD_PARAMS.some(key=>params[key]!==undefined&&params[key]!==null&&String(params[key])!=='')?'one':'all';
+  }
+  const COMPANY_COLUMN={key:'__company',label:'Co.',type:'text'};
+  function withCompanyColumn(columns){return columns.some(col=>col.key===COMPANY_COLUMN.key)?columns:[COMPANY_COLUMN,...columns]}
+  function labelCompanyModel(model,id){const label=companyLabel(id);return {...model,columns:withCompanyColumn(model.columns||[]),rows:(model.rows||[]).map(row=>({[COMPANY_COLUMN.key]:label.short,...row})),companyLabels:{[label.short]:label.name}}}
+  function sumTotals(list){const out={};const keys=new Set(list.flatMap(item=>item&&typeof item==='object'?Object.keys(item):[]));keys.forEach(key=>{const values=list.map(item=>item?.[key]).filter(value=>value!==undefined&&value!==null);if(values.length&&values.every(value=>typeof value==='number'))out[key]=values.reduce((a,b)=>a+b,0);else if(values.length&&values.every(value=>value&&typeof value==='object'&&!Array.isArray(value)))out[key]=sumTotals(values);else out[key]=values[0]});return out}
+  // Summary rows (Net Profit and the like) of the same label are added together.
+  function mergeSummaryRows(lists){const out=[],index=new Map;for(const list of lists){for(const row of Array.isArray(list)?list:[]){const key=String(row?.label??row?.key??row?.name??JSON.stringify(Object.values(row||{}).filter(v=>typeof v==='string')));if(!index.has(key)){index.set(key,out.length);out.push({...row});continue}const target=out[index.get(key)];Object.keys(row).forEach(k=>{if(typeof row[k]==='number'&&typeof target[k]==='number')target[k]+=row[k]})}}return out}
+  const unionOrder=lists=>[...new Set(lists.flatMap(list=>Array.isArray(list)?list:[]))];
+  function mergeCompanyModels(models,ids,firstId){
+    const currencies=[...new Set(models.map(m=>m.currency||'CAD'))];
+    if(currencies.length>1)throw new Error('The selected companies use different base currencies, so their reports cannot be combined. Select companies with the same base currency, or one company.');
+    const labels=ids.map(companyLabel),base=models[0],group=base.groupBy;
+    // Grouped reports: Day Book vouchers of different companies never merge; statement sections (income, assets, ageing buckets) do.
+    const keepGroupsApart=group&&base.definitionKey==='day-book',groupKey=(i,value)=>keepGroupsApart?`${labels[i].short}::${value}`:value;
+    const rows=models.flatMap((m,i)=>(m.rows||[]).map(row=>({[COMPANY_COLUMN.key]:labels[i].short,...row,...(keepGroupsApart?{[group]:groupKey(i,row[group])}:{})})));
+    const keyed=key=>Object.assign({},...models.map((m,i)=>Object.fromEntries(Object.entries(m[key]||{}).map(([k,v])=>[groupKey(i,k),v]))));
+    const merged={...base,companyId:firstId,company:{...(base.company||{}),name:`${ids.length} companies: ${labels.map(x=>x.name).join(', ')}`,legalName:`${ids.length} companies: ${labels.map(x=>x.name).join(', ')}`},
+      columns:withCompanyColumn(base.columns||[]),rows,rowCount:rows.length,totals:sumTotals(models.map(m=>m.totals||{})),
+      exceptions:models.flatMap((m,i)=>(m.exceptions||[]).map(x=>({...x,message:`${labels[i].short}: ${x.message||'Review this report before use.'}`}))),
+      companyLabels:Object.fromEntries(labels.map(x=>[x.short,x.name])),companyIds:[...ids],consolidated:true,
+      verifiedOutput:{...base.verifiedOutput,reference:models.map(m=>m.verifiedOutput.reference).join('+'),statement:`Combined from ${ids.length} company reports generated on the server; each line shows its company. Not an audit opinion.`}};
+    if(models.some(m=>m.controlTotals!==undefined))merged.controlTotals=models.every(m=>Array.isArray(m.controlTotals??[]))?models.flatMap(m=>m.controlTotals||[]):sumTotals(models.map(m=>Array.isArray(m.controlTotals)?{}:m.controlTotals||{}));
+    if(models.some(m=>Array.isArray(m.summaryRows)))merged.summaryRows=mergeSummaryRows(models.map(m=>m.summaryRows));
+    if(models.some(m=>Array.isArray(m.cashAccounts)))merged.cashAccounts=models.flatMap(m=>m.cashAccounts||[]);
+    if(group){
+      merged.groupLabels=keyed('groupLabels');
+      merged.groupTotals=keepGroupsApart?keyed('groupTotals'):sumTotals(models.map(m=>m.groupTotals||{}));
+      if(models.some(m=>m.groupSummaries))merged.groupSummaries=keyed('groupSummaries');
+      if(models.some(m=>Array.isArray(m.groupOrder)))merged.groupOrder=unionOrder(models.map((m,i)=>(m.groupOrder||[]).map(k=>groupKey(i,k))));
+    }
+    return merged;
+  }
   function setReportContext(page,context){
     if(!page)return;const prior=reportContexts.get(page);prior?.controller?.abort();
     if(!context){window.TeghRegistersR23?.invalidate(page);page.dataset.teghOutputSuspended='1';reportContexts.delete(page);delete page.teghSealedReport;delete page.dataset.teghReportSurface;if(q('[data-r20-profit]',page)){const host=q('[data-tegh-authoritative-report]',page);if(host)host.innerHTML='<p role="status">Run report to display the selected filters.</p>';}const slot=q('[data-tegh-report-actions]',page);if(slot){slot.hidden=true;slot.replaceChildren()}return}
@@ -222,14 +263,27 @@
     }
     if(!route){showOutputError(page,prepared,new Error('This surface does not yet have a verified server report definition. No client-table export was generated.'));return}
     prepared.promise=(async()=>{
-      const requestDefinition=key=>fetch(apiUrl(`professional-output/v5990/${key}`,params),{headers:{'X-Company-Id':company},credentials:'same-origin',cache:'no-store',signal:prepared.controller.signal});
-      let definition=route,response=await requestDefinition(definition),result=await response.json().catch(()=>({}));
-      if(response.status===404&&result.code==='report_definition_not_found'&&['customer-balances','vendor-balances'].includes(route)){
-        definition=route==='customer-balances'?'ar-ageing':'ap-ageing';
-        response=await requestDefinition(definition);result=await response.json().catch(()=>({}));
+      // R153: with several companies selected, the report is generated for each company and the lines are combined, each labelled with its company.
+      const loadDefinition=async companyForRequest=>{
+        const requestDefinition=key=>fetch(apiUrl(`professional-output/v5990/${key}`,params),{headers:{'X-Company-Id':companyForRequest},credentials:'same-origin',cache:'no-store',signal:prepared.controller.signal});
+        let definitionKey=route,response=await requestDefinition(definitionKey),result=await response.json().catch(()=>({}));
+        if(response.status===404&&result.code==='report_definition_not_found'&&['customer-balances','vendor-balances'].includes(route)){
+          definitionKey=route==='customer-balances'?'ar-ageing':'ap-ageing';
+          response=await requestDefinition(definitionKey);result=await response.json().catch(()=>({}));
+        }
+        if(!response.ok)throw Object.assign(new Error(result.error||'The complete report could not be generated.'),{code:result.code,requestId:result.requestId});
+        const output=result.output;
+        if(!output||output.contractVersion!=='3.0'||output.definitionKey!==definitionKey||output.companyId!==companyForRequest||output.completeness?.complete!==true||output.completeness?.truncated||output.rowCount!==output.rows?.length||!output.verifiedOutput?.reference)throw new Error('The server did not return a complete sealed output. No partial export is available.');
+        return {definitionKey,output};
+      };
+      const selected=selectedCompanyIds(),scope=multiCompanyScope(route,params,selected);
+      let definition=route,model;
+      if(scope==='all'){
+        const results=[];for(const id of selected)results.push(await loadDefinition(id));
+        definition=results[0].definitionKey;model=mergeCompanyModels(results.map(x=>x.output),selected,company);
+      }else{
+        const one=await loadDefinition(company);definition=one.definitionKey;model=scope==='one'?labelCompanyModel(one.output,company):one.output;
       }
-      if(!response.ok)throw Object.assign(new Error(result.error||'The complete report could not be generated.'),{code:result.code,requestId:result.requestId});
-      const model=result.output;
       if(!model||model.contractVersion!=='3.0'||model.definitionKey!==definition||model.companyId!==company||model.completeness?.complete!==true||model.completeness?.truncated||model.rowCount!==model.rows?.length||!model.verifiedOutput?.reference)throw new Error('The server did not return a complete sealed output. No partial export is available.');
       if(!page.isConnected||companyId()!==company||reportContexts.get(page)!==prepared)throw new DOMException('The company or report changed.','AbortError');
       prepared.model=deepFreeze(model);page.teghSealedReport=model;markReportLayout(page,prepared);if(prepared.preserveInteractive)markInteractiveReport(page);else renderAuthoritativeReport(page,prepared);renderOutputToolbar(page,prepared);return model;

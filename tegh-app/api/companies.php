@@ -141,6 +141,9 @@ function handle_companies(): never
     // Spreadsheet COA/opening-balance imports are centralized under Settings → Data Import.
     $companyId = new_id('company');
     tegh_pst_rate_precision_ready();
+    // R153: address and short name (columns added on first use, before the transaction).
+    $profile = function_exists('r153_profile_input') ? r153_profile_input($input) : [];
+    if ($profile) r153_schema_ready();
     $accountIds = [];
     $accountTypesByCode = [];
     db()->beginTransaction();
@@ -149,6 +152,7 @@ function handle_companies(): never
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$companyId, $name, $legalName, $businessType, $province, $currency, $accountingBasis, $moduleMode, $payrollPostingMode, $taxReportingProfile, $reportingFramework, $fiscalYearEnd, $fiscalYearEndDate, $booksStartDate, $taxRegistered ? 1 : 0, $taxNumber, $isCanada ? province_rate_bps($province) : 0, $pstRegistered ? 1 : 0, $pstRateBps, $pstRecoverable ? 1 : 0, $testMode ? 1 : 0, $testExpiresAt, $testMode ? $user['id'] : null, $country]);
         db()->prepare('UPDATE companies SET pst_rate_mpct = ? WHERE id = ?')->execute([$pstRateMpct, $companyId]);
+        if ($profile) r153_profile_save($companyId, $profile);
         // R137: new companies charge nothing until the owner sets up tax codes.
         if (function_exists('schema_column_exists') && schema_column_exists('companies', 'tax_setup_mode')) db()->prepare("UPDATE companies SET tax_setup_mode = 'codes' WHERE id = ?")->execute([$companyId]);
         db()->prepare("INSERT INTO company_members (company_id, user_id, role) VALUES (?, ?, 'owner')")->execute([$companyId, $user['id']]);
@@ -283,9 +287,12 @@ function handle_settings(): never
         fail('Base currency and accounting basis are locked after the first document, statement import, payroll setup, or journal entry. Create a new company file or migrate the books under professional supervision.', 409, 'fundamental_setting_locked');
     }
     tegh_pst_rate_precision_ready();
+    $profile = function_exists('r153_profile_input') ? r153_profile_input($input) : [];
+    if ($profile) r153_schema_ready();
     db()->beginTransaction();
     try {
         $previousCurrency = (string)$company['currency'];
+        if ($profile) r153_profile_save((string)$company['id'], $profile);
         $stmt = db()->prepare('UPDATE companies SET name = ?, legal_name = ?, business_type = ?, province = ?, currency = ?, accounting_basis = ?, payroll_posting_mode = ?, reporting_framework = ?, fiscal_year_end = ?, fiscal_year_end_date = ?, books_start_date = ?, tax_registered = ?, tax_number = ?, tax_rate_bps = ?, pst_registered = ?, pst_rate_bps = ?, pst_recoverable = ?, country = ? WHERE id = ?');
         $stmt->execute([$name, $legalName, $businessType, $province, $currency, $accountingBasis, $payrollPostingMode, $reportingFramework, $fiscal, $fiscalDate, $booksStartDate, $taxRegistered ? 1 : 0, $taxNumber, $isCanada ? province_rate_bps($province) : 0, $pstRegistered ? 1 : 0, $pstRateBps, $pstRecoverable ? 1 : 0, $country, $company['id']]);
         db()->prepare('UPDATE companies SET pst_rate_mpct = ? WHERE id = ?')->execute([$pstRateMpct, $company['id']]);

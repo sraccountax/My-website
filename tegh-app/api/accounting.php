@@ -694,6 +694,7 @@ function workspace_data(array $user, array $company): array
         'mode' => 'persistent',
         'organization' => [
             'id' => $companyId, 'name' => (string)$company['name'], 'legalName' => (string)$company['legal_name'],
+            ...(function_exists('r153_profile_public') ? r153_profile_public($company) : []),
             'businessType' => (string)$company['business_type'], 'province' => (string)$company['province'], 'country' => (string)($company['country'] ?? 'Canada'), 'currency' => (string)$company['currency'],
             'accountingBasis' => (string)$company['accounting_basis'],
             'payrollPostingMode' => (string)$company['payroll_posting_mode'],

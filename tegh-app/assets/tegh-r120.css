@@ -1058,3 +1058,41 @@ html[data-tegh-theme="auto"] .tegh-supplier-memory{background:#122334;border-col
 .r151-intake-check[data-state="warn"]{color:#8a4b00}
 html[data-tegh-theme="dark"] .r151-intake-check{color:#6fd3b6}html[data-tegh-theme="dark"] .r151-intake-check[data-state="warn"]{color:#f2c46b}
 @media (prefers-color-scheme:dark){html[data-tegh-theme="auto"] .r151-intake-check{color:#6fd3b6}html[data-tegh-theme="auto"] .r151-intake-check[data-state="warn"]{color:#f2c46b}}
+/* R153: company address block in Company Details and company setup */
+.r153-company-address{margin-top:6px;padding-top:12px;border-top:1px solid var(--color-border,#d7e0dc)}
+.r153-company-address h3{margin:0 0 2px;font-size:16px}
+.r153-company-address p{margin:0;font-size:13px;color:var(--color-muted,#5b6d66)}
+/* R153: sidebar menu arrow — a visible 28px target that rotates down when the menu is open (desktop; phones open module pages instead) */
+@media (min-width:821px){
+html[data-tegh-shell] aside.sidebar .srp-nav-parent:not(.srp-nav-direct)>.srp-chevron{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 28px!important;width:28px!important;min-width:28px!important;height:28px;margin:-4px -6px -4px auto!important;border-radius:8px;color:rgba(255,255,255,.88)!important;font-size:0!important;transition:transform .2s ease,background-color .15s ease!important;transform:none}
+html[data-tegh-shell] aside.sidebar .srp-nav-parent:not(.srp-nav-direct)>.srp-chevron:hover{background:rgba(255,255,255,.14)}
+html[data-tegh-shell] aside.sidebar .srp-nav-parent[aria-expanded="true"]>.srp-chevron{transform:rotate(90deg)!important}
+html[data-tegh-shell] aside.sidebar .srp-nav-parent>.srp-chevron svg{display:block;pointer-events:none}
+body.sr-sidebar-collapsed aside.sidebar .srp-nav-parent>.srp-chevron{display:none!important}
+}
+@media (prefers-reduced-motion:reduce){html[data-tegh-shell] aside.sidebar .srp-nav-parent>.srp-chevron{transition:none!important}}
+/* R153: light / dark / system switch in the top bar */
+.r153-theme-switch{display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid #d7e0dc;border-radius:999px;background:#f4f7f6;flex:0 0 auto}
+.r153-theme-switch button{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border:0;border-radius:999px;background:transparent;color:#4a5f58;cursor:pointer;min-width:0;min-height:0;box-shadow:none}
+.r153-theme-switch button:hover{background:#e3eeea;color:#0b4f42}
+.r153-theme-switch button.is-active{background:#0d6b57;color:#fff}
+.r153-theme-switch button:focus-visible{outline:2px solid #0d6b57;outline-offset:2px}
+.tegh-interface-choice b svg{vertical-align:-3px;margin-right:6px}
+html[data-tegh-theme="dark"] .r153-theme-switch{background:#13241f;border-color:#2d4a41}
+html[data-tegh-theme="dark"] .r153-theme-switch button{color:#b8d4ca}
+html[data-tegh-theme="dark"] .r153-theme-switch button:hover{background:#1d3a33;color:#e3f5ee}
+html[data-tegh-theme="dark"] .r153-theme-switch button.is-active{background:#2f9b80;color:#06130f}
+@media (prefers-color-scheme:dark){
+html[data-tegh-theme="auto"] .r153-theme-switch{background:#13241f;border-color:#2d4a41}
+html[data-tegh-theme="auto"] .r153-theme-switch button{color:#b8d4ca}
+html[data-tegh-theme="auto"] .r153-theme-switch button:hover{background:#1d3a33;color:#e3f5ee}
+html[data-tegh-theme="auto"] .r153-theme-switch button.is-active{background:#2f9b80;color:#06130f}
+}
+/* Phones: only the current theme's icon is shown; tapping it moves to the next theme. */
+@media (max-width:600px){.r153-theme-switch{padding:0;border:0;background:transparent!important}.r153-theme-switch button:not(.is-active){display:none}.r153-theme-switch button.is-active{background:transparent!important;color:inherit!important;border:1px solid #d7e0dc}}
+/* R153: a long module name ends with "…" before the arrow instead of running under it (full name in the tooltip) */
+@media (min-width:821px){html[data-tegh-shell] body:not(.sr-sidebar-collapsed) aside.sidebar .srp-nav-parent:not(.srp-nav-direct) .nav-copy,html[data-tegh-design][data-tegh-shell] body:not(.sr-sidebar-collapsed) aside.sidebar .srp-nav-parent:not(.srp-nav-direct) .nav-copy{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}}
+/* R153: company short-name column in multi-company reports */
+th.r153-co,td.r153-co{width:1%;white-space:nowrap;font-weight:700;letter-spacing:.02em;color:#0b4f42}
+html[data-tegh-theme="dark"] :is(th,td).r153-co{color:#8fe0c6}
+@media (prefers-color-scheme:dark){html[data-tegh-theme="auto"] :is(th,td).r153-co{color:#8fe0c6}}

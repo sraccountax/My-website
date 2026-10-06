@@ -88,6 +88,9 @@ function companies_for_user(string $userId): array
         'c.fiscal_year_end',$column('fiscal_year_end_date','NULL','fiscal_year_end_date'),
         $column('books_start_date','NULL','books_start_date'),'c.tax_registered','c.tax_number','c.tax_rate_bps',
         $column('test_mode','0','test_mode'),$column('test_expires_at','NULL','test_expires_at'),$column('country',"'Canada'",'country'),
+        // R153: address and short name.
+        $column('short_name','NULL','short_name'),$column('address_line1','NULL','address_line1'),$column('address_line2','NULL','address_line2'),$column('city','NULL','city'),
+        $column('postal_code','NULL','postal_code'),$column('phone','NULL','phone'),$column('contact_email','NULL','contact_email'),
     ];
     // Platform administration and company-book access are separate trust
     // boundaries. Even a platform owner only sees companies where they are an
@@ -116,7 +119,7 @@ function companies_for_user(string $userId): array
         'roleLabel'=>company_role_label((string)$row['role']),
         'permissions'=>company_role_permissions((string)$row['role']),
         'platformMasterAccess'=>!empty($row['platform_master_access']),
-    ],$stmt->fetchAll());
+    ]+(function_exists('r153_profile_public')?r153_profile_public($row):[]),$stmt->fetchAll());
 }
 
 function auth_payload(array $user, ?array $session = null): array

@@ -69,11 +69,11 @@ function invoice_template_snapshot(array $template, array $company): array
         'fontFamily' => (string)($template['font_family'] ?? 'Arial'),
         'businessName' => $template['business_name_override'] !== null && trim((string)$template['business_name_override']) !== '' ? (string)$template['business_name_override'] : (string)$company['name'],
         'legalName' => (string)$company['legal_name'],
-        'businessAddress' => $template['business_address'] !== null
-            ? (string)$template['business_address']
-            : ((string)$company['province'] . ', Canada'),
-        'businessEmail' => $template['business_email'] !== null ? (string)$template['business_email'] : null,
-        'businessPhone' => $template['business_phone'] !== null ? (string)$template['business_phone'] : null,
+        // R153: the company address (Company Details) unless the template has its own address.
+        'businessAddress' => function_exists('r153_invoice_business_address') ? r153_invoice_business_address($template['business_address'] !== null ? (string)$template['business_address'] : null, $company)
+            : ($template['business_address'] !== null ? (string)$template['business_address'] : ((string)$company['province'] . ', Canada')),
+        'businessEmail' => $template['business_email'] !== null && trim((string)$template['business_email']) !== '' ? (string)$template['business_email'] : (trim((string)($company['contact_email'] ?? '')) !== '' ? (string)$company['contact_email'] : null),
+        'businessPhone' => $template['business_phone'] !== null && trim((string)$template['business_phone']) !== '' ? (string)$template['business_phone'] : (trim((string)($company['phone'] ?? '')) !== '' ? (string)$company['phone'] : null),
         'taxNumber' => $template['tax_number_override'] !== null && trim((string)$template['tax_number_override']) !== '' ? (string)$template['tax_number_override'] : ($company['tax_number'] !== null ? (string)$company['tax_number'] : null),
         'logoData' => $template['logo_data'] !== null ? (string)$template['logo_data'] : null,
         'paymentInstructions' => $template['payment_instructions'] !== null ? (string)$template['payment_instructions'] : null,
@@ -94,9 +94,9 @@ function invoice_template_snapshot_from_mapped(array $template, array $company):
         'fontFamily' => (string)($template['fontFamily'] ?? 'Arial'),
         'businessName' => !empty($template['businessName']) ? (string)$template['businessName'] : (string)$company['name'],
         'legalName' => (string)$company['legal_name'],
-        'businessAddress' => $template['businessAddress'] ?? ((string)$company['province'] . ', Canada'),
-        'businessEmail' => $template['businessEmail'] ?? null,
-        'businessPhone' => $template['businessPhone'] ?? null,
+        'businessAddress' => function_exists('r153_invoice_business_address') ? r153_invoice_business_address(isset($template['businessAddress']) ? (string)$template['businessAddress'] : null, $company) : ($template['businessAddress'] ?? ((string)$company['province'] . ', Canada')),
+        'businessEmail' => !empty($template['businessEmail']) ? (string)$template['businessEmail'] : (trim((string)($company['contact_email'] ?? '')) !== '' ? (string)$company['contact_email'] : null),
+        'businessPhone' => !empty($template['businessPhone']) ? (string)$template['businessPhone'] : (trim((string)($company['phone'] ?? '')) !== '' ? (string)$company['phone'] : null),
         'taxNumber' => !empty($template['taxNumber']) ? (string)$template['taxNumber'] : ($company['tax_number'] !== null ? (string)$company['tax_number'] : null),
         'logoData' => $template['logoData'] ?? null,
         'paymentInstructions' => $template['paymentInstructions'] ?? null,

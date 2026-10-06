@@ -6,16 +6,18 @@
     // scoped preference and server copy are still loading.
     try {
       const paintPreference=JSON.parse(localStorage.getItem('tegh-shell-paint-preference-v1')||'{}');
-      const theme=['light','dark'].includes(paintPreference.theme)?paintPreference.theme:'auto';
-      document.documentElement.dataset.teghTheme=theme;
+      const choice=['light','dark'].includes(paintPreference.theme)?paintPreference.theme:'auto';
+      // R153: "System" follows the device; it is resolved to light or dark so every dark-mode style applies.
+      const theme=choice==='auto'?(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):choice;
+      document.documentElement.dataset.teghTheme=theme;document.documentElement.dataset.teghThemeChoice=choice;
       document.documentElement.dataset.teghNavigationLayout=paintPreference.navigationLayout==='top'?'top':'side';
-      document.documentElement.style.colorScheme=theme==='dark'?'dark':theme==='light'?'light':'light dark';
+      document.documentElement.style.colorScheme=theme==='dark'?'dark':'light';
     } catch {}
     const params = new URLSearchParams(location.search);
     // R141: invitation and password-reset tokens arrive after '#'.
     new URLSearchParams((location.hash || '').replace(/^#/, '')).forEach((value, key) => { if (['accountSetup','passwordReset'].includes(key) && !params.has(key)) params.set(key, value); });
     const version = '5990';
-    const assetRevision = '5990-r152-tegh';
+    const assetRevision = '5990-r153-tegh';
     const signedOut = params.get('signed-out') === '1';
     if (signedOut) {
       document.documentElement.dataset.signedOut = '1';
