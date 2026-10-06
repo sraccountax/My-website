@@ -1,4 +1,4 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R153 IONOS STAGING CANDIDATE
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R154 IONOS STAGING CANDIDATE
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -42,6 +42,7 @@ R150: the public pages (home page, Product, Pricing, guides …) always open in 
 R151: one form for invoices, credit notes and debit notes (customer and vendor): Document type drop-down on top, details on top and a highlighted spreadsheet-style line grid below (product/service, description, qty, rate, tax, amount, total, GL account), no side summary; adding lines no longer scrolls the page to the top. Vendor invoices have real lines, each posted to its own GL account with its own tax. Notes take a typed original invoice number: linked when it is in Tegh, otherwise recorded against the customer/vendor with its own tax and GL per line. Edit on the registers opens the document on the main screen (drafts in full; issued documents: dates and notes only). Sidebar menu scrolling fixed. Automatic database additions (bill_lines, note reference and line columns). See R151-CHANGES.md.
 R152: statement reader for more Canadian bank and card layouts in English and French and for PDFs holding several statements (picker; one account's statements read together with a balance chain check); Document Intake reads invoice line items as a table, learns per-supplier date order, number pattern and total from your corrections, suggests accounts and tax codes from the vendor's earlier invoices, warns about duplicates and opens all lines in the vendor invoice form. Additive column and table created on first use. See R152-CHANGES.md.
 R153: company address, phone, email and short name in company setup, printed on customer invoices; with several companies selected every report line shows the company's short name (all catalog reports read each company, totals combined, exports included); sidebar submenu arrows; Light / Dark / System theme icons in the top bar (System now fully follows a dark device). Columns added on first use. See R153-CHANGES.md.
+R154: with several companies selected, the General Ledger Account Report (account chosen by code; balance by company with a combined row), the Bank General Ledger Report (one bank account per company) and Budgets (every company's budgets; Budget versus Actual from the budget chosen for each company) run for every selected company, each line labelled with its company. Creating and editing budgets stays per company. No database change.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json

@@ -226,7 +226,8 @@
     if(currencies.length>1)throw new Error('The selected companies use different base currencies, so their reports cannot be combined. Select companies with the same base currency, or one company.');
     const labels=ids.map(companyLabel),base=models[0],group=base.groupBy;
     // Grouped reports: Day Book vouchers of different companies never merge; statement sections (income, assets, ageing buckets) do.
-    const keepGroupsApart=group&&base.definitionKey==='day-book',groupKey=(i,value)=>keepGroupsApart?`${labels[i].short}::${value}`:value;
+    // R154: ledgers are grouped by account with a running balance per account, so each company's account stays its own group too.
+    const keepGroupsApart=group&&['day-book','general-ledger','gl-account-ledger','bank-general-ledger'].includes(base.definitionKey),groupKey=(i,value)=>keepGroupsApart?`${labels[i].short}::${value}`:value;
     const rows=models.flatMap((m,i)=>(m.rows||[]).map(row=>({[COMPANY_COLUMN.key]:labels[i].short,...row,...(keepGroupsApart?{[group]:groupKey(i,row[group])}:{})})));
     const keyed=key=>Object.assign({},...models.map((m,i)=>Object.fromEntries(Object.entries(m[key]||{}).map(([k,v])=>[groupKey(i,k),v]))));
     const merged={...base,companyId:firstId,company:{...(base.company||{}),name:`${ids.length} companies: ${labels.map(x=>x.name).join(', ')}`,legalName:`${ids.length} companies: ${labels.map(x=>x.name).join(', ')}`},
@@ -234,11 +235,11 @@
       exceptions:models.flatMap((m,i)=>(m.exceptions||[]).map(x=>({...x,message:`${labels[i].short}: ${x.message||'Review this report before use.'}`}))),
       companyLabels:Object.fromEntries(labels.map(x=>[x.short,x.name])),companyIds:[...ids],consolidated:true,
       verifiedOutput:{...base.verifiedOutput,reference:models.map(m=>m.verifiedOutput.reference).join('+'),statement:`Combined from ${ids.length} company reports generated on the server; each line shows its company. Not an audit opinion.`}};
-    if(models.some(m=>m.controlTotals!==undefined))merged.controlTotals=models.every(m=>Array.isArray(m.controlTotals??[]))?models.flatMap(m=>m.controlTotals||[]):sumTotals(models.map(m=>Array.isArray(m.controlTotals)?{}:m.controlTotals||{}));
+    if(models.some(m=>m.controlTotals!==undefined))merged.controlTotals=keepGroupsApart&&group&&models.every(m=>!Array.isArray(m.controlTotals??{}))?keyed('controlTotals'):models.every(m=>Array.isArray(m.controlTotals??[]))?models.flatMap(m=>m.controlTotals||[]):sumTotals(models.map(m=>Array.isArray(m.controlTotals)?{}:m.controlTotals||{}));
     if(models.some(m=>Array.isArray(m.summaryRows)))merged.summaryRows=mergeSummaryRows(models.map(m=>m.summaryRows));
     if(models.some(m=>Array.isArray(m.cashAccounts)))merged.cashAccounts=models.flatMap(m=>m.cashAccounts||[]);
     if(group){
-      merged.groupLabels=keyed('groupLabels');
+      merged.groupLabels=keepGroupsApart&&base.definitionKey!=='day-book'?Object.assign({},...models.map((m,i)=>Object.fromEntries(Object.entries(m.groupLabels||{}).map(([k,v])=>[groupKey(i,k),`${labels[i].short} · ${v}`])))):keyed('groupLabels');
       merged.groupTotals=keepGroupsApart?keyed('groupTotals'):sumTotals(models.map(m=>m.groupTotals||{}));
       if(models.some(m=>m.groupSummaries))merged.groupSummaries=keyed('groupSummaries');
       if(models.some(m=>Array.isArray(m.groupOrder)))merged.groupOrder=unionOrder(models.map((m,i)=>(m.groupOrder||[]).map(k=>groupKey(i,k))));
@@ -264,8 +265,8 @@
     if(!route){showOutputError(page,prepared,new Error('This surface does not yet have a verified server report definition. No client-table export was generated.'));return}
     prepared.promise=(async()=>{
       // R153: with several companies selected, the report is generated for each company and the lines are combined, each labelled with its company.
-      const loadDefinition=async companyForRequest=>{
-        const requestDefinition=key=>fetch(apiUrl(`professional-output/v5990/${key}`,params),{headers:{'X-Company-Id':companyForRequest},credentials:'same-origin',cache:'no-store',signal:prepared.controller.signal});
+      const loadDefinition=async(companyForRequest,requestParams=params)=>{
+        const requestDefinition=key=>fetch(apiUrl(`professional-output/v5990/${key}`,requestParams),{headers:{'X-Company-Id':companyForRequest},credentials:'same-origin',cache:'no-store',signal:prepared.controller.signal});
         let definitionKey=route,response=await requestDefinition(definitionKey),result=await response.json().catch(()=>({}));
         if(response.status===404&&result.code==='report_definition_not_found'&&['customer-balances','vendor-balances'].includes(route)){
           definitionKey=route==='customer-balances'?'ar-ageing':'ap-ageing';
@@ -276,9 +277,15 @@
         if(!output||output.contractVersion!=='3.0'||output.definitionKey!==definitionKey||output.companyId!==companyForRequest||output.completeness?.complete!==true||output.completeness?.truncated||output.rowCount!==output.rows?.length||!output.verifiedOutput?.reference)throw new Error('The server did not return a complete sealed output. No partial export is available.');
         return {definitionKey,output};
       };
-      const selected=selectedCompanyIds(),scope=multiCompanyScope(route,params,selected);
+      const selected=selectedCompanyIds(),companyParams=context.companyParams&&selected.length>1?context.companyParams:null,scope=companyParams?'per-company':multiCompanyScope(route,params,selected);
       let definition=route,model;
-      if(scope==='all'){
+      if(scope==='per-company'){
+        // R154: a report about one account (GL account, bank account) runs for the matching account of each selected company.
+        const ids=selected.filter(id=>companyParams[id]),results=[];
+        if(!ids.length)throw new Error('None of the selected companies has the chosen account.');
+        for(const id of ids)results.push(await loadDefinition(id,{...params,...companyParams[id]}));
+        definition=results[0].definitionKey;model=mergeCompanyModels(results.map(x=>x.output),ids,company);
+      }else if(scope==='all'){
         const results=[];for(const id of selected)results.push(await loadDefinition(id));
         definition=results[0].definitionKey;model=mergeCompanyModels(results.map(x=>x.output),selected,company);
       }else{

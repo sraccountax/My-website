@@ -1,6 +1,6 @@
 import json,glob,os,collections
 ev='/srv/gate/ev';rows=[]
-order=['install','acct','tax','sec','pay','rec','ops','upg','r141','r142','r144','e2e','r144ui','r145','r149','r151','r151ui','r152','r153']
+order=['install','acct','tax','sec','pay','rec','ops','upg','r141','r142','r144','e2e','r144ui','r145','r149','r151','r151ui','r152','r153','r154']
 for f in order:
     p=f'{ev}/{f}.json'
     if os.path.exists(p):

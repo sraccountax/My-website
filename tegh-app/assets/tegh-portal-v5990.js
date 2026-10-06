@@ -772,7 +772,28 @@ const TeghPortal = (() => {
   function openAdvancedWorkspace(tab,returnModule='Advanced accounting',focus='',title=''){
     const tabKey=String(tab||'dashboard').toLowerCase(),pageId=tabKey==='recurring'?'recurring-transactions':`advanced-${tabKey}`,pageTitle=title||({budgets:'Budgets',assets:'Fixed Assets',analytics:'Analytics',collections:'Collections',cashflow:'Cash Flow',recurring:'Recurring Transactions'}[tabKey]||'Advanced Accounting');
     const description=focus==='invoices'?'Create and run recurring customer invoice profiles without leaving Receivables.':focus==='bills'?'Create and run recurring vendor invoice profiles without leaving Payables.':'Plan, review and manage this work in your current company.';
-    showPage(pageId,pageTitle,description,async body=>{if(oneCompanyNotice(body,`${pageTitle}: this workspace is kept separately for each company.`,tabKey==='assets'))return;if(typeof window.TeghAdvanced?.mount!=='function')throw Error('This workspace module did not load. Refresh Tegh and try again.');const host=document.createElement('section');host.className='srp-card srp-advanced-host';body.replaceChildren(host);await window.TeghAdvanced.mount(host,tabKey,{focus,showTabs:false})},{module:returnModule,back:()=>returnModule==='Reports'?openReportsDashboard():moduleDashboard(returnModule)});
+    showPage(pageId,pageTitle,description,async body=>{if(tabKey==='budgets'&&isConsolidated())return budgetsMulti(body);if(oneCompanyNotice(body,`${pageTitle}: this workspace is kept separately for each company.`,tabKey==='assets'))return;if(typeof window.TeghAdvanced?.mount!=='function')throw Error('This workspace module did not load. Refresh Tegh and try again.');const host=document.createElement('section');host.className='srp-card srp-advanced-host';body.replaceChildren(host);await window.TeghAdvanced.mount(host,tabKey,{focus,showTabs:false})},{module:returnModule,back:()=>returnModule==='Reports'?openReportsDashboard():moduleDashboard(returnModule)});
+  }
+  // R154: with several companies selected, Budgets lists every company's budgets and builds one Budget versus Actual from
+  // the budget chosen for each company (the active one by default). Creating, editing and closing budgets stay per company.
+  async function budgetsMulti(body){
+    const ids=selectedCompanyIds(),origin=companyId();body.innerHTML='<section class="srp-card"><p>Loading the budgets of the selected companies…</p></section>';
+    let books;try{books=await Promise.all(ids.map(id=>api('advanced/workspace',{companyId:id,noCache:true})))}catch(error){body.innerHTML=`<section class="srp-card" role="alert"><h2>Budgets could not be loaded</h2><p>${esc(userFacingError(error))}</p></section>`;return}
+    if(companyId()!==origin||!body.isConnected)return;
+    const budgets=Object.fromEntries(ids.map((id,i)=>[id,[...(books[i]?.budgets||[])].sort((a,b)=>(b.status==='active')-(a.status==='active')||String(b.periodEnd||'').localeCompare(String(a.periodEnd||'')))]));
+    const pick=Object.fromEntries(ids.map(id=>[id,budgets[id][0]?String(budgets[id][0].id):'']));
+    const all=ids.flatMap(id=>budgets[id].map(b=>({...b,companyId:id})));
+    const render=()=>{
+      const chosen=ids.map(id=>budgets[id].find(b=>String(b.id)===pick[id])).filter(Boolean),sum=key=>chosen.reduce((n,b)=>n+Number(b[key]||0),0);
+      body.innerHTML=`<section class="srp-card r154-budgets">
+        <div class="r154-table-wrap" tabindex="0" role="region" aria-label="Budgets of the selected companies"><table class="srp-table" data-r154-budget-list><thead><tr>${coHead()}<th>Budget</th><th>Start</th><th>End</th><th>Status</th><th class="srp-money">Planned</th><th class="srp-money">Actual</th><th class="srp-money">Variance</th><th>In Budget vs Actual</th></tr></thead><tbody>${all.length?all.map(b=>`<tr>${coCell(b)}<td><b>${esc(b.name)}</b></td><td>${date(b.periodStart)}</td><td>${date(b.periodEnd)}</td><td>${esc(titleCasePhrase(b.status||''))}</td><td class="srp-money">${money(b.plannedCents)}</td><td class="srp-money">${money(b.actualCents)}</td><td class="srp-money">${money(b.varianceCents)}</td><td><label class="r154-pick"><input type="radio" name="pick-${esc(b.companyId)}" value="${esc(b.id)}" data-r154-budget="${esc(b.companyId)}" ${String(b.id)===pick[b.companyId]?'checked':''}> Use for ${esc(coLabel(b.companyId).short)}</label></td></tr>`).join(''):`<tr><td colspan="9" class="srp-empty">None of the selected companies has a budget yet.</td></tr>`}${chosen.length?`<tr class="r154-combined" data-r154-budget-combined>${coHead()?'<td class="r153-co"></td>':''}<td colspan="4"><b>Combined (budgets chosen for Budget vs Actual)</b></td><td class="srp-money"><b>${money(sum('plannedCents'))}</b></td><td class="srp-money"><b>${money(sum('actualCents'))}</b></td><td class="srp-money"><b>${money(sum('varianceCents'))}</b></td><td>${chosen.length} of ${ids.length} companies</td></tr>`:''}</tbody></table></div>
+        <p class="srp-note">${ids.filter(id=>!budgets[id].length).map(id=>`${esc(coLabel(id).short)} has no budget. `).join('')}The Budget versus Actual below combines the budget chosen for each company, one line per account and company. To create, edit or close a budget, choose that company in the company selector at the top.</p></section>`;
+      $$('[data-r154-budget]',body).forEach(input=>input.onchange=()=>{pick[input.dataset.r154Budget]=input.value;render()});
+      const included=ids.filter(id=>pick[id]);
+      if(!included.length){setPageReportOutput(body,null);return}
+      setPageReportOutput(body,{route:'budget-vs-actual',params:{},companyParams:Object.fromEntries(included.map(id=>[id,{budgetId:pick[id]}]))});
+    };
+    render();
   }
   function openAdvancedTab(tab,returnModule='Advanced accounting'){return openAdvancedWorkspace(tab,returnModule)}
   function returnFromAdvanced(){
@@ -1210,7 +1231,7 @@ const TeghPortal = (() => {
   }
   async function guidedExtractStatement(file,onProgress,context={}){
     const ext=String(file?.name||'').split('.').pop().toLowerCase();
-    if(ext==='pdf'){const mod=await import('./tegh-bank-converter-v5990.js?v=5990-r153-tegh');return await mod.extractAndReview(file,{...context,onProgress})}
+    if(ext==='pdf'){const mod=await import('./tegh-bank-converter-v5990.js?v=5990-r154-tegh');return await mod.extractAndReview(file,{...context,onProgress})}
     if(ext==='xlsx'||ext==='xls'){const mod=await import('./spreadsheetStatementImport-R-lkb343-v211.js?v=4600');return await mod.extractSpreadsheetStatement(file,onProgress)}
     return null;
   }
@@ -2159,9 +2180,50 @@ const TeghPortal = (() => {
   },{module:options.returnModule||'General ledger'})}
 
   function reportRowsInPeriod(rows,dateKey,from,to,status,q){const query=String(q||'').trim().toLowerCase(),wanted=String(status||'').toLowerCase();return rows.filter(row=>(!from||String(row[dateKey]||'')>=from)&&(!to||String(row[dateKey]||'')<=to)&&(!wanted||wanted==='all'||String(row.status||'').toLowerCase()===wanted||String(row.displayStatus||'').toLowerCase()===wanted)&&(!query||Object.values(row).some(value=>String(value??'').toLowerCase().includes(query))))}
+  // R154: with several companies selected, the GL Account Report runs for the chosen account code in every company that has it.
+  async function glAccountLedgerMulti(body,initialAccountId=''){
+    const ids=selectedCompanyIds(),a=await auth(),company=companyAccess(a)||{},fiscalEnd=String(company.fiscalYearEnd||'12-31'),origin=companyId();
+    const books=await Promise.all(ids.map(id=>workspace(id))),byCode=new Map();
+    books.forEach((w,i)=>(w.accounts||[]).forEach(x=>{const code=String(x.code||'').trim();if(!code)return;if(!byCode.has(code))byCode.set(code,{code,name:x.name||'',ids:{}});byCode.get(code).ids[ids[i]]=String(x.id)}));
+    const codes=[...byCode.values()].sort((x,y)=>x.code.localeCompare(y.code,undefined,{numeric:true}));
+    // The account may come from one company's chart or from the combined chart of accounts; either way it is matched by code.
+    const fromId=String(initialAccountId||''),initialCode=!fromId?'':(codes.find(c=>Object.values(c.ids).includes(fromId))?.code||String(((await workspace()).accounts||[]).find(x=>String(x.id)===fromId)?.code||''));
+    let preset=localStorage.getItem('tegh-report-period-gl-account-ledger')||'fiscal-ytd',range=standardPeriod(preset==='custom'?'fiscal-ytd':preset,fiscalEnd),start=range.start,end=range.end,code=initialCode;
+    const balanceText=cents=>cents>0?`${money(cents,'CAD')} DR`:cents<0?`${money(-cents,'CAD')} CR`:money(0,'CAD');
+    const form=()=>`<form class="srp-report-period" data-gl-ledger-filter><label class="grow">General Ledger Account (by code)<select name="code" required><option value="">Choose a General Ledger account</option>${codes.map(c=>`<option value="${esc(c.code)}" ${c.code===code?'selected':''}>${esc(c.code)} · ${esc(c.name)} · ${esc(ids.filter(id=>c.ids[id]).map(id=>coLabel(id).short).join(', '))}</option>`).join('')}</select></label><label>Standard Period<select name="preset">${periodOptions(fiscalEnd)}</select></label><label>From<input name="start" type="date" value="${esc(start)}" required></label><label>To<input name="end" type="date" value="${esc(end)}" required></label><button class="srp-btn">Generate Report</button></form>`;
+    const bind=()=>{const f=$('[data-gl-ledger-filter]',body);if(!f)return;f.preset.value=preset;f.preset.onchange=()=>{if(f.preset.value==='custom')return;const next=standardPeriod(f.preset.value,fiscalEnd);f.start.value=next.start;f.end.value=next.end};f.onsubmit=e=>{e.preventDefault();if(!f.code.value){toast('Choose a General Ledger account','Select the account code whose ledger you want to review.','error');return}if(!f.start.value||!f.end.value||f.start.value>f.end.value){toast('Date range is invalid','The From date must be on or before the To date.','error');return}code=f.code.value;preset=f.preset.value;start=f.start.value;end=f.end.value;localStorage.setItem('tegh-report-period-gl-account-ledger',preset);load()}};
+    const load=async()=>{
+      setPageReportOutput(body,null);
+      if(!code){body.innerHTML=`<section class="srp-card">${form()}<div class="srp-note"><b>Choose an account code.</b> With ${ids.length} companies selected, the report shows that account in every selected company that has it, one company after another, each line labelled with its company. Amounts are in CAD.</div></section>`;bind();return}
+      const chosen=byCode.get(code),have=ids.filter(id=>chosen.ids[id]),missing=ids.filter(id=>!chosen.ids[id]);
+      let parts;try{parts=await Promise.all(have.map(id=>api('portal/gl-account-ledger',{companyId:id,params:{accountId:chosen.ids[id],start,end}})))}catch(error){body.innerHTML=`<section class="srp-card"><div class="srp-alert"><b>General Ledger Account Report could not be loaded.</b><br>${esc(userFacingError(error))}</div></section>`;return}
+      if(companyId()!==origin||!body.isConnected)return;
+      const signed=(d,c)=>Number(d||0)-Number(c||0),sum=key=>parts.reduce((n,r)=>n+Number(r[key]||0),0);
+      const lines=parts.map((r,i)=>({id:have[i],opening:signed(r.openingDebitCents,r.openingCreditCents),debit:Number(r.periodDebitCents||0),credit:Number(r.periodCreditCents||0),closing:signed(r.closingDebitCents,r.closingCreditCents),count:(r.entries||[]).length}));
+      const opening=lines.reduce((n,x)=>n+x.opening,0),closing=lines.reduce((n,x)=>n+x.closing,0);
+      body.innerHTML=`<section class="srp-card">${form()}<div class="srp-report-period-caption"><b>${esc(code)} · ${esc(chosen.name)}</b><span>${date(start)} to ${date(end)} · CAD General Ledger · ${have.length} of ${ids.length} companies</span></div><div class="srp-report-toolbar"><div class="srp-kpis"><div class="srp-kpi"><small>Opening Balance (combined)</small><b>${esc(balanceText(opening))}</b></div><div class="srp-kpi"><small>Period Debits</small><b>${esc(money(sum('periodDebitCents'),'CAD'))}</b></div><div class="srp-kpi"><small>Period Credits</small><b>${esc(money(sum('periodCreditCents'),'CAD'))}</b></div><div class="srp-kpi"><small>Closing Balance (combined)</small><b>${esc(balanceText(closing))}</b></div></div></div><div class="r154-table-wrap r154-company-summary" tabindex="0" role="region" aria-label="Balance by company"><table class="srp-table" data-r154-company-summary><thead><tr><th class="r153-co">Co.</th><th>Company</th><th class="srp-money">Opening</th><th class="srp-money">Debits</th><th class="srp-money">Credits</th><th class="srp-money">Closing</th><th class="srp-money">Lines</th></tr></thead><tbody>${lines.map(x=>`<tr><td class="r153-co">${esc(coLabel(x.id).short)}</td><td>${esc(coLabel(x.id).name)}</td><td class="srp-money">${esc(balanceText(x.opening))}</td><td class="srp-money">${money(x.debit,'CAD')}</td><td class="srp-money">${money(x.credit,'CAD')}</td><td class="srp-money"><b>${esc(balanceText(x.closing))}</b></td><td class="srp-money">${x.count}</td></tr>`).join('')}<tr class="r154-combined"><td class="r153-co"></td><td><b>Combined</b></td><td class="srp-money"><b>${esc(balanceText(opening))}</b></td><td class="srp-money"><b>${money(sum('periodDebitCents'),'CAD')}</b></td><td class="srp-money"><b>${money(sum('periodCreditCents'),'CAD')}</b></td><td class="srp-money"><b>${esc(balanceText(closing))}</b></td><td class="srp-money"><b>${lines.reduce((n,x)=>n+x.count,0)}</b></td></tr></tbody></table></div>${missing.length?`<p class="srp-note">Not in ${esc(missing.map(id=>`${coLabel(id).short} — ${coLabel(id).name}`).join(', '))}: that company has no account ${esc(code)}.</p>`:''}<p class="srp-note">The ledger below lists each company's account in turn, with that company's own running balance. Choose one company at the top to open a line in its Day Book.</p></section>`;
+      bind();
+      setPageReportOutput(body,{route:'general-ledger',params:{start,end},companyParams:Object.fromEntries(have.map(id=>[id,{accountId:chosen.ids[id]}]))});
+    };
+    await load();
+  }
+  // R154: with several companies selected, the Bank General Ledger Report runs for one bank account of each company, chosen per company.
+  async function bankLedgerMulti(body,context={}){
+    const ids=selectedCompanyIds(),a=await auth(),company=companyAccess(a)||{},fiscalEnd=String(company.fiscalYearEnd||'12-31'),origin=companyId();
+    const books=await Promise.all(ids.map(id=>workspace(id))),banks=Object.fromEntries(ids.map((id,i)=>[id,(books[i].bankAccounts||[]).filter(x=>x.ledgerAccountId&&x.active!==false)]));
+    if(!ids.some(id=>banks[id].length)){body.innerHTML='<section class="srp-card"><h2>No Bank Account Is Linked</h2><p>None of the selected companies has a bank account linked to a General Ledger account.</p></section>';return}
+    const range=standardPeriod('fiscal-ytd',fiscalEnd);let start=context.start||range.start,end=context.end||range.end;
+    const pick=Object.fromEntries(ids.map(id=>[id,banks[id][0]?String(banks[id][0].id):'']));
+    const generate=()=>{if(companyId()!==origin||!body.isConnected)return;
+      body.innerHTML=`<section class="srp-card r28-bank-ledger-report"><form class="srp-report-period r154-bank-multi" data-bank-ledger-report-filter>${ids.map(id=>`<label class="r28-bank-account-field">${esc(coLabel(id).short)} bank account<select name="bank-${esc(id)}" data-r154-bank="${esc(id)}"><option value="">Not included</option>${banks[id].map(x=>`<option value="${esc(x.id)}" ${String(x.id)===pick[id]?'selected':''} data-preserve-case>${esc(x.name)}</option>`).join('')}</select></label>`).join('')}<label>From<input name="start" type="date" value="${esc(start)}" required></label><label>To<input name="end" type="date" value="${esc(end)}" required></label><button class="srp-btn">Generate Report</button></form><p class="srp-note">One bank account per company. The ledger below lists each company's bank account in turn, with its own running balance; each line shows its company.</p></section>`;
+      const form=$('[data-bank-ledger-report-filter]',body);form.onsubmit=event=>{event.preventDefault();if(!form.reportValidity()||form.start.value>form.end.value){toast('Date Range Is Invalid','From must be on or before To.','error');return}$$('[data-r154-bank]',form).forEach(select=>pick[select.dataset.r154Bank]=select.value);if(!ids.some(id=>pick[id])){toast('Choose a bank account','Include at least one company\'s bank account.','error');return}start=form.start.value;end=form.end.value;generate()};
+      const included=ids.filter(id=>pick[id]);if(!included.length){setPageReportOutput(body,null);return}
+      setPageReportOutput(body,{route:'bank-general-ledger',params:{start,end,currency:company.currency||'CAD'},companyParams:Object.fromEntries(included.map(id=>[id,{bankAccountId:pick[id]}]))});
+    };generate();
+  }
   function openGlAccountLedger(initialAccountId='',returnModule='Reports'){
     showPage('report-gl-account-ledger','General Ledger Account Report','Review the detailed posted activity and running balance for one General Ledger account.',async body=>{
-      if(oneCompanyNotice(body,'The General Ledger Account Report covers one GL account of one company.'))return;
+      if(isConsolidated())return glAccountLedgerMulti(body,initialAccountId);
       const a=await auth(),company=companyAccess(a)||{},fiscalEnd=String(company.fiscalYearEnd||'12-31'),w=await workspace(),accounts=[...(w.accounts||[])].sort((x,y)=>String(x.code||'').localeCompare(String(y.code||''))||String(x.name||'').localeCompare(String(y.name||'')));
       let preset=localStorage.getItem('tegh-report-period-gl-account-ledger')||'fiscal-ytd',range=standardPeriod(preset==='custom'?'fiscal-ytd':preset,fiscalEnd),start=range.start,end=range.end,accountId=String(initialAccountId||'');
       const accountOptions=()=>`<option value="">Choose a General Ledger account</option>${accounts.map(x=>`<option value="${esc(x.id)}" ${x.id===accountId?'selected':''}>${esc(x.code)} · ${esc(x.name)}${x.active===false?' · Inactive':''}</option>`).join('')}`;
@@ -2216,7 +2278,7 @@ const TeghPortal = (() => {
   function openBankGeneralLedgerReport(initialContext={}){
     const context=typeof initialContext==='string'?{bankAccountId:initialContext}:{...(initialContext||{})},returnModule=context.returnModule||'Reports';
     showPage('report-bank-general-ledger','Bank General Ledger Report','All posted journal movements affecting the selected bank General Ledger account.',async body=>{
-      if(oneCompanyNotice(body,'The Bank General Ledger Report covers one bank account of one company.'))return;
+      if(isConsolidated())return bankLedgerMulti(body,context);
       const a=await auth(),company=companyAccess(a)||{},w=await workspace(),fiscalEnd=String(company.fiscalYearEnd||'12-31'),banks=(w.bankAccounts||[]).filter(account=>account.ledgerAccountId),origin=companyId();
       if(!banks.length){body.innerHTML='<section class="srp-card"><h2>No Bank Account Is Linked</h2><p>Add or edit a bank account and link it to a General Ledger account first.</p></section>';return}
       const range=standardPeriod('fiscal-ytd',fiscalEnd);let bankAccountId=banks.some(account=>String(account.id)===String(context.bankAccountId))?String(context.bankAccountId):String(banks[0].id),start=context.start||range.start,end=context.end||range.end,currency=context.currency||company.currency||'CAD',query=context.q||'';
@@ -6763,7 +6825,7 @@ const TeghPortal = (() => {
     if(nativeAPARModulePromise)return nativeAPARModulePromise;
     if(window.TeghLoadFeature){nativeAPARModulePromise=window.TeghLoadFeature('native-ap-ar').then(()=>{if(!window.TeghNativeAPAR)throw new Error('The Document workspace did not initialize.');return window.TeghNativeAPAR}).catch(error=>{nativeAPARModulePromise=null;throw error});return nativeAPARModulePromise}
     nativeAPARModulePromise=new Promise((resolve,reject)=>{
-      const source='/assets/tegh-native-ap-ar-v5600.js?v=5990-r153-tegh',existing=document.querySelector(`script[src^="/assets/tegh-native-ap-ar-v5600.js"]`);
+      const source='/assets/tegh-native-ap-ar-v5600.js?v=5990-r154-tegh',existing=document.querySelector(`script[src^="/assets/tegh-native-ap-ar-v5600.js"]`);
       const ready=()=>window.TeghNativeAPAR?resolve(window.TeghNativeAPAR):reject(new Error('The Native AP/AR workspace did not initialize.'));
       if(existing){existing.addEventListener('load',ready,{once:true});existing.addEventListener('error',()=>reject(new Error('The Native AP/AR workspace could not be loaded.')),{once:true});setTimeout(()=>window.TeghNativeAPAR&&resolve(window.TeghNativeAPAR),0);return}
       const script=document.createElement('script');script.src=source;script.async=true;script.onload=ready;script.onerror=()=>reject(new Error('The Native AP/AR workspace could not be loaded.'));document.head.append(script);

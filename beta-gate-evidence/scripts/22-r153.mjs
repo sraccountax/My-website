@@ -71,8 +71,9 @@ await t('MC-04','Day Book with both companies: each voucher row shows its compan
   return {ok:r.head[0]==='Co.'&&r.cos.filter(c=>c==='ALP').length>=2&&r.cos.filter(c=>c==='BTA').length>=1,info:JSON.stringify(r.cos)}});
 await t('MC-05','Audit History, Tax Code Report and Trial Balance with both companies show the Co. column with both labels',async()=>{const out=[];for(const n of ['Audit History','Tax Code Report','Trial Balance']){const r=await report(n);out.push([n,r.head.includes('Co.'),r.cos.includes('ALP'),r.cos.includes('BTA')])}
   return {ok:out.every(x=>x[1]&&x[2]&&x[3]),info:JSON.stringify(out)}});
-await t('MC-06','Reports about one GL or bank account, and Budgets, ask for one company instead of showing the first company\'s figures',async()=>{const out=[];for(const n of ['General Ledger Account Report','Bank General Ledger Report','Budget versus Actual']){await p.evaluate(x=>TeghPortal.openReport(x),n);await p.waitForTimeout(2000);out.push([n,await p.locator('.r153-one-company:visible').count()])}
-  return {ok:out.every(x=>x[1]===1),info:JSON.stringify(out)}});
+// R154 replaced the R153 "select one company" notice on these three reports with combined screens (checked in 23-r154).
+await t('MC-06','Reports about one GL or bank account, and Budgets, never show only the first company\'s figures: each opens its combined screen (R154)',async()=>{const out=[];for(const [n,sel] of [['General Ledger Account Report','[data-gl-ledger-filter] select[name=code]'],['Bank General Ledger Report','[data-r154-bank]'],['Budget versus Actual','[data-r154-budget-list]']]){await p.evaluate(x=>TeghPortal.openReport(x),n);await p.waitForTimeout(2500);out.push([n,await p.locator(sel).count()>0,await p.locator('.r153-one-company:visible').count()])}
+  return {ok:out.every(x=>x[1]&&x[2]===0),info:JSON.stringify(out)}});
 await t('MC-07','The Excel export of the combined register contains the Co. column and both companies',async()=>{await report('Customer Invoice & Note Register');let file='';
   await p.locator('button[aria-label="Table actions"]:visible').first().click();await p.locator('[role=menu] button:visible,[role=menuitem]:visible,.r23-menu button:visible',{hasText:/^Export/}).first().click();
   const dialog=p.locator('dialog[open]').last();await dialog.locator('select').first().selectOption('xlsx');

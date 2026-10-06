@@ -1096,3 +1096,10 @@ html[data-tegh-theme="auto"] .r153-theme-switch button.is-active{background:#2f9
 th.r153-co,td.r153-co{width:1%;white-space:nowrap;font-weight:700;letter-spacing:.02em;color:#0b4f42}
 html[data-tegh-theme="dark"] :is(th,td).r153-co{color:#8fe0c6}
 @media (prefers-color-scheme:dark){html[data-tegh-theme="auto"] :is(th,td).r153-co{color:#8fe0c6}}
+
+/* R154: per-company summary tables on combined GL, bank ledger and budget screens (kept beside the combined report). */
+.r154-table-wrap{overflow-x:auto;margin:12px 0;border:1px solid var(--line,#e2e8f0);border-radius:10px}
+.r154-table-wrap .srp-table{margin:0;min-width:640px}
+.r154-table-wrap tr.r154-combined td{border-top:2px solid var(--line,#cbd5e1)}
+.r154-pick{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-weight:600}
+.r154-bank-multi{flex-wrap:wrap}
