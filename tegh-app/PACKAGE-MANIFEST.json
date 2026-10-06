@@ -24,10 +24,10 @@
   "flatRoot": true,
   "packageType": "cumulative-full-application",
   "activeEntry": "app.html",
-  "generatedAt": "2026-10-06T13:54:48Z",
+  "generatedAt": "2026-10-06T14:36:57Z",
   "sourceRepository": "sraccountax/My-website",
   "sourceBranch": "claude/invoice-credit-debit-audit-e2y8wc",
-  "sourceParentCommit": "b743d852436931032f06d2792aa2ec0db4327f71",
+  "sourceParentCommit": "dbd76f0cab80e93e5d9e3050ecb081a4fb7a7d69",
   "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
   "databaseMigrationRequired": false,
   "databaseMigrationNote": "No manual migration since R118. R144 creates company_insight_dismissals on the first dismissal. R141 adds companies.country, widens province to VARCHAR(10) on companies/customers/vendors and creates company_dashboard_mappings on the first request. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
@@ -2367,8 +2367,8 @@
     "r151Identity": {
       "release": "R152",
       "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R152-Consolidated-IONOS-STAGING",
-      "generatedAt": "2026-10-06T13:17:03Z",
-      "sourceParentCommit": "f916d3e20cdd6f36f25ff6a50311b6d73cbe8b3e",
+      "generatedAt": "2026-10-06T13:54:48Z",
+      "sourceParentCommit": "b743d852436931032f06d2792aa2ec0db4327f71",
       "testStatus": "R152 = R151 with the Stage 1 statement reader (more Canadian bank and card layouts in English and French, PDFs holding several statements) and the Stage 2 invoice reader (line items as a table, supplier memory, account/tax suggestions from history, duplicate checks, lines handed to the vendor invoice form). Re-run through the full gate suite with the host clock pinned to 2026-10-01, including 21-r152 (13 synthetic statement layouts, multi-statement selection, date-order ambiguity, R145 regression, 6 synthetic invoices through the Document Intake screen), the updated suite list, the UI matrix, the public-page checks and the R118->R152 upgrade on its exact ZIP; see FINAL-BETA-QA-REPORT.md (R152 addendum). Host acceptance has not started; productionReady is false.",
       "executedLocalGates": {
         "betaGateR138Baseline": {
