@@ -1160,3 +1160,75 @@ The owner asked for four things. What changed is listed in `tegh-app/R153-CHANGE
 - The website bank statement converter (v10) is unchanged.
 
 **Verdict for R153: NOT READY.** The open items are unchanged: host acceptance, production email, and owner/legal approval of Privacy/Terms. Deploy **R153** to staging.
+
+## Addendum: R154 (GL reports and Budgets with several companies) and website converter v11
+
+| | R154 |
+|---|---|
+| Package | `…-Hotfix-R154-Consolidated-IONOS-STAGING.zip` |
+| SHA-256 | `0a63a93c90e9c677d28df8f2de78824a1a33004dab3d478ac27a90a922858f8c` |
+| FILE-MANIFEST.sha256 | 360 entries, all OK |
+| ZIP entries not 0644 | 0 |
+| Cache token | `5990-r154-tegh` |
+| Migration | None |
+| productionReady / acceptanceComplete | false / false |
+
+The owner asked: "Let budgets and GL reports work with multiple companies too, and upgrade website converter too." What changed is listed in `tegh-app/R154-CHANGES.md`. It says 12 checks for 23-r154; the suite has **11**. That file is inside the gated ZIP, so it was left unchanged rather than altered after the gate.
+
+With several companies selected, three screens that asked for one company in R153 now run for every selected company:
+- **General Ledger Account Report.** You choose the account by code. A **Balance by company** table shows each company's opening, debits, credits and closing balance, with a Combined row. A company without that code is named. The ledger lists each company's account with its own running balance.
+- **Bank General Ledger Report.** One bank account is chosen per company, or the company is marked "Not included".
+- **Budgets.** Every company's budgets are listed with a Combined row. Budget versus Actual combines the budget chosen for each company. Creating, editing and closing budgets stays per company.
+
+**Results on the exact R154 ZIP (host clock pinned to 2026-10-01)**
+
+| Area | Result |
+|---|---|
+| Full suite including upgrade | **559 PASS / 0 FAIL / 7 INFO** |
+| 23-r154 | 11/11; see the list below |
+| 22-r153 | 20/20 (MC-06 updated; see below) |
+| Earlier suites (R145, R151, R151 UI, R152, journeys) | unchanged: 45 + 1 INFO, 40, 19, 31, 51 |
+| Upgrade R118 → R154 | 13/13 |
+| Paths and headers | 42 PASS |
+| UI matrix | 0 screens with issues; 0 swipe traps |
+| Public pages | 34/34 renders clean; 0 not light in dark mode |
+
+**23-r154 covers** (two synthetic companies, GLA and GLB). The expected figures were worked out by hand from the documents the test creates:
+- **GL-01:** GL 4000 closes at $1,000.00 CR for GLA and $250.00 CR for GLB, combined **$1,250.00 CR**.
+- **GL-02:** the ledger groups are "GLA · 4000 …" and "GLB · 4000 …", and every line is labelled.
+- **GL-03:** account 6990 exists only in GLA, and the report names GLB as not having it.
+- **BL-01:** the bank ledger shows each company's receipt, $600.00 and $250.00, with combined debits of $850.00.
+- **BL-02:** with GLB left out, only GLA's lines appear.
+- **BU-01:** both budgets are listed, with a Combined row of planned **$1,500.00** and actual **$1,250.00**.
+- **BU-02:** Budget versus Actual shows GLA at 1,200.00 / 1,000.00 and GLB at 300.00 / 250.00.
+- **EX-01:** the Excel export has the Co. column and both companies.
+- **BU-03:** there is no create form in the combined view.
+- **ONE-01:** with one company selected, the three screens are unchanged.
+- **R154-JS:** no page errors.
+
+**Changed expectation.** R153's MC-06 checked that these three reports ask for one company. The owner asked for that to change, so MC-06 now checks that each opens its combined screen and shows no "Select one company" notice.
+
+**Gate runs**
+
+| Run | ZIP | Result |
+|---|---|---|
+| 1 | `0a63a93c…` | 548 PASS / 0 FAIL / 7 INFO. The 23-r154 suite ran, but its results were not recorded because the test script did not save them. The test was fixed; the product was not changed. |
+| 2 | `0a63a93c…` (same ZIP) | **559 PASS / 0 FAIL / 7 INFO**, with R154 11/11 recorded. |
+
+**Found and fixed during development (before the ZIP was built)**
+- The per-company summary tables were hidden by the report module, which hides other tables on a report page. They now use their own wrapper.
+- The KPI tiles on the combined Budgets page were removed by the report layout. The totals now sit in a Combined row.
+- In grouped reports, the group total label wrapped inside the narrow Co. column. It now runs across the empty cells beside it.
+
+**Website bank statement converter v11** (separate from the Tegh ZIP: `sr-bank-statement-converter-v11/`, evidence in `beta-gate-evidence/website-converter-v11/`)
+- **Reader.** v11 uses the Tegh R152 statement reader on the website's free and Pro converters.
+- **Synthetic R152 statements.** v10 read 2 of 12 exactly; v11 reads **12 of 12** exactly (rows, net, and balance check passing). See `results-r152-fixtures.txt`.
+- **Three-statement PDF.** v10 refused it ("more than one account"). v11 reads it as three statements, each balanced, with a 22-row net of −$1,805.81 and the …4567 January → February chain carried forward. This works on both free and Pro.
+- **Unchanged from v10:**
+  - the R145 statements A–F;
+  - the v10 chain set, where January → February carries forward and the missing March statement is flagged;
+  - the scanned statement read with OCR;
+  - the owner's three real statements: 135, 21 and 254 rows, all balanced. Only row counts were recorded; the files stay local.
+- **Fixed in v11:** the chain check skipped an account's statements when another account's statements fell between them by date.
+
+**Verdict for R154: NOT READY.** The open items are unchanged: host acceptance, production email, and owner/legal approval of Privacy/Terms. Deploy **R154** to staging. Upload the converter v11 files to the converter site using `INSTALL-v11.txt`.
