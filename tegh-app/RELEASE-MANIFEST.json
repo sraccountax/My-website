@@ -7,7 +7,7 @@
   "release": "R155",
   "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R155-PRIVATE-BETA",
   "packageFile": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R155-PRIVATE-BETA.zip",
-  "revision": "Cumulative R118–R155 over the Sites R117 frontend. R155 (private beta package): the terms and privacy versions recorded when an invitation is accepted now match the published pages (2026-10-01; they were recorded as 2026-09-09), an optional private-beta notice under the top bar (config app.beta_notice), corrected package documentation and manifest history. R154: with several companies selected, the General Ledger Account Report (account chosen by code, balance by company with a combined row), the Bank General Ledger Report (one bank account per company) and Budgets (every company's budgets; Budget versus Actual from the budget chosen for each company) run for every selected company, each line labelled with its company. R153: company street address, city, postal code, phone, business email and short name in company setup and Company Details; customer invoices print the company address unless the invoice template has its own (frozen at issue); when several companies are selected, report lines carry a Co. column with the company short name and reports that cannot be combined ask for one company; side menu groups expand and collapse with an arrow; light/dark/system theme switch with icons in the top bar (System follows the device). R152: statement reader for more Canadian bank and card layouts in English and French (two-line headings, French amounts and month names, numeric day/month order from the statement period, DR/CR and OD, amounts split into pieces, amounts on the line under the description) and PDFs that hold several statements (picker; statements of one account read together with a chain check); invoice reader that reads line items as a table with quantity × price checks, supplier memory learned from verified corrections (date order, invoice-number pattern, which amount is the total; no document text stored), account and tax suggestions from the vendor's earlier invoices, duplicate warnings with a confirmation before a draft, and all lines handed to the vendor invoice form, which links the document when saved. R151: one document form for invoices, credit notes and debit notes.",
+  "revision": "Cumulative R118–R155 over the Sites R117 frontend. R155 (private beta package): the terms and privacy versions recorded when an invitation is accepted now match the published pages (2026-10-01; they were recorded as 2026-09-09), an optional private-beta notice in the top bar (config app.beta_notice), corrected package documentation and manifest history. R154: with several companies selected, the General Ledger Account Report (account chosen by code, balance by company with a combined row), the Bank General Ledger Report (one bank account per company) and Budgets (every company's budgets; Budget versus Actual from the budget chosen for each company) run for every selected company, each line labelled with its company. R153: company street address, city, postal code, phone, business email and short name in company setup and Company Details; customer invoices print the company address unless the invoice template has its own (frozen at issue); when several companies are selected, report lines carry a Co. column with the company short name and reports that cannot be combined ask for one company; side menu groups expand and collapse with an arrow; light/dark/system theme switch with icons in the top bar (System follows the device). R152: statement reader for more Canadian bank and card layouts in English and French (two-line headings, French amounts and month names, numeric day/month order from the statement period, DR/CR and OD, amounts split into pieces, amounts on the line under the description) and PDFs that hold several statements (picker; statements of one account read together with a chain check); invoice reader that reads line items as a table with quantity × price checks, supplier memory learned from verified corrections (date order, invoice-number pattern, which amount is the total; no document text stored), account and tax suggestions from the vendor's earlier invoices, duplicate warnings with a confirmation before a draft, and all lines handed to the vendor invoice form, which links the document when saved. R151: one document form for invoices, credit notes and debit notes.",
   "releaseStatus": "PRIVATE BETA CANDIDATE — invitation-only, sample data only; host acceptance open (see hostAcceptance)",
   "sealed": false,
   "productionReady": false,
@@ -24,10 +24,10 @@
   "flatRoot": true,
   "packageType": "cumulative-full-application",
   "activeEntry": "app.html",
-  "generatedAt": "2026-10-06T21:36:10Z",
+  "generatedAt": "2026-10-06T22:12:11Z",
   "sourceRepository": "sraccountax/My-website",
   "sourceBranch": "claude/invoice-credit-debit-audit-e2y8wc",
-  "sourceParentCommit": "453fb0fd602774c74eab4ab457008560ce070db8",
+  "sourceParentCommit": "717a9b9337ef53c96d494b74af1bb19e658191ab",
   "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
   "databaseMigrationRequired": false,
   "databaseMigrationNote": "No manual migration since R118. R153 adds nullable company profile columns (short_name, address_line1, address_line2, city, postal_code, phone, contact_email) on first use. R144 creates company_insight_dismissals on the first dismissal. R141 adds companies.country, widens province to VARCHAR(10) on companies/customers/vendors and creates company_dashboard_mappings on the first request. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
@@ -216,7 +216,7 @@
   ],
   "r155Migration": "none",
   "r155CacheToken": "5990-r155-tegh",
-  "r155Config": "optional app.beta_notice (text shown under the top bar)",
+  "r155Config": "optional app.beta_notice (text shown in the top bar)",
   "r154Files": [
     "app.html",
     "assets/tegh-portal-v5990.js",
@@ -787,6 +787,7 @@
         "sha256": "9c4495283242ffbb3cbae1e06f023568c6dd17e32c307d487964897c6b805d82"
       }
     ],
+    "identityNote": "R155: each rNNNIdentity holds the last manifest committed for release RNNN (rebuilt from git history).",
     "r135Identity": {
       "release": "R135",
       "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R135-Consolidated-IONOS-STAGING",
@@ -2286,7 +2287,6 @@
         "With several companies selected, the GL Account Report matches accounts by code; a company without that code is left out and named",
         "Combined budget and ledger views are read-only; creating, editing and closing budgets, and opening a ledger line in the Day Book, need one company"
       ]
-    },
-    "identityNote": "R155: each rNNNIdentity holds the last manifest committed for release RNNN (rebuilt from git history)."
+    }
   }
 }
