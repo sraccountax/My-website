@@ -1073,3 +1073,90 @@ The owner asked for "stage 1 and 2" of the OCR plan: improvements to the existin
 - The statement layouts are synthetic copies of common styles. Real statements from other banks are still needed (host acceptance item "Real bank statement files").
 
 **Verdict for R152: NOT READY.** The open items are unchanged from R151: host acceptance, production email, and owner/legal approval of Privacy/Terms. Deploy **R152** to staging.
+
+## Addendum: R153 (company address and short name, company labels in multi-company reports, side menu arrows, theme switch)
+
+| | R153 |
+|---|---|
+| Package | `…-Hotfix-R153-Consolidated-IONOS-STAGING.zip` |
+| SHA-256 | `2b6f51a831e2ef13b05e0e0b9b8364244d21bb73a9a3369ee928875202db1662` |
+| FILE-MANIFEST.sha256 | 359 entries, all OK |
+| ZIP entries not 0644 | 0 |
+| Cache token | `5990-r153-tegh` |
+| Migration | Automatic on first use: nullable `companies` columns `short_name`, `address_line1`, `address_line2`, `city`, `postal_code`, `phone`, `contact_email` |
+| productionReady / acceptanceComplete | false / false |
+
+The owner asked for four things. What changed is listed in `tegh-app/R153-CHANGES.md`.
+
+1. **Company address on invoices.** Company setup and Company Details now have:
+   - street address, address line 2, city, postal code, phone and business email;
+   - a short name.
+
+   Customer invoices print the company address, unless the invoice template has its own address. The address is copied into the invoice when it is issued, so issued invoices do not change later.
+2. **Company names on report lines.** When several companies are selected, report lines show a **Co.** column with the company short name, for example "ALP". Exports include the column too.
+   - Reports that cannot be combined say so and ask for one company: GL Account Report, Bank GL Report, Budgets.
+   - Bank Reconciliation, Fixed Assets and the monthly Profit and Loss show the combined list with a note above it.
+3. **Side menu arrows.** Each side menu group has an arrow that expands or collapses only that group.
+4. **Theme switch.** Sun, moon and screen icons in the top bar switch between Light, Dark and System. System follows the device setting and changes when the device setting changes. On phones, one icon cycles through the three.
+
+**Results on the exact R153 ZIP (host clock pinned to 2026-10-01)**
+
+| Area | Result |
+|---|---|
+| Full suite including upgrade | **548 PASS / 0 FAIL / 7 INFO** |
+| 22-r153 | 20/20; see the list below |
+| Earlier suites (R145, R151, R151 UI, R152, journeys) | unchanged: 45 + 1 INFO, 40, 19, 31, 51 |
+| Upgrade R118 → R153 | 13/13 |
+| Paths and headers | 42 PASS |
+| UI matrix | 0 screens with issues; 0 swipe traps |
+| Public pages | 34/34 renders clean; 0 not light in dark mode |
+
+**22-r153 covers** (two synthetic companies; expected figures are the amounts the test entered, not values computed by the app):
+- **Company profile (CO-01 to CO-05, UI-01):**
+  - fields saved on create and on edit;
+  - short name made from the initials when left blank;
+  - an invalid email and a short name over 12 characters are refused;
+  - the invoice snapshot carries the company address, phone and email;
+  - a template's own address wins;
+  - an issued invoice keeps its address after the company moves;
+  - the Company Details screen.
+- **Two companies selected (MC-01 to MC-08):**
+  - the invoice register labels lines ALP ×2 and BTA ×1;
+  - Profit and Loss Total Income is $1,300.00 ($1,050.00 + $250.00), with no notice saying figures were withheld;
+  - Receivable Ageing, Day Book, Audit History, Tax Code Report and Trial Balance each carry the Co. column;
+  - GL Account Report, Bank GL Report and Budget versus Actual ask for one company;
+  - the Excel export contains the Co. column;
+  - with one company selected there is no Co. column.
+- **Side menu (NAV-01, NAV-02):**
+  - arrows open and close groups without changing the page;
+  - a closed group stays closed after navigating;
+  - clicking the group name opens it.
+- **Theme (TH-01 to TH-03):**
+  - Light, Dark and System, each kept after a reload;
+  - System on a dark device draws dark (page brightness 56) and turns light with the device;
+  - the phone cycles through the three;
+  - the Appearance settings show the same icons.
+- **R153-JS:** no page errors.
+
+**Gate runs**
+
+| Run | ZIP | Result |
+|---|---|---|
+| 1 | `db20fc1e…` (first R153 build) | 547 PASS / **1 FAIL** / 7 INFO. R152 IN-10 failed: the Upload document menu closed between choosing the file and clicking Upload, because the app closes open menus when a page finishes drawing late. This race existed before R153 (see the R152 addendum). The test now reopens the menu and clicks again, up to three times, as a user would. The product behaviour is unchanged and is listed under limits. |
+| 2 | `db20fc1e…` | 548 PASS / 0 FAIL / 7 INFO. Reviewing the screenshots then found the defect below, so this ZIP was not shipped. |
+| 3 | `2b6f51a8…` (final) | **548 PASS / 0 FAIL / 7 INFO**. The IN-10 retry was not needed. |
+
+**Defects found and fixed during R153 testing (before the final ZIP)**
+
+| Defect | Fix |
+|---|---|
+| With several companies selected, Profit and Loss showed "Select one company … No partial consolidated figures have been displayed" above the combined figures that R153 now draws. Found in the run 2 screenshot. | The note now says that the monthly comparison columns need one company and that the list below covers every selected company. MC-02 checks that no contradicting notice is shown. ZIP rebuilt and re-gated. |
+| During development: P&L combined totals showed only the first company; Day Book voucher numbers collided across companies; the r23 registers hid the Co. column; a collapsed menu group reopened when navigating; System theme on a dark device drew half-dark pages. | Fixed before the first gate run; each is covered by a 22-r153 check. |
+
+**Limits.**
+- With several companies selected, GL Account Report, Bank GL Report and Budgets need one company.
+- Combined reports need the selected companies to share one currency.
+- A menu opened while a page is still finishing its first draw can close itself once. Reopening it works.
+- The website bank statement converter (v10) is unchanged.
+
+**Verdict for R153: NOT READY.** The open items are unchanged: host acceptance, production email, and owner/legal approval of Privacy/Terms. Deploy **R153** to staging.
