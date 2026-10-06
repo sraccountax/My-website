@@ -2392,13 +2392,18 @@ const TeghPortal = (() => {
   const systemDarkQuery=(()=>{try{return window.matchMedia('(prefers-color-scheme: dark)')}catch{return null}})();
   try{systemDarkQuery?.addEventListener('change',()=>{if(!['light','dark'].includes(teghPreferences().theme))applyTeghPreferences()})}catch{}
   const currentThemeChoice=()=>{const theme=teghPreferences().theme;return ['light','dark'].includes(theme)?theme:'auto'};
-  // R155: private beta notice under the top bar (text from config app.beta_notice; nothing shown when it is blank).
+  // R155: private beta notice. A badge inside the top bar (the area under the bar is covered by the page header), with the
+  // full text from config app.beta_notice on hover, focus and tap. Nothing is shown when the setting is blank.
   function installBetaNotice(){
-    const text=String(authCache?.betaNotice||'').trim(),bar=$('.topbar');let note=$('[data-r155-beta-notice]');
+    const text=String(authCache?.betaNotice||'').trim(),bar=$('.topbar'),actions=$('.top-actions',bar);let note=$('[data-r155-beta-notice]');
     if(!text){note?.remove();return}
-    if(!bar){setTimeout(installBetaNotice,300);return}
-    if(!note){note=document.createElement('div');note.className='r155-beta-notice';note.dataset.r155BetaNotice='1';note.setAttribute('role','note');bar.after(note)}
-    note.textContent=text;
+    if(!bar||!actions){setTimeout(installBetaNotice,300);return}
+    if(!note){note=document.createElement('button');note.type='button';note.className='r155-beta-notice';note.dataset.r155BetaNotice='1';
+      note.innerHTML='<span class="r155-beta-long">Private beta · sample data only</span><span class="r155-beta-short">Beta</span>';
+      note.addEventListener('click',()=>toast('Private beta',note.dataset.full,'warning'))}
+    // Between the company selector and the top-bar actions, where the bar has free space.
+    if(note.nextElementSibling!==actions)bar.insertBefore(note,actions);
+    note.dataset.full=text;note.title=text;note.setAttribute('aria-label',text);
   }
   function installThemeSwitch(){
     const bar=$('.topbar .top-actions');if(!bar)return false;let group=$('[data-r153-theme]',bar);

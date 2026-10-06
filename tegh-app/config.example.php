@@ -19,7 +19,7 @@ return [
         'session_cookie' => 'tegh_session',
         'session_hours' => 12,
         'public_signup_enabled' => false,
-        // R155: a short notice shown to every signed-in user under the top bar. Leave blank to show nothing.
+        // R155: a short notice shown to every signed-in user in the top bar. Leave blank to show nothing.
         // Suggested for the invitation-only beta (sample data only):
         'beta_notice' => 'Private beta: use sample data only. Do not enter real client, employee or bank records. Beta data may be reset.',
         // Keep false during normal operation. The protected Schema 44 upgrader

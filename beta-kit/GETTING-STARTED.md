@@ -13,7 +13,7 @@ Support: **[support email]** · Report problems with the feedback form: **[link]
 2. Go to **[beta address]/app.html** and choose the **Create account** tab.
 3. Enter **the same email address the invitation was sent to** and the code.
 4. Choose your name and a strong password. Accept the beta terms and privacy notice.
-5. You are signed in. A yellow line under the top bar reminds you that this is a beta with sample data.
+5. You are signed in. A yellow **Private beta** badge in the top bar reminds you to use sample data. Tap it for the full note.
 
 The code works once. If it has expired or you made a typo too many times, ask us for a new invitation.
 

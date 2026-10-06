@@ -18,7 +18,7 @@ R155 is the one package for the invitation-only beta. It is R154 plus the fixes 
   - Each `rNNNIdentity` is now rebuilt from the last manifest committed for that release.
 
 ## Added
-- **Private beta notice.** An optional line under the top bar for every signed-in user. It is set by `app.beta_notice` in `config.php` and shows nothing when blank or missing. `config.example.php` suggests: "Private beta: use sample data only. Do not enter real client, employee or bank records. Beta data may be reset." It is readable in light and dark mode (contrast 6.8:1 and 10.0:1).
+- **Private beta notice.** A badge in the top bar for every signed-in user, beside the company selector. It reads "Private beta · sample data only", or "Beta" on narrow screens. Hovering or tapping it shows the full text set by `app.beta_notice` in `config.php`. Nothing shows when the setting is blank or missing. `config.example.php` suggests: "Private beta: use sample data only. Do not enter real client, employee or bank records. Beta data may be reset." It is readable in light and dark mode (contrast 6.8:1 and 10.0:1); the gate checks that nothing covers it at desktop and phone widths.
 
 ## Checked for the beta (no change needed)
 These were checked by the new gate suite `24-beta`:

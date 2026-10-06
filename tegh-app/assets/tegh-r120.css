@@ -1104,7 +1104,9 @@ html[data-tegh-theme="dark"] :is(th,td).r153-co{color:#8fe0c6}
 .r154-pick{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-weight:600}
 .r154-bank-multi{flex-wrap:wrap}
 
-/* R155: private beta notice under the top bar. */
-.r155-beta-notice{margin:0;padding:7px 16px;font-size:13px;line-height:1.35;font-weight:600;color:#7a4b00;background:#fff4dc;border-bottom:1px solid #f0d49a;text-align:center}
-html[data-tegh-theme="dark"] .r155-beta-notice{color:#ffd88a;background:#3a2c0c;border-bottom-color:#5c4615}
-@media (max-width:600px){.r155-beta-notice{font-size:12px;padding:6px 12px;text-align:left}}
+/* R155: private beta badge in the top bar (full text on hover/tap). */
+.topbar .r155-beta-notice{display:inline-flex;align-items:center;flex:0 0 auto;width:auto!important;min-width:0;height:32px;margin:0 10px 0 12px;padding:0 12px;border-radius:999px;border:1px solid #e9c46a;background:#fff4dc;color:#7a4b00;font:700 12.5px/1 inherit;letter-spacing:.01em;white-space:nowrap;cursor:help}
+.topbar .r155-beta-notice:focus-visible{outline:2px solid #b7791f;outline-offset:2px}
+.topbar .r155-beta-notice .r155-beta-short{display:none}
+html[data-tegh-theme="dark"] .topbar .r155-beta-notice{background:#3a2c0c;border-color:#7a5d1c;color:#ffd88a}
+@media (max-width:1180px){.topbar .r155-beta-notice .r155-beta-long{display:none}.topbar .r155-beta-notice .r155-beta-short{display:inline}.topbar .r155-beta-notice{padding:0 10px;margin:0 6px}}

@@ -50,10 +50,14 @@ Never restore over the live site to test.
    - Run it with `node compare-restore.mjs https://live https://restore owner-email password`. It only reads.
 4. Delete the test database when finished, or keep it isolated and never send real email from it. In its config, set `mail.smtp_host` to a blank or sandbox server.
 
-**Result on the build team's test host (2026-10-06):**
-- Backup: database 668 KB and 44 uploaded files, copied to a second location.
-- Restore: `RESTORE VERIFIED`. All 44 files identical, 167 tables' row counts equal, and the posted totals of 32 companies equal.
-- A separate installation on the restored data loaded the trial balances of all 40 companies (153 account rows). They were identical to the live site, and all 17 Document Intake files compared were identical.
+**Results on the build team's test host (2026-10-06):**
+- **First run** (R154 data):
+  - Backup: database 668 KB and 44 uploaded files, copied to a second location.
+  - Restore: `RESTORE VERIFIED`. All 44 files identical, 167 tables' row counts equal, and the posted totals of 32 companies equal.
+  - A separate installation on the restored data loaded the trial balances of all 40 companies (153 account rows). They were identical to the live site, and all 17 Document Intake files compared were identical.
+- **Second run, on the exact R155 private-beta installation after its full gate run:**
+  - Restore: `RESTORE VERIFIED`. 24 files, 167 tables, and the posted totals of 19 companies all matched.
+  - The separate installation showed identical trial balances for all 25 companies (120 account rows), and all 7 files compared were identical.
 - A backup with one changed byte was refused before anything was restored.
 
 This proves the method. Your host still needs one restore test of its own (host acceptance).
