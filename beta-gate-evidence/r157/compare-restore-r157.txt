@@ -1,0 +1,19 @@
+2026-10-07T12:18:23Z backup start -> /srv/gate/backups/quiet/tegh-20261007-121823
+2026-10-07T12:18:23Z changes paused (maintenance flag); waiting 2s for running requests
+2026-10-07T12:18:28Z changes resumed
+consistent snapshot: db 612K, files 26, tables 168, companies with postings 20
+2026-10-07T12:18:28Z backup done
+PASS  restore target is designated (/srv/rst/sr-accountax-private/.tegh-restore-target) and is not the live database (tegh_gate) or storage (/srv/gate/sr-accountax-private/storage)
+PASS  backup files match SHA256SUMS
+PASS  database restored into tegh_restore_test
+PASS  upload folder restored into /srv/rst/sr-accountax-private/storage
+PASS  all 26 uploaded files restored with the same SHA-256
+PASS  row counts of 168 tables equal the backup checks
+PASS  posted debits/credits of 20 companies equal the backup checks
+PASS  every restored company's posted entries balance
+
+RESTORE VERIFIED: /srv/gate/backups/quiet/tegh-20261007-121823
+ * Reloading PHP 8.3 FastCGI Process Manager php-fpm8.3
+   ...done.
+== compare live (gate.test) with the restored site (gate.test:9443)
+companies 33: trial balance loaded and identical 33 (129 account rows), different or not loaded 0; uploaded files compared 8, different 0

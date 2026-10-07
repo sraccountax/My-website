@@ -1375,3 +1375,67 @@ The 7 INFO rows are recorded for information and are **not** counted as passes: 
 - the host acceptance items.
 
 **Verdict for R156:** suitable to begin the **invitation-only, sample-data beta** once the operator details are filled in and the owner's open items in `beta-kit/BETA-READINESS.md` are closed. **NOT READY** for real client or employee information.
+
+## Addendum: R157 (company onboarding, Tegh Assist tour, time zone and owner requests)
+
+| | R157 |
+|---|---|
+| Package | `Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R157-PRIVATE-BETA.zip` |
+| SHA-256 | `a35d2b6cb0ea19ded656d5701a7df43cf8476dfac2ea5ac35d521447265e6743` |
+| FILE-MANIFEST.sha256 | 367 entries, all OK |
+| Cache token | `5990-r157-tegh` |
+| Migration | Additive, on first use: the table `company_onboarding` and the column `companies.timezone` |
+| productionReady / acceptanceComplete | false / false (not changed) |
+| Evidence bundle | `Tegh-R157-Gate-Evidence.zip`: raw results, logs and every script of the run; verify with `scripts/verify-evidence.py` |
+
+**What the owner asked for, and where it is checked (suite 25-r157, 21 checks)**
+
+| Request | Done | Checks |
+|---|---|---|
+| After sign-up, an onboarding page instead of "create company" | The first screen is onboarding step 1 of 6, with all six steps shown. After the company is created, the onboarding page opens. | ON-06, ON-07 |
+| Steps: company; chart of accounts by import, template or by hand; tax codes the same three ways; data import with sub-options; other steps | Six steps: company, chart of accounts, tax codes, bank and card accounts, data import, and team and invoices. <ul><li>The chart template adds the standard chart and two bank accounts, and is refused a second time.</li><li>The tax-code file import is checked against hand-worked rates and accounts: ON-HST 13% to 2100/1100; BC GST 5% to 2100/1100 plus PST 7% to 2110, not recoverable.</li><li>A file naming an unknown account is refused with its row number.</li><li>Data import has seven sub-options.</li></ul> | ON-01, ON-03, ON-04, ON-08 |
+| Modules locked until all steps are complete; the user can mark steps complete | <ul><li>Only an owner or admin can mark steps (a viewer gets 403).</li><li>Steps can be reopened, but the company step cannot.</li><li>Every module shows a lock, and a report opens the onboarding page instead.</li><li>The setup screens stay open, with a bar back to setup.</li><li>Every change is audited.</li></ul> | ON-05, ON-07, ON-11 |
+| Every sign-in opens onboarding until it is complete; afterwards it does not | Checked by signing in again: before completion onboarding opens, after completion Home opens. Companies created before R157 are never locked. | ON-02, ON-09, ON-13 |
+| Onboarding in Settings | Settings › Getting started › Onboarding, and Take the Tegh Tour. | ON-10 |
+| Tegh Assist guides the user afterwards, attractively | A spotlight tour of the real menus with Tegh Assist cards: 8 stops in this run, every one spotlit. | ON-12 |
+| An animated "start with bank statement import" that opens the banking import | The tour ends on that card and opens Upload Statement. An animated card on Home stays until the first statement is imported or dismissed. | ON-12, ON-13 |
+| Time zone in company setup | <ul><li>Asked in company setup, Company Details and the guided forms; an unknown zone is refused.</li><li>The company's "today" follows it on the server and in the browser.</li><li>At the same moment, an invoice dated the UTC+14 company's today is accepted there and refused as a future date in a Toronto company. The expected dates are worked out from the pinned clock.</li></ul> | TZ-01, TZ-02, TZ-03 |
+| Quick Actions set up again on every login; no keyboard shortcuts shown | <ul><li>Choices were already kept per company across sign-ins (checked).</li><li>A company with no choice yet, such as a new one, now uses the person's latest choice instead of the defaults.</li><li>Each shortcut shows Ctrl+Alt+N, and Ctrl+Alt+2 from another page opens the second one.</li></ul> | QA-01, QA-02 |
+| Document Intake and the PDF converter marked Beta, with a note to check the fields | A Beta badge plus a note on Document Intake and on Upload Statement, in its Bank Statement Converter card. The website converters are marked too; they are outside the package. | BE-01 |
+| A Document Intake section on vendor invoices, marked Beta | On a new vendor invoice, above the fields. The file goes through Document Intake's own reading (the document count rose by one), which offers "Create vendor invoice". | BE-02 |
+| Light, dark and system in the profile menu, replacing the earlier icons | Three icon buttons in the profile menu; the top-bar icons are gone. R153 TH-01 and TH-02 were rewritten to the new location and pass: Dark is remembered after reload, System follows the device, and all three are reachable on a phone. | R153 TH-01, TH-02; 24-beta BN-01 |
+
+**Found and fixed during R157 testing**
+- `tegh-r27.js` read a page property before any page existed. This raised a page error when preferences loaded first, which onboarding made more likely. It is now guarded, and R157-JS and BETA-JS record no page errors.
+- The Beta notes first landed outside their page. They now sit inside the card they describe.
+
+**Changes to existing tests**
+- R153 TH-01/TH-02 and 24-beta BN-01: the theme buttons are in the profile menu, by the owner's request. The behaviour checked is the same.
+- `run-all.sh` runs 25-r157 and clears the invitation throttle before it, as it does for 24-beta.
+
+**Gate run on the exact ZIP** (`a35d2b6c…6743`; host clock pinned to 2026-10-01 12:00 Toronto)
+
+| Result | |
+|---|---|
+| **600 PASS / 0 FAIL / 7 INFO**, 0 BLOCKED | R157 21/21, BETA 18/18, R153 20/20, E2E 53/53, upgrade R118 → R157 13/13 |
+| 45 path, header and redirect checks | all PASS |
+| 20 layout runs | 0 screens with issues, 0 swipe traps |
+| 34 public pages | light, no overflow, 17 internal links valid |
+
+The 7 INFO rows are the same as in R156 and are not counted as passes.
+
+**Backup and restore on the R157 installation**
+- `beta-ops-test.sh`: 12 PASS / 0 FAIL. The writer got 96 accepted requests and 22 "making a backup" refusals.
+- Quiet backup and restore: RESTORE VERIFIED with 26 files, 168 tables (the new onboarding table included) and the posted totals of 20 companies.
+- The restored site showed identical trial balances for all 33 companies and 8 identical files.
+
+**Not established here** (unchanged from R156):
+- the operator details on the beta host;
+- the host's HTTPS, backups and restore test;
+- external email;
+- legal review;
+- an independent security review;
+- the owner's accountant walkthrough;
+- a real iPhone/Safari check, which is also needed for the onboarding page and the tour.
+
+**Verdict for R157:** suitable for the invitation-only, sample-data beta once the owner's open items are closed. **NOT READY** for real client or employee information.
