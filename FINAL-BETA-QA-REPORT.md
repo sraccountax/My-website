@@ -1500,3 +1500,51 @@ The 7 INFO rows are the same as in R156 and R157, and are not counted as passes.
 **Not established here** (unchanged): operator details on the beta host; the host's HTTPS and private-file protection; external invitation and reset email; a backup and restore on the beta host (with the R158 scripts); legal review; an independent security review; the owner's accounting walkthrough; a real iPhone/Safari check.
 
 **Verdict for R158:** replaces R157 as the candidate for the invitation-only, sample-data beta once the owner's hosting checks pass. **NOT READY** for real client or employee information.
+
+## Addendum: R159 (onboarding for every company, archiving, deletion through Tegh support)
+
+| | R159 |
+|---|---|
+| Package | `Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R159-PRIVATE-BETA.zip` |
+| SHA-256 | `bfb085a9bc338a59cb4bd3b8f730185162c5d58f1fb969cc3871aa6ab5ca8e8b` |
+| FILE-MANIFEST.sha256 | 370 entries, all OK |
+| Cache token | `5990-r159-tegh` |
+| Migration | Additive, on first use: the columns `companies.archived_at` and `companies.archived_by`, and the table `company_deletion_requests` |
+| productionReady / acceptanceComplete | false / false (not changed) |
+| Evidence bundle | `Tegh-R159-Gate-Evidence.zip`; verify with `scripts/verify-evidence.py` |
+
+**What the owner asked for, and where it is checked (suite 27-r159, 15 checks)**
+
+| Request | Done | Checks |
+|---|---|---|
+| Onboarding separate for each company; a new company goes through every step again | Every company added in the app starts its own onboarding, locked, with step 1 complete. Each company's state is kept and shown separately. **Cause found:** Settings › Add company chose "Default Chart", so a second company arrived with a chart and starter tax codes and its GL and tax steps looked done. | PC-01, PC-03 |
+| Tax codes and GL set up specific to each company | A company created with onboarding starts with 0 accounts and 0 tax codes. The server enforces this whatever the request asks. The chart template and the tax-code file of the second company change only that company: the first company's 44 accounts and its ON-HST code are unchanged, and no tax code points to another company's accounts. | PC-02, PC-04 |
+| Archive a company so it is no longer seen | Owner only. The company leaves the lists of every member and is refused when opened (403). Its records are unchanged, and no one can be invited to it. Restore brings it back as it was. A Company Admin gets 403, and someone who is not a member gets 404. | AR-01…04 |
+| Permanent deletion through a request to Tegh support (platform owner) | Direct deletion by an owner is refused (409). The request checks the name, password, backup and reason. It archives the company and emails Tegh support. The inbox is for the platform owner only and shows record counts. Reject requires a note; approve requires the company name and the platform owner's password. The owner is emailed either way, can cancel a request, and restoring the company cancels it. An approved deletion leaves no row in any company table, and its log names the request. | DR-01…07 |
+
+**Found and fixed during R159 testing**
+- **The app's copy of the company list could go stale.** The startup gate kept `auth/me` for 60 seconds, renewed by every request. An archived company therefore kept showing in Account & Access, and in the switcher, until a reload. The copy is now dropped after any company change. Found by AR-04 in the browser.
+
+**Changes to existing tests**
+- 26-r158 DEL-05: the browser deletion now goes through the request and its approval on Platform Owner Home. DEL-01…04 (the platform owner deleting directly through the API) are unchanged.
+- `run-all.sh` runs 27-r159 and clears the sign-in throttle before 24-beta…27-r159; these suites sign in many times.
+
+**Gate run on the exact ZIP** (`bfb085a9…8e8b`; host clock pinned to 2026-10-01 12:00 Toronto)
+
+| Result | |
+|---|---|
+| **620 PASS / 0 FAIL / 7 INFO**, 0 BLOCKED | R159 15/15, R158 5/5, R157 21/21, BETA 18/18, E2E 53/53, upgrade R118 → R159 13/13 |
+| 45 path, header and redirect checks | all PASS |
+| 20 layout runs | 0 screens with issues, 0 swipe traps |
+| 34 public pages | light, no overflow, 17 internal links valid |
+
+**Backup and restore on the R159 installation**
+- The R158 scripts are unchanged: `beta-ops-test.sh` gave 19 PASS / 0 FAIL, and 4 of 4 R157 controls showed the R157 defect.
+- The quiet backup and its restore: `RESTORE VERIFIED`, 169 tables (the new request table included) equal value for value, 26 files.
+- The restore-test site ran the same ZIP and showed identical trial balances for all 34 companies.
+
+**Known minor issue (not fixed in R159):** Platform Owner Home › Companies counts every company in its "N active" badge, archived ones included. The list itself is correct, and archived companies cannot be opened. To be fixed in the next release.
+
+**Not established here** (unchanged): operator details (now including a support mailbox for deletion requests) on the beta host; the host's HTTPS and private-file protection; external email; a restore on the beta host; legal review; an independent security review; the owner's accounting walkthrough; a real iPhone/Safari check.
+
+**Verdict for R159:** replaces R158 as the candidate for the invitation-only, sample-data beta once the owner's hosting checks pass. **NOT READY** for real client or employee information.

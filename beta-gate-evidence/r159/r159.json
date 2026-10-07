@@ -1,0 +1,107 @@
+[
+ {
+  "id": "PC-01",
+  "area": "R159",
+  "title": "Adding a second company in Settings › Add company starts its own onboarding: locked, the company step done, an empty chart and no tax codes (nothing copied from the first company or a default); the app opens its onboarding page",
+  "status": "PASS",
+  "evidence": "onboarding note 1, chart choice hidden true; new company locked true, pending chart,tax,banks,imports,team; its accounts 0, tax codes 0; page after creating onboarding"
+ },
+ {
+  "id": "PC-02",
+  "area": "R159",
+  "title": "The second company’s chart template and tax codes are its own: the first company’s accounts and tax codes are unchanged, and the second company gets exactly what its own file says",
+  "status": "PASS",
+  "evidence": "first company before {\"accounts\":\"44\",\"taxCodes\":\"1\",\"bankAccounts\":\"2\"} after {\"accounts\":\"44\",\"taxCodes\":\"1\",\"bankAccounts\":\"2\"}, codes ON-HST; second company {\"accounts\":\"44\",\"taxCodes\":\"1\",\"bankAccounts\":\"2\"}, codes BC-GST; tax accounts pointing to the other company 0"
+ },
+ {
+  "id": "PC-03",
+  "area": "R159",
+  "title": "Onboarding is per company in the browser: the finished first company opens Home without locks; the second company opens its onboarding with locked modules",
+  "status": "PASS",
+  "evidence": "first company opens dashboard (locked false); second company opens onboarding (locked true)"
+ },
+ {
+  "id": "PC-04",
+  "area": "R159",
+  "title": "The server enforces it for every way a company is created: a company created with onboarding gets no pre-filled chart or starter tax codes even when the request asks for the default chart; without onboarding (API, platform test companies) the default chart is unchanged",
+  "status": "PASS",
+  "evidence": "with onboarding: {\"accounts\":\"0\",\"taxCodes\":\"0\",\"bankAccounts\":\"0\"}; without onboarding: {\"accounts\":\"44\",\"taxCodes\":\"14\",\"bankAccounts\":\"2\"}"
+ },
+ {
+  "id": "AR-01",
+  "area": "R159",
+  "title": "The owner archives a company: it leaves the owner’s company list, cannot be opened (any request with it is refused), and is listed under Archived companies; its records are untouched",
+  "status": "PASS",
+  "evidence": "archive 200; in company list false; in archived list true; opening it 403 company_forbidden; archiving again 409 company_already_archived; active/archived 0/1; journal lines 2/30000/30000 (before 2/30000/30000)"
+ },
+ {
+  "id": "AR-02",
+  "area": "R159",
+  "title": "Only the owner can archive or restore: a Company Admin gets 403, a person who is not a member or an unknown id gets 404; once archived, the Company Admin no longer sees it and nobody can be invited to it",
+  "status": "PASS",
+  "evidence": "Company Admin archiving 403; platform owner (not a member) 404; unknown id 404; Company Admin sees it before true, after archiving false, opening it 403, restoring it 403; inviting to the archived company 403 invitation_unavailable"
+ },
+ {
+  "id": "AR-03",
+  "area": "R159",
+  "title": "Restore brings the company back to the list with the same records; it can be opened again",
+  "status": "PASS",
+  "evidence": "restore 200; in list true; opens 200; journal lines 2/30000/30000; restoring again 409; audit company.archived,company.restored"
+ },
+ {
+  "id": "AR-04",
+  "area": "R159",
+  "title": "In the browser: Account & Access › Actions › Archive, confirm; the company leaves the table and appears under Archived companies; Restore brings it back",
+  "status": "PASS",
+  "evidence": "after Archive: in the company table {\"pages\":1,\"here\":0,\"anywhere\":0}, active 0; after Restore active 1; page errors none"
+ },
+ {
+  "id": "DR-01",
+  "area": "R159",
+  "title": "A company owner can no longer delete directly: operations/company-delete answers 409 “done by Tegh support”, and the company is untouched",
+  "status": "PASS",
+  "evidence": "409 company_delete_by_request: \"Permanent deletion is done by Tegh support. Send a deletion request from Account & Access; you can archive the company now.\""
+ },
+ {
+  "id": "DR-02",
+  "area": "R159",
+  "title": "The deletion request checks name, password, backup and reason; a valid request archives the company, waits as pending, and emails Tegh support; a second request is refused",
+  "status": "PASS",
+  "evidence": "wrong name 409, wrong password 403, no backup 409, no reason 422; valid 201; duplicate 409 deletion_request_pending; request pending/r159-owner-muycu1kw@gate.test/1; company active 0; emails to Tegh support 1"
+ },
+ {
+  "id": "DR-03",
+  "area": "R159",
+  "title": "Only the platform owner sees and decides requests: the company owner gets 403 on the support inbox; the platform owner sees the request with the amount of records it would remove",
+  "status": "PASS",
+  "evidence": "owner on the inbox 403; platform owner sees pending, from r159-owner-muycu1kw@gate.test, {\"tables\":20,\"rows\":124,\"invoices\":1,\"bills\":0,\"journalEntries\":1}"
+ },
+ {
+  "id": "DR-04",
+  "area": "R159",
+  "title": "Rejecting needs a note; a rejected request keeps the company (archived, restorable) and emails the owner; the owner can then restore it",
+  "status": "PASS",
+  "evidence": "reject without note 422; reject 200; request rejected; owner emailed 1; archived list shows rejected; deciding again 409"
+ },
+ {
+  "id": "DR-05",
+  "area": "R159",
+  "title": "Cancelling: the owner cancels a pending request (the company stays archived); restoring a company cancels its pending request",
+  "status": "PASS",
+  "evidence": "cancel 200 → cancelled, company active 0; restore with a pending request 200 (cancelled 1) → cancelled, active 1"
+ },
+ {
+  "id": "DR-06",
+  "area": "R159",
+  "title": "Approving needs the exact company name and the platform owner’s password; then the company is deleted: no row left in any company table, a deletion log naming the request, the request approved with its record counts, and the owner emailed",
+  "status": "PASS",
+  "evidence": "wrong name 409; wrong password 403; approve 200; company rows 0; left behind {}; deletion log names request true; request approved/1; owner emailed 1"
+ },
+ {
+  "id": "DR-07",
+  "area": "R159",
+  "title": "In the browser: the owner sends a deletion request from Account & Access; the company leaves the list and shows “waiting for Tegh support”; the platform owner approves it on Platform Owner Home and the company is gone",
+  "status": "PASS",
+  "evidence": "owner sees \"R159 Epsilon muycu1kw Oct 1, 2026 r159-owner-muycu1kw@gate.test Deletion requested · waiting for Tegh support Actions\"; after approval company rows 0, left behind {}; page errors none"
+ }
+]
