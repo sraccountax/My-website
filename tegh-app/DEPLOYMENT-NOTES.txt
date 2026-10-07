@@ -1,7 +1,7 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R157 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R158 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R157 (R118–R157 change notes are
-included). R157 is the private beta package (it replaces R156): new users are taken through company onboarding (six steps; modules stay locked until the owner marks every step complete), followed by a Tegh Assist tour; companies have a time zone; Quick Actions show their keys; the theme switch is in the profile menu; Document Intake and the PDF statement reader are marked Beta. R156: the Terms carry the beta conditions, the Terms and Privacy pages show the operator details from config.php, and invitations are refused until those details are complete. It also fixes DEF-18: Match and Post, report periods and default dates now use the accounting (Toronto) date even when the browser's own date is already the next day. R155: the terms version recorded at invitation acceptance matches the published pages, and an optional beta notice shows in the top bar (config app.beta_notice). R154 lets the GL Account Report, the Bank GL Report and Budgets run for several selected companies. R153 adds the company address and short name, company labels on multi-company report lines, sidebar arrows and the theme icons. R152 reads more statement layouts and multi-statement PDFs, and reads invoice lines with supplier memory, suggestions and duplicate checks. R151 brings one form for invoices, credit notes and debit notes, itemized vendor invoices, Edit on the main screen and the scrolling fixes. R150 keeps the public pages in the light design on dark-mode devices. R149 replaces the invitation link with an invitation code. R148 adds the Sign in / Create account tabs with account creation through an invitation link. R147 brings the owner's public-page update and opens the home page at the site root. R146 fixes the R145 OCR clean-up on clean scans (DEF-16). R145 improves the PDF statement converter and Document Intake. R144 adds Tegh Intelligence (no external AI). R143 fixes defects found by a click-through test of every daily
+This package contains every release through R158 (R118–R158 change notes are
+included). R158 is the private beta package (it replaces R157): deleting a company works again, and the host backup scripts in the Beta Kit wait for running requests, detect any edited record and stop on any database error (see R158-CHANGES.md); no database change. R157: new users are taken through company onboarding (six steps; modules stay locked until the owner marks every step complete), followed by a Tegh Assist tour; companies have a time zone; Quick Actions show their keys; the theme switch is in the profile menu; Document Intake and the PDF statement reader are marked Beta. R156: the Terms carry the beta conditions, the Terms and Privacy pages show the operator details from config.php, and invitations are refused until those details are complete. It also fixes DEF-18: Match and Post, report periods and default dates now use the accounting (Toronto) date even when the browser's own date is already the next day. R155: the terms version recorded at invitation acceptance matches the published pages, and an optional beta notice shows in the top bar (config app.beta_notice). R154 lets the GL Account Report, the Bank GL Report and Budgets run for several selected companies. R153 adds the company address and short name, company labels on multi-company report lines, sidebar arrows and the theme icons. R152 reads more statement layouts and multi-statement PDFs, and reads invoice lines with supplier memory, suggestions and duplicate checks. R151 brings one form for invoices, credit notes and debit notes, itemized vendor invoices, Edit on the main screen and the scrolling fixes. R150 keeps the public pages in the light design on dark-mode devices. R149 replaces the invitation link with an invitation code. R148 adds the Sign in / Create account tabs with account creation through an invitation link. R147 brings the owner's public-page update and opens the home page at the site root. R146 fixes the R145 OCR clean-up on clean scans (DEF-16). R145 improves the PDF statement converter and Document Intake. R144 adds Tegh Intelligence (no external AI). R143 fixes defects found by a click-through test of every daily
 workflow. R142 applies the owner-approved wording (payroll outside Quebec,
 sales tax guide, Product Activity note). R141 adds the gate follow-ups (DEF-08, OBS-2, Clarity), countries,
 the Tax Code Report and Dashboard Figures. R140 fixes vendor invoice scrolling on phones. R139 contains only the fixes from the invite-only beta release gate
@@ -145,7 +145,10 @@ Notes (the database user needs CREATE privilege, as for the original install).
    assets/index-BsxPiq85-v2817.js, assets/tegh-r27.js, app.html and the cache-token
    assets. The table company_onboarding and the column companies.timezone are added
    on first use. Existing companies are never locked by onboarding.
-5. Upload all assets together; the cache token is r157-tegh (the client-view
+   For R158: api/operations.php, api/bootstrap.php, app.html and the cache-token
+   assets. No database change. Replace beta-ops/tegh-backup.sh and
+   tegh-restore-verify.sh on the host with the R158 versions from the Beta Kit.
+5. Upload all assets together; the cache token is r158-tegh (the client-view
    page loads its output script with r145-tegh too; its other assets stay on
    5990-r135). A partial upload can
    leave browsers on a stale portal.
@@ -309,6 +312,11 @@ Verify after upload
   the sidebar modules show a lock. Mark the six steps complete; Tegh unlocks and offers
   the tour. Sign out and in again: Home opens, not onboarding. Your existing companies
   open as before.
+- R158: create a throw-away company, add a customer and an invoice, then in
+  Account & Access open its Actions › Delete, type its name and your password and
+  confirm. It disappears and Tegh opens another company. Then run tegh-backup.sh by
+  hand: it ends with "backup done" and its "consistent snapshot" line lists content
+  fingerprints.
 - Backups and rollback for the beta host: see beta-ops/RECOVERY-AND-ROLLBACK.md in
   the repository (daily database + upload-folder backup, restore test into a
   separate installation, rollback steps).

@@ -31,6 +31,7 @@ From R156, the Terms and Privacy pages show these details from `config.php`. Whi
 | Employees (Payroll Support): name, province, pay details | employees of a company | entered by users | **No SIN is stored.** Tegh refuses or discards SIN fields (gate PY-01…05). Canada outside Quebec only. |
 | Client viewing links: client email, one-time codes, viewing sessions | a company's clients | created by users | Codes expire after 10 minutes; links can be revoked (gate CV-01…16). |
 | Outbound email records (recipient, status) | invitees, clients | invitations, resets, client codes | Used for delivery diagnostics. |
+| Running-request markers (R158) | none (no personal information) | every request | One empty-of-content file per running request in `storage/runtime/active-requests/`, named by time and process number and holding only the API route name; removed when the request ends. Used by the host backup to wait for running requests. |
 
 ## 3. What leaves the server
 | Recipient | What | When |
@@ -54,7 +55,7 @@ From R156, the Terms and Privacy pages show these details from `config.php`. Whi
 | Need | What Tegh offers today |
 |---|---|
 | Export of a company's records | Company backup (`.tegh`, signed, includes uploaded files); report exports to PDF, Excel and CSV |
-| Delete a company | Settings: company deletion (removes its records and files; a deletion log is kept) |
+| Delete a company | Account & Access › the company's Actions › Delete, by its owner. It removes the company's records in every company table (from R158 also tables added by later releases), its client viewing codes and sessions, and its files. A deletion log keeps the company name, who deleted it and the record counts. |
 | Remove a person's access | Remove the member from the company (access ends immediately; gate 24-beta BS-04). The platform owner can deactivate a user. |
 | **Delete a person's user account** (a deletion request) | Platform owner › Users › **Delete login**. It requires typing the email, the owner's password and a reason. It:<ul><li>replaces the name and email;</li><li>removes the password, sessions and company access;</li><li>replaces the address in invitations, sent-email records, the platform log and the incident log;</li><li>keeps only a hash of the old address as the deletion record.</li></ul>Company audit history keeps the address while that company exists, because it is part of each entry's tamper-evident hash; deleting the company removes it. Checked by gate 24-beta BS-08. The Privacy Notice states the response time (`deletion_response_days`, default 30). |
 | Backups | The daily host backups (`beta-ops/`) keep 14 days locally by default, plus the off-site copy. A deleted record stays in backups until they age out; say so in the notice. |

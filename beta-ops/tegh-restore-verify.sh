@@ -55,17 +55,33 @@ elif (cd "$TARGET" && sha256sum -c --quiet "$B/files.sha256"); then ok "all $nfi
 ntables=0
 while IFS=$'\t' read -r kind t n; do
   [ "$kind" = rows ] || continue; ntables=$((ntables+1))
-  got=$("${MY[@]}" -N -B "$RESTORE_DB" -e "SELECT COUNT(*) FROM \`$t\`")
+  got=$("${MY[@]}" -N -B "$RESTORE_DB" -e "SELECT COUNT(*) FROM \`$t\`") || { bad "$t: could not be counted in the restored database"; continue; }
   [ "$got" = "$n" ] || bad "$t: $got rows, backup check says $n"
 done < "$B/checks.tsv"
 [ $fail = 0 ] && ok "row counts of $ntables tables equal the backup checks"
 
+# 2b. (R158) Every table's content fingerprint (every value of every row) equals the snapshot's. Backups made before
+# R158 have no fingerprints; that is reported, not counted as a pass.
+rq(){ "${MY[@]}" -N -B "$RESTORE_DB" -e "SET SESSION time_zone='+00:00'; SET SESSION group_concat_max_len=1048576; $1"; }
+nfp=0; fpbad=0
+while IFS=$'\t' read -r kind t want; do
+  [ "$kind" = fp ] || continue; nfp=$((nfp+1))
+  cols=$(rq "SELECT GROUP_CONCAT(CONCAT('IFNULL(HEX(\`',column_name,'\`),''~'')') ORDER BY ordinal_position SEPARATOR ',') FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='$t'") || { bad "$t: columns could not be read"; fpbad=1; continue; }
+  got=$(rq "SELECT CONCAT(COUNT(*),':',COALESCE(SUM(CRC32(x)),0),':',COALESCE(BIT_XOR(CRC32(CONCAT('t',x))),0)) FROM (SELECT CONCAT_WS('|',$cols) x FROM \`$t\`) s") || { bad "$t: fingerprint could not be computed"; fpbad=1; continue; }
+  [ "$got" = "$want" ] || { bad "$t: content differs from the backup"; fpbad=1; }
+done < "$B/checks.tsv"
+if [ "$nfp" = 0 ]; then echo "NOTE  this backup has no content fingerprints (made before R158); only row counts were compared"
+elif [ $fpbad = 0 ]; then ok "content of all $nfp tables equals the backup, value for value"; fi
+
 # 3. Posted debits and credits per company equal the check figures (none at all is valid), and every company balances.
 nledger=$(grep -c '^ledger' "$B/checks.tsv" || true)
-if diff <(grep '^ledger' "$B/checks.tsv" || true) <("${MY[@]}" -N -B "$RESTORE_DB" -e "SELECT 'ledger',je.company_id,SUM(jl.debit_cents),SUM(jl.credit_cents) FROM journal_entries je JOIN journal_lines jl ON jl.journal_entry_id=je.id WHERE je.status='posted' GROUP BY je.company_id ORDER BY je.company_id") >/dev/null; then
-  ok "posted debits/credits of ${nledger:-0} companies equal the backup checks"; else bad "posted totals differ from the backup checks"; fi
-unbalanced=$("${MY[@]}" -N -B "$RESTORE_DB" -e "SELECT COUNT(*) FROM (SELECT je.company_id FROM journal_entries je JOIN journal_lines jl ON jl.journal_entry_id=je.id WHERE je.status='posted' GROUP BY je.company_id HAVING SUM(jl.debit_cents)<>SUM(jl.credit_cents)) x")
-[ "$unbalanced" = 0 ] && ok "every restored company's posted entries balance" || bad "$unbalanced restored companies out of balance"
+# (R158) The query result is captured first: a database error is a failure, never "no postings".
+if restored_ledger=$("${MY[@]}" -N -B "$RESTORE_DB" -e "SELECT 'ledger',je.company_id,SUM(jl.debit_cents),SUM(jl.credit_cents) FROM journal_entries je JOIN journal_lines jl ON jl.journal_entry_id=je.id WHERE je.status='posted' GROUP BY je.company_id ORDER BY je.company_id"); then
+  if [ "$restored_ledger" = "$(grep '^ledger' "$B/checks.tsv" || true)" ]; then ok "posted debits/credits of ${nledger:-0} companies equal the backup checks"; else bad "posted totals differ from the backup checks"; fi
+else bad "posted totals could not be read from the restored database"; fi
+if unbalanced=$("${MY[@]}" -N -B "$RESTORE_DB" -e "SELECT COUNT(*) FROM (SELECT je.company_id FROM journal_entries je JOIN journal_lines jl ON jl.journal_entry_id=je.id WHERE je.status='posted' GROUP BY je.company_id HAVING SUM(jl.debit_cents)<>SUM(jl.credit_cents)) x"); then
+  [ "$unbalanced" = 0 ] && ok "every restored company's posted entries balance" || bad "$unbalanced restored companies out of balance"
+else bad "the balance check could not be run on the restored database"; fi
 
 echo; [ $fail = 0 ] && echo "RESTORE VERIFIED: $B" || echo "RESTORE NOT VERIFIED: $B"
 exit $fail

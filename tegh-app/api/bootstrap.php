@@ -98,14 +98,35 @@ function tegh_maintenance_mode_end(string $token): void
     if(is_array($payload)&&isset($payload['token'])&&hash_equals((string)$payload['token'],$token))@unlink($path);
 }
 
+/**
+ * R158: every request leaves a marker in <maintenance flag folder>/active-requests while it runs, created BEFORE the
+ * maintenance check. A host backup sets the flag and then waits until the markers are gone: requests that started
+ * earlier have finished, and any that start later see the flag and stop. The marker is removed when the request ends,
+ * also after an error. If it cannot be written, the request still runs, but the backup will then see no marker for it,
+ * so the folder must be writable (the backup script checks that).
+ */
+function tegh_track_active_request(): void
+{
+    static $marker = null;
+    if ($marker !== null) return;
+    $directory = dirname(tegh_maintenance_flag_path()) . '/active-requests';
+    // A command-line run (root) must not create the folder: the web server could then not write its markers.
+    if (!is_dir($directory)) { if (PHP_SAPI === 'cli') { $marker = ''; return; } @mkdir($directory, 0770, true); }
+    $marker = $directory . '/' . gmdate('YmdHis') . '-' . getmypid() . '-' . bin2hex(random_bytes(6));
+    if (@file_put_contents($marker, (string)($_GET['route'] ?? '')) === false) { $marker = ''; return; }
+    register_shutdown_function(static function () use ($marker): void { @unlink($marker); });
+}
+
 function tegh_assert_not_in_maintenance_mode(): void
 {
     if(!tegh_maintenance_mode_active())return;
     $route=trim((string)($_GET['route']??($_SERVER['PATH_INFO']??'')),'/');
-    if(in_array($route,['startup/migrate','startup/migration-preflight','startup/migration-diagnostic'],true))return;
     // R156: a host backup (beta-ops/tegh-backup.sh) pauses changes the same way; say which it is.
     $marker=@json_decode((string)@file_get_contents(tegh_maintenance_flag_path()),true);
-    if(is_array($marker)&&($marker['reason']??'')==='backup')fail('Tegh is making a backup. No request was processed; try again in a minute.',503,'maintenance_backup',false);
+    $backup=is_array($marker)&&($marker['reason']??'')==='backup';
+    // The upgrade routes run during an upgrade's own maintenance window, never during a backup (R158).
+    if(!$backup&&in_array($route,['startup/migrate','startup/migration-preflight','startup/migration-diagnostic'],true))return;
+    if($backup)fail('Tegh is making a backup. No request was processed; try again in a minute.',503,'maintenance_backup',false);
     fail('Tegh is completing a protected database upgrade. No accounting request was processed; try again shortly.',503,'maintenance_mode',false);
 }
 
@@ -965,6 +986,7 @@ function cleanup_security_state(): void
     db()->exec("DELETE FROM login_attempts WHERE attempted_at < UTC_TIMESTAMP() - INTERVAL 2 DAY");
 }
 
+tegh_track_active_request();
 tegh_assert_not_in_maintenance_mode();
 security_headers();
 assert_same_origin();

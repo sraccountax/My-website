@@ -1307,6 +1307,24 @@ function operations_company_delete_order(): array
     // DELETE FROM companies can be rejected when two company tables also
     // reference one another through restrictive foreign keys.
     return [
+        // R158: tables added by R133–R157 (client viewing links, tax codes, dashboard mappings, insights, document
+        // lines, notes, intake memory, onboarding). Each is removed before the records it refers to. Their absence
+        // from this list blocked every company deletion ("unsupported dependency").
+        'client_view_sessions',
+        'client_view_codes',
+        'client_view_links',
+        'company_insight_dismissals',
+        'company_dashboard_mappings',
+        'company_onboarding',
+        'vendor_document_memory',
+        'document_tax_lines',
+        'tax_code_components',
+        'tax_codes',
+        'company_invoice_tax_presets',
+        'accounting_note_lines',
+        'accounting_note_settlements',
+        'accounting_notes',
+        'bill_lines',
         // Schema 34-39 successors must remain ahead of every referenced
         // parent. In particular, financial scenarios restrict budget
         // deletion and autonomy runs restrict policy deletion.
@@ -1442,34 +1460,47 @@ function operations_company_delete_retained_tables(): array
     return ['platform_incident_log','entitlement_subjects','entitlement_requests','feature_usage_daily','signup_feature_intents'];
 }
 
+/**
+ * R158: the full delete plan. Company tables in the live schema that the explicit order does not name (a table added by
+ * a later release) are deleted first, rows that refer to another of them before the rows they refer to. Before R158 such
+ * a table blocked every company deletion. Retained platform tables are never deleted from.
+ */
+function operations_company_delete_plan(): array
+{
+    static $plan = null;
+    if ($plan !== null) return $plan;
+    $explicit = operations_company_delete_order();
+    $known = array_fill_keys(array_merge($explicit, operations_company_delete_retained_tables()), true);
+    $extra = [];
+    foreach (db()->query("SELECT DISTINCT c.TABLE_NAME FROM information_schema.COLUMNS c JOIN information_schema.TABLES t ON t.TABLE_SCHEMA=c.TABLE_SCHEMA AND t.TABLE_NAME=c.TABLE_NAME WHERE c.TABLE_SCHEMA=DATABASE() AND c.COLUMN_NAME='company_id' AND t.TABLE_TYPE='BASE TABLE' ORDER BY c.TABLE_NAME")->fetchAll() as $row) {
+        $table = (string)$row['TABLE_NAME'];
+        if ($table !== 'companies' && !isset($known[$table])) $extra[$table] = true;
+    }
+    // Among the extra tables, a table is deleted only after every extra table that refers to it.
+    $refs = [];
+    if ($extra) {
+        foreach (db()->query("SELECT TABLE_NAME child, REFERENCED_TABLE_NAME parent FROM information_schema.KEY_COLUMN_USAGE WHERE CONSTRAINT_SCHEMA=DATABASE() AND REFERENCED_TABLE_NAME IS NOT NULL")->fetchAll() as $row) {
+            if (isset($extra[$row['child']], $extra[$row['parent']]) && $row['child'] !== $row['parent']) $refs[(string)$row['parent']][(string)$row['child']] = true;
+        }
+    }
+    $ordered = [];$left = $extra;
+    while ($left) {
+        $ready = array_keys(array_filter($left, static fn($v, string $t): bool => empty(array_intersect_key($refs[$t] ?? [], $left)), ARRAY_FILTER_USE_BOTH));
+        if (!$ready) { $ready = array_keys($left); }
+        sort($ready);
+        foreach ($ready as $t) { $ordered[] = $t; unset($left[$t]); }
+    }
+    return $plan = array_merge($ordered, $explicit);
+}
+
 function operations_company_delete_dependency_issues(): array
 {
-    // Guard the explicit delete order against the live schema. Tegh deletes
-    // company rows explicitly so the deletion log can report what was removed;
-    // any restrictive child FK must therefore be deleted before its parent.
-    $order = operations_company_delete_order();
+    // Guard the delete plan against the live schema. Tegh deletes company rows
+    // explicitly so the deletion log can report what was removed; any
+    // restrictive child FK must therefore be deleted before its parent.
+    $order = operations_company_delete_plan();
     $position = array_flip($order);
-    $retained = array_fill_keys(operations_company_delete_retained_tables(), true);
-    $coverageSql = "SELECT DISTINCT c.TABLE_NAME
-        FROM information_schema.COLUMNS c
-        JOIN information_schema.TABLES t
-          ON t.TABLE_SCHEMA = c.TABLE_SCHEMA
-         AND t.TABLE_NAME = c.TABLE_NAME
-        WHERE c.TABLE_SCHEMA = DATABASE()
-          AND c.COLUMN_NAME = 'company_id'
-          AND t.TABLE_TYPE = 'BASE TABLE'
-        ORDER BY c.TABLE_NAME";
     $issues = [];
-    foreach (db()->query($coverageSql)->fetchAll() as $row) {
-        $table = (string)$row['TABLE_NAME'];
-        if (array_key_exists($table, $position) || isset($retained[$table])) continue;
-        $issues[] = [
-            'issueType'=>'company_table_not_mapped',
-            'child'=>$table,
-            'parent'=>'companies',
-            'deleteRule'=>'UNMAPPED',
-        ];
-    }
     $sql = "SELECT k.TABLE_NAME AS child_table, k.REFERENCED_TABLE_NAME AS parent_table, rc.DELETE_RULE
         FROM information_schema.KEY_COLUMN_USAGE k
         JOIN information_schema.REFERENTIAL_CONSTRAINTS rc
@@ -1512,12 +1543,27 @@ function operations_company_delete_assert_schema_safe(array $user,string $compan
     fail('Company deletion cannot continue because the current database structure contains an unsupported dependency. Update Tegh and try again.',503,'company_delete_dependency_mismatch');
 }
 
+/**
+ * R158: how a delete-plan table's rows belong to a company. Most tables carry company_id; the client-view sign-in codes and
+ * sessions belong to a company through their viewing link. A table with neither is not deleted from.
+ */
+function operations_company_row_scope(string $table): ?string
+{
+    if (!schema_table_exists($table)) return null;
+    if (schema_column_exists($table,'company_id')) return 'company_id = ?';
+    if (in_array($table,['client_view_sessions','client_view_codes'],true) && schema_column_exists($table,'link_id') && schema_table_exists('client_view_links')) {
+        return 'link_id IN (SELECT id FROM client_view_links WHERE company_id = ?)';
+    }
+    return null;
+}
+
 function operations_company_record_summary(string $companyId): array
 {
     $summary = [];
-    foreach (operations_company_delete_order() as $table) {
-        if (!schema_table_exists($table)) continue;
-        $stmt = db()->prepare("SELECT COUNT(*) FROM `$table` WHERE company_id = ?");
+    foreach (operations_company_delete_plan() as $table) {
+        $scope = operations_company_row_scope($table);
+        if ($scope === null) continue;
+        $stmt = db()->prepare("SELECT COUNT(*) FROM `$table` WHERE $scope");
         $stmt->execute([$companyId]);
         $summary[$table] = (int)$stmt->fetchColumn();
     }
@@ -1534,9 +1580,10 @@ function operations_delete_company_rows(string $companyId): array
     if(schema_table_exists('entitlement_subjects')&&schema_column_exists('entitlement_subjects','retired_at')){
         $retire=db()->prepare('UPDATE entitlement_subjects SET retired_at=UTC_TIMESTAMP(),account_user_id=NULL,company_id=NULL,user_id=NULL WHERE company_id=? AND retired_at IS NULL');$retire->execute([$companyId]);$deleted['entitlement_subjects_retired']=$retire->rowCount();
     }
-    foreach (operations_company_delete_order() as $table) {
-        if (!schema_table_exists($table)) continue;
-        $stmt = db()->prepare("DELETE FROM `$table` WHERE company_id = ?");
+    foreach (operations_company_delete_plan() as $table) {
+        $scope = operations_company_row_scope($table);
+        if ($scope === null) continue;
+        $stmt = db()->prepare("DELETE FROM `$table` WHERE $scope");
         $stmt->execute([$companyId]);
         $deleted[$table] = $stmt->rowCount();
     }
