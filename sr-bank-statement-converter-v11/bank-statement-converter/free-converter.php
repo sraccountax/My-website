@@ -28,6 +28,7 @@ $turnstile = sr_turnstile_config();
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "SR AccounTax Free PDF Bank Statement Converter", "url": "https://bankstatementconverter.sraccountax.ca/free-converter.php", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern web browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "CAD"}, "featureList": ["One searchable PDF per conversion", "Up to 25 pages", "Editable review table", "CSV export for up to 25 transactions", "Clipboard-ready CSV", "Local browser processing"]}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Converter overview","item":"https://bankstatementconverter.sraccountax.ca/"},{"@type":"ListItem","position":2,"name":"Free converter","item":"https://bankstatementconverter.sraccountax.ca/free-converter.php"}]}</script>
 <link rel="stylesheet" href="utility.css?v=20260908-1"><?php if (sr_turnstile_enabled()): ?><script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script><?php endif; ?>
+<style>.converter-beta-badge{display:inline-block;margin-left:10px;padding:2px 10px;border-radius:999px;background:#fff1cc;border:1px solid #e9c46a;color:#7a4b00;font-size:.42em;font-weight:800;letter-spacing:.05em;vertical-align:middle;text-transform:uppercase}.converter-beta-note{margin:12px 0 0;padding:10px 14px;border-radius:10px;border:1px solid #f0d58a;background:#fff8e6;color:#6b4a00;font-size:.95rem;line-height:1.5;max-width:62ch}</style>
 </head>
 <body>
 <?php sr_public_header('convert', $user); ?>
@@ -50,8 +51,9 @@ $turnstile = sr_turnstile_config();
     <div class="container converter-hero-grid">
       <div>
         <p class="eyebrow">Free private browser utility</p>
-        <h1>Free PDF Bank Statement Converter</h1>
+        <h1>Free PDF Bank Statement Converter <span class="converter-beta-badge">Beta</span></h1>
         <p class="converter-lead">Convert one searchable bank statement into a reviewable CSV without uploading the PDF to SR AccounTax.</p>
+        <p class="converter-beta-note" role="note"><b>Beta.</b> The converter reads statements automatically and can misread a date, description or amount. Check the converted rows, and the opening and closing balances, against your statement before you rely on them.</p>
         <div class="format-pills" aria-label="Free output formats"><span>CSV</span><span>Copy CSV</span><span>Editable review</span></div>
       </div>
       <aside class="privacy-panel">

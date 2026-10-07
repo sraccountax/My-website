@@ -230,9 +230,12 @@ function handle_companies(): never
         }
         throw $error;
     }
+    // R157: a company created through the app's company forms starts with onboarding (outside the transaction:
+    // the onboarding table is created on first use).
+    if (!empty($input['onboarding']) && function_exists('tegh_onboarding_start')) tegh_onboarding_start($user, $companyId);
     $companies = companies_for_user((string)$user['id']);
     $created = array_values(array_filter($companies, static fn(array $company): bool => $company['id'] === $companyId))[0] ?? null;
-    json_response(['company' => $created, 'companies' => $companies], 201);
+    json_response(['company' => $created, 'companies' => $companies, 'onboarding' => function_exists('tegh_onboarding_state') ? tegh_onboarding_state($companyId) : null], 201);
 }
 
 function handle_settings(): never

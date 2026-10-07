@@ -46,6 +46,309 @@ const TeghPortal = (() => {
     return out;
   }
   const companyAccess = a => (a?.companies||[]).find(c=>c.id===companyId())||(a?.companies||[])[0]||null;
+  // ---------------------------------------------------------------------------------------------------------------
+  // R157: company onboarding. A company created in the app opens this page until every step is marked complete;
+  // the rest of Tegh stays locked meanwhile (the setup screens the steps lead to stay open). Companies created
+  // before R157 have no onboarding and are never locked. The state is per company and kept on the server.
+  // ---------------------------------------------------------------------------------------------------------------
+  const R157_ICON={
+    company:'<path d="M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16"/><path d="M15 9h4a1 1 0 0 1 1 1v11"/><path d="M8 8h3M8 12h3M8 16h3"/><path d="M3 21h18"/>',
+    chart:'<path d="M4 5h16M4 10h16M4 15h10M4 20h7"/><circle cx="18.5" cy="18" r="2.5"/>',
+    tax:'<path d="M7 17 17 7"/><circle cx="7.5" cy="7.5" r="2"/><circle cx="16.5" cy="16.5" r="2"/><rect x="3" y="3" width="18" height="18" rx="4"/>',
+    banks:'<path d="M3 10 12 4l9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/>',
+    imports:'<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',
+    team:'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5A4.5 4.5 0 0 1 21 19"/>',
+    template:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/>',
+    upload:'<path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>',
+    hand:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+    check:'<path d="m5 12 5 5 9-10"/>',
+    lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+    spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/>'
+  };
+  const r157Icon=(name,cls='')=>`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${R157_ICON[name]||''}</svg>`;
+  const R157_STEPS={
+    company:{title:'Your company',short:'Company',lead:'Name, address, fiscal year, sales tax registration and time zone. This step is complete once the company exists; you can review the details at any time.'},
+    chart:{title:'Chart of accounts',short:'Chart of accounts',lead:'The list of general ledger accounts every transaction is posted to. Bring yours from another system, start from Tegh’s standard chart, or build it yourself.'},
+    tax:{title:'Sales tax codes',short:'Tax codes',lead:'The GST/HST, PST or QST codes on your invoices and bills, each linked to the GL accounts it posts to. Import them, start from Tegh’s Canadian codes, or create your own.'},
+    banks:{title:'Bank and card accounts',short:'Bank accounts',lead:'The chequing, savings and credit card accounts you will import statements for. Each one is linked to its own GL account.'},
+    imports:{title:'Bring in your data',short:'Data import',lead:'Customers, vendors, products, unpaid invoices and opening balances from your previous system. Import what you have; skip anything you will enter as you go.'},
+    team:{title:'Team and invoices',short:'Team & invoices',lead:'Invite your bookkeeper or accountant and choose how your invoices look. If you work alone, mark this step complete.'}
+  };
+  const R157_ALLOWED_PAGES=new Set(['onboarding','chart-of-accounts','tax-codes','tax-code-report','opening-balances','data-import','financial-accounts','company-details','company-setup','account-access','tegh-preferences','invoice-templates','sales-purchase-defaults','currencies','bookkeeping-mode-settings','support','faq','tutorial-hub','company-create']);
+  let r157Cache={companyId:'',state:null,loading:null},r157FocusStep='';
+  const r157Allowed=id=>R157_ALLOWED_PAGES.has(String(id||''))||String(id||'').startsWith('settings-category-')||String(id||'')==='module-my-account';
+  function r157Locked(){return !!(r157Cache.state&&r157Cache.companyId===companyId()&&r157Cache.state.locked)}
+  function r157LockBadges(){
+    const locked=r157Locked();
+    $$('.sidebar .srp-nav-parent[data-srp-label]').forEach(button=>{const lockable=button.dataset.srpLabel!=='My account';button.toggleAttribute('data-r157-lockable',locked&&lockable);
+      let badge=$('.r157-lock-badge',button);if(locked&&lockable&&!badge){badge=document.createElement('span');badge.className='r157-lock-badge';badge.title='Opens when setup is finished';badge.innerHTML=r157Icon('lock');const chevron=[...button.children].find(el=>el.matches('svg:last-child,.srp-nav-chevron,[data-chevron]'));button.insertBefore(badge,chevron||null)}else if(!(locked&&lockable))badge?.remove()});
+  }
+  function r157Apply(){
+    const locked=r157Locked();try{accountingTimeZone()}catch{}document.documentElement.toggleAttribute('data-r157-locked',locked);r157LockBadges();setTimeout(r157LockBadges,800);
+    window.TeghOnboarding={locked,state:r157Cache.state};r157ReturnBar();
+  }
+  async function loadOnboarding(force=false){
+    const id=companyId();if(!id)return null;
+    if(!force&&r157Cache.companyId===id&&r157Cache.state)return r157Cache.state;
+    if(!force&&r157Cache.companyId===id&&r157Cache.loading)return r157Cache.loading;
+    r157Cache.companyId=id;
+    r157Cache.loading=api('onboarding',{noCache:true,companyId:id}).then(result=>{if(r157Cache.companyId!==id)return null;r157Cache.state=result?.onboarding||null;r157Apply();
+      // A page opened before the state arrived (for example a bookmarked report) is replaced by the onboarding page.
+      if(r157Locked()&&customPage&&!r157Allowed(customPage?.dataset?.srpPage))openOnboarding({blocked:customPage?.dataset?.srpTitle||''});
+      return r157Cache.state}).catch(error=>{console.warn('Tegh onboarding state unavailable.',error);r157Cache.state=null;return null}).finally(()=>{r157Cache.loading=null});
+    return r157Cache.loading;
+  }
+  /** At sign-in and on Home: open onboarding instead while it is incomplete. Returns true when it took over. */
+  function onboardingGate(retry){
+    const id=companyId();if(!id)return false;
+    if(r157Cache.companyId!==id||!r157Cache.state){void loadOnboarding().then(state=>{if(state?.locked)openOnboarding();else retry?.()});
+      // Until the state is known, keep the neutral loader instead of flashing the dashboard.
+      return !!retry}
+    if(r157Locked()){openOnboarding();return true}
+    return false;
+  }
+  function r157StepIndex(key){return (r157Cache.state?.order||Object.keys(R157_STEPS)).indexOf(key)}
+  async function r157SetStep(step,complete,method=''){
+    const result=await api('onboarding/step',{method:'POST',json:{step,complete,method:method||null}});
+    r157Cache.state=result.onboarding;r157Apply();
+    if(result.finished){toast('Setup complete','Every part of Tegh is now unlocked for this company.','success')}
+    return result;
+  }
+  function r157DetectedText(key,d={}){
+    const n=(v,one,many)=>`${Number(v||0)} ${Number(v||0)===1?one:many}`;
+    if(key==='chart')return d.accounts?`Tegh sees ${n(d.accounts,'account','accounts')} in this company.`:'No accounts yet.';
+    if(key==='tax')return d.taxCodes?`Tegh sees ${n(d.taxCodes,'active tax code','active tax codes')}.`:'No tax codes yet.';
+    if(key==='banks')return d.bankAccounts?`Tegh sees ${n(d.bankAccounts,'bank or card account','bank or card accounts')}.`:'No bank or card accounts yet.';
+    if(key==='imports')return `So far: ${n(d.customers,'customer','customers')}, ${n(d.vendors,'vendor','vendors')}, ${n(d.products,'product or service','products and services')}, ${n(d.imports,'completed import','completed imports')}.`;
+    if(key==='team')return `${n(d.members,'person has','people have')} access to this company.`;
+    return '';
+  }
+  function r157OptionCards(key,d={}){
+    const card=(option,icon,title,text,cta,extra='')=>`<button type="button" class="r157-option" data-onb-option="${option}" ${extra}><span class="r157-option-icon">${r157Icon(icon)}</span><b>${title}</b><small>${text}</small><em>${cta} →</em></button>`;
+    if(key==='company')return card('details','company','Review company details','Address, fiscal year, GST/HST number and time zone.','Open company details');
+    if(key==='chart')return card('import','upload','Import your chart','A CSV or Excel file from your previous system. You can bring opening balances with it.','Open the importer')
+      +card('template','template','Use Tegh’s standard chart',d.accounts?`This company already has ${Number(d.accounts)} accounts, so the template is not needed.`:'About 44 accounts for a Canadian business: bank, receivables, payables, GST/HST, equity, income and expenses. Edit them any time.','Apply the template',d.accounts?'disabled':'')
+      +card('manual','hand','Create accounts yourself','Add each account with its code, type and GIFI line on the Chart of Accounts screen.','Open Chart of Accounts');
+    if(key==='tax')return card('import','upload','Import tax codes','A CSV file with one row per tax. Download the template to see the columns.','Choose a file')
+      +card('template','template','Use Tegh’s Canadian codes',d.accounts?'One code per province and territory, plus GST only, with the right rates. Needs accounts 2100, 1100 and 2110.':'Set up the chart of accounts first: the codes post to its GST/HST and PST accounts.','Add the starter codes',d.accounts?'':'disabled')
+      +card('manual','hand','Create tax codes yourself','Name each code, its rates and the GL accounts it posts to.','Open Tax Codes');
+    if(key==='banks')return card('manual','banks','Add bank and card accounts','Name each account, its currency and its GL account. Statements are imported into these accounts.','Open Bank Accounts');
+    if(key==='imports'){
+      const tile=(type,label,count,hint)=>`<button type="button" class="r157-import-tile" data-onb-import="${type}"><b>${label}</b><small>${hint}</small>${count!==undefined?`<span>${Number(count||0)}</span>`:''}</button>`;
+      return `<div class="r157-import-grid">${tile('customers','Customers',d.customers,'Names, emails, terms')}${tile('vendors','Vendors',d.vendors,'Suppliers and default accounts')}${tile('products_services','Products & services',d.products,'Items, prices, income accounts')}${tile('customer_invoices','Unpaid customer invoices',undefined,'Open invoices at your start date')}${tile('vendor_invoices','Unpaid vendor invoices',undefined,'Open bills at your start date')}${tile('opening_balances','Opening balances',undefined,'Trial balance at your start date')}${tile('employees','Employees',undefined,'For Payroll Support (no SIN)')}</div>`;
+    }
+    if(key==='team')return card('users','team','Invite your team','Give your bookkeeper or accountant their own login with the right role.','Open User Management')
+      +card('templates','template','Choose your invoice look','Logo colour, layout, payment instructions and footer.','Open Invoice Templates');
+    return '';
+  }
+  function r157TaxTemplateCsv(){return 'Code,Name,Region,Tax name,Rate %,Sales GL code,Purchase GL code,Recoverable\nON-HST,Ontario HST 13%,ON,HST,13,2100,1100,Yes\nBC-GST-PST,BC GST 5% + PST 7%,BC,GST,5,2100,1100,Yes\nBC-GST-PST,BC GST 5% + PST 7%,BC,PST,7,2110,,No\n'}
+  function r157ParseCsv(text){
+    const rows=[];let row=[],cell='',quoted=false;
+    for(let i=0;i<text.length;i++){const ch=text[i];
+      if(quoted){if(ch==='"'&&text[i+1]==='"'){cell+='"';i++}else if(ch==='"')quoted=false;else cell+=ch;continue}
+      if(ch==='"')quoted=true;else if(ch===','){row.push(cell);cell=''}else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(cell);cell='';if(row.some(v=>v.trim()))rows.push(row);row=[]}else cell+=ch}
+    row.push(cell);if(row.some(v=>v.trim()))rows.push(row);return rows;
+  }
+  function r157TaxRows(text){
+    const rows=r157ParseCsv(text);if(rows.length<2)throw Error('The file needs a header row and at least one tax row.');
+    const norm=v=>String(v||'').toLowerCase().replace(/[^a-z%]/g,'');
+    const map={code:['code','taxcode'],name:['name','codename','description'],region:['region','province'],taxName:['taxname','tax'],ratePercent:['rate%','rate','ratepercent','rate(%)'],salesAccountCode:['salesglcode','salesgl','salesaccount','salesaccountcode'],purchaseAccountCode:['purchaseglcode','purchasegl','purchaseaccount','purchaseaccountcode'],recoverable:['recoverable','itc']};
+    const head=rows[0].map(norm),index={};for(const [key,names] of Object.entries(map))index[key]=head.findIndex(h=>names.includes(h));
+    if(index.code<0||index.taxName<0||index.ratePercent<0)throw Error('The header must include Code, Tax name and Rate %. Download the template to see every column.');
+    return rows.slice(1).map(r=>Object.fromEntries(Object.entries(index).filter(([,i])=>i>=0).map(([key,i])=>[key,String(r[i]??'').trim()])));
+  }
+  function openOnboarding(options={}){
+    showPage('onboarding','Set up your company','',async body=>{
+      const [authState,state]=await Promise.all([auth(),loadOnboarding(true)]),access=companyAccess(authState)||{},company=access.name||'your company',canEdit=['owner','admin'].includes(String(access.role||''));
+      if(!state?.required){body.innerHTML=`<section class="r157-onb r157-onb-done"><header class="r157-onb-hero"><div class="r157-orb" aria-hidden="true"><i></i><i></i><b>T</b></div><div><small>Onboarding · ${esc(company)}</small><h1>This company is set up</h1><p>It was created before guided onboarding, so nothing here is locked. The setup screens are always in Settings.</p></div></header><div class="r157-onb-revisit">${['chart','tax','banks','imports','team'].map(key=>`<button type="button" data-onb-revisit="${key}">${r157Icon(key)}<b>${esc(R157_STEPS[key].title)}</b></button>`).join('')}<button type="button" data-onb-tour>${r157Icon('spark')}<b>Take the Tegh tour</b></button></div></section>`;r157WireRevisit(body);return}
+      const order=state.order||Object.keys(R157_STEPS),steps=state.steps||{},d=state.detected||{};
+      let current=options.step&&order.includes(options.step)?options.step:(r157FocusStep&&order.includes(r157FocusStep)?r157FocusStep:(order.find(key=>steps[key]?.status!=='complete')||order[order.length-1]));
+      const render=()=>{
+        const s=r157Cache.state||state,st=s.steps||steps,det=s.detected||d,done=Number(s.doneCount||0),total=Number(s.totalCount||order.length),pct=Math.round(done/total*100);
+        body.innerHTML=`<section class="r157-onb" data-r157-onboarding data-complete="${s.complete?'1':'0'}">
+          <header class="r157-onb-hero"><div class="r157-orb" aria-hidden="true"><i></i><i></i><b>T</b></div>
+            <div class="r157-onb-intro"><small>Onboarding · ${esc(company)}</small><h1>${s.complete?'Your books are ready':'Let’s set up your books'}</h1><p>${s.complete?'Every step is complete and all of Tegh is unlocked.':'Six short steps. Work through them in any order and mark each one complete when you are happy with it. The rest of Tegh unlocks when all six are done.'}</p></div>
+            <div class="r157-ring" style="--p:${pct}" role="img" aria-label="${done} of ${total} steps complete"><b>${done}<span>/${total}</span></b><small>steps complete</small></div></header>
+          ${options.blocked&&!s.complete?`<p class="r157-blocked" role="status">${r157Icon('lock')}<span><b>${esc(options.blocked)}</b> opens once setup is finished. Complete the steps below, or mark them complete.</span></p>`:''}
+          ${!canEdit&&!s.complete?`<p class="r157-blocked" role="status">${r157Icon('lock')}<span>Only the company owner or an admin can complete setup. Ask them to finish it; Tegh unlocks for everyone when they do.</span></p>`:''}
+          <div class="r157-onb-grid">
+            <ol class="r157-steps" aria-label="Setup steps">${order.map((key,i)=>{const ok=st[key]?.status==='complete';return `<li><button type="button" data-onb-step="${key}" class="${key===current?'active':''} ${ok?'done':''}" aria-current="${key===current?'step':'false'}"><span class="r157-step-num">${ok?r157Icon('check'):i+1}</span><span class="r157-step-text"><b>${esc(R157_STEPS[key].title)}</b><small>${ok?'Complete':'To do'}</small></span></button></li>`}).join('')}</ol>
+            <div class="r157-panel" data-onb-panel>${s.complete?r157FinishedPanel():r157StepPanel(current,st,det,order,canEdit)}</div>
+          </div></section>`;
+        $$('[data-onb-step]',body).forEach(button=>button.onclick=()=>{current=button.dataset.onbStep;r157FocusStep=current;render();$('[data-onb-panel]',body)?.scrollIntoView({block:'nearest',behavior:'smooth'})});
+        wire(st,det);
+      };
+      const wire=(st,det)=>{
+        const panel=$('[data-onb-panel]',body);if(!panel)return;
+        $('[data-onb-tour]',panel)?.addEventListener('click',()=>openTeghTour());
+        $('[data-onb-bank-start]',panel)?.addEventListener('click',()=>r157StartBankImport());
+        $('[data-onb-toggle]',panel)?.addEventListener('click',async event=>{const button=event.currentTarget;button.disabled=true;
+          try{const complete=button.dataset.onbToggle==='complete',result=await r157SetStep(current,complete,button.dataset.method||'');
+            if(complete&&!result.finished){const next=order.find(key=>result.onboarding.steps[key]?.status!=='complete');if(next)current=next}
+            r157FocusStep=current;render();if(result.finished)r157Celebrate(body)}
+          catch(error){toast('Step not updated',userFacingError(error),'error');button.disabled=false}});
+        $('[data-onb-next]',panel)?.addEventListener('click',()=>{const i=order.indexOf(current);current=order[Math.min(order.length-1,i+1)];r157FocusStep=current;render()});
+        $('[data-onb-prev]',panel)?.addEventListener('click',()=>{const i=order.indexOf(current);current=order[Math.max(0,i-1)];r157FocusStep=current;render()});
+        $$('[data-onb-import]',panel).forEach(button=>button.onclick=()=>{r157FocusStep='imports';openDataImport(button.dataset.onbImport)});
+        $$('[data-onb-option]',panel).forEach(button=>button.onclick=async()=>{
+          const option=button.dataset.onbOption;r157FocusStep=current;
+          if(current==='company')return openCompanyDetails();
+          if(current==='chart'&&option==='import')return openDataImport('chart_of_accounts');
+          if(current==='chart'&&option==='manual')return openChartOfAccounts();
+          if(current==='chart'&&option==='template'){button.disabled=true;try{const result=await api('onboarding/chart-template',{method:'POST',json:{}});r157Cache.state=result.onboarding;r157Apply();toast('Standard chart added',`${result.created} accounts and the Business Chequing and Credit Card accounts were added. Review them on the Chart of Accounts screen.`,'success');render()}catch(error){toast('Template not applied',userFacingError(error),'error');button.disabled=false}return}
+          if(current==='tax'&&option==='manual')return openTaxCodes();
+          if(current==='tax'&&option==='template'){button.disabled=true;try{const result=await api('tax-codes',{method:'POST',json:{action:'seed-canada'}});await loadOnboarding(true);toast('Canadian tax codes added',`${(result.created||[]).length} codes were added. Review the rates and GL accounts on the Tax Codes screen.`,'success');render()}catch(error){toast('Starter codes not added',userFacingError(error),'error');button.disabled=false}return}
+          if(current==='tax'&&option==='import'){$('[data-onb-tax-import]',panel).hidden=false;$('[data-onb-tax-file]',panel).click();return}
+          if(current==='banks')return openFinancialAccounts();
+          if(current==='team'&&option==='users')return openUsers();
+          if(current==='team'&&option==='templates')return openInvoiceTemplates();
+        });
+        const file=$('[data-onb-tax-file]',panel);if(file){let rows=[];
+          $('[data-onb-tax-template]',panel).onclick=()=>{const url=URL.createObjectURL(new Blob([r157TaxTemplateCsv()],{type:'text/csv'})),a=document.createElement('a');a.href=url;a.download='Tegh-Tax-Codes-Template.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+          file.onchange=async()=>{const f=file.files?.[0];if(!f)return;const out=$('[data-onb-tax-preview]',panel);try{rows=r157TaxRows(await f.text());const codes=new Set(rows.map(r=>String(r.code||'').toUpperCase()));
+            out.innerHTML=`<p><b>${esc(f.name)}</b>: ${rows.length} tax row${rows.length===1?'':'s'} in ${codes.size} code${codes.size===1?'':'s'}. Check them, then import.</p><div class="r157-table-wrap"><table><thead><tr><th>Code</th><th>Name</th><th>Region</th><th>Tax</th><th>Rate %</th><th>Sales GL</th><th>Purchase GL</th></tr></thead><tbody>${rows.slice(0,30).map(r=>`<tr><td>${esc(r.code)}</td><td>${esc(r.name||'')}</td><td>${esc(r.region||'')}</td><td>${esc(r.taxName)}</td><td>${esc(r.ratePercent)}</td><td>${esc(r.salesAccountCode||'')}</td><td>${esc(r.purchaseAccountCode||'')}</td></tr>`).join('')}</tbody></table></div><button type="button" class="srp-btn" data-onb-tax-commit>Import ${codes.size} tax code${codes.size===1?'':'s'}</button>`;
+            $('[data-onb-tax-commit]',out).onclick=async event=>{event.currentTarget.disabled=true;try{const result=await api('onboarding/tax-import',{method:'POST',json:{rows}});r157Cache.state=result.onboarding;r157Apply();toast('Tax codes imported',`${result.created.length} imported${result.failed.length?`; not imported: ${result.failed.map(x=>`${x.code} (${x.error})`).join('; ')}`:''}.`,result.failed.length?'warning':'success');render()}catch(error){toast('Tax codes not imported',userFacingError(error),'error');event.currentTarget.disabled=false}}}
+          catch(error){out.innerHTML=`<p class="r157-error">${esc(userFacingError(error))}</p>`}file.value=''}}
+      };
+      render();
+    },{back:null,route:'onboarding'});
+  }
+  function r157StepPanel(key,steps,d,order,canEdit){
+    const i=order.indexOf(key),ok=steps[key]?.status==='complete',meta=R157_STEPS[key],det=r157DetectedText(key,d);
+    const toggle=!canEdit?'':key==='company'?'<span class="r157-done-chip">'+r157Icon('check')+'Complete</span>':ok?`<span class="r157-done-chip">${r157Icon('check')}Complete</span><button type="button" class="srp-btn secondary" data-onb-toggle="pending">Mark as not complete</button>`:`<button type="button" class="srp-btn r157-complete-btn" data-onb-toggle="complete" data-method="${key==='tax'&&!d.taxCodes?'not_registered':''}">${r157Icon('check')}Mark step ${i+1} complete</button>`;
+    return `<article class="r157-step-card" data-onb-current="${key}">
+      <header><span class="r157-step-icon">${r157Icon(key)}</span><div><small>Step ${i+1} of ${order.length}</small><h2>${esc(meta.title)}</h2><p>${esc(meta.lead)}</p>${det?`<p class="r157-detected">${r157Icon('spark')}${esc(det)}</p>`:''}</div></header>
+      <div class="r157-options">${r157OptionCards(key,d)}</div>
+      ${key==='tax'?`<div class="r157-tax-import" data-onb-tax-import hidden><input type="file" accept=".csv,text/csv" data-onb-tax-file hidden><p>One row per tax; rows with the same code are the taxes of that code (for example GST and PST). GL codes must already be in the chart of accounts. <button type="button" class="r157-link" data-onb-tax-template>Download the template</button></p><div data-onb-tax-preview></div></div><p class="r157-note">Not registered for sales tax? Mark this step complete; you can add codes later in Settings.</p>`:''}
+      ${key==='imports'?'<p class="r157-note">Starting fresh with nothing to bring in? Mark this step complete. Bank statements are imported after setup, from Banking.</p>':''}
+      <footer><div class="r157-toggle">${toggle}</div><div class="r157-nav">${i>0?'<button type="button" class="srp-btn secondary" data-onb-prev>Back</button>':''}${i<order.length-1?'<button type="button" class="srp-btn secondary" data-onb-next>Next step →</button>':''}</div></footer>
+    </article>`;
+  }
+  function r157FinishedPanel(){
+    return `<article class="r157-step-card r157-finished"><div class="r157-confetti" aria-hidden="true">${Array.from({length:18},(_,i)=>`<i style="--i:${i}"></i>`).join('')}</div>
+      <header><span class="r157-step-icon">${r157Icon('check')}</span><div><small>All six steps complete</small><h2>Tegh is unlocked</h2><p>Let Tegh Assist show you around in two minutes: where your money is, how to bill and pay, and where every report lives.</p></div></header>
+      <div class="r157-finish-actions"><button type="button" class="srp-btn" data-onb-tour>${r157Icon('spark')}Start the tour with Tegh Assist</button><button type="button" class="srp-btn secondary" data-onb-bank-start>Skip the tour: import a bank statement</button></div></article>`;
+  }
+  function r157WireRevisit(body){
+    $$('[data-onb-revisit]',body).forEach(button=>button.onclick=()=>({chart:openChartOfAccounts,tax:()=>openTaxCodes(),banks:()=>openFinancialAccounts(),imports:()=>openDataImport(),team:openUsers})[button.dataset.onbRevisit]?.());
+    $('[data-onb-tour]',body)?.addEventListener('click',()=>openTeghTour());
+  }
+  function r157Celebrate(body){const card=$('.r157-finished',body);if(card)card.classList.add('r157-pop')}
+  /** While setup is in progress, a bar on the setup screens leads back to the onboarding page. */
+  function r157ReturnBar(){
+    r157LockBadges();let bar=$('[data-r157-return]');const page=customPage?.dataset?.srpPage||'';
+    const show=r157Locked()&&page&&page!=='onboarding';
+    if(!show){bar?.remove();return}
+    const state=r157Cache.state,key=r157FocusStep||(state.order||[]).find(k=>state.steps?.[k]?.status!=='complete')||'chart',i=r157StepIndex(key);
+    if(!bar){bar=document.createElement('div');bar.className='r157-return';bar.dataset.r157Return='1';bar.setAttribute('role','region');bar.setAttribute('aria-label','Setup in progress');document.body.appendChild(bar)}
+    bar.innerHTML=`<span class="r157-return-dot" aria-hidden="true"></span><span><b>Setting up · Step ${i+1} of ${(state.order||[]).length}</b> ${esc(R157_STEPS[key]?.title||'')} · ${Number(state.doneCount||0)} of ${Number(state.totalCount||6)} complete</span><button type="button" data-r157-back>Back to setup</button>`;
+    $('[data-r157-back]',bar).onclick=()=>openOnboarding({step:key});
+  }
+  // R157: Document Intake and the PDF statement reader are marked Beta, with a reminder to check what they read.
+  const R157_BETA_NOTES={
+    'document-intake':'Document Intake reads vendor invoices and receipts in your browser. Check every field it fills — vendor, number, dates, amounts, tax and lines — against the document before you rely on it or post.',
+    'bank-imports':'The statement reader (PDF converter) is in Beta. Check the imported dates, descriptions and amounts, and the opening and closing balances, against your statement before you post.'
+  };
+  function r157BetaNotice(page,id){
+    const head=$('.srp-page-head',page),h1=$('h1',head||page);if(!head||!h1)return;
+    if(!$('.r157-beta-badge',h1)){const badge=document.createElement('span');badge.className='r157-beta-badge';badge.textContent='Beta';h1.appendChild(badge)}
+    // The note sits at the top of the page body; the page may redraw its body, so it is put back when that happens.
+    const body=$('.srp-page-body',page);if(!body)return;
+    // On Upload Statement the note goes in the Bank Statement Converter card (the PDF reader); on Document Intake in
+    // its upload card. Cards can be redrawn, so the note is put back when that happens.
+    const target=()=>id==='bank-imports'?$$('.srp-card',body).find(card=>/Bank Statement Converter/i.test(card.querySelector('h2,h3')?.textContent||'')):$('.tegh-native-boundary',body)?.parentElement;
+    const ensure=()=>{if(!page.isConnected){watch.disconnect();return}const card=target();if(!card||$('[data-r157-beta-note]',card))return;$$('[data-r157-beta-note]',body).forEach(node=>node.remove());
+      const heading=card.querySelector('h2,h3');if(heading&&id==='bank-imports'&&!$('.r157-beta-badge',heading)){const badge=document.createElement('span');badge.className='r157-beta-badge';badge.textContent='Beta';heading.appendChild(badge)}
+      const note=document.createElement('p');note.className='r157-beta-note';note.dataset.r157BetaNote='1';note.setAttribute('role','note');note.innerHTML=`<b>Beta.</b> ${esc(R157_BETA_NOTES[id])}`;
+      const boundary=id==='document-intake'?$('.tegh-native-boundary',card):null,anchor=boundary||(heading?.closest('.srp-section-title')||heading?.parentElement);if(anchor&&anchor!==card)anchor.after(note);else card.insertBefore(note,card.firstChild)};
+    const watch=new MutationObserver(ensure);ensure();watch.observe(body,{childList:true,subtree:true});
+  }
+  // R157: a Document Intake section on a new vendor invoice. The file goes through Document Intake's own upload and
+  // in-browser reading; its review screen then opens this form again with the fields filled in.
+  function r157VendorIntake(page){
+    if($('[data-r157-vendor-intake]',page))return;const title=String($('.srp-page-head h1',page)?.textContent||'');if(!/^New Vendor/i.test(title))return;
+    const body=$('.srp-page-body',page);if(!body)return;
+    const box=document.createElement('section');box.className='r157-intake-inline';box.dataset.r157VendorIntake='1';
+    box.innerHTML=`<span class="r157-intake-icon" aria-hidden="true">${r157Icon('upload')}</span><div><h3>Read this invoice from a file <span class="r157-beta-badge">Beta</span></h3><p>Upload the vendor’s PDF or a photo. Document Intake reads it in your browser and fills this form for you to review. <b>Check every field against the document before you save.</b></p></div><label class="srp-btn secondary r157-intake-pick">Choose a file<input type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp" hidden data-r157-intake-file></label>`;
+    // Directly above the vendor invoice fields (the form may finish drawing just after the page event).
+    const place=()=>{const form=$('[data-r151-form]',body);if(form&&box.nextElementSibling!==form){form.parentElement.insertBefore(box,form);return true}return !!form};
+    if(!place()){body.appendChild(box);let tries=0;const retry=()=>{if(!place()&&++tries<20)setTimeout(retry,150)};setTimeout(retry,150)}
+    $('[data-r157-intake-file]',box).onchange=async event=>{const file=event.target.files?.[0];if(!file)return;
+      toast('Reading the invoice','Document Intake is reading the file in your browser. Review what it found, then choose Create vendor invoice.','success');
+      await openDocumentIntake();
+      for(let i=0;i<60;i++){const form=$('[data-native-document-upload]');if(form){const type=form.elements.namedItem('documentType');if(type)type.value='vendor_bill';const input=form.elements.namedItem('file');const dt=new DataTransfer();dt.items.add(file);input.files=dt.files;form.requestSubmit();return}await new Promise(resolve=>setTimeout(resolve,250))}
+      toast('Document Intake not ready','Open Payables › Document Intake and upload the file there.','error')};
+  }
+  window.addEventListener('tegh:page-rendered',event=>{const {id,page}=event.detail||{};if(!page)return;if(R157_BETA_NOTES[id])r157BetaNotice(page,id);if(id==='vendor-document')r157VendorIntake(page)});
+  function r157ModifierKeys(){const mac=/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent||'');return mac?'<kbd>⌃</kbd><kbd>⌥</kbd>':'<kbd>Ctrl</kbd><kbd>Alt</kbd>'}
+  function r157StartBankImport(){
+    try{localStorage.setItem(`tegh-r157-bank-start:${companyId()}`,'opened')}catch{}
+    if(experienceMode()==='owner')openGuidedStatementUploadModal();else openBankImports();
+  }
+
+  // ---------------------------------------------------------------------------------------------------------------
+  // R157: the Tegh Assist tour, offered when onboarding finishes (and any time from Settings › Onboarding). It points
+  // at the real menu items, then ends with the call to import the first bank statement.
+  // ---------------------------------------------------------------------------------------------------------------
+  function r157TourStops(){
+    const guided=experienceMode()==='owner',visible=el=>!!el&&el.getClientRects().length>0,nav=label=>[...$$(`.sidebar .srp-nav-parent[data-srp-label="${label}"]`),...$$(`[data-top-module="${label}"]`)].find(visible)||$$('.sidebar button,.sidebar a').find(el=>visible(el)&&String(el.textContent||'').trim().toLowerCase().startsWith(String(moduleDisplayName(label)).toLowerCase()));
+    return [
+      {target:()=>nav('Dashboard'),title:guided?'Home is your daily view':'The Dashboard is your daily view',text:'Money in the bank, who owes you, what you owe and profit so far, worked out from your books. Your Shortcuts sit here too, with a keyboard key for each (Ctrl+Alt+1 to 0).'},
+      {target:()=>nav('Banking'),title:'Banking',text:'Upload a bank or card statement (PDF, CSV or Excel), then Match and Post each line to an account. Reconcile Account checks your books against the statement.'},
+      {target:()=>nav('Receivables'),title:guided?'Money In':'Receivables',text:'Create customers and invoices, record payments and credit notes, and see who is late paying in Receivable Ageing.'},
+      {target:()=>nav('Payables'),title:guided?'Money Out':'Payables',text:'Enter vendor invoices (Document Intake, in Beta, can read them from a PDF), pay suppliers and see what is due in Payable Ageing.'},
+      ...(guided?[]:[{target:()=>nav('General ledger'),title:'General Ledger',text:'Journal entries, expense vouchers and the Day Book: every posting with its debits and credits.'}]),
+      {target:()=>nav('Reports'),title:'Reports',text:'Profit and Loss, Balance Sheet, Trial Balance, Cash Flow, General Ledger and more. Every report opens for the period you choose and downloads to PDF, Excel or CSV.'},
+      {target:()=>$('.topbar .srp-global-search,[data-global-search]'),title:'Search and Ask Tegh',text:'Type a screen, a customer or an invoice number to jump there. Ask questions in plain words, such as “who owes me money?”. Press ? for every keyboard shortcut.'},
+      {target:()=>$('.topbar details.r17-profile-menu > summary')||$('.topbar [data-r17-profile]'),title:'Your profile',text:'Switch between Guided and Full Accounting, choose light, dark or system appearance, and sign out.'},
+      {target:()=>nav('My account')||$$('.sidebar button').find(el=>visible(el)&&/^settings/i.test(String(el.textContent||'').trim())),title:'Settings',text:'Company details, chart of accounts, tax codes, data import, your team and this onboarding page are all in Settings.'}
+    ];
+  }
+  function openTeghTour(){
+    $('[data-r157-tour]')?.remove();if(customPage?.dataset?.srpPage==='onboarding'||!customPage)(experienceMode()==='owner'?openGuidedBookkeeping():openDashboard());
+    const stops=r157TourStops();let index=0;
+    const layer=document.createElement('div');layer.className='r157-tour';layer.dataset.r157Tour='1';
+    layer.innerHTML=`<div class="r157-tour-spot" aria-hidden="true"></div><section class="r157-tour-card" role="dialog" aria-modal="false" aria-labelledby="r157-tour-title"><header><span class="r157-orb small" aria-hidden="true"><i></i><i></i><b>T</b></span><div><small>Tegh Assist · tour</small><h2 id="r157-tour-title"></h2></div><button type="button" class="r157-tour-x" data-tour-close aria-label="Close the tour">×</button></header><p data-tour-text></p><div class="r157-tour-dots" aria-hidden="true"></div><footer><button type="button" class="srp-btn secondary" data-tour-prev>Back</button><span data-tour-count></span><button type="button" class="srp-btn" data-tour-next>Next</button></footer></section>`;
+    document.body.appendChild(layer);
+    const spot=$('.r157-tour-spot',layer),card=$('.r157-tour-card',layer);
+    const finish=(toBank=false)=>{layer.remove();removeEventListener('resize',place);void api('onboarding/tour',{method:'POST',json:{done:true}}).catch(()=>{});if(r157Cache.state)r157Cache.state.tourDone=true;r157ShowBankStart(true);if(toBank)r157StartBankImport()};
+    const place=()=>{
+      const stop=stops[index];if(!stop){r157TourEnd(layer,finish);return}
+      $('#r157-tour-title',layer).textContent=stop.title;$('[data-tour-text]',layer).textContent=stop.text;$('[data-tour-count]',layer).textContent=`${index+1} of ${stops.length}`;
+      $('.r157-tour-dots',layer).innerHTML=stops.map((_,i)=>`<i class="${i===index?'on':''}"></i>`).join('');
+      $('[data-tour-prev]',layer).disabled=index===0;$('[data-tour-next]',layer).textContent=index===stops.length-1?'Finish':'Next';
+      const el=stop.target?.(),r=el?.getBoundingClientRect?.();
+      if(r&&r.width>0&&r.height>0){spot.hidden=false;Object.assign(spot.style,{left:`${r.left-6}px`,top:`${r.top-6}px`,width:`${r.width+12}px`,height:`${r.height+12}px`});
+        const w=Math.min(360,innerWidth-24),right=r.right+16+w<innerWidth,below=r.bottom+16+220<innerHeight;
+        Object.assign(card.style,right?{left:`${r.right+16}px`,top:`${Math.max(12,Math.min(r.top,innerHeight-260))}px`}:{left:`${Math.max(12,Math.min(r.left,innerWidth-w-12))}px`,top:`${below?r.bottom+16:Math.max(12,r.top-240)}px`})}
+      else{spot.hidden=true;Object.assign(card.style,{left:`${Math.max(12,(innerWidth-360)/2)}px`,top:`${Math.max(12,innerHeight/2-140)}px`})}
+      card.classList.remove('r157-in');void card.offsetWidth;card.classList.add('r157-in');
+    };
+    $('[data-tour-next]',layer).onclick=()=>{index++;place()};$('[data-tour-prev]',layer).onclick=()=>{index=Math.max(0,index-1);place()};$('[data-tour-close]',layer).onclick=()=>finish(false);
+    layer.addEventListener('keydown',event=>{if(event.key==='Escape')finish(false);if(event.key==='ArrowRight'){index++;place()}if(event.key==='ArrowLeft'){index=Math.max(0,index-1);place()}});
+    addEventListener('resize',place);setTimeout(()=>{place();$('[data-tour-next]',layer).focus()},450);
+  }
+  function r157TourEnd(layer,finish){
+    $('.r157-tour-spot',layer).hidden=true;const card=$('.r157-tour-card',layer);card.classList.add('r157-tour-final');
+    Object.assign(card.style,{left:`${Math.max(12,(innerWidth-420)/2)}px`,top:`${Math.max(12,innerHeight/2-190)}px`});
+    card.innerHTML=`<div class="r157-bank-anim" aria-hidden="true"><span class="r157-doc"></span><span class="r157-arrow"></span><span class="r157-bank">${r157Icon('banks')}</span></div><small>Tegh Assist</small><h2 id="r157-tour-title">Start with your bank statement</h2><p>Import last month’s statement for your business account. Tegh reads every line, suggests where each one belongs, and you approve. It is the fastest way to bring your books up to date.</p><footer><button type="button" class="srp-btn secondary" data-tour-later>Later</button><button type="button" class="srp-btn r157-pulse" data-tour-bank>Import a bank statement →</button></footer>`;
+    $('[data-tour-bank]',card).onclick=()=>finish(true);$('[data-tour-later]',card).onclick=()=>finish(false);$('[data-tour-bank]',card).focus();
+  }
+  /** The animated "start with a bank statement" card on Home, until the first statement is imported or it is dismissed. */
+  async function r157ShowBankStart(force=false){
+    const page=customPage?.dataset?.srpPage||'';if(!['dashboard','guided-bookkeeping'].includes(page)||r157Locked())return;
+    const state=r157Cache.companyId===companyId()&&r157Cache.state?r157Cache.state:await loadOnboarding();if(!state?.required||!state.complete)return;
+    // Tegh Assist offers its tour once, the first time Home opens after onboarding is finished.
+    if(!state.tourDone&&!force&&!$('[data-r157-tour]')){let offered='';try{offered=localStorage.getItem(`tegh-r157-tour-offered:${companyId()}`)||''}catch{}if(!offered){try{localStorage.setItem(`tegh-r157-tour-offered:${companyId()}`,'1')}catch{}openTeghTour();return}}
+    let dismissed='';try{dismissed=localStorage.getItem(`tegh-r157-bank-start:${companyId()}`)||''}catch{}if(dismissed==='dismissed')return;
+    const w=await workspace().catch(()=>null);if(!w||(w.bankTransactions||[]).length)return;
+    const host=customPage;if(!host||$('[data-r157-bank-start]',host))return;
+    const box=document.createElement('section');box.className='r157-bank-start';box.dataset.r157BankStart='1';
+    box.innerHTML=`<div class="r157-bank-anim" aria-hidden="true"><span class="r157-doc"></span><span class="r157-arrow"></span><span class="r157-bank">${r157Icon('banks')}</span></div><div><small>Your next step</small><h2>Start with a bank statement import</h2><p>Upload a PDF, CSV or Excel statement. Tegh reads each line and suggests where it belongs; you approve every posting.</p></div><div class="r157-bank-actions"><button type="button" class="srp-btn r157-pulse" data-r157-bank-go>Import a statement →</button><button type="button" class="r157-link" data-r157-bank-hide>Not now</button></div>`;
+    const anchor=$('.srp-page-body,.srp-page-content',host)||host;anchor.insertBefore(box,anchor.firstChild);
+    $('[data-r157-bank-go]',box).onclick=r157StartBankImport;$('[data-r157-bank-hide]',box).onclick=()=>{try{localStorage.setItem(`tegh-r157-bank-start:${companyId()}`,'dismissed')}catch{}box.remove()};
+  }
+  // ---------------------------------------------------------------------------------------------------------------
   function userFacingError(error,fallback='Tegh could not complete this action. Try again.'){
     const raw=typeof error==='string'?error:error?.message,text=String(raw||'').trim();
     if(!text)return fallback;
@@ -699,6 +1002,9 @@ const TeghPortal = (() => {
     });
   }
   function showPage(id,title,description,render,options={}){
+    // R157: while onboarding is incomplete only the setup screens open; anything else shows the onboarding page.
+    if(r157Locked()&&!r157Allowed(id)){openOnboarding({blocked:title});return}
+    setTimeout(r157ReturnBar,60);
     if(teghBankMutation?.active){toast('Posting in progress','Finish or verify this operation before leaving the current company workspace.','warning');return}
     observeClientScope();
     $$('[data-scope-notice]').forEach(node=>node.remove());
@@ -832,6 +1138,8 @@ const TeghPortal = (() => {
   };
   menus['My account'].push(['Client Viewing Links',()=>openClientViewLinks()],['Requested Downloads',()=>openRequestedDownloads()],['Dashboard & Reconciliation',()=>openWorkspacePreferences()],['Connections',()=>openTeghConnections()],['Notifications',()=>openTeghNotificationCenter()],['Keyboard Shortcuts',()=>openKeyboardShortcutHelp()]);
   menus['Reports'].push(['Month-End Close',()=>openMonthEndClose()]);
+  // R157: onboarding and the Tegh tour in Settings.
+  menus['My account'].push(['Onboarding',()=>openOnboarding()],['Take the Tegh Tour',()=>openTeghTour()]);
   const moduleSections={
     // R119: credit and debit notes are tabs of the invoice screen, and one register lists invoices and notes.
     'Receivables':{Activity:['Create Customer','Products and Services','Customer Invoices','Customer Payments','Collection Drafts'],Reports:['Customers','Customer Invoice & Note Register','Customer Ledgers','Receivable Ageing','Period Trial Balance']},
@@ -842,6 +1150,7 @@ const TeghPortal = (() => {
     'Advanced accounting':{Activity:['Budgets','Fixed Assets','Recurring Transactions'],Reports:['Analytics','Collections']}
   };
   const settingsGroups=[
+    {id:'getting-started',name:'Getting started',description:'Company setup steps and a guided tour of Tegh.',items:['Onboarding','Take the Tegh Tour']},
     {name:'Company details',description:'Company information, financial year and additional company files.',items:['Company Details','Add Company or Client File']},
     {name:'Accounting setup',description:'Accounts, opening balances, invoice defaults, currencies and period locks.',items:['Company Setup','Chart of Accounts & Opening Balances','Currency Exchange Rates','Period Locking','Invoice Templates','Sales & Purchase Defaults','Recurring Transactions']},
     {id:'people-permissions',name:'Team and access',description:'Manage company members and what each role may do.',items:['User Management','Client Viewing Links']},
@@ -1010,6 +1319,7 @@ const TeghPortal = (() => {
     'Banking Dashboard':'Open the complete Upload → Post or Match → Reconcile workflow','Upload Statement':'Upload a bank or credit-card statement','Match And Post Transactions':'Match bank transactions to book entries or post them to the General Ledger','Manage Bank Accounts':'View existing bank and credit-card accounts or create a new account','Bank Transactions':'Import, filter, post, match, void, or delete bank-side activity','Bank Transaction Report':'Review imported bank activity and transaction status','Bank General Ledger Report':'Review all posted movements affecting a selected bank ledger','Bank Reconciliation Report':'Reconcile statement and book balances with cleared and outstanding items','Reconcile Bank Account':'Tick cleared items against the statement balance and save a reconciliation',
     'Chart of Accounts & Opening Balances':'Manage the chart of accounts and opening trial balance in one workspace','Chart of Accounts':'Accounts, balances and opening setup','Journal Entries':'Create, import and schedule journal entries','Expense Vouchers':'Record cash and non-bank expenses','Day Book':'Chronological voucher and GL history','General Ledger Account Report':'Opening balance, posted activity and running balance for one GL account','Opening Balances':'Set the opening trial balance','GIFI Report':'Review and download GIFI-mapped GL balances',
     'Financial Analyst':'Forecast cash, compare budgets, model scenarios and review management alerts','Budgets':'Plan and compare financial performance','Fixed Assets':'Asset register and depreciation controls','Recurring Transactions':'Review, reschedule, pause or run every recurring entry','Analytics':'Management trends and comparisons','Collections':'Receivable follow-up workspace',
+    'Onboarding':'Set up the company step by step: chart of accounts, tax codes, bank accounts, data and team','Take the Tegh Tour':'A two-minute tour of Tegh with Tegh Assist',
     'Tegh Command Centre':'Find and run approved Tegh commands','Agent Center':'Review accounting alerts and choose the next safe step','Month-End Close':'Check whether the selected month is ready for review','Native Agent Settings':'Choose which checks run, when they run, and who is notified','My Account':'Profile and signed-in account preferences','Company Setup':'Set up company details, accounts, opening balances, tax, currency, and periods','Bookkeeping Mode':'Choose Guided or Full Accounting without changing accounting data','Add Company or Client File':'Create another company or client file from Settings','Business Profile':'Review company identity and operating details','Company Details':'Company identity, address, financial year, tax numbers, and book dates','Invoice Templates':'Choose and brand customer invoice layouts','Sales & Purchase Defaults':'Set common customer, vendor, payment-term, item, and purchase choices','Tegh Preferences':'Choose Ask Tegh, notification, and navigation preferences','Dashboard & Reconciliation':'Set the forecast horizon and require a preview before matching','Notifications':'View current alerts and follow them to the related work','Keyboard Shortcuts':'See the keyboard commands for search and common tasks','Connections':'Configure private on-device intelligence for Tegh Assist','Tegh AI Learned Rules':'Review or remove company-specific suggestions saved by Tegh','Tegh AI Improvement Lab':'Test proposed agent changes without using live company transactions','User Management':'Add users and manage their company roles','Client Viewing Links':'Share a view-only dashboard and chosen reports with a client','Payroll Rates':'Review statutory payroll rates','Data Import':'Check and import lists, draft invoices, accounts, and opening balances','Currencies and Data Imports':'Review currencies and import settings','Audit History':'See who changed company settings and accounting records','Backup and Restore':'Download a backup or restore company data','Platform Administration':'Start common Platform Owner tasks from one page','QA Centre':'Run read-only deployment checks and inspect isolated synthetic test evidence','Feature Control':'Review feature requests and manage company or user access','System Incident Audit':'Review recent system errors and diagnostic records','Bookkeeping Guide':'Learn the setup-to-reporting order and open guided workflows','FAQ':'Search answers about setup, banking, payroll, reports, and access','Support':'Find support channels and diagnose common issues','Open Source / AI Licences':'Review third-party software and AI component licences'
   };
   Object.assign(moduleItemDescriptions,{'Bank Transfers':'Move money between your own bank and credit-card accounts','Collection Drafts':'Reminder emails ready to send to customers who are late paying','Customer Invoice & Note Register':'Every invoice, credit note and debit note in one list','Period Trial Balance':'Balances of every account for the period you choose','Document Intake':'Upload receipts and bills and turn them into entries'});
@@ -1056,6 +1366,7 @@ const TeghPortal = (() => {
   const menuPermissionRules={
     'Customer Invoices':'invoices.write','Vendor Invoices':'bills.write','Expense Vouchers':'attachments.write','Manage Bank Accounts':'banking.view','Bank Transactions':'banking.match','Match And Post Transactions':'banking.view','Reconcile Bank Account':'banking.view','Bank Transaction Report':'reports.view','Bank General Ledger Report':'reports.view','Bank Reconciliation Report':'reports.view',
     'Journal Entries':'journals.write','Payroll & Tax Center':'payroll.view','Quick Calculation':'payroll.view','Employees':'payroll.view','Pay Run Register':'payroll.view','Payroll Verification':'payroll.view','CRA Remittance':'payroll.view','Payroll History':'payroll.view','Payroll Rates':'payroll.view',
+    'Onboarding':'company.view','Take the Tegh Tour':'company.view',
     'Agent Center':'company.view','Month-End Close':'reports.view','Native Agent Settings':'company.settings','Company Setup':'company.view','Bookkeeping Mode':'company.view','Company Details':'company.settings','Invoice Templates':'company.settings','Sales & Purchase Defaults':'company.view','Tegh Preferences':'company.view','Tegh AI Learned Rules':'company.view','Tegh AI Improvement Lab':'company.view','QA Centre':'company.view','User Management':'users.manage','Client Viewing Links':'users.manage','Audit History':'audit.view','Backup and Restore':'company.settings','Currency Exchange Rates':'company.settings','Data Import':'company.view','Period Locking':'company.view'
   };
   function permissionAllowed(permission,access=companyAccess(authCache)){
@@ -1204,6 +1515,7 @@ const TeghPortal = (() => {
     return `<article class="tegh-guided-task is-${esc(task.tone||'next')}" data-guided-task-card="${esc(task.id)}"><header><span>${esc(task.eyebrow||'Next')}</span><i aria-hidden="true">${task.id==='review'?'↕':task.id==='upload'?'↥':task.id==='invoices'?'↗':task.id==='bills'?'↙':'✓'}</i></header><h3>${esc(task.title)}</h3>${task.value?`<strong>${esc(task.value)}</strong>`:''}<p>${esc(task.copy)}</p><button type="button" class="primary" data-guided-task-action="${esc(task.action)}" ${restricted?'disabled aria-disabled="true" title="View Only access cannot upload statements."':''}>${restricted?'View Only':`${esc(task.label)} →`}</button></article>`;
   }
   function openGuidedBookkeeping(){
+    if(onboardingGate(()=>openGuidedBookkeeping()))return;setTimeout(()=>r157ShowBankStart(),1400);
     cancelCoreRouting();collapseOther(null);activeModule='';coreModule='';
     showPage('guided-bookkeeping','Guided Home','What needs your attention today.',async body=>{
       const [w,a]=await Promise.all([workspace(),auth()]),state=guidedTaskState(w),access=companyAccess(a)||{},canWrite=['owner','admin','editor','bookkeeper'].includes(String(access.role||'')),firstName=String(a.user?.displayName||'').trim().split(/\s+/)[0],hour=new Date().getHours(),greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening',attention=state.tasks.length;
@@ -1231,7 +1543,7 @@ const TeghPortal = (() => {
   }
   async function guidedExtractStatement(file,onProgress,context={}){
     const ext=String(file?.name||'').split('.').pop().toLowerCase();
-    if(ext==='pdf'){const mod=await import('./tegh-bank-converter-v5990.js?v=5990-r156-tegh');return await mod.extractAndReview(file,{...context,onProgress})}
+    if(ext==='pdf'){const mod=await import('./tegh-bank-converter-v5990.js?v=5990-r157-tegh');return await mod.extractAndReview(file,{...context,onProgress})}
     if(ext==='xlsx'||ext==='xls'){const mod=await import('./spreadsheetStatementImport-R-lkb343-v211.js?v=4600');return await mod.extractSpreadsheetStatement(file,onProgress)}
     return null;
   }
@@ -1412,7 +1724,7 @@ const TeghPortal = (() => {
   }
   function openGuidedCompanySetupModal(){
     const modal=guidedModalShell('tegh-guided-company-scrim','Add Another Company','Answer a few business questions. Tegh will create the accounting structure for you.');
-    const today=todayIso(),year=today.slice(0,4);modal.body.innerHTML=`<form class="tegh-guided-company-form"><label><b>What is the business called?</b><input name="name" required maxlength="160" autocomplete="organization"></label><label><b>What is its legal name?</b><input name="legalName" maxlength="200" placeholder="Same as business name if left blank"></label><label><b>What type of business is it?</b><select name="businessType"><option value="corporation">Corporation</option><option value="sole_proprietor">Sole proprietor</option><option value="partnership">Partnership</option><option value="non_profit">Non-profit</option></select></label><div class="r141-location"><b>Where is the business located?</b>${locationFieldsHtml({country:'Canada',province:'ON'})}</div><label><b>When should Tegh start the books?</b><input name="booksStartDate" type="date" value="${year}-01-01" required></label><label><b>What is the business year-end?</b><input name="fiscalYearEndDate" type="date" value="${year}-12-31" required></label><label class="check"><input name="taxRegistered" type="checkbox"><span>Registered for GST/HST</span></label><label data-tax-number hidden><b>What is the GST/HST number?</b><input name="taxNumber" maxlength="40"></label><label><b>Will you use Tegh payroll for employees?</b><select name="employees"><option value="no">No / not now</option><option value="yes">Yes</option></select></label><div class="srp-actions"><button class="srp-btn" type="submit">Create Company</button><button class="srp-btn secondary" type="button" data-cancel>Cancel</button></div></form>`;const form=$('form',modal.body),taxNumber=$('[data-tax-number]',form),taxToggle=form.taxRegistered;taxToggle.onchange=()=>{taxNumber.hidden=!taxToggle.checked;form.taxNumber.required=taxToggle.checked};wireLocationFields(form,()=>{const canada=countryIsCanada(form.country.value);if(form.employees){form.employees.value=canada?form.employees.value:'no';[...form.employees.options].forEach(o=>{if(o.value==='yes'){o.disabled=!canada;o.textContent=canada?'Yes':'Yes (Payroll Support is for Canada only)'}})}});$('[data-cancel]',form).onclick=modal.close;form.onsubmit=async e=>{e.preventDefault();if(!form.reportValidity())return;const button=$('button[type="submit"]',form);button.disabled=true;const f=Object.fromEntries(new FormData(form));try{const result=await api('companies',{method:'POST',json:{name:f.name,legalName:f.legalName||f.name,businessType:f.businessType,country:f.country||'Canada',province:f.province||'',currency:'CAD',accountingBasis:'accrual',moduleMode:f.employees==='yes'?'both':'accounting',payrollPostingMode:'draft',fiscalYearEndDate:f.fiscalYearEndDate,booksStartDate:f.booksStartDate,taxRegistered:taxToggle.checked,taxNumber:taxToggle.checked?f.taxNumber:null,coaMode:'default'}});const id=result.company?.id;if(!id)throw Error('Tegh created the company but did not return its workspace reference.');localStorage.setItem('sr-accountax-company',id);localStorage.setItem('sr-accountax-companies',JSON.stringify([id]));toast('Company Created',`${f.name} is ready for Guided Bookkeeping.`,'success');modal.close();authCache=null;setTimeout(()=>location.assign('/app.html'),500)}catch(error){toast('Company Not Created',error.message,'error');button.disabled=false}};
+    const today=todayIso(),year=today.slice(0,4);modal.body.innerHTML=`<form class="tegh-guided-company-form"><label><b>What is the business called?</b><input name="name" required maxlength="160" autocomplete="organization"></label><label><b>What is its legal name?</b><input name="legalName" maxlength="200" placeholder="Same as business name if left blank"></label><label><b>What type of business is it?</b><select name="businessType"><option value="corporation">Corporation</option><option value="sole_proprietor">Sole proprietor</option><option value="partnership">Partnership</option><option value="non_profit">Non-profit</option></select></label><div class="r141-location"><b>Where is the business located?</b>${locationFieldsHtml({country:'Canada',province:'ON'})}</div><label><b>When should Tegh start the books?</b><input name="booksStartDate" type="date" value="${year}-01-01" required></label><label><b>Which time zone is the business in?</b><select name="timezone">${timezoneOptionsHtml('')}</select></label><label><b>What is the business year-end?</b><input name="fiscalYearEndDate" type="date" value="${year}-12-31" required></label><label class="check"><input name="taxRegistered" type="checkbox"><span>Registered for GST/HST</span></label><label data-tax-number hidden><b>What is the GST/HST number?</b><input name="taxNumber" maxlength="40"></label><label><b>Will you use Tegh payroll for employees?</b><select name="employees"><option value="no">No / not now</option><option value="yes">Yes</option></select></label><div class="srp-actions"><button class="srp-btn" type="submit">Create Company</button><button class="srp-btn secondary" type="button" data-cancel>Cancel</button></div></form>`;const form=$('form',modal.body),taxNumber=$('[data-tax-number]',form),taxToggle=form.taxRegistered;taxToggle.onchange=()=>{taxNumber.hidden=!taxToggle.checked;form.taxNumber.required=taxToggle.checked};wireLocationFields(form,()=>{const canada=countryIsCanada(form.country.value);if(form.employees){form.employees.value=canada?form.employees.value:'no';[...form.employees.options].forEach(o=>{if(o.value==='yes'){o.disabled=!canada;o.textContent=canada?'Yes':'Yes (Payroll Support is for Canada only)'}})}});$('[data-cancel]',form).onclick=modal.close;form.onsubmit=async e=>{e.preventDefault();if(!form.reportValidity())return;const button=$('button[type="submit"]',form);button.disabled=true;const f=Object.fromEntries(new FormData(form));try{const result=await api('companies',{method:'POST',json:{name:f.name,legalName:f.legalName||f.name,businessType:f.businessType,country:f.country||'Canada',province:f.province||'',currency:'CAD',accountingBasis:'accrual',moduleMode:f.employees==='yes'?'both':'accounting',payrollPostingMode:'draft',fiscalYearEndDate:f.fiscalYearEndDate,booksStartDate:f.booksStartDate,taxRegistered:taxToggle.checked,taxNumber:taxToggle.checked?f.taxNumber:null,coaMode:'manual',timezone:f.timezone||'',onboarding:true}});const id=result.company?.id;if(!id)throw Error('Tegh created the company but did not return its workspace reference.');localStorage.setItem('sr-accountax-company',id);localStorage.setItem('sr-accountax-companies',JSON.stringify([id]));toast('Company Created',`${f.name} is ready for Guided Bookkeeping.`,'success');modal.close();authCache=null;setTimeout(()=>location.assign('/app.html'),500)}catch(error){toast('Company Not Created',error.message,'error');button.disabled=false}};
   }
   function openGuidedMonthEnd(){
     if(experienceMode()==='owner'){
@@ -1748,7 +2060,7 @@ const TeghPortal = (() => {
   }
   const quickActionService={getCatalogue:getQuickActionCatalogue,peekCatalogue:peekQuickActionCatalogue,prefetch:()=>getQuickActionCatalogue().catch(()=>[]),getSelected:selectedQuickActions,getIds:quickActionIds,setIds:(ids,announcement='')=>saveQuickActionIds(ids,announcement),getMode:quickActionMode,getScope:()=>authCache?.user?.id?clientScopeKey():'',getDefaultIds:defaultQuickActionIds,search:(query,catalogue=quickActionCatalogueCache.items)=>searchQuickActionCatalogue(catalogue,query),open:invokeQuickAction,openPicker:openQuickActionPicker,add:async id=>{const catalogue=await getQuickActionCatalogue(),item=catalogue.find(row=>row.action_id===id),ids=quickActionIds();if(!item||ids.includes(id)||ids.length>=quickActionLimit)return false;saveQuickActionIds([...ids,id],`${item.label} added to Quick Actions.`);return true},remove:id=>saveQuickActionIds(quickActionIds().filter(value=>value!==id)),move:(id,direction)=>{const ids=quickActionIds(),from=ids.indexOf(id),to=from+(direction<0?-1:1);if(from<0||to<0||to>=ids.length)return false;[ids[from],ids[to]]=[ids[to],ids[from]];saveQuickActionIds(ids);return true},restoreDefaults:()=>saveQuickActionIds(defaultQuickActionIds()),audit:quickActionCatalogueAudit};
 
-  function openDashboard(){cancelCoreRouting();collapseOther(null);activeModule='';coreModule='';dashboardOpened=true;showPage('dashboard','Dashboard','',async body=>{
+  function openDashboard(){if(onboardingGate(()=>openDashboard()))return;setTimeout(()=>r157ShowBankStart(),1400);cancelCoreRouting();collapseOther(null);activeModule='';coreModule='';dashboardOpened=true;showPage('dashboard','Dashboard','',async body=>{
     const [w,a]=await Promise.all([workspaceSummary(),auth()]);
     if(!w?.summary||['bankBalanceCents','unpaidInvoicesCents','payableSubledgerCents','taxPayableCents','transactionsToReview'].some(key=>!Number.isFinite(Number(w.summary[key]))||w.summary[key]===null))throw Error('Current balances are unavailable. Retry to load verified figures.');
     const currency=w.organization?.currency||'CAD',summary=w.summary,today=todayIso(),page=body.closest('.srp-page');
@@ -1774,7 +2086,7 @@ const TeghPortal = (() => {
     body.innerHTML=`<section class="srp-sites-stat-grid" aria-label="Current balances"><div class="r125-dash-intro" role="region" aria-label="Summary"><p class="r125-dash-summary">${esc(plainSummary)}</p><form class="r125-dash-ask" data-dashboard-ask role="search"><label><span class="tegh-assist-sr">Ask Tegh</span><input name="question" placeholder="Ask Tegh anything, e.g. who owes me money?" autocomplete="off" enterkeyhint="go"></label><button type="submit" class="srp-btn">Ask</button></form></div>${kpis.map((item,index)=>`<article class="srp-sites-stat-card" data-dashboard-kpi="${index}" ${item.tone?`data-tone="${item.tone}"`:''}><div><span>${esc(item.label)}</span><button type="button" data-sites-kpi="${index}" aria-label="Open ${esc(item.label)}">↗</button></div><strong>${item.value===null?'—':esc(money(item.value,currency))}</strong><small>${esc(item.note)}</small><em class="r125-term">${esc(item.term)}</em></article>`).join('')}</section>
       <section class="r17-dashboard-charts"><article class="srp-sites-panel r15-dashboard-forecast"><header><div><small>Four-Week Planning Estimate</small><h2>Cash Forecast</h2></div><button type="button" data-sites-forecast>View Forecast →</button></header><strong aria-label="Expected closing cash">—</strong><div data-dashboard-cash-chart role="status">Loading forecast…</div><small data-dashboard-cash-note>Planning estimate</small></article><article class="srp-sites-panel r17-dashboard-profit"><header><div><small data-dashboard-profit-period>Loading posted period…</small><h2>Money In and Out</h2></div><button type="button" data-sites-profit>Full report →</button></header><label>Period<select data-dashboard-months disabled aria-busy="true" title="Loading posted results"><option value="6">Last 6 Months</option><option value="3">Last 3 Months</option><option value="1">This Month</option></select></label><div class="r17-profit-totals" aria-label="Selected period totals">${['Money in','Money out','Profit'].map((label,i)=>`<div><span>${label}</span><b data-dashboard-profit-total="${i}">—</b></div>`).join('')}</div><p class="r125-chart-plain" data-dashboard-profit-plain></p><div class="r17-chart-legend"><span><i class="income"></i>Money in</span><span><i class="expense"></i>Money out</span><span><i class="net"></i>Profit</span></div><div data-dashboard-profit-chart role="status">Loading posted results…</div></article></section>
       <section data-dashboard-slot="widgets" class="tegh-dashboard-widget-slot" aria-label="Additional financial insights"></section>
-      <aside class="srp-sites-panel srp-sites-action-panel r17-dashboard-actions" data-dashboard-slot="quick-actions"><header><div><h2>Shortcuts</h2></div><button type="button" data-edit-quick-actions aria-label="Choose your shortcuts">Edit</button></header><div class="r17-quick-list" role="list" aria-label="Dashboard shortcuts">${quick.map((item,index)=>`<button type="button" role="listitem" data-sites-quick="${index}" aria-keyshortcuts="Control+Alt+${(index+1)%10}" title="Ctrl+Alt+${(index+1)%10} · ${esc(item.label)}" class="${esc(quickActionTone(item.module))}"><span class="r19-shortcut-icon" aria-hidden="true">${window.TeghReferenceUI?.icon(item.module)||'＋'}</span><strong>${esc(dashboardFriendlyShortcut(item))}</strong><small class="r20-shortcut-key" aria-hidden="true">${(index+1)%10}</small></button>`).join('')||'<p>Use Edit shortcuts to choose your usual destinations.</p>'}</div></aside>
+      <aside class="srp-sites-panel srp-sites-action-panel r17-dashboard-actions" data-dashboard-slot="quick-actions"><header><div><h2>Shortcuts</h2><small class="r157-quick-hint">Keys work on every page</small></div><button type="button" data-edit-quick-actions aria-label="Choose your shortcuts">Edit</button></header><div class="r17-quick-list" role="list" aria-label="Dashboard shortcuts">${quick.map((item,index)=>`<button type="button" role="listitem" data-sites-quick="${index}" aria-keyshortcuts="Control+Alt+${(index+1)%10}" title="Ctrl+Alt+${(index+1)%10} · ${esc(item.label)}" class="${esc(quickActionTone(item.module))}"><span class="r19-shortcut-icon" aria-hidden="true">${window.TeghReferenceUI?.icon(item.module)||'＋'}</span><span class="r157-quick-label"><strong>${esc(dashboardFriendlyShortcut(item))}</strong>${index<10?`<small class="r157-quick-key" aria-hidden="true">${r157ModifierKeys()}<kbd>${(index+1)%10}</kbd></small>`:''}</span></button>`).join('')||'<p>Use Edit shortcuts to choose your usual destinations.</p>'}</div></aside>
       <section class="r17-dashboard-footer r19-attention" aria-labelledby="r19-attention-title"><header><h2 id="r19-attention-title">To Do</h2><button type="button" data-open-bookkeeping-workspace>See all</button></header><div class="r19-task-grid"><button type="button" data-sites-bank-review ${Number(summary.transactionsToReview)>0?'':'hidden'}><span class="r19-task-dot" data-tone="warning" aria-hidden="true"></span><span><b>${esc(plural(Number(summary.transactionsToReview||0),'bank transaction','bank transactions'))}</b> to sort out</span><span aria-hidden="true">›</span></button><button type="button" data-r19-overdue ${overdueIn>0?'':'hidden'}><span class="r19-task-dot" data-tone="danger" aria-hidden="true"></span><span>Customers are late paying <b>${esc(money(overdueIn,currency))}</b>: remind them</span><span aria-hidden="true">›</span></button><button type="button" data-r19-bills ${Number(summary.dueSoonBillCount)>0?'':'hidden'}><span class="r19-task-dot" data-tone="warning" aria-hidden="true"></span><span><b>${esc(plural(Number(summary.dueSoonBillCount||0),'bill','bills'))}</b> due soon</span><span aria-hidden="true">›</span></button>${Number(summary.transactionsToReview)>0||overdueIn>0||Number(summary.dueSoonBillCount)>0?'':'<p class="r125-all-done">You’re all caught up. Nothing needs your attention right now.</p>'}<button type="button" data-r19-close><span class="r19-task-dot" data-tone="neutral" aria-hidden="true"></span><span>Month-end checklist</span><span aria-hidden="true">›</span></button></div><div class="r19-dashboard-meta"><small>Book activity through ${date(w.currentThrough||today)} · Refreshed ${new Intl.DateTimeFormat('en-CA',{hour:'numeric',minute:'2-digit'}).format(new Date())}</small><button type="button" data-dashboard-customize disabled>Customize</button></div></section>`;
     $$('[data-sites-kpi]',body).forEach(button=>button.onclick=()=>kpis[Number(button.dataset.sitesKpi)]?.action());
     $$('[data-sites-quick]',body).forEach(button=>button.onclick=()=>{const item=quick[Number(button.dataset.sitesQuick)];if(item)invokeQuickAction(item.action_id,{source:'dashboard'})});
@@ -2406,16 +2718,10 @@ const TeghPortal = (() => {
     note.dataset.full=text;note.title=text;note.setAttribute('aria-label',text);
   }
   function installThemeSwitch(){
-    const bar=$('.topbar .top-actions');if(!bar)return false;let group=$('[data-r153-theme]',bar);
-    if(!group){group=document.createElement('div');group.className='r153-theme-switch';group.dataset.r153Theme='1';group.setAttribute('role','group');group.setAttribute('aria-label','Colour theme');
-      group.innerHTML=['light','dark','auto'].map(value=>`<button type="button" data-theme-choice="${value}" title="${THEME_LABELS[value]} theme${value==='auto'?' (follows this device)':''}" aria-label="${THEME_LABELS[value]} theme">${THEME_ICONS[value]}</button>`).join('');
-      bar.insertBefore(group,$('.bell',bar)||bar.firstChild?.nextSibling||null);
-      group.addEventListener('click',event=>{const button=event.target.closest('[data-theme-choice]');if(!button)return;let value=button.dataset.themeChoice;
-        // Phones show only the current icon; tapping it moves to the next theme.
-        if(window.matchMedia('(max-width:600px)').matches){const order=['light','dark','auto'];value=order[(order.indexOf(currentThemeChoice())+1)%order.length]}
-        setThemeChoice(value)});}
-    const current=currentThemeChoice();$$('[data-theme-choice]',group).forEach(button=>{const on=button.dataset.themeChoice===current;button.setAttribute('aria-pressed',String(on));button.classList.toggle('is-active',on)});
-    group.title=`Theme: ${THEME_LABELS[current]}`;return true;
+    // R157: the theme switch moved into the profile menu. Remove the R153 top-bar group if an older page left one.
+    $$('.topbar [data-r153-theme]').forEach(group=>group.remove());
+    const profile=$('.topbar details.r17-profile-menu [data-profile-preferences]')?.parentElement;if(profile)syncProfilePreferences(profile);
+    return !!$('.topbar');
   }
   async function setThemeChoice(value){
     const theme=['light','dark'].includes(value)?value:'auto';saveTeghPreferenceCache({theme});applyTeghPreferences();
@@ -2611,18 +2917,18 @@ const TeghPortal = (() => {
     let section=$('[data-profile-preferences]',profile);
     if(!section){
       section=document.createElement('section');section.className='r31-profile-preferences';section.dataset.profilePreferences='1';section.setAttribute('role','group');section.setAttribute('aria-label','Workspace preferences');
-      section.innerHTML=`<header><b>Workspace preferences</b><small>Changes apply immediately</small></header><div class="r31-profile-preference"><span><b>Accounting mode</b><small data-profile-mode-status></small></span><div class="r31-profile-segmented" role="group" aria-label="Accounting mode"><button type="button" data-profile-mode="owner">Guided</button><button type="button" data-profile-mode="accountant">Full Accounting</button></div></div><div class="r31-profile-preference"><span><b>Appearance</b><small data-profile-theme-status></small></span><div class="r31-profile-appearance"><button type="button" data-profile-theme-toggle>${profilePreferenceIcon('bulb')}<span data-profile-theme-label></span></button><button type="button" data-profile-system-theme>System</button></div></div><div class="r31-profile-preference"><span><b>Navigation</b><small data-profile-navigation-status></small></span><div class="r31-profile-segmented" role="group" aria-label="Navigation layout"><button type="button" data-profile-navigation="top">${profilePreferenceIcon('top')}<span>Top</span></button><button type="button" data-profile-navigation="side">${profilePreferenceIcon('side')}<span>Side</span></button></div></div>`;
+      section.innerHTML=`<header><b>Workspace preferences</b><small>Changes apply immediately</small></header><div class="r31-profile-preference"><span><b>Accounting mode</b><small data-profile-mode-status></small></span><div class="r31-profile-segmented" role="group" aria-label="Accounting mode"><button type="button" data-profile-mode="owner">Guided</button><button type="button" data-profile-mode="accountant">Full Accounting</button></div></div><div class="r31-profile-preference"><span><b>Appearance</b><small data-profile-theme-status></small></span><div class="r31-profile-segmented r157-profile-theme" role="group" aria-label="Colour theme">${['light','dark','auto'].map(value=>`<button type="button" data-theme-choice="${value}" title="${THEME_LABELS[value]}${value==='auto'?' (follows this device)':''}" aria-label="${THEME_LABELS[value]} theme">${THEME_ICONS[value]}<span>${THEME_LABELS[value]}</span></button>`).join('')}</div></div><div class="r31-profile-preference"><span><b>Navigation</b><small data-profile-navigation-status></small></span><div class="r31-profile-segmented" role="group" aria-label="Navigation layout"><button type="button" data-profile-navigation="top">${profilePreferenceIcon('top')}<span>Top</span></button><button type="button" data-profile-navigation="side">${profilePreferenceIcon('side')}<span>Side</span></button></div></div>`;
       profile.insertBefore(section,$('[data-r17-appearance]',profile));
       $$('[data-profile-mode]',section).forEach(button=>button.onclick=async event=>{event.preventDefault();event.stopPropagation();await switchBookkeepingMode(button.dataset.profileMode);syncProfilePreferences(profile)});
-      $('[data-profile-theme-toggle]',section).onclick=event=>{event.preventDefault();event.stopPropagation();const current=teghPreferences().theme,effective=current==='dark'||(current==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light',theme=effective==='dark'?'light':'dark';saveTeghPreferenceCache({theme});applyTeghPreferences();syncProfilePreferences(profile);api('agent/interface-preferences',{method:'PUT',json:{theme}}).catch(()=>toast('Theme saved on this device','Tegh could not sync this display preference to another browser yet.','warning'))};
-      $('[data-profile-system-theme]',section).onclick=event=>{event.preventDefault();event.stopPropagation();saveTeghPreferenceCache({theme:'auto'});applyTeghPreferences();syncProfilePreferences(profile);api('agent/interface-preferences',{method:'PUT',json:{theme:'auto'}}).catch(()=>toast('Theme saved on this device','Tegh could not sync this display preference to another browser yet.','warning'))};
+      // R157: light, dark and system appearance live here (the top-bar icons were removed).
+      $$('[data-theme-choice]',section).forEach(button=>button.onclick=async event=>{event.preventDefault();event.stopPropagation();await setThemeChoice(button.dataset.themeChoice);syncProfilePreferences(profile)});
       $$('[data-profile-navigation]',section).forEach(button=>button.onclick=event=>{event.preventDefault();event.stopPropagation();const navigationLayout=button.dataset.profileNavigation==='top'?'top':'side';saveTeghPreferenceCache({navigationLayout});applyTeghPreferences();syncProfilePreferences(profile);api('agent/interface-preferences',{method:'PUT',json:{navigationLayout}}).catch(()=>toast('Navigation saved on this device','Tegh could not sync this display preference to another browser yet.','warning'))});
     }
     const prefs=teghPreferences(),mode=experienceMode(),systemDark=matchMedia('(prefers-color-scheme: dark)').matches,effectiveTheme=prefs.theme==='dark'||(prefs.theme==='auto'&&systemDark)?'dark':'light';
     $$('[data-profile-mode]',section).forEach(button=>{const active=button.dataset.profileMode===mode;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});
     $('[data-profile-mode-status]',section).textContent=bookkeepingModeMeta(mode).label;
-    const themeToggle=$('[data-profile-theme-toggle]',section),themeLabel=$('[data-profile-theme-label]',section),auto=prefs.theme==='auto';themeToggle.classList.toggle('active',!auto);themeToggle.setAttribute('aria-pressed',String(!auto));themeToggle.setAttribute('aria-label',`${effectiveTheme==='light'?'Light':'Dark'} mode active. Switch to ${effectiveTheme==='light'?'Dark':'Light'} mode.`);themeToggle.title=`Switch to ${effectiveTheme==='light'?'Dark':'Light'} mode`;themeLabel.textContent=effectiveTheme==='light'?'Light':'Dark';themeToggle.dataset.bulb=effectiveTheme==='light'?'on':'off';
-    const system=$('[data-profile-system-theme]',section);system.classList.toggle('active',auto);system.setAttribute('aria-pressed',String(auto));$('[data-profile-theme-status]',section).textContent=auto?`System · ${effectiveTheme==='light'?'Light':'Dark'}`:`${effectiveTheme==='light'?'Light':'Dark'} mode`;
+    const auto=prefs.theme==='auto';$$('[data-theme-choice]',section).forEach(button=>{const on=button.dataset.themeChoice===(['light','dark'].includes(prefs.theme)?prefs.theme:'auto');button.classList.toggle('active',on);button.setAttribute('aria-pressed',String(on))});
+    $('[data-profile-theme-status]',section).textContent=auto?`System · ${effectiveTheme==='light'?'Light':'Dark'}`:`${effectiveTheme==='light'?'Light':'Dark'} mode`;
     $$('[data-profile-navigation]',section).forEach(button=>{const active=button.dataset.profileNavigation===prefs.navigationLayout;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});
     $('[data-profile-navigation-status]',section).textContent=prefs.navigationLayout==='top'?'Top navigation':`Side navigation · ${prefs.sidebarHidden?'Minimized':'Expanded'}`;
   }
@@ -2854,9 +3160,9 @@ const TeghPortal = (() => {
       event.preventDefault();const button=event.submitter||$('button[type="submit"],button:not([type])',form);if(!button)return;button.disabled=true;
       try{
         const data=Object.fromEntries(new FormData(form));if(!data.legalName)data.legalName=data.name;data.currency=String(data.currency||'CAD').toUpperCase();data.taxRegistered=taxCheckbox.checked;const pstAvailable=salesTaxPstDefaultBps(data.province)>0;data.pstRegistered=pstAvailable&&pstCheckbox.checked;data.pstRateMpct=data.pstRegistered?Math.round(Number(data.pstRatePercent||0)*1000):0;data.pstRecoverable=data.pstRegistered&&pstRecoverInput.checked;delete data.pstRatePercent;data.testMode=!!(isPlatformOwner&&testCheckbox?.checked);
-        const result=await api('companies',{method:'POST',json:data});authCache=null;localStorage.setItem('sr-accountax-company',result.company.id);localStorage.setItem('sr-accountax-companies',JSON.stringify([result.company.id]));
+        if(!data.testMode)data.onboarding=true;const result=await api('companies',{method:'POST',json:data});authCache=null;localStorage.setItem('sr-accountax-company',result.company.id);localStorage.setItem('sr-accountax-companies',JSON.stringify([result.company.id]));
         form.dataset.srpDirty='0';form.dataset.teghWorkflowDirty='0';
-        form.dataset.srpDirty='0';form.dataset.teghWorkflowDirty='0';try{if(!data.testMode)sessionStorage.setItem('tegh-r137-open','tax-codes')}catch{}location.assign('/app.html')
+        form.dataset.srpDirty='0';form.dataset.teghWorkflowDirty='0';try{if(!data.testMode&&!data.onboarding)sessionStorage.setItem('tegh-r137-open','tax-codes')}catch{}location.assign('/app.html')
       }catch(error){toast('Company not created',error.message,'error');button.disabled=false}
     };
   },{module:'My account'})}
@@ -3280,7 +3586,9 @@ const TeghPortal = (() => {
     return api('workspace/summary',{companyId:ids[0]||undefined});
   }
   function accountsOptions(data,type='income'){return (data.accounts||[]).filter(a=>a.type===type&&a.active!==false).map(a=>`<option value="${esc(a.id)}">${esc(a.code)} · ${esc(a.name)}</option>`).join('')}
-  const todayIso=()=>{const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Toronto',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()),value=Object.fromEntries(parts.map(part=>[part.type,part.value]));return `${value.year}-${value.month}-${value.day}`};
+  // R157: the accounting date follows the company's time zone (Toronto unless the company chose another).
+  const accountingTimeZone=()=>{const zone=String(companyAccess(authCache)?.timezone||'America/Toronto');window.TeghAccountingTimeZone=zone;return zone};
+  const todayIso=()=>{const parts=new Intl.DateTimeFormat('en-CA',{timeZone:accountingTimeZone(),year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()),value=Object.fromEntries(parts.map(part=>[part.type,part.value]));return `${value.year}-${value.month}-${value.day}`};
   const standardGifiByGlCode=Object.freeze({
     '1000':'1002','1050':'1001','1100':'1066','1110':'1066','1200':'1062','1300':'1484','1500':'1740','1590':'1741',
     '2000':'2707','2050':'2621','2100':'2680','2110':'2680','2200':'2700','2300':'2624','2310':'2628','2320':'2627','2330':'2627','2340':'2627','2350':'2620',
@@ -3713,11 +4021,14 @@ const TeghPortal = (() => {
     return `State, province or region <small>(optional code)</small><input name="province" value="${esc(value)}" maxlength="10" pattern="[A-Za-z0-9][A-Za-z0-9-]{0,9}" placeholder="e.g. NY, MH, ENG" autocapitalize="characters" ${disabled?'disabled':''}>`;
   }
   // R153: company address, contact and short name (used on customer invoices and to label report lines when several companies are viewed together).
+  // R157: time zones offered for a company: Canada first, then common others. The browser's own zone is suggested for a new company.
+  const R157_TIMEZONES=[['America/St_Johns','Newfoundland (St. John’s)'],['America/Halifax','Atlantic (Halifax)'],['America/Moncton','Atlantic (Moncton)'],['America/Toronto','Eastern (Toronto)'],['America/Winnipeg','Central (Winnipeg)'],['America/Regina','Saskatchewan (Regina)'],['America/Edmonton','Mountain (Edmonton)'],['America/Vancouver','Pacific (Vancouver)'],['America/Whitehorse','Yukon (Whitehorse)'],['America/Yellowknife','Northwest Territories (Yellowknife)'],['America/Iqaluit','Nunavut (Iqaluit)'],['America/New_York','US Eastern (New York)'],['America/Chicago','US Central (Chicago)'],['America/Denver','US Mountain (Denver)'],['America/Los_Angeles','US Pacific (Los Angeles)'],['Europe/London','United Kingdom (London)'],['Europe/Paris','Central Europe (Paris)'],['Asia/Kolkata','India (Kolkata)'],['Asia/Dubai','Gulf (Dubai)'],['Asia/Singapore','Singapore'],['Australia/Sydney','Australia Eastern (Sydney)'],['UTC','UTC']];
+  function timezoneOptionsHtml(selected){let zone=String(selected||'');if(!zone){try{const own=Intl.DateTimeFormat().resolvedOptions().timeZone;zone=R157_TIMEZONES.some(([z])=>z===own)?own:'America/Toronto'}catch{zone='America/Toronto'}}const list=R157_TIMEZONES.some(([z])=>z===zone)?R157_TIMEZONES:[[zone,zone],...R157_TIMEZONES];return list.map(([z,label])=>`<option value="${esc(z)}" ${z===zone?'selected':''}>${esc(label)}</option>`).join('')}
   function companyProfileFieldsHtml(c={}){const auto=String(c.shortName&&!c.shortNameSet?c.shortName:'');return `<div class="full r153-company-address"><h3>Address and contact</h3><p>Printed on your customer invoices. An invoice template with its own address uses that instead.</p></div>
       <label class="full">Street Address<input name="addressLine1" value="${esc(c.addressLine1||'')}" maxlength="200" autocomplete="address-line1"></label><label class="full">Address Line 2<input name="addressLine2" value="${esc(c.addressLine2||'')}" maxlength="200" autocomplete="address-line2" placeholder="Suite, unit or building (optional)"></label>
       <label>City<input name="city" value="${esc(c.city||'')}" maxlength="100" autocomplete="address-level2"></label><label>Postal or ZIP Code<input name="postalCode" value="${esc(c.postalCode||'')}" maxlength="20" autocomplete="postal-code"></label>
       <label>Phone<input name="phone" type="tel" value="${esc(c.phone||'')}" maxlength="40" autocomplete="tel"></label><label>Business Email<input name="contactEmail" type="email" value="${esc(c.contactEmail||'')}" maxlength="254" autocomplete="email"></label>
-      <label>Short Name<input name="shortName" value="${esc(c.shortNameSet?c.shortName:'')}" maxlength="12" placeholder="${esc(auto||'e.g. NWS')}"><small>Up to 12 characters. Shown on each report line when several companies are viewed together.${auto?` Leave blank to use ${esc(auto)}.`:' Leave blank to use the initials of the company name.'}</small></label>`}
+      <label>Time Zone<select name="timezone">${timezoneOptionsHtml(c.timezone)}</select><small>Sets the company’s “today” for default dates and periods.</small></label><label>Short Name<input name="shortName" value="${esc(c.shortNameSet?c.shortName:'')}" maxlength="12" placeholder="${esc(auto||'e.g. NWS')}"><small>Up to 12 characters. Shown on each report line when several companies are viewed together.${auto?` Leave blank to use ${esc(auto)}.`:' Leave blank to use the initials of the company name.'}</small></label>`}
   function locationFieldsHtml({country='Canada',province='',required=true,disabled=false}={}){return `<label>Country<select name="country" data-location-country ${disabled?'disabled':''}>${countryOptionsHtml(country)}</select></label><label data-location-province data-required="${required?'1':'0'}">${provinceFieldHtml(country,province,required,disabled)}</label>`}
   function wireLocationFields(scope,onChange=()=>{}){$$('[data-location-country]',scope).forEach(select=>{if(select.dataset.locationWired)return;select.dataset.locationWired='1';select.addEventListener('change',()=>{const host=select.closest('label')?.nextElementSibling;if(host?.matches('[data-location-province]')){host.innerHTML=provinceFieldHtml(select.value,'',host.dataset.required!=='0',false);}onChange()})})}
 
@@ -6838,7 +7149,7 @@ const TeghPortal = (() => {
     if(nativeAPARModulePromise)return nativeAPARModulePromise;
     if(window.TeghLoadFeature){nativeAPARModulePromise=window.TeghLoadFeature('native-ap-ar').then(()=>{if(!window.TeghNativeAPAR)throw new Error('The Document workspace did not initialize.');return window.TeghNativeAPAR}).catch(error=>{nativeAPARModulePromise=null;throw error});return nativeAPARModulePromise}
     nativeAPARModulePromise=new Promise((resolve,reject)=>{
-      const source='/assets/tegh-native-ap-ar-v5600.js?v=5990-r156-tegh',existing=document.querySelector(`script[src^="/assets/tegh-native-ap-ar-v5600.js"]`);
+      const source='/assets/tegh-native-ap-ar-v5600.js?v=5990-r157-tegh',existing=document.querySelector(`script[src^="/assets/tegh-native-ap-ar-v5600.js"]`);
       const ready=()=>window.TeghNativeAPAR?resolve(window.TeghNativeAPAR):reject(new Error('The Native AP/AR workspace did not initialize.'));
       if(existing){existing.addEventListener('load',ready,{once:true});existing.addEventListener('error',()=>reject(new Error('The Native AP/AR workspace could not be loaded.')),{once:true});setTimeout(()=>window.TeghNativeAPAR&&resolve(window.TeghNativeAPAR),0);return}
       const script=document.createElement('script');script.src=source;script.async=true;script.onload=ready;script.onerror=()=>reject(new Error('The Native AP/AR workspace could not be loaded.'));document.head.append(script);
@@ -7597,6 +7908,8 @@ const TeghPortal = (() => {
     // R129: edit an unposted, unmatched bank line from the Transactions Report.
     editBankTransaction:async payload=>{const result=await api('bank-transactions/edit',{method:'POST',json:payload});if(result?.changed!==false)toast('Bank Transaction Updated','The change is saved and recorded in the audit trail.','success');await refreshAfterCommittedMutation(()=>openWorkspaceReport('bank-transactions',{...lastBankReportContext}),'bank-transactions');return result},
     openBankImport:()=>openCurrentStatementImporter(),
+    // R157.
+    openOnboarding,openTeghTour,loadOnboarding,
     openReconciliation:()=>openBankReconciliation(),
     quickActions:quickActionService
   };

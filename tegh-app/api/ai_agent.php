@@ -282,6 +282,20 @@ function agent_preference_read(string $companyId, string $userId, string $key): 
     return is_array($decoded) ? $decoded : null;
 }
 
+function agent_quick_actions_from_other_company(string $companyId, string $userId, string $mode): ?array
+{
+    try {
+        $stmt = db()->prepare('SELECT p.preference_json FROM ai_agent_preferences p JOIN company_members m ON m.company_id=p.company_id AND m.user_id=p.user_id WHERE p.user_id=? AND p.preference_key=? AND p.active=1 AND p.company_id<>? ORDER BY p.updated_at DESC LIMIT 1');
+        $stmt->execute([$userId, TEGH_QUICK_ACTION_PREFERENCE_PREFIX . $mode, $companyId]);
+        $raw = $stmt->fetchColumn();
+        if (!is_string($raw) || $raw === '') return null;
+        $decoded = json_decode($raw, true, 16, JSON_THROW_ON_ERROR);
+        return is_array($decoded) ? $decoded : null;
+    } catch (Throwable) {
+        return null;
+    }
+}
+
 function agent_preference_write(string $companyId, string $userId, string $key, array $preference): void
 {
     $json = json_encode($preference, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
@@ -333,6 +347,9 @@ function agent_interface_preference(array $user, array $company): array
         $quickActions=[];
         foreach(['guided','full'] as $mode){
             $saved=agent_preference_read($companyId,$userId,TEGH_QUICK_ACTION_PREFERENCE_PREFIX.$mode);
+            // R157: Quick Actions follow the person. A company where they have not chosen any yet uses their latest
+            // choice from another company they belong to, so a new or another company does not start from the defaults.
+            if($saved===null)$saved=agent_quick_actions_from_other_company($companyId,$userId,$mode);
             $ids=is_array($saved['actionIds']??null)?array_values(array_filter($saved['actionIds'],'is_string')):[];
             $quickActions[$mode]=['version'=>3,'actionIds'=>array_slice(array_values(array_unique($ids)),0,TEGH_QUICK_ACTION_LIMIT),'source'=>$saved===null?'default':'user'];
         }

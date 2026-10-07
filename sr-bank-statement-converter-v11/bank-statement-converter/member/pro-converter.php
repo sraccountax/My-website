@@ -25,6 +25,7 @@ $usage = sr_usage_summary((int)$user['id']);
   <link rel="stylesheet" href="../bank-converter.css?v=20261006-11">
   <link rel="stylesheet" href="../utility.css?v=20260908-1">
   <link rel="stylesheet" href="member.css?v=20260908-1">
+<style>.converter-beta-badge{display:inline-block;margin-left:10px;padding:2px 10px;border-radius:999px;background:#fff1cc;border:1px solid #e9c46a;color:#7a4b00;font-size:.42em;font-weight:800;letter-spacing:.05em;vertical-align:middle;text-transform:uppercase}.converter-beta-note{margin:12px 0 0;padding:10px 14px;border-radius:10px;border:1px solid #f0d58a;background:#fff8e6;color:#6b4a00;font-size:.95rem;line-height:1.5;max-width:62ch}</style>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -58,8 +59,9 @@ $usage = sr_usage_summary((int)$user['id']);
     <div class="container converter-hero-grid">
       <div>
         <p class="eyebrow">Bank Statement Converter Pro</p>
-        <h1>Pro PDF Bank Statement Converter</h1>
+        <h1>Pro PDF Bank Statement Converter <span class="converter-beta-badge">Beta</span></h1>
         <p class="converter-lead">Extract bank transactions, correct them in an editable review table and export clean files for Excel, bookkeeping or recordkeeping.</p>
+        <p class="converter-beta-note" role="note"><b>Beta.</b> The converter reads statements automatically and can misread a date, description or amount. Check the converted rows, and the opening and closing balances, against your statement before you rely on them.</p>
         <div class="format-pills" aria-label="Supported output formats">
           <span>XLSX</span><span>CSV</span><span>PDF report</span><span>JSON</span><span>QIF</span><span>OFX</span><span>QuickBooks CSV</span><span>TSV</span>
         </div>

@@ -91,6 +91,8 @@ function companies_for_user(string $userId): array
         // R153: address and short name.
         $column('short_name','NULL','short_name'),$column('address_line1','NULL','address_line1'),$column('address_line2','NULL','address_line2'),$column('city','NULL','city'),
         $column('postal_code','NULL','postal_code'),$column('phone','NULL','phone'),$column('contact_email','NULL','contact_email'),
+        // R157: time zone.
+        $column('timezone','NULL','timezone'),
     ];
     // Platform administration and company-book access are separate trust
     // boundaries. Even a platform owner only sees companies where they are an

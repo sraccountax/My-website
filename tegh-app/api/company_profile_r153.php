@@ -21,6 +21,8 @@ const R153_PROFILE_FIELDS = [
     'postalCode' => ['postal_code', 20],
     'phone' => ['phone', 40],
     'contactEmail' => ['contact_email', 254],
+    // R157: the company's time zone (IANA name such as America/Toronto). Empty means Tegh's default, Toronto.
+    'timezone' => ['timezone', 64],
 ];
 
 function r153_schema_ready(): bool
@@ -72,10 +74,11 @@ function r153_profile_input(array $input): array
     foreach (R153_PROFILE_FIELDS as $key => [$column, $max]) {
         if (!array_key_exists($key, $input)) continue;
         $value = trim(preg_replace('/\s+/u', ' ', (string)$input[$key]) ?? '');
-        if (mb_strlen($value) > $max) fail(sprintf('%s must be %d characters or fewer.', ['shortName' => 'Short name', 'addressLine1' => 'Street address', 'addressLine2' => 'Address line 2', 'city' => 'City', 'postalCode' => 'Postal or ZIP code', 'phone' => 'Phone', 'contactEmail' => 'Business email'][$key], $max), 422, 'company_profile_invalid');
+        if (mb_strlen($value) > $max) fail(sprintf('%s must be %d characters or fewer.', ['shortName' => 'Short name', 'addressLine1' => 'Street address', 'addressLine2' => 'Address line 2', 'city' => 'City', 'postalCode' => 'Postal or ZIP code', 'phone' => 'Phone', 'contactEmail' => 'Business email', 'timezone' => 'Time zone'][$key], $max), 422, 'company_profile_invalid');
         if ($key === 'contactEmail' && $value !== '' && filter_var($value, FILTER_VALIDATE_EMAIL) === false) fail('Enter a valid business email.', 422, 'company_profile_invalid');
         if ($key === 'shortName' && $value !== '' && !preg_match('/^[\p{L}\p{N}][\p{L}\p{N} &.\-]*$/u', $value)) fail('The short name can use letters, numbers, spaces, "&", "." and "-".', 422, 'company_profile_invalid');
         if ($key === 'postalCode') $value = mb_strtoupper($value);
+        if ($key === 'timezone' && $value !== '' && !in_array($value, timezone_identifiers_list(), true)) fail('Choose a time zone from the list.', 422, 'company_profile_invalid');
         $out[$column] = $value === '' ? null : $value;
     }
     return $out;
@@ -100,6 +103,8 @@ function r153_profile_public(array $company): array
         'postalCode' => (string)($company['postal_code'] ?? ''),
         'phone' => (string)($company['phone'] ?? ''),
         'contactEmail' => (string)($company['contact_email'] ?? ''),
+        'timezone' => (string)($company['timezone'] ?? '') ?: 'America/Toronto',
+        'timezoneSet' => trim((string)($company['timezone'] ?? '')) !== '',
         'addressText' => r153_company_address_text($company),
     ];
 }

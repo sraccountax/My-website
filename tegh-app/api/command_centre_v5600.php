@@ -233,7 +233,7 @@ function tegh_command_execute(array $user,array $company): never
 function tegh_command_interpret_parameters(string $query,array $action,array $company,array $entities=[],?string $today=null): array
 {
     // Schema 42 supports the same accounting timezone as canadian_today().
-    $timezone='America/Toronto';$today=$today??canadian_today();$now=tegh_report_date($today,'Today');
+    $timezone=function_exists('tegh_accounting_timezone')?tegh_accounting_timezone():'America/Toronto';$today=$today??canadian_today();$now=tegh_report_date($today,'Today');
     $text=strtolower(trim($query));$properties=(array)$action['parameter_schema']['properties'];$parameters=[];$question='';$periodLabel='';$executionBlocked=false;$clarificationFields=[];
     $snapshot=isset($properties['asOf'])&&!isset($properties['start']);$phraseLabel='';$navigation=in_array((string)($action['action_type']??''),['navigation','prepare'],true);
     $periodSupported=isset($properties['start'])||isset($properties['from'])||isset($properties['periodStart'])||isset($properties['asOf']);

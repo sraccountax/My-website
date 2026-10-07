@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 function canadian_today(): string
 {
-    return (new DateTimeImmutable('now', new DateTimeZone('America/Toronto')))->format('Y-m-d');
+    // R157: the company's time zone (Toronto unless the company chose another).
+    return (new DateTimeImmutable('now', new DateTimeZone(function_exists('tegh_accounting_timezone') ? tegh_accounting_timezone() : 'America/Toronto')))->format('Y-m-d');
 }
 
 function assert_not_future_date(string $date, string $label): void

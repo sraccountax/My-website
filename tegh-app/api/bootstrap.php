@@ -863,6 +863,17 @@ function company_role_label(string $role): string
     };
 }
 
+/** R157: the time zone of the company this request works on; Tegh's default is Toronto. */
+function tegh_set_accounting_timezone(string $zone): void
+{
+    $GLOBALS['tegh_accounting_timezone'] = ($zone !== '' && in_array($zone, timezone_identifiers_list(), true)) ? $zone : 'America/Toronto';
+}
+
+function tegh_accounting_timezone(): string
+{
+    return (string)($GLOBALS['tegh_accounting_timezone'] ?? 'America/Toronto');
+}
+
 function require_company(array $user): array
 {
     $companyId = trim((string)($_SERVER['HTTP_X_COMPANY_ID'] ?? $_GET['companyId'] ?? ''));
@@ -884,6 +895,8 @@ function require_company(array $user): array
         $company=$support->fetch();
     }
     if (!$company) fail('The selected company is unavailable.',403,'company_forbidden');
+    // R157: the company's accounting date follows its time zone (Toronto when none is set).
+    tegh_set_accounting_timezone((string)($company['timezone'] ?? ''));
     if ((string)($_SERVER['HTTP_X_SR_TEST_RUN'] ?? '') === '1') {
         $isCurrentTest = !empty($company['test_mode'])
             && ($company['test_expires_at'] === null || strtotime((string)$company['test_expires_at'].' UTC') > time());

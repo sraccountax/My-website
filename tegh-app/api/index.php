@@ -220,6 +220,9 @@ require_once __DIR__ . '/report_comparison_r20.php';
     if ($route !== '' && !str_starts_with($route, 'startup/') && !str_starts_with($route, 'auth/')) { try { tegh_tax_codes_ready(); } catch (Throwable $e) { error_log('Tegh R137 tax code setup: ' . $e->getMessage()); } }
     // R141: companies.country and wider province/state columns, created on first use.
     if ($route !== '' && !str_starts_with($route, 'startup/') && !str_starts_with($route, 'auth/')) { try { tegh_regions_ready(); } catch (Throwable $e) { error_log('Tegh R141 region setup: ' . $e->getMessage()); } }
+    // R157: company onboarding (state, steps, chart template, tax code import, welcome tour).
+    require_once __DIR__ . '/onboarding_r157.php';
+    if ($route === 'onboarding' || str_starts_with($route, 'onboarding/')) handle_onboarding(trim(substr($route, strlen('onboarding')), '/'));
     if ($route === 'tax-codes') handle_tax_codes();
     if ($route === 'dashboard-mappings') { require_once __DIR__ . '/dashboard_mappings_r141.php'; handle_dashboard_mappings(); }
     if ($route === 'insights' || str_starts_with($route, 'insights/')) { require_once __DIR__ . '/insights_r144.php'; handle_insights(trim(substr($route, strlen('insights')), '/')); }

@@ -13,7 +13,7 @@ declare(strict_types=1);
  */
 function tegh_workspace_summary_today(): string
 {
-    return (new DateTimeImmutable('now',new DateTimeZone('America/Toronto')))->format('Y-m-d');
+    return (new DateTimeImmutable('now',new DateTimeZone(function_exists('tegh_accounting_timezone')?tegh_accounting_timezone():'America/Toronto')))->format('Y-m-d');
 }
 
 function tegh_workspace_summary_period_start(string $today,string $fiscalYearEnd): string
