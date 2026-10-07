@@ -49,7 +49,7 @@ R157 (private beta package, replaces R156): company onboarding after sign-up (si
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json
-and tegh-build.json all identify this package as R156; per-file hashes kept in
+and tegh-build.json all identify this package as R157; per-file hashes kept in
 their "history" sections record earlier releases and are not expected to match.
 
 Fresh installation (empty database): upload the package, put config.php outside
