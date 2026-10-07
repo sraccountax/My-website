@@ -27,6 +27,23 @@ R156 replaces R155 as the one beta package.
 - **Website measurement wording.** It now says exactly what the code does: a first-party daily count of nine named website actions on Tegh's own server, with no names, emails, IDs, IP addresses or cookies, and nothing sent to an analytics company. Tegh uses no third-party analytics, advertising or session recording.
 - **Versions.** The pages' version text, their version tag and the server's recorded version all moved to **2026-10-07** together. The gate checks that the recorded version equals the printed one (24-beta BS-07).
 
+## Accounting date (defect DEF-18, found by the R156 gate)
+**What went wrong.** Tegh keeps its books on Toronto time, but parts of the app took "today" from the browser's own clock instead. In a browser whose date was already the next day, every evening from about 8 pm Toronto time until Toronto midnight:
+- **Match and Post refused to open.** It showed "From date cannot be after To date" whenever a bank line was dated the browser's new day. The From date came from the newest line, while the To date was Toronto's date.
+- **Report periods could be off.** Periods chosen with presets such as "this month" or "this year" began on the browser's date, so on the 1st of a month the period covered only the new month.
+- **Default dates could be wrong.** On the bill, expense, payroll and void forms, the default and latest allowed dates followed the browser's date.
+
+This affects a browser ahead of Toronto: Atlantic Canada and Newfoundland for an hour or so each night, travellers, and computers set to UTC. The run that found it started at 03:00 UTC.
+
+**Fix.**
+- Every period preset, default date and latest allowed date now uses the accounting date, the same one the server uses.
+- Match and Post's To date now reaches at least the newest bank line.
+- The older form module is now loaded under the R156 cache token, so browsers do not keep the old copy.
+
+**Gate check.** 24-beta BD-01 opens the app with the browser on UTC+14 while it is 8:30 pm in Toronto. Match and Post must open, with From no later than To, for a bank line dated the next day. "This month" must give Sep 1 to Sep 30, worked out by hand. The check fails on the first R156 build and passes on this one.
+
+**Test host.** The gate clock is now pinned to Oct 1, 12:00 Toronto time, instead of a whole number of days. A run therefore stays on the same Toronto date whatever hour it starts.
+
 ## Account deletion requests
 - "Delete login" (Platform owner › Users) already:
   - replaced the person's name and email;
@@ -56,6 +73,7 @@ R156 replaces R155 as the one beta package.
 - `api/admin.php` (deletion clean-up)
 - `api/bootstrap.php` (backup maintenance message)
 - `api/release_v5980.php` (versions)
+- `assets/tegh-portal-v5990.js`, `assets/index-BsxPiq85-v2817.js`, `assets/tegh-gate-v5990.js` (accounting date, DEF-18)
 - `privacy.html`, `terms.html`
 - `assets/tegh-legal-r156.js` (new), `assets/tegh-marketing-v5900.css`
 - `.htaccess`

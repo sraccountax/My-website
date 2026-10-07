@@ -147,5 +147,25 @@ await t('BS-09','Terms and Privacy pages: the operator, contacts, hosting, beta 
   await p.goto('https://gate.test/privacy.html');await p.waitForTimeout(1500);const banner=await p.locator('[data-operator-status]').isVisible()?await p.locator('[data-operator-status]').innerText():'';await p.unroute(/route=public\/operator/);
   await p.goto('https://gate.test/app.html');await ready();
   return {ok:!missT.length&&!missP.length&&/incomplete/.test(banner)&&/Legal name/.test(banner),info:`terms missing: ${missT.join(', ')||'none'}; privacy missing: ${missP.join(', ')||'none'}; incomplete warning: "${banner.slice(0,110)}"`}});
+await t('BD-01','Accounting date: a browser whose own date is already Oct 1 (UTC+14) while it is still the evening of Sep 30 in Toronto opens Match and Post for a bank line dated Oct 1 (never From after To), and its report periods end on the Toronto date',async()=>{
+  // 2026-10-01 00:30 UTC = Sep 30 20:30 in Toronto (Tegh's accounting date) = Oct 1 14:30 in Kiritimati (the browser's own date).
+  const c2=await b.newContext({viewport:{width:1440,height:900},ignoreHTTPSErrors:true,timezoneId:'Pacific/Kiritimati'});await c2.clock.install({time:new Date('2026-10-01T00:30:00Z')});await c2.clock.resume();
+  const q=await c2.newPage();const e2=[];q.on('pageerror',e=>e2.push(e.message.slice(0,160)));
+  await q.goto('https://gate.test/app.html');await q.fill('#sr-login-form input[name=email]','owner@gate.test');await q.fill('#sr-login-form input[name=password]','Gate!Owner#2026pw');await q.click('#sr-login-form button[type=submit]');
+  await q.waitForFunction(()=>window.TeghPortal&&document.querySelector('.sidebar,.topbar'),null,{timeout:40000});
+  // A company with imported bank lines, so Match and Post requests its workspace for a period.
+  // Its newest line is dated 2026-10-01: allowed (the server is already on Oct 1) but after Toronto's date in this browser.
+  const BANKCO=sql(`SELECT company_id FROM bank_transactions WHERE transaction_date>='2026-10-01' GROUP BY company_id ORDER BY COUNT(*) DESC LIMIT 1`);if(!BANKCO){await c2.close();return {ok:false,info:'no company with a bank line dated 2026-10-01 (the journeys create one); the check could not run'}}const ranges=[];
+  q.on('response',r=>{const u=decodeURIComponent(r.url()),m=u.match(/[?&]start=(\d{4}-\d\d-\d\d)&end=(\d{4}-\d\d-\d\d)/);if(/api\/index\.php/.test(u)&&m)ranges.push({route:u.replace(/^.*route=([^&]+).*$/,'$1'),start:m[1],end:m[2],status:r.status()})});
+  await q.evaluate(id=>{localStorage.setItem('sr-accountax-company',id);localStorage.setItem('sr-accountax-companies',JSON.stringify([id]));localStorage.setItem('tegh-report-period-bank-reconciliation','this-month')},BANKCO);await q.goto('https://gate.test/app.html');await q.waitForFunction(()=>window.TeghPortal&&document.querySelector('.sidebar,.topbar'),null,{timeout:40000});await q.waitForTimeout(800);
+  const local=await q.evaluate(()=>new Date().toLocaleDateString('en-CA'));
+  await q.evaluate(()=>TeghPortal.invokeMenuAction('Banking','Match and Post Transactions'));await q.waitForTimeout(4500);
+  const mp=(await q.locator('.srp-page').last().innerText()).replace(/\s+/g,' ');await q.screenshot({path:'/srv/gate/ev/shots/beta-accounting-date.png'});
+  await q.evaluate(()=>TeghPortal.invokeMenuAction('Banking','Bank Reconciliation Report'));await q.waitForTimeout(4000);
+  // Preset "this month": Toronto's date is Sep 30, so the period is 2026-09-01 to 2026-09-30 (the browser's own calendar would say October).
+  const dates=await q.evaluate(()=>{const pg=[...document.querySelectorAll('.srp-page')].filter(x=>!x.hidden&&/Bank Reconciliation Report/.test(x.innerText)).pop();return pg?[...pg.querySelectorAll('input[type=date]')].map(x=>x.value):[]});
+  const rp=(await q.locator('.srp-page').last().innerText()).replace(/\s+/g,' ');await c2.close();
+  const after=dates.join(',')==='2026-09-01,2026-09-30'?[]:['period '+dates.join('..')],inverted=ranges.filter(x=>x.start>x.end||x.status>=400),ws=ranges.filter(x=>/reconciliation-workspace/.test(x.route));
+  return {ok:local==='2026-10-01'&&ws.length>0&&!inverted.length&&!/cannot be after|Unavailable/i.test(mp)&&!/cannot be after/i.test(rp)&&!after.length&&!e2.length,info:`browser's own date ${local}; Match and Post: ${/cannot be after|Unavailable/i.test(mp)?'"'+mp.slice(0,90)+'"':'opened'}; ${ranges.length} period requests, workspace ${ws.map(x=>x.start+'..'+x.end+' '+x.status).join(', ')||'not requested'}; inverted or refused ${inverted.map(x=>x.route+' '+x.start+'>'+x.end+' '+x.status).join(', ')||'none'}; Bank Reconciliation Report "this month" ${dates.join(' to ')||'not shown'} (expected 2026-09-01 to 2026-09-30); page errors ${e2.length}`}});
 rec('BETA-JS',A,'No page errors during the beta checks',errs.length?'FAIL':'PASS',errs.slice(0,3).join(' | '));
 await b.close();save('beta.json');

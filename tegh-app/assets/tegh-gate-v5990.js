@@ -1367,7 +1367,7 @@
 
     // Render the accounting application first so its menus are usable immediately.
     try {
-      await importWithTimeout(`${BASE_MODULE}?v=${BUILD}`, 24000);
+      await importWithTimeout(`${BASE_MODULE}?v=${ASSET_REVISION}`, 24000);
     } catch (error) {
       error.route = error.route || 'frontend';
       error.code = error.code || 'frontend_module_failed';
