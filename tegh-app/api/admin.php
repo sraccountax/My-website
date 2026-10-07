@@ -177,8 +177,12 @@ function admin_users(array $user): never
         if(!is_string($randomHash))throw new RuntimeException('Password hashing is unavailable.');
         db()->prepare("UPDATE users SET email=?,display_name='Deleted user',password_hash=?,active=0,deleted_at=UTC_TIMESTAMP(),deleted_by=? WHERE id=?")
             ->execute([$anon,$randomHash,$user['id'],$targetId]);
+        // R156: a deletion request also removes the person's email from invitations, sent-email records, the platform log
+        // and the incident log. Company audit history keeps it while that company exists: the email is part of each
+        // entry's tamper-evident hash. Only a hash of the old address is kept as the record of the deletion.
+        admin_scrub_deleted_email((string)$target['email'],$anon);
         platform_audit_event($user,$override?'platform.user_login_deleted_override':'platform.user_login_deleted','user',$targetId,[
-            'previousEmail'=>$target['email'],'reason'=>$reason,'override'=>$override,'deletedCompanies'=>array_map(static fn(array $c):array=>['id'=>$c['id'],'name'=>$c['name']],$deletedCompanies),
+            'previousEmailSha256'=>hash('sha256',strtolower(trim((string)$target['email']))),'reason'=>$reason,'override'=>$override,'deletedCompanies'=>array_map(static fn(array $c):array=>['id'=>$c['id'],'name'=>$c['name']],$deletedCompanies),
             'retainedCompanies'=>$retainedCompanies,'auditHistoryRetained'=>true,'permanentDataLossAccepted'=>true,
         ]);
         return ['deletedCompanies'=>$deletedCompanies,'retainedCompanies'=>$retainedCompanies];
@@ -189,6 +193,18 @@ function admin_users(array $user): never
         $storageCleanup[]=['companyId'=>$company['id'],'status'=>$cleanup['status']];
     }
     json_response(tegh_deletion_transition_payload($user,array_column($result['deletedCompanies'],'id'))+['deleted'=>true,'override'=>$override,'auditHistoryRetained'=>true,'deletedCompanies'=>$result['deletedCompanies'],'retainedCompanies'=>$result['retainedCompanies'],'storageCleanup'=>$storageCleanup]);
+}
+
+function admin_scrub_deleted_email(string $old,string $anon): void
+{
+    $old=trim($old);if($old==='')return;
+    foreach([['account_invitations','email'],['company_invitations','email'],['outbound_emails','recipient'],['platform_audit_log','actor_email'],['platform_incident_log','user_email'],['native_agent_collection_drafts','recipient_email']] as [$table,$column]){
+        if(!schema_table_exists($table)||!schema_column_exists($table,$column))continue;
+        db()->prepare("UPDATE `$table` SET `$column`=? WHERE LOWER(`$column`)=LOWER(?)")->execute([$anon,$old]);
+    }
+    // Earlier platform-log entries can carry the address inside their details (for example an invitation that was sent).
+    if(schema_table_exists('platform_audit_log'))db()->prepare('UPDATE platform_audit_log SET metadata_json=REPLACE(metadata_json,?,?) WHERE metadata_json LIKE ?')->execute([$old,$anon,'%'.$old.'%']);
+    if(schema_table_exists('platform_incident_log'))db()->prepare('UPDATE platform_incident_log SET context_json=REPLACE(context_json,?,?) WHERE context_json LIKE ?')->execute([$old,$anon,'%'.$old.'%']);
 }
 
 function admin_incident_api_row(array $row, bool $detail = false): array

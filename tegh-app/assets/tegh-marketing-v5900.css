@@ -282,3 +282,7 @@ body.page-404 .page-hero{background:linear-gradient(135deg,var(--tegh-canvas),va
    setting. "only light" also stops browsers (for example Chrome and Samsung Internet
    on Android) from darkening the page automatically. The app keeps its own theme. */
 :root{color-scheme:only light}
+
+/* R156: operator details on the Terms and Privacy pages. */
+.legal-incomplete{margin:16px 0 0;padding:12px 16px;border:1px solid #e3a008;border-radius:10px;background:#fff7e0;color:#6b4100;font-weight:600;line-height:1.45}
+.legal-missing{color:#9a3412;font-style:italic}

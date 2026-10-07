@@ -28,6 +28,20 @@ return [
         'maintenance_flag_path' => '',
         'maintenance_stale_after_seconds' => 3600,
     ],
+    // R156: who operates this Tegh service. Shown on the Terms and Privacy pages; invitations cannot be sent until every
+    // field except the two numbers is filled in. Use the real legal name and a mailbox someone reads.
+    'operator' => [
+        'legal_name' => '',          // e.g. 'Example Accounting Services Inc.'
+        'address' => '',             // business mailing address
+        'privacy_email' => '',       // privacy questions and deletion requests
+        'support_email' => '',       // tester support
+        'hosting_provider' => '',    // e.g. 'IONOS SE'
+        'data_location' => '',       // country/region of the database and files, e.g. 'Canada'
+        'backup_location' => '',     // where the off-site backup copy is kept
+        'mail_provider' => '',       // the SMTP provider that delivers Tegh's emails
+        'backup_retention_days' => 14,
+        'deletion_response_days' => 30,
+    ],
     'db' => [
         'dsn' => 'mysql:host=localhost;dbname=YOUR_DATABASE;charset=utf8mb4',
         'user' => 'YOUR_DATABASE_USER',

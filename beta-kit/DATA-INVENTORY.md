@@ -1,11 +1,12 @@
 # Tegh beta: what the software collects, stores and sends
 
-A factual inventory taken from the R155 code. It is input for your **privacy notice and beta terms** (beta step 6).
+A factual inventory taken from the R156 code. It is input for your **privacy notice and beta terms** (beta step 6).
 - It is not legal advice and does not decide which privacy laws apply.
 - Items marked **YOU** depend on your hosting and business choices; fill them in.
 - Have the final text reviewed before any real client data is allowed.
 
-## 1. Who operates the service (YOU)
+## 1. Who operates the service (YOU: set these in `config.php`, section `operator`)
+From R156, the Terms and Privacy pages show these details from `config.php`. While any of them is blank, the pages say the notice is incomplete, and Tegh refuses to send invitations.
 - **Legal name of the business operating Tegh:**
 - **Contact for privacy questions and requests** (a working mailbox that someone reads):
 - **Support address for testers:**
@@ -20,7 +21,7 @@ A factual inventory taken from the R155 code. It is input for your **privacy not
 | Sign-in sessions | each user | sign-in | Expire after 12 hours (config `session_hours`). Sign-out, removal from a company and a password reset end them. |
 | Hashed IP address and hashed browser identifier with sign-in, sign-up, invitation and reset attempts | each user and visitor | throttling and abuse protection | Stored as SHA-256 hashes, not readable addresses. Failed sign-in attempts are deleted after 2 days. |
 | Password-reset requests | each user | "Forgot password" | Deleted after 2 days. A reset link works once. |
-| Terms and privacy acceptance (version, time, request reference) | each user | invitation acceptance | Records version **2026-10-01** from R155 (the version printed on the pages). |
+| Terms and privacy acceptance (version, time, request reference) | each user | invitation acceptance | Records version **2026-10-07** from R156 (the version printed on the pages). |
 | Audit history (who did what, when) | users acting in a company | every change | Kept with the company's records. |
 | Company details: name, legal name, address, phone, email, province/country, fiscal settings, tax registration | the business | Company setup / Details | |
 | Customers and vendors: names, contact names, emails, phones, addresses | third parties of each company | entered or imported by users | Personal information of people who are not Tegh users. |
@@ -35,7 +36,7 @@ A factual inventory taken from the R155 code. It is input for your **privacy not
 |---|---|---|
 | Your SMTP mail provider (**YOU**: name it) | recipient address and message: invitations, password resets, client viewing codes | when such an email is sent |
 | Cloudflare Turnstile (only if `captcha.enabled` is true in `config.php`; **off** in the template) | the visitor's browser talks to Cloudflare for the bot check | sign-up or sign-in pages, when enabled |
-| Nobody else | | **No analytics or session recording**: Microsoft Clarity was removed in R141 (DEF-01). **No AI provider**: the release is native-only and `aiConfigured` is false. **OCR runs in the browser** from files bundled in the package; the site's Content-Security-Policy allows connections only to the site itself and Cloudflare. |
+| Nobody else | | **No third-party analytics, advertising or session recording.** Microsoft Clarity was removed in R141 (DEF-01). **Website measurement is first-party:** the public pages count nine named actions per day, such as pricing views and demo-request steps. Tegh keeps only a daily total per action in a temporary file on its own server, with no names, emails, user IDs, IP addresses or cookies. **No AI provider:** the release is native-only. **OCR runs in the browser** from files bundled in the package; the Content-Security-Policy allows connections only to the site itself and Cloudflare. |
 
 ## 4. Who can see a company's records
 - Members of that company, according to their role:
@@ -54,7 +55,7 @@ A factual inventory taken from the R155 code. It is input for your **privacy not
 | Export of a company's records | Company backup (`.tegh`, signed, includes uploaded files); report exports to PDF, Excel and CSV |
 | Delete a company | Settings: company deletion (removes its records and files; a deletion log is kept) |
 | Remove a person's access | Remove the member from the company (access ends immediately; gate 24-beta BS-04). The platform owner can deactivate a user. |
-| **Delete a person's user account entirely** | **Not available in the app.** Deactivation keeps the name and email. Before real users, decide a manual procedure (database deletion of the user, sessions and acceptance records) or ask for a delete-account feature. |
+| **Delete a person's user account** (a deletion request) | Platform owner › Users › **Delete login**. It requires typing the email, the owner's password and a reason. It:<ul><li>replaces the name and email;</li><li>removes the password, sessions and company access;</li><li>replaces the address in invitations, sent-email records, the platform log and the incident log;</li><li>keeps only a hash of the old address as the deletion record.</li></ul>Company audit history keeps the address while that company exists, because it is part of each entry's tamper-evident hash; deleting the company removes it. Checked by gate 24-beta BS-08. The Privacy Notice states the response time (`deletion_response_days`, default 30). |
 | Backups | The daily host backups (`beta-ops/`) keep 14 days locally by default, plus the off-site copy. A deleted record stays in backups until they age out; say so in the notice. |
 | Beta reset | If you reset the beta database, all beta records are removed; tell testers in advance (the beta notice says data may be reset). |
 
@@ -73,5 +74,5 @@ A factual inventory taken from the R155 code. It is input for your **privacy not
   - keep your own authoritative records;
   - Payroll Support is limited to Canada outside Quebec.
 - Ownership of records stays with the business that enters them; export is available.
-- The terms version that testers accept. From R155 it is recorded as **2026-10-01**. If you change the text, change the version in `api/release_v5980.php` and on both pages together.
+- The terms version that testers accept. From R156 it is recorded as **2026-10-07**. If you change the text, change the version in `api/release_v5980.php` and on both pages together.
 - Promotional email is separate from beta acceptance. Do not add testers to marketing lists without separate consent (CASL).

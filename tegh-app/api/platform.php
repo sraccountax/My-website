@@ -268,6 +268,7 @@ function platform_invitations(array $user,array $company): never
         ],$stmt->fetchAll())]);
     }
     require_method('POST');require_csrf();$input=request_json();$action=(string)($input['action']??'create');
+    if(in_array($action,['create','resend'],true))tegh_operator_require_complete();
     if($action==='revoke'){
         $inviteId=clean_text($input['id']??'','Account setup',64);$stmt=db()->prepare("UPDATE company_invitations SET status='revoked' WHERE id=? AND company_id=? AND status='pending'");$stmt->execute([$inviteId,$companyId]);
         if($stmt->rowCount()<1)fail('That pending account setup is no longer available.',409,'invitation_unavailable');audit_event($user,$companyId,'company.account_setup_cancelled','company_invitation',$inviteId,[]);json_response(['revoked'=>true]);

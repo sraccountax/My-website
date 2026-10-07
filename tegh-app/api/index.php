@@ -16,6 +16,10 @@ try {
         json_response(['ok' => true, 'service' => 'Tegh', 'version' => SR_ACCOUNTAX_VERSION, 'build' => SR_ACCOUNTAX_BUILD, 'schemaVersion' => SR_ACCOUNTAX_SCHEMA_VERSION]);
     }
 
+    // R156: operator details for the public Terms and Privacy pages (no sign-in needed).
+    require_once __DIR__ . '/legal_r156.php';
+    if ($route === 'public/operator') handle_public_operator();
+
     require_once __DIR__ . '/migrations.php';
     require_once __DIR__ . '/captcha.php';
     require_once __DIR__ . '/auth.php';

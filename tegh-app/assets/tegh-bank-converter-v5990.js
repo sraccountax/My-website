@@ -1,5 +1,5 @@
 import './tegh-bank-converter-core-v5990.js?v=5990-r62-statement-account-columns';
-import {parseStatementLayout, splitStatements, statementAccountIds} from './tegh-statement-layout-r152.js?v=5990-r155-tegh';
+import {parseStatementLayout, splitStatements, statementAccountIds} from './tegh-statement-layout-r152.js?v=5990-r156-tegh';
 
 const Core = globalThis.BankStatementCore;
 export const ENGINE = 'tegh-statement-converter-v5990';

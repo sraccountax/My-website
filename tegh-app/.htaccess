@@ -19,6 +19,14 @@ ErrorDocument 404 /404.html
   RewriteCond %{HTTP_HOST} ^(?:www\.)?books\.sraccountax\.ca$ [NC]
   RewriteRule ^ https://books.sraccountax.ca%{REQUEST_URI} [R=301,L,NE]
 
+  # R156: any other host name (for example a separate beta address) is also sent to HTTPS on the same host. A request
+  # that already arrived over HTTPS, directly or through the host's TLS proxy, is left alone; a port in Host is dropped.
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{SERVER_PORT} !=443
+  RewriteCond %{HTTP:X-Forwarded-Proto} !=https [NC]
+  RewriteCond %{HTTP_HOST} ^([A-Za-z0-9.-]+)(?::[0-9]+)?$
+  RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L,NE]
+
   # Authentication/account-setup tokens belong to the application entry point.
   RewriteCond %{QUERY_STRING} (^|&)(forceSignIn|safeMode|signin|accountSetup|invite|passwordReset)= [NC]
   RewriteRule ^$ /app.html [R=302,L,NE]

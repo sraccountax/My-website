@@ -103,6 +103,9 @@ function tegh_assert_not_in_maintenance_mode(): void
     if(!tegh_maintenance_mode_active())return;
     $route=trim((string)($_GET['route']??($_SERVER['PATH_INFO']??'')),'/');
     if(in_array($route,['startup/migrate','startup/migration-preflight','startup/migration-diagnostic'],true))return;
+    // R156: a host backup (beta-ops/tegh-backup.sh) pauses changes the same way; say which it is.
+    $marker=@json_decode((string)@file_get_contents(tegh_maintenance_flag_path()),true);
+    if(is_array($marker)&&($marker['reason']??'')==='backup')fail('Tegh is making a backup. No request was processed; try again in a minute.',503,'maintenance_backup',false);
     fail('Tegh is completing a protected database upgrade. No accounting request was processed; try again shortly.',503,'maintenance_mode',false);
 }
 

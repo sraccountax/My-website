@@ -2,7 +2,7 @@
 // Security (files of another company, sign-up closed, removed member, revoked invitation, password reset, terms version),
 // recovery (uploaded files restored byte for byte), accounting (repeated requests and clicks, every posted entry balances)
 // and multi-company with different currencies. Expected values are worked out here, never with Tegh's code.
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';import fs from 'fs';import crypto from 'crypto';
+import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';import fs from 'fs';import crypto from 'crypto';import {execFileSync} from 'child_process';
 import {S,sql,rec,need,save,mails} from './lib.mjs';
 const A='BETA';const o=new S();await o.login('owner@gate.test','Gate!Owner#2026pw');const stamp=Date.now().toString(36);
 const t=async(id,title,fn)=>{try{const r=await fn();rec(id,A,title,r.ok?'PASS':'FAIL',r.info||'')}catch(e){rec(id,A,title,'FAIL',e.message.replace(/\s+/g,' ').slice(0,300))}};
@@ -67,6 +67,20 @@ await t('BS-07','Accepting an invitation records the terms and privacy versions 
   const row=sql(`SELECT CONCAT(ta.terms_version,'|',ta.privacy_version) FROM terms_acceptances ta JOIN users u ON u.id=ta.user_id WHERE u.email='${memberEmail}' ORDER BY ta.accepted_at DESC LIMIT 1`);
   return {ok:!!terms&&row===`${terms}|${privacy}`,info:`pages: terms ${terms}, privacy ${privacy}; recorded ${row}`}});
 
+await t('BS-08','A deletion request ("Delete login"): the person can no longer sign in, and their email address is gone from the account, invitations, sent-email records and the platform log',async()=>{
+  const email=`beta-erase-${stamp}@gate.test`;const {code}=await invite(CA.id,'viewer',email);need('accept',(await accept(email,code,PW)).a);
+  const uid=sql(`SELECT id FROM users WHERE email='${email}'`);const before=sql(`SELECT (SELECT COUNT(*) FROM account_invitations WHERE email='${email}')+(SELECT COUNT(*) FROM outbound_emails WHERE recipient='${email}')+(SELECT COUNT(*) FROM platform_audit_log WHERE actor_email='${email}' OR metadata_json LIKE '%${email}%')`);
+  const del=await o.call('admin/users',{method:'POST',company:false,json:{action:'delete_login',userId:uid,confirmationText:email,password:'Gate!Owner#2026pw',reason:'Beta tester asked for account deletion',overrideConfirmed:true,dataLossAccepted:true}});
+  const left=sql(`SELECT (SELECT COUNT(*) FROM users WHERE email='${email}')+(SELECT COUNT(*) FROM account_invitations WHERE email='${email}')+(SELECT COUNT(*) FROM company_invitations WHERE email='${email}')+(SELECT COUNT(*) FROM outbound_emails WHERE recipient='${email}')+(SELECT COUNT(*) FROM platform_audit_log WHERE actor_email='${email}' OR metadata_json LIKE '%${email}%')+(SELECT COUNT(*) FROM platform_incident_log WHERE user_email='${email}')`);
+  const row=sql(`SELECT CONCAT(display_name,'|',active,'|',deleted_at IS NOT NULL) FROM users WHERE id='${uid}'`),record=sql(`SELECT COUNT(*) FROM platform_audit_log WHERE action LIKE 'platform.user_login_deleted%' AND target_id='${uid}' AND metadata_json LIKE '%previousEmailSha256%'`);
+  let signIn='refused';try{await new S().login(email,PW);signIn='still works'}catch{}
+  return {ok:del.s===200&&Number(before)>0&&left==='0'&&row==='Deleted user|0|1'&&record==='1'&&signIn==='refused',info:`delete ${del.s}${del.s!==200?' '+JSON.stringify(del.b).slice(0,120):''}; records with the address before ${before}, after ${left}; account ${row}; deletion record keeps a hash only ${record==='1'}; sign-in ${signIn}`}});
+await t('BS-10','Invitations are refused while the operator details are incomplete (a config without them reports every missing field)',async()=>{
+  const cfg=fs.readFileSync('/srv/gate/sr-accountax-private/config.php','utf8').replace(/\n    'operator' => \[[^\n]*\n/,'\n');const tmp='/tmp/beta-no-operator-config.php';fs.writeFileSync(tmp,cfg);
+  const out=execFileSync('php',['-r','require "/srv/gate/www/api/bootstrap.php"; require "/srv/gate/www/api/legal_r156.php"; echo json_encode(tegh_operator_missing());'],{encoding:'utf8',env:{...process.env,SR_ACCOUNTAX_CONFIG:tmp}});fs.unlinkSync(tmp);
+  const missing=JSON.parse(out.trim().split('\n').pop());const src=fs.readFileSync('/srv/gate/www/api/invitations_v5980.php','utf8')+fs.readFileSync('/srv/gate/www/api/platform.php','utf8');const guarded=(src.match(/tegh_operator_require_complete\(\)/g)||[]).length;
+  const live=await (await fetch('https://gate.test/api/index.php?route=public/operator')).json();
+  return {ok:missing.length===8&&guarded>=2&&live.complete===true,info:`without operator config: ${missing.length} fields missing; invitation paths guarded ${guarded}; this host complete ${live.complete}`}});
 // ---------- Recovery ----------
 await t('BR-10','A company backup carries its uploaded files: restored into a new company, the Document Intake file and the invoice attachment come back byte for byte',async()=>{
   const res=await o.call('backup/export',{method:'POST',json:{},raw:true,...as(CA.id)});const buf=Buffer.from(await res.arrayBuffer());
@@ -123,5 +137,15 @@ await t('BN-01','The private beta notice (config app.beta_notice) is visible in 
   await p.setViewportSize({width:390,height:844});await p.waitForTimeout(800);const phone=await look();await p.screenshot({path:'/srv/gate/ev/shots/beta-notice-phone.png'});await p.setViewportSize({width:1440,height:900});
   const ok=[light,dark,phone].every(x=>x.onTop&&x.inView&&x.contrast>=4.5)&&/^Private beta: use sample data only\./.test(light.full)&&/may be reset/.test(toastText)&&/Private beta/.test(light.shown)&&phone.shown==='Beta';
   return {ok,info:`desktop "${light.shown}" visible ${light.onTop}; phone "${phone.shown}" visible ${phone.onTop}; contrast ${light.contrast.toFixed(1)}/${dark.contrast.toFixed(1)}:1; tap shows: ${/may be reset/.test(toastText)}`}});
+await t('BS-09','Terms and Privacy pages: the operator, contacts, hosting, beta conditions, deletion procedure and first-party measurement are shown; an incomplete configuration shows a warning',async()=>{
+  const read=async f=>{await p.goto('https://gate.test/'+f);await p.waitForTimeout(1500);return p.locator('main').innerText()};
+  const terms=await read('terms.html');const privacy=await read('privacy.html');await p.screenshot({path:'/srv/gate/ev/shots/beta-privacy.png',fullPage:true});
+  const needT=['Gate Test Operator Inc.','support@gate.test','Private beta','Invitation only','Free','Sample data only','Data may be reset','No guarantee of availability','Not for real filings or payroll','2026-10-07'];
+  const needP=['Gate Test Operator Inc.','privacy@gate.test','Gate test host (local)','Test environment','Local SMTP sandbox','14 days','Access, correction and deletion','30 days','nine actions','no third-party analytics','2026-10-07'];
+  const missT=needT.filter(x=>!terms.includes(x)),missP=needP.filter(x=>!privacy.toLowerCase().includes(x.toLowerCase()));
+  await p.route(/route=public\/operator/,r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({operator:{legal_name:'',address:'',privacy_email:'',support_email:'',hosting_provider:'',data_location:'',backup_location:'',mail_provider:'',backup_retention_days:14,deletion_response_days:30},complete:false,missing:['Legal name of the business operating Tegh','Privacy contact email']})}));
+  await p.goto('https://gate.test/privacy.html');await p.waitForTimeout(1500);const banner=await p.locator('[data-operator-status]').isVisible()?await p.locator('[data-operator-status]').innerText():'';await p.unroute(/route=public\/operator/);
+  await p.goto('https://gate.test/app.html');await ready();
+  return {ok:!missT.length&&!missP.length&&/incomplete/.test(banner)&&/Legal name/.test(banner),info:`terms missing: ${missT.join(', ')||'none'}; privacy missing: ${missP.join(', ')||'none'}; incomplete warning: "${banner.slice(0,110)}"`}});
 rec('BETA-JS',A,'No page errors during the beta checks',errs.length?'FAIL':'PASS',errs.slice(0,3).join(' | '));
 await b.close();save('beta.json');

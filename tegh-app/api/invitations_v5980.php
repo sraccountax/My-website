@@ -161,6 +161,7 @@ function tegh_handle_invitations(): never
         json_response(['invitations'=>$rows,'companies'=>tegh_invitation_company_choices($user),'independentWorkspaceAllowed'=>$platform]);
     }
     require_csrf();$input=request_json();$action=(string)($input['action']??'create_account');
+    if(in_array($action,['create_account','send','resend'],true))tegh_operator_require_complete();
     try{
         if($action==='send'){$id=clean_text($input['id']??'','Invitation',64);tegh_invitation_parent_for_admin($user,$id);$s=db()->prepare("SELECT id FROM account_invitation_mail WHERE invitation_id=? ORDER BY created_at DESC,id DESC LIMIT 1");$s->execute([$id]);$mailId=$s->fetchColumn();if(!$mailId)fail('No queued delivery was found.',409,'invitation_mail_unavailable');json_response(tegh_invitation_send($user,(string)$mailId));}
         if($action==='revoke'){
