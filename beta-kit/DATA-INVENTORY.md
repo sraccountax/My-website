@@ -1,6 +1,6 @@
 # Tegh beta: what the software collects, stores and sends
 
-A factual inventory taken from the R156 code (final package `d00b0fc6…d223`). It is input for your **privacy notice and beta terms** (beta step 6).
+A factual inventory taken from the R157 code. It is input for your **privacy notice and beta terms** (beta step 6).
 - It is not legal advice and does not decide which privacy laws apply.
 - Items marked **YOU** depend on your hosting and business choices; fill them in.
 - Have the final text reviewed before any real client data is allowed.
@@ -23,7 +23,8 @@ From R156, the Terms and Privacy pages show these details from `config.php`. Whi
 | Password-reset requests | each user | "Forgot password" | Deleted after 2 days. A reset link works once. |
 | Terms and privacy acceptance (version, time, request reference) | each user | invitation acceptance | Records version **2026-10-07** from R156 (the version printed on the pages). |
 | Audit history (who did what, when) | users acting in a company | every change | Kept with the company's records. |
-| Company details: name, legal name, address, phone, email, province/country, fiscal settings, tax registration | the business | Company setup / Details | |
+| Company details: name, legal name, address, phone, email, province/country, time zone, fiscal settings, tax registration | the business | Company setup / Details | The time zone (R157) sets the company's "today" for default dates and periods. |
+| Onboarding progress (R157): which setup steps are marked complete, by whom and when, and whether the Tegh tour was taken | the business and the person who marked each step | the onboarding page | Kept with the company; also in its audit history. |
 | Customers and vendors: names, contact names, emails, phones, addresses | third parties of each company | entered or imported by users | Personal information of people who are not Tegh users. |
 | Accounting records: invoices, bills, notes, payments, journals, bank transactions, budgets, fixed assets | each company | entered or imported | |
 | Uploaded files: bank statements, receipts, Document Intake files, invoice attachments | each company | uploads | Stored outside the web root, each under its own company. Files from another company cannot be downloaded (gate 24-beta BS-02/03). |
