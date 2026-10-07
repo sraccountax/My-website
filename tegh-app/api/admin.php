@@ -352,5 +352,6 @@ function handle_admin(string $action): never
     if($action==='users')admin_users($user);
     if($action==='companies')admin_company_directory($user);
     if($action==='incidents')admin_system_incidents($user);
+    if($action==='deletion-requests'){require_once __DIR__.'/company_lifecycle_r159.php';admin_company_deletion_requests($user);}
     fail('Administration route not found.',404,'route_not_found');
 }

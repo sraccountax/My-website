@@ -3,7 +3,7 @@
 
   const VERSION = '5.9.9';
   const BUILD = '5990';
-  const ASSET_REVISION = '5990-r158-tegh';
+  const ASSET_REVISION = '5990-r159-tegh';
   const AUTH_CACHE_MS = 60000;
   const POST_COMMIT_SESSION_GRACE_MS = 45000;
   const RECOVERY_MARKER_KEY = 'tegh-session-recovery-v5990';
@@ -638,6 +638,9 @@
       }
       if (response.ok && !['GET','HEAD','OPTIONS'].includes(method)) {
         lastWorkspace = null;
+        // R159: creating, archiving, restoring or asking to delete a company changes the company list that auth/me
+        // returns; the cached copy must not keep showing it.
+        if (route === 'companies' || String(route || '').startsWith('companies/')) { lastAuth = null; authCacheExpiresAt = 0; }
         cacheExpiresAt = 0;
       }
       if (route === 'imports' && method === 'POST' && response.ok) {

@@ -1682,6 +1682,57 @@ function purge_expired_test_companies(?string $userId = null): array
     return $deleted;
 }
 
+/**
+ * R159: the permanent deletion of a company, shared by the platform owner's approval of a deletion request
+ * (admin/deletion-requests), the platform-owner override (admin/companies) and operations/company-delete.
+ * $inTransaction runs inside the deletion's transaction (for example to mark the request approved), so both happen or neither.
+ */
+function operations_company_delete_execute(array $actor, string $companyId, string $expectedName, bool $backupConfirmed, array $logExtra = [], ?callable $inTransaction = null): array
+{
+    operations_company_delete_assert_schema_safe($actor, $companyId);
+    $storage = private_storage_root() . '/' . $companyId;
+    $result = db_transaction_retry(function () use ($actor, $companyId, $expectedName, $backupConfirmed, $logExtra, $inTransaction): array {
+        $lock = db()->prepare('SELECT id, name FROM companies WHERE id = ? FOR UPDATE');
+        $lock->execute([$companyId]);
+        $company = $lock->fetch();
+        if (!$company) fail('The selected company is already unavailable.', 409, 'company_already_deleted');
+        if (!hash_equals((string)$company['name'], $expectedName)) fail('The company name changed. Reload and confirm again.', 409, 'company_changed');
+
+        $summary = operations_company_record_summary($companyId);
+        $deletedRows = operations_delete_company_rows($companyId);
+
+        $deleteCompany = db()->prepare('DELETE FROM companies WHERE id = ?');
+        $deleteCompany->execute([$companyId]);
+        if ($deleteCompany->rowCount() !== 1) {
+            throw new RuntimeException('The company row was not deleted.');
+        }
+
+        db()->prepare('INSERT INTO company_deletion_log
+            (id, deleted_company_id, company_name, deleted_by, backup_confirmed, record_summary_json)
+            VALUES (?, ?, ?, ?, ?, ?)')->execute([
+                new_id('companydelete'),
+                $companyId,
+                $company['name'],
+                $actor['id'],
+                $backupConfirmed ? 1 : 0,
+                json_encode($logExtra + [
+                    'recordsBeforeDeletion' => $summary,
+                    'rowsDeletedExplicitly' => $deletedRows,
+                    'requestId' => request_id(),
+                ], JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+            ]);
+        if ($inTransaction) $inTransaction();
+
+        return ['summary' => $summary, 'deletedRows' => $deletedRows];
+    });
+
+    // Storage cleanup is deliberately best-effort after the database commit.
+    // A file-permission problem must not misreport a successful deletion as a
+    // failed accounting transaction.
+    $storageCleanup = operations_remove_company_storage($storage);
+    return $result + ['storageCleanup' => $storageCleanup['status']];
+}
+
 function operations_company_delete(array $user,array $company): never
 {
     require_method('POST');
@@ -1696,47 +1747,14 @@ function operations_company_delete(array $user,array $company): never
     if (empty($input['backupConfirmed'])) {
         fail('Confirm that a final company backup has been downloaded.', 409, 'company_backup_required');
     }
+    // R159: permanent deletion is done by Tegh support. A company owner sends a deletion request
+    // (companies/deletion-request); only the platform owner deletes directly.
+    if (platform_role_for_user((string)$user['id']) !== 'platform_owner') {
+        fail('Permanent deletion is done by Tegh support. Send a deletion request from Account & Access; you can archive the company now.', 409, 'company_delete_by_request');
+    }
 
     $companyId = (string)$company['id'];
-    operations_company_delete_assert_schema_safe($user, $companyId);
-    $storage = private_storage_root() . '/' . $companyId;
-    $result = db_transaction_retry(function () use ($user, $company, $companyId): array {
-        $lock = db()->prepare('SELECT id FROM companies WHERE id = ? FOR UPDATE');
-        $lock->execute([$companyId]);
-        if (!$lock->fetchColumn()) {
-            fail('The selected company is already unavailable.', 409, 'company_already_deleted');
-        }
-
-        $summary = operations_company_record_summary($companyId);
-        $deletedRows = operations_delete_company_rows($companyId);
-
-        $deleteCompany = db()->prepare('DELETE FROM companies WHERE id = ?');
-        $deleteCompany->execute([$companyId]);
-        if ($deleteCompany->rowCount() !== 1) {
-            throw new RuntimeException('The company row was not deleted.');
-        }
-
-        db()->prepare('INSERT INTO company_deletion_log
-            (id, deleted_company_id, company_name, deleted_by, backup_confirmed, record_summary_json)
-            VALUES (?, ?, ?, ?, 1, ?)')->execute([
-                new_id('companydelete'),
-                $companyId,
-                $company['name'],
-                $user['id'],
-                json_encode([
-                    'recordsBeforeDeletion' => $summary,
-                    'rowsDeletedExplicitly' => $deletedRows,
-                    'requestId' => request_id(),
-                ], JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
-            ]);
-
-        return ['summary' => $summary, 'deletedRows' => $deletedRows];
-    });
-
-    // Storage cleanup is deliberately best-effort after the database commit.
-    // A file-permission problem must not misreport a successful deletion as a
-    // failed accounting transaction.
-    $storageCleanup = operations_remove_company_storage($storage);
+    $result = operations_company_delete_execute($user, $companyId, (string)$company['name'], true);
     $transition=tegh_deletion_transition_payload($user,[$companyId]);
 
     json_response([
@@ -1745,8 +1763,8 @@ function operations_company_delete(array $user,array $company): never
         'deletedCompanyIds' => $transition['deletedCompanyIds'],
         'replacementCompanyId' => $transition['replacementCompanyId'],
         'replacementCompanyName' => $transition['replacementCompanyName'],
-        'storageCleanup' => $storageCleanup['status'],
-        'storageCleanupNeedsAttention' => $storageCleanup['status'] === 'pending',
+        'storageCleanup' => $result['storageCleanup'],
+        'storageCleanupNeedsAttention' => $result['storageCleanup'] === 'pending',
         'recordSummary' => $result['summary'],
     ]);
 }

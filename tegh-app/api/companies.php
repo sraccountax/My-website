@@ -135,6 +135,9 @@ function handle_companies(): never
     }
     $testExpiresAt = $testMode ? gmdate('Y-m-d H:i:s', time() + (4 * 86400)) : null;
     $coaMode = (string)($input['coaMode'] ?? 'default');
+    // R159: a company that starts onboarding gets its chart of accounts and tax codes in onboarding steps 2 and 3, for
+    // this company alone (import, template or by hand). It never starts with a pre-filled chart or starter tax codes.
+    if (!empty($input['onboarding']) && empty($input['testMode'])) $coaMode = 'manual';
     if (!in_array($coaMode, ['default', 'manual'], true)) {
         fail('Chart of accounts option is invalid.');
     }

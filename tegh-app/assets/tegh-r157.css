@@ -170,3 +170,16 @@ html[data-tegh-theme="dark"] .r157-beta-note{background:#2e260f;border-color:#6d
 .r157-intake-pick{cursor:pointer;white-space:nowrap}
 @media (max-width:700px){.r157-intake-inline{grid-template-columns:1fr}}
 @media (prefers-color-scheme:dark){html[data-tegh-theme="auto"] .r157-beta-badge{background:#3a2c0c;border-color:#7a5d1c;color:#ffd88a}html[data-tegh-theme="auto"] .r157-beta-note{background:#2e260f;border-color:#6d5719;color:#ffdf94!important}}
+
+/* R159: archive, deletion requests and the onboarding note on Add company. */
+.r159-onboarding-note{margin:0;padding:12px 14px;border-radius:12px;background:var(--r157-soft,rgba(20,163,127,.08));border:1px solid rgba(20,163,127,.28);line-height:1.5}
+.r159-flow{margin:4px 0 14px;padding-left:20px;display:grid;gap:8px;line-height:1.5}
+.r159-flow b{margin-right:6px}
+.r159-hint{margin:0 0 14px}
+.r159-hint .srp-link{background:none;border:0;padding:0;color:inherit;text-decoration:underline;font:inherit;cursor:pointer;font-weight:700}
+.r159-request-card{border:1px solid rgba(127,140,141,.32);border-radius:14px;padding:14px 16px;margin:10px 0;display:grid;gap:8px}
+.r159-request-card header small{display:block;opacity:.75;margin-top:2px}
+.r159-request-card p{margin:0}
+.r159-request-history{margin-top:10px}
+.r159-request-history ul{margin:8px 0 0;padding-left:18px;display:grid;gap:4px}
+@media (max-width:720px){.r159-request-card .srp-actions{flex-direction:column;align-items:stretch}}
