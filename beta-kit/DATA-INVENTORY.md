@@ -1,6 +1,6 @@
 # Tegh beta: what the software collects, stores and sends
 
-A factual inventory taken from the R156 code. It is input for your **privacy notice and beta terms** (beta step 6).
+A factual inventory taken from the R156 code (final package `d00b0fc6…d223`). It is input for your **privacy notice and beta terms** (beta step 6).
 - It is not legal advice and does not decide which privacy laws apply.
 - Items marked **YOU** depend on your hosting and business choices; fill them in.
 - Have the final text reviewed before any real client data is allowed.

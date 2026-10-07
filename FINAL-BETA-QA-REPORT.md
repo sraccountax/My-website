@@ -1309,3 +1309,69 @@ The runbook is `beta-ops/RECOVERY-AND-ROLLBACK.md`.
 - the host acceptance items.
 
 **Verdict for R155:** suitable to begin the **invitation-only, sample-data beta** once the owner's open items in `beta-kit/BETA-READINESS.md` are closed. **NOT READY** for real client or employee information.
+
+## Addendum: R156 (owner's review of the beta package; DEF-18)
+
+| | R156 |
+|---|---|
+| Package | `Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R156-PRIVATE-BETA.zip` |
+| SHA-256 | `d00b0fc6ae69943caa68353b17955eb7a0b5fcf15928578a30a3cf6fe797d223` |
+| FILE-MANIFEST.sha256 | 364 entries, all OK |
+| Cache token | `5990-r156-tegh` |
+| Migration | None. Required config: the `operator` section. |
+| Terms / privacy version | 2026-10-07 |
+| productionReady / acceptanceComplete | false / false (not changed) |
+| Evidence bundle | `Tegh-R156-Gate-Evidence.zip`: the raw results, logs and every script of the final run, with `verify-evidence.py` |
+
+**The owner's review findings and what was done**
+
+| # | Finding | Action | Evidence |
+|---|---|---|---|
+| 1 | The 575 passing tests could not be verified: the report, raw results and scripts were not in either ZIP. | A separate evidence bundle now carries the evidence for this exact package hash. It includes: <ul><li>every raw result file;</li><li>the full logs;</li><li>every gate script as run;</li><li>this report;</li><li>`verify-evidence.py`, which checks the bundle files and the package hash and recounts PASS/FAIL from the raw files without using this report.</li></ul> The R152 statement benchmarks that read the owner's real statements are left out. | `python3 scripts/verify-evidence.py <zip>` prints `VERIFIED`. |
+| 2 | The beta conditions were not in the Terms. | The Terms have a "Private beta" section: invitation only, free, sample data only, data may be reset, no guarantee of availability, not for real filings or payroll, feedback, leaving the beta. The page version, its meta tag and the server's recorded version moved to 2026-10-07 together. | 24-beta BS-07 and BS-09 |
+| 3 | The privacy notice lacked the operator, privacy contact, hosting details and a deletion procedure. | <ul><li>The Terms and Privacy pages show the operator's legal name, address, privacy and support emails, hosting provider, data location, backup location and email provider, from a new `operator` section in `config.php`.</li><li>While any field is blank, both pages say the notice is incomplete, and invitations are refused (409 `operator_details_missing`) on both invitation paths.</li><li>New sections cover testers' own information, retention, access, correction and deletion with a response time, and incidents.</li><li>"Delete login" now also replaces the person's address in invitations, sent-email records, the platform log and the incident log; the deletion record keeps a SHA-256 only.</li><li>Company audit history keeps the address because it is part of each entry's hash; the notice says so.</li></ul> | BS-08 (deletion clean-up), BS-09 (texts and the incomplete warning), BS-10 (a configuration without operator details reports 8 missing fields; 2 invitation paths are guarded) |
+| 4 | "No analytics" conflicted with the published wording on website measurement. | Checked against `api/marketing.php`: the public pages count nine named actions per day in a temporary file on Tegh's own server, with no identifiers or cookies. The Privacy Notice and `DATA-INVENTORY.md` now call this first-party website measurement and state that there is no third-party analytics, advertising or session recording. | BS-09 |
+| 5 | The restore script ran destructive steps without enforcing a separate target. | The restore refuses: <ul><li>a database name without "restore";</li><li>the live database (read from the live `config.php`);</li><li>the live storage folder, or anything inside or around it;</li><li>any folder without a `.tegh-restore-target` marker naming the database.</li></ul> It is never run against the live site. A separate manual procedure covers a real recovery. | beta-ops B1–B6 (live data unchanged after every refused attempt) |
+| 6 | The backup was not consistent while records changed. | The backup pauses changes with Tegh's maintenance flag: requests get 503 "Tegh is making a backup" and nothing is written. It takes the check figures before and after the dump and the file archive, and keeps the backup only if they are identical. Row counts are now compared exactly, with no tolerance. | beta-ops A1–A4: a writer ran throughout; 503 during the pause, success before and after; restore exact. |
+| 7 | An empty database stopped verification (`grep -c` with `set -e`). | Zero postings and zero files are handled explicitly in both scripts. | beta-ops C1–C2: an empty installation backs up and restores. |
+| 8 | The HTTPS redirect named only the two existing domains. | A generic rule redirects plain HTTP for any host to HTTPS on the same host, drops a port in the Host header, and respects a TLS proxy (`X-Forwarded-Proto`). The two existing domains keep their own rules. | paths: `beta.example.test` and `:80` give 301 to `https://beta.example.test/…`; `X-Forwarded-Proto: https` gives 200, no loop. |
+
+**Correction to the R155 addendum.** The R155 addendum said the app cannot delete a person's user account. That was wrong: Platform owner › Users › **Delete login** existed. R156 extends it as described in finding 3.
+
+**DEF-18 (Medium, wrong period / screen unavailable): the browser's calendar used instead of the accounting date.** Found by gate run 1, which started at 03:00 UTC.
+- **Symptom.** Tegh keeps its books on Toronto time. The server allows a date up to the later of the Toronto and UTC dates, so a bank line can carry the browser's new day. When the browser's date is already the next day:
+  - Match and Post took its From date from the newest bank line and its To date from Toronto's date. It then showed "Banking Workspace Unavailable — From date cannot be after To date".
+  - Period presets ("this month", "this year" and others) started from the browser's calendar. On the 1st of a month this gave a period of the new month only.
+  - The older form module set default and latest allowed dates on bills, expenses, payroll and voids from the browser's calendar.
+- **Who is affected.** Browsers ahead of Toronto: Atlantic Canada and Newfoundland for about an hour each night, travellers, and computers set to UTC from about 8 pm Toronto time.
+- **Not affected.** Posted figures; the problem is the period and dates offered on screen.
+- **Fix.** Every client "today" now uses the Toronto accounting date. Match and Post's To date reaches at least the newest line. The older module loads under the release token so browsers do not keep the old copy.
+- **Regression check 24-beta BD-01.** The browser is set to UTC+14 at 8:30 pm Sep 30 Toronto time. A company with bank lines dated Sep 28 and Oct 1 must open Match and Post with no inverted or refused period request. "This month" must give 2026-09-01 to 2026-09-30, worked out by hand. On the first R156 build it failed both ways: a 400 for 2026-10-01 > 2026-09-30, and "this month" of 2026-10-01 to 2026-10-01. It passes on the final build.
+- **Test host.** The gate clock was pinned by whole UTC days, so a run started between 00:00 and 04:00 UTC was on Sep 30 in Toronto. It is now pinned to 2026-10-01 12:00 Toronto. The browsers stay on UTC, which keeps the DEF-18 conditions under test.
+
+**Gate runs**
+
+| Run | ZIP | Result |
+|---|---|---|
+| 1 | `cd999dfd…c92e` (first R156 build) | Stopped. E2E W10–W14 (7) and Intelligence IN-11/12/20 (3) failed because of DEF-18. Not shipped. |
+| 2 | `d00b0fc6…d223` (final) | 578 PASS / 1 FAIL / 7 INFO. The failure was BD-01 itself: it relied on a bank line created later in the run by the journeys, and correctly refused to pass without it. The check now creates its own lines (test-only change; the ZIP is unchanged). |
+| 3 | `d00b0fc6…d223` (final) | **579 PASS / 0 FAIL / 7 INFO**, with BETA 18/18, E2E 53/53, upgrade R118 → R156 13/13, 45 path, header and redirect checks, 20 layout runs with 0 screens with issues, 0 swipe traps, 34 public pages light and without overflow, and 0 BLOCKED. |
+
+The 7 INFO rows are recorded for information and are **not** counted as passes: CB-02, XS-01, PY-01, PY-07, LG-03, SP-02 and DI-CMP. PY-01 is INFO because a submitted SIN was refused; PY-03…05 confirm no SIN is stored.
+
+**Backup and restore on the exact R156 installation after run 3**
+- `beta-ops-test.sh`: **12 PASS / 0 FAIL**, covering A1–A4, B1–B6 and C1–C2 as above.
+- A quiet backup restored into the designated restore-test installation gave `RESTORE VERIFIED`: 25 files identical, 167 tables with equal row counts, posted totals equal for 19 companies, and every company balanced.
+- The restored HTTPS site, served with the R156 code, showed **identical trial balances for all 26 companies** (121 account rows) and 7 identical uploaded files.
+
+**Not established here.** These need the owner, the host or an independent reviewer:
+- the real operator details in `config.php` (invitations stay blocked until they are filled in);
+- the beta host's HTTPS, its configuration, scheduled backups and one restore test there;
+- real email delivery to an external mailbox;
+- legal review of the Terms and Privacy text;
+- an independent security review;
+- the owner's accountant walkthrough;
+- a real iPhone/Safari check;
+- the host acceptance items.
+
+**Verdict for R156:** suitable to begin the **invitation-only, sample-data beta** once the operator details are filled in and the owner's open items in `beta-kit/BETA-READINESS.md` are closed. **NOT READY** for real client or employee information.

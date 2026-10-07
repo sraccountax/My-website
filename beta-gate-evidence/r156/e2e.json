@@ -1,0 +1,373 @@
+[
+ {
+  "id": "W1-01",
+  "area": "E2E",
+  "title": "New Customer form saves the customer with province and terms",
+  "status": "PASS",
+  "evidence": "\"ON|30\""
+ },
+ {
+  "id": "W2-01",
+  "area": "E2E",
+  "title": "New Invoice form: 2 × $500 to an Ontario customer issues for $1,130.00 (HST 13%)",
+  "status": "PASS",
+  "evidence": "INV-1001|113000|sent / 1130 shown"
+ },
+ {
+  "id": "W2-02",
+  "area": "E2E",
+  "title": "Issued invoice posts Dr 1200 $1,130 / Cr 4000 $1,000 / Cr 2100 $130",
+  "status": "PASS",
+  "evidence": "\"1200:113000,2100:-13000,4000:-100000\""
+ },
+ {
+  "id": "W3-01",
+  "area": "E2E",
+  "title": "Credit note from the register: return 1 × $500 posts Dr 4000 $500, Dr 2100 $65, Cr 1200 $565",
+  "status": "PASS",
+  "evidence": "[\"56500\",\"1200:-56500,2100:6500,4000:50000\"]"
+ },
+ {
+  "id": "W3-02",
+  "area": "E2E",
+  "title": "Invoice outstanding after credit note = $565.00",
+  "status": "PASS",
+  "evidence": "\"56500\""
+ },
+ {
+  "id": "W4-01",
+  "area": "E2E",
+  "title": "Payment form pre-fills the outstanding $565.00; saving settles the invoice (balance 0, status paid)",
+  "status": "PASS",
+  "evidence": "[\"565.00\",\"0|paid\"]"
+ },
+ {
+  "id": "W4-02",
+  "area": "E2E",
+  "title": "Receipt posts Dr 1000 $565 / Cr 1200 $565",
+  "status": "PASS",
+  "evidence": "\"1000:56500,1200:-56500\""
+ },
+ {
+  "id": "W5-01",
+  "area": "E2E",
+  "title": "New Vendor form saves the vendor with province",
+  "status": "PASS",
+  "evidence": "\"ON\""
+ },
+ {
+  "id": "W6-01",
+  "area": "E2E",
+  "title": "New Vendor Invoice: $200 + HST posts Dr 6400 $200, Dr 1100 $26, Cr 2050 $226",
+  "status": "PASS",
+  "evidence": "[\"22600\",\"1100:2600,2050:-22600,6400:20000\"]"
+ },
+ {
+  "id": "W7-01",
+  "area": "E2E",
+  "title": "Vendor payment pre-fills $226.00; saving pays the bill (balance 0)",
+  "status": "PASS",
+  "evidence": "[\"226.00\",\"0\"]"
+ },
+ {
+  "id": "W7-02",
+  "area": "E2E",
+  "title": "Vendor payment posts Dr 2050 $226 / Cr 1000 $226",
+  "status": "PASS",
+  "evidence": "\"1000:-22600,2050:22600\""
+ },
+ {
+  "id": "W8-01",
+  "area": "E2E",
+  "title": "GL Journal Entry: depreciation Dr 6810 $100 / Cr 1590 $100 posts",
+  "status": "PASS",
+  "evidence": "\"1590:-10000,6810:10000\""
+ },
+ {
+  "id": "W-JS",
+  "area": "E2E",
+  "title": "No JavaScript errors during W3–W8",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "W9-01",
+  "area": "E2E",
+  "title": "Upload Statement → preview (3 rows, money in $565.00, money out $282.50) → Continue imports 3 unposted bank lines",
+  "status": "PASS",
+  "evidence": "rows=3 summary=3 selected / 3 rows · 3 search results · Money out $282.50 · Money in $565.00"
+ },
+ {
+  "id": "W9-02",
+  "area": "E2E",
+  "title": "Import creates no General Ledger entries",
+  "status": "PASS",
+  "evidence": "\"0\""
+ },
+ {
+  "id": "W9-03",
+  "area": "E2E",
+  "title": "Uploading the same statement again: every row marked Duplicate, nothing selected, import disabled",
+  "status": "PASS",
+  "evidence": "dup=3 disabled=true 0 selected / 3 rows · 3 search results · Money out $0.00 · Money in $0.00"
+ },
+ {
+  "id": "W9-04",
+  "area": "E2E",
+  "title": "Cancel import removes the draft preview",
+  "status": "PASS",
+  "evidence": "\"0\""
+ },
+ {
+  "id": "W10-01",
+  "area": "E2E",
+  "title": "Post a $56.50 phone bill to 6300 with the ON code: Dr 6300 $50.00, Dr 1100 $6.50, Cr 1000 $56.50",
+  "status": "PASS",
+  "evidence": "[\"posted\",\"1000:-5650,1100:650,6300:5000\"]"
+ },
+ {
+  "id": "W10-02",
+  "area": "E2E",
+  "title": "Posting preview shows the HST split before posting",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "W10-JS",
+  "area": "E2E",
+  "title": "No JavaScript errors in Match and Post",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "W11-01a",
+  "area": "E2E",
+  "title": "Selecting the $565.00 bank line offers the recorded payment (Maple Leaf Cafe · INV-1001)",
+  "status": "PASS",
+  "evidence": "Already recorded?This bank line matches a payment you recorded. Linking uses the existing entry, so nothing is posted twice.Maple Leaf Cafe · INV-1001 · $565.00"
+ },
+ {
+  "id": "W11-02a",
+  "area": "E2E",
+  "title": "Link: bank line posted against the payment's own journal entry; payment linked",
+  "status": "PASS",
+  "evidence": "posted|journal_6a9454db3c87f40ce9da2aae63636b13 / btx_3cb49d67c9dd47f15c43234efc32cc22|journal_6a9454db3c87f40ce9da2aae63636b13"
+ },
+ {
+  "id": "W11-03a",
+  "area": "E2E",
+  "title": "Nothing posted twice: linking creates no journal entry",
+  "status": "PASS",
+  "evidence": "\"7\""
+ },
+ {
+  "id": "W11-01b",
+  "area": "E2E",
+  "title": "Selecting the $226.00 bank line offers the recorded payment (Northern Office Supply · NOS-5521)",
+  "status": "PASS",
+  "evidence": "Already recorded?This bank line matches a payment you recorded. Linking uses the existing entry, so nothing is posted twice.Northern Office Supply · NOS-5521 · "
+ },
+ {
+  "id": "W11-02b",
+  "area": "E2E",
+  "title": "Link: bank line posted against the payment's own journal entry; payment linked",
+  "status": "PASS",
+  "evidence": "posted|journal_9567bbb2479ec8d8846913d9daca4130 / btx_eee9b7fbb2fd30c7e969825579bc9ed6|journal_9567bbb2479ec8d8846913d9daca4130"
+ },
+ {
+  "id": "W11-03b",
+  "area": "E2E",
+  "title": "Nothing posted twice: linking creates no journal entry",
+  "status": "PASS",
+  "evidence": "\"7\""
+ },
+ {
+  "id": "W11-04",
+  "area": "E2E",
+  "title": "GL 1000 equals the bank statement closing balance ($282.50)",
+  "status": "PASS",
+  "evidence": "\"28250\""
+ },
+ {
+  "id": "W11-JS",
+  "area": "E2E",
+  "title": "No JavaScript errors",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "W12-00",
+  "area": "E2E",
+  "title": "A balanced period that ends in the future says it can be completed once the period has ended (not \"Ready to complete\")",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "W12-01",
+  "area": "E2E",
+  "title": "Reconciliation: bank $282.50 = books $282.50, difference $0.00, ready to complete",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "W12-02",
+  "area": "E2E",
+  "title": "Complete Reconciliation saves a completed snapshot (period end today, difference 0)",
+  "status": "PASS",
+  "evidence": "\"complete|2026-10-01|0\""
+ },
+ {
+  "id": "W13-01",
+  "area": "E2E",
+  "title": "Profit and Loss: income $500, expenses $350 (6300 $50, 6400 $200, 6810 $100), net $150",
+  "status": "PASS",
+  "evidence": "Total ExpensesCAD 0.00CAD 0.00CAD 0.00CAD 0.00CAD 0.00CAD 0.00CAD 0.00CAD 0.00CAD 0.00CAD 350.00CAD 350.00CAD 0.00CAD 350.00N/ANet Profit / (Loss)Net profit / ("
+ },
+ {
+  "id": "W13-02",
+  "area": "E2E",
+  "title": "Balance Sheet: bank $282.50, assets $215.00 = liabilities $65.00 + equity $150.00, difference $0.00",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "W13-03",
+  "area": "E2E",
+  "title": "Trial Balance: closing debits = closing credits = $665.00 (1000 282.50 + 1100 32.50 + 6300 50 + 6400 200 + 6810 100), difference $0.00",
+  "status": "PASS",
+  "evidence": "665.00 / 665.00 / 0.00"
+ },
+ {
+  "id": "W14-01",
+  "area": "E2E",
+  "title": "Dashboard: money in the bank $282.50, customers owe $0.00, you owe suppliers $0.00, profit this year $150.00",
+  "status": "PASS",
+  "evidence": "Money in the bank↗$282.50What your books show todayCash a | Profit this year↗$150.00Jan 1, 2026 – Oct 1, 2026Net pro"
+ },
+ {
+  "id": "W14-02",
+  "area": "E2E",
+  "title": "Dashboard sales tax card: HST owing $32.50 (collected $65.00 − paid $32.50)",
+  "status": "PASS",
+  "evidence": "GST/HST payable$32.50"
+ },
+ {
+  "id": "W12-JS",
+  "area": "E2E",
+  "title": "No JavaScript errors in reconciliation, reports, dashboard",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "W15-00",
+  "area": "E2E",
+  "title": "Payroll setup screen creates payroll controls (RP account, biweekly, regular remitter)",
+  "status": "PASS",
+  "evidence": "\"123456789RP0001|biweekly|regular\""
+ },
+ {
+  "id": "W15-01",
+  "area": "E2E",
+  "title": "Add Employee saves Priya Sharma, ON, biweekly, $52,000 salary, no SIN stored",
+  "status": "PASS",
+  "evidence": "\"Priya Sharma|ON|biweekly|5200000|nosin\""
+ },
+ {
+  "id": "W16-01",
+  "area": "E2E",
+  "title": "Draft pay run figures: gross $2,000.00, CPP $110.99, EI $32.60 (independent), net = gross − deductions",
+  "status": "PASS",
+  "evidence": "[\"200000\",\"11099\",\"3260\",\"160159\"]"
+ },
+ {
+  "id": "W16-02",
+  "area": "E2E",
+  "title": "Income tax within $0.05 of the hand calculation ($254.83)",
+  "status": "PASS",
+  "evidence": "Tegh 25482"
+ },
+ {
+  "id": "W16-03",
+  "area": "E2E",
+  "title": "Employee verified (formula source, evidence note stored)",
+  "status": "PASS",
+  "evidence": "\"1\""
+ },
+ {
+  "id": "W16-04",
+  "area": "E2E",
+  "title": "Verify Pay Run dialog: button stays disabled until a reference is entered AND the \"I have reviewed and verified…\" box is ticked",
+  "status": "PASS",
+  "evidence": "empty=true refOnly=true ticked=true"
+ },
+ {
+  "id": "W16-05",
+  "area": "E2E",
+  "title": "Pay run verified (status no longer draft)",
+  "status": "PASS",
+  "evidence": "verified / gl ready_to_post"
+ },
+ {
+  "id": "W16-06",
+  "area": "E2E",
+  "title": "Post to GL: Dr 7000 wages $2,000, Dr 7010 employer CPP+EI; Cr 2300 net, 2310 tax, 2320 CPP (both), 2330 EI (both); balanced",
+  "status": "PASS",
+  "evidence": "gl=posted got 2300:-160159,2310:-25482,2320:-22198,2330:-7824,7000:200000,7010:15663 want 2300:-160159,2310:-25482,2320:-22198,2330:-7824,7000:200000,7010:15663"
+ },
+ {
+  "id": "W16-07",
+  "area": "E2E",
+  "title": "Employer CPP = employee CPP ($110.99); employer EI = 1.4 × employee EI ($45.64)",
+  "status": "PASS",
+  "evidence": "[\"11099\",\"4564\"]"
+ },
+ {
+  "id": "W16-JS",
+  "area": "E2E",
+  "title": "No JavaScript errors in payroll",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "W17-01",
+  "area": "E2E",
+  "title": "Assist \"how much money is in the bank\" shows $282.50 (answer or the Bank Accounts page it opens)",
+  "status": "PASS",
+  "evidence": "PAGE: Manage Bank Accounts … able · Account Number Not AvailableActiveBook Balance (CAD)$282.50Latest Statement Bal"
+ },
+ {
+  "id": "W17-02",
+  "area": "E2E",
+  "title": "Assist \"who owes me money\" reflects receivables of $0.00",
+  "status": "PASS",
+  "evidence": "Receivable Ageing As of Oct 1, 2026 Nobody owes you money right now. See the details Open full report Change dates"
+ },
+ {
+  "id": "W17-03",
+  "area": "E2E",
+  "title": "Assist \"what is my profit this year\" answers a loss of $2,006.63",
+  "status": "PASS",
+  "evidence": "Profit & Loss Jan 1, 2026 – Oct 1, 2026 You made a loss of $2,006.63. Money earned $500.00 · Costs $2,506.63 See the details Open full report Change dates"
+ },
+ {
+  "id": "W18-01",
+  "area": "E2E",
+  "title": "Invoice PDF downloads and shows INV-1001, the customer, HST $130.00 and total $1,130.00",
+  "status": "PASS",
+  "evidence": "%PDF- INVOICE E2E Workflow Ltd INV-1001 Oct 1, 2026 · CAD From Bill to Invoice details ON, Canada Tax number: 123456789RT0001 "
+ },
+ {
+  "id": "W18-02",
+  "area": "E2E",
+  "title": "Profit and Loss export downloads and contains Service Revenue 500.00 and Wages and Salaries 2,000.00",
+  "status": "PASS",
+  "evidence": "Tegh-Profit-and-Loss.csv"
+ },
+ {
+  "id": "W17-JS",
+  "area": "E2E",
+  "title": "No JavaScript errors in Assist and exports",
+  "status": "PASS",
+  "evidence": ""
+ }
+]

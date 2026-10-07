@@ -73,16 +73,16 @@ If the host has no cron or SSH (some shared hosting plans), use the host's own s
    - `compare-restore.mjs` does this for every company: trial balance and uploaded files, through the app's own API.
    - Run it with `node compare-restore.mjs https://live https://restore owner-email password`. It only reads.
 
-**Results on the build team's test host (2026-10-07, R156 scripts, synthetic data):**
+**Results on the build team's test host (2026-10-07, R156 scripts on the final R156 package `d00b0fc6…`, synthetic data; 12 of 12 passed):**
 
 | Check | Result |
 |---|---|
-| Backup taken while another process kept creating records every 300 ms | Consistent (figures identical before and after). 95 writes succeeded and 23 were refused with "Tegh is making a backup" during the pause. The flag was removed afterwards. |
+| Backup taken while another process kept creating records every 300 ms | Consistent (figures identical before and after). 96 writes succeeded and 21 were refused with "Tegh is making a backup" during the pause. The flag was removed afterwards. |
 | Restore of that backup | `RESTORE VERIFIED`, with every table's row count equal |
 | Refused targets | Database without "restore" in its name, the live database, the live storage folder (even with a marker placed next to it), a folder containing the live storage, and an undesignated folder: all refused. The live database and files were unchanged. |
 | Installation with no records and no uploads | Backed up and restored, verified |
 | Damaged backup (one byte changed) | Refused before anything was restored (earlier run) |
-| Separate installation served from a restored backup | Identical trial balances for every company and identical uploaded files (earlier runs on R154 and R155 data: 40 companies with 17 files, and 25 companies with 7 files) |
+| Separate installation served from a restored backup | On the final R156 installation: identical trial balances for all 26 companies (121 account rows) and 7 identical uploaded files. Earlier runs on R154 and R155 data gave the same result. |
 
 The test script is `beta-gate-evidence/scripts/beta-ops-test.sh`. This proves the method; your host still needs one restore test of its own (host acceptance).
 
