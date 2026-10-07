@@ -32,7 +32,7 @@ Note: `BUNDLE-SHA256SUMS` proves that the files belong together. It does not pro
 | `raw/identity.txt` | The ZIP hash and the FILE-MANIFEST check. |
 | `raw/run-all.log` and `raw/*.log` | The console output of the suites. |
 | `raw/trapscan.txt` | The swipe-trap scan. |
-| `raw/r158-on-r157-code.json` | The deletion suite 26-r158 run on the test host with the R157 `operations.php`: the deletion was refused with 503 (DEL-03 FAIL). It shows the defect the R158 fix removes and is not counted in the R158 results. |
+| `reference/r158-on-r157-code.json` | Kept outside `raw/` so it is not counted. The deletion suite 26-r158 run on the test host with the R157 `operations.php`: the deletion was refused with 503 (DEL-03 FAIL). It shows the defect the R158 fix removes and is not counted in the R158 results. |
 | `raw/shots/` | Screenshots. They contain synthetic test data only. |
 | `raw/summary.json` and `raw/test-matrix.md` | Produced from the rows by `scripts/aggregate.py`. |
 | `logs/` | The full logs of `gate-run.sh`, `finish-run.sh`, the public-page check and the dark-mode check. |

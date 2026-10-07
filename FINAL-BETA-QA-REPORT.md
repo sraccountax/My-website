@@ -1439,3 +1439,64 @@ The 7 INFO rows are the same as in R156 and are not counted as passes.
 - a real iPhone/Safari check, which is also needed for the onboarding page and the tour.
 
 **Verdict for R157:** suitable for the invitation-only, sample-data beta once the owner's open items are closed. **NOT READY** for real client or employee information.
+
+## Addendum: R158 (company deletion; the backup items of the R157 review)
+
+| | R158 |
+|---|---|
+| Package | `Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R158-PRIVATE-BETA.zip` |
+| SHA-256 | `a0add32007f697b9f6f3a6ad1e3b4359051a8c74ea2a3a64c52c833799e29b57` |
+| FILE-MANIFEST.sha256 | 368 entries, all OK |
+| Cache token | `5990-r158-tegh` |
+| Migration | None |
+| productionReady / acceptanceComplete | false / false (not changed) |
+| Evidence bundle | `Tegh-R158-Gate-Evidence.zip`: raw results, logs and every script of the run; verify with `scripts/verify-evidence.py` |
+
+**What the owner reported, and what was done**
+
+| Report | Cause | Fix | Checks |
+|---|---|---|---|
+| "I am unable to delete a company" | Before deleting, Tegh checks its list of company tables against the database. Fifteen tables added from R133 to R157 were missing from the list, so every deletion was refused with 503 "unsupported dependency". No gate test deleted a company. | <ul><li>The fifteen tables are listed, dependents first.</li><li>A company table that a later release adds is read from the database and deleted first, instead of blocking.</li><li>Client viewing codes and sessions are deleted through their link.</li><li>A table that refuses deletion of the row it points to is still reported.</li></ul> | 26-r158 DEL-01…05 (new). On R157 the same suite: DEL-03 got 503 (kept as `r158-on-r157-code.json`). |
+| Backup: a failing ledger-total query was suppressed with `\|\| true` | — | Every check query must succeed. A database error stops the backup: no backup is kept and changes resume. The restore check treats database errors as failures. | beta-ops D1, E4 |
+| Backup: a fixed five-second wait for running requests | — | Each request leaves a marker while it runs, and the backup waits until none is left. A left-over marker (older than 15 min) is ignored. A request still running at `TEGH_WAIT_MAX` stops the backup. The script makes sure the web server owns the marker folder. | beta-ops D2, E1, E2 |
+| Backup: row counts and ledger totals cannot detect every update | — | A content fingerprint of every table (every value of every row), compared before and after the dump, and again after a restore. | beta-ops D3, E3 |
+
+**26-r158, company deletion (5 checks).** No expected figure comes from Tegh's own delete plan. The test reads the database for every table with a company column.
+- DEL-01: the company used here has rows in 29 tables.
+- DEL-02: wrong name 409, wrong password 403, no backup confirmation 409, and Company Admin 403. All rows stay unchanged.
+- DEL-03: the owner's deletion returns 200. No row is left in any company table, and no tax code component, vendor invoice line, note line, viewing code or session is left.
+- DEL-04: one deletion log entry, with the counts from before the deletion. Another company is untouched.
+- DEL-05: the same deletion in the browser, through Account & Access › Actions › Delete and Tegh's confirmation dialog. No page errors.
+
+**beta-ops-test.sh on the R158 installation: 19 PASS / 0 FAIL.** Sections A–C are as in R156 and R157. The new sections each run the same case with the R157 scripts as a control. All 4 controls showed the R157 defect.
+
+| Case | R158 | R157 control |
+|---|---|---|
+| D1 Ledger-total query fails (column missing) | exit 1, error shown, no backup kept, changes resumed | exit 0, "companies with postings 0" |
+| D2 Tegh request of ~15 s that changes a customer's name from second 7 to 15 | waited 14 s; the backup holds the final name | stopped waiting at 5 s; "consistent" while 7 changes landed during the backup |
+| D3 Another program edits a name every 0.1 s (counts and totals unchanged) | detected, `customers` named, backup removed | accepted |
+| E1 / E2 Left-over marker; request that never ends | ignored with a note / stops at TEGH_WAIT_MAX, nothing kept | — |
+| E3 Restore of a dump that differs in one value | `customers: content differs`, not verified | RESTORE VERIFIED |
+| E4 Database error in the restore's ledger and balance checks | both failures | — |
+
+The slow request in D2 is a test page that exists on the test host only while the script runs; it is not in the package.
+
+**Quiet backup and restore on the R158 installation**
+- The backup was consistent: 168 tables with 168 content fingerprints, 26 files, and the posted totals of 20 companies.
+- The restore check found every table's content equal, value for value: `RESTORE VERIFIED`.
+- The restore-test site was running the same R158 ZIP. It showed identical trial balances for all 34 companies (130 account rows) and 8 identical files.
+
+**Gate run on the exact ZIP** (`a0add320…9b57`; host clock pinned to 2026-10-01 12:00 Toronto)
+
+| Result | |
+|---|---|
+| **605 PASS / 0 FAIL / 7 INFO**, 0 BLOCKED | R158 5/5, R157 21/21, BETA 18/18, E2E 53/53, upgrade R118 → R158 13/13 |
+| 45 path, header and redirect checks | all PASS |
+| 20 layout runs | 0 screens with issues, 0 swipe traps |
+| 34 public pages | light, no overflow, 17 internal links valid |
+
+The 7 INFO rows are the same as in R156 and R157, and are not counted as passes.
+
+**Not established here** (unchanged): operator details on the beta host; the host's HTTPS and private-file protection; external invitation and reset email; a backup and restore on the beta host (with the R158 scripts); legal review; an independent security review; the owner's accounting walkthrough; a real iPhone/Safari check.
+
+**Verdict for R158:** replaces R157 as the candidate for the invitation-only, sample-data beta once the owner's hosting checks pass. **NOT READY** for real client or employee information.
