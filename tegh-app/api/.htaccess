@@ -3,6 +3,9 @@ DirectoryIndex index.php
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  # IONOS shared hosting rebuilds a relative rewrite target from its internal disk path (giving a 404) unless the
+  # URL base of this folder is stated. Tegh is installed at the web root, so this folder is /api/.
+  RewriteBase /api/
 
   # IONOS evaluates per-directory rewrites recursively. Exclude the router and
   # every real file/directory before forwarding a friendly API route.
