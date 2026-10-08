@@ -52,7 +52,7 @@ R160 (private beta package, replaces R159): an invitation fits the person: a new
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json
-and tegh-build.json all identify this package as R159; per-file hashes kept in
+and tegh-build.json all identify this package as R160; per-file hashes kept in
 their "history" sections record earlier releases and are not expected to match.
 
 Fresh installation (empty database): upload the package, put config.php outside
