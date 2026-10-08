@@ -128,4 +128,14 @@ E=$(ls -d $OUT/empty/tegh-* 2>/dev/null | tail -1)
 TEGH_LIVE_CONFIG=/tmp/empty-live.php RESTORE_DB=tegh_restore_empty RESTORE_STORAGE=/srv/rst-empty/storage $OPS/tegh-restore-verify.sh "$E" > /tmp/beta-empty-restore.out 2>&1; rc=$?; sed 's/^/   /' /tmp/beta-empty-restore.out
 [ $rc = 0 ] && grep -q "RESTORE VERIFIED" /tmp/beta-empty-restore.out && res PASS "C2 restore of the empty installation verified" || res FAIL "C2 empty restore (exit $rc)"
 mysql -e "DROP DATABASE IF EXISTS tegh_empty_src; DROP DATABASE IF EXISTS tegh_restore_empty"; rm -rf /srv/empty-src /srv/rst-empty /srv/rst-unmarked $OUT/empty
+
+echo "== F. encrypted copy (TEGH_ENCRYPT_TO)"
+rm -rf /tmp/fk && mkdir -p /tmp/fk && age-keygen -o /tmp/fk/key.txt 2>/dev/null && age-keygen -o /tmp/fk/other.txt 2>/dev/null
+PUB=$(age-keygen -y /tmp/fk/key.txt); rm -rf $OUT/enc && mkdir -p $OUT/enc
+TEGH_DB=tegh_gate TEGH_STORAGE=/srv/gate/sr-accountax-private/storage TEGH_OUT=$OUT/enc TEGH_ENCRYPT_TO=$PUB $OPS/tegh-backup.sh > /tmp/beta-enc.out 2>&1; rc=$?; grep -iE "encrypt|backup done" /tmp/beta-enc.out | sed 's/^/   /'
+EF=$(ls $OUT/enc/encrypted/tegh-*.tar.age 2>/dev/null | tail -1); PD=$(ls -d $OUT/enc/tegh-* 2>/dev/null | tail -1)
+[ $rc = 0 ] && [ -n "$EF" ] && [ -z "$(ls -A $OUT/enc/encrypted | grep -v '^tegh-.*\.tar\.age$')" ] && head -c 22 "$EF" | grep -q "age-encryption.org/v1" && ! tar -tf "$EF" >/dev/null 2>&1 && res PASS "F1 an encrypted copy tegh-*.tar.age is written next to the backup, nothing else in that folder, and it is not readable as an archive" || res FAIL "F1 encrypted copy (exit $rc, file ${EF:-none})"
+rm -rf /tmp/fd && mkdir -p /tmp/fd && age -d -i /tmp/fk/key.txt "$EF" | tar -C /tmp/fd -xf - && FD=/tmp/fd/$(basename "$PD") && (cd "$FD" && sha256sum -c --quiet SHA256SUMS) && diff -rq "$PD" "$FD" >/dev/null && res PASS "F2 the private key opens it: the decrypted backup passes its SHA256SUMS and is identical to the plain backup" || res FAIL "F2 decrypt and compare"
+age -d -i /tmp/fk/other.txt "$EF" > /dev/null 2>&1 && res FAIL "F3 a different key opened the copy" || res PASS "F3 a different private key cannot open it"
+rm -rf /tmp/fk /tmp/fd $OUT/enc
 echo "RESULT: $pass PASS / $failc FAIL"
