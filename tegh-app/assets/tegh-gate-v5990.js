@@ -3,7 +3,7 @@
 
   const VERSION = '5.9.9';
   const BUILD = '5990';
-  const ASSET_REVISION = '5990-r159-tegh';
+  const ASSET_REVISION = '5990-r160-tegh';
   const AUTH_CACHE_MS = 60000;
   const POST_COMMIT_SESSION_GRACE_MS = 45000;
   const RECOVERY_MARKER_KEY = 'tegh-session-recovery-v5990';
@@ -1873,7 +1873,7 @@
       inviteDetails=await request('platform/invite-details',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(inviteRequestBody())},88000);
       const item=inviteDetails.invitation||{};
       inviteForm.invitedEmail.value=item.email||'';
-      const invitedCompanies=document.getElementById('sr-invite-companies');if(invitedCompanies)invitedCompanies.textContent=(item.assignments||[]).map(x=>`${x.companyName} — ${x.roleLabel||x.role}`).join(' · ')||(item.scope==='workspace'?'Independent workspace':'');
+      const invitedCompanies=document.getElementById('sr-invite-companies');if(invitedCompanies)invitedCompanies.textContent=[...(item.scope==='workspace'?['Your own workspace (set up your own companies)']:[]),...(item.assignments||[]).map(x=>`${x.companyName} — ${x.roleLabel||x.role}`)].join(' · ');
       const confirm=inviteForm.querySelector('[data-invite-confirm]');if(confirm)confirm.hidden=!!item.existingUser;inviteForm.confirm.required=!item.existingUser;
       const nameField=inviteForm.querySelector('[data-invite-name]');if(nameField)nameField.hidden=!!item.existingUser;if(inviteForm.displayName){inviteForm.displayName.required=!item.existingUser;if(!item.existingUser&&!inviteForm.displayName.value)inviteForm.displayName.value=item.suggestedName||''}
       const title=inviteForm.querySelector('[data-invite-title]');if(title)title.textContent=item.existingUser?'Accept your invitation':'Create your account';

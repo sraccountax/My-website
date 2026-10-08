@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/invitations_r160.php';
 
 /** One invitation, one email, many explicitly authorized company-role assignments. */
 function tegh_invitation_company_choices(array $user): array
@@ -17,8 +18,9 @@ function tegh_invitation_assignments(array $user,array $raw,string $scope,bool $
 {
     $u=db()->prepare('SELECT active,platform_role FROM users WHERE id=?'.($lock?' FOR UPDATE':''));$u->execute([$user['id']]);$actor=$u->fetch();
     if(!$actor||(int)$actor['active']!==1)fail('The invitation is no longer authorized.',403,'invitation_unavailable');$platform=$actor['platform_role']==='platform_owner';
-    if($scope==='workspace'){if(!$platform||$raw!==[])fail('Independent workspace invitations require Platform Owner authorization and no company assignments.',403,'invitation_unavailable');return [];}
-    if($scope!=='company'||count($raw)<1||count($raw)>50)fail('Choose between one and 50 authorized companies.',422,'invitation_assignments_invalid');
+    // R160: an own-workspace invitation (platform owner only) may also give access to companies.
+    if($scope==='workspace'){if(!$platform)fail('Independent workspace invitations require Platform Owner authorization.',403,'invitation_unavailable');if($raw===[])return [];}
+    if(!in_array($scope,['company','workspace'],true)||count($raw)<1||count($raw)>50)fail('Choose between one and 50 authorized companies.',422,'invitation_assignments_invalid');
     $seen=[];$rows=[];
     foreach($raw as $item){
         if(!is_array($item))fail('The company assignment is invalid.',422,'invitation_assignments_invalid');
@@ -119,7 +121,7 @@ function tegh_invitation_send(array $user,string $mailId): array
         if(!in_array($encryption,['tls','ssl'],true)||trim((string)config('mail.smtp_host'))===''||trim((string)config('mail.smtp_username'))===''||trim((string)config('mail.smtp_password'))==='')throw new TeghServiceFailure('Configure authenticated SMTP with TLS or STARTTLS before sending invitations.',503,'invitation_smtp_configuration');
         $s=db()->prepare('SELECT a.company_id,a.role,c.name FROM account_invitation_companies a LEFT JOIN companies c ON c.id=a.company_id WHERE a.invitation_id=? ORDER BY a.company_id');$s->execute([$row['invitation_id']]);$assignments=$s->fetchAll();
         $actor=['id'=>$row['invited_by']];tegh_service_boundary(fn()=>tegh_invitation_assignments($actor,array_map(static fn($r)=>['companyId'=>$r['company_id'],'role'=>$r['role']],$assignments),(string)$row['scope']));
-        $summary=$row['scope']==='workspace'?'an independent Tegh workspace':implode('; ',array_map(static fn($r)=>$r['name'].' ('.company_role_label($r['role']).')',$assignments));
+        $companiesText=implode('; ',array_map(static fn($r)=>$r['name'].' ('.company_role_label($r['role']).')',$assignments));$summary=$row['scope']==='workspace'?('your own Tegh workspace, where you set up your own companies'.($assignments?', and to '.$companiesText:'')):$companiesText;
         $secret=tegh_invitation_cipher($row['token_cipher'],true);
         if(tegh_invitation_code_normalize($secret)!==''){
             $code=tegh_invitation_code_display($secret);$page=$base.'/app.html?register=1';$h=static fn(string $v):string=>htmlspecialchars($v,ENT_QUOTES,'UTF-8');
@@ -161,6 +163,8 @@ function tegh_handle_invitations(): never
         json_response(['invitations'=>$rows,'companies'=>tegh_invitation_company_choices($user),'independentWorkspaceAllowed'=>$platform]);
     }
     require_csrf();$input=request_json();$action=(string)($input['action']??'create_account');
+    if($action==='lookup')tegh_r160_handle_lookup($user,$input);
+    if($action==='restore_login'){tegh_operator_require_complete();tegh_r160_handle_restore($user,$input);}
     if(in_array($action,['create_account','send','resend'],true))tegh_operator_require_complete();
     try{
         if($action==='send'){$id=clean_text($input['id']??'','Invitation',64);tegh_invitation_parent_for_admin($user,$id);$s=db()->prepare("SELECT id FROM account_invitation_mail WHERE invitation_id=? ORDER BY created_at DESC,id DESC LIMIT 1");$s->execute([$id]);$mailId=$s->fetchColumn();if(!$mailId)fail('No queued delivery was found.',409,'invitation_mail_unavailable');json_response(tegh_invitation_send($user,(string)$mailId));}
@@ -185,12 +189,8 @@ function tegh_handle_invitations(): never
                 $actorLock=db()->prepare('SELECT active FROM users WHERE id=? FOR UPDATE');$actorLock->execute([$user['id']]);if((int)$actorLock->fetchColumn()!==1)fail('Invitation creation is unavailable.',403,'invitation_unavailable');
                 $s=db()->prepare('SELECT id,payload_hash FROM account_invitations WHERE invited_by=? AND operation_key=? FOR UPDATE');$s->execute([$user['id'],$key]);if($old=$s->fetch()){if(!hash_equals($old['payload_hash'],$hash))fail('This operation key was used for another invitation.',409,'invitation_operation_conflict');$m=db()->prepare('SELECT id FROM account_invitation_mail WHERE invitation_id=? AND operation_key=?');$m->execute([$old['id'],$key]);return ['id'=>$old['id'],'mailId'=>$m->fetchColumn(),'idempotentReplay'=>true];}
                 $count=db()->prepare('SELECT COUNT(*) FROM account_invitations WHERE invited_by=? AND created_at>UTC_TIMESTAMP()-INTERVAL 1 HOUR');$count->execute([$user['id']]);if((int)$count->fetchColumn()>=30)fail('Invitation creation is rate limited. Try later.',429,'invitation_rate_limited');
-                // An address that belongs to a deactivated login cannot accept an invitation; say so now instead of sending a
-                // code that can never be used. An existing active login already creates its own companies, so an
-                // independent-workspace invitation would change nothing for it.
-                $existing=db()->prepare('SELECT active,deleted_at FROM users WHERE LOWER(email)=LOWER(?)');$existing->execute([$email]);$existingUser=$existing->fetch();
-                if($existingUser&&((int)$existingUser['active']!==1||$existingUser['deleted_at']!==null))fail('This email belongs to a deactivated Tegh login. Reactivate it in Platform Owner Home › Users (or delete that login) before inviting this address again.',409,'invitation_user_deactivated');
-                if($existingUser&&$scope==='workspace')fail('This person already has a Tegh account and can already create their own companies. To give them access to your companies, invite them to those companies instead.',409,'invitation_user_exists');
+                // R160: registered → company access only; deactivated or deleted → restore instead of inviting.
+                tegh_r160_assert_invitation_fits($user,$email,$scope);
                 $assignments=tegh_invitation_assignments($user,$canonical,$scope,true,$email);$id=new_id('invitation');
                 db()->prepare('INSERT INTO account_invitations (id,email,scope,assignment_count,invited_by,operation_key,payload_hash,expires_at) VALUES (?,?,?,?,?,?,?,?)')->execute([$id,$email,$scope,count($assignments),$user['id'],$key,$hash,gmdate('Y-m-d H:i:s',time()+72*3600)]);
                 foreach($assignments as $a)db()->prepare('INSERT INTO account_invitation_companies (invitation_id,company_id,role) VALUES (?,?,?)')->execute([$id,$a['companyId'],$a['role']]);
