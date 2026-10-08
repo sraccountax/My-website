@@ -14,6 +14,11 @@
 #   TEGH_WAIT_MAX    seconds to wait for requests that were already running when changes were paused (default 300)
 #   TEGH_STALE_AFTER seconds after which a request marker is treated as left over from a crashed process (default 900)
 #   TEGH_OFFSITE     optional rsync target outside the hosting account
+#   TEGH_ENCRYPT_TO  optional age public key (age1...) or a file of public keys. Each backup is then also written as one
+#                    encrypted file, TEGH_ENCRYPTED_OUT/tegh-YYYYMMDD-HHMMSS.tar.age, which only the holder of the private
+#                    key can open (for an off-site copy on a laptop or in cloud storage). The server needs only the public key.
+#   TEGH_ENCRYPTED_OUT folder for the encrypted files (default TEGH_OUT/encrypted)
+#   TEGH_AGE         the age program (default: age on the PATH, else ~/bin/age)
 #   TEGH_KEEP_DAYS   local copies to keep (default 14)
 #   MYSQL_DEFAULTS   optional my.cnf with [client] user= and password= (keeps the password off the command line)
 #
@@ -118,4 +123,18 @@ echo "consistent snapshot: db $(du -h "$DIR/db.sql.gz" | cut -f1), files $(wc -l
 
 if [ -n "${TEGH_OFFSITE:-}" ]; then rsync -a "$DIR" "$TEGH_OFFSITE/" && echo "copied to $TEGH_OFFSITE"; fi
 find "$TEGH_OUT" -maxdepth 1 -type d -name 'tegh-*' -mtime +"$KEEP" -exec rm -rf {} + || true
+
+# Optional encrypted copy (age). Written to a temporary name first, so a download never picks up half a file.
+if [ -n "${TEGH_ENCRYPT_TO:-}" ]; then
+  AGE="${TEGH_AGE:-$(command -v age || echo "$HOME/bin/age")}"; ENC="${TEGH_ENCRYPTED_OUT:-$TEGH_OUT/encrypted}"
+  [ -x "$AGE" ] || { echo "FAIL encrypted copy: the age program was not found ($AGE); the backup itself is complete"; exit 1; }
+  if [ -f "$TEGH_ENCRYPT_TO" ]; then RCPT=(-R "$TEGH_ENCRYPT_TO"); else RCPT=(-r "$TEGH_ENCRYPT_TO"); fi
+  mkdir -p "$ENC"; NAME="$(basename "$DIR").tar.age"
+  if tar -C "$(dirname "$DIR")" -cf - "$(basename "$DIR")" | "$AGE" "${RCPT[@]}" -o "$ENC/.$NAME.part" && mv "$ENC/.$NAME.part" "$ENC/$NAME"; then
+    echo "encrypted copy: $ENC/$NAME ($(du -h "$ENC/$NAME" | cut -f1))"
+  else
+    rm -f "$ENC/.$NAME.part"; echo "FAIL encrypted copy could not be written; the backup itself is complete"; exit 1
+  fi
+  find "$ENC" -maxdepth 1 -type f -name 'tegh-*.tar.age' -mtime +"$KEEP" -delete || true
+fi
 echo "$(date -u +%FT%TZ) backup done"

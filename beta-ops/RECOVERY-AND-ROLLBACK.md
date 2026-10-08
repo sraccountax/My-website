@@ -46,6 +46,20 @@ An installation with no records or no uploads is a valid backup.
 
 If the host has no cron or SSH (some shared hosting plans), use the host's own scheduled database backups plus a scheduled copy of the upload folder, taken while maintenance mode is on. Keep the restore test below in place either way.
 
+### Encrypted off-site copy on a laptop (optional)
+The server can also write each backup as **one encrypted file**. Only the holder of the private key can open it, so the copy can be kept on a laptop or in cloud storage.
+1. **Make a key pair on the laptop** with age (https://age-encryption.org): `age-keygen -o tegh-backup-key.txt`. Keep that file private, and keep one spare copy offline. Without it the backups cannot be opened. Copy the `age1…` public key it prints.
+2. **On the server:** put the age program in `~/bin`, and add the public key to the cron line: `TEGH_ENCRYPT_TO=age1…`. Each run then also writes `tegh-backups/encrypted/tegh-YYYYMMDD-HHMMSS.tar.age`, ending with a line such as `encrypted copy: … (952K)`. If age is missing, the run reports `FAIL encrypted copy` and the normal backup is still kept.
+3. **On a Windows laptop:**
+   - Make an SSH key (`ssh-keygen -t ed25519 -f $HOME\.ssh\tegh_ionos`) and add its `.pub` contents to `~/.ssh/authorized_keys` on the server.
+   - Fill in the four settings at the top of `tegh-pull-backups.ps1` and run it once by hand.
+   - Then schedule it in Task Scheduler (daily, and "run as soon as possible after a missed start").
+   - It downloads only new encrypted files, never changes anything on the server, and logs to `pull.log`.
+4. **Once a month, check a copy:** `age -d -i tegh-backup-key.txt tegh-….tar.age | tar -xf -`, then restore the folder with `tegh-restore-verify.sh` into the restore-test installation.
+5. **Protect the laptop:** turn on full-disk encryption (BitLocker or FileVault). Now and then, copy the `.tar.age` files to an external drive as well.
+
+Tested on the build team's test host: a backup was encrypted, decrypted with the private key, every file matched its SHA-256, and the restore verified with all 169 tables equal. The PowerShell download script was not run on Windows by the build team; run it by hand once and check `pull.log`.
+
 ## 3. Restore test into a separate installation (before inviting testers, then monthly)
 `tegh-restore-verify.sh` **drops** its target database and **replaces** its target folder. It therefore runs only against a target you have designated for restore tests, and refuses anything else. **Never point it at the live installation**; it is built to refuse to.
 1. Set up the restore-test installation once:
