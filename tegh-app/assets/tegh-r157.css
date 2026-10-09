@@ -233,3 +233,5 @@ tr.r161-more{display:none!important}
 .r161-more-rows{position:sticky;left:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 4px;font-size:14px;color:var(--srp-muted,#5f7378)}
 .r161-more-rows span{margin-right:auto}
 @media print{tr.r161-more{display:table-row!important}.r161-more-rows{display:none!important}}
+/* R161: the sidebar count badge grows with its number (3,000 bank lines to review spilled out of the 22 px circle) */
+.sidebar nav button>em{flex:none!important;width:auto!important;padding:0 6px!important;box-sizing:border-box;white-space:nowrap;overflow:visible}

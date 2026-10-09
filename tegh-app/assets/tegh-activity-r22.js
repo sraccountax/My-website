@@ -826,7 +826,9 @@
     };
     const refresh=()=>{
       raf=0;const metrics=readMetrics();lastMetrics=metrics;
-      if(!metrics){rail.hidden=true;return;}
+      if(!metrics){rail.hidden=true;if(node.dataset.r161RailSpace){node.style.paddingRight=node.dataset.r161RailSpace==='-'?'':node.dataset.r161RailSpace;delete node.dataset.r161RailSpace;}return;}
+      // R161: the rail sits over the owner's last 20 px; keep that strip free so amounts at the right edge are not covered.
+      if(!node.dataset.r161RailSpace&&parseFloat(getComputedStyle(node).paddingRight)<22){node.dataset.r161RailSpace=node.style.paddingRight||'-';node.style.paddingRight='22px';}
       rail.hidden=false;rail.style.top=`${Math.round(metrics.top)}px`;rail.style.left=`${Math.round(metrics.left)}px`;rail.style.height=`${Math.round(metrics.height)}px`;
       thumb.style.height=`${Math.round(metrics.thumbHeight)}px`;thumb.style.transform=`translateY(${Math.round(metrics.max?node.scrollTop/metrics.max*metrics.travel:0)}px)`;
       rail.setAttribute('aria-valuemax',String(Math.round(metrics.max)));rail.setAttribute('aria-valuenow',String(Math.round(node.scrollTop)));

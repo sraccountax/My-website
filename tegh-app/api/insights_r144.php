@@ -240,16 +240,16 @@ function tegh_ins_brief(array $company): array
     }
     $od = tegh_ins_rows("SELECT COUNT(*) n,COALESCE(SUM(balance_cents),0) s,MIN(due_date) oldest FROM invoices WHERE company_id=? AND status='sent' AND balance_cents>0 AND due_date<?", [$cid, $today])[0];
     $lines[] = (int)$od['n'] > 0
-        ? ['key' => 'overdue', 'tone' => 'warn', 'text' => $od['n'] . ' customer invoice' . ($od['n'] == 1 ? ' is' : 's are') . ' overdue (' . tegh_ins_money((int)$od['s']) . '); the oldest is ' . tegh_ins_days((string)$od['oldest'], $today) . ' days late.', 'link' => ['menu' => ['Receivables', 'Receivable Ageing']]]
+        ? ['key' => 'overdue', 'tone' => 'warn', 'text' => number_format((int)$od['n']) . ' customer invoice' . ($od['n'] == 1 ? ' is' : 's are') . ' overdue (' . tegh_ins_money((int)$od['s']) . '); the oldest is ' . tegh_ins_days((string)$od['oldest'], $today) . ' days late.', 'link' => ['menu' => ['Receivables', 'Receivable Ageing']]]
         : ['key' => 'overdue', 'tone' => 'good', 'text' => 'No customer invoices are overdue.', 'link' => ['menu' => ['Receivables', 'Receivable Ageing']]];
     $due = tegh_ins_rows("SELECT COUNT(*) n,COALESCE(SUM(balance_cents),0) s FROM bills WHERE company_id=? AND status IN ('open','approved') AND balance_cents>0 AND due_date BETWEEN ? AND ?", [$cid, $today, tegh_ins_add_days($today, 7)])[0];
     $late = tegh_ins_rows("SELECT COUNT(*) n,COALESCE(SUM(balance_cents),0) s FROM bills WHERE company_id=? AND status IN ('open','approved') AND balance_cents>0 AND due_date<?", [$cid, $today])[0];
-    if ((int)$late['n'] > 0) $lines[] = ['key' => 'bills_late', 'tone' => 'warn', 'text' => $late['n'] . ' vendor invoice' . ($late['n'] == 1 ? ' is' : 's are') . ' past due (' . tegh_ins_money((int)$late['s']) . ').', 'link' => ['menu' => ['Payables', 'Payable Ageing']]];
-    if ((int)$due['n'] > 0) $lines[] = ['key' => 'bills_due', 'tone' => 'neutral', 'text' => $due['n'] . ' vendor invoice' . ($due['n'] == 1 ? ' is' : 's are') . ' due in the next 7 days (' . tegh_ins_money((int)$due['s']) . ').', 'link' => ['menu' => ['Payables', 'Payable Ageing']]];
+    if ((int)$late['n'] > 0) $lines[] = ['key' => 'bills_late', 'tone' => 'warn', 'text' => number_format((int)$late['n']) . ' vendor invoice' . ($late['n'] == 1 ? ' is' : 's are') . ' past due (' . tegh_ins_money((int)$late['s']) . ').', 'link' => ['menu' => ['Payables', 'Payable Ageing']]];
+    if ((int)$due['n'] > 0) $lines[] = ['key' => 'bills_due', 'tone' => 'neutral', 'text' => number_format((int)$due['n']) . ' vendor invoice' . ($due['n'] == 1 ? ' is' : 's are') . ' due in the next 7 days (' . tegh_ins_money((int)$due['s']) . ').', 'link' => ['menu' => ['Payables', 'Payable Ageing']]];
     $taxNet = -tegh_ins_balance($cid, tegh_ins_accounts($cid, "code IN ('2100','1100')"), $today);
     if ($taxNet !== 0) $lines[] = ['key' => 'tax', 'tone' => 'neutral', 'text' => $taxNet > 0 ? 'You owe about ' . tegh_ins_money($taxNet) . ' in GST/HST (collected minus input tax credits).' : 'You are due a GST/HST refund of about ' . tegh_ins_money(-$taxNet) . '.', 'link' => ['action' => 'report.tax_summary']];
     $pending = (int)tegh_ins_col("SELECT COUNT(*) FROM bank_transactions WHERE company_id=? AND status='pending'", [$cid]);
-    if ($pending > 0) $lines[] = ['key' => 'bank', 'tone' => 'neutral', 'text' => "$pending bank line" . ($pending == 1 ? ' is' : 's are') . ' waiting in Match and Post.', 'link' => ['menu' => ['Banking', 'Match and Post Transactions']]];
+    if ($pending > 0) $lines[] = ['key' => 'bank', 'tone' => 'neutral', 'text' => number_format((int)$pending) . " bank line" . ($pending == 1 ? ' is' : 's are') . ' waiting in Match and Post.', 'link' => ['menu' => ['Banking', 'Match and Post Transactions']]];
     $start = tegh_workspace_summary_period_start($today, (string)$company['fiscal_year_end']);
     $ytd = tegh_ins_profit($cid, $start, $today);
     $lyStart = (new DateTimeImmutable($start))->modify('-1 year')->format('Y-m-d'); $lyEnd = (new DateTimeImmutable($today))->modify('-1 year')->format('Y-m-d');
