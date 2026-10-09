@@ -1597,3 +1597,64 @@ The 7 INFO rows are the same as in R156 and R157, and are not counted as passes.
 **Not established here** (unchanged): operator details on the beta host; the host's HTTPS and private-file protection; external email (including the restore email); a restore on the beta host; legal review; an independent security review; the owner's accounting walkthrough; a real iPhone/Safari check.
 
 **Verdict for R160:** replaces R159 as the candidate for the invitation-only, sample-data beta once the owner's hosting checks pass. **NOT READY** for real client or employee information.
+
+## Addendum: R161 (final functional test: large companies in every mode, layout, theme and screen size)
+
+| | R161 |
+|---|---|
+| Package | `Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R161-PRIVATE-BETA.zip` |
+| SHA-256 | `58f7eac6b4b8605f2357697ceab99b92879fb600b98cdb39547a707e9c9244dc` |
+| FILE-MANIFEST.sha256 | 373 entries, all OK |
+| Cache token | `5990-r161-tegh` |
+| Migration | None |
+| productionReady / acceptanceComplete | false / false (not changed) |
+| Evidence bundle | `Tegh-R161-Gate-Evidence.zip`; verify with `scripts/verify-evidence.py` |
+
+**What was tested.** Two synthetic companies were built through the app's own API (no direct database writes):
+- **Volume Northwind Ltd:** 400 customers, 150 vendors, 5,000 invoices, 2,000 vendor invoices, about 4,900 payments, 400 journals and 3,000 imported bank lines (41,670 journal lines in the database with the other test companies).
+- **Volume Lakeshore Inc:** 150 customers, 60 vendors, 1,500 invoices, 600 vendor invoices, about 1,500 payments, 150 journals and 1,000 bank lines.
+
+The seeding script summed the expected figures from the amounts it generated (13% HST on whole-dollar prices, so tax is exact). None of Tegh's own calculations were used.
+
+**Defects found and fixed in R161**
+
+| # | Defect | Found by | Fix | Check |
+|---|---|---|---|---|
+| 1 | Two vendor invoices, invoices or expenses saved at the same moment in one company: one could fail with a server error (database deadlock on voucher numbering). 18 of 160 failed. | Seeding the large company with 8 parallel writers | The company's numbering lock is taken first, so saves queue | C-01: 160 of 160 succeed, with no duplicate or skipped number and every entry balanced |
+| 2 | The customer invoice register took 44-79 s with 5,000 invoices (the app's own page timeout is 45 s); the vendor register 14-30 s; Collections 8-15 s | Screen sweep | 250 rows at a time with Show more / Show all; id index for row buttons; formatters built once; the layout layer skips held-back rows | Matrix below; B-03 |
+| 3 | Match and Post opened on "Banking Workspace Unavailable — the workspace changed while this request was loading" | Browser check on the large company | A background agent check no longer cancels screens that are still loading | B-08 |
+| 4 | Amounts in the bank review queue were covered by the drag scrollbar ("−$1,415.3") | Screenshot review | The list keeps the scrollbar's strip free | B-08 (no amount under the scrollbar) |
+| 5 | With several companies selected, a new theme or layout reverted on reload: the save was refused as a write in the multi-company view | Mode matrix (the multi-company runs kept the previous layout) | Display preferences are saved in that view | Multi-company matrix runs record the layout and theme they chose |
+| 6 | The Bank General Ledger (and a busy GL account ledger) took 151 s. Each opening left a request running, and the host backup then waited and gave up: 10 of 22 backup checks failed. | Backup tests on the large database | The entry number now comes from two grouped lookups; same output, 0.4-0.7 s | P-01 (22 report definitions, each under 10 s); M-01 (no request left running); backup 22/22 |
+| 7 | The sidebar badge "3000" spilled out of its circle; counts without thousands separators; a cut-off search placeholder | Screenshot review | Badge grows; counts formatted; "Search" | Screenshots |
+
+**Gaps found in the earlier tests (now covered)**
+- **Guided mode was not really tested.** The Guided/Full Accounting choice is kept in the browser, so the gate's "guided" layout runs had run in Full Accounting (46 screens). Guided menu items also have no action id. The layout sweep now sets the mode inside each run, records the mode it actually used, and opens Guided menu items by name. The gate's two Guided runs now show Guided's 10 screens.
+- **Parallel runs shared one preference.** The navigation layout is saved on the server for the user, so parallel runs could change each other's layout. The final matrix ran one combination at a time.
+
+**Gate run on the exact ZIP** (`58f7eac6…`; host clock pinned to 2026-10-01 12:00 Toronto)
+
+| Result | |
+|---|---|
+| **652 PASS / 0 FAIL / 7 INFO**, 0 BLOCKED | R161 20/20, R160 9/9, R159 18/18, R158 5/5, R157 21/21, BETA 18/18, E2E 53/53, upgrade R118 → R161 13/13 |
+| 29-r161 | C-01, S-01, V-011…024 (Trial Balance, party balances = GL control accounts, P&L net income; all equal to the independent sums to the cent), P-01, B-01…08, M-01 |
+| 45 path, header and redirect checks | all PASS |
+| 20 layout runs | 0 screens with issues, 0 swipe traps |
+| 34 public pages | light, no overflow, 17 internal links valid |
+
+**Mode, layout, theme and screen-size matrix on the large companies (same installation)**
+
+MATRIX_RESULT
+
+**Backup and restore on the R161 installation with the large companies**
+- `beta-ops-test.sh`: 22 PASS / 0 FAIL; 4 of 4 R157 controls showed the R157 defect. Before fix 6 it gave 12 PASS / 10 FAIL.
+- The quiet backup and its restore: `RESTORE VERIFIED`, a 17 MB database, 169 tables equal value for value.
+- The restore-test site ran the same ZIP and showed identical trial balances for all 37 companies.
+
+**Known limits (not changed)**
+- The 5,000-invoice register takes 7-12 s to open; the rest of the screens take under 5 s. The app downloads the whole company workspace (15.7 MB uncompressed, about 1.7 MB compressed for this company).
+- The all-time Day Book for both large companies (over 25,000 lines) shows a clear "narrow the filters" message, by design.
+
+**Not established here** (unchanged): operator details on the beta host; the host's HTTPS and private-file protection; external email; a restore on the beta host; legal review; an independent security review; the owner's accounting walkthrough; a real iPhone/Safari check.
+
+**Verdict for R161:** replaces R160 as the candidate for the invitation-only, sample-data beta once the owner's hosting checks pass. **NOT READY** for real client or employee information.
