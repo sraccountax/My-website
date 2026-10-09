@@ -156,7 +156,7 @@ Notes (the database user needs CREATE privilege, as for the original install).
    For R160: api/invitations_r160.php (new), api/invitations_v5980.php,
    api/release_v5980.php, api/.htaccess, privacy.html, assets/tegh-r157.css, app.html
    and the cache-token assets. No database change.
-   For R161: api/platform.php, api/insights_r144.php, assets/tegh-activity-r22.js,
+   For R161: api/platform.php, api/insights_r144.php, api/report_loaders_v5980.php, assets/tegh-activity-r22.js,
    assets/tegh-r157.css, app.html and the cache-token assets. No database change.
 5. Upload all assets together; the cache token is r161-tegh (the client-view
    page loads its output script with r145-tegh too; its other assets stay on

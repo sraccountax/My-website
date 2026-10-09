@@ -43,7 +43,13 @@ The seeding script adds up the expected figures from the amounts it generates (1
 - **What happened:** with two companies selected, a new theme, navigation layout, sidebar or Quick Actions choice applied at once but went back on reload. The multi-company view refuses every save as read-only, and these personal display preferences were refused with it, without a message.
 - **Fix:** display preferences are not company records, so they are saved in that view too.
 
-**6. Smaller display fixes.**
+**6. Bank General Ledger took 151 seconds, and blocked the host backup.**
+- **What happened:** with 8,500 bank lines, the complete Bank General Ledger (and the GL account ledger for any busy account) took 151 seconds to build. For every ledger line, a subquery searched all of the company's vouchers, and an OR in it stopped the database from using an index.
+- **Knock-on effect:** each opening of the screen left a request running for minutes. The host backup waits for running requests, so it waited and then gave up: "3 requests were still running after 300 s; no backup was taken".
+- **Fix:** the entry number now comes from two grouped lookups that give the same lowest voucher number. The output is identical, apart from the per-run reference number and time. It now takes 0.4-0.7 seconds. (`api/report_loaders_v5980.php`)
+- **New checks:** the gate now times all 22 report definitions on the large company (each under 10 seconds, P-01), and checks that no request is left running after the browser checks (M-01).
+
+**7. Smaller display fixes.**
 - The sidebar count badge grows with its number; "3000" spilled out of its 22 px circle.
 - Counts on Home and in the Tegh brief use thousands separators: "3,000 bank transactions to sort out", "1,578 customer invoices are overdue". (`api/insights_r144.php`)
 - The bank review search box says "Search"; the old placeholder was cut off.
@@ -66,6 +72,8 @@ The seeding script adds up the expected figures from the amounts it generates (1
 **29-r161:**
 - **C-01:** simultaneous saves.
 - **S-01:** seeding.
+- **P-01:** every report definition's complete output in under 10 seconds.
+- **M-01:** no request left running after the browser checks.
 - **V-011…024:**
   - Trial Balance, customer and vendor balances against the GL control accounts, and P&L net income, all equal to the independently summed figures to the cent, for each company;
   - each of these reports loads in under 10 seconds.

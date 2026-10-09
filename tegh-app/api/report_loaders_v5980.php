@@ -110,10 +110,16 @@ function tegh_report_ledger_5980(array $company,array $d,array $p): array
     if($p['accountId']!==''&&!$accounts)fail('This GL account is not available in the current company.',404,'report_account_unavailable',false);
     $params=[$company['id'],$p['start']];$where='';if($p['accountId']!==''){$where=' AND jl.account_id=?';$params[]=$p['accountId'];}
     $opening=tegh_report_query_5980("SELECT jl.account_id,SUM(jl.debit_cents-jl.credit_cents) balance FROM journal_lines jl JOIN journal_entries je ON je.id=jl.journal_entry_id WHERE je.company_id=? AND je.status='posted' AND je.entry_date<? $where GROUP BY jl.account_id",$params);
-    $opening=array_map('intval',array_column($opening,'balance','account_id'));$params=[$company['id'],$p['start'],$p['end']];if($p['accountId']!=='')$params[]=$p['accountId'];
+    $opening=array_map('intval',array_column($opening,'balance','account_id'));$params=[$company['id'],$company['id'],$company['id'],$p['start'],$p['end']];if($p['accountId']!=='')$params[]=$p['accountId'];
+    // R161: the entry number is the lowest voucher number linked to the entry or to its source document. It was a
+    // correlated subquery with an OR that could not use an index: every ledger line scanned all of the company's
+    // vouchers (Bank General Ledger for 8,500 lines took 151 s). Two grouped lookups give the same minimum.
     $lines=tegh_report_query_5980("SELECT jl.id line_id,jl.account_id,jl.memo line_memo,jl.debit_cents,jl.credit_cents,je.id journal_id,je.entry_date,je.memo,je.source_type,je.source_id,je.reversal_of_id,
-      (SELECT MIN(v.voucher_number) FROM vouchers v WHERE v.company_id=je.company_id AND(v.journal_entry_id=je.id OR(v.source_type=je.source_type AND v.source_id=je.source_id))) voucher
-      FROM journal_lines jl JOIN journal_entries je ON je.id=jl.journal_entry_id WHERE je.company_id=? AND je.status='posted' AND je.entry_date BETWEEN ? AND ? $where ORDER BY jl.account_id,je.entry_date,je.created_at,je.id,jl.id",$params);
+      CASE WHEN vj.n IS NULL THEN vs.n WHEN vs.n IS NULL THEN vj.n ELSE LEAST(vj.n,vs.n) END voucher
+      FROM journal_lines jl JOIN journal_entries je ON je.id=jl.journal_entry_id
+      LEFT JOIN (SELECT journal_entry_id,MIN(voucher_number) n FROM vouchers WHERE company_id=? AND journal_entry_id IS NOT NULL GROUP BY journal_entry_id) vj ON vj.journal_entry_id=je.id
+      LEFT JOIN (SELECT source_type,source_id,MIN(voucher_number) n FROM vouchers WHERE company_id=? GROUP BY source_type,source_id) vs ON vs.source_type=je.source_type AND vs.source_id=je.source_id
+      WHERE je.company_id=? AND je.status='posted' AND je.entry_date BETWEEN ? AND ? $where ORDER BY jl.account_id,je.entry_date,je.created_at,je.id,jl.id",$params);
     $by=[];foreach($lines as $line)$by[$line['account_id']][]=$line;$rows=[];$groups=[];$labels=[];$controls=[];$td=0;$tc=0;$groupTotals=[];
     foreach($accounts as $a){$id=$a['id'];if($p['accountId']===''&&!isset($by[$id])&&($opening[$id]??0)===0)continue;$groups[]=$id;$labels[$id]=$a['code'].' · '.$a['name'];$run=$opening[$id]??0;$dr=0;$cr=0;
         $base=['accountId'=>$id,'accountCode'=>$a['code'],'accountName'=>$a['name']];$rows[]=array_merge($base,['date'=>$p['start'],'voucher'=>'Opening balance','reference'=>'','description'=>'All posted activity before the period','lineMemo'=>'','debitCents'=>0,'creditCents'=>0,'balanceCents'=>$run,'rowKind'=>'opening']);
