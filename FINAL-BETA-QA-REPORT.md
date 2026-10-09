@@ -1644,7 +1644,12 @@ The seeding script summed the expected figures from the amounts it generated (13
 
 **Mode, layout, theme and screen-size matrix on the large companies (same installation)**
 
-MATRIX_RESULT
+| Runs | 26, one at a time, on the gate installation of the exact ZIP |
+|---|---|
+| Combinations | Full Accounting × side navigation: light at 1920, 1440, 768, 390 and 320 px and 150% zoom; dark at 1366 and 390 px. Full Accounting × top navigation: light at 1440, 768 and 390 px; dark at 1440 px. Guided × side navigation: light at 1440, 768, 390 and 320 px; dark at 1440 and 390 px. Guided × top navigation: light at 1440 and 390 px; dark at 1366 px. System theme on a dark device: Full Accounting at 1440 px, Guided at 390 px. Both companies selected: Full Accounting, side navigation, light, 1440 px; Full Accounting, top navigation, dark, 390 px; Guided, side navigation, light, 1440 px |
+| Screens opened | 800 (46 per Full Accounting run, 10 per Guided run). Each run recorded the mode, navigation and theme it actually used, and they match the combination |
+| Layout and script issues | **0**: no page-wide sideways scrolling, nothing off-screen, no "undefined" or "NaN", no error toasts, no failed actions, no script errors |
+| Load time | Every screen under 8 s except the 5,000-invoice register (Full Accounting customer invoice register and Guided Invoices), which opened in 8.2-9.0 s in 9 of its 26 openings (known limit). Before R161 the same register took 44-79 s |
 
 **Backup and restore on the R161 installation with the large companies**
 - `beta-ops-test.sh`: 22 PASS / 0 FAIL; 4 of 4 R157 controls showed the R157 defect. Before fix 6 it gave 12 PASS / 10 FAIL.
@@ -1652,7 +1657,7 @@ MATRIX_RESULT
 - The restore-test site ran the same ZIP and showed identical trial balances for all 37 companies.
 
 **Known limits (not changed)**
-- The 5,000-invoice register takes 7-12 s to open; the rest of the screens take under 5 s. The app downloads the whole company workspace (15.7 MB uncompressed, about 1.7 MB compressed for this company).
+- The 5,000-invoice register takes about 7-9 s to open (single company; up to 12 s seen with both large companies on the development host); the other screens take under 8 s. The app downloads the whole company workspace (15.7 MB uncompressed, about 1.7 MB compressed for this company).
 - The all-time Day Book for both large companies (over 25,000 lines) shows a clear "narrow the filters" message, by design.
 
 **Not established here** (unchanged): operator details on the beta host; the host's HTTPS and private-file protection; external email; a restore on the beta host; legal review; an independent security review; the owner's accounting walkthrough; a real iPhone/Safari check.

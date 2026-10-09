@@ -1,0 +1,4 @@
+zip: /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R161-PRIVATE-BETA.zip
+58f7eac6b4b8605f2357697ceab99b92879fb600b98cdb39547a707e9c9244dc  /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R161-PRIVATE-BETA.zip
+tag: r161
+FILE-MANIFEST: all 373 entries OK
