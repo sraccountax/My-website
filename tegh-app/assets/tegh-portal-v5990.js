@@ -650,7 +650,7 @@ const TeghPortal = (() => {
       try{return await request}finally{if(apiRequestsInFlight.get(requestKey)===request)apiRequestsInFlight.delete(requestKey)}
     }
     const headers=new Headers(opt.headers||{});
-    if(isConsolidated()&&!['GET','HEAD','OPTIONS'].includes(method)&&!opt.allowConsolidated)throw Error('Consolidated view is read-only. Select one company before creating or changing transactions.');
+    if(isConsolidated()&&!['GET','HEAD','OPTIONS'].includes(method)&&!opt.allowConsolidated&&route!=='agent/interface-preferences'/* R161: the user's own display preferences (layout, sidebar, quick actions) are not company records; with several companies selected they were never saved and reverted on reload */)throw Error('Consolidated view is read-only. Select one company before creating or changing transactions.');
     if(cid)headers.set('X-Company-Id',cid);if(!['GET','HEAD','OPTIONS'].includes(method))headers.set('X-CSRF-Token',a.csrfToken||'');
     let body=opt.body;if(opt.json!==undefined){headers.set('Content-Type','application/json');body=JSON.stringify(opt.json)}
     const started=performance.now(),controller=method==='GET'?new AbortController():null;let r;
@@ -8073,7 +8073,7 @@ window.TeghQuickActions=TeghPortal.quickActions;
     if(shown>=total){bar?.remove();return}
     if(!bar){bar=document.createElement('div');bar.className='r161-more-rows';bar.setAttribute('role','status');if(inside)host.append(bar);else host.after(bar);
       bar.addEventListener('click',event=>{const button=event.target.closest('button[data-r161-show]');if(!button)return;const t=bar._table;if(!t?.isConnected)return;
-        const all=button.dataset.r161Show==='all';t.dataset.r161Shown=String(all?t.tBodies[0].rows.length:Number(t.dataset.r161Shown||STEP)+STEP);apply(t);})}
+        const all=button.dataset.r161Show==='all';t.dataset.r161Shown=String(all?t.tBodies[0].rows.length:Number(t.dataset.r161Shown||STEP)+STEP);apply(t);window.TeghActivityShell?.refresh?.();})}
     bar._table=table;const more=Math.min(STEP,total-shown);
     bar.innerHTML=`<span>Showing ${fmt(shown)} of ${fmt(total)} rows</span><button type="button" class="srp-btn secondary" data-r161-show="more">Show ${fmt(more)} more</button><button type="button" class="srp-btn secondary" data-r161-show="all">Show all ${fmt(total)}</button>`;
   }

@@ -1060,7 +1060,8 @@
     const actionIndex=headers.findIndex(label=>/\bactions?\b/i.test(label.trim()));
     if(actionIndex<0)return;
     $$('tbody > tr',table).forEach(row=>{
-      if(row.classList.contains('r17-detail-row'))return;
+      // R161: rows held back by "Show more" (r161-more) are done when they are shown.
+      if(row.classList.contains('r17-detail-row')||row.classList.contains('r161-more'))return;
       const cell=[...row.cells].find(item=>Number(item.dataset.r22Column)===actionIndex)||row.cells[actionIndex];
       if(!cell||cell.dataset.r22RowActions==='1'||$('details,[role="menu"]',cell))return;
       const actions=$$('button,a[href],[role="button"]',cell).filter(node=>!node.closest('table table'));
@@ -1083,7 +1084,7 @@
     const caption=$('caption',table);if(caption)caption.classList.add('r22-sr-only');
     let occupied=[];
     $$('tbody > tr,tfoot > tr',table).forEach(row=>{
-      if(row.classList.contains('r17-detail-row'))return;
+      if(row.classList.contains('r17-detail-row')||row.classList.contains('r161-more'))return;
       row.setAttribute('role','row');let column=0,next=occupied.map(n=>Math.max(0,n-1));
       [...row.cells].forEach(cell=>{
         while(occupied[column]>0)column++;

@@ -28,7 +28,8 @@ The seeding script adds up the expected figures from the amounts it generates (1
   - Tables with more than 300 rows show 250 at a time, with **Show 250 more** and **Show all**. The rows stay in the page, so search, counts, exports and printing still cover every row.
   - Each row's record is found through an index.
   - Formatters are built once.
-- **Result:** the customer invoice register opens in about 7 seconds, and every other screen in under 5. (`assets/tegh-portal-v5990.js`, `tegh-r157.css`)
+  - The layout layer no longer builds a row-actions menu, or labels cells, for rows held back by Show more; they are done when shown.
+- **Result:** on the test host, the 5,000-invoice register opens in 7-9 seconds (8-12 seconds with both companies selected) and every other screen in under 5. (`assets/tegh-portal-v5990.js`, `tegh-activity-r22.js`, `tegh-r157.css`)
 
 **3. "The workspace changed while this request was loading" on a large company.**
 - **What happened:** a background agent check runs a few seconds after a screen opens. It was treated as a bookkeeping change and cancelled every load still in progress, so Match and Post opened on "Banking Workspace Unavailable".
@@ -38,7 +39,11 @@ The seeding script adds up the expected figures from the amounts it generates (1
 - **What happened:** in the bank review queue (Guided and Full Accounting), the drag scrollbar sat over the right edge of the list, so amounts were cut off ("−$1,415.3").
 - **Fix:** the list now keeps that strip free while the scrollbar shows. (`assets/tegh-activity-r22.js`)
 
-**5. Smaller display fixes.**
+**5. Theme and layout choices were lost when several companies were selected.**
+- **What happened:** with two companies selected, a new theme, navigation layout, sidebar or Quick Actions choice applied at once but went back on reload. The multi-company view refuses every save as read-only, and these personal display preferences were refused with it, without a message.
+- **Fix:** display preferences are not company records, so they are saved in that view too.
+
+**6. Smaller display fixes.**
 - The sidebar count badge grows with its number; "3000" spilled out of its 22 px circle.
 - Counts on Home and in the Tegh brief use thousands separators: "3,000 bank transactions to sort out", "1,578 customer invoices are overdue". (`api/insights_r144.php`)
 - The bank review search box says "Search"; the old placeholder was cut off.
@@ -52,7 +57,8 @@ The seeding script adds up the expected figures from the amounts it generates (1
 - **Collection Drafts:** an "execution context destroyed" message in the screen sweep came from the test tool, not the app. Opened 8 times in a row at phone width, it never reloads the page.
 - **"Customer Payments" in the menu** opens the receipt form titled "New Customer Receipt"; the form retitles itself once it is ready.
 
-## Known limit (not changed)
+## Known limits (not changed)
+- **The largest register still takes 7-12 seconds to open.** The rest of that time goes on the layout layer re-measuring the page, and on the app building the original table before the paged register replaces it. A further cut would mean rebuilding how registers load.
 - **The workspace download grows with the company.** It is about 15.7 MB uncompressed for 5,000 invoices; the server sends it compressed. On a slow connection the first screen of a very large company takes longer.
 - **Possible future change:** fetch registers from the server one page at a time instead of downloading the whole workspace.
 
