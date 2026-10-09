@@ -1548,3 +1548,52 @@ The 7 INFO rows are the same as in R156 and R157, and are not counted as passes.
 **Not established here** (unchanged): operator details (now including a support mailbox for deletion requests) on the beta host; the host's HTTPS and private-file protection; external email; a restore on the beta host; legal review; an independent security review; the owner's accounting walkthrough; a real iPhone/Safari check.
 
 **Verdict for R159:** replaces R158 as the candidate for the invitation-only, sample-data beta once the owner's hosting checks pass. **NOT READY** for real client or employee information.
+
+## Addendum: R160 (invitations that fit the person; restoring a deactivated or deleted login; Invitations & Access page)
+
+| | R160 |
+|---|---|
+| Package | `Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R160-PRIVATE-BETA.zip` |
+| SHA-256 | `878bb49817b5a5922acc6bf1a52746992a16b89ef432b5f51084cd1fa94a5f95` |
+| FILE-MANIFEST.sha256 | 372 entries, all OK |
+| Cache token | `5990-r160-tegh` |
+| Migration | None. Privacy Notice version 2026-10-08 (terms unchanged, 2026-10-07) |
+| productionReady / acceptanceComplete | false / false (not changed) |
+| Evidence bundle | `Tegh-R160-Gate-Evidence.zip`; verify with `scripts/verify-evidence.py` |
+
+**What the owner asked for, and where it is checked (suite 28-r160, 9 checks)**
+
+| Request | Done | Checks |
+|---|---|---|
+| A more user-friendly invitations page | Platform Owner Home › **Invitations & Access** with three tabs: Invite someone (Email → What they get → Send), Sent invitations, Sign-up & email. The choices are two cards; the company list opens only when needed, scrolls inside itself, and works at phone width. | UI-01, UI-04 |
+| A registered email: only access to more companies | The page says "Already on Tegh", offers no own-workspace choice, and marks the companies the person already has. The server refuses an own-workspace invitation (409 `invitation_user_exists`). The person accepts with their current password. | IN-02, UI-02 |
+| A new email: own companies and/or existing companies | One invitation can give the person their own workspace and access to the inviter's companies. After accepting, they have that access and can create their own company. | IN-01, UI-01 |
+| A deleted or deactivated email: restore the old login and send only a password email | Tegh recognises a deleted login's email by the SHA-256 fingerprint kept since R156 (it does not keep the address). Inviting is refused (409 `invitation_user_deleted` / `invitation_user_deactivated`). **Restore login** brings back the same login (same id) or reactivates it, ends older reset links and sessions, and emails "Your Tegh login has been restored": the email says the login was previously deleted (or deactivated) and gives a 72-hour link to set a new password. No invitation email is sent. Only the platform owner can look up or restore; a company admin is told to ask Tegh support. | IN-03, IN-04, IN-05, UI-03 |
+
+**Changes to existing tests**
+- 27-r159 INV-01: a deleted address invited again is now refused and pointed to Restore login, instead of receiving a second account (R160's rule).
+- 24-beta BS-09: expects privacy version 2026-10-08.
+- `run-all.sh` runs 28-r160 and clears the sign-in throttle before it.
+- `beta-ops-test.sh` gained section F: the optional encrypted copy (`TEGH_ENCRYPT_TO`) is written, opens with the private key and equals the plain backup, and cannot be opened with another key.
+
+**Also in R160:** the company directory counts archived companies separately and labels them (the R159 known issue); `api/.htaccess` states `RewriteBase /api/` (the 404 on `/api/health` on IONOS).
+
+**Gate run on the exact ZIP** (`878bb498…5f95`; host clock pinned to 2026-10-01 12:00 Toronto)
+
+| Result | |
+|---|---|
+| **632 PASS / 0 FAIL / 7 INFO**, 0 BLOCKED | R160 9/9, R159 18/18, R158 5/5, R157 21/21, BETA 18/18, E2E 53/53, upgrade R118 → R160 13/13 |
+| 45 path, header and redirect checks | all PASS |
+| 20 layout runs | 0 screens with issues, 0 swipe traps |
+| 34 public pages | light, no overflow, 17 internal links valid |
+
+**Backup and restore on the R160 installation**
+- `beta-ops-test.sh`: 22 PASS / 0 FAIL (A–E as before, plus F1–F3 for the encrypted copy); 4 of 4 R157 controls showed the R157 defect.
+- The quiet backup and its restore: `RESTORE VERIFIED`, 169 tables equal value for value, 26 files.
+- The restore-test site ran the same ZIP and showed identical trial balances for all 34 companies.
+
+**Limits:** logins deleted before R156 have no fingerprint and are treated as new addresses. Company admins' own invite form (Account & Access › Users) keeps its layout; the same server rules apply to it.
+
+**Not established here** (unchanged): operator details on the beta host; the host's HTTPS and private-file protection; external email (including the restore email); a restore on the beta host; legal review; an independent security review; the owner's accounting walkthrough; a real iPhone/Safari check.
+
+**Verdict for R160:** replaces R159 as the candidate for the invitation-only, sample-data beta once the owner's hosting checks pass. **NOT READY** for real client or employee information.
