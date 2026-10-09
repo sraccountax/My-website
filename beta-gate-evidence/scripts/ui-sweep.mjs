@@ -13,11 +13,13 @@ if(setPrefs==='1'){await page.evaluate(()=>window.TeghPortal.openTeghPreferences
  await page.locator(`[data-tegh-preferences] input[name=theme][value=${theme}]`).check({force:true});await page.locator(`[data-tegh-preferences] input[name=navigationLayout][value=${nav}]`).check({force:true});
  await page.locator('[data-tegh-preferences] button[type=submit]').first().click();await page.waitForTimeout(1200);
  await page.evaluate(g=>window.TeghPortal.switchBookkeepingMode(g),mode==='guided'?'owner':'accountant');await page.waitForTimeout(1200);await browser.close();process.exit(0)}
-const state=await page.evaluate(()=>({company:localStorage.getItem('sr-accountax-company'),theme:document.documentElement.dataset.teghTheme,company:document.querySelector('[data-company-name],.company-name,.srp-company-name')?.textContent?.trim()}));
+// R161: Guided / Full Accounting is kept per browser, so apply it in this run (the set-up run's choice does not carry over).
+if(setPrefs!=='1'){await page.evaluate(g=>window.TeghPortal.switchBookkeepingMode(g),mode==='guided'?'owner':'accountant').catch(()=>{});await page.goto('https://gate.test/app.html');await page.waitForFunction(()=>window.TeghPortal&&document.querySelector('.sidebar,.topbar'),null,{timeout:40000});await page.waitForTimeout(2500);}
+const state=await page.evaluate(()=>({mode:document.documentElement.dataset.bookkeepingMode,nav:document.documentElement.dataset.teghNavigationLayout,company:localStorage.getItem('sr-accountax-company'),theme:document.documentElement.dataset.teghTheme,company:document.querySelector('[data-company-name],.company-name,.srp-company-name')?.textContent?.trim()}));
 const acts=await page.evaluate(()=>[...new Set([...document.querySelectorAll('[data-srp-action-id]')].map(b=>b.dataset.srpActionId+'|'+b.textContent.trim().replace(/\|/g,'')))]);
 const out={tag,W,H,Z,vw,theme,nav,mode,state,screens:[]};
 for(const entry of acts){const [id,label]=entry.split('|');errs.length=0;
- await page.evaluate(id=>TeghPortal.invokeMenuAction('',id),id).catch(e=>errs.push('invoke '+e.message.slice(0,80)));await page.waitForTimeout(1900);
+ await page.evaluate(([id,label])=>{if(id){TeghPortal.invokeMenuAction('',id);return}const b=[...document.querySelectorAll('[data-srp-action-id]')].find(x=>x.textContent.trim()===label);b?.click()},[id,label]).catch(e=>errs.push('invoke '+e.message.slice(0,80)));await page.waitForTimeout(1900);
  const m=await page.evaluate(()=>{const de=document.documentElement;const vis=el=>el&&el.offsetParent!==null;const h1=[...document.querySelectorAll('h1')].find(vis);
   const txt=document.querySelector('.srp-page,.stage,main')?.innerText||'';const bad=(txt.match(/\bundefined\b|\bNaN\b|\[object Object\]|Infinity/g)||[]).slice(0,3);
   // elements that stick out past the viewport horizontally (excluding scroll containers' children)
@@ -25,7 +27,7 @@ for(const entry of acts){const [id,label]=entry.split('|');errs.length=0;
   const xss=window.__xss||0;const toast=[...document.querySelectorAll('.srp-toast.error,[data-toast-type=error]')].map(t=>t.textContent.trim().slice(0,80));
   return {h1:h1?.textContent?.trim().slice(0,50)||'',sw:de.scrollWidth,cw:de.clientWidth,bad,over,xss,toast}});
  const issues=[];if(m.sw>m.cw+2)issues.push('page-hscroll '+m.sw+'>'+m.cw);if(m.over)issues.push(m.over+' elements off-screen');if(m.bad.length)issues.push('text:'+m.bad.join(','));if(!m.h1)issues.push('no heading');if(m.xss)issues.push('XSS EXECUTED');if(errs.length)issues.push('js:'+errs.join(';'));if(m.toast.length)issues.push('error-toast:'+m.toast.join(';'));
- const n=id.replace(/[^a-z0-9]+/gi,'_');out.screens.push({id,label,h1:m.h1,issues});
+ const n=(id||'guided-'+label).replace(/[^a-z0-9]+/gi,'_');out.screens.push({id:id||'guided:'+label,label,h1:m.h1,issues});
  if(issues.length||process.env.SHOTS)await page.screenshot({path:`/srv/gate/ev/shots/${tag}-${n}.png`});
 }
 fs.writeFileSync(`/srv/gate/ev/ui-${tag}.json`,JSON.stringify(out,null,1));
