@@ -473,24 +473,24 @@ function platform_voucher_from_audit(array $user,string $companyId,string $actio
 function platform_reserve_voucher(string $companyId,string $prefix): array
 {
     $prefix=strtoupper($prefix);if(!preg_match('/^[A-Z]{2,4}$/',$prefix))throw new InvalidArgumentException('Transaction prefix is invalid.');
-    // Allocate both the legacy global serial and the user-facing module serial
-    // with atomic InnoDB UPDATEs. LAST_INSERT_ID(expr) is connection-local, so
-    // this remains concurrency-safe even when a caller is not already inside
-    // a wider accounting transaction. Voided/deleted numbers are never reused.
-    db()->prepare("INSERT INTO voucher_sequences (company_id,next_serial)
-        SELECT ?,COALESCE(MAX(serial_number),0)+1 FROM vouchers WHERE company_id=?
-        ON DUPLICATE KEY UPDATE next_serial=GREATEST(next_serial,VALUES(next_serial))")
-      ->execute([$companyId,$companyId]);
-    db()->prepare('UPDATE voucher_sequences SET next_serial=LAST_INSERT_ID(next_serial+1) WHERE company_id=?')->execute([$companyId]);
-    $serial=max(1,(int)db()->query('SELECT LAST_INSERT_ID()')->fetchColumn()-1);
+    // R161: take the company's sequence row lock first, then read and advance both serials. Every reservation in a
+    // company now waits on that one row, in the same order, so two saves at the same moment queue instead of
+    // deadlocking. (The previous INSERT ... SELECT MAX() FROM vouchers took shared locks on the vouchers index before
+    // the sequence lock; two bills saved together each waited on the other's new voucher row and one was aborted.)
+    // The MAX() reads below are plain reads used only to repair a sequence that fell behind; voided or deleted
+    // numbers are never reused.
+    if(!db()->inTransaction())return db_transaction_retry(static fn():array=>platform_reserve_voucher($companyId,$prefix));
+    $lock=db()->prepare('SELECT next_serial FROM voucher_sequences WHERE company_id=? FOR UPDATE');$lock->execute([$companyId]);$next=$lock->fetchColumn();
+    if($next===false){db()->prepare('INSERT IGNORE INTO voucher_sequences (company_id,next_serial) VALUES (?,1)')->execute([$companyId]);$lock->execute([$companyId]);$next=$lock->fetchColumn();}
+    $max=db()->prepare('SELECT COALESCE(MAX(serial_number),0) FROM vouchers WHERE company_id=?');$max->execute([$companyId]);
+    $serial=max(1,(int)$next,(int)$max->fetchColumn()+1);
+    db()->prepare('UPDATE voucher_sequences SET next_serial=? WHERE company_id=?')->execute([$serial+1,$companyId]);
 
-    db()->prepare("INSERT INTO transaction_sequences (company_id,prefix,next_serial)
-        SELECT ?,?,COALESCE(MAX(CASE WHEN voucher_number REGEXP '^[A-Z]{2,4}-[0-9]+$' THEN CAST(SUBSTRING_INDEX(voucher_number,'-',-1) AS UNSIGNED) ELSE 0 END),0)+1
-        FROM vouchers WHERE company_id=? AND prefix=?
-        ON DUPLICATE KEY UPDATE next_serial=GREATEST(next_serial,VALUES(next_serial))")
-      ->execute([$companyId,$prefix,$companyId,$prefix]);
-    db()->prepare('UPDATE transaction_sequences SET next_serial=LAST_INSERT_ID(next_serial+1) WHERE company_id=? AND prefix=?')->execute([$companyId,$prefix]);
-    $moduleSerial=max(1,(int)db()->query('SELECT LAST_INSERT_ID()')->fetchColumn()-1);
+    $mlock=db()->prepare('SELECT next_serial FROM transaction_sequences WHERE company_id=? AND prefix=? FOR UPDATE');$mlock->execute([$companyId,$prefix]);$mnext=$mlock->fetchColumn();
+    if($mnext===false){db()->prepare('INSERT IGNORE INTO transaction_sequences (company_id,prefix,next_serial) VALUES (?,?,1)')->execute([$companyId,$prefix]);$mlock->execute([$companyId,$prefix]);$mnext=$mlock->fetchColumn();}
+    $mmax=db()->prepare("SELECT COALESCE(MAX(CASE WHEN voucher_number REGEXP '^[A-Z]{2,4}-[0-9]+$' THEN CAST(SUBSTRING_INDEX(voucher_number,'-',-1) AS UNSIGNED) ELSE 0 END),0) FROM vouchers WHERE company_id=? AND prefix=?");$mmax->execute([$companyId,$prefix]);
+    $moduleSerial=max(1,(int)$mnext,(int)$mmax->fetchColumn()+1);
+    db()->prepare('UPDATE transaction_sequences SET next_serial=? WHERE company_id=? AND prefix=?')->execute([$moduleSerial+1,$companyId,$prefix]);
     return ['serial'=>$serial,'moduleSerial'=>$moduleSerial,'number'=>$prefix.'-'.str_pad((string)$moduleSerial,3,'0',STR_PAD_LEFT)];
 }
 
