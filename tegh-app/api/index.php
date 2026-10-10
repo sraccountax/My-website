@@ -226,6 +226,8 @@ require_once __DIR__ . '/report_comparison_r20.php';
     if ($route === 'tax-codes') handle_tax_codes();
     if ($route === 'dashboard-mappings') { require_once __DIR__ . '/dashboard_mappings_r141.php'; handle_dashboard_mappings(); }
     if ($route === 'insights' || str_starts_with($route, 'insights/')) { require_once __DIR__ . '/insights_r144.php'; handle_insights(trim(substr($route, strlen('insights')), '/')); }
+    // R163: Guided bank statements by month (keyword groups, posting, automatic reconciliation) and Connect with an accountant.
+    if (str_starts_with($route, 'guided/')) { require_once __DIR__ . '/workspace_summary_v5610.php'; require_once __DIR__ . '/guided_r163.php'; handle_guided_r163(substr($route, 7)); }
     // R159: archive, restore and deletion requests (outside the company context: an archived company cannot be selected).
     require_once __DIR__ . '/company_lifecycle_r159.php';
     if (str_starts_with($route, 'companies/') && in_array(substr($route, 10), ['archived', 'archive', 'restore', 'deletion-request', 'deletion-request/cancel'], true)) handle_company_lifecycle(substr($route, 10));

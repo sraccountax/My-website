@@ -245,3 +245,81 @@ html[data-tegh-shell] .r28-post-panel footer .srp-btn{white-space:nowrap;flex:no
   html[data-tegh-shell] [data-r28-bank-row] .srp-status{white-space:nowrap;word-break:normal;overflow-wrap:normal;font-size:.72rem;padding:2px 7px}
   html[data-tegh-shell] [data-r28-bank-row] td:last-child{width:1%;white-space:nowrap}
 }
+/* R163: Guided bank statements by month, keyword groups, next step and Connect with an accountant. */
+.r163-statements{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,360px);gap:16px;align-items:start}
+.r163-main{display:grid;gap:12px;min-width:0}
+.r163-side{position:sticky;top:12px;display:grid;gap:10px;min-width:0}
+.r163-side h3,.r163-intro h2,.r163-next h2,.r163-map-head h2{margin:.15rem 0 .35rem}
+.r163-intro small,.r163-next small,.r163-map-head small,.r163-fs small,.r163-home-statements small,.r163-side small{color:var(--r157-brand);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.72rem}
+.r163-filters{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.r163-filters label{display:grid;gap:4px;min-width:min(260px,100%)}
+.r163-progress{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;margin-top:12px}
+.r163-progress span{color:var(--r157-muted);justify-self:end}
+.r163-progress i{grid-column:1/-1;display:block;height:6px;border-radius:6px;background:var(--r157-soft);overflow:hidden}
+.r163-progress em{display:block;height:100%;background:var(--r157-brand)}
+.r163-months{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.r163-month{border:1px solid var(--r157-line);border-radius:12px;padding:12px 14px;background:var(--r157-card);color:var(--r157-ink)}
+.r163-month.is-selected{border-color:var(--r157-brand);box-shadow:0 0 0 2px color-mix(in srgb,var(--r157-brand) 22%,transparent)}
+.r163-month.is-reconciled{background:var(--r157-soft)}
+.r163-month-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.r163-month-meta{margin:.35rem 0 0;color:var(--r157-muted);font-size:.86rem}
+.r163-fy-note{margin:.35rem 0 0;color:var(--r157-gold);font-size:.85rem;font-weight:600}
+.r163-month-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.r163-upload{margin-top:10px;border-top:1px dashed var(--r157-line);padding-top:10px}
+.r163-upload-form{display:grid;gap:8px}
+.r163-problem p{margin:.3rem 0}
+.r163-next .srp-actions,.r163-mode-buttons{display:flex;gap:8px;flex-wrap:wrap}
+.r163-mode-choice{display:grid;gap:10px}
+.r163-map-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+.r163-map-stats{display:grid;grid-template-columns:repeat(4,minmax(84px,1fr));gap:8px;margin:0}
+.r163-map-stats div{border:1px solid var(--r157-line);border-radius:10px;padding:8px 10px;background:var(--r157-soft)}
+.r163-map-stats dt{font-size:.75rem;color:var(--r157-muted)}.r163-map-stats dd{margin:0;font-weight:700;font-size:1.15rem}
+.r163-map-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.r163-map-tools .grow{flex:1 1 220px}.r163-map-tools input{width:100%}
+.r163-map-table td{vertical-align:top}
+.r163-map-table td small{display:block;color:var(--r157-muted);font-size:.78rem;margin-top:2px}
+.r163-map-table td small.r163-hint,.r163-hint{color:var(--r157-gold)}
+.r163-map-table select{max-width:260px;width:100%}
+.r163-map-table tr.is-done{opacity:.72}
+.r163-lines{padding:6px 0}.r163-lines table{font-size:.85rem}
+.r163-post-progress{display:grid;gap:4px;margin-bottom:10px}
+.r163-post-progress i{display:block;height:8px;border-radius:8px;background:var(--r157-soft);overflow:hidden}
+.r163-post-progress b{display:block;height:100%;width:0;background:var(--r157-brand);transition:width .2s}
+.r163-recon.is-attention{border-left:4px solid var(--r157-gold)}
+.r163-fs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0}
+.r163-fs-grid article{border:1px solid var(--r157-line);border-radius:12px;padding:12px;background:var(--r157-soft)}
+.r163-fs-help{color:var(--r157-muted)}
+.r163-home-statements{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;border:1px solid var(--r157-line);border-left:4px solid var(--r157-brand);border-radius:14px;padding:14px 16px;background:var(--r157-card);color:var(--r157-ink);margin-bottom:12px}
+.r163-home-statements h3{margin:.15rem 0}.r163-home-statements p{margin:0;color:var(--r157-muted)}
+.r163-accountant{display:grid;gap:12px}
+.r163-findings{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.r163-findings li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;border:1px solid var(--r157-line);border-radius:10px;padding:8px 10px}
+.r163-findings p{margin:.15rem 0 0;color:var(--r157-muted)}
+.r163-quote{display:grid;gap:2px;border:1px solid var(--r157-brand);border-radius:12px;padding:12px 14px;background:var(--r157-soft)}
+.r163-quote b{font-size:1.6rem;color:var(--r157-ink)}.r163-quote span{color:var(--r157-muted);font-size:.85rem}
+.r163-sent{display:grid;gap:8px;text-align:left}.r163-sent>span{font-size:1.6rem;color:var(--r157-brand)}
+.r163-sent .srp-actions{display:flex;gap:8px;flex-wrap:wrap}
+@media (max-width:1100px){.r163-statements{grid-template-columns:minmax(0,1fr)}.r163-side{position:static}}
+@media (max-width:600px){.r163-map-head{grid-template-columns:minmax(0,1fr)}.r163-map-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.r163-filters label{min-width:100%}.r163-home-statements .srp-btn{width:100%}}
+/* R163: the layout layer gives page sections a multi-column grid; the statement list is one column. */
+.r163-months,.r163-month{width:100%;min-width:0}
+/* The top bar orders its items with CSS order; the accountant sits right after Tegh Assist. */
+.topbar .top-actions>[data-shell-accountant]{order:3}
+/* The converter is narrow in the side panel: one column. */
+.r163-side .r28-converter-panel{margin:0}
+.r163-side .r28-converter-form{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:10px}
+.r163-side .r28-converter-form label{display:grid;gap:4px;min-width:0}
+.r163-side .r28-converter-form small{text-transform:none;letter-spacing:0;font-weight:400}
+.r163-side .r28-converter-form .srp-actions{justify-content:flex-start}
+.r163-side .srp-section-title{display:block}
+/* R163: each month is one compact line: month and status, then its action; details and the upload form below. */
+.r163-month{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;max-width:none;padding:10px 14px}
+.r163-month>.r163-month-head{order:1;flex:1 1 260px;justify-content:flex-start}
+.r163-month>.r163-month-actions{order:2;margin:0}
+.r163-month>.r163-month-meta,.r163-month>.r163-fy-note{order:3;flex:1 1 100%;margin:0}
+.r163-month>.r163-upload{order:4;flex:1 1 100%}
+.r163-month-head b{min-width:9.5em}
+.r163-side [data-r163-converter]>*,.r163-side .srp-card{width:100%;max-width:none;box-sizing:border-box}
+/* R163: cards carry a "span 12 columns" rule, which made a one-column grid grow empty columns; the two columns are flex stacks. */
+.r163-main,.r163-side{display:flex!important;flex-direction:column;gap:12px}
+.r163-main>*,.r163-side>*{width:100%;max-width:none;box-sizing:border-box;margin:0}

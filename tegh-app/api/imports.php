@@ -552,7 +552,17 @@ function suggest_import_account(string $companyId, string $description, int $amo
         return ['accountId'=>null,'taxCode'=>'NO_TAX','confidence'=>0,'source'=>'rule','merchant'=>$merchant];
     $choice = [null, 'NO_TAX', 0];
     $rules = [
+        // R163: money-in payouts first; the money-out rules below still apply to a software charge from the same company.
+        ['/STRIPE PAYOUT|SQUARE (?:PAYOUT|DEPOSIT)|SHOPIFY PAYOUT|CLIENT DEPOSIT/', ['4000','NO_TAX',72]],
         ['/ADOBE|MICROSOFT|GOOGLE|DROPBOX|OPENAI/', ['6200','GST_HST',94]],
+        ['/\\bZOOM\\b|SLACK|SHOPIFY|INTUIT|QUICKBOOKS|CANVA|GODADDY|SQUARESPACE|\\bWIX\\b|GITHUB|AMAZON WEB SERVICES|\\bAWS\\b|NOTION/', ['6200','GST_HST',88]],
+        ['/VIRGIN (?:PLUS|MOBILE)|KOODO|\\bSHAW\\b|COGECO|VIDEOTRON|FREEDOM MOBILE|PUBLIC MOBILE/', ['6300','GST_HST',88]],
+        ['/GRAND (?:&|AND) TOY|CANADA POST|PUROLATOR|FEDEX/', ['6400','GST_HST',84]],
+        ['/STARBUCKS|MCDONALD|SUBWAY|\\bA&W\\b/', ['6600','NO_TAX',82]],
+        ['/IMPARK|GREEN P|\\bPARKING\\b|PRESTO|407 ETR|MARRIOTT|HILTON|AIRBNB|\\bHOTEL\\b/', ['6500','GST_HST',80]],
+        ['/HUSKY|ULTRAMAR|\\bIRVING\\b|PIONEER|CANADIAN TIRE GAS/', ['6900','GST_HST',84]],
+        ['/INTACT INS|AVIVA|WAWANESA|BELAIR/', ['6950','NO_TAX',84]],
+        ['/NSF FEE|OVERDRAFT FEE|ACCOUNT FEE|PLAN FEE|ANNUAL FEE|WIRE FEE/', ['6800','NO_TAX',90]],
         ['/WESTERN IT GROUP|IT SUPPORT|COMPUTER SUPPORT/', ['6200','GST_HST',90]],
         ['/BELL|ROGERS|TELUS|FIDO/', ['6300','GST_HST',90]],
         ['/STAPLES|OFFICE DEPOT/', ['6400','GST_HST',91]],
@@ -565,7 +575,9 @@ function suggest_import_account(string $companyId, string $description, int $amo
         ['/CLIENT PAYMENT|CUSTOMER PAYMENT|MERCHANT DEPOSIT/', ['4000','NO_TAX',72]],
     ];
     foreach ($rules as [$pattern, $candidate]) {
-        if (preg_match($pattern, $value) === 1 && ($amount < 0 || in_array($candidate[0], ['3000','4000'], true))) {
+        // R163: owner (3000) and revenue (4000) rules apply to money in only; expense rules to money out only.
+        $moneyInRule = in_array($candidate[0], ['3000','4000'], true);
+        if (preg_match($pattern, $value) === 1 && ($moneyInRule ? $amount > 0 : $amount < 0)) {
             $choice = $candidate;
             break;
         }
