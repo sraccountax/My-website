@@ -235,3 +235,13 @@ tr.r161-more{display:none!important}
 @media print{tr.r161-more{display:table-row!important}.r161-more-rows{display:none!important}}
 /* R161: the sidebar count badge grows with its number (3,000 bank lines to review spilled out of the 22 px circle) */
 .sidebar nav button>em{flex:none!important;width:auto!important;padding:0 6px!important;box-sizing:border-box;white-space:nowrap;overflow:visible}
+/* R162: a long posting message (for example "already recorded") squeezed the footer buttons until their labels broke
+   mid-word. The message takes its own line and the buttons keep their width. */
+html[data-tegh-shell] .r28-post-panel footer{flex-wrap:wrap}
+html[data-tegh-shell] .r28-post-panel footer [data-r28-post-status]:not(:empty){flex:1 1 100%;order:-1}
+html[data-tegh-shell] .r28-post-panel footer .srp-btn{white-space:nowrap;flex:none}
+/* R162: at phone width the Match and Post status pill broke mid-word ("Poste d"). */
+@media (max-width:600px){
+  html[data-tegh-shell] [data-r28-bank-row] .srp-status{white-space:nowrap;word-break:normal;overflow-wrap:normal;font-size:.72rem;padding:2px 7px}
+  html[data-tegh-shell] [data-r28-bank-row] td:last-child{width:1%;white-space:nowrap}
+}

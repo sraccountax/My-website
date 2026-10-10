@@ -329,7 +329,8 @@
     table.addEventListener('click', (event) => {
       const target = event.target;
       if (!(target instanceof Element)) return;
-      if (target.closest('button,a,input,select,textarea,label')) return;
+      // R162: a row's Actions menu (details/summary) and its items must not tick or untick the row.
+      if (target.closest('button,a,input,select,textarea,label,summary,details,[role="menu"],[role="menuitem"],[contenteditable="true"]')) return;
       const row = target.closest('tbody tr');
       if (!row) return;
       const check = row.querySelector('input[type="checkbox"]');

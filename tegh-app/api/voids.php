@@ -38,7 +38,7 @@ function transaction_status_transition_catalogue(): array
         'invoice'=>['draft'=>['sent','void'],'sent'=>['paid','void'],'paid'=>['sent'],'void'=>['sent']],
         'bill'=>['draft'=>['submitted_for_approval','open','void'],'submitted_for_approval'=>['approved','draft'],'approved'=>['open','draft'],'open'=>['paid','void'],'paid'=>['open'],'void'=>['open']],
         'payment'=>['posted'=>['reversed'],'reversed'=>['posted']],
-        'bank_transaction'=>['pending'=>['posted','excluded','duplicate'],'excluded'=>['pending'],'posted'=>['pending','excluded']],
+        'bank_transaction'=>['pending'=>['posted','excluded','duplicate'],'excluded'=>['pending','posted'],'posted'=>['pending','excluded']],
         'journal'=>['pending_post'=>['posted'],'posted'=>['reversed'],'reversed'=>['posted']],
         'expense'=>['posted'=>['void'],'void'=>['posted']],
     ];
@@ -444,6 +444,14 @@ function void_restore(array $user, array $company): never
         $entries = $target['entries'];
         void_assert_cycle_limit($companyId,$entityType,$entityId);
         $voided = array_values(array_filter($entries, static fn(array $e): bool => $e['status'] === 'reversed'));
+        if ($entityType === 'journal' && ($row['source_type'] ?? '') === 'bank_transaction_voided') fail('This voided bank posting belongs to a bank line that went back to review. Post the line again from Match and Post instead.', 409, 'void_restore_bank_line_reviewed');
+        if ($entityType === 'bank_transaction') {
+            // R162: only the line's own voided posting comes back, and only while the line is still voided. A line returned
+            // to review, or posted again, would otherwise be counted twice.
+            $own = trim((string)($row['journal_entry_id'] ?? ''));
+            if ((string)$row['status'] !== 'excluded' || $own === '') fail('This bank line went back to review after it was voided. Post it again from Match and Post instead of restoring the voided entry.', 409, 'void_restore_bank_line_reviewed');
+            $voided = array_values(array_filter($voided, static fn(array $e): bool => $e['id'] === $own));
+        }
         if($voided===[]&&in_array($entityType,['invoice','bill'],true)&&!empty($row['is_opening_document'])){
             $adjustment=void_opening_adjustment($companyId,$entityType,$entityId);
             if($adjustment!==null&&(string)$adjustment['status']==='posted'){
@@ -484,6 +492,10 @@ function void_restore(array $user, array $company): never
         if ($entityType === 'expense') {
             transaction_assert_status_transition('expense',(string)$row['status'],'posted');
             db()->prepare("UPDATE expenses SET status = 'posted' WHERE id = ? AND company_id = ? AND status = 'void'")->execute([$entityId, $companyId]);
+        }
+        if ($entityType === 'bank_transaction') {
+            transaction_assert_status_transition('bank_transaction',(string)$row['status'],'posted');
+            db()->prepare("UPDATE bank_transactions SET status='posted' WHERE id=? AND company_id=? AND status='excluded'")->execute([$entityId, $companyId]);
         }
         if ($entityType === 'payment') {
             transaction_assert_status_transition('payment',(string)$row['status'],'posted');

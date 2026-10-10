@@ -1372,6 +1372,26 @@ function handle_expenses(): never
 }
 
 /**
+ * R162: a posted bank line whose posting was voided and that goes back to review keeps that voided journal (lines, void
+ * date, audit trail), but the journal no longer holds the line's one "bank_transaction" source slot, so the line can be
+ * posted again. The voided journal is re-labelled bank_transaction_voided with "<line id>~<n>" as its source.
+ */
+function bank_transaction_release_voided_posting(string $companyId, string $transactionId, string $journalId): void
+{
+    $dead = db()->prepare("SELECT id FROM journal_entries WHERE id=? AND company_id=? AND source_type='bank_transaction' AND source_id=? AND (voided_at IS NOT NULL OR status='reversed') FOR UPDATE");
+    $dead->execute([$journalId, $companyId, $transactionId]);
+    if ($dead->fetchColumn() !== false) {
+        $n = db()->prepare("SELECT COUNT(*) FROM journal_entries WHERE company_id=? AND source_type='bank_transaction_voided' AND source_id LIKE ?");
+        $n->execute([$companyId, $transactionId . '~%']);
+        $sourceId = $transactionId . '~' . ((int)$n->fetchColumn() + 1);
+        db()->prepare("UPDATE journal_entries SET source_type='bank_transaction_voided', source_id=? WHERE id=? AND company_id=?")
+            ->execute([$sourceId, $journalId, $companyId]);
+    }
+    db()->prepare("UPDATE bank_transactions SET journal_entry_id=NULL WHERE id=? AND company_id=? AND status='pending' AND journal_entry_id=?")
+        ->execute([$transactionId, $companyId, $journalId]);
+}
+
+/**
  * A matched statement row can still have persisted status=pending in the
  * legacy reconciliation workflow. Pending is therefore not proof that the
  * financial movement is unrecorded. Run under the statement row lock before
@@ -1389,7 +1409,16 @@ function bank_transaction_assert_unrecorded(array $company, array $transaction):
     if ((string)($transaction['company_id'] ?? '') !== $companyId) {
         fail('This statement line is not available in the current company.', 403, 'company_forbidden');
     }
-    $hasJournal = trim((string)($transaction['journal_entry_id'] ?? '')) !== '';
+    $journalId = trim((string)($transaction['journal_entry_id'] ?? ''));
+    $hasJournal = false;
+    if ($journalId !== '') {
+        // R162: a line whose posting was voided and that was returned to review still pointed at the voided journal,
+        // so it could never be posted again. Only a live journal means the line is recorded; a dead link is cleared.
+        $live = db()->prepare("SELECT COUNT(*) FROM journal_entries WHERE id=? AND company_id=? AND voided_at IS NULL AND status<>'reversed'");
+        $live->execute([$journalId, $companyId]);
+        $hasJournal = (int)$live->fetchColumn() > 0;
+        if (!$hasJournal && (string)($transaction['status'] ?? '') === 'pending') bank_transaction_release_voided_posting($companyId, (string)$transaction['id'], $journalId);
+    }
     // Locking read avoids an old transaction snapshot missing a match that
     // committed before this request acquired the bank-transaction row lock.
     $hasMatch = active_bank_match_for_bank_transaction($companyId, (string)$transaction['id'], true) !== null;
@@ -2191,6 +2220,14 @@ function bank_transaction_review_state_service(array $user, array $company, arra
         $update = db()->prepare("UPDATE bank_transactions SET status = ? WHERE company_id = ? AND status = ? AND id IN ($placeholders)");
         $update->execute(array_merge([$toStatus, $companyId, $fromStatus], $ids));
         if ($update->rowCount() !== count($ids)) throw new RuntimeException('A transaction changed while its review status was being updated.');
+        if ($action === 'restore') {
+            // R162: a voided posting stays voided; the line goes back to review without its old journal so it can be
+            // posted again (bank_transaction_release_voided_posting). A link to a live journal is never cleared.
+            $dead = db()->prepare("SELECT bt.id, bt.journal_entry_id FROM bank_transactions bt JOIN journal_entries j ON j.id=bt.journal_entry_id AND j.company_id=bt.company_id
+                WHERE bt.company_id=? AND bt.status='pending' AND (j.voided_at IS NOT NULL OR j.status='reversed') AND bt.id IN ($placeholders)");
+            $dead->execute(array_merge([$companyId], $ids));
+            foreach ($dead->fetchAll() as $line) bank_transaction_release_voided_posting($companyId, (string)$line['id'], (string)$line['journal_entry_id']);
+        }
         foreach ($rows as $row) {
             if (schema_table_exists('vouchers')) {
                 if ($action === 'restore') {

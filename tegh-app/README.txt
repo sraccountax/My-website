@@ -1,4 +1,4 @@
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R161 PRIVATE BETA CANDIDATE (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R162 PRIVATE BETA CANDIDATE (invitation-only, sample data only)
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -50,10 +50,11 @@ R158 (private beta package, replaces R157): deleting a company works again (comp
 R159 (private beta package, replaces R158): every company added in the app starts its own onboarding with an empty chart and no tax codes (its chart of accounts and tax codes are set up for that company in onboarding steps 2 and 3); the company owner can archive a company (hidden from everyone, nothing can be changed, records kept, restorable); permanent deletion is a request to Tegh support, which the platform owner approves or rejects on Platform Owner Home. Two columns and one table added on first use. See R159-CHANGES.md.
 R160 (private beta package, replaces R159): an invitation fits the person: a new email can get its own workspace, your companies or both; a registered email only gets access to more companies; a deactivated or deleted login (recognised by the fingerprint kept since R156) cannot be invited again but the platform owner restores it, and the person is emailed that the login was restored, with a password link. Platform Owner Home › Invitations & Access has three tabs (Invite someone, Sent invitations, Sign-up & email). api/.htaccess sets RewriteBase for IONOS. Privacy version 2026-10-08. No database change. See R160-CHANGES.md.
 R161 (private beta package, replaces R160): fixes from a final functional test with large companies (5,000 invoices) in every mode, layout, theme and screen size: two saves at the same moment no longer fail on voucher numbering; registers with thousands of rows open in seconds (250 rows at a time, Show more / Show all); a background check no longer cancels loading screens ('the workspace changed while this request was loading'); amounts are no longer covered by the scrollbar; the count badge and counts are formatted. No database change. See R161-CHANGES.md.
+R162 (private beta package, replaces R161): Guided mode tested end to end (30-guided: single and bulk posting with HST, exclude/restore, void and re-post, phone width, matching, month-end checklist, owner reports, all against hand-worked figures). Fixes: the Banking menu stopped responding after a posting changed its badge; a voided bank posting could never be posted again; restoring a voided bank line left it Excluded and could count it twice; the Guided month-end checklist had no button (Guided Home › Month-End Checklist); opening a row's Actions menu ticked the row; Match and Post buttons and phone status pills broke mid-word. No database change. See R162-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json
-and tegh-build.json all identify this package as R161; per-file hashes kept in
+and tegh-build.json all identify this package as R162; per-file hashes kept in
 their "history" sections record earlier releases and are not expected to match.
 
 Fresh installation (empty database): upload the package, put config.php outside

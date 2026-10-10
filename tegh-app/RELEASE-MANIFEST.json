@@ -4,10 +4,10 @@
   "build": 5990,
   "schema": 46,
   "schemaTarget": 46,
-  "release": "R161",
-  "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R161-PRIVATE-BETA",
-  "packageFile": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R161-PRIVATE-BETA.zip",
-  "revision": "Cumulative R118–R161 over the Sites R117 frontend. R161 (private beta package, replaces R160): fixes from a final functional test with two large synthetic companies (5,000 and 1,500 invoices) in every mode, navigation layout, theme and screen size — two saves at the same moment no longer deadlock on voucher numbering; the Bank General Ledger and GL account ledger no longer take minutes on a busy account (151 s to under 1 s; the long request had blocked the host backup); registers with thousands of rows show 250 at a time (Show more / Show all) and open in seconds instead of 45-79 s; a background agent check no longer cancels loading screens; amounts are no longer covered by the drag scrollbar; display preferences save with several companies selected; badge and count formatting. R160: an invitation fits the person — a new email can get its own workspace, the inviter's companies or both; a registered email only gets access to more companies (an own-workspace invitation is refused); a deactivated or deleted login (a deleted one recognised by the SHA-256 fingerprint kept since R156) cannot be invited again and the platform owner restores it instead (same login, older reset links and sessions ended, a 72-hour password link, an email saying the login was previously deactivated or deleted and has been restored); Platform Owner Home › Invitations & Access has three tabs (Invite someone, Sent invitations, Sign-up & email); the company directory counts archived companies separately; api/.htaccess sets RewriteBase /api/; privacy version 2026-10-08. R159: every company added in the app starts its own onboarding with an empty chart and no tax codes (enforced by the server for any company created with onboarding), so its chart of accounts and tax codes are set up for that company alone; the company owner can archive a company (hidden from every member, cannot be opened or changed, records kept) and restore it; permanent deletion is a request to Tegh support (company archived at once, support emailed) that the platform owner approves (R158 deletion, logged with the request) or rejects, with the owner emailed either way; the cached company list is refreshed after a company change. R158: company deletion works again (company tables added since R133 had blocked every deletion with an 'unsupported dependency' 503; a table added later is now deleted automatically, dependents first; client-view sign-in codes and sessions are deleted through their link); the host backup waits for every request that was running when changes were paused (each request leaves a marker while it runs, instead of a fixed five-second wait), fingerprints the content of every table so an edit that changes neither row counts nor totals is detected, and stops on any database error (the ledger-total query was ignored on failure); the restore check compares the fingerprints and treats database errors as failures. R157: company onboarding after sign-up — six steps (company; chart of accounts by import, template or by hand; tax codes the same three ways; bank accounts; data import; team) marked complete by the owner, with modules locked and sign-in opening onboarding until all are complete; Settings › Getting started; Tegh Assist tour and an animated bank-statement call to action; company time zone (accounting date follows it); Quick Actions follow the person and show their keys; light/dark/system in the profile menu; Document Intake and the PDF statement reader marked Beta, with a Document Intake section on new vendor invoices. R156: beta conditions in the Terms; operator, contacts, hosting and data location on the Terms and Privacy pages from config.php, with invitations refused until complete; privacy notice covers testers' own information, deletion requests and first-party website measurement; terms/privacy version 2026-10-07; Delete login removes the email from invitations, sent-email records and service logs; any host name redirected to HTTPS; periods, default dates and Match and Post use the accounting (Toronto) date, not the browser's (DEF-18). R155: the terms and privacy versions recorded when an invitation is accepted now match the published pages (2026-10-01; they were recorded as 2026-09-09), an optional private-beta notice in the top bar (config app.beta_notice), corrected package documentation and manifest history. R154: with several companies selected, the General Ledger Account Report (account chosen by code, balance by company with a combined row), the Bank General Ledger Report (one bank account per company) and Budgets (every company's budgets; Budget versus Actual from the budget chosen for each company) run for every selected company, each line labelled with its company. R153: company street address, city, postal code, phone, business email and short name in company setup and Company Details; customer invoices print the company address unless the invoice template has its own (frozen at issue); when several companies are selected, report lines carry a Co. column with the company short name and reports that cannot be combined ask for one company; side menu groups expand and collapse with an arrow; light/dark/system theme switch with icons in the top bar (System follows the device). R152: statement reader for more Canadian bank and card layouts in English and French (two-line headings, French amounts and month names, numeric day/month order from the statement period, DR/CR and OD, amounts split into pieces, amounts on the line under the description) and PDFs that hold several statements (picker; statements of one account read together with a chain check); invoice reader that reads line items as a table with quantity × price checks, supplier memory learned from verified corrections (date order, invoice-number pattern, which amount is the total; no document text stored), account and tax suggestions from the vendor's earlier invoices, duplicate warnings with a confirmation before a draft, and all lines handed to the vendor invoice form, which links the document when saved. R151: one document form for invoices, credit notes and debit notes.",
+  "release": "R162",
+  "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R162-PRIVATE-BETA",
+  "packageFile": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R162-PRIVATE-BETA.zip",
+  "revision": "Cumulative R118–R162 over the Sites R117 frontend. R162 (private beta package, replaces R161): Guided mode tested end to end (a fresh company booked through the Guided screens against hand-worked figures) and six fixes — the Banking menu stopped responding after a posting changed its badge (the core app had replaced the row's click handler); a voided bank posting could never be posted again (the restored line kept its voided journal, which held the line's journal link; the voided journal is now kept as bank_transaction_voided); restoring a voided bank line left it Excluded and, after a re-post, could count it twice (now refused); the Guided month-end checklist had no button (Guided Home › Month-End Checklist); opening a row's Actions menu ticked the row; Match and Post buttons and phone status pills broke mid-word. R161: fixes from a final functional test with two large synthetic companies (5,000 and 1,500 invoices) in every mode, navigation layout, theme and screen size — two saves at the same moment no longer deadlock on voucher numbering; the Bank General Ledger and GL account ledger no longer take minutes on a busy account (151 s to under 1 s; the long request had blocked the host backup); registers with thousands of rows show 250 at a time (Show more / Show all) and open in seconds instead of 45-79 s; a background agent check no longer cancels loading screens; amounts are no longer covered by the drag scrollbar; display preferences save with several companies selected; badge and count formatting. R160: an invitation fits the person — a new email can get its own workspace, the inviter's companies or both; a registered email only gets access to more companies (an own-workspace invitation is refused); a deactivated or deleted login (a deleted one recognised by the SHA-256 fingerprint kept since R156) cannot be invited again and the platform owner restores it instead (same login, older reset links and sessions ended, a 72-hour password link, an email saying the login was previously deactivated or deleted and has been restored); Platform Owner Home › Invitations & Access has three tabs (Invite someone, Sent invitations, Sign-up & email); the company directory counts archived companies separately; api/.htaccess sets RewriteBase /api/; privacy version 2026-10-08. R159: every company added in the app starts its own onboarding with an empty chart and no tax codes (enforced by the server for any company created with onboarding), so its chart of accounts and tax codes are set up for that company alone; the company owner can archive a company (hidden from every member, cannot be opened or changed, records kept) and restore it; permanent deletion is a request to Tegh support (company archived at once, support emailed) that the platform owner approves (R158 deletion, logged with the request) or rejects, with the owner emailed either way; the cached company list is refreshed after a company change. R158: company deletion works again (company tables added since R133 had blocked every deletion with an 'unsupported dependency' 503; a table added later is now deleted automatically, dependents first; client-view sign-in codes and sessions are deleted through their link); the host backup waits for every request that was running when changes were paused (each request leaves a marker while it runs, instead of a fixed five-second wait), fingerprints the content of every table so an edit that changes neither row counts nor totals is detected, and stops on any database error (the ledger-total query was ignored on failure); the restore check compares the fingerprints and treats database errors as failures. R157: company onboarding after sign-up — six steps (company; chart of accounts by import, template or by hand; tax codes the same three ways; bank accounts; data import; team) marked complete by the owner, with modules locked and sign-in opening onboarding until all are complete; Settings › Getting started; Tegh Assist tour and an animated bank-statement call to action; company time zone (accounting date follows it); Quick Actions follow the person and show their keys; light/dark/system in the profile menu; Document Intake and the PDF statement reader marked Beta, with a Document Intake section on new vendor invoices. R156: beta conditions in the Terms; operator, contacts, hosting and data location on the Terms and Privacy pages from config.php, with invitations refused until complete; privacy notice covers testers' own information, deletion requests and first-party website measurement; terms/privacy version 2026-10-07; Delete login removes the email from invitations, sent-email records and service logs; any host name redirected to HTTPS; periods, default dates and Match and Post use the accounting (Toronto) date, not the browser's (DEF-18). R155: the terms and privacy versions recorded when an invitation is accepted now match the published pages (2026-10-01; they were recorded as 2026-09-09), an optional private-beta notice in the top bar (config app.beta_notice), corrected package documentation and manifest history. R154: with several companies selected, the General Ledger Account Report (account chosen by code, balance by company with a combined row), the Bank General Ledger Report (one bank account per company) and Budgets (every company's budgets; Budget versus Actual from the budget chosen for each company) run for every selected company, each line labelled with its company. R153: company street address, city, postal code, phone, business email and short name in company setup and Company Details; customer invoices print the company address unless the invoice template has its own (frozen at issue); when several companies are selected, report lines carry a Co. column with the company short name and reports that cannot be combined ask for one company; side menu groups expand and collapse with an arrow; light/dark/system theme switch with icons in the top bar (System follows the device). R152: statement reader for more Canadian bank and card layouts in English and French (two-line headings, French amounts and month names, numeric day/month order from the statement period, DR/CR and OD, amounts split into pieces, amounts on the line under the description) and PDFs that hold several statements (picker; statements of one account read together with a chain check); invoice reader that reads line items as a table with quantity × price checks, supplier memory learned from verified corrections (date order, invoice-number pattern, which amount is the total; no document text stored), account and tax suggestions from the vendor's earlier invoices, duplicate warnings with a confirmation before a draft, and all lines handed to the vendor invoice form, which links the document when saved. R151: one document form for invoices, credit notes and debit notes.",
   "releaseStatus": "PRIVATE BETA CANDIDATE — invitation-only, sample data only; host acceptance open (see hostAcceptance)",
   "sealed": false,
   "productionReady": false,
@@ -24,14 +24,14 @@
   "flatRoot": true,
   "packageType": "cumulative-full-application",
   "activeEntry": "app.html",
-  "generatedAt": "2026-10-09T10:32:51Z",
+  "generatedAt": "2026-10-10T13:06:45Z",
   "sourceRepository": "sraccountax/My-website",
   "sourceBranch": "claude/invoice-credit-debit-audit-e2y8wc",
-  "sourceParentCommit": "a53c717222fdf182e8ad4e3b70e960c37f0d3573",
+  "sourceParentCommit": "f5dd035ad46ee4411be7cc1f17390fcbf506da98",
   "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
   "databaseMigrationRequired": false,
-  "databaseMigrationNote": "No manual migration since R118. R161 and R160 change no tables. R159 adds the nullable columns companies.archived_at and companies.archived_by and the table company_deletion_requests on first use. R158 changes no tables. R157 adds the company_onboarding table and the nullable companies.timezone column on first use. R153 adds nullable company profile columns (short_name, address_line1, address_line2, city, postal_code, phone, contact_email) on first use. R144 creates company_insight_dismissals on the first dismissal. R141 adds companies.country, widens province to VARCHAR(10) on companies/customers/vendors and creates company_dashboard_mappings on the first request. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
-  "cacheToken": "5990-r161-tegh",
+  "databaseMigrationNote": "No manual migration since R118. R162, R161 and R160 change no tables. R159 adds the nullable columns companies.archived_at and companies.archived_by and the table company_deletion_requests on first use. R158 changes no tables. R157 adds the company_onboarding table and the nullable companies.timezone column on first use. R153 adds nullable company profile columns (short_name, address_line1, address_line2, city, postal_code, phone, contact_email) on first use. R144 creates company_insight_dismissals on the first dismissal. R141 adds companies.country, widens province to VARCHAR(10) on companies/customers/vendors and creates company_dashboard_mappings on the first request. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
+  "cacheToken": "5990-r162-tegh",
   "clientViewCacheToken": "5990-r135 (output script 5990-r145-tegh)",
   "doNotRepost": [
     "DN-1001"
@@ -39,11 +39,11 @@
   "fileManifest": {
     "path": "FILE-MANIFEST.sha256",
     "algorithm": "SHA-256",
-    "entries": 373,
+    "entries": 374,
     "authoritative": true,
     "note": "The only authoritative per-file hash list for this package. Per-file hashes under history record earlier releases and are not expected to match current files."
   },
-  "testStatus": "R161 = R160 with the fixes from a final functional test: two large synthetic companies built through the API (Northwind: 5,000 invoices, 2,000 vendor invoices, about 4,900 payments, 400 journals, 3,000 bank lines; Lakeshore: 1,500, 600, about 1,500, 150, 1,000) with expected figures summed independently, every screen in Full Accounting and Guided, side and top navigation, light/dark/system themes, 1920-320 px and 150% zoom, one company and both together. Re-run through the full gate suite with the host clock pinned to 2026-10-01 12:00 Toronto on its exact ZIP, including the new 29-r161 suite.",
+  "testStatus": "R162 = R161 with Guided mode tested end to end: a fresh Ontario company with eight imported statement lines booked through the Guided screens (single and bulk posting with HST, exclude and restore, void and re-post, posting at phone width, matching, the month-end checklist and the owner reports), every journal and the final General Ledger compared with figures worked out by hand. Six defects found and fixed (the Banking menu after a posting changed its badge, re-posting a voided bank line, restoring a voided bank line, the Guided month-end checklist button, row selection from the Actions menu, Match and Post layout). Re-run through the full gate suite with the host clock pinned to 2026-10-01 12:00 Toronto on its exact ZIP, including the new 30-guided suite.",
   "executedLocalGates": {
     "betaGateR138Baseline": {
       "passed": false,
@@ -131,6 +131,10 @@
     "r161FinalFunctional": {
       "passed": null,
       "detail": "29-r161: simultaneous saves (C-01), seeding (S-01), Trial Balance / party balances / P&L against independent sums and response times for each large company (V-011…024), and in the browser P&L, Receivable Ageing, Trial Balance, both companies together, the 5,000-invoice register with search, the Day Book size limit and Guided mode's 3,000-line review queue (B-01…08). The mode/layout/theme/size matrix on the large companies is in raw/vol. Counts in FINAL-BETA-QA-REPORT.md (R161 addendum)."
+    },
+    "r162GuidedEndToEnd": {
+      "passed": null,
+      "detail": "30-guided (20 checks): Guided Home count and Banking badge (G-01), Home to-do opens Match and Post with the statement balance (G-02), single postings with HST and with no tax and a bulk posting of three lines, each journal and the posting preview against hand-worked amounts (G-03…06), counts and the Banking menu after its badge changes (G-07), exclude / restore without ticking the row / post to Owner Draws (G-08…10), void, restore and re-post with the old entry refused through the bank-line and journal routes (G-11, G-11b), phone width with no sideways scroll and one-line status pills (G-12), Home after all lines are done and matching eight exact pairs (G-13…14), General Ledger equal to the hand-worked balances (G-15), the month-end checklist from Guided Home (G-16), Home and Profit and Loss figures (G-17), no script errors (G-18)."
     }
   },
   "notExecuted": [
@@ -218,6 +222,22 @@
     "With several companies selected, the GL Account Report matches accounts by code; a company without that code is left out and named",
     "Combined budget and ledger views are read-only; creating, editing and closing budgets, and opening a ledger line in the Day Book, need one company"
   ],
+  "r162Files": [
+    "api/accounting.php",
+    "api/voids.php",
+    "assets/tegh-portal-v5990.js",
+    "assets/tegh-modern-v5700.js",
+    "assets/tegh-r157.css",
+    "app.html",
+    "assets/tegh-gate-v5990.js",
+    "assets/tegh-preflight-v5990.js",
+    "assets/tegh-bank-converter-v5990.js",
+    "R162-CHANGES.md",
+    "README.txt",
+    "DEPLOYMENT-NOTES.txt"
+  ],
+  "r162Migration": "none",
+  "r162CacheToken": "5990-r162-tegh",
   "r161Files": [
     "api/platform.php",
     "api/report_loaders_v5980.php",
@@ -3092,6 +3112,134 @@
         "r160Invitations": {
           "passed": null,
           "detail": "28-r160 (9 checks): a new email gets one invitation with its own workspace and a company and can create its own company; a registered email's own-workspace invitation is refused and access to more companies is accepted with the current password; a deactivated login is refused and restored with its access, emailed 'previously deactivated' with a link that sets a new password; a deleted login is recognised by its fingerprint, refused, and restored as the same login id, emailed 'previously deleted', link sets a new password; only the platform owner can look up or restore, a company admin is told to ask Tegh support; the page in the browser (tabs, new/registered/deleted, restore and give access next, sent list, phone width). Counts in FINAL-BETA-QA-REPORT.md (R160 addendum)."
+        }
+      },
+      "knownLimitations": [
+        "Product Activity is not an inventory report; no stock, COGS or valuation",
+        "Draft editor infers per-line PST from the stored combined rate when the invoice has PST",
+        "Quebec companies configured before R136 hold 9.98% until the rate is re-entered as 9.975 in Company Details; invoices already issued keep their posted amounts",
+        "Existing companies keep the legacy tax rules until their first tax code is saved",
+        "Starter tax codes created before R141 charge PST/RST in BC, MB and SK whatever the home province; companies not registered there must deactivate those codes. Codes created from R141 are GST only outside the home province",
+        "Tax codes saved before R138 keep their GL mapping (for example QST on 2110/1110) until edited",
+        "Dashboard GST/HST figure is 2100/1100 only; tax on other tax-code accounts is shown as a separate 'other tax accounts' amount",
+        "Companies not registered for GST/HST: automatic tax is off; a code chosen explicitly on a line still charges tax",
+        "Journals posted to 1200/2050 before R139 are not changed",
+        "Base (reporting) currency is CAD for every company, including companies outside Canada",
+        "Dashboard Figures mappings are not included in backups",
+        "Payroll Support is Canada only; companies outside Canada cannot enable it",
+        "Companies on the legacy tax rules (no tax codes saved) do not pick a code for customers outside Canada",
+        "Starter codes created before R142 keep the R141 note text until edited",
+        "Report exports are under the table's Actions menu (Export…)",
+        "GL Journal Entry excludes bank, AR, AP and tax control accounts by design",
+        "Balance Sheet shows GST/HST Recoverable under Other Assets",
+        "Employee province fields are free text",
+        "Tegh Intelligence uses rules and statistics; it can miss things or raise false alarms",
+        "Bank suggestions need at least one earlier posting of a similar line",
+        "Insight dismissals are not included in backups",
+        "The column statement reader needs a text PDF; scanned statements still need the bank's CSV/OFX",
+        "Document Intake OCR uses the bundled English model only",
+        "Statement layouts not seen before may fall back to the general reader; the balance check shows whether the rows are complete",
+        "Invoice line items are read as a table only from text PDFs; scanned invoices and photos use line-by-line reading",
+        "Supplier memory covers date order, invoice-number pattern and which amount is the total; it does not learn field positions",
+        "Combined multi-company reports need the companies to share one currency",
+        "The company short name is generated from the name until the owner sets one",
+        "With several companies selected, the GL Account Report matches accounts by code; a company without that code is left out and named",
+        "Combined budget and ledger views are read-only; creating, editing and closing budgets, and opening a ledger line in the Day Book, need one company"
+      ]
+    },
+    "r161Identity": {
+      "release": "R161",
+      "package": "Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R161-PRIVATE-BETA",
+      "generatedAt": "2026-10-09T10:32:51Z",
+      "sourceParentCommit": "a53c717222fdf182e8ad4e3b70e960c37f0d3573",
+      "testStatus": "R161 = R160 with the fixes from a final functional test: two large synthetic companies built through the API (Northwind: 5,000 invoices, 2,000 vendor invoices, about 4,900 payments, 400 journals, 3,000 bank lines; Lakeshore: 1,500, 600, about 1,500, 150, 1,000) with expected figures summed independently, every screen in Full Accounting and Guided, side and top navigation, light/dark/system themes, 1920-320 px and 150% zoom, one company and both together. Re-run through the full gate suite with the host clock pinned to 2026-10-01 12:00 Toronto on its exact ZIP, including the new 29-r161 suite.",
+      "executedLocalGates": {
+        "betaGateR138Baseline": {
+          "passed": false,
+          "detail": "Exact R138 ZIP (sha256 83e05ec2…12fa9ed) on the HTTPS test host. Confirmed defects DEF-01 to DEF-07 (Clarity in app, AR/AP journals, unregistered company charged tax, dashboard card scope, mail message, damaged-backup 500, root config template). All other executed areas passed: install, email, roles, isolation, CSRF, uploads, client links, tax arithmetic, FX, remittances, restore equality, R118→R138 upgrade, 20-run UI matrix."
+        },
+        "betaGateR139Retest": {
+          "passed": null,
+          "detail": "Re-run of the full gate suite on the exact R139 ZIP; see FINAL-BETA-QA-REPORT.md for PASS/FAIL/BLOCKED counts."
+        },
+        "history": {
+          "detail": "R138 local gates are kept under history.r138Identity.executedLocalGates."
+        },
+        "r140VendorInvoicePhoneScroll": {
+          "passed": true,
+          "detail": "Chromium 390x844 swipe-trap scan of all 46 menu screens: 1 trap before (New Vendor Invoice), 0 after. Touch swipe and wheel scroll the vendor invoice form at 1440, 1024, 768, 390 and 360 px widths. iOS Safari not available in the build environment."
+        },
+        "r141GateRetest": {
+          "passed": null,
+          "detail": "Full gate suite, 13-r141 tests (DEF-08, countries, foreign tax codes, OBS-2, tax code report usage, dashboard mappings, Clarity, payroll Canada only), R141 browser journeys at 1440x900 and 390x844, and R118->R141 upgrade on the exact R141 ZIP; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r142WordingRetest": {
+          "passed": null,
+          "detail": "14-r142 tests (exact starter-code notes, guide sentences, Product Activity, payroll notice and pages, Quebec employee refused, rate tables) and R142 browser journeys; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r143ClickThroughWorkflows": {
+          "passed": null,
+          "detail": "Click-through workflow suite on a fresh synthetic company (customer to payroll, Assist, PDF and export), every result checked against the database with hand-computed expectations; counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r144Intelligence": {
+          "passed": null,
+          "detail": "15-r144 on a seeded synthetic company with hand-computed expectations (anomalies, brief, chase list, cash, bank suggestions, ask-your-books, dismissals, read-only, isolation, no outbound calls) and journeys144 at 1440x900 and 390x844."
+        },
+        "r145ConverterAndIntake": {
+          "passed": null,
+          "detail": "16-r145: six synthetic statements in three Canadian layouts plus ISO-date, missing-line and no-heading cases (rows, dates, net, in/out, opening/closing, running balances, page totals, review-screen check, server preview balances) and six synthetic bills/receipts (text PDF, French invoice, receipt photos, scanned PDF) with hand-written expected fields, Document Intake screen upload/review; expected figures from the fixture generators' integer-cent arithmetic. Owner-supplied real statements were checked locally only and are not part of the package or evidence."
+        },
+        "r149InvitationCodes": {
+          "passed": null,
+          "detail": "18-r149 on the gate host: invitation email shows the code and no link; Create account tab with email and code fields; code formatting; account creation with typed name, role and terms stored; wrong code, other email, used code and invalid letters refused with plain messages; 10 wrong tries per 15 minutes answered 429 with a wait message while correct look-ups are never counted; existing users accept with their password; phone width fits; legacy links still open the account form. Counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r150PublicPagesLight": {
+          "passed": null,
+          "detail": "dark-check.mjs: the 17 public pages at 390x844 in a browser with dark preference and again with Chrome forced dark; body background and rendered page brightness must be light. Before the fix 34 of 34 rendered dark; counts on the exact ZIP in FINAL-BETA-QA-REPORT.md."
+        },
+        "r151Documents": {
+          "passed": null,
+          "detail": "19-r151: itemized vendor invoices (posting by line, recoverable vs cost tax, tax-inclusive lines, draft edit, issued detail edit, validation, company isolation, single-amount compatibility), cash-basis recognition by line, linked and unlinked customer/vendor notes with GL per line, open-credit application, unlinked debit note receivable, draft note edit, voids, receivable/payable trial balances, ledgers, registers and backup. 20-r151ui: the shared form, add-line scroll position, saves checked in the database, typed-number linking, edit from the registers and the invoice detail page without pop-ups, recurring schedule, quick-add, sidebar wheel, phone width. Counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r152Readers": {
+          "passed": null,
+          "detail": "21-r152: statement layouts G–S (RBC-, BMO-, Scotia-, Desjardins-, National Bank-, Tangerine-style, Amex-style and French Visa cards, MM/DD card across the year end, credit union DR/CR with OD balances, two-line rows, split French amounts) each with rows, net, opening/closing and first/last dates checked against generator figures; a PDF holding three statements (picker, same-account chain); ambiguous numeric dates not guessed; R145 statements unchanged; invoice line items with qty × price checks (EN and FR), verification storing only the reader's candidate, coding suggestions from history, hand-off into the vendor invoice form with linking, duplicate warning and confirmation, supplier memory for date order and number pattern, privacy of requests, company isolation, backup. Counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r153CompanyLabelsAndTheme": {
+          "passed": null,
+          "detail": "22-r153: company profile fields saved on create and edit with validation; customer invoice prints the company address (template address wins; issued invoices keep their snapshot); with two companies selected, P&L, ageing, Day Book, Audit History, Tax Code Report and Trial Balance lines carry the company short name and totals equal the sum of independently entered amounts; GL/bank account reports and Budgets ask for one company; Excel export includes the company column; one selected company shows no company column; sidebar arrows expand/collapse without reopening; theme switch Light/Dark/System on desktop, phone cycle, and System on a dark device. Counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r154MultiCompanyLedgersAndBudgets": {
+          "passed": null,
+          "detail": "23-r154: GL Account Report for account 4000 with two companies (GLA $1,000.00 CR, GLB $250.00 CR, combined $1,250.00 CR); ledger groups per company; account 6990 only in GLA named as missing in GLB; Bank GL Report with one bank account per company (receipts $600.00 and $250.00) and with one company left out; Budgets listing both companies' budgets with a combined row (planned $1,500.00, actual $1,250.00); Budget versus Actual per company and its Excel export with the Co. column; creating budgets stays per company; one-company screens unchanged. Counts in FINAL-BETA-QA-REPORT.md."
+        },
+        "r155BetaReadiness": {
+          "passed": null,
+          "detail": "24-beta and the host backup/restore test; counts in FINAL-BETA-QA-REPORT.md (R155 addendum) and beta-gate-evidence/beta."
+        },
+        "r156ReviewFixes": {
+          "passed": null,
+          "detail": "24-beta BS-07…BS-10 and the redirect probes; beta-ops-test.sh 12 checks; counts in FINAL-BETA-QA-REPORT.md (R156 addendum)."
+        },
+        "r157OnboardingAndRequests": {
+          "passed": null,
+          "detail": "25-r157 (21 checks): onboarding state and lock, chart template, tax-code file import with hand-worked rates, owner/admin-only steps, sign-in redirect while incomplete, onboarding page and lock in the browser, Settings entry, tour and bank-statement call to action, Home after completion; company time zone and accounting date (UTC+14 vs Toronto at the same moment, server and browser); Quick Actions across companies and keyboard keys; Beta labels and the vendor-invoice Document Intake section. R153 TH-01/TH-02 now test the theme switch in the profile menu. Counts on the exact R157 ZIP in FINAL-BETA-QA-REPORT.md."
+        },
+        "r158DeletionAndBackup": {
+          "passed": null,
+          "detail": "26-r158 (5 checks): a company in full use (onboarding, tax codes from a file, invoices, a vendor invoice with taxed lines, a credit note, a client viewing link with a sign-in code and a session) is deleted by its owner through the API and through Account & Access in the browser; refusals (wrong name, wrong password, no backup confirmation, a Company Admin) change nothing; afterwards no row of it is left in any table with a company_id read from the live schema, nor child rows found through their parents; the deletion log holds the counts. On R157 the same deletion returned 503. beta-ops-test.sh D1-D3 and E1-E4: a failing ledger query, a request running ~15 s, an update that changes neither row counts nor totals, stale and never-ending request markers, a restore whose dump differs in one value, and database errors in the restore check; each R157-review case was also run with the R157 scripts as a control. Counts in FINAL-BETA-QA-REPORT.md (R158 addendum)."
+        },
+        "r159CompanyLifecycle": {
+          "passed": null,
+          "detail": "27-r159 (15 checks): a second company added through Settings in the browser starts its own onboarding with 0 accounts and 0 tax codes and opens its onboarding page; its chart template and tax file change only that company (the first company's accounts and codes unchanged, no tax code pointing to another company's accounts); each company's lock state in the browser; the server forces an empty chart for any company created with onboarding. Archive: hidden from lists, refused when opened, records unchanged, owner only (Company Admin 403, non-member 404), the Company Admin no longer sees it, no invitation to it, restore, archive and restore in the browser. Deletion requests: direct delete refused for an owner (409), request checks and duplicate refused, Tegh support emailed, inbox only for the platform owner with record counts, reject with note (owner emailed), cancel and restore-cancels, approve with name and password (no row left in any company table, log names the request, owner emailed), and the whole flow in the browser. Counts in FINAL-BETA-QA-REPORT.md (R159 addendum)."
+        },
+        "r160Invitations": {
+          "passed": null,
+          "detail": "28-r160 (9 checks): a new email gets one invitation with its own workspace and a company and can create its own company; a registered email's own-workspace invitation is refused and access to more companies is accepted with the current password; a deactivated login is refused and restored with its access, emailed 'previously deactivated' with a link that sets a new password; a deleted login is recognised by its fingerprint, refused, and restored as the same login id, emailed 'previously deleted', link sets a new password; only the platform owner can look up or restore, a company admin is told to ask Tegh support; the page in the browser (tabs, new/registered/deleted, restore and give access next, sent list, phone width). Counts in FINAL-BETA-QA-REPORT.md (R160 addendum)."
+        },
+        "r161FinalFunctional": {
+          "passed": null,
+          "detail": "29-r161: simultaneous saves (C-01), seeding (S-01), Trial Balance / party balances / P&L against independent sums and response times for each large company (V-011…024), and in the browser P&L, Receivable Ageing, Trial Balance, both companies together, the 5,000-invoice register with search, the Day Book size limit and Guided mode's 3,000-line review queue (B-01…08). The mode/layout/theme/size matrix on the large companies is in raw/vol. Counts in FINAL-BETA-QA-REPORT.md (R161 addendum)."
         }
       },
       "knownLimitations": [

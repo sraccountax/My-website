@@ -1493,7 +1493,7 @@ const TeghPortal = (() => {
   }
   function guidedAction(action){
     const owner=experienceMode()==='owner';
-    const map={upload:()=>owner?openGuidedStatementUploadModal():openBankImports(),review:()=>openBankReconciliation('','','','post'),bank:()=>openBankReconciliation('','','','match'),reconcile:()=>openBankReconciliationCompletion(),invoices:()=>openInvoices(),bills:()=>openBills(),newInvoice:()=>openCustomerInvoice(),opening:()=>openOpeningBalances(),trial:()=>openPeriodTrialBalance('general-ledger','Reports'),receivables:()=>openAgeing('receivable','Reports'),payables:()=>openAgeing('payable','Reports'),profit:()=>openFinancialReport('profit-loss'),balance:()=>openFinancialReport('balance-sheet'),cash:()=>openCashFlow(),reports:()=>openReportsDashboard()};map[action]?.();
+    const map={upload:()=>owner?openGuidedStatementUploadModal():openBankImports(),review:()=>openBankReconciliation('','','','post'),bank:()=>openBankReconciliation('','','','match'),reconcile:()=>openBankReconciliationCompletion(),invoices:()=>openInvoices(),bills:()=>openBills(),newInvoice:()=>openCustomerInvoice(),opening:()=>openOpeningBalances(),trial:()=>openPeriodTrialBalance('general-ledger','Reports'),receivables:()=>openAgeing('receivable','Reports'),payables:()=>openAgeing('payable','Reports'),profit:()=>openFinancialReport('profit-loss'),balance:()=>openFinancialReport('balance-sheet'),cash:()=>openCashFlow(),reports:()=>openReportsDashboard(),monthEnd:()=>openGuidedMonthEnd()};map[action]?.();
   }
   function guidedMonthLabel(){return new Date().toLocaleDateString('en-CA',{month:'long',year:'numeric'})}
   function guidedCompanyCard(w){
@@ -1529,7 +1529,7 @@ const TeghPortal = (() => {
       const [w,a]=await Promise.all([workspace(),auth()]),state=guidedTaskState(w),access=companyAccess(a)||{},canWrite=['owner','admin','editor','bookkeeper'].includes(String(access.role||'')),firstName=String(a.user?.displayName||'').trim().split(/\s+/)[0],hour=new Date().getHours(),greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening',attention=state.tasks.length;
       body.innerHTML=`<section class="tegh-guided-home-head"><div><span>Guided bookkeeping</span><h2>${esc(greeting)}${firstName?`, ${esc(firstName)}`:''}</h2><p>${attention?`<b>${attention}</b> thing${attention===1?'':'s'} need${attention===1?'s':''} your attention.`:'Your day-to-day bookkeeping is clear.'}</p></div><div class="tegh-guided-home-status ${attention?'attention':'clear'}"><b>${attention||'✓'}</b><span>${attention?'Needs attention':'Up to date'}</span></div></section>
       ${attention?`<section class="tegh-guided-task-grid" aria-label="Bookkeeping tasks">${state.tasks.map(task=>guidedTaskCardMarkup(task,canWrite)).join('')}</section>`:`<section class="tegh-guided-up-to-date"><span>✓</span><div><h3>You're Up to Date</h3><p>No imported transactions awaiting review, due bills, outstanding customer invoices or bank reconciliation tasks currently need action.</p></div></section>`}
-      <section class="tegh-guided-shortcuts"><div><small>Useful shortcuts</small><h3>Anything else?</h3></div><nav>${canWrite?'<button type="button" data-guided-shortcut="newInvoice">New Invoice</button>':''}${canWrite&&state.bankActivity.length?'<button type="button" data-guided-shortcut="upload">Upload Statement</button>':''}<button type="button" data-guided-shortcut="reports">Reports</button></nav></section>
+      <section class="tegh-guided-shortcuts"><div><small>Useful shortcuts</small><h3>Anything else?</h3></div><nav>${canWrite?'<button type="button" data-guided-shortcut="newInvoice">New Invoice</button>':''}${canWrite&&state.bankActivity.length?'<button type="button" data-guided-shortcut="upload">Upload Statement</button>':''}<button type="button" data-guided-shortcut="reports">Reports</button><button type="button" data-guided-shortcut="monthEnd">Month-End Checklist</button></nav></section>
       <section class="tegh-guided-help-strip"><span>T</span><div><b>New to Tegh?</b><p>Ask Tegh for a walkthrough when you need it. Guidance stays out of the way while you work.</p></div><button type="button" data-guided-ask-tegh>Ask Tegh</button></section>`;
       $$('[data-guided-task-action]',body).forEach(button=>button.onclick=()=>guidedAction(button.dataset.guidedTaskAction));
       $$('[data-guided-shortcut]',body).forEach(button=>button.onclick=()=>guidedAction(button.dataset.guidedShortcut));
@@ -1551,7 +1551,7 @@ const TeghPortal = (() => {
   }
   async function guidedExtractStatement(file,onProgress,context={}){
     const ext=String(file?.name||'').split('.').pop().toLowerCase();
-    if(ext==='pdf'){const mod=await import('./tegh-bank-converter-v5990.js?v=5990-r161-tegh');return await mod.extractAndReview(file,{...context,onProgress})}
+    if(ext==='pdf'){const mod=await import('./tegh-bank-converter-v5990.js?v=5990-r162-tegh');return await mod.extractAndReview(file,{...context,onProgress})}
     if(ext==='xlsx'||ext==='xls'){const mod=await import('./spreadsheetStatementImport-R-lkb343-v211.js?v=4600');return await mod.extractSpreadsheetStatement(file,onProgress)}
     return null;
   }
@@ -3401,6 +3401,11 @@ const TeghPortal = (() => {
     const input=$('[data-srp-sidebar-search]',wrap),results=$('[data-srp-sidebar-search-results]',wrap);input.dataset.srpFindInteractive='5700';wireRegisteredActionSearch(input,results,{limit:14});return input;
   }
 
+  // R162: the sidebar rows belong to the core app. When it re-renders a row (for example a Banking badge going from
+  // 8 to 2 after posting) it replaces the row's onclick with its own empty handler, and the row stopped responding until
+  // the page was reloaded. The handler is kept here and the document-level delegation below runs it when that happens.
+  const navRowHandlers=new WeakMap();
+  function setNavRowHandler(row,handler){navRowHandlers.set(row,handler);row.onclick=handler}
   function installNavigation(){
     const nav=$('.sidebar nav');if(!nav)return;
     window.TeghSitesShell?.removeLegacyExpenses?.(document);
@@ -3440,7 +3445,7 @@ const TeghPortal = (() => {
         const button=document.createElement('button');button.type='button';button.textContent=item.label;button.dataset.srpMenu=label;button.dataset.srpActionId=item.actionId||'';button.dataset.srpNavItem='1';if(item.group)button.dataset.srpGroup=item.group;button.title=item.description||moduleItemDescription(item.sourceName||item.label);button.setAttribute('aria-label',`${item.label} — ${button.title}`);button.onclick=e=>{e.preventDefault();e.stopPropagation();$$('.srp-subnav button.active').forEach(x=>x.classList.remove('active'));button.classList.add('active');item.action();closeMobileSidebar()};sub.append(button)
       });
       parent.insertAdjacentElement('afterend',sub);
-      parent.onclick=e=>{
+      setNavRowHandler(parent,e=>{
         e.preventDefault();e.stopImmediatePropagation();
         if(mobileNavigation()){collapseOther(null);moduleDashboard(label);closeMobileSidebar();return}
         const expanded=parent.getAttribute('aria-expanded')==='true',chevronClick=!!e.target.closest?.('.srp-chevron');
@@ -3450,7 +3455,7 @@ const TeghPortal = (() => {
         if(mode==='full'||label==='Banking'){setMenuState(parent,true);moduleDashboard(label);closeMobileSidebar();return}
         // Guided parent rows are category/navigation groups: a row click opens or closes the choices.
         setMenuState(parent,!expanded);
-      };
+      });
     };
 
     if(mode==='guided'){
@@ -3472,7 +3477,7 @@ const TeghPortal = (() => {
           {label:'Bank General Ledger',description:'Review all posted movements affecting a selected bank ledger.',action:()=>openBankGeneralLedgerReport({returnModule:'Banking'})}
         ]
       };
-      const makeDirect=(parent,action)=>{parent.removeAttribute('aria-controls');parent.removeAttribute('aria-expanded');parent.classList.add('srp-nav-direct');parent.querySelector('.srp-chevron')?.remove();parent.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();collapseOther(null);action();closeMobileSidebar()}};
+      const makeDirect=(parent,action)=>{parent.removeAttribute('aria-controls');parent.removeAttribute('aria-expanded');parent.classList.add('srp-nav-direct');parent.querySelector('.srp-chevron')?.remove();setNavRowHandler(parent,e=>{e.preventDefault();e.stopImmediatePropagation();collapseOther(null);action();closeMobileSidebar()})};
       order.forEach(label=>{
         const parent=ensureParent(label);nav.append(parent);
         if(label==='Dashboard'){makeDirect(parent,()=>openGuidedBookkeeping());return}
@@ -3480,7 +3485,7 @@ const TeghPortal = (() => {
         parent.classList.remove('srp-nav-direct');addSubmenu(parent,label,guidedItems[label]||[]);
       });
     }else{
-      const makeDirect=(parent,action)=>{parent.removeAttribute('aria-controls');parent.removeAttribute('aria-expanded');parent.classList.add('srp-nav-direct');parent.querySelector('.srp-chevron')?.remove();parent.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();collapseOther(null);action();closeMobileSidebar()}};
+      const makeDirect=(parent,action)=>{parent.removeAttribute('aria-controls');parent.removeAttribute('aria-expanded');parent.classList.add('srp-nav-direct');parent.querySelector('.srp-chevron')?.remove();setNavRowHandler(parent,e=>{e.preventDefault();e.stopImmediatePropagation();collapseOther(null);action();closeMobileSidebar()})};
       order.forEach(label=>{
         const parent=ensureParent(label);nav.append(parent);
         if(label==='Dashboard'){makeDirect(parent,()=>openDashboard());return}
@@ -3547,7 +3552,7 @@ const TeghPortal = (() => {
         if(parent.dataset.srpNativePass==='1'||parent.dataset.srpBypass==='1')return;
         // installNavigation() is the single owner of enhanced navigation rows.
         // Let the row's own handler run instead of overriding it at capture phase.
-        if(parent.dataset.srpNav==='1')return;
+        if(parent.dataset.srpNav==='1'){const own=navRowHandlers.get(parent);if(own&&parent.onclick!==own){parent.onclick=own;own(event)}return}
         event.preventDefault();event.stopImmediatePropagation();
         const label=parent.dataset.srpLabel||'Dashboard';
         if(label==='Dashboard'){collapseOther(null);openDashboard();closeMobileSidebar();return}
@@ -6191,6 +6196,7 @@ const TeghPortal = (() => {
     if(!entry||!entry.journalEntryId)return null;        // draft or transaction with no GL posting
     if(/_reversal$/.test(type))return null;              // voided with its original
     if(/^payroll/.test(type))return null;                // Payroll History owns these
+    if(type==='bank_transaction_voided')return null;     // R162: a voided bank posting whose line went back to review stays history
     const entityType=VOID_SOURCE_TYPES[type]||'journal';
     const entityId=entityType==='journal'?entry.journalEntryId:(entry.sourceId||entry.journalEntryId);
     return entityId?{entityType,entityId}:null;
@@ -7291,7 +7297,7 @@ const TeghPortal = (() => {
     if(nativeAPARModulePromise)return nativeAPARModulePromise;
     if(window.TeghLoadFeature){nativeAPARModulePromise=window.TeghLoadFeature('native-ap-ar').then(()=>{if(!window.TeghNativeAPAR)throw new Error('The Document workspace did not initialize.');return window.TeghNativeAPAR}).catch(error=>{nativeAPARModulePromise=null;throw error});return nativeAPARModulePromise}
     nativeAPARModulePromise=new Promise((resolve,reject)=>{
-      const source='/assets/tegh-native-ap-ar-v5600.js?v=5990-r161-tegh',existing=document.querySelector(`script[src^="/assets/tegh-native-ap-ar-v5600.js"]`);
+      const source='/assets/tegh-native-ap-ar-v5600.js?v=5990-r162-tegh',existing=document.querySelector(`script[src^="/assets/tegh-native-ap-ar-v5600.js"]`);
       const ready=()=>window.TeghNativeAPAR?resolve(window.TeghNativeAPAR):reject(new Error('The Native AP/AR workspace did not initialize.'));
       if(existing){existing.addEventListener('load',ready,{once:true});existing.addEventListener('error',()=>reject(new Error('The Native AP/AR workspace could not be loaded.')),{once:true});setTimeout(()=>window.TeghNativeAPAR&&resolve(window.TeghNativeAPAR),0);return}
       const script=document.createElement('script');script.src=source;script.async=true;script.onload=ready;script.onerror=()=>reject(new Error('The Native AP/AR workspace could not be loaded.'));document.head.append(script);
