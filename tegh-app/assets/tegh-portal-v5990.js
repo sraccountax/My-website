@@ -1480,6 +1480,7 @@ const TeghPortal = (() => {
   function guidedCheckup(w){
     const summary=w.summary||{},pending=guidedPending(w),duplicates=(w.bankTransactions||[]).filter(tx=>tx.status==='duplicate').length,banks=w.bankAccounts||[],recons=w.reconciliations||[],hasBankActivity=(w.bankTransactions||[]).length>0;
     const lastRecon=[...recons].filter(r=>/complete|reconciled|closed/i.test(String(r.status||''))).sort((a,b)=>String(b.periodEnd||'').localeCompare(String(a.periodEnd||'')))[0];
+    const latestBankDate=(w.bankTransactions||[]).filter(tx=>!['duplicate','excluded'].includes(String(tx.status||''))).map(tx=>String(tx.transactionDate||'').slice(0,10)).filter(Boolean).sort().at(-1)||'',reconCurrent=!!lastRecon&&(!latestBankDate||String(lastRecon.periodEnd||'').slice(0,10)>=latestBankDate);
     const checks=[
       {id:'opening',label:'Starting balances',detail:w.openingBalanceStatus?.posted?'Opening balances have been posted.':'Review the Chart of Accounts and opening balances.',ok:!!w.openingBalanceStatus?.posted,action:'opening'},
       {id:'bank-review',label:'Statement transactions',detail:pending.length?`${pending.length} imported transaction${pending.length===1?'':'s'} still need a decision.`:'All imported transactions have been reviewed.',ok:pending.length===0,action:'review'},
@@ -1487,7 +1488,8 @@ const TeghPortal = (() => {
       {id:'ledger',label:'Trial balance',detail:Number(summary.ledgerDifferenceCents||0)===0?'Debits equal credits.':'The ledger is out of balance and needs review.',ok:Number(summary.ledgerDifferenceCents||0)===0,action:'trial'},
       {id:'receivables',label:'Customer control',detail:!summary.receivableControlApplicable||Number(summary.receivableDifferenceCents||0)===0?'Customer subledger agrees with the control account.':'Customer balances do not agree with Accounts Receivable.',ok:!summary.receivableControlApplicable||Number(summary.receivableDifferenceCents||0)===0,action:'receivables'},
       {id:'payables',label:'Vendor control',detail:!summary.payableControlApplicable||Number(summary.payableDifferenceCents||0)===0?'Vendor subledger agrees with the control account.':'Vendor balances do not agree with Accounts Payable.',ok:!summary.payableControlApplicable||Number(summary.payableDifferenceCents||0)===0,action:'payables'},
-      {id:'reconcile',label:'Bank reconciliation',detail:!hasBankActivity?'No imported statement activity yet.':lastRecon?`Last completed reconciliation: ${longDate(lastRecon.periodEnd)}.`:'Imported banking activity exists but no completed reconciliation was found.',ok:!hasBankActivity||!!lastRecon,action:'reconcile'},
+      // R162: a reconciliation passes only when it reaches the latest bank activity; an old one no longer ticks the current month.
+      {id:'reconcile',label:'Bank reconciliation',detail:!hasBankActivity?'No imported statement activity yet.':!lastRecon?'Imported banking activity exists but no completed reconciliation was found.':reconCurrent?`Last completed reconciliation: ${longDate(lastRecon.periodEnd)}.`:`Last completed reconciliation: ${longDate(lastRecon.periodEnd)}. Bank activity runs to ${longDate(latestBankDate)}; reconcile to that date.`,ok:!hasBankActivity||reconCurrent,action:'reconcile'},
     ];
     return checks;
   }
@@ -2068,7 +2070,10 @@ const TeghPortal = (() => {
   }
   const quickActionService={getCatalogue:getQuickActionCatalogue,peekCatalogue:peekQuickActionCatalogue,prefetch:()=>getQuickActionCatalogue().catch(()=>[]),getSelected:selectedQuickActions,getIds:quickActionIds,setIds:(ids,announcement='')=>saveQuickActionIds(ids,announcement),getMode:quickActionMode,getScope:()=>authCache?.user?.id?clientScopeKey():'',getDefaultIds:defaultQuickActionIds,search:(query,catalogue=quickActionCatalogueCache.items)=>searchQuickActionCatalogue(catalogue,query),open:invokeQuickAction,openPicker:openQuickActionPicker,add:async id=>{const catalogue=await getQuickActionCatalogue(),item=catalogue.find(row=>row.action_id===id),ids=quickActionIds();if(!item||ids.includes(id)||ids.length>=quickActionLimit)return false;saveQuickActionIds([...ids,id],`${item.label} added to Quick Actions.`);return true},remove:id=>saveQuickActionIds(quickActionIds().filter(value=>value!==id)),move:(id,direction)=>{const ids=quickActionIds(),from=ids.indexOf(id),to=from+(direction<0?-1:1);if(from<0||to<0||to>=ids.length)return false;[ids[from],ids[to]]=[ids[to],ids[from]];saveQuickActionIds(ids);return true},restoreDefaults:()=>saveQuickActionIds(defaultQuickActionIds()),audit:quickActionCatalogueAudit};
 
-  function openDashboard(){if(onboardingGate(()=>openDashboard()))return;setTimeout(()=>r157ShowBankStart(),1400);cancelCoreRouting();collapseOther(null);activeModule='';coreModule='';dashboardOpened=true;showPage('dashboard','Dashboard','',async body=>{
+  // R162: at sign-in several start-up paths open the home before the signed-in user is known. The Guided/Full choice
+  // is stored per user and company, so it read as Full Accounting then and a Guided user sometimes landed on this
+  // Dashboard instead of Guided Home. Until the user is known, wait for it and open the home for their mode.
+  function openDashboard(afterAuth=false){if(!authCache&&!afterAuth){auth().then(()=>experienceMode()==='owner'?openGuidedBookkeeping():openDashboard(true),()=>openDashboard(true));return}if(onboardingGate(()=>experienceMode()==='owner'&&!afterAuth?openGuidedBookkeeping():openDashboard(afterAuth)))return;setTimeout(()=>r157ShowBankStart(),1400);cancelCoreRouting();collapseOther(null);activeModule='';coreModule='';dashboardOpened=true;showPage('dashboard','Dashboard','',async body=>{
     const [w,a]=await Promise.all([workspaceSummary(),auth()]);
     if(!w?.summary||['bankBalanceCents','unpaidInvoicesCents','payableSubledgerCents','taxPayableCents','transactionsToReview'].some(key=>!Number.isFinite(Number(w.summary[key]))||w.summary[key]===null))throw Error('Current balances are unavailable. Retry to load verified figures.');
     const currency=w.organization?.currency||'CAD',summary=w.summary,today=todayIso(),page=body.closest('.srp-page');
@@ -3504,7 +3509,7 @@ const TeghPortal = (() => {
     [...nav.querySelectorAll(':scope > button')].forEach(button=>{const label=button.dataset.srpLabel||navigationLabelFromButton(button);if(label&&!order.includes(label))button.hidden=true});
     const companyButton=$('.sidebar .company');if(companyButton)companyButton.hidden=true;
     installSidebarNavigator(nav);installFindInteractive();decorateKeyboardShortcuts(nav);fixLabelsAndVisibility();window.TeghSitesShell?.normalize?.();
-    if(!dashboardOpened&&byLabel.get('Dashboard')?.classList.contains('active'))setTimeout(()=>{if(!customPage)(mode==='guided'?openGuidedBookkeeping():openDashboard())},180);
+    if(!dashboardOpened&&byLabel.get('Dashboard')?.classList.contains('active'))setTimeout(()=>{if(!customPage)(experienceMode()==='owner'?openGuidedBookkeeping():openDashboard())},180);
   }
   function installNavigationDelegation(){
     if(document.documentElement.dataset.srpNavDelegation)return;
@@ -3600,7 +3605,9 @@ const TeghPortal = (() => {
     const content=coreContent();if(!content)return;
     const isLegacy=String(content.dataset.page||'').toLowerCase()==='home'||/your books,\s*at a glance/i.test(content.textContent||'');
     if(!isLegacy)return;
-    const target=coreModule;if(target&&target!=='Dashboard')moduleDashboard(target);else openDashboard();
+    // R162: in Guided mode the home is Guided Home. This guard runs at sign-in and could beat the Guided-aware start-up
+    // path, so a Guided user sometimes landed on the Dashboard.
+    const target=coreModule;if(target&&target!=='Dashboard')moduleDashboard(target);else if(experienceMode()==='owner')openGuidedBookkeeping();else openDashboard();
   }
   function installSidebarBrandHome(){
     const brand=$('.sidebar > .brand,.sidebar .srp-sites-brand,.sidebar .srp-restored-brand');if(!brand)return;
@@ -7967,7 +7974,7 @@ const TeghPortal = (() => {
       if(clean==='core-audit')return openAuditHistory();
       const core=clean.startsWith('core-')?clean.slice(5):'';
       if(core){if(core==='invoice')return openCustomerInvoice();const map={sales:'Receivables',customer:'Receivables',invoice:'Receivables',payables:'Payables',expenses:'General ledger',payroll:'Payroll',banking:'Banking',import:'Banking',review:'Banking',reconcile:'Banking',accounting:'General ledger',reports:'Reports',settings:'My account'};const module=map[core];if(module){if(core==='accounting'||core==='expenses')return moduleDashboard('General ledger');if(core==='reports')return openReportsDashboard();if(core==='settings')return moduleDashboard('My account');return await clickCore(module,'',core)}}
-      openDashboard();
+      experienceMode()==='owner'?openGuidedBookkeeping():openDashboard();
     }finally{setTimeout(()=>{historyRestoring=false},0)}
   }
   function installHistoryRouting(){
