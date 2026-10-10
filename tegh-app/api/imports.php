@@ -564,15 +564,15 @@ function suggest_import_account(string $companyId, string $description, int $amo
         ['/INTACT INS|AVIVA|WAWANESA|BELAIR/', ['6950','NO_TAX',84]],
         ['/NSF FEE|OVERDRAFT FEE|ACCOUNT FEE|PLAN FEE|ANNUAL FEE|WIRE FEE/', ['6800','NO_TAX',90]],
         ['/WESTERN IT GROUP|IT SUPPORT|COMPUTER SUPPORT/', ['6200','GST_HST',90]],
-        ['/BELL|ROGERS|TELUS|FIDO/', ['6300','GST_HST',90]],
+        ['/\\b(?:BELL|ROGERS|TELUS|FIDO)\\b/', ['6300','GST_HST',90]],
         ['/STAPLES|OFFICE DEPOT/', ['6400','GST_HST',91]],
-        ['/UBER\s*EATS|UBEREATS|TIM HORTONS|LCBO|RAJDHANI|RESTAURANT|CAFE|COFFEE|DOORDASH|SKIP(?:\s+THE)?\s+DISHES/', ['6600','NO_TAX',86]],
-        ['/\bUBER\b|LYFT|VIA RAIL|GO TRANSIT|AIR CANADA|WESTJET/', ['6500','NO_TAX',84]],
+        ['/UBER\s*EATS|UBEREATS|TIM HORTONS|RAJDHANI|RESTAURANT|CAFE|COFFEE|DOORDASH|SKIP(?:\s+THE)?\s+DISHES/', ['6600','NO_TAX',86]],
+        ['/\bUBER\b|LYFT|VIA RAIL|GO TRANSIT|AIR CANADA|WESTJET/', ['6500','GST_HST',80]],
         ['/\bPETRO(?:-?CANADA)?\b|\bESSO\b|\bSHELL\b|GAS STATION|FUEL/', ['6900','GST_HST',88]],
         ['/BANK FEE|SERVICE CHARGE|MONTHLY FEE|INTEREST/', ['6800','NO_TAX',91]],
         ['/INSURANCE/', ['6950','NO_TAX',86]],
         ['/OWNER CONTRIBUTION|FROM PERSONAL/', ['3000','NO_TAX',84]],
-        ['/CLIENT PAYMENT|CUSTOMER PAYMENT|MERCHANT DEPOSIT/', ['4000','NO_TAX',72]],
+        ['/MERCHANT DEPOSIT/', ['4000','NO_TAX',72]],
     ];
     foreach ($rules as [$pattern, $candidate]) {
         // R163: owner (3000) and revenue (4000) rules apply to money in only; expense rules to money out only.

@@ -106,7 +106,9 @@ function tegh_recon_position_r122(string $companyId, array $bank, string $start,
     foreach ($bankRows->fetchAll(PDO::FETCH_ASSOC) as $row) {
         $item = ['id' => (string)$row['id'], 'date' => (string)$row['transaction_date'], 'description' => (string)$row['description'], 'reference' => (string)($row['reference'] ?? ''), 'amountCents' => (int)$row['amount_cents']];
         $journalDate = $bankJournalDate[(string)$row['id']] ?? null;
-        if ((string)$row['status'] === 'pending' || $journalDate === null) {
+        // R163: a pending line matched to a book entry (an invoice payment, for example) is in the books through that
+        // entry; only a line with no posted journal at all is waiting to be posted.
+        if ($journalDate === null) {
             $item['reason'] = (string)$row['status'] === 'pending' ? 'Not posted' : 'No posted journal';
             $push('unposted', $item);
         } elseif ($journalDate > $end) {

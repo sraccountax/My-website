@@ -300,6 +300,11 @@ html[data-tegh-shell] .r28-post-panel footer .srp-btn{white-space:nowrap;flex:no
 .r163-sent{display:grid;gap:8px;text-align:left}.r163-sent>span{font-size:1.6rem;color:var(--r157-brand)}
 .r163-sent .srp-actions{display:flex;gap:8px;flex-wrap:wrap}
 @media (max-width:1100px){.r163-statements{grid-template-columns:minmax(0,1fr)}.r163-side{position:static}}
+.r163-resume{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--r157-brand);border-radius:12px;padding:12px 14px;background:var(--r157-soft)}
+.r163-resume p{margin:.2rem 0 0}.r163-unbatched{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.r163-hints{margin:.4rem 0 .6rem;padding-left:1.1rem;color:var(--r157-muted)}.r163-hints li{margin:.2rem 0}
+.r163-balance-form{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:.4rem 0}.r163-balance-form label{display:flex;flex-direction:column;gap:4px;font-weight:600;min-width:min(100%,280px)}.r163-balance-form input{max-width:220px}
+.r163-recon.is-attention{border-color:var(--r157-gold)}
 @media (max-width:600px){html[data-tegh-shell] .srp-table-wrap>table.srp-table.r163-map-table.r163-map-table.r163-map-table,.r163-map-table tbody,.r163-map-table tr{min-width:0!important;width:100%!important;max-width:100%!important}.r163-map-table td{min-width:0;max-width:100%;overflow-wrap:anywhere}.r163-map-table select{max-width:100%}.r163-map-head{grid-template-columns:minmax(0,1fr)}.r163-map-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.r163-filters label{min-width:100%}.r163-home-statements .srp-btn{width:100%}}
 /* R163: the layout layer gives page sections a multi-column grid; the statement list is one column. */
 .r163-months,.r163-month{width:100%;min-width:0}

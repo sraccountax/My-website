@@ -2401,8 +2401,9 @@ function reconciliation_save_service(array $user, array $company, array $input):
             db()->prepare('UPDATE bank_accounts SET statement_balance_cents = ?, last_reconciled_date = GREATEST(COALESCE(last_reconciled_date,?),?) WHERE id = ? AND company_id = ?')
                 ->execute([$statementBalance,$periodEnd,$periodEnd,$bankAccountId,$companyId]);
             // R163: EXISTS per bank line instead of a join over every journal of the company (57 s -> 0.1 s at 5,000 lines).
+            // A pending line matched to a book entry is cleared through that entry, like a posted line through its own.
             $stmt = db()->prepare("SELECT bt.id FROM bank_transactions bt
-                WHERE bt.bank_account_id=? AND bt.company_id=? AND bt.transaction_date BETWEEN ? AND ? AND bt.status='posted'
+                WHERE bt.bank_account_id=? AND bt.company_id=? AND bt.transaction_date BETWEEN ? AND ? AND bt.status IN ('posted','pending')
                 AND (EXISTS(SELECT 1 FROM journal_entries je WHERE je.id=bt.journal_entry_id AND je.company_id=bt.company_id AND je.status='posted' AND je.entry_date<=?)
                   OR EXISTS(SELECT 1 FROM bank_match_bank_items bi JOIN bank_match_groups g ON g.id=bi.match_group_id AND g.status='matched' JOIN bank_match_book_items mi ON mi.match_group_id=g.id JOIN journal_entries je ON je.id=mi.journal_entry_id AND je.company_id=bt.company_id AND je.status='posted' AND je.entry_date<=? WHERE bi.bank_transaction_id=bt.id))
                 AND NOT EXISTS(SELECT 1 FROM reconciliation_items pri JOIN reconciliations pr ON pr.id=pri.reconciliation_id AND pr.status='complete' AND pr.id<>? WHERE pri.bank_transaction_id=bt.id)");
