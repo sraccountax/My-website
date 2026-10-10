@@ -117,10 +117,14 @@ function tegh_recon_position_r122(string $companyId, array $bank, string $start,
         }
     }
 
-    $bookRows = db()->prepare("SELECT je.id,je.entry_date,je.memo,je.source_type,v.voucher_number,SUM(jl.debit_cents-jl.credit_cents) amount_cents FROM journal_entries je
-        JOIN journal_lines jl ON jl.journal_entry_id=je.id AND jl.account_id=? LEFT JOIN vouchers v ON v.company_id=je.company_id AND v.source_type=je.source_type AND v.source_id=je.source_id
-        WHERE je.company_id=? AND je.status='posted' AND je.entry_date<=? AND je.source_type<>'opening_balance'
-        GROUP BY je.id,je.entry_date,je.memo,je.source_type,v.voucher_number HAVING SUM(jl.debit_cents-jl.credit_cents)<>0 ORDER BY je.entry_date,je.id");
+    // R163: the account's journal totals first, then each voucher number through its unique key. Joining vouchers
+    // into the grouped query let a stale plan take a minute right after thousands of postings.
+    $bookRows = db()->prepare("SELECT x.id,x.entry_date,x.memo,x.source_type,
+        (SELECT v.voucher_number FROM vouchers v WHERE v.company_id=x.company_id AND v.source_type=x.source_type AND v.source_id=x.source_id LIMIT 1) voucher_number,x.amount_cents
+        FROM (SELECT je.id,je.company_id,je.entry_date,je.memo,je.source_type,je.source_id,SUM(jl.debit_cents-jl.credit_cents) amount_cents FROM journal_entries je
+          JOIN journal_lines jl ON jl.journal_entry_id=je.id AND jl.account_id=?
+          WHERE je.company_id=? AND je.status='posted' AND je.entry_date<=? AND je.source_type<>'opening_balance'
+          GROUP BY je.id,je.company_id,je.entry_date,je.memo,je.source_type,je.source_id HAVING SUM(jl.debit_cents-jl.credit_cents)<>0) x ORDER BY x.entry_date,x.id");
     $bookRows->execute([$ledgerId, $companyId, $end]);
     foreach ($bookRows->fetchAll(PDO::FETCH_ASSOC) as $row) {
         $jid = (string)$row['id'];
