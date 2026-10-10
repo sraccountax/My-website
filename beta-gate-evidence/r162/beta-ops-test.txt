@@ -1,0 +1,116 @@
+== A. backup during writes
+   2026-10-10T15:24:47Z backup start -> /srv/gate/backups/tegh-20261010-152447
+   2026-10-10T15:24:47Z changes paused (maintenance flag)
+   2026-10-10T15:24:47Z no request running (waited 0s)
+   2026-10-10T15:25:06Z changes resumed
+   consistent snapshot: db 17M, files 29, tables 169, content fingerprints 169, companies with postings 24
+   2026-10-10T15:25:06Z backup done
+   writer: {"ok":60,"maintenance_backup":62,"other":0}
+PASS  A1 backup taken while writes were attempted is consistent (figures identical before and after)
+PASS  A2 writes during the pause were refused with 'Tegh is making a backup' (503) and writes before/after succeeded
+PASS  A3 maintenance flag removed after the backup
+   PASS  restore target is designated (/srv/rst/sr-accountax-private/.tegh-restore-target) and is not the live database (tegh_gate) or storage (/srv/gate/sr-accountax-private/storage)
+   PASS  backup files match SHA256SUMS
+   PASS  database restored into tegh_restore_test
+   PASS  upload folder restored into /srv/rst/sr-accountax-private/storage
+   PASS  all 29 uploaded files restored with the same SHA-256
+   PASS  row counts of 169 tables equal the backup checks
+   PASS  content of all 169 tables equals the backup, value for value
+   PASS  posted debits/credits of 24 companies equal the backup checks
+   PASS  every restored company's posted entries balance
+   
+   RESTORE VERIFIED: /srv/gate/backups/tegh-20261010-152447
+PASS  A4 restore verified with every table's row count equal (no tolerance for tables written during the backup)
+== B. refused restore targets
+PASS  B1 database name without 'restore': REFUSED  RESTORE_DB 'tegh_gate' does not contain 'restore'; use a dedicated restore-test database
+PASS  B2 restore database equal to the live database: REFUSED  RESTORE_DB is the LIVE database (tegh_restore_test)
+PASS  B3 restore storage = live storage (even with a marker placed next to it): REFUSED  RESTORE_STORAGE is the live storage folder or inside it (/srv/gate/sr-accountax-private/storage)
+PASS  B4 restore storage containing the live storage: REFUSED  RESTORE_STORAGE contains the live storage folder (/srv/gate/sr-accountax-private/storage)
+PASS  B5 folder not designated (no .tegh-restore-target): REFUSED  /srv/rst-unmarked/.tegh-restore-target not found: designate this folder for restore tests first (see the top of this script)
+PASS  B6 live database (41694 journal lines) and live storage (29 files) unchanged after the refused attempts
+== D. R157 review cases (each with the R157 script as a control)
+   control script: R157 tegh-backup.sh (dc633b532643d09c…), fixed five-second wait and '|| true' on the ledger query
+   2026-10-10T15:25:39Z backup start -> /srv/gate/backups/sqlfail/tegh-20261010-152539
+   2026-10-10T15:25:39Z changes paused (maintenance flag)
+   2026-10-10T15:25:39Z no request running (waited 0s)
+   --------------
+   SELECT 'ledger',je.company_id,SUM(jl.debit_cents),SUM(jl.credit_cents) FROM journal_entries je JOIN journal_lines jl ON jl.journal_entry_id=je.id WHERE je.status='posted' GROUP BY je.company_id ORDER BY je.company_id
+   --------------
+   
+   ERROR 1054 (42S22) at line 1: Unknown column 'jl.debit_cents' in 'SELECT'
+   FAIL the check figures could not be read (database error above); no backup was taken
+   2026-10-10T15:25:44Z changes resumed
+PASS  D1 a failing ledger-total query stops the backup: exit 1, the database error is shown, no backup folder is kept, changes are resumed
+CONTROL REPRODUCED  D1 the R157 script, same database: exit 0, "consistent snapshot: db 32K, files 0, tables 169, companies with postings 0" — the failed query was recorded as 'no postings'
+   2026-10-10T15:25:50Z backup start -> /srv/gate/backups/d2/tegh-20261010-152550
+   2026-10-10T15:25:51Z changes paused (maintenance flag)
+      waiting for 1 request(s) that started before the pause
+   2026-10-10T15:26:05Z no request running (waited 14s)
+   2026-10-10T15:26:23Z changes resumed
+   consistent snapshot: db 17M, files 29, tables 169, content fingerprints 169, companies with postings 24
+   2026-10-10T15:26:23Z backup done
+PASS  D2 a request running 14s after the pause (longer than five seconds; 32 writes) was waited for; the backup holds its final state ('R158 Probe d2new #32') and the before/after content check passed
+CONTROL REPRODUCED  D2 the R157 script: stopped waiting after 5 s and reported a consistent snapshot while the request made 29 changes during the backup
+   2026-10-10T15:26:39Z backup start -> /srv/gate/backups/d3/tegh-20261010-152639
+   2026-10-10T15:26:39Z changes paused (maintenance flag)
+   2026-10-10T15:26:39Z no request running (waited 0s)
+      changed while the backup ran: customers 
+   FAIL records changed while the backup ran (a request bypassed the pause, or another program wrote to the database); this backup is not consistent and was removed
+   2026-10-10T15:26:57Z changes resumed
+PASS  D3 an update that changes neither row counts nor ledger totals is detected by the content fingerprint (table customers named); the backup is removed and changes are resumed
+CONTROL REPRODUCED  D3 the R157 script accepted the backup while the name changed throughout it (row counts and ledger totals were equal)
+== E. request markers and the restore check
+   2026-10-10T15:27:12Z backup start -> /srv/gate/backups/mk/tegh-20261010-152712
+   2026-10-10T15:27:12Z changes paused (maintenance flag)
+      note: 1 request marker(s) older than 900s are left over from stopped processes and are ignored
+   2026-10-10T15:27:12Z no request running (waited 0s)
+   2026-10-10T15:27:23Z changes resumed
+   consistent snapshot: db 32K, files 0, tables 169, content fingerprints 169, companies with postings 0
+   2026-10-10T15:27:23Z backup done
+PASS  E1 a marker older than TEGH_STALE_AFTER (a crashed request) is reported and does not block the backup
+   2026-10-10T15:27:23Z backup start -> /srv/gate/backups/mk/tegh-20261010-152723
+   2026-10-10T15:27:23Z changes paused (maintenance flag)
+      note: 1 request marker(s) older than 900s are left over from stopped processes and are ignored
+      waiting for 1 request(s) that started before the pause
+   FAIL 1 request(s) were still running after 4s; no backup was taken (they continue normally)
+   2026-10-10T15:27:27Z changes resumed
+PASS  E2 a request still running at TEGH_WAIT_MAX stops the backup (none kept) and changes are resumed
+   PASS  row counts of 169 tables equal the backup checks
+   FAIL  customers: content differs from the backup
+   RESTORE NOT VERIFIED: /tmp/e3
+PASS  E3 the restore check finds a changed value that row counts and totals miss
+CONTROL REPRODUCED  E3 the R157 restore check reported RESTORE VERIFIED for the same changed backup
+   SELECT 'ledger',je.company_id,SUM(jl.debit_cents),SUM(jl.credit_cents) FROM journal_entries je JOIN journal_lines jl ON jl.journal_entry_id=je.id WHERE je.status='posted' GROUP BY je.company_id ORDER BY je.company_id
+   FAIL  posted totals could not be read from the restored database
+   SELECT COUNT(*) FROM (SELECT je.company_id FROM journal_entries je JOIN journal_lines jl ON jl.journal_entry_id=je.id WHERE je.status='posted' GROUP BY je.company_id HAVING SUM(jl.debit_cents)<>SUM(jl.credit_cents)) x
+   FAIL  the balance check could not be run on the restored database
+   RESTORE NOT VERIFIED: /tmp/e4
+PASS  E4 a database error in the restore's ledger and balance checks is a failure
+CONTROLS: 4 of 4 R157 runs showed the defect the R158 test guards against
+== C. empty installation
+   2026-10-10T15:28:14Z backup start -> /srv/gate/backups/empty/tegh-20261010-152814
+   2026-10-10T15:28:14Z changes paused (maintenance flag)
+   2026-10-10T15:28:14Z no request running (waited 0s)
+   2026-10-10T15:28:26Z changes resumed
+   consistent snapshot: db 32K, files 0, tables 169, content fingerprints 169, companies with postings 0
+   2026-10-10T15:28:26Z backup done
+PASS  C1 backup of an installation with no records and no uploads
+   PASS  restore target is designated (/srv/rst-empty/.tegh-restore-target) and is not the live database (tegh_empty_src) or storage (/srv/empty-src/storage)
+   PASS  backup files match SHA256SUMS
+   PASS  database restored into tegh_restore_empty
+   PASS  upload folder restored into /srv/rst-empty/storage
+   PASS  the backup holds no uploaded files
+   PASS  row counts of 169 tables equal the backup checks
+   PASS  content of all 169 tables equals the backup, value for value
+   PASS  posted debits/credits of 0 companies equal the backup checks
+   PASS  every restored company's posted entries balance
+   
+   RESTORE VERIFIED: /srv/gate/backups/empty/tegh-20261010-152814
+PASS  C2 restore of the empty installation verified
+== F. encrypted copy (TEGH_ENCRYPT_TO)
+   encrypted copy: /srv/gate/backups/enc/encrypted/tegh-20261010-152833.tar.age (17M)
+   2026-10-10T15:28:50Z backup done
+PASS  F1 an encrypted copy tegh-*.tar.age is written next to the backup, nothing else in that folder, and it is not readable as an archive
+PASS  F2 the private key opens it: the decrypted backup passes its SHA256SUMS and is identical to the plain backup
+PASS  F3 a different private key cannot open it
+RESULT: 22 PASS / 0 FAIL

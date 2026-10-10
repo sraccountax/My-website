@@ -105,7 +105,7 @@ Tested on the build team's test host: a backup was encrypted, decrypted with the
 | Left-over marker 20 minutes old; a request that never ends | The left-over marker is reported and ignored. The never-ending request stops the run at `TEGH_WAIT_MAX`, with no backup kept and changes resumed. |
 | Restore of a backup whose dump differs in one value only | R158: row counts pass, `customers: content differs`, not verified. R157 control: `RESTORE VERIFIED`. |
 | Database error in the restore's ledger and balance checks | Both reported as failures. |
-| Separate installation served from a restored backup | On the final R161 installation (the same ZIP installed on the restore-test site): identical trial balances for all 34 companies (130 account rows) and 8 identical uploaded files. Earlier runs on R154–R160 data gave the same result. |
+| Separate installation served from a restored backup | On the final R162 installation (the same ZIP installed on the restore-test site): identical trial balances for all 38 companies (175 account rows) and 8 identical uploaded files. Earlier runs on R154–R161 data gave the same result. |
 
 The test script is `beta-gate-evidence/scripts/beta-ops-test.sh`. This proves the method; your host still needs one restore test of its own (host acceptance).
 

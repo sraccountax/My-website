@@ -1663,3 +1663,85 @@ The seeding script summed the expected figures from the amounts it generated (13
 **Not established here** (unchanged): operator details on the beta host; the host's HTTPS and private-file protection; external email; a restore on the beta host; legal review; an independent security review; the owner's accounting walkthrough; a real iPhone/Safari check.
 
 **Verdict for R161:** replaces R160 as the candidate for the invitation-only, sample-data beta once the owner's hosting checks pass. **NOT READY** for real client or employee information.
+
+## Addendum: R162 (Guided mode tested end to end)
+
+| | R162 |
+|---|---|
+| Package | `Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R162-PRIVATE-BETA.zip` |
+| SHA-256 | `f8a09bb038195d41668f101ce8c801d4118cde384ede846e86703f9cf1d4297d` |
+| FILE-MANIFEST.sha256 | 374 entries, all OK |
+| Cache token | `5990-r162-tegh` |
+| Migration | None |
+| productionReady / acceptanceComplete | false / false (not changed) |
+| Evidence bundle | `Tegh-R162-Gate-Evidence.zip` (`eeec7c0a…`); `scripts/verify-evidence.py` prints VERIFIED |
+
+**What was tested.** The R161 test opened every Guided screen but did not book anything through them. The new suite **30-guided** creates a fresh Ontario company (HST 13%), imports eight September statement lines and books them through the Guided screens:
+- single postings with HST and with no tax;
+- a bulk posting of three lines;
+- exclude, restore, then post to Owner Draws;
+- void, restore and re-post;
+- a posting at phone width;
+- matching all eight lines;
+- the month-end checklist;
+- Home and Profit and Loss.
+
+Every journal and the final General Ledger are compared with amounts worked out by hand (for example 113.00 = 100.00 + 13.00 HST). An independent senior-accountant review re-worked the expected journals, balances and Home figures (bank 183.60, HST owed 28.60, profit 195.00) and found them correct.
+
+**Defects found and fixed in R162**
+
+| # | Defect | Found by | Fix | Check |
+|---|---|---|---|---|
+| 1 | After a posting changed the Banking badge, clicking Banking in the side menu did nothing until reload (any module row the core app redrew) | 30-guided | Tegh keeps each row's handler and runs it if the core app replaced it | G-07 |
+| 2 | A voided bank posting, restored to review, could never be posted again ("already recorded", then a server error) | 30-guided | The voided journal is kept as `bank_transaction_voided` (lines, void date, reason, audit) and the line is released; only a live journal blocks posting | G-11 |
+| 3 | Restoring a voided bank line left it Excluded, and after a re-post could have counted it twice | Code review during the fix | Restore brings back only the line's own posting and marks it Posted; refused once the line went back to review, through both routes | G-11, G-11b |
+| 4 | The Guided month-end checklist had no button | 30-guided | Guided Home › Month-End Checklist | G-16 |
+| 5 | Opening a row's Actions menu ticked the row (bulk actions could include it) | 30-guided | Menus no longer change the selection | G-09 |
+| 6 | Match and Post buttons and phone status pills broke mid-word | Screenshots | Message on its own line; pills on one line | G-12 |
+| 7 | A Guided user signed in to the Full Accounting Dashboard about half the time | Second gate run (G-12) | Start-up waits until the user is known before choosing the home | G-01b (5 sign-ins), G-19 (Full Accounting still opens the Dashboard) |
+| 8 | The month-end checklist ticked the bank reconciliation with an old reconciliation | Senior-accountant review | Ticked only when the reconciliation reaches the latest bank activity | G-16b |
+
+**Test corrected.** 20-r151ui UI-15 opened two side-menu groups by clicking their rows. A row click closes the other groups, so the test now uses the arrow, which keeps them open. It passed in R161 only because the second row had stopped responding (defect 1).
+
+**Review points not changed in R162** (proposed):
+- a GST/HST return step and a "lock the month" step in the Guided checklist;
+- a record of filed HST periods;
+- an accruals prompt;
+- naming 3100 "Shareholder loan" for corporations (s.15(2) note for the owner's accountant).
+
+The review also said a void does not check for a closed period. That is not so: a void is refused when any of its entries is in a locked period, and posting checks the period too.
+
+**Gate runs on R162**
+- **First run (ZIP `d49764b8…`):** 670 PASS / 2 FAIL. The failures were UI-15 (the test above) and B-03 (the 5,000-invoice register in 16.1 s against its 15 s limit).
+  - For B-03, the same host timed R161's front end at 10–14 s and R162's at 10–12 s. The limit was not changed.
+- **Second run:** stopped after G-12 found defect 7, and after the review found defect 8.
+
+**Final gate on the exact ZIP** (`f8a09bb0…`; host clock pinned to 2026-10-01 12:00 Toronto)
+
+| Result | |
+|---|---|
+| **675 PASS / 0 FAIL / 7 INFO**, 0 BLOCKED | GUIDED 23/23, R161 20/20 (B-03 within its limit), R160 9/9, R159 18/18, R158 5/5, R157 21/21, BETA 18/18, E2E 53/53, upgrade R118 → R162 13/13 |
+| 45 path, header and redirect checks | all PASS |
+| 20 layout runs | 0 screens with issues, 0 swipe traps |
+| Public pages | light, no overflow, 17 internal links valid |
+
+**Backup and restore on the R162 installation** (with the large companies)
+- `beta-ops-test.sh`: 22 PASS / 0 FAIL.
+- Quiet backup and restore: `RESTORE VERIFIED` (17 MB, 169 tables equal value for value).
+- The restore-test site ran the same ZIP and showed identical trial balances for all 38 companies.
+
+**Not re-run for R162:** the R161 large-company layout matrix (26 runs). R162 changes no layout outside Match and Post, the side menu and the Guided Home shortcuts, which the 20 gate layout runs and 30-guided cover.
+
+**Known limits (unchanged):** the 5,000-invoice register takes about 7–14 s to open depending on the host; the all-time Day Book over 25,000 lines asks to narrow the filters.
+
+**Not established here** (unchanged):
+- operator details on the beta host;
+- the host's HTTPS and private-file protection;
+- external email;
+- a restore on the beta host;
+- legal review;
+- an independent security review;
+- the owner's accounting walkthrough;
+- a real iPhone/Safari check.
+
+**Verdict for R162:** replaces R161 as the candidate for the invitation-only, sample-data beta once the owner's hosting checks pass. **NOT READY** for real client or employee information.
