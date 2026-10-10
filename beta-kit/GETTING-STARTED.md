@@ -44,6 +44,20 @@ Optional:
 - Budgets and the GL Account Report also work across both companies.
 - Payroll Support: add a **fictional** employee (no SIN is asked for), run a pay calculation, and read the review step. Payroll Support covers Canada outside Quebec only. Do not use it for real pay.
 
+### Guided mode (R163, about 15 minutes)
+Use a **new** sample company for this, so the sample statement is not already imported.
+1. Open the profile menu and choose **Guided**. Guided Home starts with **Start here · Bank statements**.
+2. Press **Upload a bank statement**. Keep the fiscal year and account. On **October 2026** (the month the statement was issued), choose **Upload statement** and select `sample-statement.csv`.
+   - Try **May 2026** first if you like: Tegh refuses it and offers October instead.
+3. Approve the preview. The review page groups the three lines by keyword.
+   - The café deposit asks whether it includes GST/HST: choose the tax.
+   - Choose an account for any group without one.
+   - Then **Select all groups with an account** and **Post**.
+4. Tegh then compares its bank balance with the statement's closing balance (282.50, read from the file) and reconciles the month. You should see **Reconciled**.
+5. Choose **No, show my financial statements** to see the Trial Balance, Profit and Loss and Balance Sheet.
+6. Switch to **Full Accounting** (profile menu), then back to **Guided**: Tegh says where to continue.
+7. Press the **Connect with an accountant** icon (beside Tegh Assist in the top bar). You see what Tegh found and an estimate. Do **not** send a request unless we ask you to; it emails the Tegh accountants.
+
 ## 4. When something looks wrong
 Fill in the feedback form ([link]) with:
 1. the screen (the title at the top of the page);

@@ -1745,3 +1745,91 @@ The review also said a void does not check for a closed period. That is not so: 
 - a real iPhone/Safari check.
 
 **Verdict for R162:** replaces R161 as the candidate for the invitation-only, sample-data beta once the owner's hosting checks pass. **NOT READY** for real client or employee information.
+
+## Addendum: R163 (Guided bank statements, reconciliation against the statement balance, continuing from Full Accounting, Connect with an accountant)
+
+| | R163 |
+|---|---|
+| Package | `Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R163-PRIVATE-BETA.zip` |
+| SHA-256 | `7d07b2a7ff543457509ab80c247d9dfa7d3e97ddd8c7d537d7b4e2b518ae0d79` |
+| FILE-MANIFEST.sha256 | 376 entries, all OK |
+| Cache token | `5990-r163-tegh` |
+| Migration | Additive on first use: tables `guided_statement_months`, `guided_statement_batches`, `accountant_requests` |
+| productionReady / acceptanceComplete | false / false (not changed) |
+| Evidence bundle | `Tegh-R163-Gate-Evidence.zip` (`f37fec5d…`); `scripts/verify-evidence.py` prints VERIFIED |
+
+**What was built.** These are the owner's R163 requests and the follow-up "continue in Guided after Full Accounting"; details are in `tegh-app/R163-CHANGES.md`.
+- **Guided starts with bank statements by month:**
+  - one statement per month of the chosen fiscal year (the issue month);
+  - a statement for the wrong month is refused, with the right month offered;
+  - lines outside the fiscal year are noted with count and amount;
+  - the PDF converter sits beside the month list.
+- **Posting:** lines are grouped by keyword with the suggested account and tax, then posted per group after review and changes, 100 lines per request.
+- **Reconciliation:** a month is reconciled only when the statement's closing balance (from the file, or typed once) equals Tegh's bank balance.
+- **Continuing after Full Accounting:**
+  - Banking imports join the month list;
+  - posted and matched lines count as done;
+  - Bank Reconciliation results are recognised;
+  - a Continue button and a welcome-back notice give the next step.
+- **Next step:** invoices and expenses (switches to Full Accounting) or the trial balance, profit and loss and balance sheet.
+- **Connect with an accountant:**
+  - findings and a CAD estimate (the hours and the $30/h rate stay on the server);
+  - the request is emailed to enquiry@sraccountax.ca with the breakdown;
+  - an Outlook web draft opens without the rate.
+
+**Independent accounting review.** A senior-accountant review (read-only) of the first R163 build raised these points; each was fixed or recorded as a limit:
+
+| # | Finding | Action | Check |
+|---|---|---|---|
+| 1 | The automatic reconciliation compared imported lines with postings made from them, so it always agreed. A missing, excluded or mis-read line, or a wrong opening balance, went unnoticed | Reconciled only when the statement's closing balance agrees. A difference shows both balances, the excluded lines and the opening-balance hint | R-11, R-25, R-36, R-37, R-44 |
+| 2 | Deposits defaulted to *No tax* for HST registrants | No default: the tax must be chosen, and the server refuses it otherwise | R-25, R-35 |
+| 3 | Groups with mixed suggestions were posted on the majority | Not bulk-selected; the note asks for a check | Screen review |
+| 4 | Rules: "BELL" matched "CAMPBELL"; LCBO was suggested as meals; travel had no HST; customer payments were suggested as revenue (double count) | Fixed | 31-r163 groups |
+| 5 | February year ends gave 13 months | Fixed | R-42 |
+| 6 | Tax suggested for companies not registered | Fixed | R-43 |
+| 7 | Quote wording | Now an estimate that excludes tax returns and payroll; scope confirmed before work; findings added for excluded lines and unchecked balances | R-18 |
+
+- **Confirmed correct by the review:** the faster cleared-lines query is equivalent to the old one; the statement-month rule and the fiscal-year cut-off.
+- **Left as limits:** meals carry no tax suggestion (the 50% ITC and the deduction limit are left to the accountant); an empty statement cannot be uploaded; the estimate covers bookkeeping clean-up only.
+
+**Defects found and fixed in R163**
+
+| # | Defect | Found by | Fix | Check |
+|---|---|---|---|---|
+| 1 | Completing a reconciliation took about 57 s on a 5,000-line period (Full Accounting too) | 5,000-line Guided test | The cleared-lines query checks each bank line directly. Its result was identical on every account of the test host, including 5,000 lines cleared through match groups | R-17 |
+| 2 | A bank line matched to a book entry without being posted (an invoice payment, for example) left an unexplained difference, so no reconciliation covering it could be completed (Full Accounting too) | The new Full Accounting → Guided test | The line is in the books through its matched entry and is cleared | R-37, R-39, R-40 |
+| 3 | The grouping table kept the shell's 720 px minimum width at phone size (rows clipped) | 31-r163 screenshots | Phone rule for the table | R-30 (now also checks inside tables and cards) |
+| 4 | The reconciliation position took 63 s, twice, right after thousands of postings (first full gate run, R-17 at 124 s) | First full gate run | The book-side query totals journals before looking up voucher numbers. Results identical on 112 accounts (28,719 rows) | R-17 (1.4 s in the final run) |
+| 5 | Built-in income rules applied to money out | Code review | Income rules apply to money in only, others to money out only | R-07, R-15 |
+
+**Gate runs on R163**
+- **First package (`5b6b02ce…`):** run stopped. The owner's continuity request and the accounting review changed the build.
+- **Second package (`e980455b…`):** 720 PASS / 1 FAIL / 7 INFO. The failure was R-17 (defect 4 above).
+
+**Final gate on the exact ZIP** (`7d07b2a7…`; host clock pinned to 2026-10-01 12:00 Toronto)
+
+| Result | |
+|---|---|
+| **721 PASS / 0 FAIL / 7 INFO**, 0 BLOCKED | R163 46/46, GUIDED 23/23, R161 20/20, R160 9/9, R159 18/18, R158 5/5, R157 21/21, BETA 18/18, E2E 53/53, upgrade R118 → R163 13/13 |
+| 45 path, header and redirect checks | all PASS |
+| 20 layout runs | 0 screens with issues, 0 swipe traps |
+| Public pages | light, no overflow, 17 internal links valid |
+| 5,000-line statement | import 58 s; grouping 2.6 s; posting 177 s in 50 requests (slowest under 4 s); reconciliation 1.4 s |
+
+**Backup and restore on the R163 installation**
+- `beta-ops-test.sh`: 22 PASS / 0 FAIL.
+- Quiet backup and restore: `RESTORE VERIFIED` (21 MB, 172 tables with content fingerprints, 30 companies with postings).
+- The restore-test site ran the same ZIP and showed identical trial balances for all 48 companies (220 account rows) and 8 identical uploaded files.
+
+**Not established here** (unchanged from R162, plus two items):
+- operator details on the beta host;
+- the host's HTTPS and private-file protection;
+- external email, including delivery to the real enquiry@sraccountax.ca mailbox (the gate's sandbox SMTP received the request);
+- Outlook on the web with a signed-in mailbox (the gate stubs outlook.office.com and checks the draft address);
+- a restore on the beta host;
+- legal review;
+- an independent security review;
+- the owner's accounting walkthrough;
+- a real iPhone/Safari check.
+
+**Verdict for R163:** replaces R162 as the candidate for the invitation-only, sample-data beta once the owner's hosting checks pass. **NOT READY** for real client or employee information.
