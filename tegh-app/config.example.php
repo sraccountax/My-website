@@ -42,6 +42,12 @@ return [
         'backup_retention_days' => 14,
         'deletion_response_days' => 30,
     ],
+    // R163: Connect with an accountant. Requests are emailed to request_email with the time per finding and the rate;
+    // the person asking sees only the findings and the total. The rate is in cents per hour, before GST/HST.
+    'accountant' => [
+        'request_email' => 'enquiry@sraccountax.ca',
+        'hourly_rate_cents' => 3000,
+    ],
     'db' => [
         'dsn' => 'mysql:host=localhost;dbname=YOUR_DATABASE;charset=utf8mb4',
         'user' => 'YOUR_DATABASE_USER',

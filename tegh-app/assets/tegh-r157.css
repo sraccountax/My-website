@@ -300,7 +300,7 @@ html[data-tegh-shell] .r28-post-panel footer .srp-btn{white-space:nowrap;flex:no
 .r163-sent{display:grid;gap:8px;text-align:left}.r163-sent>span{font-size:1.6rem;color:var(--r157-brand)}
 .r163-sent .srp-actions{display:flex;gap:8px;flex-wrap:wrap}
 @media (max-width:1100px){.r163-statements{grid-template-columns:minmax(0,1fr)}.r163-side{position:static}}
-@media (max-width:600px){.r163-map-head{grid-template-columns:minmax(0,1fr)}.r163-map-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.r163-filters label{min-width:100%}.r163-home-statements .srp-btn{width:100%}}
+@media (max-width:600px){html[data-tegh-shell] .srp-table-wrap>table.srp-table.r163-map-table.r163-map-table.r163-map-table,.r163-map-table tbody,.r163-map-table tr{min-width:0!important;width:100%!important;max-width:100%!important}.r163-map-table td{min-width:0;max-width:100%;overflow-wrap:anywhere}.r163-map-table select{max-width:100%}.r163-map-head{grid-template-columns:minmax(0,1fr)}.r163-map-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.r163-filters label{min-width:100%}.r163-home-statements .srp-btn{width:100%}}
 /* R163: the layout layer gives page sections a multi-column grid; the statement list is one column. */
 .r163-months,.r163-month{width:100%;min-width:0}
 /* The top bar orders its items with CSS order; the accountant sits right after Tegh Assist. */

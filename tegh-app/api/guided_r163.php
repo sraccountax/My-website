@@ -457,8 +457,8 @@ function guided_post_lines(array $user, array $company, array $lines, callable $
 /* ---------------------------------------------------------------- reconciliation */
 
 /**
- * Match up to 300 posted lines of the statement to their own journals, then (when nothing is left to match and no line
- * is pending) complete the bank reconciliation for the statement period. The reconciliation service completes it only
+ * When no line of the statement is pending, complete the bank reconciliation for the statement period. Each posted line
+ * carries its own journal, so the reconciliation includes it without a separate match. The reconciliation service completes it only
  * when the bank side (opening balance and imported lines) and the books agree to the cent.
  */
 function guided_reconcile_month(array $user, array $company, string $monthId): array
