@@ -1,0 +1,86 @@
+[
+ {
+  "id": "UP-01",
+  "area": "UPG",
+  "title": "After uploading the new release over R118: startup status not degraded, schema 46",
+  "status": "PASS",
+  "evidence": "schema 46 degraded false warning null"
+ },
+ {
+  "id": "UP-02",
+  "area": "UPG",
+  "title": "Existing company opens (dashboard summary)",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "UP-03",
+  "area": "UPG",
+  "title": "R137 tables/columns created automatically on the first ordinary API request (no manual migration)",
+  "status": "PASS",
+  "evidence": "\"tax_codes,tax_code_components,document_tax_lines\""
+ },
+ {
+  "id": "UP-04",
+  "area": "UPG",
+  "title": "Ledger balances unchanged by the upgrade",
+  "status": "PASS",
+  "evidence": "\"1000\\t50000\\n1200\\t55000\\n2100\\t-5000\\n4000\\t-100000\""
+ },
+ {
+  "id": "UP-05",
+  "area": "UPG",
+  "title": "Existing company stays on its previous tax rules (legacy mode) until it adds tax codes",
+  "status": "PASS",
+  "evidence": "\"legacy\""
+ },
+ {
+  "id": "UP-06",
+  "area": "UPG",
+  "title": "Post-upgrade invoice ($200, BC customer, legacy rules) posts GST $10 to 2100",
+  "status": "PASS",
+  "evidence": "1200\t21000 | 2100\t-1000 | 4000\t-20000"
+ },
+ {
+  "id": "UP-07",
+  "area": "UPG",
+  "title": "Pre-upgrade invoice can be settled after upgrade",
+  "status": "PASS",
+  "evidence": "201 balance 0"
+ },
+ {
+  "id": "UP-08",
+  "area": "UPG",
+  "title": "Existing company: Add Canadian tax codes creates 14 codes, QST accounts 2115/1115, and switches to tax codes",
+  "status": "PASS",
+  "evidence": "201 codes=14"
+ },
+ {
+  "id": "UP-09",
+  "area": "UPG",
+  "title": "All journals balance after upgrade",
+  "status": "PASS",
+  "evidence": "\"0\""
+ },
+ {
+  "id": "UP-10",
+  "area": "UPG",
+  "title": "R141 migration: existing company country is Canada; province widened to VARCHAR(10) on companies, customers, vendors",
+  "status": "PASS",
+  "evidence": "Canada / widened=3"
+ },
+ {
+  "id": "UP-11",
+  "area": "UPG",
+  "title": "DEF-08 on an upgraded BC company: Manitoba starter code is GST only",
+  "status": "PASS",
+  "evidence": "GST"
+ },
+ {
+  "id": "UP-12",
+  "area": "UPG",
+  "title": "Dashboard Figures available on the upgraded company (table created on first use)",
+  "status": "PASS",
+  "evidence": "200"
+ }
+]

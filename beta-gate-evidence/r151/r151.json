@@ -1,0 +1,282 @@
+[
+ {
+  "id": "DOC-01",
+  "area": "R151",
+  "title": "Itemized vendor invoice saves and posts (status open)",
+  "status": "PASS",
+  "evidence": "[201,\"open\"]"
+ },
+ {
+  "id": "DOC-02",
+  "area": "R151",
+  "title": "Header totals are the sum of the lines: net $927.75, tax $16.24, total $943.99",
+  "status": "PASS",
+  "evidence": "\"92775/1624/94399/94399\""
+ },
+ {
+  "id": "DOC-03",
+  "area": "R151",
+  "title": "Each line posts to its own GL account; recoverable tax to 1100; non-recoverable PST added to the paper line (6400)",
+  "status": "PASS",
+  "evidence": "[\"1100:1367/0\",\"1500:80000/0\",\"2050:0/94399\",\"6300:9100/0\",\"6400:3932/0\"]"
+ },
+ {
+  "id": "DOC-04",
+  "area": "R151",
+  "title": "Three lines stored with their accounts, tax and cost-tax",
+  "status": "PASS",
+  "evidence": "\"6300:9100:1183:0,6400:3675:441:257,1500:80000:0:0\""
+ },
+ {
+  "id": "DOC-05",
+  "area": "R151",
+  "title": "Header keeps the largest line’s account (1500) for registers",
+  "status": "PASS",
+  "evidence": "\"1500\""
+ },
+ {
+  "id": "DOC-06",
+  "area": "R151",
+  "title": "Workspace returns the lines for editing",
+  "status": "PASS",
+  "evidence": "[true,3,\"Printer paper\"]"
+ },
+ {
+  "id": "DOC-07",
+  "area": "R151",
+  "title": "Draft vendor invoice edited in full (lines replaced): total $276.00",
+  "status": "PASS",
+  "evidence": "[200,\"27600/2\"]"
+ },
+ {
+  "id": "DOC-08",
+  "area": "R151",
+  "title": "Issued edited draft posts the edited lines",
+  "status": "PASS",
+  "evidence": "[200,[\"1100:2600/0\",\"2050:0/27600\",\"6400:5000/0\",\"6700:20000/0\"]]"
+ },
+ {
+  "id": "DOC-09",
+  "area": "R151",
+  "title": "Tax-inclusive line: $113.00 → net $100.00 + HST $13.00",
+  "status": "PASS",
+  "evidence": "[\"1100:1300/0\",\"2050:0/11300\",\"6300:10000/0\"]"
+ },
+ {
+  "id": "DOC-10",
+  "area": "R151",
+  "title": "Issued vendor invoice: due date and memo change; amounts untouched",
+  "status": "PASS",
+  "evidence": "[200,\"2026-11-30|Pay by cheque|94399\"]"
+ },
+ {
+  "id": "DOC-11",
+  "area": "R151",
+  "title": "Issued vendor invoice: changing the number is refused",
+  "status": "PASS",
+  "evidence": "[422,\"bill_edit_fields_forbidden\"]"
+ },
+ {
+  "id": "DOC-12",
+  "area": "R151",
+  "title": "Issued vendor invoice cannot be rewritten in full",
+  "status": "PASS",
+  "evidence": "[409,\"posted_bill_edit_blocked\"]"
+ },
+ {
+  "id": "DOC-13",
+  "area": "R151",
+  "title": "A line on a control account is refused",
+  "status": "PASS",
+  "evidence": "[422,\"document_line_account\"]"
+ },
+ {
+  "id": "DOC-14",
+  "area": "R151",
+  "title": "Another company’s GL account is refused",
+  "status": "PASS",
+  "evidence": "[422,\"document_line_account\"]"
+ },
+ {
+  "id": "DOC-15",
+  "area": "R151",
+  "title": "Lines adding to zero are refused",
+  "status": "PASS",
+  "evidence": "[422,\"bill_amount_invalid\"]"
+ },
+ {
+  "id": "DOC-16",
+  "area": "R151",
+  "title": "Single-amount vendor invoices (imports, recurring) still work unchanged: $100 + $13",
+  "status": "PASS",
+  "evidence": "[201,[\"1100:1300/0\",\"2050:0/11300\",\"6400:10000/0\"]]"
+ },
+ {
+  "id": "DOC-17",
+  "area": "R151",
+  "title": "Customer invoice with two income accounts: total $1,695.00",
+  "status": "PASS",
+  "evidence": "\"169500\""
+ },
+ {
+  "id": "NOTE-01",
+  "area": "R151",
+  "title": "Linked credit note posts to the GL account chosen on its line",
+  "status": "PASS",
+  "evidence": "[200,[\"1200:0/22600\",\"2100:2600/0\",\"4100:20000/0\"]]"
+ },
+ {
+  "id": "NOTE-02",
+  "area": "R151",
+  "title": "Linked credit note reduces the original invoice to $1,469.00",
+  "status": "PASS",
+  "evidence": "\"146900\""
+ },
+ {
+  "id": "NOTE-03",
+  "area": "R151",
+  "title": "Credit note with a typed invoice number (not in Tegh) is saved as a draft with its own totals",
+  "status": "PASS",
+  "evidence": "[201,\"none|OLD-778|35000/3900/38900\"]"
+ },
+ {
+  "id": "NOTE-04",
+  "area": "R151",
+  "title": "It posts as an open credit: each line to its GL account, HST reversed",
+  "status": "PASS",
+  "evidence": "[200,[\"1200:0/38900\",\"2100:3900/0\",\"4000:30000/0\",\"4100:5000/0\"]]"
+ },
+ {
+  "id": "NOTE-05",
+  "area": "R151",
+  "title": "Register shows the reference, open credit $389.00 and both lines with accounts",
+  "status": "PASS",
+  "evidence": "[\"OLD-778\",38900,2,true]"
+ },
+ {
+  "id": "NOTE-06",
+  "area": "R151",
+  "title": "The open credit can be applied to an invoice: $100 off → balance $1,369.00",
+  "status": "PASS",
+  "evidence": "[200,\"136900\"]"
+ },
+ {
+  "id": "NOTE-07",
+  "area": "R151",
+  "title": "Unlinked debit note posts Dr AR / Cr revenue / Cr HST and creates a $90.40 receivable",
+  "status": "PASS",
+  "evidence": "[200,[\"1200:9040/0\",\"2100:0/1040\",\"4000:0/8000\"],\"sent/9040/1\"]"
+ },
+ {
+  "id": "NOTE-08",
+  "area": "R151",
+  "title": "Unlinked supplier credit: cost and non-recoverable PST back out of 6400, GST out of 1100",
+  "status": "PASS",
+  "evidence": "[200,[\"1100:0/500\",\"2050:11200/0\",\"6400:0/10700\"]]"
+ },
+ {
+  "id": "NOTE-09",
+  "area": "R151",
+  "title": "Linked supplier note credits the line’s GL account (6400), not the header account (1500)",
+  "status": "PASS",
+  "evidence": "[200,true,false,\"2050:1246/0\"]"
+ },
+ {
+  "id": "NOTE-10",
+  "area": "R151",
+  "title": "Draft note edited on the main screen: same number, new totals and reference",
+  "status": "PASS",
+  "evidence": "[200,true,\"X-1B|2260|1\"]"
+ },
+ {
+  "id": "NOTE-11",
+  "area": "R151",
+  "title": "A posted note cannot be edited",
+  "status": "PASS",
+  "evidence": "[409,\"note_edit_unavailable\"]"
+ },
+ {
+  "id": "NOTE-12",
+  "area": "R151",
+  "title": "Without an original, the invoice number is required",
+  "status": "PASS",
+  "evidence": "[422,\"note_reference_required\"]"
+ },
+ {
+  "id": "NOTE-13",
+  "area": "R151",
+  "title": "A note line on AR control is refused",
+  "status": "PASS",
+  "evidence": "[422,\"document_line_account\"]"
+ },
+ {
+  "id": "NOTE-14",
+  "area": "R151",
+  "title": "Without an original, each line needs a GL account",
+  "status": "PASS",
+  "evidence": "[422,\"document_line_account\"]"
+ },
+ {
+  "id": "NOTE-15",
+  "area": "R151",
+  "title": "A note with an application must have it reversed before voiding",
+  "status": "PASS",
+  "evidence": "[409,\"note_has_settlements\"]"
+ },
+ {
+  "id": "NOTE-16",
+  "area": "R151",
+  "title": "Unlinked supplier credit voids with a reversing entry",
+  "status": "PASS",
+  "evidence": "[200,\"void\",[\"1100:500/0\",\"2050:0/11200\",\"6400:10700/0\"]]"
+ },
+ {
+  "id": "DOC-18",
+  "area": "R151",
+  "title": "GL 1200 = $1,170.40 (136,900 + 9,040 − 28,900) and the receivable trial balance builds without error",
+  "status": "PASS",
+  "evidence": "[117040,200]"
+ },
+ {
+  "id": "DOC-19",
+  "area": "R151",
+  "title": "Customer ledger lists the typed-reference note",
+  "status": "PASS",
+  "evidence": "[200,true]"
+ },
+ {
+  "id": "DOC-20",
+  "area": "R151",
+  "title": "Invoice & note register shows the reference as the original number",
+  "status": "PASS",
+  "evidence": "[200,true]"
+ },
+ {
+  "id": "DOC-21",
+  "area": "R151",
+  "title": "Payable trial balance builds with itemized invoices and notes",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "DOC-22",
+  "area": "R151",
+  "title": "Cash basis: the itemized vendor invoice posts nothing until paid",
+  "status": "PASS",
+  "evidence": "[201,0]"
+ },
+ {
+  "id": "DOC-23",
+  "area": "R151",
+  "title": "Cash basis: a $500 payment is spread over the lines’ accounts and recoverable tax to the cent",
+  "status": "PASS",
+  "evidence": "[201,[\"1100:724/0\",\"1500:42373/0\",\"6300:4820/0\",\"6400:2083/0\"]]"
+ },
+ {
+  "id": "DOC-24",
+  "area": "R151",
+  "title": "Backup export succeeds with the new line tables present",
+  "status": "PASS",
+  "evidence": "200"
+ }
+]

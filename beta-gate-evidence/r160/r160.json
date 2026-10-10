@@ -1,0 +1,65 @@
+[
+ {
+  "id": "IN-01",
+  "area": "R160",
+  "title": "A new email: the check says “new”; one invitation gives both their own workspace and access to a company; after accepting they have that access and can create their own company",
+  "status": "PASS",
+  "evidence": "check new; invitation 200; accepted 200; access viewer/active; own company 201"
+ },
+ {
+  "id": "IN-02",
+  "area": "R160",
+  "title": "A registered email: the check says “registered” with the companies they already have; an own-workspace invitation is refused; access to more companies works and is accepted with the current password",
+  "status": "PASS",
+  "evidence": "check registered, has company true; own workspace 409 invitation_user_exists; company they already have 409; new company 200, accepted with current password 200, access editor/active"
+ },
+ {
+  "id": "IN-03",
+  "area": "R160",
+  "title": "A deactivated login: the check says “deactivated” with the date; inviting is refused; Restore reactivates it with its company access and emails that it was previously deactivated, with a link that sets a new password",
+  "status": "PASS",
+  "evidence": "check deactivated (2026-10-01 16:18:56); invite 409 invitation_user_deactivated; restore 200; email \"previously deactivated\" true; new password 200; sign-in ok; access kept viewer/active"
+ },
+ {
+  "id": "IN-04",
+  "area": "R160",
+  "title": "A deleted login: the check recognises the address from its fingerprint (“deleted”, with the date); inviting is refused; Restore puts the same login back (same id), emails that it was previously deleted, and the link sets a new password",
+  "status": "PASS",
+  "evidence": "address kept after deletion 0; check deleted (2026-10-01 16:18:58); invite 409 invitation_user_deleted; restore 200; same login true; email \"previously deleted\" true; new password 200; sign-in ok"
+ },
+ {
+  "id": "IN-05",
+  "area": "R160",
+  "title": "Only the platform owner can check an email or restore a login; a company admin inviting a deleted address is told to ask Tegh support",
+  "status": "PASS",
+  "evidence": "admin check 403; admin restore 403; admin invites a deleted address 409 \"This email had a Tegh login that was removed. Ask Tegh support to restore it, then invite it again.\""
+ },
+ {
+  "id": "UI-01",
+  "area": "R160",
+  "title": "Invitations & Access opens from Platform Owner Home with three tabs; a new email shows the two choices, and the company list opens only for “Work in my companies”; sending shows the result",
+  "status": "PASS",
+  "evidence": "tabs Invite Someone | Sent Invitations | Sign-up & Email; \"New to Tegh What should r160-ui-mv07im2r@gate.test be able t\"; list hidden until chosen true, send off until a choice true; after sending \"Invitation sent to r160-ui-mv07im2r@gate.test Sent\"; stored workspace/viewer"
+ },
+ {
+  "id": "UI-02",
+  "area": "R160",
+  "title": "A registered email shows “Already on Tegh”, no own-workspace choice, and marks the companies they already have",
+  "status": "PASS",
+  "evidence": "\"Already on Tegh R160 New Mv07im2r r160-new-mv07im2r@gate.test has a Tegh login since Oct 1\"; own-workspace choice shown 0; company they have disabled true"
+ },
+ {
+  "id": "UI-03",
+  "area": "R160",
+  "title": "A deleted email shows “Registered before · login deleted” and only Restore; Restore works from the page and offers to give access next",
+  "status": "PASS",
+  "evidence": "\"Registered before · login deleted r160-uidel-mv07im2r@gate.test was re\"; invitation button 0; \"Login restored for r160-uidel-mv07im2r@gate.test The email was sent: it explains the login\"; then \"Already on Tegh R160 Uidel Mv07im2r r160\""
+ },
+ {
+  "id": "UI-04",
+  "area": "R160",
+  "title": "Sent invitations and Sign-up & email tabs show the list and the settings; no page errors on a phone width",
+  "status": "PASS",
+  "evidence": "sent rows 35; settings visible true; phone overflow 0px; page errors none"
+ }
+]

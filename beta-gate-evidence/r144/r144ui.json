@@ -1,0 +1,156 @@
+[
+ {
+  "id": "UI-01-desk",
+  "area": "R144UI",
+  "title": "Dashboard shows the Tegh brief with the cash line ($4,887.00) and a link to all insights",
+  "status": "PASS",
+  "evidence": "Tegh briefWorked out from your books just nowSee All InsightsCash in the bank is $4,887.00, up $4,943.50 from 30 days ago.2 customer invoices are overdue ($2,59"
+ },
+ {
+  "id": "UI-02-desk",
+  "area": "R144UI",
+  "title": "\"See all insights\" opens Tegh Intelligence with findings, the chase list (Lakeview Dental first) and the cash chart",
+  "status": "PASS",
+  "evidence": "Tegh Intelligence | Lakeview Dental$2,260.00 overdue across 1 invoice; the oldes"
+ },
+ {
+  "id": "UI-03-desk",
+  "area": "R144UI",
+  "title": "\"Not a problem\" marks a finding, and Undo restores it",
+  "status": "PASS",
+  "evidence": "6→5→6"
+ },
+ {
+  "id": "UI-04-desk",
+  "area": "R144UI",
+  "title": "What-if: adding $1,000 a month shows a runway sentence",
+  "status": "PASS",
+  "evidence": "Even with $1,000.00 more a month, cash would still grow by about $1,443.50 a month."
+ },
+ {
+  "id": "UI-05-desk",
+  "area": "R144UI",
+  "title": "A finding's Open button goes to its screen (duplicate vendor invoice → Vendor Invoice Register)",
+  "status": "PASS",
+  "evidence": "Vendor Invoice & Note Register"
+ },
+ {
+  "id": "UI-06-desk",
+  "area": "R144UI",
+  "title": "Match and Post: the pending Rogers line shows \"Suggested: 6300 · Telephone and Internet · 67% sure\"; Use suggestion fills the account and tax code",
+  "status": "PASS",
+  "evidence": "Suggested: 6300 · Telephone and Internet · ON67% sureYou posted “Rogers Wireless Pad” to 6300 Telephone and Internet wit | 6300 · Telephone and Internet | ON · Ontario — HST 13% · tax included | still pending"
+ },
+ {
+  "id": "UI-07-desk",
+  "area": "R144UI",
+  "title": "Tegh Assist answers \"how much did I spend on telephone this year\" from the books: $1,000.00",
+  "status": "PASS",
+  "evidence": "You spent $1,000.00 on 6300 Telephone and Internet in this year.Worked out by Tegh from your posted books · this year (2026-01-01 to 2026-10"
+ },
+ {
+  "id": "UI-08-desk",
+  "area": "R144UI",
+  "title": "Tegh Assist \"top customers this year\" lists Lakeview Dental first",
+  "status": "PASS",
+  "evidence": "Your biggest customer in this year was Lakeview Dental ($2,000.00 before tax, 1 invoice).Lakeview Dental$2,000.00Coastal Rentals$1,300.00Wor"
+ },
+ {
+  "id": "UI-09-desk",
+  "area": "R144UI",
+  "title": "Tegh Assist \"anything unusual?\" opens Tegh Intelligence",
+  "status": "PASS",
+  "evidence": "Tegh Intelligence"
+ },
+ {
+  "id": "UI-10-desk",
+  "area": "R144UI",
+  "title": "Ordinary Assist requests still route as before (\"who owes me money\" → receivables answer)",
+  "status": "PASS",
+  "evidence": "Receivable AgeingAs of Oct 1, 2026Customers owe you $3,649.00 in total.$2,599.00 of that is overdue · 4 open invoicesSee the detailsCurrent outstanding balances"
+ },
+ {
+  "id": "UI-JS-desk",
+  "area": "R144UI",
+  "title": "No JavaScript errors",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "UI-01-phone",
+  "area": "R144UI",
+  "title": "Dashboard shows the Tegh brief with the cash line ($4,887.00) and a link to all insights",
+  "status": "PASS",
+  "evidence": "Tegh briefWorked out from your books just nowSee All InsightsCash in the bank is $4,887.00, up $4,943.50 from 30 days ago.2 customer invoices are overdue ($2,59"
+ },
+ {
+  "id": "UI-02-phone",
+  "area": "R144UI",
+  "title": "\"See all insights\" opens Tegh Intelligence with findings, the chase list (Lakeview Dental first) and the cash chart",
+  "status": "PASS",
+  "evidence": "Tegh Intelligence | Lakeview Dental$2,260.00 overdue across 1 invoice; the oldes"
+ },
+ {
+  "id": "UI-03-phone",
+  "area": "R144UI",
+  "title": "\"Not a problem\" marks a finding, and Undo restores it",
+  "status": "PASS",
+  "evidence": "6→5→6"
+ },
+ {
+  "id": "UI-04-phone",
+  "area": "R144UI",
+  "title": "What-if: adding $1,000 a month shows a runway sentence",
+  "status": "PASS",
+  "evidence": "Even with $1,000.00 more a month, cash would still grow by about $1,443.50 a month."
+ },
+ {
+  "id": "UI-05-phone",
+  "area": "R144UI",
+  "title": "A finding's Open button goes to its screen (duplicate vendor invoice → Vendor Invoice Register)",
+  "status": "PASS",
+  "evidence": "Vendor Invoice & Note Register"
+ },
+ {
+  "id": "UI-06-phone",
+  "area": "R144UI",
+  "title": "Match and Post: the pending Rogers line shows \"Suggested: 6300 · Telephone and Internet · 67% sure\"; Use suggestion fills the account and tax code",
+  "status": "PASS",
+  "evidence": "Suggested: 6300 · Telephone and Internet · ON67% sureYou posted “Rogers Wireless Pad” to 6300 Telephone and Internet wit | 6300 · Telephone and Internet | ON · Ontario — HST 13% · tax included | still pending"
+ },
+ {
+  "id": "UI-07-phone",
+  "area": "R144UI",
+  "title": "Tegh Assist answers \"how much did I spend on telephone this year\" from the books: $1,000.00",
+  "status": "PASS",
+  "evidence": "You spent $1,000.00 on 6300 Telephone and Internet in this year.Worked out by Tegh from your posted books · this year (2026-01-01 to 2026-10"
+ },
+ {
+  "id": "UI-08-phone",
+  "area": "R144UI",
+  "title": "Tegh Assist \"top customers this year\" lists Lakeview Dental first",
+  "status": "PASS",
+  "evidence": "Your biggest customer in this year was Lakeview Dental ($2,000.00 before tax, 1 invoice).Lakeview Dental$2,000.00Coastal Rentals$1,300.00Wor"
+ },
+ {
+  "id": "UI-09-phone",
+  "area": "R144UI",
+  "title": "Tegh Assist \"anything unusual?\" opens Tegh Intelligence",
+  "status": "PASS",
+  "evidence": "Tegh Intelligence"
+ },
+ {
+  "id": "UI-10-phone",
+  "area": "R144UI",
+  "title": "Ordinary Assist requests still route as before (\"who owes me money\" → receivables answer)",
+  "status": "PASS",
+  "evidence": "Receivable AgeingAs of Oct 1, 2026Customers owe you $3,649.00 in total.$2,599.00 of that is overdue · 4 open invoicesSee the detailsCurrent outstanding balances"
+ },
+ {
+  "id": "UI-JS-phone",
+  "area": "R144UI",
+  "title": "No JavaScript errors",
+  "status": "PASS",
+  "evidence": ""
+ }
+]

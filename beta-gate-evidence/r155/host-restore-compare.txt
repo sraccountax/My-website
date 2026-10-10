@@ -1,0 +1,1 @@
+companies 25: trial balance loaded and identical 25 (120 account rows), different or not loaded 0; uploaded files compared 7, different 0
