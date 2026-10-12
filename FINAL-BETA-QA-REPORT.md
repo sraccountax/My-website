@@ -1865,3 +1865,20 @@ not a correctness or security failure and not caused by R163:
 - It is a host-CPU-contention threshold on an extreme printable export. A follow-up could
   window/virtualize the printable render if a sub-15 s guarantee under load is wanted; the
   threshold was **not** moved to force a pass.
+
+### Re-gate after the pen-test auth fix
+
+Active black-box pen-test of the running app found one real application finding — a login
+user-enumeration timing oracle — now fixed in `api/auth.php` (constant-time verify with a
+decoy hash; verified real ~1.03s vs fake ~1.00s, ratio 1.04). See `SECURITY-REVIEW-R163.md`.
+
+Package rebuilt with the fix: **SHA-256 `2b52aebecda37dcc0c92449aaa06ac4302d54684f5c7dd560281ec60c86bf7f5`** (377 files).
+Full gate on this hash: **742 PASS / 7 INFO / 2 FAIL**, security suites 23/23 (32-r163-sec
+10, 33-sec 13). The two FAILs are both non-defects:
+- **R161 B-03** — the printable 5,000-row render-under-load threshold (unchanged; see the
+  prior addendum: API sub-second, idle render 10–14s, documented limitation).
+- **R159 DR-07** — a transient `fetch failed` (network blip during the run); **passes clean
+  on an isolated re-run (R159 18/18)**, so not a regression.
+
+No auth/login/session/CSRF/injection/access-control regression: all those suites passed on
+this hash, including the new `33-sec` AS-06 regression guard for the timing fix.
