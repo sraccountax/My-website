@@ -35,6 +35,14 @@ await t('AS-05','Session and CSRF tokens are stored hashed at rest: the raw cook
   const hit=sql(`SELECT COUNT(*) FROM sessions WHERE token_hash='${raw.replace(/'/g,"")}' OR csrf_hash='${raw.replace(/'/g,"")}'`);
   return {ok:hit==='0'&&!!raw,info:`raw cookie present ${!!raw}; rows matching raw value in sessions ${hit} (0 = stored hashed)`}});
 
+await t('AS-06','Login reveals nothing about whether an account exists: a wrong password and a nonexistent email return identical status+code+message, and comparable timing (user-enumeration oracle closed)',async()=>{
+  const call=async email=>{const t0=Date.now();const r=await new S().call('auth/login',{method:'POST',json:{email,password:'DefinitelyWrong#1'},company:false});return {s:r.s,code:r.b?.code,msg:r.b?.error,ms:Date.now()-t0}};
+  const real=[],fake=[];for(let i=0;i<4;i++){real.push(await call('owner@gate.test'));fake.push(await call('ghost-'+Date.now()+Math.random()+'@gate.test'))}
+  const same=real.every(x=>x.s===401&&x.code==='invalid_credentials')&&fake.every(x=>x.s===401&&x.code==='invalid_credentials')&&real[0].msg===fake[0].msg;
+  const med=a=>a.map(x=>x.ms).sort((p,q)=>p-q)[Math.floor(a.length/2)];
+  const rMed=med(real),fMed=med(fake),ratio=Math.max(rMed,fMed)/Math.max(1,Math.min(rMed,fMed));
+  return {ok:same&&ratio<1.5,info:`identical response ${same}; median real ${rMed}ms vs fake ${fMed}ms (ratio ${ratio.toFixed(2)}, <1.5 = no timing oracle)`}});
+
 /* ---------------- client-viewing links ---------------- */
 const o=new S();await o.login(EMAIL,PW);
 o.cid=sql("SELECT id FROM companies WHERE name LIKE 'R163SEC Victim%' OR name LIKE '%Guided%' ORDER BY created_at DESC LIMIT 1");

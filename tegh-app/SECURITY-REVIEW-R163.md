@@ -58,6 +58,7 @@ configuration review.
    invitation emails are not spoofable and are delivered.
 8. **Backups.** The backup encrypts an off-site copy (gate F1–F3); keep the age/recipient
    key off the app host.
+9. **mod_status.** Disable Apache `mod_status`/`/server-status`, or keep `Require local` and verify it still denies external clients once a reverse proxy or load balancer is in front (so the proxy IP is not treated as local).
 9. **Monitoring.** `system-incidents.ndjson` records server errors (it already captured the
    lock-timeout during the gate run). Ship it somewhere and alert on `critical`.
 
@@ -108,3 +109,32 @@ flags as actually served. To run that safely: have the host owner put it in writ
 window, methods), run it from an environment the owner controls, and use synthetic accounts
 and data only. This review covers the application logic; the host checklist above covers the
 deployment; the live test closes the loop on the running configuration.
+
+## Active (black-box) penetration test against the running app
+
+Run against the live R163 instance on the gate host (identical code to any deployment).
+Attack traffic, not source review. Summary of what was fired and found:
+
+| Probe | Result |
+|---|---|
+| TLS / HTTP methods | HTTP→HTTPS 301; TRACE/TRACK/PUT/DELETE/PATCH all 405/501 (no XST / WebDAV) |
+| Security headers (served) | **All present and strong**: HSTS, full CSP (`frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, Referrer-Policy, Permissions-Policy |
+| Source / VCS / config exposure | `config.php`, all `/api/*.php`, `.htaccess`, `.env`, `storage/` → 403; `.git`, backups, `phpinfo` → 404; `.php` never returned as source |
+| Unauthenticated API access | Every protected endpoint → 401; no data leak |
+| SQL injection (login email) | All payloads → 400 (rejected by `safe_email`) |
+| Path traversal | `../`, encoded `%2e%2e`, mixed → 400/401/403/404; no file read |
+| CSRF | Cross-origin `Origin` on login → 403 |
+| Brute-force lockout | Confirmed: repeated failures → **429** at the configured pair threshold |
+| Error handling | Malformed JSON → clean error, no stack trace |
+
+**Findings and dispositions**
+
+| # | Severity | Finding | Status |
+|---|---|---|---|
+| F1 | Low | `/server-status` (Apache mod_status) is enabled. It is restricted by `Require local`, so an external client is denied; only localhost reaches it. | **Operator note:** disable mod_status, or confirm `Require local` still holds behind any reverse proxy/load balancer (a proxy can make all clients appear "local"). Added to the host checklist. |
+| F2 | — | (Initial reading of "missing headers" was a **false positive** taken during an Apache reload window; a settled re-fetch shows all headers present.) | Retracted. |
+| F3 | Low–Med | **Login user-enumeration via timing.** A non-existent email returned in ~0.63 s (sleep floor only) while a real email took ~1.1 s (the extra bcrypt/argon2 verify), a cleanly separable ~0.45 s oracle. | **Fixed in `api/auth.php`:** the login path now always runs exactly one `password_verify`, against a precomputed decoy hash of the current algorithm when the account does not exist, so both paths take the same time. Verified: real ~1.03 s vs fake ~1.00 s (ratio 1.04); identical 401 response. Regression guard added (`33-sec` AS-06). |
+
+The active test confirms the app-layer posture from the source review and found one real
+application-level issue (F3), now fixed, plus one operator hardening note (F1). No injection,
+access-control, CSRF, source-disclosure, or brute-force weakness was found in the running app.

@@ -24,10 +24,10 @@
   "flatRoot": true,
   "packageType": "cumulative-full-application",
   "activeEntry": "app.html",
-  "generatedAt": "2026-10-10T21:02:40Z",
+  "generatedAt": "2026-10-12T07:12:00Z",
   "sourceRepository": "sraccountax/My-website",
   "sourceBranch": "claude/invoice-credit-debit-audit-e2y8wc",
-  "sourceParentCommit": "e5ec9e125d7a17b5ada1ebb222bf50814c84715c",
+  "sourceParentCommit": "36ceda8a8b8cb786e85100c96303814319c4faed",
   "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
   "databaseMigrationRequired": false,
   "databaseMigrationNote": "No manual migration since R118. R163 adds the tables guided_statement_months, guided_statement_batches and accountant_requests on first use. R162, R161 and R160 change no tables. R159 adds the nullable columns companies.archived_at and companies.archived_by and the table company_deletion_requests on first use. R158 changes no tables. R157 adds the company_onboarding table and the nullable companies.timezone column on first use. R153 adds nullable company profile columns (short_name, address_line1, address_line2, city, postal_code, phone, contact_email) on first use. R144 creates company_insight_dismissals on the first dismissal. R141 adds companies.country, widens province to VARCHAR(10) on companies/customers/vendors and creates company_dashboard_mappings on the first request. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
@@ -39,7 +39,7 @@
   "fileManifest": {
     "path": "FILE-MANIFEST.sha256",
     "algorithm": "SHA-256",
-    "entries": 376,
+    "entries": 377,
     "authoritative": true,
     "note": "The only authoritative per-file hash list for this package. Per-file hashes under history record earlier releases and are not expected to match current files."
   },

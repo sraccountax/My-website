@@ -183,6 +183,25 @@ function handle_setup(): never
     json_response(auth_payload($user, $session), 201);
 }
 
+/**
+ * A valid password hash of the current algorithm/cost that never matches any real password. Used so a login for a
+ * non-existent account still runs exactly one password_verify and takes the same time as a wrong password, closing
+ * the user-enumeration timing side channel. Computed once per worker.
+ */
+function login_decoy_hash(): string
+{
+    // A precomputed valid hash of the current default algorithm (argon2id) so no hash is ever GENERATED on the login
+    // path (which would add a one-time per-worker spike and reintroduce a timing signal); only a verify runs.
+    static $hash = '$argon2id$v=19$m=65536,t=4,p=1$NHlWYm1nVVVEZXgvYmtvWg$o6IgqfBURWvAhjBYscmzHIE9i2mFmxbuuBawbenmsQU';
+    if (!password_get_info($hash)['algo'] || password_needs_rehash($hash, password_algorithm())) {
+        // Server uses a different algorithm/cost than this constant: fall back to one generated hash, cached per worker.
+        static $generated = null;
+        if ($generated === null) $generated = password_hash('tegh-decoy-not-a-real-account', password_algorithm());
+        return $generated;
+    }
+    return $hash;
+}
+
 function record_login_attempt(string $email, bool $successful): void
 {
     $stmt = db()->prepare('INSERT INTO login_attempts (email_hash, ip_hash, successful) VALUES (?, ?, ?)');
@@ -241,8 +260,11 @@ function handle_login(): never
     $stmt = db()->prepare('SELECT id, email, display_name, password_hash FROM users WHERE email = ? AND active = 1 LIMIT 1');
     $stmt->execute([$email]);
     $row = $stmt->fetch();
-    $valid = $row && password_verify($password, (string)$row['password_hash']);
-    record_login_attempt($email, (bool)$valid);
+    // Constant-time against user enumeration: always run exactly one password_verify — against a decoy hash of the
+    // same algorithm/cost when the account does not exist — so a non-existent email costs the same as a wrong password.
+    $passwordVerified = password_verify($password, $row ? (string)$row['password_hash'] : login_decoy_hash());
+    $valid = (bool)$row && $passwordVerified;
+    record_login_attempt($email, $valid);
     if (!$valid) {
         usleep(600000);
         fail('Email or password is incorrect.', 401, 'invalid_credentials');
