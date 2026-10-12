@@ -1,0 +1,72 @@
+[
+ {
+  "id": "S-01",
+  "area": "R163SEC",
+  "title": "Cross-company IDOR: the attacker company cannot read the victim's mapping, lines, post, reconcile or remove its month (404)",
+  "status": "PASS",
+  "evidence": "statuses 404,404,404,404,404; victim posted 0"
+ },
+ {
+  "id": "S-02",
+  "area": "R163SEC",
+  "title": "Cross-company: attaching the victim's import batch to the attacker company is refused (404)",
+  "status": "PASS",
+  "evidence": "status 404"
+ },
+ {
+  "id": "S-03",
+  "area": "R163SEC",
+  "title": "CSRF: a POST with a wrong CSRF token is refused (403), on every R163 write route; a good-token read still works afterwards",
+  "status": "PASS",
+  "evidence": "statuses 403,403,403,403; good-token read true"
+ },
+ {
+  "id": "S-04",
+  "area": "R163SEC",
+  "title": "Email-header injection: a company name with CRLF + a forged Bcc cannot inject a header; the stored subject is single-line",
+  "status": "PASS",
+  "evidence": "status 201; subject has no CRLF true; name stored without CRLF true; subject \"Tegh: accountant requested by R163SEC Evil mv4q6g6m Bcc: attacker@evil.test ($0.00 CAD)\""
+ },
+ {
+  "id": "S-05",
+  "area": "R163SEC",
+  "title": "Stored XSS: a <script> payload in a bank-line description is stored raw but returned as data (the client escapes it); the API never executes it",
+  "status": "PASS",
+  "evidence": "group IMG SRC|out; returned verbatim as JSON string: \"<img src=x onerror=alert(1)> ACME\""
+ },
+ {
+  "id": "S-06",
+  "area": "R163SEC",
+  "title": "Integrity: a deposit for an HST registrant cannot be posted without a tax choice (server refuses, not only the UI)",
+  "status": "PASS",
+  "evidence": "status 422 guided_tax_required"
+ },
+ {
+  "id": "S-07",
+  "area": "R163SEC",
+  "title": "Integrity: the client cannot mark a month reconciled by itself — reconcile with a wrong closing balance is refused with the difference",
+  "status": "PASS",
+  "evidence": "reconciled false; stored recon \"NULL\""
+ },
+ {
+  "id": "S-08",
+  "area": "R163SEC",
+  "title": "Abuse: accountant requests are capped at 5 per company per hour (the 6th is 429), so the mail path is not a relay",
+  "status": "PASS",
+  "evidence": "201,201,201,201,201,429"
+ },
+ {
+  "id": "S-09",
+  "area": "R163SEC",
+  "title": "Secrets: the accountant review/quote never returns the hourly rate, the minutes per finding or the hours",
+  "status": "PASS",
+  "evidence": "keys findings,quoteCents,currency,taxNote"
+ },
+ {
+  "id": "S-10",
+  "area": "R163SEC",
+  "title": "Input bounds: an over-long note and a bad monthId are rejected cleanly (no 500)",
+  "status": "PASS",
+  "evidence": "longnote 201; traversal-monthId 400"
+ }
+]
