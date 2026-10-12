@@ -1,4 +1,6 @@
-# R163 security review (white-box) + Tegh hardening notes
+# Tegh security review (white-box) + hardening notes
+
+_Covers the R163 code and, by request, the auth/session layer, the client-viewing links and the payroll module._
 
 Scope: the R163 code (`api/guided_r163.php`, the touched parts of `api/accounting.php`,
 `api/imports.php`, `api/reconciliation_position_r122.php`, and the Guided client in
@@ -58,6 +60,46 @@ configuration review.
    key off the app host.
 9. **Monitoring.** `system-incidents.ndjson` records server errors (it already captured the
    lock-timeout during the gate run). Ship it somewhere and alert on `critical`.
+
+## Auth / session (reviewed on request)
+No vulnerabilities found. Confirmed, each exercised by `33-sec.mjs` (AS-01…05):
+
+| Control | Detail |
+|---|---|
+| Session cookie flags | `Secure` + `HttpOnly` + `SameSite=Strict` on the session cookie; the CSRF cookie is the double-submit pattern (`Secure` + `SameSite=Strict`, readable by JS by design). (AS-01) |
+| Token strength | Session and CSRF tokens are `base64url_encode(random_bytes(32))` — 256-bit CSPRNG. |
+| Tokens at rest | Stored as HMAC-SHA256 (`secret_hash`), never plaintext; the raw cookie value does not appear in the `sessions` table. (AS-05) |
+| Passwords | `password_hash` / `password_verify`, with `password_needs_rehash` upgrading on login. |
+| Wrong password | Refused, no session cookie issued; no user enumeration from the message. (AS-02) |
+| Forged cookie | A garbage session cookie is unauthenticated (401), not honoured. (AS-03) |
+| Logout | Deletes the session row server-side; the old cookie stops working. (AS-04) |
+| Session fixation | A fresh token is minted at login; no caller-supplied session id is accepted. |
+| Throttling | `login_attempts` with a 15-minute window and an adaptive CAPTCHA; the setup key uses `hash_equals`. |
+
+## Client-viewing links (reviewed on request)
+No vulnerabilities found. Confirmed, each exercised by `33-sec.mjs` (CV2-01…04) and the existing `07-cv`:
+
+| Control | Detail |
+|---|---|
+| Link token | 256-bit CSPRNG, stored hashed; delivered only in the URL fragment. |
+| Email code | 6 digits, 10-minute TTL, **5-attempt lock** (6th → 429), single-use, `hash_equals` compare; 5 codes/hour. 5 guesses per 10 min against 10^6 is infeasible. (CV2-02) |
+| Report scope | Each view/download is checked against the link's stored allowlist (`in_array($key, $allowed)` → 403 otherwise); payroll and audit are never offerable. (CV2-01) |
+| Not a user session | A client-view cookie cannot call any authenticated company API — 401. (CV2-03) |
+| Revocation / expiry | A revoked or expired link is refused (410). (CV2-04) |
+| Management | Creating, revoking and reissuing links is owner-only; reissue mints a new token (old URL dies). |
+| Isolation | The company and actor are derived from the validated link, so no cross-company reach. |
+
+## Payroll (reviewed on request)
+No vulnerabilities found. Confirmed, each exercised by `33-sec.mjs` (PY2-01…03) and the existing `08-pay`:
+
+| Control | Detail |
+|---|---|
+| No SINs | SIN input is refused (422), including SIN-shaped values detected by checksum across any field; legacy stored SINs are purged. (PY2-01) |
+| Authorization | Every write route requires CSRF + role (owner / owner+bookkeeper); sensitive actions add `payroll.manage`. |
+| Finalize review gate | The server requires `reviewConfirmed === true` (422 otherwise) — not just a UI checkbox. (PY2-02) |
+| Tamper-proof amounts | Each item's `locked_hash` is re-checked with `hash_equals` at finalize; altered amounts abort the posting. |
+| Integrity checks | Every item needs a verified income-tax figure; the rate-snapshot digest and the year-to-date are checked for staleness; `FOR UPDATE` locks prevent double-finalize. |
+| Cross-company | A pay run from another company cannot be finalized from this one (404). (PY2-03) |
 
 ## What a live test would add, and how to authorize it
 A black-box test of the running host would add: real TLS/header verification, auth
