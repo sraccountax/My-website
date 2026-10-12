@@ -1833,3 +1833,35 @@ The review also said a void does not check for a closed period. That is not so: 
 - a real iPhone/Safari check.
 
 **Verdict for R163:** replaces R162 as the candidate for the invitation-only, sample-data beta once the owner's hosting checks pass. **NOT READY** for real client or employee information.
+
+## Addendum: R163 security review and re-gate (auth/session, client-view, payroll)
+
+On request, the R163 white-box security review was extended to the auth/session layer,
+the client-viewing links and the payroll module, and two adversarial test suites were
+added to the gate. See `tegh-app/SECURITY-REVIEW-R163.md`.
+
+**New adversarial suites (fire real attacks at the gate host; all pass):**
+- **32-r163-sec (10/10):** cross-company IDOR (404), CSRF on every write (403), email-header
+  injection via a CRLF company name (stripped at input and send), stored-XSS payload returned
+  as escaped data, server-side deposit-tax and closing-balance integrity, accountant-request
+  rate limit (5/hour), hidden-rate secrecy, path-traversal/over-long input rejected.
+- **33-sec (12/12):** session cookie `Secure`+`HttpOnly`+`SameSite=Strict`; 256-bit CSPRNG
+  tokens stored HMAC-hashed; wrong password issues no cookie; forged cookie → 401; logout
+  invalidates server-side; client-view report allowlist (403) and 5-try code lockout (429) and
+  a client cookie cannot reach authenticated APIs (401) and revoked link → 410; payroll SIN
+  refusal (422), finalize review gate (422), cross-company finalize → 404.
+
+Both suites are wired into `run-all.sh` and `aggregate.py` and run on every future release.
+
+**Full gate on the exact ZIP** (`7d07b2a7…`): **742 PASS / 7 INFO / 1 FAIL**, the two new
+security suites 22/22. The one FAIL is **R161 B-03**, a browser-render performance threshold,
+not a correctness or security failure and not caused by R163:
+- The register **API** returns all 5,000 rows in **0.35–0.71 s**; the paginated interactive
+  register (250 rows at a time, R161) is fast. B-03 renders the full **printable** 5,000-row
+  report and requires it under 15 s.
+- Measured render time: **9.9 / 13.9 / 13.0 s on an idle host (under the cap)**, drifting to
+  18–20 s under concurrent gate CPU load (4 vCPU). This matches the documented limitation
+  ("the 5,000-invoice register takes about 7–14 s to open depending on the host").
+- It is a host-CPU-contention threshold on an extreme printable export. A follow-up could
+  window/virtualize the printable render if a sub-15 s guarantee under load is wanted; the
+  threshold was **not** moved to force a pass.
