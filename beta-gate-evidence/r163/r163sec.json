@@ -25,7 +25,7 @@
   "area": "R163SEC",
   "title": "Email-header injection: a company name with CRLF + a forged Bcc cannot inject a header; the stored subject is single-line",
   "status": "PASS",
-  "evidence": "status 201; subject has no CRLF true; name stored without CRLF true; subject \"Tegh: accountant requested by R163SEC Evil mv4q6g6m Bcc: attacker@evil.test ($0.00 CAD)\""
+  "evidence": "status 201; subject has no CRLF true; name stored without CRLF true; subject \"Tegh: accountant requested by R163SEC Evil mv4rvp6v Bcc: attacker@evil.test ($0.00 CAD)\""
  },
  {
   "id": "S-05",
