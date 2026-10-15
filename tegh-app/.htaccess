@@ -94,3 +94,19 @@ ErrorDocument 404 /404.html
 <FilesMatch "^(DEPLOYMENT-NOTES|README|EXPECTED-EXISTING-SHA256|REPLACEMENT-SHA256|R[0-9]+-HOTFIX-CONSOLIDATION)\.txt$|^(PACKAGE-MANIFEST|tegh-build)\.json$">
   Require all denied
 </FilesMatch>
+
+# R164 (beta hardening): defense-in-depth deny for anything that must never be downloadable even if it
+# is ever placed inside the web root by mistake. Private config, backups and the incident log already
+# resolve to ../sr-accountax-private/ (outside the web root); these rules are a second line only.
+#  - backup archives (.tegh / legacy .srbooks), the incident log (.ndjson), config and schema dumps
+#  - deployment/source archives and compressed copies (.zip/.tar/.gz/.tgz/.7z/.rar)
+#  - version-control metadata, editor/old/temporary copies, and server-generated backups (~, .orig, .swp, .old, .save)
+<FilesMatch "\.(tegh|srbooks|ndjson|zip|tar|gz|tgz|7z|rar|orig|old|save|swp|swo|dist|phar)$">
+  Require all denied
+</FilesMatch>
+<FilesMatch "(^#.*#$|~$)">
+  Require all denied
+</FilesMatch>
+# Version-control and dependency metadata directories/files (fallthrough if ever uploaded).
+RedirectMatch 404 (?i)/\.(git|svn|hg|bzr|ht)(/|$)
+RedirectMatch 404 (?i)/(\.gitignore|\.gitattributes|\.gitmodules|composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|\.npmrc|\.ddev|Dockerfile|docker-compose\.ya?ml)$
