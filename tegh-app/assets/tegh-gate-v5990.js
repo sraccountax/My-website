@@ -145,6 +145,7 @@
   const registerForm = $('#sr-register-form');
 
   const inviteForm = $('#sr-invite-form');
+  const mfaForm = $('#sr-mfa-form');
   const inviteNeeded = $('#sr-invite-needed');
   const inviteSummary = $('#sr-invite-summary');
   const forgotPasswordLink = $('#sr-forgot-password');
@@ -1471,6 +1472,21 @@
   }
 
   async function openApplication(auth) {
+    // R164: a correct password is only the first factor. When the server withholds a usable
+    // session pending two-step verification, divert to the MFA screen instead of opening the app.
+    // Two shapes arrive here: the login challenge (auth.mfaRequired) and a resumed/confirmed
+    // session whose auth/me reports MFA not yet cleared (auth.mfa.verified === false). This single
+    // checkpoint covers sign-in, registration, invitation acceptance and saved-session resume.
+    const mfaInfo = auth && auth.mfa;
+    const mfaPending = !!auth && (auth.mfaRequired === true
+      || (mfaInfo && mfaInfo.verified === false && (mfaInfo.enrolled || mfaInfo.required)));
+    if (mfaPending) {
+      renderMfaChallenge({
+        csrfToken: auth.csrfToken || '',
+        mfaEnrolled: (auth.mfaEnrolled === true) || !!(mfaInfo && mfaInfo.enrolled),
+      });
+      return;
+    }
     if (opening) return;
     opening = true;
     clearError();
@@ -1547,6 +1563,100 @@
     }
   }
 
+  // R164: the two-step verification screen (TOTP). Entirely in-app — no external service.
+  // Shown when the server returns an MFA challenge instead of a usable session. Covers both
+  // "verify an enrolled factor" and "enrol now because this role requires it".
+  let mfaCtx = { csrf: '', recovery: false, verifiedBody: null };
+  let mfaBound = false;
+  const mfaEl = (sel) => (mfaForm ? mfaForm.querySelector(sel) : null);
+  const mfaField = (name) => (mfaForm ? mfaForm.elements.namedItem(name) : null);
+  function renderMfaChallenge(auth) {
+    if (!mfaForm) {
+      showError(Object.assign(new Error('Two-step verification is required but this screen could not load. Refresh and try again.'), { code: 'mfa_ui_unavailable', route: 'auth/mfa' }));
+      return;
+    }
+    opening = false;
+    document.documentElement.classList.remove('sr-gate-session-pending');
+    mfaCtx = { csrf: auth.csrfToken || '', recovery: false, verifiedBody: null };
+    const enrolled = !!auth.mfaEnrolled;
+    const verifyView = mfaEl('[data-mfa-view="verify"]');
+    const enrolView = mfaEl('[data-mfa-view="enrol"]');
+    if (verifyView) verifyView.hidden = !enrolled;
+    if (enrolView) enrolView.hidden = enrolled;
+    const secretBlock = mfaEl('[data-mfa-secret-block]'); if (secretBlock) secretBlock.hidden = true;
+    const recoveryBlock = mfaEl('[data-mfa-recovery-block]'); if (recoveryBlock) recoveryBlock.hidden = true;
+    ['code', 'recoveryCode', 'enrolPassword', 'enrolCode'].forEach((n) => { const f = mfaField(n); if (f) f.value = ''; });
+    const totpField = mfaEl('[data-mfa-totp-field]'); if (totpField) totpField.hidden = false;
+    const recoveryField = mfaEl('[data-mfa-recovery-field]'); if (recoveryField) recoveryField.hidden = true;
+    const useRecovery = mfaEl('[data-mfa-use-recovery]'); if (useRecovery) useRecovery.hidden = false;
+    const useTotp = mfaEl('[data-mfa-use-totp]'); if (useTotp) useTotp.hidden = true;
+    const beginBtn = mfaEl('[data-mfa-begin]'); if (beginBtn) { beginBtn.disabled = false; beginBtn.textContent = 'Start setup'; }
+    const title = mfaEl('[data-mfa-title]'); const intro = mfaEl('[data-mfa-intro]');
+    if (title) title.textContent = enrolled ? 'Enter your authentication code' : 'Set up two-step verification';
+    if (intro) intro.textContent = enrolled
+      ? 'Open your authenticator app and enter the current 6-digit code for Tegh.'
+      : 'Your account role requires two-step verification. Set it up to continue.';
+    showOnlyForm(mfaForm);
+    setProgress(enrolled ? 'Two-step verification' : 'Set up two-step verification',
+      enrolled ? 'Enter the 6-digit code from your authenticator app.' : 'Protect privileged access with an authenticator app.', false);
+    if (enrolled) { const f = mfaField('code'); if (f) f.focus(); }
+    bindMfaHandlers();
+  }
+  function bindMfaHandlers() {
+    if (mfaBound || !mfaForm) return;
+    mfaBound = true;
+    mfaForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const verifyView = mfaEl('[data-mfa-view="verify"]');
+      if (!verifyView || verifyView.hidden) return; // the enrol view uses explicit buttons
+      clearError();
+      const button = mfaEl('[data-mfa-verify]'); if (button) button.disabled = true;
+      const payload = mfaCtx.recovery
+        ? { code: (mfaField('recoveryCode')?.value || '').trim(), recovery: true }
+        : { code: (mfaField('code')?.value || '').trim() };
+      try {
+        const body = await request('auth/mfa/verify', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': mfaCtx.csrf }, body: JSON.stringify(payload) }, 16000);
+        setProgress('Verified.', 'Opening your workspace…', true);
+        await openApplication(body);
+      } catch (error) { if (button) button.disabled = false; showError(error, 'auth/mfa/verify'); }
+    });
+    mfaEl('[data-mfa-use-recovery]')?.addEventListener('click', (e) => { e.preventDefault(); mfaCtx.recovery = true;
+      mfaEl('[data-mfa-totp-field]').hidden = true; mfaEl('[data-mfa-recovery-field]').hidden = false;
+      mfaEl('[data-mfa-use-recovery]').hidden = true; mfaEl('[data-mfa-use-totp]').hidden = false; mfaField('recoveryCode')?.focus(); });
+    mfaEl('[data-mfa-use-totp]')?.addEventListener('click', (e) => { e.preventDefault(); mfaCtx.recovery = false;
+      mfaEl('[data-mfa-totp-field]').hidden = false; mfaEl('[data-mfa-recovery-field]').hidden = true;
+      mfaEl('[data-mfa-use-recovery]').hidden = false; mfaEl('[data-mfa-use-totp]').hidden = true; mfaField('code')?.focus(); });
+    mfaEl('[data-mfa-begin]')?.addEventListener('click', async (e) => { e.preventDefault(); clearError();
+      const pw = mfaField('enrolPassword')?.value || '';
+      if (!pw) { showError(Object.assign(new Error('Enter your password to start setup.'), { code: 'password_confirmation_required', route: 'auth/mfa/enroll-begin' })); return; }
+      const btn = mfaEl('[data-mfa-begin]'); btn.disabled = true;
+      try {
+        const body = await request('auth/mfa/enroll-begin', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': mfaCtx.csrf }, body: JSON.stringify({ password: pw }) }, 16000);
+        const secretEl = mfaEl('[data-mfa-secret]'); if (secretEl) secretEl.textContent = body.secret || '';
+        const link = mfaEl('[data-mfa-otpauth]'); if (link) link.href = body.otpauthUri || '#';
+        mfaEl('[data-mfa-secret-block]').hidden = false;
+        btn.disabled = false; btn.textContent = 'Restart setup'; mfaField('enrolCode')?.focus();
+      } catch (error) { btn.disabled = false; showError(error, 'auth/mfa/enroll-begin'); }
+    });
+    mfaEl('[data-mfa-confirm]')?.addEventListener('click', async (e) => { e.preventDefault(); clearError();
+      const code = (mfaField('enrolCode')?.value || '').trim();
+      const btn = mfaEl('[data-mfa-confirm]'); btn.disabled = true;
+      try {
+        const body = await request('auth/mfa/enroll-confirm', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': mfaCtx.csrf }, body: JSON.stringify({ code }) }, 16000);
+        mfaCtx.verifiedBody = body;
+        const list = mfaEl('[data-mfa-recovery-list]');
+        if (list) list.innerHTML = (body.recoveryCodes || []).map((c) => `<li>${String(c).replace(/[^A-Z0-9-]/gi, '')}</li>`).join('');
+        mfaEl('[data-mfa-secret-block]').hidden = true; mfaEl('[data-mfa-recovery-block]').hidden = false; btn.disabled = false;
+      } catch (error) { btn.disabled = false; showError(error, 'auth/mfa/enroll-confirm'); }
+    });
+    mfaEl('[data-mfa-recovery-done]')?.addEventListener('click', async (e) => { e.preventDefault();
+      if (mfaCtx.verifiedBody) { setProgress('Verified.', 'Opening your workspace…', true); await openApplication(mfaCtx.verifiedBody); } });
+    mfaEl('[data-mfa-cancel]')?.addEventListener('click', async (e) => { e.preventDefault();
+      try { await request('auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': mfaCtx.csrf }, body: '{}' }, 9000); } catch (_) {}
+      showLogin(); setProgress('Sign-in is ready.', 'Enter your email and password.', false);
+    });
+  }
+
   function showSetup() {
     showOnlyForm(setupForm);
     document.documentElement.classList.add('sr-setup-only');
@@ -1583,7 +1693,7 @@
   // stylesheet now honours it, but the gate states the intent explicitly so a
   // future styling change cannot quietly stack the forms again.
   function showOnlyForm(active) {
-    [loginForm, registerForm, inviteForm, inviteNeeded, setupForm].forEach((form) => {
+    [loginForm, registerForm, inviteForm, inviteNeeded, setupForm, mfaForm].forEach((form) => {
       if (!form) return;
       const isActive = form === active;
       form.hidden = !isActive;
