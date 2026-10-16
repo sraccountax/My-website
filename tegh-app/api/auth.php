@@ -146,6 +146,9 @@ function auth_payload(array $user, ?array $session = null): array
         'freePreview' => false,
         // R155: optional notice shown in the top bar, e.g. for a private beta (config app.beta_notice).
         'betaNotice' => mb_substr(trim((string)(config('app.beta_notice') ?? '')), 0, 300),
+        // R164: two-step verification state so the client can show enrol/verify screens and the
+        // "manage two-step verification" controls without a second round trip.
+        'mfa' => function_exists('mfa_status_payload') ? mfa_status_payload($user, $session) : null,
     ];
 }
 
@@ -278,8 +281,25 @@ function handle_login(): never
     }
     db()->prepare('UPDATE users SET last_login_at = UTC_TIMESTAMP() WHERE id = ?')->execute([$row['id']]);
     db()->prepare('DELETE FROM sessions WHERE user_id = ? AND expires_at <= UTC_TIMESTAMP()')->execute([$row['id']]);
-    $session = create_session((string)$row['id']);
-    $user = ['id' => (string)$row['id'], 'email' => (string)$row['email'], 'displayName' => (string)$row['display_name']];
+    $userId = (string)$row['id'];
+    $user = ['id' => $userId, 'email' => (string)$row['email'], 'displayName' => (string)$row['display_name']];
+
+    // R164: a correct password is the first factor. If this account has two-step verification
+    // enrolled, or must enrol it, the session is created UNVERIFIED and the app is withheld until
+    // the second step completes (handled by auth/mfa/verify or the enrolment routes). Accounts
+    // that neither have nor need MFA are fully verified immediately, exactly as before.
+    $mfaReady = function_exists('mfa_schema_ready') && mfa_schema_ready();
+    $enrolled = $mfaReady && mfa_is_enrolled($userId);
+    $mustEnrol = $mfaReady && !$enrolled && mfa_required_for_user($userId);
+    $session = create_session($userId, !($enrolled || $mustEnrol));
+    if ($enrolled) {
+        json_response(['mfaRequired' => true, 'mfaEnrolled' => true, 'csrfToken' => $session['csrfToken'],
+            'message' => 'Enter the code from your authenticator app.']);
+    }
+    if ($mustEnrol) {
+        json_response(['mfaRequired' => true, 'mfaEnrolled' => false, 'mfaEnrollmentRequired' => true,
+            'csrfToken' => $session['csrfToken'], 'message' => 'Set up two-step verification to continue.']);
+    }
     json_response(auth_payload($user, $session));
 }
 

@@ -755,17 +755,28 @@ function clear_session_cookie(): void
     ]);
 }
 
-function create_session(string $userId): array
+function create_session(string $userId, bool $mfaVerified = true): array
 {
     $token = base64url_encode(random_bytes(32));
     $csrf = base64url_encode(random_bytes(32));
     $hours = max(1, min(72, (int)(config('app.session_hours') ?? 12)));
     $expiresAt = (new DateTimeImmutable('now', new DateTimeZone('UTC')))->modify('+' . $hours . ' hours');
-    $stmt = db()->prepare('INSERT INTO sessions (id, user_id, token_hash, csrf_hash, ip_hash, user_agent_hash, expires_at, last_seen_at) VALUES (?, ?, ?, ?, ?, ?, ?, UTC_TIMESTAMP())');
-    $stmt->execute([
-        new_id('session'), $userId, secret_hash($token), secret_hash($csrf),
-        client_ip_hash(), user_agent_hash(), $expiresAt->format('Y-m-d H:i:s'),
-    ]);
+    // R164: when the sessions table carries the MFA flag, record whether this session has
+    // already cleared second-factor verification. Installs that predate the column behave
+    // exactly as before (every session is implicitly verified).
+    if (schema_column_exists('sessions', 'mfa_verified')) {
+        $stmt = db()->prepare('INSERT INTO sessions (id, user_id, token_hash, csrf_hash, ip_hash, user_agent_hash, expires_at, last_seen_at, mfa_verified) VALUES (?, ?, ?, ?, ?, ?, ?, UTC_TIMESTAMP(), ?)');
+        $stmt->execute([
+            new_id('session'), $userId, secret_hash($token), secret_hash($csrf),
+            client_ip_hash(), user_agent_hash(), $expiresAt->format('Y-m-d H:i:s'), $mfaVerified ? 1 : 0,
+        ]);
+    } else {
+        $stmt = db()->prepare('INSERT INTO sessions (id, user_id, token_hash, csrf_hash, ip_hash, user_agent_hash, expires_at, last_seen_at) VALUES (?, ?, ?, ?, ?, ?, ?, UTC_TIMESTAMP())');
+        $stmt->execute([
+            new_id('session'), $userId, secret_hash($token), secret_hash($csrf),
+            client_ip_hash(), user_agent_hash(), $expiresAt->format('Y-m-d H:i:s'),
+        ]);
+    }
     set_session_cookie($token, $expiresAt->getTimestamp());
     set_csrf_cookie($csrf, $expiresAt->getTimestamp());
     return ['csrfToken' => $csrf, 'expiresAt' => $expiresAt->format(DateTimeInterface::ATOM)];
@@ -788,7 +799,8 @@ function session_record(): ?array
     if ($token === '') {
         return null;
     }
-    $stmt = db()->prepare("SELECT s.id AS session_id, s.user_id, s.csrf_hash, s.ip_hash, s.user_agent_hash, s.expires_at, s.created_at AS authenticated_at, u.email, u.display_name
+    $mfaCol = schema_column_exists('sessions', 'mfa_verified') ? 's.mfa_verified,' : '1 AS mfa_verified,';
+    $stmt = db()->prepare("SELECT s.id AS session_id, s.user_id, s.csrf_hash, s.ip_hash, s.user_agent_hash, s.expires_at, s.created_at AS authenticated_at, $mfaCol u.email, u.display_name
         FROM sessions s JOIN users u ON u.id = s.user_id
         WHERE s.token_hash = ? AND s.expires_at > UTC_TIMESTAMP() AND u.active = 1 LIMIT 1");
     $stmt->execute([secret_hash($token)]);

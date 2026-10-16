@@ -23,6 +23,7 @@ try {
     require_once __DIR__ . '/migrations.php';
     require_once __DIR__ . '/captcha.php';
     require_once __DIR__ . '/auth.php';
+    require_once __DIR__ . '/mfa_r164.php';
     require_once __DIR__ . '/company_profile_r153.php';
     require_once __DIR__ . '/migration_recovery_v5600.php';
     require_once __DIR__ . '/entitlements_v5610.php';
@@ -46,6 +47,20 @@ try {
     if ($route === 'auth/logout') handle_logout();
     if ($route === 'auth/profile') handle_update_profile();
     if ($route === 'auth/change-password') handle_change_password();
+
+    // R164: multi-factor authentication. The status/verify/enrol routes must be reachable by an
+    // authenticated-but-unverified session; the gate below blocks every other route for such a
+    // session. handle_me (above) also stays reachable so the client can read its MFA state.
+    if ($route === 'auth/mfa/status') handle_mfa_status();
+    if ($route === 'auth/mfa/enroll-begin') handle_mfa_enroll_begin();
+    if ($route === 'auth/mfa/enroll-confirm') handle_mfa_enroll_confirm();
+    if ($route === 'auth/mfa/verify') handle_mfa_verify();
+    if ($route === 'auth/mfa/disable') handle_mfa_disable();
+    if ($route === 'auth/mfa/recovery-codes') handle_mfa_recovery_regenerate();
+
+    // Enforce two-step verification: an unverified privileged session may reach only the routes
+    // allow-listed inside mfa_gate(); everything past this point requires a verified session.
+    mfa_gate($route);
 
     if ($route === 'startup/migration-preflight') handle_tegh_notes_r67_preflight();
     if ($route === 'startup/migration-diagnostic') handle_tegh_notes_r67_diagnostic();
