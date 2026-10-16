@@ -1,0 +1,163 @@
+{
+ "build": "R164 work-in-progress (item 1: MFA) on gate test-host \u2014 not the IONOS deployment",
+ "sourceHead": "86ee96a28f08d955a8a9e3e01286f54324d9a4db",
+ "counts": {
+  "PASS": 742,
+  "INFO": 7,
+  "FAIL": 1
+ },
+ "byArea": {
+  "H-INST": {
+   "PASS": 12
+  },
+  "H-MAIL": {
+   "PASS": 19
+  },
+  "ACCT": {
+   "PASS": 63
+  },
+  "TAX": {
+   "PASS": 20,
+   "INFO": 1
+  },
+  "FX": {
+   "PASS": 5
+  },
+  "SEC": {
+   "PASS": 43,
+   "INFO": 1
+  },
+  "CVL": {
+   "PASS": 20
+  },
+  "PAY": {
+   "PASS": 7,
+   "INFO": 2
+  },
+  "REC": {
+   "PASS": 9
+  },
+  "OPS": {
+   "PASS": 5,
+   "INFO": 2
+  },
+  "R141": {
+   "PASS": 38
+  },
+  "R142": {
+   "PASS": 11
+  },
+  "R144": {
+   "PASS": 35
+  },
+  "E2E": {
+   "PASS": 53
+  },
+  "R144UI": {
+   "PASS": 22
+  },
+  "R145": {
+   "PASS": 45,
+   "INFO": 1
+  },
+  "R149": {
+   "PASS": 20
+  },
+  "R151": {
+   "PASS": 40
+  },
+  "R151UI": {
+   "PASS": 19
+  },
+  "R152": {
+   "PASS": 31
+  },
+  "R153": {
+   "PASS": 20
+  },
+  "R154": {
+   "PASS": 11
+  },
+  "BETA": {
+   "PASS": 18
+  },
+  "R157": {
+   "PASS": 21
+  },
+  "R158": {
+   "PASS": 5
+  },
+  "R159": {
+   "PASS": 18
+  },
+  "R160": {
+   "PASS": 9
+  },
+  "R161": {
+   "PASS": 19,
+   "FAIL": 1
+  },
+  "GUIDED": {
+   "PASS": 23
+  },
+  "R163": {
+   "PASS": 46
+  },
+  "R163SEC": {
+   "PASS": 10
+  },
+  "SEC2": {
+   "PASS": 13
+  },
+  "MFA": {
+   "PASS": 12
+  }
+ },
+ "differencesFromR163": {
+  "MFA": {
+   "r163": null,
+   "r164": {
+    "PASS": 12
+   }
+  },
+  "R161": {
+   "r163": {
+    "PASS": 20
+   },
+   "r164": {
+    "PASS": 19,
+    "FAIL": 1
+   }
+  },
+  "R163SEC": {
+   "r163": null,
+   "r164": {
+    "PASS": 10
+   }
+  },
+  "SEC2": {
+   "r163": null,
+   "r164": {
+    "PASS": 13
+   }
+  },
+  "UPG": {
+   "r163": {
+    "PASS": 13
+   },
+   "r164": null
+  }
+ },
+ "fails": [
+  {
+   "id": "B-03",
+   "area": "R161",
+   "title": "Northwind: the customer invoice register opens with 5000 invoices in time, and the search narrows it to one client",
+   "evidence": "16035 ms; 5000 rows shown; after search \"Client 0007\": 13; scrolled to the last row true; errors none"
+  }
+ ],
+ "notRun": {
+  "UPG": "R118 -> package upgrade check (finish-run.sh) needs the built R164 ZIP; runs at packaging"
+ },
+ "environment": "clean database, clock pinned via clock-pin.sh, clock.env sourced, MFA enforced; browser suites sign in through the real two-step screen (mfa-preload.mjs)"
+}

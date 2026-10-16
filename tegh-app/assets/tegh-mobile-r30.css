@@ -1,0 +1,1477 @@
+/* Tegh R30 — mobile shell, responsive workspaces and touch scrolling.
+   One bounded stage owns page scrolling; intentionally bounded workspaces
+   (transaction review and open dialogs) keep one local vertical scroller. */
+
+/* The public gate exists before the signed-in shell attributes are added.
+   It must scroll with the document at every width, including when the mobile
+   keyboard, browser chrome or a validation message reduces the viewport. */
+html:not([data-tegh-shell]),
+html:has(.sr-gate:not([hidden])),
+html:has(#root > .auth-shell),
+html:not([data-tegh-shell]) body,
+html:has(.sr-gate:not([hidden])) body,
+html:has(#root > .auth-shell) body {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100% !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: auto !important;
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+html:not([data-tegh-shell]) #root,
+html:has(.sr-gate:not([hidden])) #root,
+html:has(#root > .auth-shell) #root {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+html:not([data-tegh-shell]) :is(.sr-gate, .auth-shell),
+html:has(.sr-gate:not([hidden])) .sr-gate,
+html:has(#root > .auth-shell) .auth-shell {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  max-height: none !important;
+  overflow: visible !important;
+  touch-action: pan-y !important;
+}
+
+html:not([data-tegh-shell]) .sr-gate-panel,
+html:has(.sr-gate:not([hidden])) .sr-gate-panel,
+html:has(#root > .auth-shell) .auth-shell {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+@media (max-width: 820px) {
+  :root {
+    --r30-mobile-header: 56px;
+    --r30-mobile-nav: calc(64px + env(safe-area-inset-bottom, 0px));
+    --r30-mobile-gutter: clamp(10px, 3.5vw, 16px);
+  }
+
+  html[data-tegh-shell],
+  html[data-tegh-shell] body,
+  html[data-tegh-shell] #root,
+  html[data-tegh-shell] .app {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  html[data-tegh-shell] .topbar {
+    position: fixed !important;
+    inset: 0 0 auto 0 !important;
+    width: 100% !important;
+    height: var(--r30-mobile-header) !important;
+    min-height: var(--r30-mobile-header) !important;
+    max-height: var(--r30-mobile-header) !important;
+    padding-right: max(10px, env(safe-area-inset-right, 0px)) !important;
+    padding-left: max(10px, env(safe-area-inset-left, 0px)) !important;
+    overflow: visible !important;
+  }
+
+  html[data-tegh-shell] .topbar :is(.book-context, .top-actions, .srp-global-search) {
+    min-width: 0 !important;
+  }
+
+  html[data-tegh-shell] .topbar .book-context {
+    flex: 1 1 auto !important;
+    max-width: min(58vw, 310px) !important;
+  }
+
+  html[data-tegh-shell] .topbar .book-context :is(select, button, span) {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  html[data-tegh-shell] .stage {
+    position: fixed !important;
+    inset: var(--r30-mobile-header) 0 var(--r30-mobile-nav) 0 !important;
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-x: none !important;
+    overscroll-behavior-y: auto !important;
+    scroll-behavior: auto !important;
+    scroll-padding-block: 8px calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+    scrollbar-gutter: auto !important;
+    touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  html[data-tegh-shell] .stage > :is(.content, .srp-page),
+  html[data-tegh-shell] .stage > .content > .srp-page {
+    position: relative !important;
+    inset: auto !important;
+    display: block !important;
+    flex: none !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    transform: none !important;
+    contain: none !important;
+  }
+
+  html[data-tegh-shell] .stage > .content {
+    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  html[data-tegh-shell] :is(
+    .srp-page-body,
+    .r22-render-root,
+    .r22-workspace,
+    .r22-primary-scroll,
+    .r22-fill-path,
+    .r22-task-flow,
+    .r22-task-split
+  ) {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    overscroll-behavior: auto !important;
+    scrollbar-gutter: auto !important;
+  }
+
+  html[data-tegh-shell] body:is(.r19-drawer-open, .srp-modal-open) .stage {
+    overflow: hidden !important;
+    touch-action: none !important;
+  }
+
+  /* Desktop drag rails can intercept a touch swipe. Mobile uses native scroll. */
+  #tegh-drag-scrollbar-layer,
+  .r22-horizontal-rail,
+  .r22-drag-scrollbar {
+    display: none !important;
+    pointer-events: none !important;
+  }
+
+  /* Navigation drawer: the navigation list is the sole scroll owner. Match the
+     legacy selector so the outer drawer never becomes a second scroll area. */
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] .sidebar,
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] body.tegh-top-navigation-mode .sidebar,
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] body.sr-sidebar-collapsed .sidebar {
+    box-sizing: border-box !important;
+    width: min(330px, calc(100vw - 24px)) !important;
+    max-width: calc(100vw - 24px) !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+    overflow: hidden !important;
+    overscroll-behavior: contain !important;
+  }
+
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] .sidebar > nav {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    scrollbar-gutter: auto !important;
+    touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  html[data-tegh-shell] .sidebar :is(.side-foot, .side-footer) {
+    flex: 0 0 auto !important;
+    margin-top: 0 !important;
+  }
+
+  html[data-tegh-shell] :is(.srp-company-menu, .srp-nav-results) {
+    max-width: calc(100vw - 36px) !important;
+    max-height: min(52dvh, 460px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #r19-mobile-nav {
+    position: fixed !important;
+    inset: auto 0 0 0 !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: var(--r30-mobile-nav) !important;
+    min-height: var(--r30-mobile-nav) !important;
+    padding-right: max(4px, env(safe-area-inset-right, 0px)) !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+    padding-left: max(4px, env(safe-area-inset-left, 0px)) !important;
+    overflow: hidden !important;
+  }
+
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] #r19-mobile-nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] #r19-mobile-nav:not(:has([data-r19-create-slot] > *)) {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  #r19-mobile-nav [data-r19-create-slot]:empty {
+    display: none !important;
+  }
+
+  #r19-mobile-nav :is(button, a) {
+    min-width: 0 !important;
+    min-height: 48px !important;
+    padding-inline: 4px !important;
+    overflow: hidden !important;
+  }
+
+  #r19-mobile-nav :is(span, b, small) {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  /* Readable touch controls without iOS focus zoom. */
+  html[data-tegh-shell] .srp-page :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+    select,
+    textarea
+  ),
+  html[data-tegh-shell] :is(.srp-modal, .r23-dialog, .tegh-modal, .r22-menu-panel) :is(input, select, textarea) {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 44px !important;
+    font-size: 16px !important;
+  }
+
+  html[data-tegh-shell] .srp-page textarea,
+  html[data-tegh-shell] :is(.srp-modal, .r23-dialog, .tegh-modal, .r22-menu-panel) textarea {
+    min-height: 88px !important;
+  }
+
+  html[data-tegh-shell] :is(
+    .srp-btn,
+    .sra-btn,
+    .srctl-btn,
+    .r22-menu > summary,
+    .r29-sticky-actions button,
+    .r23-pagination button
+  ) {
+    min-height: 44px !important;
+    white-space: normal !important;
+  }
+
+  html[data-tegh-shell] :is(.srp-page, .srp-card, .r22-workspace, .r22-menu-panel) :is(p, dd, td, th, label, a, button) {
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  html[data-tegh-shell] :is(
+    .srp-page-head,
+    .srp-section-title,
+    .r22-toolbar-primary,
+    .r22-toolbar-controls,
+    .tegh-page-head-actions,
+    .r22-inline-actions,
+    .srp-actions,
+    .primary-actions,
+    .r23-pagination
+  ) {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex-wrap: wrap !important;
+  }
+
+  html[data-tegh-shell] .r22-toolbar :is(
+    .srp-register-filter,
+    .srp-report-period,
+    .srp-filter,
+    .r20-profit-form,
+    .srp-faq-search,
+    .r17-filter-row,
+    .r22-filter-controls
+  ) {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    gap: 8px !important;
+  }
+
+  html[data-tegh-shell] .r22-toolbar :is(.srp-register-filter, .srp-report-period, .srp-filter, .r20-profit-form, .r22-filter-controls) > * {
+    grid-column: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  html[data-tegh-shell] .r22-toolbar :is(input[type="date"], input[type="search"], select) {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Report filters stay compact on ordinary phones. The final action remains
+     full-width and reachable, while very narrow screens fall back to one field
+     per row below. */
+  html[data-tegh-shell] .srp-page[data-r22-kind="report"] .r22-toolbar .r22-filter-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-r22-kind="report"] .r22-toolbar .r22-filter-controls > :is(
+    button,
+    details,
+    .r22-inline-actions,
+    .r23-filter-actions,
+    .srp-actions
+  ) {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* Module/report tabs are the one intentional horizontal touch scroller. */
+  html[data-tegh-shell] .tegh-context-bar {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin-bottom: 8px !important;
+  }
+
+  html[data-tegh-shell] .tegh-context-top {
+    min-height: 0 !important;
+    gap: 7px !important;
+    padding: 8px 10px !important;
+  }
+
+  html[data-tegh-shell] .tegh-context-tabs {
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    overscroll-behavior-inline: contain !important;
+    scroll-snap-type: x proximity !important;
+    scrollbar-gutter: auto !important;
+    touch-action: pan-x !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  html[data-tegh-shell] .tegh-context-tab {
+    min-height: 44px !important;
+    scroll-snap-align: start !important;
+  }
+
+  /* Dashboard cards and charts never create page-level horizontal scrolling. */
+  html[data-tegh-shell] :is(
+    .r17-dashboard-charts,
+    .r15-dashboard-forecast,
+    .r17-dashboard-profit,
+    .tegh5300-dashboard-grid,
+    .r19-task-grid,
+    .srp-home-work,
+    .srp-home-help
+  ) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  html[data-tegh-shell] .srp-sites-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html[data-tegh-shell] :is(.r19-dashboard, .r17-dashboard-actions, .r17-quick-list) {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  html[data-tegh-shell] .r19-dashboard .r17-dashboard-actions {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  html[data-tegh-shell] .r19-dashboard .r17-quick-list {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    scrollbar-gutter: auto !important;
+  }
+
+  html[data-tegh-shell] :is(canvas, svg, img, figure, .r20-selected-chart, .tegh5300-mini-chart) {
+    max-width: 100% !important;
+  }
+
+  /* Reference forms: main form first, summaries below, single-column fields. */
+  html[data-tegh-shell] :is(
+    .r29-party-layout,
+    .r29-product-layout,
+    .r29-invoice-layout,
+    .r29-payment-card,
+    .r29-upload-card form,
+    .r29-product-form-card .srp-form,
+    .r29-payment-form,
+    .r29-form-column > fieldset,
+    .r29-invoice-main .r22-invoice-header,
+    .r29-invoice-main .srp-ci-line-grid
+  ) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  html[data-tegh-shell] :is(.r29-party-layout, .r29-product-layout, .r29-invoice-layout) {
+    padding-bottom: 8px !important;
+  }
+
+  html[data-tegh-shell] :is(.r29-form-secondary, .r29-product-preview, .r29-invoice-summary, .r29-payment-summary) {
+    position: static !important;
+    top: auto !important;
+    order: 2 !important;
+  }
+
+  html[data-tegh-shell] .r29-invoice-main .r22-invoice-header > label:first-child,
+  html[data-tegh-shell] .r29-invoice-main .srp-ci-line-grid > label.full,
+  html[data-tegh-shell] .r29-payment-form > :is(.full, .r29-segmented, .r29-form-disclosure) {
+    grid-column: auto !important;
+  }
+
+  html[data-tegh-shell] .r29-invoice-main .srp-ci-line {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html[data-tegh-shell] .r29-invoice-main .srp-ci-line-total {
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+  }
+
+  html[data-tegh-shell] .r29-sticky-actions,
+  html[data-tegh-shell] .r29-payment-form > .r29-sticky-actions,
+  html[data-tegh-shell] .r29-product-form-card .r29-sticky-actions {
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    margin: 10px 0 0 !important;
+    padding: 10px 0 0 !important;
+    flex-wrap: wrap !important;
+  }
+
+  html[data-tegh-shell] .r29-sticky-actions > * {
+    flex: 1 1 150px !important;
+  }
+
+  html[data-tegh-shell] .r29-dropzone,
+  html[data-tegh-shell] .r29-dropzone input {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Reports use the stage scroll. The catalogue and totals must not retain the
+     old bounded desktop scrollers. */
+  html[data-tegh-shell] :is(.r27-report-catalogue, .r27-report-groups) {
+    flex: none !important;
+    width: 100% !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    overscroll-behavior: auto !important;
+    scrollbar-gutter: auto !important;
+    touch-action: pan-y !important;
+  }
+
+  html[data-tegh-shell] .r27-report-catalogue-toolbar {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html[data-tegh-shell] .r27-report-group button {
+    min-height: 48px !important;
+  }
+
+  html[data-tegh-shell] .r23-totals {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  html[data-tegh-shell] .tegh-report-totals {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 10px 0 0 !important;
+  }
+
+  /* Transaction rows collapse into readable cards. */
+  html[data-tegh-shell] .srp-page[data-r29-reference="bank-report"] .srp-page-body,
+  html[data-tegh-shell] .srp-page[data-r29-reference="bank-report"] .r22-work,
+  html[data-tegh-shell] .srp-page[data-r29-reference="bank-report"] .r28-bank-transaction-report,
+  html[data-tegh-shell] .srp-page[data-r29-reference="bank-report"] .r23-table-host,
+  html[data-tegh-shell] .srp-page[data-r29-reference="bank-report"] .r23-scroll {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-r29-reference="bank-report"] .tegh-bank-report-filters,
+  html[data-tegh-shell] :is(.r28-bank-report-filter, .r28-recon-filters, .r28-recon-completion-filters, .r28-recon-completion-fields) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-r29-reference="bank-report"] .r23-table,
+  html[data-tegh-shell] :is(.r28-bank-table, .r28-book-table, .r28-daybook-table) {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+  }
+
+  html[data-tegh-shell] :is(
+    .r23-scroll,
+    .r28-bank-scroll,
+    .r28-book-scroll,
+    .r28-daybook-scroll,
+    .r28-bank-account-list,
+    .tegh-responsive-report,
+    .srp-table-wrap
+  ) {
+    width: 100% !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    scrollbar-gutter: auto !important;
+    touch-action: pan-y !important;
+  }
+
+  /* Shared authoritative registers are always readable record cards on a
+     phone. This CSS fallback also protects the first paint if the table was
+     wider than the viewport before the controller measured it. */
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table),
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table) tbody {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+  }
+
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table) colgroup,
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table) > thead {
+    display: none !important;
+  }
+
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table) tbody tr:not(.r23-group):not(.r23-expanded-row) {
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 9px 12px !important;
+    width: 100% !important;
+    margin: 0 0 10px !important;
+    padding: 12px !important;
+    border: 1px solid var(--tegh-line, #d8e2de) !important;
+    border-radius: 10px !important;
+    background: var(--tegh-surface, #fff) !important;
+  }
+
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table) td {
+    display: block !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    text-align: left !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+  }
+
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table) td::before {
+    content: attr(data-label) !important;
+    display: block !important;
+    margin-bottom: 3px !important;
+    color: var(--tegh-muted, #50645e) !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    text-align: left !important;
+  }
+
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table) :is(.r23-select-cell, .r23-row-actions) {
+    grid-column: 1 / -1 !important;
+  }
+
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table) .r23-row-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table) .r23-group,
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table) .r23-expanded-row,
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table) .r23-expanded-row > td {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table) .r23-group > th,
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table) .r23-summary-row > th {
+    display: block !important;
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table) .r23-expanded-row > td::before {
+    content: none !important;
+  }
+
+  /* Dense legacy tables may be swiped sideways inside their own region. The
+     page itself remains width-bounded so navigation and headers never drift. */
+  html[data-tegh-shell] .srp-table-wrap:not(.r23-scroll) {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    overscroll-behavior-x: contain !important;
+    touch-action: pan-x pan-y !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  html[data-tegh-shell] .srp-table-wrap:not(.r23-scroll) > table.srp-table:has(th:nth-child(6)) {
+    width: max-content !important;
+    min-width: max(720px, 100%) !important;
+    max-width: none !important;
+    table-layout: auto !important;
+  }
+
+  html[data-tegh-shell] .srp-table-wrap:not(.r23-scroll) > table.srp-table:has(th:nth-child(6)) :is(th, td) {
+    min-width: 92px !important;
+    white-space: normal !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+
+  html[data-tegh-shell] .srp-module-route-switch {
+    width: 100% !important;
+    margin: 0 0 8px !important;
+  }
+
+  html[data-tegh-shell] .srp-module-route-switch > button {
+    flex: 1 1 0 !important;
+    min-height: 44px !important;
+  }
+
+  html[data-tegh-shell] .tegh-back-to-top {
+    right: max(12px, env(safe-area-inset-right, 0px)) !important;
+    bottom: calc(var(--r30-mobile-nav) + 12px) !important;
+    z-index: 8500 !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+
+  html[data-tegh-shell] :is(.r23-pagination, .r19-pagination, .r28-bank-pagination) {
+    display: flex !important;
+    align-items: stretch !important;
+    gap: 7px !important;
+    width: 100% !important;
+    flex-direction: column !important;
+  }
+
+  html[data-tegh-shell] :is(.r23-pagination, .r19-pagination, .r28-bank-pagination) nav {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+  }
+
+  html[data-tegh-shell] .r23-mobile .r23-table tbody tr:not(.r23-group):not(.r23-expanded-row) {
+    margin-bottom: 10px !important;
+    border: 1px solid var(--tegh-line, #d8e2de) !important;
+    border-radius: 10px !important;
+    background: var(--tegh-surface, #fff) !important;
+  }
+
+  html[data-tegh-shell] .r23-mobile .r23-table td::before {
+    color: var(--tegh-muted, #50645e) !important;
+    font-weight: 700 !important;
+  }
+
+  html[data-tegh-shell] .r23-pagination > div {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html[data-tegh-shell] .r23-pagination > div > :is(span, label) {
+    grid-column: 1 / -1 !important;
+  }
+
+  html[data-tegh-shell] .r23-pagination > div > button {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Day Book mobile cards. The expandable ledger lines remain directly below
+     their parent entry and do not require sideways swiping. */
+  html[data-tegh-shell] .r27-daybook-summary {
+    width: 100% !important;
+    min-width: 0 !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="day-book"] .tegh-authoritative-report {
+    min-height: 0 !important;
+  }
+
+  html[data-tegh-shell] .r28-daybook-table,
+  html[data-tegh-shell] .r28-daybook-table tbody {
+    display: block !important;
+  }
+
+  html[data-tegh-shell] .r28-daybook-table colgroup {
+    display: none !important;
+  }
+
+  html[data-tegh-shell] .r28-daybook-table > thead {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    clip-path: inset(50%) !important;
+  }
+
+  html[data-tegh-shell] .r28-daybook-table .r28-daybook-row {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 9px 12px !important;
+    width: 100% !important;
+    margin: 0 0 10px !important;
+    padding: 12px !important;
+    border: 1px solid var(--r22-border, #d8e2de) !important;
+    border-radius: 11px !important;
+    background: var(--tegh-surface, #fff) !important;
+  }
+
+  html[data-tegh-shell] .r28-daybook-table .r28-daybook-row > td {
+    display: grid !important;
+    align-content: start !important;
+    gap: 3px !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    text-align: left !important;
+    white-space: normal !important;
+  }
+
+  html[data-tegh-shell] .r28-daybook-row > td::before {
+    color: var(--r22-muted, #50645e) !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+  }
+
+  html[data-tegh-shell] .r28-daybook-row > td:nth-child(1)::before { content: "Date"; }
+  html[data-tegh-shell] .r28-daybook-row > td:nth-child(2)::before { content: "Reference"; }
+  html[data-tegh-shell] .r28-daybook-row > td:nth-child(3)::before { content: "Source"; }
+  html[data-tegh-shell] .r28-daybook-row > td:nth-child(4)::before { content: "Contact / Memo"; }
+  html[data-tegh-shell] .r28-daybook-row > td:nth-child(5)::before { content: "Account"; }
+  html[data-tegh-shell] .r28-daybook-row > td:nth-child(6)::before { content: "Debit"; }
+  html[data-tegh-shell] .r28-daybook-row > td:nth-child(7)::before { content: "Credit"; }
+  html[data-tegh-shell] .r28-daybook-row > td:nth-child(8)::before { content: "Status"; }
+  html[data-tegh-shell] .r28-daybook-row > td:nth-child(9)::before { content: "Actions"; }
+
+  html[data-tegh-shell] .r28-daybook-table .r28-daybook-detail-row {
+    display: block !important;
+    width: 100% !important;
+    margin: -8px 0 10px !important;
+  }
+
+  html[data-tegh-shell] .r28-daybook-table .r28-daybook-detail-row > td {
+    display: block !important;
+    width: 100% !important;
+    padding: 10px !important;
+  }
+
+  html[data-tegh-shell] .r28-daybook-table .r28-daybook-detail-row > td::before {
+    content: none !important;
+  }
+
+  html[data-tegh-shell] .r28-daybook-lines table,
+  html[data-tegh-shell] .r28-daybook-lines tbody,
+  html[data-tegh-shell] .r28-daybook-lines tr,
+  html[data-tegh-shell] .r28-daybook-lines td {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html[data-tegh-shell] .r28-daybook-lines thead {
+    display: none !important;
+  }
+
+  html[data-tegh-shell] .r28-daybook-lines tr {
+    padding: 8px 0 !important;
+    border-bottom: 1px solid var(--r22-border, #d8e2de) !important;
+  }
+
+  html[data-tegh-shell] .r28-daybook-lines td {
+    height: auto !important;
+    padding: 3px 0 !important;
+    border: 0 !important;
+    white-space: normal !important;
+    text-align: left !important;
+  }
+
+  html[data-tegh-shell] .r28-daybook-lines td::before {
+    display: inline-block !important;
+    width: 92px !important;
+    color: var(--r22-muted, #50645e) !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+  }
+
+  html[data-tegh-shell] .r28-daybook-lines td:nth-child(1)::before { content: "Account"; }
+  html[data-tegh-shell] .r28-daybook-lines td:nth-child(2)::before { content: "Memo / party"; }
+  html[data-tegh-shell] .r28-daybook-lines td:nth-child(3)::before { content: "Debit"; }
+  html[data-tegh-shell] .r28-daybook-lines td:nth-child(4)::before { content: "Credit"; }
+
+  /* Banking directory, matching and reconciliation use full-width blocks. */
+  html[data-tegh-shell] :is(
+    .r28-banking-grid,
+    .r28-bank-directory-controls,
+    .r28-bank-account-row,
+    .r28-recon-meta,
+    .r28-recon-bridge,
+    .r28-recon-completion-summary
+  ) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html[data-tegh-shell] :is(.r28-bank-panel, .r28-detail-panel) {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  html[data-tegh-shell] :is(.r28-bank-tools, .r28-match-tools, .r28-banking-top .srp-register-filter) {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+  }
+
+  html[data-tegh-shell] :is(.r28-bank-tools, .r28-match-tools, .r28-banking-top .srp-register-filter) > * {
+    grid-column: auto !important;
+    width: 100% !important;
+  }
+
+  html[data-tegh-shell] .r28-bank-account-row :is(dl, .r28-bank-account-actions) {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html[data-tegh-shell] .r28-bank-account-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html[data-tegh-shell] .r28-bank-account-actions > * {
+    width: 100% !important;
+  }
+
+  /* Bank Review intentionally keeps one bounded queue/detail scroller. */
+  html[data-tegh-shell] .srp-page[data-srp-page="bank-review"] .srp-page-body {
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="bank-review"] .r22-toolbar {
+    height: auto !important;
+    flex-wrap: nowrap !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="bank-review"] .r22-toolbar-primary {
+    display: grid !important;
+    grid-template-columns: 36px minmax(0, 1fr) !important;
+    grid-template-rows: auto auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="bank-review"] .r22-toolbar-primary .tegh-page-head-actions {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="bank-review"] .r22-toolbar-controls {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  html[data-tegh-shell] .tegh-review-pagebar,
+  html[data-tegh-shell] .tegh-review-account-control {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  html[data-tegh-shell] .tegh-review-split {
+    display: block !important;
+    width: 100% !important;
+    height: clamp(420px, calc(100dvh - 190px), 760px) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 150px) !important;
+    overflow: hidden !important;
+  }
+
+  html[data-tegh-shell] .tegh-review-queue-pane,
+  html[data-tegh-shell] .tegh-review-detail-pane {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  html[data-tegh-shell] .tegh-review-split:not(.is-detail-open) .tegh-review-detail-pane,
+  html[data-tegh-shell] .tegh-review-split.is-detail-open .tegh-review-queue-pane {
+    display: none !important;
+  }
+
+  html[data-tegh-shell] .tegh-review-split.is-detail-open .tegh-review-detail-pane {
+    display: grid !important;
+    grid-template-rows: auto auto minmax(0, 1fr) auto !important;
+  }
+
+  html[data-tegh-shell] :is(.tegh-review-queue-scroll, .tegh-review-detail-scroll) {
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  html[data-tegh-shell] :is(.tegh-review-filter-panel, .tegh-review-bulk-panel) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    max-height: calc(100dvh - 150px) !important;
+    overflow-y: auto !important;
+  }
+
+  html[data-tegh-shell] :is(.tegh-review-selection-bar, .tegh-review-search) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  /* Menus and dialogs fit the visual viewport and scroll internally. */
+  html[data-tegh-shell] :is(
+    .srp-modal-scrim,
+    .srp-void-scrim,
+    .r23-dialog-scrim,
+    .tegh5300-dialog-scrim,
+    .tegh-qa-v4-scrim
+  ) {
+    box-sizing: border-box !important;
+    padding: max(6px, env(safe-area-inset-top, 0px)) max(6px, env(safe-area-inset-right, 0px)) max(6px, env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px)) !important;
+    overflow: hidden !important;
+  }
+
+  html[data-tegh-shell] :is(.srp-modal, .srp-confirm-modal, .r23-dialog, .tegh-modal, .tegh5300-dialog, .tegh-qa-v4) {
+    box-sizing: border-box !important;
+    width: calc(100vw - 12px) !important;
+    min-width: 0 !important;
+    max-width: calc(100vw - 12px) !important;
+    height: auto !important;
+    max-height: calc(100dvh - 12px) !important;
+    margin: auto !important;
+    border-radius: 12px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  html[data-tegh-shell] :is(.r23-dialog, .srp-modal, .tegh-modal) :is(.r23-dialog-body, .srp-modal-body, .tegh-modal-body) {
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  html[data-tegh-shell] :is(.r23-dialog, .srp-modal, .tegh-modal, .tegh5300-dialog) > footer {
+    position: static !important;
+    display: flex !important;
+    align-items: stretch !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  html[data-tegh-shell] :is(.r23-dialog, .srp-modal, .tegh-modal, .tegh5300-dialog) > footer :is(button, .srp-btn) {
+    flex: 1 1 140px !important;
+  }
+
+  html[data-tegh-shell] .r22-menu-panel {
+    left: 6px !important;
+    right: 6px !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: calc(100vw - 12px) !important;
+    max-height: calc(100dvh - 18px) !important;
+    padding: 12px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Bank Review has older shell rules with unusually specific fixed heights.
+   Let the title/actions wrap before the account picker, and give the queue
+   enough room for actual transactions on a phone. */
+@media (max-width: 820px) {
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"][data-tegh-shell] .srp-page[data-srp-page="bank-review"] .srp-page-head.r22-toolbar > .r22-toolbar-primary {
+    display: grid !important;
+    grid-template-columns: 36px minmax(0, 1fr) !important;
+    grid-template-rows: auto auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"][data-tegh-shell] .srp-page[data-srp-page="bank-review"] .r22-toolbar-primary > .tegh-page-head-actions {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+  }
+
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"][data-tegh-shell] .srp-page[data-srp-page="bank-review"] .tegh-review-split {
+    flex: 0 0 auto !important;
+    height: min(620px, max(380px, calc(100dvh - 260px))) !important;
+    min-height: 380px !important;
+    max-height: none !important;
+  }
+
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"][data-tegh-shell] .srp-page[data-srp-page="reports-centre"] .srp-page-body,
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"][data-tegh-shell] .srp-page[data-srp-page="reports-centre"] .r22-workspace.r22-primary-scroll {
+    display: block !important;
+    flex: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"][data-tegh-shell] .srp-page[data-r22-kind="report"] :is(.srp-page-body, .r22-workspace, .r23-table-host, .r23-scroll) {
+    flex: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"][data-tegh-shell] .srp-page[data-r22-kind="report"] .srp-card.r22-fill-path {
+    flex: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"][data-tegh-shell] .srp-page[data-r22-kind="report"] .r23-table-host {
+    display: block !important;
+  }
+}
+
+/* R19 stopped its mobile chrome at 760px while R30 changes the workspace at
+   820px. Bridge that gap so narrow tablets receive a complete drawer and
+   bottom navigation instead of an obscured desktop sidebar and empty footer. */
+@media (min-width: 761px) and (max-width: 820px) {
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] .app,
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] body.tegh-top-navigation-mode .app {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 0 !important;
+  }
+
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] .topbar > .r19-mobile-menu {
+    display: grid !important;
+    place-items: center !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    padding: 6px !important;
+    border: 0 !important;
+    background: none !important;
+    color: var(--tegh-text, #284c64) !important;
+  }
+
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] .topbar :is(.menu, [data-menu-toggle], .sr-sidebar-toggle),
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] :is(.srp-top-navigation, .tegh-top-navigation, .sr-top-nav) {
+    display: none !important;
+  }
+
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] .sidebar,
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] body.tegh-top-navigation-mode .sidebar,
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] body.sr-sidebar-collapsed .sidebar {
+    display: flex !important;
+    flex-direction: column !important;
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+    z-index: 10002 !important;
+    width: min(330px, calc(100vw - 24px)) !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    padding: 16px 12px calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+    border-right: 1px solid var(--tegh-line, #dce5ed) !important;
+    background: var(--tegh-surface, #fff) !important;
+    color: var(--tegh-text, #173129) !important;
+    transform: translateX(-105%) !important;
+    visibility: hidden !important;
+    transition: transform .18s ease, visibility .18s !important;
+  }
+
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] body.r19-drawer-open .sidebar {
+    transform: translateX(0) !important;
+    visibility: visible !important;
+    box-shadow: 12px 0 45px rgba(23, 51, 76, .17) !important;
+  }
+
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] .sidebar .r19-drawer-close {
+    display: grid !important;
+    place-items: center !important;
+    position: absolute !important;
+    inset: 9px 9px auto auto !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    padding: 6px !important;
+    background: transparent !important;
+  }
+
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] #r19-drawer-overlay {
+    display: none !important;
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 10001 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: rgba(12, 33, 58, .44) !important;
+  }
+
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] body.r19-drawer-open #r19-drawer-overlay {
+    display: block !important;
+  }
+
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] #r19-mobile-nav {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    align-items: start !important;
+    z-index: 9000 !important;
+    border-top: 1px solid var(--tegh-line, #dce5ed) !important;
+    background: var(--tegh-surface, #fff) !important;
+    box-shadow: 0 -3px 14px rgba(39, 61, 85, .04) !important;
+  }
+
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] #r19-mobile-nav > button,
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] #r19-mobile-nav summary {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    width: 100% !important;
+    height: 50px !important;
+    min-height: 44px !important;
+    padding: 4px 0 !important;
+    border: 0 !important;
+    border-radius: 5px !important;
+    background: none !important;
+    color: var(--tegh-muted, #52657e) !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+  }
+
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] #r19-mobile-nav > button[aria-current="page"] {
+    color: var(--tegh-accent, #007558) !important;
+    background: var(--tegh-accent-soft, #eef7f3) !important;
+  }
+
+  html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] #r19-mobile-nav svg {
+    width: 20px !important;
+    height: 20px !important;
+    flex: none !important;
+  }
+}
+
+@media (max-width: 680px) {
+  html[data-tegh-shell] :is(.srp-form, .sra-form).r22-form-grid,
+  html[data-tegh-shell] :is(.form-grid, .srp-form-grid) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html[data-tegh-shell] :is(.srp-form, .sra-form).r22-form-grid > *,
+  html[data-tegh-shell] :is(.form-grid, .srp-form-grid) > * {
+    grid-column: auto !important;
+    min-width: 0 !important;
+  }
+
+  html[data-tegh-shell] :is(.srp-form, .sra-form).r22-form-grid > :is(.full, fieldset, .r22-form-actions),
+  html[data-tegh-shell] :is(.form-grid, .srp-form-grid) > :is(.full, fieldset, .srp-actions) {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  html[data-tegh-shell] .srp-sites-stat-grid,
+  html[data-tegh-shell] .r27-daybook-summary,
+  html[data-tegh-shell] .r28-daybook-table .r28-daybook-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html[data-tegh-shell] :is(.srp-page, .r22-render-root) {
+    padding-right: var(--r30-mobile-gutter) !important;
+    padding-left: var(--r30-mobile-gutter) !important;
+  }
+
+  html[data-tegh-shell] .r22-render-root .srp-page,
+  html[data-tegh-shell] .srp-page .r22-render-root {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  html[data-tegh-shell] :is(.srp-card, .sra-card, .srctl-card, .r29-form-column, .r29-invoice-main, .r29-product-form-card) {
+    padding-right: 11px !important;
+    padding-left: 11px !important;
+  }
+
+  html[data-tegh-shell] :is(.r29-sticky-actions, .srp-actions, .primary-actions) > :is(button, .srp-btn, a) {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+  }
+
+  html[data-tegh-shell] .r27-report-catalogue-toolbar,
+  html[data-tegh-shell] .srp-page[data-r22-kind="report"] .r22-toolbar .r22-filter-controls {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html[data-tegh-design] .srp-page[data-tegh-report-surface="ready"] .tegh-authoritative-table td {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 3px !important;
+  }
+
+  html[data-tegh-shell] .tegh-report-totals {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html[data-tegh-shell] .r23-table-host .r23-table:not(.r28-daybook-table) tbody tr:not(.r23-group):not(.r23-expanded-row) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  #r19-mobile-nav :is(span, b, small) {
+    font-size: 10px !important;
+  }
+}
+
+@media (max-width: 820px) and (prefers-reduced-motion: reduce) {
+  html[data-tegh-shell] :is(.stage, .sidebar > nav, .tegh-review-queue-scroll, .tegh-review-detail-scroll, .srp-modal, .r23-dialog, .r22-menu-panel) {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* The same current Dashboard is used on phones. Keep its four live balances
+   and attention work visible before the chart, without reverting to the
+   old one-card-per-row stack at the 480px breakpoint. */
+@media (max-width: 820px) {
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .srp-page-body.r19-dashboard {
+    display: block !important;
+    min-width: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .r22-dashboard-flow {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: none !important;
+    grid-auto-rows: max-content !important;
+    align-content: start !important;
+    gap: 10px !important;
+    min-width: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .r19-dashboard .srp-sites-stat-grid {
+    display: grid !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin: 0 !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .r19-dashboard .srp-sites-stat-card {
+    min-width: 0 !important;
+    min-height: 108px !important;
+    padding: 10px !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .r19-dashboard .srp-sites-stat-card strong {
+    font-size: clamp(17px, 4.8vw, 23px) !important;
+    white-space: nowrap !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .r19-dashboard .r19-attention {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .r19-dashboard .r17-dashboard-charts {
+    grid-column: 1 !important;
+    grid-row: 4 !important;
+    min-width: 0 !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .r19-dashboard .r17-dashboard-actions {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+    min-width: 0 !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .r19-dashboard [data-dashboard-slot="widgets"] {
+    grid-column: 1 !important;
+    grid-row: 5 !important;
+    min-width: 0 !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .r19-dashboard-date,
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] [data-dashboard-customize]:disabled {
+    display: none !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .r19-dashboard-meta small {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .r19-dashboard-meta [data-dashboard-customize] {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .r17-dashboard-profit {
+    display: block !important;
+    height: auto !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .r17-dashboard-profit > label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 8px 0 !important;
+    font-size: 12px !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .r17-dashboard-profit > label select {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html[data-tegh-shell] .srp-page[data-srp-page="dashboard"] .r17-profit-totals {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 5px !important;
+  }
+
+  /* A hidden drawer must move fully offscreen. Some restored brand children
+     explicitly set visibility:visible, so hiding only the parent leaks them
+     over the compact header. */
+  html[data-tegh-shell] body:not(.r19-drawer-open) .sidebar {
+    transform: translateX(-105%) !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  html[data-tegh-shell] body.r19-drawer-open .sidebar {
+    transform: translateX(0) !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar nav .srp-nav-parent:not([aria-current="page"]) {
+    color: #294b40 !important;
+  }
+
+  html[data-tegh-theme="dark"][data-tegh-shell] body.r19-drawer-open .sidebar .srp-company-trigger :is(b, small, span) {
+    color: #294b40 !important;
+  }
+}

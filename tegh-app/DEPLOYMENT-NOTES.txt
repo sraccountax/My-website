@@ -1,0 +1,376 @@
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R163 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+
+This package contains every release through R163 (R118–R163 change notes are
+included). R163 is the private beta package (it replaces R162): Guided mode starts with bank statements month by month, groups the lines by keyword for posting, reconciles a month when the statement's closing balance agrees with Tegh, picks up work done in Full Accounting and says where to continue, then offers invoices and expenses (Full Accounting) or the financial statements; Connect with an accountant in the top bar sends an estimated request to the Tegh accountants; in Full Accounting, a matched bank line no longer blocks reconciliations (see R163-CHANGES.md). The tables guided_statement_months, guided_statement_batches and accountant_requests are added on first use, and config.php can set accountant.request_email and accountant.hourly_rate_cents. R162: Guided mode tested end to end, with fixes to the Banking menu after a posting, re-posting a voided bank line, restoring a voided bank line, the Guided month-end checklist button, row selection from the Actions menu, Match and Post layout, the Guided sign-in page and the month-end reconciliation check (see R162-CHANGES.md); no database change. R161: fixes from the final functional test with large companies in every mode (simultaneous saves, large registers, a background check cancelling loading screens, amounts under the scrollbar, badge and count formatting; see R161-CHANGES.md); no database change. R160: the platform owner's Invitations & Access page is reorganised into Invite someone / Sent invitations / Sign-up & email; an invitation fits the person (a new address can get its own workspace, the inviter's companies or both; an existing login only gets access to more companies; a deactivated or deleted login is restored instead, and the person gets a password email), and api/.htaccess sets RewriteBase so /api/ routes work on IONOS (see R160-CHANGES.md); no database change. R159: every new company has its own onboarding with an empty chart; owners can archive a company; permanent deletion is a request that Tegh support (the platform owner) approves (see R159-CHANGES.md); the columns companies.archived_at and archived_by and the table company_deletion_requests are added on first use. R158: deleting a company works again, and the host backup scripts in the Beta Kit wait for running requests, detect any edited record and stop on any database error (see R158-CHANGES.md); no database change. R157: new users are taken through company onboarding (six steps; modules stay locked until the owner marks every step complete), followed by a Tegh Assist tour; companies have a time zone; Quick Actions show their keys; the theme switch is in the profile menu; Document Intake and the PDF statement reader are marked Beta. R156: the Terms carry the beta conditions, the Terms and Privacy pages show the operator details from config.php, and invitations are refused until those details are complete. It also fixes DEF-18: Match and Post, report periods and default dates now use the accounting (Toronto) date even when the browser's own date is already the next day. R155: the terms version recorded at invitation acceptance matches the published pages, and an optional beta notice shows in the top bar (config app.beta_notice). R154 lets the GL Account Report, the Bank GL Report and Budgets run for several selected companies. R153 adds the company address and short name, company labels on multi-company report lines, sidebar arrows and the theme icons. R152 reads more statement layouts and multi-statement PDFs, and reads invoice lines with supplier memory, suggestions and duplicate checks. R151 brings one form for invoices, credit notes and debit notes, itemized vendor invoices, Edit on the main screen and the scrolling fixes. R150 keeps the public pages in the light design on dark-mode devices. R149 replaces the invitation link with an invitation code. R148 adds the Sign in / Create account tabs with account creation through an invitation link. R147 brings the owner's public-page update and opens the home page at the site root. R146 fixes the R145 OCR clean-up on clean scans (DEF-16). R145 improves the PDF statement converter and Document Intake. R144 adds Tegh Intelligence (no external AI). R143 fixes defects found by a click-through test of every daily
+workflow. R142 applies the owner-approved wording (payroll outside Quebec,
+sales tax guide, Product Activity note). R141 adds the gate follow-ups (DEF-08, OBS-2, Clarity), countries,
+the Tax Code Report and Dashboard Figures. R140 fixes vendor invoice scrolling on phones. R139 contains only the fixes from the invite-only beta release gate
+(FINAL-BETA-QA-REPORT.md). It is a STAGING CANDIDATE, not a production release
+(productionReady: false); see "Host acceptance" at the end. No manual database migration. R120's additive table
+accounting_note_lines is created automatically on first use of Credit & Debit
+Notes (the database user needs CREATE privilege, as for the original install).
+
+1. Back up the web root, the database, the private config outside the web root,
+   and runtime uploads/storage. Preserve those during the update.
+2. Upload the CONTENTS of this flat-root ZIP into the web root (not the folder
+   that contains them). Keep the existing private config.php, uploads, storage,
+   logs and database. Never run schema.sql on a live database.
+3. Files removed from the package in R122 (old asset versions and old release
+   notes) are no longer loaded. Copies already on the host are harmless and may
+   be deleted later; do not delete config, storage or uploads.
+4. Run php -l on the host for the changed PHP files:
+   api/accounting.php, api/backup.php, api/bank_operations_v5980.php,
+   api/operations.php, api/portal.php, api/report_loaders_v5980.php, the new
+   api/reconciliation_position_r122.php, and for R123 api/ai_router.php,
+   api/ai_actions_v5600.php, api/command_centre_v5600.php, api/ai_agent.php,
+   the new api/assist_language_r123.php, for R128 api/master_data.php and api/index.php, and for
+   R129 api/accounting.php, api/index.php and api/report_loaders_v5980.php, and
+   for R130 api/payroll.php, api/data_imports.php, api/backup.php,
+   api/payroll_tax_agent.php, api/native_agents.php, api/ai_actions_v5600.php,
+   api/ai_agent.php and api/assist_language_r123.php, and for R132
+   api/workspace_summary_v5610.php, and for R133 the new
+   api/client_view_r133.php, api/index.php and api/portal.php. Upload the new
+   client-view.html at the web root and the updated .htaccess.
+   For R135: api/accounting.php, api/advanced.php, api/payments.php,
+   api/invoice_documents_r20.php, api/professional_output_v5710.php,
+   api/report_output_v5980.php, api/ai_agent.php and api/ai_actions_v5600.php.
+   For R136: api/bootstrap.php, api/companies.php, api/accounting.php,
+   api/books.php, api/advanced.php, api/ai_learning.php and
+   api/invoice_documents_r20.php. R136 adds companies.pst_rate_mpct
+   automatically on the first company create or settings save (ALTER privilege
+   needed); it is backfilled from pst_rate_bps x 10.
+   For R137: the new api/tax_codes_r137.php, plus api/index.php,
+   api/accounting.php, api/accounting_notes.php, api/advanced.php,
+   api/books.php, api/payments.php, api/invoice_documents_r20.php,
+   api/professional_output_v5710.php, api/backup.php, api/companies.php and
+   api/ai_actions_v5600.php. R137 creates tax_codes, tax_code_components and
+   document_tax_lines and adds invoice_lines.tax_code_id, bills.tax_code_id,
+   expenses.tax_code_id and companies.tax_setup_mode on the first request
+   (CREATE and ALTER privilege needed). Existing companies keep their current
+   tax rules until they save their first tax code.
+   For R138: api/tax_codes_r137.php, api/companies.php, api/accounting.php,
+   api/bank_operations_v5980.php, api/bank_safety_v5980.php,
+   api/bank_register_v5910.php, api/reconciliation_position_r122.php,
+   api/report_loaders_v5980.php and api/workspace_summary_v5610.php. New
+   companies get 2115 QST Payable and 1115 QST Recoverable in the default chart;
+   existing companies get them when Canadian tax codes are added.
+   For R139: api/tax_codes_r137.php, api/accounting.php, api/advanced.php,
+   api/books.php, api/workspace_summary_v5610.php, api/portal.php,
+   api/backup.php, app.html, .htaccess and assets/tegh-portal-v5990.js,
+   assets/tegh-gate-v5990.js, assets/tegh-preflight-v5990.js. No migration.
+   For R140: assets/tegh-r120.css, app.html, assets/tegh-gate-v5990.js and
+   assets/tegh-preflight-v5990.js. No migration.
+   For R141: the new api/regions_r141.php and api/dashboard_mappings_r141.php,
+   plus api/index.php, api/companies.php, api/accounting.php, api/advanced.php,
+   api/books.php, api/operations.php, api/payroll.php, api/tax_codes_r137.php,
+   api/workspace_summary_v5610.php, api/auth.php, api/invitations_v5980.php
+   and api/platform.php; also .htaccess, app.html, product.html,
+   subscriptions.html and the changed assets. On the first request R141 adds
+   companies.country (default Canada), widens province to VARCHAR(10) on
+   companies, customers and vendors, and creates company_dashboard_mappings
+   (ALTER and CREATE privilege needed). Dashboard mappings are not included in
+   backups; re-enter them after a restore.
+   For R142: api/payroll.php, api/tax_codes_r137.php, api/ai_agent.php,
+   app.html, product.html, subscriptions.html and the changed assets. No
+   migration.
+   For R143: api/operations.php, api/assist_language_r123.php, app.html and
+   the changed assets. No migration.
+   For R144: the new api/insights_r144.php, plus api/index.php, app.html and
+   the changed assets. The table company_insight_dismissals is created on the
+   first "Not a problem" (CREATE privilege). No outbound network access is
+   needed: Tegh Intelligence runs entirely on this server.
+   For R145: the new assets/tegh-statement-layout-r145.js,
+   assets/tegh-upsert-polyfill-r145.js and assets/tegh-pdf-worker-r145.mjs (.mjs
+   must be served as text/javascript; the root .htaccess already does this),
+   plus app.html, client-view.html and the changed assets. No server code and
+   no migration.
+   For R146: assets/tegh-native-ocr-v5220.js, app.html and the changed assets.
+   No server code and no migration.
+   For R147: .htaccess and the 17 public pages (index.html, product.html, the
+   guides, privacy.html, terms.html …). Keep files at 644 and folders at 755;
+   files that only their owner can read (600) make the web server answer 403.
+   For R148: app.html, assets/tegh-gate-v5990.js, assets/tegh-preflight-v5990.js,
+   assets/tegh-r120.css and api/invitations_v5980.php. No migration.
+   For R149: api/invitations_v5980.php, app.html, assets/tegh-gate-v5990.js,
+   assets/tegh-preflight-v5990.js, assets/tegh-r120.css and
+   assets/tegh-portal-v5990.js. No migration.
+   For R150: assets/tegh-marketing-v5900.css, assets/tegh-marketing-v4140.css
+   and the 17 public pages (index.html … guides/*.html). Also upload .htaccess:
+   an .htaccess older than R147 still sends the site root to app.html. No migration.
+   For R151: api/documents_r151.php (new), api/books.php, api/accounting.php,
+   api/accounting_notes.php, api/backup.php, api/index.php,
+   api/report_loaders_v5980.php, api/report_subledgers_v5980.php, app.html,
+   assets/tegh-portal-v5990.js, assets/tegh-registers-r23.js,
+   assets/tegh-invoice-reports-r20.js, assets/tegh-r120.css, assets/tegh-gate-v5990.js,
+   assets/tegh-preflight-v5990.js. The database additions (bill_lines; note
+   reference and line columns) are made automatically on first use.
+   For R152: api/intake_r152.php (new), api/native_ap_ar_v5600.php,
+   api/backup.php, api/index.php, app.html, assets/tegh-statement-layout-r152.js
+   (new; delete assets/tegh-statement-layout-r145.js), assets/tegh-bank-converter-v5990.js,
+   assets/tegh-native-ocr-v5220.js, assets/tegh-native-ap-ar-v5600.js,
+   assets/tegh-portal-v5990.js, assets/tegh-r120.css, assets/tegh-gate-v5990.js,
+   assets/tegh-preflight-v5990.js. native_agent_documents.extracted_json and the
+   vendor_document_memory table are added automatically on first use.
+   For R153: api/company_profile_r153.php (new), api/index.php, api/auth.php,
+   api/companies.php, api/accounting.php, api/invoicing.php, app.html,
+   assets/tegh-portal-v5990.js, assets/tegh-professional-output-v5990.js,
+   assets/tegh-registers-r23.js, assets/tegh-r120.css, assets/tegh-gate-v5990.js,
+   assets/tegh-preflight-v5990.js. The companies address/short-name columns are
+   added automatically on first use.
+   For R154: app.html, assets/tegh-portal-v5990.js,
+   assets/tegh-professional-output-v5990.js, assets/tegh-registers-r23.js,
+   assets/tegh-r120.css, assets/tegh-gate-v5990.js, assets/tegh-preflight-v5990.js,
+   assets/tegh-bank-converter-v5990.js (cache token). No database change.
+   For R155: api/release_v5980.php, api/auth.php, privacy.html, terms.html,
+   config.example.php, app.html, assets/tegh-portal-v5990.js, assets/tegh-r120.css,
+   assets/tegh-gate-v5990.js, assets/tegh-preflight-v5990.js,
+   assets/tegh-bank-converter-v5990.js. No database change. For the beta, add to the
+   'app' section of config.php:
+     'beta_notice' => 'Private beta: use sample data only. Do not enter real client, employee or bank records. Beta data may be reset.',
+   and keep 'public_signup_enabled' => false.
+   For R156: api/legal_r156.php (new), api/index.php, api/invitations_v5980.php,
+   api/platform.php, api/admin.php, api/bootstrap.php, api/release_v5980.php,
+   privacy.html, terms.html, assets/tegh-legal-r156.js (new),
+   assets/tegh-marketing-v5900.css, assets/index-BsxPiq85-v2817.js (accounting date,
+   DEF-18), .htaccess, config.example.php, app.html and the cache-token assets.
+   No database change. REQUIRED: add the 'operator' section of
+   config.example.php to config.php with the real legal name, address, privacy and
+   support emails, hosting provider, data location, off-site backup location and
+   email provider. Until every field is filled in, invitations are refused (409
+   operator_details_missing) and the Terms/Privacy pages say they are incomplete.
+   For R157: api/onboarding_r157.php (new), assets/tegh-r157.css (new), api/index.php,
+   api/companies.php, api/company_profile_r153.php, api/auth.php, api/bootstrap.php,
+   api/accounting.php, api/workspace_summary_v5610.php, api/command_centre_v5600.php,
+   api/ai_agent.php, assets/tegh-portal-v5990.js, assets/tegh-gate-v5990.js,
+   assets/index-BsxPiq85-v2817.js, assets/tegh-r27.js, app.html and the cache-token
+   assets. The table company_onboarding and the column companies.timezone are added
+   on first use. Existing companies are never locked by onboarding.
+   For R158: api/operations.php, api/bootstrap.php, app.html and the cache-token
+   assets. No database change. Replace beta-ops/tegh-backup.sh and
+   tegh-restore-verify.sh on the host with the R158 versions from the Beta Kit.
+   For R159: api/company_lifecycle_r159.php (new), api/companies.php,
+   api/operations.php, api/admin.php, api/index.php, assets/tegh-r157.css, app.html
+   and the cache-token assets. Columns companies.archived_at and archived_by and
+   the table company_deletion_requests are added on first use. Set operator.support_email
+   in config.php to a mailbox you read: deletion requests are sent there.
+   For R160: api/invitations_r160.php (new), api/invitations_v5980.php,
+   api/release_v5980.php, api/.htaccess, privacy.html, assets/tegh-r157.css, app.html
+   and the cache-token assets. No database change.
+   For R161: api/platform.php, api/insights_r144.php, api/report_loaders_v5980.php, assets/tegh-activity-r22.js,
+   assets/tegh-r157.css, app.html and the cache-token assets. No database change.
+   For R162: api/accounting.php, api/voids.php, assets/tegh-modern-v5700.js,
+   assets/tegh-r157.css, app.html and the cache-token assets. No database change.
+   For R163: api/guided_r163.php (new), api/index.php, api/accounting.php, api/imports.php,
+   api/reconciliation_position_r122.php, assets/tegh-r157.css, app.html and the cache-token
+   assets. Tables guided_statement_months, guided_statement_batches and accountant_requests
+   are added on first use. Optional in config.php:
+   'accountant' => ['request_email' => 'enquiry@sraccountax.ca', 'hourly_rate_cents' => 3000]
+   (these are the defaults). Requests are sent with the host's mail settings.
+5. Upload all assets together; the cache token is r163-tegh (the client-view
+   page loads its output script with r145-tegh too; its other assets stay on
+   5990-r135). A partial upload can
+   leave browsers on a stale portal.
+6. DN-1001 was already posted once in the original staging data. Do NOT post it
+   again.
+
+Verify after upload
+- Sign in as the Platform Owner; the sidebar shows the new TEGH brand block and
+  one-line menu labels (Banking: Match and Post, Transactions Report, Bank
+  General Ledger, Bank Reconciliation).
+- Receivables > Invoice Register: tick one invoice; View / Record Payment /
+  Credit Note actions appear above the table.
+- Banking > Reconcile Account: the bank balance is calculated (opening balance +
+  imported transactions); the reconciliation statement lists reconciling items;
+  Complete is enabled only when the unexplained difference is $0.00.
+- Credit & Debit Notes: the PDF button downloads a note PDF.
+- Payroll > CRA Remittance: choosing a period end prefills tax, CPP and EI.
+- Settings > Backup: a new backup downloads as .tegh; an older backup made
+  before the product rename still restores.
+- Dashboard: a one-sentence summary and an Ask box appear above the cards
+  ("Money in the bank", "Customers owe you", "You owe suppliers", "Profit this
+  year"), and To Do lists only what needs doing.
+- Settings > Appearance: switch to Dark and to Top navigation; menus, reports
+  and forms stay readable.
+- Banking > Match and Post: the Bank Transactions header shows one bank
+  balance for the To date (red when negative).
+- Open an existing customer: the screen says Edit Customer and, if no opening
+  balance exists, offers Post opening balance.
+- Banking > Transactions Report: select one pending line; Edit Transaction
+  opens a form, and saving updates the row. Posted lines have no Edit button.
+- Payroll Support (sidebar): the Payroll Support Tool notice shows at the top;
+  the employee form has no SIN field and suggests an Employee ID (EMP-0001);
+  finalizing a pay run needs the "I have reviewed and verified…" checkbox.
+- On a phone: open ☰ and tap Banking. The Banking page (Activity and Reports)
+  opens and the menu closes; no submenu expands in the menu.
+- Dashboard: a fifth card shows "GST/HST you owe" (or "refund due"); its ↗ opens
+  the GST/HST Summary.
+- Settings > Team and access > Client Viewing Links: create a link for a test
+  email you can read, open it in a private window, click "Email me a code",
+  enter the code and check the dashboard and a report download. Email
+  delivery must be configured (mail.from_email and SMTP) for codes to arrive.
+- R133 creates client_view_links, client_view_codes and client_view_sessions
+  automatically on first use (CREATE privilege needed).
+- R134: upload client-view.html, api/client_view_r133.php and the three
+  assets/tegh-client-view-* files together. The client dashboard shows a chart
+  for each shared report that has one.
+- R130 clears SINs saved by earlier releases the first time each company opens
+  Payroll Support (recorded in its audit trail as payroll.sin_data_removed).
+  To clear every company at once instead, run:
+  UPDATE payroll_employees SET sin_ciphertext=NULL, sin_last_four=NULL;
+  Older backups and database dumps taken before R130 may still contain SINs;
+  store or delete them according to your retention policy.
+- R135 (BC, MB, QC or SK company registered for PST): a taxable invoice line to
+  a customer in the same province shows "Charge PST"; totals show GST/HST and
+  PST separately; after issuing, the journal credits 2100 and 2110 separately.
+  Settings > Company Details shows "How sales tax works for this company".
+  Reports > Product Activity replaces "Inventory Report".
+- R136 (Quebec company): Company Details PST rate shows 9.975 (re-enter 9.975
+  and save if it shows 9.98). A $1,000 taxable invoice to a Quebec customer
+  shows QST $99.75 and posts $99.75 to 2110.
+- R137: Settings > Company Setup > Tax Codes lists codes. Add a code for your
+  province (Start from a Canadian example fills it in), save, then create an
+  invoice for a customer in that province: the line's Tax code defaults to it
+  and the totals list each tax. Check the journal posts each tax to its GL.
+  Saving the first code switches an existing company to tax codes.
+- R138: create a test company with the Default chart; Tax Codes lists AB–YT
+  plus GST. In Banking > Match and Post Transactions, select a withdrawal,
+  choose an expense account and the BC code: the preview shows GST recoverable
+  and PST added to the expense. For an existing company, Tax Codes > Add
+  Canadian tax codes adds the missing provinces after a confirmation.
+- R139: (1) GL Journal Entry does not list 1200/2050; a journal sent to them
+  by the API is refused. (2) Company Details: untick "Registered for GST/HST"
+  on a test company; a new invoice line shows "Not registered for GST/HST — no
+  tax" and a vendor invoice with the BC code puts GST+PST into the expense.
+  (3) View the page source of /app.html: no clarity.ms script.
+- R140 (on an iPhone and an Android phone): Payables > New Vendor Invoice;
+  swipe up starting on the form fields. The page scrolls to the invoice lines
+  and the Save buttons.
+- R141: (1) Settings > Users: send a test invitation to a sandbox inbox; the
+  link contains "#accountSetup=" (not "?") and the token is not in the access
+  log. (2) Add company: choose United States; the tax heading reads "Sales tax,
+  VAT or GST" and Payroll is unavailable. (3) A test company in Ontario with
+  the Default chart: the BC code is GST 5% only. (4) Settings > Company Setup >
+  Tax Code Report: tick two codes and press Edit selected. (5) Settings >
+  Company Setup > Dashboard Figures: map "Money in the bank" to one bank
+  account; the dashboard card shows "· your GL mapping". Set it back to
+  Automatic. (6) Response headers: Content-Security-Policy has no clarity.ms.
+- R142: (1) Payroll Support: the notice says "outside Quebec" and the line
+  below it lists the CRA T4127 tables loaded. (2) Add company: tick Registered
+  for GST/HST; the guide says codes for other provinces charge GST or HST only.
+  (3) Reports > Product Activity: the note mentions specific identification
+  and no LIFO.
+- R143: (1) Record a customer payment from the Invoice Register, then import a
+  statement containing that deposit: in Match and Post, selecting the deposit
+  shows "Already recorded?" and Link to this payment posts nothing new.
+  (2) Ask Tegh Assist "how much money is in the bank": Bank Accounts opens with
+  the balance.
+- R144: (1) Dashboard: a "Tegh brief" appears under the summary sentence.
+  (2) Reports > Management > Tegh Intelligence lists findings with Open and
+  Not a problem. (3) Match and Post: select a bank line for a merchant posted
+  before; a suggestion with a confidence appears and Use suggestion fills the
+  account and tax code without posting. (4) Ask Tegh Assist "how much did I
+  spend on travel this year".
+- R145: (1) Banking > Upload Statement > Bank Statement Converter: convert a
+  text PDF statement; the review screen shows a green line ("Opening balance
+  … with these rows, comes to the closing balance … ✓") or an amber line
+  naming the difference. (2) Payables > Document Intake > Upload document: the
+  Upload and Extract Locally button is visible inside the panel; upload a bill
+  and check the read fields and "Subtotal + tax = total ✓". (3) Upload a
+  scanned (image-only) PDF bill: the fields are read by OCR without an error.
+- R147/R148: (1) https://books.sraccountax.ca/ shows the home page; Sign In
+  opens the app. (2) The app's sign-in screen shows two tabs, Sign in and
+  Create account; Create account explains the invitation-only beta and accepts a
+  pasted invitation link. (3) R149: invite a test address (Settings > User
+  Management). The email shows an invitation code (XXXXX-XXXXX) and no link
+  with a token. On the Create account tab enter that email address and the
+  code: the form shows the company and role, Your name and password; creating
+  the account opens Tegh signed in.
+- R150: with the phone or computer in dark mode, open
+  https://books.sraccountax.ca/ (a private window avoids the cached stylesheet):
+  the home page shows the light design, and so do Product and the guides.
+- R151: (1) Receivables > Customer Invoices: the form shows Document type,
+  details on top and the line grid below; click + Add line several times —
+  the page does not jump to the top. (2) Payables > Vendor Invoices: two lines
+  with different GL accounts post each line to its own account (Day Book).
+  (3) Customer credit note: type an invoice number that is not in Tegh — the
+  form says so and the note posts as an open credit; type an existing number —
+  it links and "Return items" fills the lines. (4) Invoice register > row
+  Actions > Edit opens the invoice on the main screen. (5) Scroll the sidebar
+  menu with the mouse wheel right after choosing a menu item.
+- R152: (1) Banking > Upload Statement: convert a French statement or a PDF
+  holding two months of one account — the review says the balances agree and,
+  for two months, that each statement starts at the previous closing balance.
+  (2) Payables > Document Intake: upload a text-PDF vendor invoice with a
+  line table — the lines show with ✓; verify it, then Open in Vendor Invoice
+  Form — the lines arrive with accounts; save — the document shows Linked.
+  (3) Upload the same invoice again — the duplicate warning appears.
+- R153: (1) Settings > Company Details: enter the street address, city, postal
+  code and a short name; issue a customer invoice — its PDF shows the address.
+  (2) Select two companies in the company selector; open Reports > Customer
+  Invoice & Note Register and Profit and Loss — each line has a Co. column with
+  the short names. (3) Click the arrow beside Banking and Payables — both
+  submenus open without leaving the page. (4) Top bar: click the moon, then the
+  monitor with the computer in dark mode — the whole app is dark.
+- R154: select two companies. (1) General Ledger > General Ledger Account
+  Report: choose 4000 and Generate — a Balance by company table with a
+  Combined row, then each company's ledger labelled with its short name.
+  (2) Banking > Bank General Ledger Report: one bank picker per company;
+  Generate — both companies' lines. (3) Advanced Accounting > Budgets: every
+  company's budgets, a Combined row, and Budget versus Actual with a Co. column.
+- R155: sign in — the beta notice shows in the top bar (when beta_notice is
+  set). Accept a test invitation, then in the database: SELECT terms_version,
+  privacy_version FROM terms_acceptances ORDER BY accepted_at DESC LIMIT 1 —
+  both 2026-10-01, the version printed at the bottom of terms.html/privacy.html.
+- R156: open /terms.html and /privacy.html — they show your operator details and
+  no "incomplete" notice; the Terms show the Private beta section. Over plain
+  http://<your beta address>/app.html you are sent to https://. Send yourself an
+  invitation to an external mailbox; it is refused while any operator field is blank.
+- R157: invite a test person with their own workspace. After sign-up they see
+  "Onboarding · Step 1 of 6"; after creating the company the onboarding page opens and
+  the sidebar modules show a lock. Mark the six steps complete; Tegh unlocks and offers
+  the tour. Sign out and in again: Home opens, not onboarding. Your existing companies
+  open as before.
+- R158: run tegh-backup.sh by hand: it ends with "backup done" and its
+  "consistent snapshot" line lists content fingerprints.
+- R159: in Account & Access choose Add company or client file. The new company opens
+  its own onboarding with an empty chart; your other companies are unchanged. Then
+  open the throw-away company's Actions › Archive: it leaves the list and appears
+  under Archived companies; Restore brings it back. Finally choose Actions › Request
+  deletion, fill in the form, and check that the request reaches your support mailbox
+  and Platform Owner Home › Company deletion requests; approve it there.
+- R160: Platform Owner Home › Invitations & Access › Invite someone. Type a new test
+  address and Check email: choose their own workspace and/or your companies and send.
+  Type the address of an existing login: only company access is offered ("Give access").
+  Type the address of a login you deleted earlier: Tegh says it was registered before and
+  offers Restore login; the person receives "Your Tegh login has been restored" with a
+  password link.
+- Backups and rollback for the beta host: see beta-ops/RECOVERY-AND-ROLLBACK.md in
+  the repository (daily database + upload-folder backup, restore test into a
+  separate installation, rollback steps).
+- In the browser console: window.TeghPortal exists.
+- Tegh Assist (top bar, also on phones): ask "who owes me money?" and the
+  answer starts with a plain sentence ("Customers owe you $…") in about a second; "pay my supplier" opens Vendor
+  Payments; "can I deduct my car" gives a plain answer.
+
+Host acceptance (all open — none of these can be done from the build
+environment; record the result of each before any production decision)
+[ ] 1. Host PHP lint: run php -l on every file in api/ with the host's PHP
+       version; all must report "No syntax errors".
+[ ] 2. Serving-host file identity: after upload, run
+       sha256sum -c FILE-MANIFEST.sha256 in the web root (or compare hashes of
+       the uploaded files); every line must say OK.
+[ ] 3. Real statement files: import at least one real CSV/OFX statement per bank
+       account; check duplicates, Match and Post and a completed reconciliation
+       with a $0.00 unexplained difference.
+[ ] 4. Backup restore test: restore a copy of a production backup into a
+       separate staging database; confirm trial balance, AR/AP and GST/HST
+       balances match the source.
+[ ] 5. Live postings: issue one PST invoice (BC/MB/QC/SK company) and one
+       HST invoice; confirm journals (2100/2110), a credit note, and a customer
+       payment on the host database.
+[ ] 6. Signed-in browser check: as the owner, open a Client Viewing Link in a
+       private window, sign in with the emailed code and confirm the R134 charts
+       draw and match the reports (desktop and phone, light and dark).
+[ ] 7. Owner review of the R135 sales-tax wording and the Product Activity note.
+When all seven pass, set productionReady/acceptanceComplete in the three
+manifests only after the owner signs off.

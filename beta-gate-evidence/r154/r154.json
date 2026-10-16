@@ -1,0 +1,79 @@
+[
+ {
+  "id": "GL-01",
+  "area": "R154",
+  "title": "GL Account Report with both companies: choosing account 4000 shows each company's balance and the combined closing balance of $1,250.00 CR",
+  "status": "PASS",
+  "evidence": "{\"GLA\":\"$1,000.00 CR\",\"GLB\":\"$250.00 CR\",\"Combined\":\"$1,250.00 CR\"}"
+ },
+ {
+  "id": "GL-02",
+  "area": "R154",
+  "title": "The ledger below the summary lists both companies' lines, each labelled GLA or GLB, grouped as \"GLA · 4000 …\" and \"GLB · 4000 …\"",
+  "status": "PASS",
+  "evidence": "[\"GLA\",\"GLB\"] | GLA · 4000 · Service Revenue / GLA · 4000 · Service Revenue\tCAD 0.00\tCAD 1,000.00\t-CAD 1,000.00\t"
+ },
+ {
+  "id": "GL-03",
+  "area": "R154",
+  "title": "An account only one company has (6990) runs for that company and says the other has no such account",
+  "status": "PASS",
+  "evidence": "2 summary rows; Not in GLB — Golden Lynx Bakery mux4gsen: that company has no account 6990."
+ },
+ {
+  "id": "BL-01",
+  "area": "R154",
+  "title": "Bank General Ledger Report with both companies: one bank account per company; lines labelled GLA and GLB; the receipts of $600.00 and $250.00 both appear",
+  "status": "PASS",
+  "evidence": "2 bank pickers; [\"GLA\",\"GLB\"]"
+ },
+ {
+  "id": "BL-02",
+  "area": "R154",
+  "title": "Leaving one company out (\"Not included\") runs the report for the other company only",
+  "status": "PASS",
+  "evidence": "[\"GLA\"]"
+ },
+ {
+  "id": "BU-01",
+  "area": "R154",
+  "title": "Budgets with both companies: every company's budget is listed with its company; planned $1,500.00 and actual $1,250.00 together",
+  "status": "PASS",
+  "evidence": "GLA:FY2026 plan mux4gsen, GLB:FY2026 plan mux4gsen | Combined (budgets chosen for Budget vs Actual) | $1,500.00 | $1,250.00 | $250.00 | 2 of 2 companies"
+ },
+ {
+  "id": "BU-02",
+  "area": "R154",
+  "title": "The combined Budget versus Actual lists account 4000 once per company: GLA planned 1,200.00 / actual 1,000.00, GLB 300.00 / 250.00",
+  "status": "PASS",
+  "evidence": " GLA 4000 Service Revenue — CAD 1,200.00 CAD 1,000.00 CAD 200.00  /  GLB 4000 Service Revenue — CAD 300.00 CAD 250.00 CAD 50.00 "
+ },
+ {
+  "id": "EX-01",
+  "area": "R154",
+  "title": "The Excel export of the combined Budget versus Actual contains the Co. column and both companies' lines",
+  "status": "PASS",
+  "evidence": "Tegh-Budget-vs-Actual.xlsx: Co. true, GLA true, GLB true"
+ },
+ {
+  "id": "BU-03",
+  "area": "R154",
+  "title": "Creating or editing a budget still needs one company; the combined page says so and has no create form",
+  "status": "PASS",
+  "evidence": "create form 0"
+ },
+ {
+  "id": "ONE-01",
+  "area": "R154",
+  "title": "With one company selected the GL Account Report, Bank GL Report and Budgets are unchanged (no Co. column, no company pickers)",
+  "status": "PASS",
+  "evidence": "GL account picker 1; bank pickers 0; combined budget list 0; budgets workspace 1"
+ },
+ {
+  "id": "R154-JS",
+  "area": "R154",
+  "title": "No page errors during the R154 journeys",
+  "status": "PASS",
+  "evidence": ""
+ }
+]

@@ -1,0 +1,60 @@
+{
+ "tag": "desk",
+ "external": [],
+ "log": [
+  {
+   "n": "01-signin",
+   "ok": true,
+   "info": "",
+   "errs": []
+  },
+  {
+   "n": "02-dashboard-ON-custom-tax",
+   "ok": true,
+   "info": "other tax accounts $13.00 (see Tax Summary)",
+   "errs": []
+  },
+  {
+   "n": "03-tax-codes",
+   "ok": true,
+   "info": "Tax Codes",
+   "errs": []
+  },
+  {
+   "n": "04-new-invoice-BC",
+   "ok": true,
+   "info": "New Invoice",
+   "errs": []
+  },
+  {
+   "n": "05-gl-journal",
+   "ok": true,
+   "info": "AR/AP offered: false (59 options)",
+   "errs": []
+  },
+  {
+   "n": "06-customers-xss",
+   "ok": true,
+   "info": "xss executed: false; evil name shown as text: true",
+   "errs": []
+  },
+  {
+   "n": "07-match-and-post",
+   "ok": true,
+   "info": "Review Transactions",
+   "errs": []
+  },
+  {
+   "n": "08-trial-balance",
+   "ok": true,
+   "info": "Trial Balance",
+   "errs": []
+  },
+  {
+   "n": "09-unregistered-invoice",
+   "ok": true,
+   "info": "Not registered for GST/HST — no tax",
+   "errs": []
+  }
+ ]
+}

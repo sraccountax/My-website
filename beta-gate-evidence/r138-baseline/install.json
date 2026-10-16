@@ -1,0 +1,205 @@
+[
+ {
+  "id": "H-01",
+  "area": "H-INST",
+  "title": "GET /api/health over HTTPS before install",
+  "status": "PASS",
+  "evidence": "200 {\"ok\":true,\"service\":\"Tegh\",\"version\":\"5.9.9\",\"build\":5990,\"schemaVersion\":46}"
+ },
+ {
+  "id": "H-02",
+  "area": "H-INST",
+  "title": "auth/me on empty DB reports setup required",
+  "status": "PASS",
+  "evidence": "428 {\"error\":\"Initial owner setup is required.\",\"code\":\"setup_required\"}"
+ },
+ {
+  "id": "H-03",
+  "area": "H-INST",
+  "title": "Setup with wrong key refused 403",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "H-04",
+  "area": "H-INST",
+  "title": "Setup from foreign Origin refused",
+  "status": "PASS",
+  "evidence": "true"
+ },
+ {
+  "id": "H-05",
+  "area": "H-INST",
+  "title": "Fresh install: owner setup succeeds (201) and schema created",
+  "status": "PASS",
+  "evidence": "201"
+ },
+ {
+  "id": "H-06",
+  "area": "H-INST",
+  "title": "Schema tables created on fresh DB",
+  "status": "PASS",
+  "evidence": "156 tables"
+ },
+ {
+  "id": "H-07",
+  "area": "H-INST",
+  "title": "Second setup locked (409)",
+  "status": "PASS",
+  "evidence": "409"
+ },
+ {
+  "id": "H-08",
+  "area": "H-INST",
+  "title": "Login over HTTPS; version/build/schema",
+  "status": "PASS",
+  "evidence": "[\"5.9.9\",\"5990\",\"46\"]"
+ },
+ {
+  "id": "H-09",
+  "area": "H-INST",
+  "title": "Session cookie flags Secure, HttpOnly, SameSite",
+  "status": "PASS",
+  "evidence": "tegh_session=<redacted>; expires=<redacted>; Max-Age=43200; path=/; secure; HttpOnly; SameSite=Strict | tegh_session_csrf=<redacted>; expires=<redacted>; Max-Age=43200; path=/; secure; SameSite=Strict"
+ },
+ {
+  "id": "H-10",
+  "area": "H-INST",
+  "title": "startup/status after install",
+  "status": "PASS",
+  "evidence": "200 {\"ok\":true,\"version\":\"5.9.9\",\"build\":5990,\"schemaVersion\":43,\"expectedSchemaVersion\":46,\"userId\":\"user_de9df7c560546e3822f952231b3a1905\",\"coreReady\":true,\"aiReady\":true,\"nativeAgentReady\":true,\"deliveryReviewReady\":true,\"financialAnalysisReady\":true,\"payrollTaxAgentReady\":true,\"entitlementReady\":tru"
+ },
+ {
+  "id": "H-M01",
+  "area": "H-MAIL",
+  "title": "SMTP delivery test (STARTTLS + AUTH) reaches sandbox",
+  "status": "PASS",
+  "evidence": "200 sent=true outcome=accepted mailfile=1790740707.075199.eml X-Sandbox-Tls: True / X-Sandbox-Auth: True / X-Rcpt: owner@gate.test"
+ },
+ {
+  "id": "H-M02",
+  "area": "H-MAIL",
+  "title": "Test email to non-owner address refused",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "H-M-editor",
+  "area": "H-MAIL",
+  "title": "Invitation email for editor delivered over STARTTLS+AUTH with single-use link",
+  "status": "PASS",
+  "evidence": "200 delivery=sent link=present msg=The mail server rejected the message before accepting it at the final_data_acceptance stage."
+ },
+ {
+  "id": "H-A-editor",
+  "area": "H-MAIL",
+  "title": "Invitee (editor) accepts and sets password",
+  "status": "PASS",
+  "evidence": "200 {\"accepted\":true,\"auth\":{\"user\":{\"id\":\"user_801f3f1573c434b29c146031e25bcc73\",\"email\":\"editor@gate.test\",\"displayName\":\""
+ },
+ {
+  "id": "H-R-editor",
+  "area": "H-MAIL",
+  "title": "Invitation link cannot be reused",
+  "status": "PASS",
+  "evidence": "410"
+ },
+ {
+  "id": "H-L-editor",
+  "area": "H-MAIL",
+  "title": "editor can sign in",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "H-M-viewer",
+  "area": "H-MAIL",
+  "title": "Invitation email for viewer delivered over STARTTLS+AUTH with single-use link",
+  "status": "PASS",
+  "evidence": "200 delivery=sent link=present msg=The mail server rejected the message before accepting it at the final_data_acceptance stage."
+ },
+ {
+  "id": "H-A-viewer",
+  "area": "H-MAIL",
+  "title": "Invitee (viewer) accepts and sets password",
+  "status": "PASS",
+  "evidence": "200 {\"accepted\":true,\"auth\":{\"user\":{\"id\":\"user_99ecef74a565c98f0f691f647fee2814\",\"email\":\"viewer@gate.test\",\"displayName\":\""
+ },
+ {
+  "id": "H-R-viewer",
+  "area": "H-MAIL",
+  "title": "Invitation link cannot be reused",
+  "status": "PASS",
+  "evidence": "410"
+ },
+ {
+  "id": "H-L-viewer",
+  "area": "H-MAIL",
+  "title": "viewer can sign in",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "H-M-admin",
+  "area": "H-MAIL",
+  "title": "Invitation email for admin delivered over STARTTLS+AUTH with single-use link",
+  "status": "PASS",
+  "evidence": "200 delivery=sent link=present msg=The mail server rejected the message before accepting it at the final_data_acceptance stage."
+ },
+ {
+  "id": "H-A-admin",
+  "area": "H-MAIL",
+  "title": "Invitee (admin) accepts and sets password",
+  "status": "PASS",
+  "evidence": "200 {\"accepted\":true,\"auth\":{\"user\":{\"id\":\"user_e6e2bfd619385221e805d192ec095402\",\"email\":\"admin@gate.test\",\"displayName\":\"A"
+ },
+ {
+  "id": "H-R-admin",
+  "area": "H-MAIL",
+  "title": "Invitation link cannot be reused",
+  "status": "PASS",
+  "evidence": "410"
+ },
+ {
+  "id": "H-L-admin",
+  "area": "H-MAIL",
+  "title": "admin can sign in",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "H-M-other",
+  "area": "H-MAIL",
+  "title": "Invitation email for admin delivered over STARTTLS+AUTH with single-use link",
+  "status": "PASS",
+  "evidence": "200 delivery=sent link=present msg=The mail server rejected the message before accepting it at the final_data_acceptance stage."
+ },
+ {
+  "id": "H-A-other",
+  "area": "H-MAIL",
+  "title": "Invitee (admin) accepts and sets password",
+  "status": "PASS",
+  "evidence": "200 {\"accepted\":true,\"auth\":{\"user\":{\"id\":\"user_86e39b435bcb675870df7d563c8697c0\",\"email\":\"otherowner@gate.test\",\"displayNam"
+ },
+ {
+  "id": "H-R-other",
+  "area": "H-MAIL",
+  "title": "Invitation link cannot be reused",
+  "status": "PASS",
+  "evidence": "410"
+ },
+ {
+  "id": "H-L-other",
+  "area": "H-MAIL",
+  "title": "admin can sign in",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "D-MAILMSG",
+  "area": "H-MAIL",
+  "title": "Successful invitation send shows a success diagnostic (not \"rejected\")",
+  "status": "FAIL",
+  "evidence": "{\"message\":\"The mail server rejected the message before accepting it at the final_data_acceptance stage.\",\"nextAction\":\"Recipient can use the new link.\",\"reference\":\"89b8f052ae22764c\",\"smtpCode\":250,\"stage\":\"final_data_acceptance\"}"
+ }
+]

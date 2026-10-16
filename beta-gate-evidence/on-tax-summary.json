@@ -1,0 +1,229 @@
+{
+ "output": {
+  "kind": "report",
+  "definitionKey": "tax-summary",
+  "title": "Tax Control Account Summary",
+  "orientation": "landscape",
+  "paper": "letter",
+  "company": {
+   "name": "Gate Test ON Corp",
+   "legalName": "Gate Test ON Corp",
+   "currency": "CAD",
+   "accountingBasis": "accrual"
+  },
+  "currency": "CAD",
+  "accountingBasis": "accrual",
+  "reportingFramework": "not_set",
+  "period": {
+   "mode": "range",
+   "start": "2026-01-01",
+   "end": "2026-09-30",
+   "asOf": null,
+   "inclusive": true
+  },
+  "columns": [
+   {
+    "key": "code",
+    "label": "General Ledger Code",
+    "type": "identifier",
+    "width": 16
+   },
+   {
+    "key": "name",
+    "label": "Tax Control Ledger",
+    "type": "text",
+    "width": 34
+   },
+   {
+    "key": "openingCents",
+    "label": "Opening (Debit + / Credit −)",
+    "type": "money",
+    "width": 22
+   },
+   {
+    "key": "debitCents",
+    "label": "Debit",
+    "type": "money",
+    "width": 17
+   },
+   {
+    "key": "creditCents",
+    "label": "Credit",
+    "type": "money",
+    "width": 17
+   },
+   {
+    "key": "closingCents",
+    "label": "Closing (Debit + / Credit −)",
+    "type": "money",
+    "width": 22
+   }
+  ],
+  "rows": [
+   {
+    "id": "account_2bd707f3697c54fa61cfdce05f43c109",
+    "code": "1100",
+    "name": "GST/HST Recoverable",
+    "normal_balance": "debit",
+    "openingCents": 0,
+    "debitCents": 0,
+    "creditCents": 0,
+    "closingCents": 0
+   },
+   {
+    "id": "account_3c83276fbca9ff53a39bad076ce1081e",
+    "code": "1110",
+    "name": "PST Recoverable",
+    "normal_balance": "debit",
+    "openingCents": 0,
+    "debitCents": 0,
+    "creditCents": 0,
+    "closingCents": 0
+   },
+   {
+    "id": "account_d1f4f94e45ab101b8e5635a0024e8561",
+    "code": "1115",
+    "name": "QST Recoverable",
+    "normal_balance": "debit",
+    "openingCents": 0,
+    "debitCents": 0,
+    "creditCents": 0,
+    "closingCents": 0
+   },
+   {
+    "id": "account_263b60e357db7cdba73a3b93d9f24260",
+    "code": "1120",
+    "name": "HST Recoverable (custom)",
+    "normal_balance": "debit",
+    "openingCents": 0,
+    "debitCents": 1300,
+    "creditCents": 0,
+    "closingCents": 1300
+   },
+   {
+    "id": "account_041a4ee2495522828eb1272a7bb4a605",
+    "code": "2100",
+    "name": "GST/HST Payable",
+    "normal_balance": "credit",
+    "openingCents": 0,
+    "debitCents": 0,
+    "creditCents": 0,
+    "closingCents": 0
+   },
+   {
+    "id": "account_81008839ffcd7fc8b87f33e01fec1a6c",
+    "code": "2110",
+    "name": "PST Payable",
+    "normal_balance": "credit",
+    "openingCents": 0,
+    "debitCents": 0,
+    "creditCents": 0,
+    "closingCents": 0
+   },
+   {
+    "id": "account_6a16164ace19bea4950797d3560e6f1c",
+    "code": "2115",
+    "name": "QST Payable",
+    "normal_balance": "credit",
+    "openingCents": 0,
+    "debitCents": 0,
+    "creditCents": 0,
+    "closingCents": 0
+   },
+   {
+    "id": "account_4ae2ddc34b620a27982b74eba6a074a3",
+    "code": "2120",
+    "name": "HST Payable (custom)",
+    "normal_balance": "credit",
+    "openingCents": 0,
+    "debitCents": 0,
+    "creditCents": 2600,
+    "closingCents": -2600
+   }
+  ],
+  "totals": {
+   "debitCents": 1300,
+   "creditCents": 2600
+  },
+  "exceptions": [],
+  "controlTotals": [],
+  "postingScope": "Posted tax-control ledgers; not a tax return or a determination of claim eligibility.",
+  "definitionVersion": "5990.1",
+  "contractVersion": "3.0",
+  "companyId": "company_6849010fe278ef1878cb058e698ba913",
+  "presentationStatus": "Management report — unaudited",
+  "parameters": {
+   "start": "2026-01-01",
+   "end": "2026-09-30",
+   "asOf": "2026-09-30",
+   "status": "all",
+   "q": "",
+   "module": "",
+   "sourceType": "",
+   "sourceId": "",
+   "accountId": "",
+   "bankAccountId": "",
+   "budgetId": "",
+   "runId": "",
+   "category": "",
+   "type": "",
+   "currency": "",
+   "partyId": "",
+   "documentId": "",
+   "bucketUnit": "month"
+  },
+  "filters": {
+   "start": "2026-01-01",
+   "end": "2026-09-30",
+   "asOf": "2026-09-30",
+   "status": "all",
+   "q": "",
+   "module": "",
+   "sourceType": "",
+   "sourceId": "",
+   "accountId": "",
+   "bankAccountId": "",
+   "budgetId": "",
+   "runId": "",
+   "category": "",
+   "type": "",
+   "currency": "",
+   "partyId": "",
+   "documentId": "",
+   "bucketUnit": "month"
+  },
+  "currencyQualifications": "Ledger and base monetary columns use CAD. Foreign-currency figures, where shown, are not added across currencies.",
+  "frameworkDisclosure": "Configured framework: NOT SET. Accounting basis: accrual. Presentation is not an audit, review engagement or guarantee of GAAP, ASPE or IFRS compliance.",
+  "footer": "Confidential — prepared for management. Management report — unaudited. Configured framework: NOT SET. Accounting basis: accrual. Presentation is not an audit, review engagement or guarantee of GAAP, ASPE or IFRS compliance.",
+  "rowCount": 8,
+  "completeness": {
+   "state": "complete",
+   "complete": true,
+   "rowCount": 8,
+   "limit": 25000,
+   "truncated": false
+  },
+  "generatedBy": {
+   "id": "user_80d9167590471b2a8e7ed0356303dfab",
+   "name": "owner@gate.test"
+  },
+  "verifiedOutput": {
+   "reference": "TVO-C9EDF4B5DAD3C7F13686CED6",
+   "generatedAt": "2026-09-30T12:18:38Z",
+   "generatedBy": {
+    "id": "user_80d9167590471b2a8e7ed0356303dfab",
+    "name": "owner@gate.test"
+   },
+   "companyTimezone": "America/Toronto",
+   "sourceRevisionHash": "c8cba37dae350c3ab3bd6477e1503bba7358e7eb7e1996d9ff87e8c83ec2351d",
+   "totalsDigest": "6d60f68759cd61dcdf7db7c780389facd19376d02aad5489adbf284a6f3ef66a",
+   "rowCount": 8,
+   "statement": "Sealed server-authoritative output. Not an audit opinion."
+  },
+  "outputReference": "TVO-C9EDF4B5DAD3C7F13686CED6",
+  "outputHash": "c8cba37dae350c3ab3bd6477e1503bba7358e7eb7e1996d9ff87e8c83ec2351d",
+  "immutable": true,
+  "accountingWrites": 0,
+  "providerAttempts": 0
+ }
+}

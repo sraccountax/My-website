@@ -1,0 +1,242 @@
+/* R15 scoped specificity keeps the existing theme from overriding these layouts. */
+html[data-tegh-design][data-tegh-shell] body .srp-page-head{padding-block:12px!important;gap:10px!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page-head h1{font-size:24px!important;line-height:1.2!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page-head p:empty{display:none}
+html[data-tegh-design][data-tegh-shell] body .srp-page-body{gap:14px!important}
+html[data-tegh-design][data-tegh-shell] body .srp-card{padding:16px!important}
+html[data-tegh-design][data-tegh-shell] body .srp-section-title{margin-bottom:10px!important;gap:10px!important}
+html[data-tegh-design][data-tegh-shell] body .srp-section-title h2{font-size:19px!important;margin-block:0 4px!important}
+html[data-tegh-design][data-tegh-shell] body .srp-card p{margin-block:6px!important}
+html[data-tegh-design][data-tegh-shell] body .srp-form{gap:12px!important}
+html[data-tegh-design][data-tegh-shell] body .srp-register-filter{gap:8px!important;padding-block:8px!important;margin-block:0 10px!important}
+html[data-tegh-design][data-tegh-shell] body .srp-table th,html[data-tegh-design][data-tegh-shell] body .srp-table td{padding:7px 9px!important}
+html[data-tegh-design][data-tegh-shell] body .srp-column-controls{display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:6px!important;padding:6px 0!important;margin:0!important}
+html[data-tegh-design][data-tegh-shell] body .srp-column-controls>span{display:none!important}
+html[data-tegh-design][data-tegh-shell] body .tegh-report-metadata{padding:4px 0!important;margin-bottom:8px!important}
+html[data-tegh-design][data-tegh-shell] body .tegh-report-metadata p{margin:0!important}
+html[data-tegh-design][data-tegh-shell] body .tegh-report-totals{gap:8px 20px!important;padding:10px!important;margin-block:10px!important}
+html[data-tegh-design][data-tegh-shell] body .srp-form.r15-expense-form{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;max-width:none!important}
+html[data-tegh-design][data-tegh-shell] body .r15-expense-form>label.full:not(.srp-bank-source){grid-column:span 2!important}
+html[data-tegh-design][data-tegh-shell] body .r15-expense-form>[hidden]{display:none!important}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance{display:grid!important;grid-template-columns:minmax(300px,1fr) minmax(340px,1fr);gap:24px!important;align-items:start}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance>.srp-section-title{grid-column:1/-1;margin:0!important}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview{position:sticky;top:16px;min-width:0}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview h3{font-size:16px;margin:0 0 10px}
+html[data-tegh-design][data-tegh-shell] body .r15-preview-shell{border:1px solid #b9c9c1;border-radius:12px;overflow:hidden;display:grid;grid-template-columns:100px minmax(0,1fr);background:#f5f8f6;color:#173b2b;font-size:13px}
+html[data-tegh-design][data-tegh-shell] body .r15-preview-shell>header{grid-column:1/-1;background:#123e30;color:white;padding:14px;font-weight:700;display:flex;justify-content:space-between}
+html[data-tegh-design][data-tegh-shell] body .r15-preview-shell>nav{display:flex;flex-direction:column;gap:14px;padding:14px 8px;background:#e3ede7}
+html[data-tegh-design][data-tegh-shell] body .r15-preview-shell>main{padding:14px;min-width:0}
+html[data-tegh-design][data-tegh-shell] body .r15-preview-shell h4{margin:0 0 14px;font-size:1.2em}
+html[data-tegh-design][data-tegh-shell] body .r15-preview-cards{display:grid;grid-template-columns:1fr;gap:10px}
+html[data-tegh-design][data-tegh-shell] body .r15-preview-cards article{border:1px solid #bbcfc3;border-radius:7px;background:white;padding:12px;display:grid;gap:7px}
+html[data-tegh-design][data-tegh-shell] body .r15-preview-shell table{width:100%;margin-top:14px;border-collapse:collapse;font-size:inherit}
+html[data-tegh-design][data-tegh-shell] body .r15-preview-shell td,html[data-tegh-design][data-tegh-shell] body .r15-preview-shell th{padding:8px 3px;border-bottom:1px solid #b9c9c1;text-align:left}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview[data-layout=top] .r15-preview-shell{grid-template-columns:1fr}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview[data-layout=top] nav{flex-direction:row;flex-wrap:wrap;font-size:.9em}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview[data-text=large] .r15-preview-shell{font-size:16px}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview[data-theme=dark] .r15-preview-shell{background:#1d2923;color:#edf5ef}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview[data-theme=dark] nav{background:#2a3a31}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview[data-theme=dark] article{background:#263c2f;border-color:#50675a}
+html[data-tegh-design][data-tegh-shell] body .srp-page .r15-appearance-preview[data-theme=dark] :is(th,td){background:#263c2f!important;color:#edf5ef!important;border-color:#50675a!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page .r15-appearance-preview[data-theme=dark] small{color:#c7dace!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page .r15-appearance-preview[data-theme=dark] th{background:#123e30!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=account-access] .r15-access-create{background:var(--tegh-surface-mist,#edf6f2)!important;border-top:4px solid #27865b!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=account-access] .r15-access-people{border:1px solid #80aba0!important;border-top:4px solid #277987!important;border-radius:10px;padding:14px;margin-bottom:20px}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=account-access] .r15-access-history{border:1px solid #c3bba6!important;border-top:4px solid #ab852c!important;border-radius:10px;padding:14px;background:var(--tegh-surface-mist,#f7f6f1)}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard{display:grid!important;grid-template-columns:minmax(0,1fr) 270px!important;align-items:start;gap:14px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard>*{grid-column:1!important;min-width:0}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard>.srp-sites-action-panel{grid-column:2!important;grid-row:1/span 8!important;position:sticky;top:12px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-action-panel header .srp-sites-eyebrow{display:none}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-action-panel>div{display:flex!important;flex-direction:column!important;gap:4px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-action-panel button[data-sites-quick]{min-height:42px!important;padding:8px!important;gap:8px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-action-panel button[data-sites-quick]>i{display:none!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-action-panel strong{font-size:14px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-dashboard-grid{display:block!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-stat-card{padding:14px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-stat-card strong{font-size:24px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-panel{padding:14px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard h2{font-size:17px!important;margin:0!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-bar-chart{height:160px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard [data-dashboard-slot=widgets]:empty{display:none!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard-forecast>strong{font-size:26px;display:block;margin-top:10px;color:var(--tegh-ink,#173b2b)}
+html[data-tegh-design][data-tegh-shell] body .r15-forecast .tegh-fa-kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important;margin-block:10px!important}
+html[data-tegh-design][data-tegh-shell] body .r15-forecast .tegh-fa-kpis article{padding:12px!important}
+html[data-tegh-design][data-tegh-shell] body .r15-forecast .tegh-fa-kpis b{font-size:22px!important}
+html[data-tegh-design][data-tegh-shell] body .r15-forecast .tegh-fa-chart{max-width:900px;margin:10px auto!important}
+html[data-tegh-design][data-tegh-shell] body .r15-forecast .tegh-fa-chart svg{max-height:220px!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=cash-forecast] .tegh-responsive-report{max-height:clamp(220px,calc(100dvh - 480px),520px)!important;overflow:auto!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon{display:flex!important;flex-direction:column!important;gap:8px!important;min-width:0}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-top{position:sticky;top:0;background:var(--tegh-porcelain,#fff);z-index:5;padding:6px 0;border-bottom:1px solid var(--tegh-border,#cad9d1)}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar{display:flex;align-items:end;justify-content:space-between;gap:8px;flex-wrap:wrap}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar .srp-register-filter{display:flex!important;align-items:end!important;flex:1;flex-wrap:wrap!important;margin:0!important;padding:0!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar label{display:grid;gap:4px;min-width:0}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar label:first-child{flex:1;min-width:180px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar input{width:145px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar select{width:100%;max-width:290px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar input,html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar select{min-height:36px;padding:6px;border-radius:6px;border:1px solid var(--tegh-border,#cad9d1);background:var(--tegh-porcelain,#fff);color:inherit}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .srp-btn{min-height:34px!important;padding:6px 10px!important;font-size:13px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-status{display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap;padding-top:8px;font-size:13px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-status nav{display:flex;gap:4px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-status .active{background:#1c6749!important;color:#fff!important}
+html[data-tegh-design][data-tegh-shell] body .r15-exact-legend{color:#216044}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-workspace{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:10px!important;align-items:stretch!important;min-width:0}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-side{display:flex!important;flex-direction:column!important;padding:10px!important;gap:6px!important;min-height:0!important;min-width:0!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-side>header{display:flex;justify-content:space-between;align-items:center;padding:0!important;margin:0!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-side h3{font-size:16px!important;margin:0!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-side-actions{display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:5px!important;margin:0!important;padding:0!important;font-size:12px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-side-filters{display:grid!important;grid-template-columns:minmax(90px,1fr) 82px 74px 96px!important;gap:5px!important;padding:0!important;margin:0!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-side-filters label{min-width:0!important;font-size:12px!important;display:grid;gap:4px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-side-filters input,html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-side-filters select{width:100%!important;min-width:0!important;min-height:32px!important;padding:4px!important;font-size:13px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-table-scroll{height:clamp(320px,calc(100dvh - 365px),720px)!important;max-height:none!important;min-height:0!important;overflow:auto!important;margin:0!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table{width:100%!important;min-width:0!important;table-layout:fixed!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table .select-col{width:28px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table .date-col{width:76px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table .amount-col{width:102px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table .status-col{width:76px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table th{position:sticky;top:0;z-index:2;background:var(--tegh-surface-mist,#eef5f1)!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table td,html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table th{padding:6px 5px!important;font-size:13px!important;width:auto!important;min-width:0!important;max-width:none!important;overflow-wrap:anywhere!important;vertical-align:top!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table td:first-child input{width:16px!important;height:16px!important;min-height:16px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table td:nth-child(3) small{display:block!important;font-size:12px!important;line-height:1.2!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table .srp-money{white-space:nowrap!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table .r15-exact td{background:#e7f4eb!important;color:#174a32!important}
+html[data-tegh-design][data-tegh-shell] body .r15-find-menu,html[data-tegh-design][data-tegh-shell] body .r15-export-menu{position:relative}
+html[data-tegh-design][data-tegh-shell] body .r15-find-menu.disabled{opacity:.55}
+html[data-tegh-design][data-tegh-shell] body .r15-find-menu.disabled>button{display:none}
+html[data-tegh-design][data-tegh-shell] body .r15-find-menu>button,html[data-tegh-design][data-tegh-shell] body .r15-export-menu>button{display:block;background:var(--tegh-porcelain,#fff);color:inherit;padding:9px;border:1px solid #b9cfc1;white-space:nowrap;width:100%;text-align:left}
+html[data-tegh-design][data-tegh-shell] body .r15-find-menu[open],html[data-tegh-design][data-tegh-shell] body .r15-export-menu[open]{z-index:8}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .srp-column-controls,html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-report-scroll-top{display:none!important}
+html[data-tegh-design][data-tegh-shell] body .r15-dialog{width:min(850px,calc(100vw - 28px))!important;max-height:88dvh;overflow:auto;padding:22px!important}
+html[data-tegh-design][data-tegh-shell] body .r15-dialog>header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+html[data-tegh-design][data-tegh-shell] body .r15-dialog>header h2{margin:0;font-size:21px}
+html[data-tegh-design][data-tegh-shell] body .r15-dialog [data-close]{min-width:34px;min-height:34px}
+html[data-tegh-design][data-tegh-shell] body .r15-match-preview{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+html[data-tegh-design][data-tegh-shell] body .tegh-download-notice{position:relative;padding-right:42px!important}
+html[data-tegh-design][data-tegh-shell] body .r15-download-close{position:absolute;top:8px;right:8px;min-width:30px;min-height:30px;border:1px solid #bbd0c4;border-radius:6px;background:transparent;color:inherit;font-size:22px}
+html[data-tegh-design][data-tegh-shell] body .tegh-download-notice small{display:block;margin-top:6px}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=financial-accounts] .srp-section-title{display:flex!important;align-items:center!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=financial-accounts] .srp-section-title p{display:none!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=financial-accounts] .srp-register-filter{display:flex!important;align-items:end!important;flex-wrap:wrap!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=financial-accounts] .srp-register-filter label{min-width:105px;flex:1}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=financial-accounts] .srp-card>label:has([data-bank-account-picker]){display:flex;align-items:center;gap:10px;font-size:13px;margin:6px 0}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=financial-accounts] [data-bank-account-picker]{width:min(420px,75%)!important;margin:0!important;min-height:36px}
+@media(max-width:1100px){
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-side-filters{grid-template-columns:minmax(70px,1fr) 65px 60px 80px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table .date-col{width:64px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table .amount-col{width:91px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table .status-col{width:66px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-side-actions b{display:none}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard{grid-template-columns:minmax(0,1fr) 230px!important}
+}
+@media(max-width:900px){
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-workspace{grid-template-columns:1fr!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon [data-mobile-side=bank] #tegh-recon-book-panel,html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon [data-mobile-side=book] #tegh-recon-bank-panel{display:none!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-mobile-tabs{display:flex!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-table-scroll{height:55dvh!important}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance{grid-template-columns:1fr}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview{position:static}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard{grid-template-columns:1fr!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard>.srp-sites-action-panel{grid-column:1!important;grid-row:auto!important;position:static}
+html[data-tegh-design][data-tegh-shell] body .srp-form.r15-expense-form{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(min-width:901px){
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-mobile-tabs{display:none!important}
+}
+@media(max-width:600px){
+html[data-tegh-design][data-tegh-shell] body .srp-card{padding:12px!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page-head h1{font-size:22px!important}
+html[data-tegh-design][data-tegh-shell] body .r15-forecast .tegh-fa-kpis{grid-template-columns:1fr!important}
+html[data-tegh-design][data-tegh-shell] body .r15-match-preview{grid-template-columns:1fr}
+html[data-tegh-design][data-tegh-shell] body .r15-preview-shell{grid-template-columns:80px minmax(0,1fr)}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar input{width:135px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-stat-grid{grid-template-columns:1fr!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table .date-col{width:64px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table .status-col{width:62px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table .amount-col{width:88px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table td,html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table th{font-size:12px!important}
+}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-stat-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-stat-card strong{font-size:21px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-stat-card small{font-size:12px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .tegh5300-dashboard-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .tegh5300-widget{padding:12px!important;min-height:0!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .tegh5300-widget header{gap:6px!important;margin-bottom:10px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .tegh5300-widget h2{font-size:15px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .tegh5300-widget header span{font-size:11px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .tegh5300-position{gap:8px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .tegh5300-position b{font-size:17px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .tegh5300-month-chart{height:130px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .tegh5300-horizontal-chart{max-height:170px;overflow:auto}
+html[data-tegh-design][data-tegh-shell] body .r15-financial-actions{display:flex;justify-content:flex-end;gap:8px}
+html[data-tegh-design][data-tegh-shell] body .r15-financial-actions .tegh-fa-hero-actions{display:flex;flex-direction:row;flex-wrap:wrap;gap:8px}
+html[data-tegh-design][data-tegh-shell] body .r15-financial .tegh-fa-kpis{margin-block:12px!important;gap:10px!important}
+html[data-tegh-design][data-tegh-shell] body .r15-financial .tegh-fa-kpis article{padding:12px!important}
+html[data-tegh-design][data-tegh-shell] body .r15-financial .tegh-fa-kpis b{font-size:22px!important}
+@media(max-width:1100px){
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .tegh5300-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:600px){
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .tegh5300-dashboard-grid,html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-stat-grid{grid-template-columns:1fr!important}
+}
+html[data-tegh-design][data-tegh-shell] body .srp-page-head{min-height:0!important;margin-bottom:12px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar label{position:relative;font-size:12px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar .srp-required-marker{position:absolute;top:0;right:2px;margin:0!important;line-height:12px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .srp-btn{min-height:30px!important;line-height:1.2!important;padding:6px 8px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar label:first-child{min-width:155px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar input{width:135px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-side{padding:8px!important;gap:5px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table .date-col{width:94px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table .select-col{width:26px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table td,html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table th{font-size:13px!important;line-height:1.2!important;padding:4px 5px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table td:nth-child(2){white-space:nowrap!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table td:nth-child(3) small{font-size:11px!important;line-height:1.15!important;margin:2px 0 0!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-row-description{border:0!important;padding:0!important;margin:0!important;background:transparent!important;min-width:0!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-row-description>summary{display:block!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important;cursor:pointer!important;padding:0!important;line-height:1.2!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-row-description>summary::before{content:'▸';margin-right:3px}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-row-description[open]>summary::before{content:'▾'}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-row-description>p{white-space:normal!important;overflow-wrap:anywhere!important;margin:6px 0!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=account-access] .srp-account-tabs{display:flex!important;flex-direction:row!important;width:max-content!important;max-width:100%!important;padding:4px!important;gap:4px!important;margin:0!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=account-access] .srp-account-tabs>button{width:auto!important;min-height:34px!important;padding:6px 12px!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=account-access] .r15-access-people .srp-column-controls,html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=account-access] .r15-access-history .srp-column-controls{display:none!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=account-access] .r15-access-history .srp-table{table-layout:auto!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=account-access] .r15-access-history td,html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=account-access] .r15-access-history th{font-size:13px!important;line-height:1.35!important;word-break:normal!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=account-access] .r15-access-history td:first-child{width:42%!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=account-access] .r15-access-history td:last-child{min-width:78px!important;white-space:nowrap!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=account-access] .r15-access-history .srp-btn{min-height:30px!important;white-space:nowrap!important;word-break:normal!important;padding:5px 8px!important;font-size:12px!important;display:block!important;margin:2px!important}
+html[data-tegh-design][data-tegh-shell] body .r15-access-history details{font-size:12px!important;margin-top:4px!important}
+html[data-tegh-design][data-tegh-shell] body .r15-access-history details p{margin:4px 0!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=expense-vouchers] [data-expense-row] td:last-child{min-width:128px!important;width:128px!important}
+html[data-tegh-design][data-tegh-shell] body .srp-page[data-srp-page=expense-vouchers] [data-expense-row] .srp-btn{white-space:normal!important;word-break:normal!important;overflow-wrap:normal!important;font-size:12px!important;line-height:1.2!important;min-height:28px!important;padding:4px 6px!important}
+@media(max-width:600px){
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table .date-col{width:82px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table td,html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table th{font-size:12px!important}
+}
+
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-top .srp-actions{margin:0!important;padding:0!important;gap:6px!important;flex-wrap:nowrap!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table input[type=checkbox]{margin:0!important;padding:0!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table tbody tr{height:auto!important;min-height:0!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-side-filters label{position:relative!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-side-filters .srp-required-marker{position:absolute!important;top:0;right:2px;margin:0!important}
+
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-action-panel .srp-sites-eyebrow{display:none!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-action-panel button[data-sites-quick]{display:flex!important;align-items:center!important;min-height:40px!important;width:100%!important;padding:9px 4px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard button[data-sites-quick]>span{flex:1!important;min-width:0!important;width:auto!important;text-align:left!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard button[data-sites-quick] strong{white-space:normal!important;word-break:normal!important;overflow-wrap:normal!important;line-height:1.3!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard button[data-sites-quick] kbd{display:none!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-action-panel header{display:flex!important;align-items:start!important;gap:8px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .srp-sites-action-panel header button{font-size:12px!important;line-height:1.3!important;word-break:normal!important;overflow-wrap:normal!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .tegh5300-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .tegh5300-widget header button{white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table thead tr,html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-table th{height:auto!important;min-height:0!important}
+@media(min-width:901px){html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon .tegh-recon-table-scroll{height:clamp(220px,calc(100dvh - 418px),720px)!important}}
+@media(max-width:600px){html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-dashboard .tegh5300-dashboard-grid{grid-template-columns:1fr!important}}
+@media(max-width:600px){
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page-head>div{flex:0 0 auto!important;min-height:0!important;width:100%!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto!important;gap:8px!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar .srp-register-filter{display:contents!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar label:first-child{grid-column:1/-1!important;width:100%!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar select{max-width:none!important;width:100%!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar input{width:100%!important;min-width:0!important}
+html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page .r15-recon-toolbar>.srp-actions{grid-column:1/-1!important;justify-content:flex-end!important}
+}

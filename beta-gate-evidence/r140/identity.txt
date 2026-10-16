@@ -1,0 +1,4 @@
+zip: /tmp/claude-0/-home-user-My-website/834fb1bf-17e8-5e8f-899f-8d592ddf4b34/scratchpad/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R140-Consolidated-IONOS-STAGING.zip
+c2e6bb611406a6e66d28c21e35a4ee6d639632cb9548d044ee35533e5890ac4f  /tmp/claude-0/-home-user-My-website/834fb1bf-17e8-5e8f-899f-8d592ddf4b34/scratchpad/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R140-Consolidated-IONOS-STAGING.zip
+tag: R140
+FILE-MANIFEST: all 337 entries OK

@@ -1,0 +1,65 @@
+[
+ {
+  "id": "BR-01",
+  "area": "REC",
+  "title": "Backup export downloads a signed .tegh archive",
+  "status": "PASS",
+  "evidence": "200 application/vnd.tegh.backup bytes=41675"
+ },
+ {
+  "id": "BR-02",
+  "area": "REC",
+  "title": "Restore into a new company succeeds",
+  "status": "PASS",
+  "evidence": "201 {\"restored\":true,\"companyId\":\"company_8e9b3ed92e718d385f7e360ceb418933\",\"companyName\":\"Gate Test BC Ltd (Restored copy)\",\"payloadSha256\":\"0eb3bf6831d3650e8158fa8080f6fe5781df79dc07de4ebded060e24839925"
+ },
+ {
+  "id": "BR-03",
+  "area": "REC",
+  "title": "Restored company Trial Balance equals source, account by account",
+  "status": "PASS",
+  "evidence": "{\"1000\":861300,\"1010\":147000,\"1100\":23800,\"1115\":19950,\"1200\":321776,\"2050\":-226975,\"2100\":-36850,\"2110\":-6300,\"2115\":-19950,\"3000\":-962345,\"4000\":-605001,\"6000\":488845,\"6850\":-5250}"
+ },
+ {
+  "id": "BR-04",
+  "area": "REC",
+  "title": "Restored record counts equal source (documents, journals, bank lines, tax codes, tax detail, payments, notes)",
+  "status": "PASS",
+  "evidence": "\"invoices=8 bills=3 customers=6 vendors=2 journal_entries=22 bank_transactions=5 tax_codes=15 document_tax_lines=18 party_payments=3 accounting_notes=1\""
+ },
+ {
+  "id": "BR-05",
+  "area": "REC",
+  "title": "Restored AR and AP ageing totals equal source",
+  "status": "PASS",
+  "evidence": "[321776,226975]"
+ },
+ {
+  "id": "BR-08",
+  "area": "REC",
+  "title": "Tampered backup refused with a 4xx integrity message (no 500)",
+  "status": "PASS",
+  "evidence": "422 backup_integrity_invalid"
+ },
+ {
+  "id": "BR-06",
+  "area": "REC",
+  "title": "Tax codes, rates and GL mapping identical after restore",
+  "status": "PASS",
+  "evidence": "\"AB:GST:5000:2100/1100:active,BC:GST:5000:2100/1100:active,BC:PST:7000:2110/-:active,GST:GST:5000:2100/1100:active,MB:GST:5000:2100/1100:active,MB:RST:7000:2110/-:active,NB:HST:15000:2100/1100:active,NL:HST:15000:2100/1100:active,NS:HST:14000:2100/1100:active,NT:GST:5000:2100/1100:active,NU:GST:5000:2100/1100:active,ON:HST:13000:2100/1100:active,PE:HST:15000:2100/1100:active,QC:GST:5000:2100/1100:active,QC:QST:9975:2115/1115:active,SK:GST:5000:2100/1100:active,SK:PST:6000:2110/-:active,TMP:TMPX:1000:2100/1100:inactive,YT:GST:5000:2100/1100:active\""
+ },
+ {
+  "id": "BR-07",
+  "area": "REC",
+  "title": "No cross-company account references after restore",
+  "status": "PASS",
+  "evidence": "\"0\""
+ },
+ {
+  "id": "BR-09",
+  "area": "REC",
+  "title": "Restored document tax detail points to restored accounts only",
+  "status": "PASS",
+  "evidence": "\"0\""
+ }
+]

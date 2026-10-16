@@ -1,0 +1,246 @@
+/* Tegh R25: exact appearance preview + deterministic task scrolling.
+   Loaded after the R22/R23/R24 layers. No accounting, posting or data rules. */
+
+/* One explicit scroll owner for normal task/report workspaces. The toolbar and
+   shell stay fixed while the real table/list/form region owns overflow. */
+html[data-tegh-activity-shell="r22"] .stage > .content {
+  min-height:0;
+  overflow:hidden;
+}
+html[data-tegh-activity-shell="r22"] .srp-page {
+  min-height:0;
+  overflow:hidden;
+}
+html[data-tegh-activity-shell="r22"] .r22-render-root {
+  min-height:0;
+  overflow:hidden;
+}
+html[data-tegh-activity-shell="r22"] .r22-workspace {
+  min-height:0;
+  overflow:hidden;
+  overscroll-behavior:auto;
+}
+html[data-tegh-activity-shell="r22"] .r22-workspace.r22-task-flow,
+html[data-tegh-activity-shell="r22"] .r22-workspace.r22-dashboard-flow,
+html[data-tegh-activity-shell="r22"] .r22-workspace.r22-reflow {
+  overflow:auto;
+  scrollbar-gutter:stable;
+  overscroll-behavior:auto;
+}
+html[data-tegh-activity-shell="r22"] .r22-task-grid,
+html[data-tegh-activity-shell="r22"] .r22-task-split {
+  min-height:0;
+  overflow:hidden;
+}
+html[data-tegh-activity-shell="r22"] .r22-task-grid .r22-fill-path,
+html[data-tegh-activity-shell="r22"] .r22-task-split .r22-fill-path {
+  min-height:0;
+  overflow:hidden;
+}
+html[data-tegh-activity-shell="r22"] .r22-primary-scroll,
+html[data-tegh-activity-shell="r22"] .r23-scroll.srp-table-wrap,
+html[data-tegh-activity-shell="r22"] .r22-task-split .r22-scroll-region {
+  min-height:0;
+  flex:1 1 0;
+  overflow:auto;
+  scrollbar-gutter:stable;
+  overscroll-behavior:auto;
+  touch-action:pan-x pan-y;
+}
+html[data-tegh-activity-shell="r22"] .r23-scroll.srp-table-wrap {
+  /* Do not let the R23 minimum height win over the available-height grid. */
+  min-height:0;
+}
+html[data-tegh-activity-shell="r22"] .r22-scroll-region {
+  scroll-padding-block:8px;
+}
+html[data-tegh-activity-shell="r22"] .r22-scroll-region:focus-visible {
+  outline:2px solid #087760;
+  outline-offset:-2px;
+}
+
+/* Appearance preferences: show an actual Tegh dashboard render rather than a
+   hand-built miniature that drifts away from the product. */
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview {
+  position:sticky;
+  top:12px;
+  min-width:0;
+  align-self:start;
+}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview .r25-preview-head {
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+  margin:0 0 8px;
+}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview .r25-preview-head h3 {
+  margin:0;
+  font:650 16px/1.3 inherit;
+  color:inherit;
+}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview .r25-preview-head span {
+  min-width:0;
+  text-align:right;
+  font:500 12px/1.35 inherit;
+  color:#5a7068;
+}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview .r25-preview-figure {
+  margin:0;
+  display:grid;
+  gap:7px;
+}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview .r25-preview-figure > a {
+  display:block;
+  border:1px solid #b8cbc2;
+  border-radius:10px;
+  overflow:hidden;
+  background:#eef3f1;
+  box-shadow:0 1px 2px #13352c12;
+}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview .r25-preview-figure > a:focus-visible {
+  outline:2px solid #087760;
+  outline-offset:2px;
+}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview .r25-preview-figure img {
+  display:block;
+  width:100%;
+  height:auto;
+  aspect-ratio:16 / 9;
+  object-fit:cover;
+  object-position:top left;
+  background:#fff;
+}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview .r25-preview-figure figcaption {
+  color:#586f66;
+  font:500 12px/1.45 inherit;
+}
+html[data-tegh-theme="dark"] body .r15-appearance-preview .r25-preview-head span,
+html[data-tegh-theme="dark"] body .r15-appearance-preview .r25-preview-figure figcaption {
+  color:#bfd0c9;
+}
+html[data-tegh-theme="dark"] body .r15-appearance-preview .r25-preview-figure > a {
+  border-color:#49655a;
+  background:#1a2b25;
+}
+
+/* Preferences can be narrow. The image stays a true scaled snapshot; it is not
+   rearranged into a fake mobile interface. */
+@media (max-width:900px) {
+  html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview {position:static;}
+  html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview .r25-preview-head {align-items:flex-start;flex-direction:column;gap:3px;}
+  html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview .r25-preview-head span {text-align:left;}
+}
+
+/* R25 dark-theme parity. R22/R23 introduced unlayered white workspace surfaces
+   after the older dark-theme tokens, so complete the selected theme at the same
+   cascade level. This is presentation-only; report values/state are untouched. */
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] {
+  --r22-canvas:#0d1714;
+  --r22-ink:#edf6f2;
+  --r22-muted:#aec1b9;
+  --r22-border:#334b43;
+  --r22-accent:#66cfad;
+  color-scheme:dark;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] :where(.topbar,.srp-sites-stat-card,.srp-sites-panel,.r17-dashboard-footer,[data-r23-table-host],.r23-dialog,.r23-menu[popover],.r23-pagination,.r23-totals) {
+  background:#15231f;
+  color:#edf6f2;
+  border-color:#334b43;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] .topbar {
+  box-shadow:none;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] .topbar :where(button,summary,input,select,[data-bookkeeping-mode-trigger],.srp-company-trigger) {
+  color:#edf6f2;
+  border-color:#3a544b;
+  background:#15231f;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] .topbar :where(button,summary):hover {
+  background:#203b33;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] .tegh-top-menubar :where([data-top-module],[data-top-more]) {
+  color:#d7e7e0;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] .tegh-top-menubar :where([data-top-module],[data-top-more]):is(.active,[aria-expanded="true"]) {
+  background:#203b33;
+  color:#8fe0c2;
+  box-shadow:inset 0 -2px #66cfad;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] :where(.tegh-top-menu,.r17-menu-panel,.srp-company-menu,[data-bookkeeping-menu]) {
+  background:#15231f;
+  color:#edf6f2;
+  border-color:#3a544b;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] :where(.srp-sites-stat-card,.srp-sites-panel,.r17-dashboard-footer) :where(h1,h2,h3,h4,strong,b) {
+  color:#edf6f2;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] :where(.srp-sites-stat-card,.srp-sites-panel,.r17-dashboard-footer) :where(small,p,label,span) {
+  border-color:#334b43;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] :where(.r17-profit-totals>div,.r17-quick-list>button,.r19-attention a,.r19-attention button) {
+  background:#192b25;
+  color:#edf6f2;
+  border-color:#334b43;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] :where(.r17-dashboard-profit select,.r22-workspace input,.r22-workspace select,.r22-workspace textarea,.r23-dialog input,.r23-dialog select) {
+  background:#101c18;
+  color:#edf6f2;
+  border-color:#49655a;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] .r23-table {
+  color:#edf6f2;
+  background:#15231f;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] .r23-table thead,
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] .r23-table thead th {
+  background:#223a32;
+  color:#e2eee9;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] .r23-table :where(th,td) {
+  border-color:#334b43;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] .r23-table tbody tr:nth-child(even)>td {
+  background:#192b25;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] :where(.r23-btn,.r23-menu button,.r23-menu a,.r23-column-filter) {
+  background:#15231f;
+  color:#dceae4;
+  border-color:#49655a;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] :where(.r23-muted,.r23-live,.r23-pagination,.r23-row-detail dt,.r23-totals) {
+  color:#b6c7c0;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] .r23-row-detail[open],
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] .r23-group th {
+  background:#1b3029;
+  color:#dceae4;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] .r23-status-pill {
+  background:#2a3d36;
+  color:#dceae4;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] .r23-status-pill[data-state="paid"] {
+  background:#21483b;
+  color:#ccebdd;
+}
+html[data-tegh-theme="dark"][data-tegh-activity-shell="r22"] .r23-status-pill[data-state="void"] {
+  background:#512f33;
+  color:#ffd7da;
+}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance,
+html[data-tegh-design][data-tegh-shell] body .r15-appearance > *,
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview .r25-preview-figure,
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview .r25-preview-figure > a {
+  min-width:0;
+  max-width:100%;
+}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview .r25-preview-figure,
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview .r25-preview-figure > a {
+  width:100%;
+  overflow:hidden;
+}
+html[data-tegh-design][data-tegh-shell] body .r15-appearance-preview .r25-preview-figure img {
+  min-width:0;
+  max-width:100%;
+}

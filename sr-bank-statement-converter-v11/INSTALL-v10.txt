@@ -1,0 +1,88 @@
+SR AccounTax Bank Statement Converter — v10 update (2026-10-01)
+================================================================
+
+WHAT'S NEW
+1. Column-aware statement reader (bank-statement-layout.js). It reads where
+   every word sits on the page:
+   - columns: withdrawals / deposits / amount / balance; transaction and
+     posting dates;
+   - a day's date carried down to the lines below it;
+   - wrapped descriptions joined;
+   - side panels ignored, and sub-totals and payment slips skipped;
+   - years taken from the statement period, so a December to January card
+     statement gets the right year on each line;
+   - credit cards read with charges as money out and payments as money in.
+
+   Three real Canadian business statements supplied by the owner:
+     Statement        v9          v10
+     CIBC chequing    21 rows     135 rows
+     TD Visa          0 rows      21 rows
+     TD chequing      0 rows      254 rows
+   Each v10 result matches the statement's opening and closing balances to
+   the cent.
+
+2. Statement check panel (green / amber) above the totals. It checks:
+   - opening balance + rows = the closing balance printed on the statement;
+   - every running balance on the statement agrees. A row that differs is
+     marked and appears under "Needs review";
+   - per-page totals ("Debits n" / "Credits n") where the bank prints them;
+   - CHAIN CHECK: consecutive statements of the same account must carry the
+     closing balance forward as the next opening balance, so a missing
+     statement is flagged.
+   On the free plan the whole statement is checked, even though only a
+   sample is shown.
+
+3. Scanned statements (Pro OCR):
+   - Fixed: OCR failed with "getOrInsertComputed is not a function" in most
+     browsers. The bundled pdf.js 6.1 needs a 2026 JavaScript method; it is
+     now added where missing, on the page (pdf-upsert-polyfill.js) and in the
+     PDF worker (pdf-worker-entry.mjs).
+   - OCR now keeps each word's position, so the column reader and the
+     balance check also work on scans.
+   - Pages are rendered at a higher resolution, and faint scans get a
+     contrast boost.
+
+4. New "Account type" setting: Auto detect, Bank account, or Credit card /
+   line of credit.
+
+5. Exports:
+   - NEW QuickBooks Web Connect (.qbo).
+   - OFX uses the credit card format for card statements, and its ledger
+     balance comes from the statement.
+   - Excel has a new "Statement Check" sheet.
+   - JSON and the PDF report include the statement check.
+
+6. Converter build 10.0.0. Cache versions are bumped to 20261001-10.
+
+FILES IN THIS UPDATE
+Upload them into the folder that serves bankstatementconverter.sraccountax.ca,
+keeping the same paths:
+  NEW      bank-statement-layout.js
+  NEW      pdf-upsert-polyfill.js
+  NEW      pdf-worker-entry.mjs
+  CHANGED  bank-statement-converter-free.js
+  CHANGED  bank-converter.css
+  CHANGED  free-converter.php
+  CHANGED  member/pro-converter.php
+  CHANGED  member/private/pro-converter.js
+
+DO NOT replace member/config.php. There is no database change, and no change
+to billing, login or usage limits.
+
+INSTALL
+1. Back up the converter folder.
+2. Upload the files above, overwriting the old ones.
+3. Open the converter in a private window, or press Ctrl+F5.
+4. Check:
+   - Convert a text PDF statement. The green "Statement check passed" panel
+     appears above the totals.
+   - Pro: tick OCR and convert a scanned statement. There is no
+     "getOrInsertComputed" error.
+   - Pro: Export > QuickBooks Web Connect (.qbo) downloads a file.
+
+LIMITS
+- Statements with no column headings use the previous reader. The panel then
+  says there is nothing to check against.
+- OCR uses the bundled English model.
+- Review every row before importing. The converter makes no accounting
+  entries.

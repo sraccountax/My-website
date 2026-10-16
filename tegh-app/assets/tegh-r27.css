@@ -1,0 +1,1259 @@
+/* Tegh R27/R28 — audited semantic interface tokens and stability overrides. */
+:root{
+  --tegh-canvas:#f3f6f5;--tegh-surface:#fff;--tegh-surface-elevated:#fff;
+  --tegh-text:#132b25;--tegh-muted:#5d706a;--tegh-line:#d6e1dd;
+  --tegh-accent:#087a67;--tegh-accent-soft:#e6f4f0;--tegh-success:#117b56;
+  --tegh-warning:#a06a08;--tegh-danger:#b43a3a;--tegh-focus:#0d8bd7;
+  --tegh-chart-1:#0aa36f;--tegh-chart-2:#d14a45;--tegh-chart-3:#2f7fc1;--tegh-chart-4:#c88b1b;
+  --tegh-row-alt:#f7faf9;--tegh-shadow:0 8px 24px rgba(15,48,39,.08);
+  /* R28 still consumes these legacy names. Point them at the semantic palette
+     so all later modules inherit light, dark and automatic themes correctly. */
+  --tegh-porcelain:var(--tegh-surface);--tegh-surface-mist:var(--tegh-accent-soft);
+  --tegh-border:var(--tegh-line);--tegh-ink:var(--tegh-text);
+  --tegh-ink-muted:var(--tegh-muted);--tegh-brand:var(--tegh-accent);
+  /* One documented layer scale for shell chrome, dialogs and portaled menus. */
+  --tegh-layer-sticky:100;--tegh-layer-dialog:11000;--tegh-layer-menu:12000;
+  --tegh-layer-toast:13000;--tegh-layer-critical:14000;
+}
+html[data-tegh-theme="dark"]{
+  --tegh-canvas:#091411;--tegh-surface:#10211c;--tegh-surface-elevated:#172c25;
+  --tegh-text:#edf7f3;--tegh-muted:#a7bbb3;--tegh-line:#345048;
+  --tegh-accent:#54d4b6;--tegh-accent-soft:#173b32;--tegh-success:#58d59e;
+  --tegh-warning:#f1be5b;--tegh-danger:#ff8982;--tegh-focus:#65bfff;
+  --tegh-chart-1:#52d89e;--tegh-chart-2:#ff7f78;--tegh-chart-3:#72b8ff;--tegh-chart-4:#f2c565;
+  --tegh-row-alt:#132720;--tegh-shadow:0 12px 32px rgba(0,0,0,.28);
+}
+@media(prefers-color-scheme:dark){html[data-tegh-theme="auto"]{
+  --tegh-canvas:#091411;--tegh-surface:#10211c;--tegh-surface-elevated:#172c25;
+  --tegh-text:#edf7f3;--tegh-muted:#a7bbb3;--tegh-line:#345048;
+  --tegh-accent:#54d4b6;--tegh-accent-soft:#173b32;--tegh-success:#58d59e;
+  --tegh-warning:#f1be5b;--tegh-danger:#ff8982;--tegh-focus:#65bfff;
+  --tegh-chart-1:#52d89e;--tegh-chart-2:#ff7f78;--tegh-chart-3:#72b8ff;--tegh-chart-4:#f2c565;
+  --tegh-row-alt:#132720;--tegh-shadow:0 12px 32px rgba(0,0,0,.28);
+}}
+
+html{color-scheme:light}html[data-tegh-theme="dark"]{color-scheme:dark}
+@media(prefers-color-scheme:dark){html[data-tegh-theme="auto"]{color-scheme:dark}}
+html,body{height:100%;overflow:hidden;background:var(--tegh-canvas);color:var(--tegh-text)}
+body,.app,button,input,select,textarea{font-family:Inter,Roboto,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+#root,.app{height:100vh;height:100dvh;min-height:0;overflow:hidden}.app,.stage{min-width:0}.stage{height:100vh;height:100dvh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+.topbar{flex:0 0 auto}.stage>.content,.stage>.srp-page{flex:1 1 0;min-height:0;min-width:0;overflow:hidden}
+.stage>.content{display:flex;flex-direction:column;max-width:none!important;padding:12px 18px 14px!important}
+.stage>.content>.srp-page,.stage>.srp-page{display:flex;flex-direction:column;height:100%;min-height:0;padding:0!important;background:var(--tegh-canvas)!important}
+.srp-page-head{flex:0 0 auto;margin:0 0 8px!important;min-height:0}.srp-page-head h1{font-size:clamp(21px,2vw,28px)!important;margin-bottom:2px!important}.srp-page-head p{font-size:12px;line-height:1.35}
+.srp-page-body{flex:1 1 0;min-height:0;min-width:0;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-gutter:stable;display:flex!important;flex-direction:column;gap:8px!important;padding:0!important}
+.srp-page-body>*{min-width:0}.r27-native-scroll{overflow:auto!important;overscroll-behavior:contain;scrollbar-gutter:stable;scroll-behavior:auto!important}
+/* R28 S16T: the premium page-enter rule has greater specificity than the
+   legacy settled rule, so animation-fill-mode kept an identity transform on
+   every routed page. Retire that compositor layer once motion has completed;
+   native descendant scrollbars must remain in the page's normal hit-test
+   tree. The extra settled class makes this rule more specific than the
+   premium animation selector without disabling the entrance transition. */
+html[data-tegh-design][data-tegh-shell][data-tegh-activity-shell="r22"] .srp-page:is(.tegh-motion-page-in,.tegh-motion-settled){animation:none!important;transform:none!important;will-change:auto!important}
+.r27-sticky-head th,.srp-table thead th,.r23-table thead th{position:sticky;top:0;z-index:3;background:var(--tegh-surface-elevated)!important}
+.r27-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+
+/* R28 S16Q: one top-level overlay owner. The layer itself can enter the
+   browser top layer through Popover, which also keeps menus above <dialog>. */
+#tegh-overlay-root{position:fixed;inset:0;z-index:var(--tegh-layer-menu);pointer-events:none;isolation:isolate}
+.tegh-overlay-layer{position:fixed!important;inset:0!important;box-sizing:border-box!important;width:100vw!important;height:100vh!important;height:100dvh!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;overflow:visible!important;pointer-events:none!important}
+.tegh-overlay-layer::backdrop{background:transparent}
+.tegh-overlay-backstop{position:fixed;inset:0;z-index:0;background:transparent;pointer-events:auto;touch-action:manipulation}
+.tegh-overlay-surface{position:fixed!important;right:auto!important;bottom:auto!important;z-index:1!important;box-sizing:border-box!important;display:grid!important;min-width:0;max-width:calc(100vw - 20px)!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-gutter:stable;pointer-events:auto!important;transform:none!important;contain:layout paint;background:var(--tegh-surface-elevated)!important;color:var(--tegh-text)!important;border:1px solid var(--tegh-line)!important;border-radius:10px;box-shadow:0 18px 44px rgba(4,27,21,.24)!important}
+.tegh-overlay-surface[role="menu"]{padding:6px}
+.tegh-overlay-surface :is(button,a,[role="menuitem"]){min-height:36px}
+.tegh-overlay-surface.srp-notice-menu :is(.srp-notice-head,.srp-notice-item,.srp-notice-foot){background:var(--tegh-surface-elevated)!important;color:var(--tegh-text)!important;border-color:var(--tegh-line)!important}
+.tegh-overlay-surface.srp-notice-menu :is(.srp-notice-item:hover,.srp-notice-item:focus-visible){background:var(--tegh-accent-soft)!important}
+.tegh-overlay-surface.srp-notice-menu :is(small,.srp-notice-foot){color:var(--tegh-muted)!important}
+
+/* R28 S16V: preserve Chromium's browser-native scrollbar code path. Merely
+   matching a scroll owner with ::-webkit-scrollbar author CSS opts Chromium
+   into its legacy custom-scrollbar implementation, even when the declarations
+   use all:revert. Foundation and R25 no longer match operational owners with
+   WebKit scrollbar pseudos, and this standards-only contract leaves painting,
+   hit testing, track clicks and thumb dragging entirely to the user agent. */
+html[data-tegh-shell][data-tegh-activity-shell] :is(.srp-page-body,.r22-scroll-region,.r22-primary-scroll,.r22-horizontal-rail,.r23-scroll,.r27-native-scroll,.tegh-recon-table-scroll,.r27-report-groups,.r28-bank-scroll,.r28-book-scroll,.r28-recon-history-scroll,.r28-recon-detail,.r28-recon-detail-scroll,.tegh-review-queue-scroll,.tegh-review-detail-scroll,.tegh-overlay-surface){scrollbar-width:auto!important;scrollbar-color:auto!important;scrollbar-gutter:auto!important;overscroll-behavior:auto!important;touch-action:auto!important}
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r22-scroll-region{position:relative;z-index:0;pointer-events:auto!important}
+
+/* R28 S16AI: routed Chromium frames can continue painting a native vertical
+   scrollbar while its thumb no longer receives pointer drag input. This fixed
+   overlay is bound to the same scroll owner, so mouse/touch drag, track click,
+   wheel and keyboard all update the real element's scrollTop. */
+#tegh-drag-scrollbar-layer{position:fixed;inset:0;z-index:calc(var(--tegh-layer-menu) + 1);pointer-events:none;overflow:visible}
+.r22-drag-scrollbar{position:absolute;box-sizing:border-box;width:20px;margin:0;padding:0;border:0;border-radius:10px;background:color-mix(in srgb,var(--tegh-line) 64%,var(--tegh-surface-elevated));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tegh-muted) 18%,transparent);pointer-events:auto;touch-action:none;user-select:none;cursor:pointer}
+.r22-drag-scrollbar[hidden]{display:none!important}
+.r22-drag-scrollbar-thumb{position:absolute;top:0;left:4px;right:4px;display:block;min-height:36px;border-radius:8px;background:color-mix(in srgb,var(--tegh-muted) 72%,var(--tegh-text));box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:grab;will-change:transform}
+.r22-drag-scrollbar:hover .r22-drag-scrollbar-thumb,.r22-drag-scrollbar:focus-visible .r22-drag-scrollbar-thumb{background:var(--tegh-accent)}
+.r22-drag-scrollbar.is-dragging .r22-drag-scrollbar-thumb{background:var(--tegh-accent);cursor:grabbing}
+.r22-drag-scrollbar:focus-visible{outline:3px solid color-mix(in srgb,var(--tegh-focus) 55%,transparent)!important;outline-offset:2px}
+@media(forced-colors:active){.r22-drag-scrollbar{border:1px solid CanvasText;background:Canvas}.r22-drag-scrollbar-thumb{background:CanvasText}}
+@media print{#tegh-drag-scrollbar-layer{display:none!important}}
+
+/* R28 S16X: each browser-owned scrollbar controls one physical axis. In the
+   affected Chromium path, a flex-bounded owner with overflow:auto on both axes
+   remains keyboard/programmatically scrollable but its wheel, track and thumb
+   input is not hit-testable. ActivityShell adds a separate native horizontal
+   rail for wide tables and synchronises only scrollLeft; the table owner keeps
+   native vertical wheel/touch/track/thumb behaviour and sticky headings. */
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r22-workspace.r22-task-grid,
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r22-task-grid .r22-fill-path{
+  min-height:0!important;
+  overflow:hidden!important
+}
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r22-axis-split-scroll{
+  min-width:0!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important
+}
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r22-horizontal-rail{
+  display:block;
+  flex:0 0 18px;
+  width:100%;
+  max-width:100%;
+  height:18px;
+  min-height:18px;
+  margin:0;
+  padding:0;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  border:1px solid var(--tegh-line);
+  border-radius:7px;
+  background:var(--tegh-surface-elevated);
+  box-sizing:border-box;
+  color-scheme:light
+}
+html[data-tegh-theme="dark"] .r22-horizontal-rail{color-scheme:dark}
+@media(prefers-color-scheme:dark){html[data-tegh-theme="auto"] .r22-horizontal-rail{color-scheme:dark}}
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r22-horizontal-rail>div{height:1px;min-width:100%}
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r22-horizontal-rail[hidden]{display:none!important}
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r22-horizontal-rail:focus-visible{outline:3px solid var(--tegh-focus)!important;outline-offset:2px}
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r27-report-groups{overflow-x:hidden!important;overflow-y:auto!important}
+
+:is(.srp-card,.panel,.r23-dialog,.srp-modal,.sra-card,.tegh-recon-side,.srp-report-group,.tegh-workspace-search-dialog){background:var(--tegh-surface)!important;color:var(--tegh-text)!important;border-color:var(--tegh-line)!important}
+.srp-modal-scrim,.sra-modal-scrim{overflow:auto;overscroll-behavior:contain}.srp-modal,.r23-dialog,[role="dialog"]{box-sizing:border-box;max-width:calc(100vw - 24px);max-height:92vh;max-height:min(92dvh,900px);overflow:auto;overscroll-behavior:contain}
+:is(input,select,textarea,.srp-btn.secondary,.r23-btn,.r15-find-menu>summary){background:var(--tegh-surface-elevated)!important;color:var(--tegh-text)!important;border-color:var(--tegh-line)!important}
+:is(input,select,textarea,button,a,summary,[tabindex]):focus-visible{outline:3px solid var(--tegh-focus)!important;outline:3px solid color-mix(in srgb,var(--tegh-focus) 45%,transparent)!important;outline-offset:2px}
+:is(.srp-note,.r23-muted,small,.srp-page-head p){color:var(--tegh-muted)!important}
+:is(.srp-table,.r23-table,.sra-table) td{border-color:var(--tegh-line)!important;color:var(--tegh-text)}
+:is(.srp-table,.r23-table,.sra-table) tbody tr:nth-child(even){background:var(--tegh-row-alt)}
+:is(.srp-table,.r23-table,.sra-table) tbody tr:hover{background:color-mix(in srgb,var(--tegh-accent-soft) 68%,var(--tegh-surface));transform:none!important}
+.srp-status,.r23-status-pill{border:1px solid currentColor;font-weight:750}.srp-status.matched,[data-state="matched"]{color:var(--tegh-success);background:color-mix(in srgb,var(--tegh-success) 13%,transparent)}.srp-status.unmatched,[data-state="unmatched"]{color:var(--tegh-warning);background:color-mix(in srgb,var(--tegh-warning) 13%,transparent)}.srp-status.exact,[data-state="exact"]{color:var(--tegh-success);background:color-mix(in srgb,var(--tegh-success) 18%,transparent)}
+
+/* R22's compatibility rules used height:auto/overflow:visible for review panes.
+   Restore the bounded desktop grid so the detail list—not the page—owns scroll. */
+@media(min-width:901px){
+  html[data-tegh-shell][data-tegh-activity-shell="r22"] .srp-page[data-srp-page="bank-review"] .r22-workspace{display:grid!important;grid-template-rows:auto auto minmax(0,1fr)!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+  html[data-tegh-shell][data-tegh-activity-shell="r22"] .srp-page[data-srp-page="bank-review"] .tegh-review-split{height:100%!important;min-height:0!important;overflow:hidden!important}
+  html[data-tegh-shell][data-tegh-activity-shell="r22"] .srp-page[data-srp-page="bank-review"] :is(.tegh-review-queue-pane,.tegh-review-detail-pane){display:grid!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+  html[data-tegh-shell][data-tegh-activity-shell="r22"] .srp-page[data-srp-page="bank-review"] .tegh-review-queue-pane{grid-template-rows:auto minmax(0,1fr) auto!important}
+  html[data-tegh-shell][data-tegh-activity-shell="r22"] .srp-page[data-srp-page="bank-review"] .tegh-review-detail-pane{grid-template-rows:auto minmax(0,1fr) auto!important}
+  html[data-tegh-shell][data-tegh-activity-shell="r22"] .srp-page[data-srp-page="bank-review"] :is(.tegh-review-queue-scroll,.tegh-review-detail-scroll){height:auto!important;min-height:0!important;max-height:none!important;overflow:auto!important}
+}
+
+/* Sidebar text must retain AA contrast on the deepest green gradient stop. */
+html[data-tegh-design="living-ledger"][data-tegh-shell="sites-v12"] #tegh-primary-sidebar .brand-word small{color:#c4d7d0!important}
+html[data-tegh-design="living-ledger"][data-tegh-shell="sites-v12"] #tegh-primary-sidebar .srp-subnav-heading{color:#b8ccc5!important;opacity:1!important}
+
+/* Keep every R22 working surface in the remaining viewport height. Without an
+   explicit flex basis, reconciliation, registers and report catalogues shrink
+   to their toolbars/footers and leave their real scroll regions at zero height. */
+html[data-tegh-activity-shell="r22"] .r22-render-root>.r22-workspace:is(.r22-task-flow,.r22-task-grid,.r22-task-split,.r22-dashboard-flow){flex:1 1 0!important;height:auto!important;min-height:0!important}
+html[data-tegh-activity-shell="r22"] [data-r22-kind="catalogue"] .r22-workspace.r22-task-flow{display:flex;flex-direction:column;overflow:hidden}
+
+/* One scroll owner per reconciliation side and true one-line records. */
+.r15-recon{overflow:hidden!important}.r15-recon-top{flex:0 0 auto}.tegh-recon-workspace{flex:1 1 0;min-height:0;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.tegh-recon-side{display:flex!important;flex-direction:column;min-height:0;padding:10px!important;overflow:hidden}.tegh-recon-side>header{flex:0 0 auto}.tegh-recon-side-actions,.tegh-recon-side-filters{flex:0 0 auto}.tegh-recon-table-scroll{flex:1 1 0;min-height:0;overflow:auto!important}
+.r15-recon-table{table-layout:fixed;min-width:610px}.r15-recon-table tbody tr{height:38px;max-height:38px}.r15-recon-table tbody td{height:38px;max-height:38px;padding:4px 7px!important;overflow:hidden;vertical-align:middle}.r15-recon-table .select-col{width:36px}.r15-recon-table .date-col{width:90px}.r15-recon-table .amount-col{width:118px}.r15-recon-table .status-col{width:94px}
+.r27-recon-description{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;min-width:0;white-space:nowrap}.r27-recon-description>span{overflow:hidden;text-overflow:ellipsis}.r27-recon-description small{overflow:hidden;text-overflow:ellipsis;max-width:145px}.r26-recon-row-detail{display:none!important}
+
+/* Shared register contract: allocate visible columns inside the available width;
+   remaining fields use an explicit details row instead of horizontal panning. */
+.r23-view{min-height:0;display:flex;flex-direction:column}.r23-table-meta{flex:0 0 38px;min-height:38px;align-items:center}.r23-selection{display:inline-block;min-width:170px}.r23-scroll{flex:1 1 0;min-height:120px;overflow-x:hidden!important;overflow-y:auto!important}.r23-table{table-layout:fixed!important;width:100%!important;min-width:0!important}.r23-table :is(th,td){white-space:normal}.r23-table .r23-num{white-space:nowrap;font-variant-numeric:tabular-nums}.r23-row-actions{white-space:normal}.r23-expanded-row{display:table-row!important}
+.r23-pagination{flex:0 0 auto}.r27-totals-line{position:relative;z-index:2;flex:0 0 auto;display:flex!important;gap:18px;align-items:center;flex-wrap:wrap;min-height:38px;padding:7px 10px;border-top:1px solid var(--tegh-line);background:var(--tegh-surface-elevated);box-shadow:0 -4px 10px rgba(0,0,0,.03)}.r27-total{display:flex;align-items:baseline;gap:6px;white-space:nowrap}.r27-total small{font-size:10px;text-transform:uppercase;letter-spacing:.04em}.r27-total b{font-variant-numeric:tabular-nums}
+.srp-report-details,.tegh-report-details,[data-report-provenance]{display:none!important}.r27-totals-line+.srp-note{margin-top:4px}
+
+/* S16R Day Book: premium ledger summary cards and one row per source voucher. */
+.r28-daybook-summary-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;flex:0 0 auto;padding:2px 0 6px}.r28-daybook-kpi{display:grid;grid-template-columns:46px minmax(0,1fr) auto;align-items:center;gap:10px;min-width:0;min-height:72px;padding:10px 13px;border:1px solid var(--tegh-line);border-radius:10px;background:var(--tegh-surface-elevated);box-shadow:0 2px 7px rgba(9,43,34,.04)}.r28-daybook-kpi-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:var(--tegh-accent-soft);color:var(--tegh-accent);font-size:27px;line-height:1}.r28-daybook-kpi[data-tone="transactions"] .r28-daybook-kpi-icon{background:color-mix(in srgb,var(--tegh-line) 58%,var(--tegh-surface));color:var(--tegh-text);font-size:21px}.r28-daybook-kpi-copy{display:grid;gap:2px;min-width:0}.r28-daybook-kpi-copy small{font-size:11px;line-height:1.2;color:var(--tegh-muted)!important}.r28-daybook-kpi-copy strong{overflow:hidden;text-overflow:ellipsis;font-size:clamp(17px,1.5vw,23px);line-height:1.1;white-space:nowrap;color:var(--tegh-text)}.r28-daybook-kpi em{align-self:end;padding-bottom:2px;color:var(--tegh-muted);font-size:10px;font-style:normal;font-weight:750}.r28-daybook-kpi em.is-balanced{color:var(--tegh-success)}.r28-daybook-kpi em.is-unbalanced{color:var(--tegh-danger)}
+.r28-daybook-tools{justify-content:space-between!important;min-height:32px!important;padding:2px 4px!important;border:0!important;background:transparent!important}.r28-daybook-tools>span:first-child{color:var(--tegh-muted);font-size:11px}.r28-daybook-tool-actions{display:flex;gap:6px;margin-left:auto}.r28-daybook-tool-actions .r23-btn{min-height:30px;padding:5px 9px}
+.r28-daybook-scroll{border:1px solid var(--tegh-line)!important;border-radius:9px!important;background:var(--tegh-surface)!important;scrollbar-gutter:stable both-edges}.r28-daybook-table{min-width:980px!important;table-layout:fixed!important;border-collapse:separate!important;border-spacing:0!important}.r28-daybook-table thead th{height:38px;padding:0 10px!important;border-bottom:1px solid var(--tegh-line)!important;background:color-mix(in srgb,var(--tegh-accent-soft) 42%,var(--tegh-surface-elevated))!important;color:var(--tegh-muted)!important;font-size:11px;text-transform:none;letter-spacing:0}.r28-daybook-sort{width:100%;min-height:36px;padding:0!important;border:0;background:transparent;color:inherit;text-align:left;font:inherit;font-weight:750}.r28-daybook-table th.r23-num .r28-daybook-sort{text-align:right}.r28-daybook-row{height:42px;background:var(--tegh-surface)!important}.r28-daybook-row:hover{background:color-mix(in srgb,var(--tegh-accent-soft) 56%,var(--tegh-surface))!important}.r28-daybook-row.r23-highlight{box-shadow:inset 4px 0 0 var(--tegh-accent);background:color-mix(in srgb,var(--tegh-accent-soft) 72%,var(--tegh-surface))!important}.r28-daybook-row>td{height:42px;padding:5px 10px!important;border-bottom:1px solid var(--tegh-line)!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap!important;color:var(--tegh-text);font-size:12px}.r28-daybook-date{font-variant-numeric:tabular-nums}.r28-daybook-ref-cell{padding-left:5px!important}.r28-daybook-ref{display:flex;align-items:center;gap:5px;width:100%;min-width:0;height:32px;padding:0 4px;border:0;background:transparent;color:var(--tegh-text);text-align:left}.r28-daybook-ref strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.r28-daybook-caret{flex:0 0 10px;color:var(--tegh-accent);font-size:11px}.r28-daybook-source{display:inline-flex;align-items:center;justify-content:center;max-width:100%;min-width:68px;padding:4px 9px;border-radius:999px;background:var(--tegh-accent-soft);color:var(--tegh-accent);font-size:10px;font-weight:800;line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.r28-daybook-source[data-source="bill"]{background:color-mix(in srgb,var(--tegh-danger) 13%,var(--tegh-surface));color:var(--tegh-danger)}.r28-daybook-source[data-source="journal"]{background:color-mix(in srgb,var(--tegh-focus) 14%,var(--tegh-surface));color:var(--tegh-focus)}.r28-daybook-source[data-source="banking"]{background:color-mix(in srgb,var(--tegh-chart-3) 14%,var(--tegh-surface));color:var(--tegh-chart-3)}.r28-daybook-source[data-source="payroll"]{background:color-mix(in srgb,var(--tegh-chart-4) 15%,var(--tegh-surface));color:var(--tegh-warning)}.r28-daybook-memo{display:table-cell!important}.r28-daybook-memo strong,.r28-daybook-memo small{display:inline;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.r28-daybook-memo strong{margin-right:10px;font-size:12px}.r28-daybook-memo small{color:var(--tegh-muted)!important;font-size:11px}.r28-daybook-memo small+small::before{content:" · ";color:var(--tegh-muted)}.r28-daybook-account{font-size:11px!important}.r28-daybook-row .r23-status-pill{display:inline-flex;justify-content:center;min-width:70px;padding:4px 9px;border:0;border-radius:999px;background:color-mix(in srgb,var(--tegh-success) 15%,var(--tegh-surface));color:var(--tegh-success);font-size:10px}.r28-daybook-row .r23-status-pill[data-state*="draft"]{background:color-mix(in srgb,var(--tegh-warning) 15%,var(--tegh-surface));color:var(--tegh-warning)}.r28-daybook-row .r23-status-pill[data-state*="void"],.r28-daybook-row .r23-status-pill[data-state*="reversal"]{background:color-mix(in srgb,var(--tegh-danger) 13%,var(--tegh-surface));color:var(--tegh-danger)}.r28-daybook-row .r23-row-actions{padding:3px 5px!important;text-align:center}.r28-daybook-action{display:grid;place-items:center;width:32px;height:32px;min-height:32px;margin:auto;padding:0;border:0;border-radius:7px;background:transparent;color:var(--tegh-muted);font-size:19px;line-height:1}.r28-daybook-action:hover,.r28-daybook-action:focus-visible{background:var(--tegh-accent-soft);color:var(--tegh-accent)}
+.r28-daybook-detail-row>td{padding:0 10px 10px!important;background:color-mix(in srgb,var(--tegh-accent-soft) 26%,var(--tegh-surface))!important}.r28-daybook-lines{margin:0 0 2px 112px;border:1px solid var(--tegh-line);border-radius:8px;background:var(--tegh-surface-elevated);overflow:hidden}.r28-daybook-lines>header{display:flex;justify-content:space-between;gap:12px;padding:7px 10px;border-bottom:1px solid var(--tegh-line)}.r28-daybook-lines>header strong{font-size:11px}.r28-daybook-lines>header small{color:var(--tegh-muted)!important;font-size:10px}.r28-daybook-lines table{width:100%;table-layout:fixed;border-collapse:collapse}.r28-daybook-lines th,.r28-daybook-lines td{padding:6px 9px!important;border-bottom:1px solid var(--tegh-line);font-size:11px}.r28-daybook-lines th:nth-child(1){width:31%}.r28-daybook-lines th:nth-child(2){width:auto}.r28-daybook-lines th:nth-child(3),.r28-daybook-lines th:nth-child(4){width:120px}.r28-daybook-lines tbody tr:last-child td{border-bottom:0}.r28-daybook-pagination{min-height:38px!important}.r28-daybook-pagination>span:first-child{font-variant-numeric:tabular-nums}
+[data-srp-page="day-book"] .r22-toolbar{gap:4px!important;padding-block:4px!important}
+[data-srp-page="day-book"] .r22-toolbar-primary{min-height:40px!important}
+[data-srp-page="day-book"] .r22-toolbar-controls{min-width:0}
+[data-srp-page="day-book"] .r22-filter-controls{display:grid!important;grid-template-columns:minmax(210px,1.45fr) minmax(150px,.8fr) minmax(150px,.8fr) minmax(96px,.55fr) auto auto!important;align-items:end!important;gap:6px!important;width:100%;margin:0!important;padding:0!important}
+[data-srp-page="day-book"] .r22-filter-controls>label{min-width:0!important;width:auto!important;margin:0!important}
+[data-srp-page="day-book"] .r22-filter-controls :is(input,select,button,summary){min-height:36px!important}
+[data-srp-page="day-book"] .r27-daybook-workspace{gap:4px!important;padding-top:0!important}
+[data-srp-page="day-book"] :is(.r27-daybook-workspace>.r22-guidance,.r27-daybook-document-identity){display:none!important}
+[data-srp-page="day-book"] .srp-day-book{flex:1 1 0!important;min-height:0!important;padding:0!important;overflow:hidden!important}
+[data-srp-page="day-book"] .tegh-authoritative-report{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;border:0!important}
+[data-srp-page="day-book"] .r23-view{height:100%;min-height:0}
+[data-srp-page="day-book"] .r23-table-meta{min-height:32px;flex-basis:32px;padding-block:2px}
+[data-srp-page="day-book"] .r23-scroll{flex:1 1 160px!important;min-height:160px!important;overflow-y:auto!important;overflow-x:auto!important}
+[data-srp-page="day-book"] .r23-table :is(th,td){padding-block:7px!important;vertical-align:middle}
+[data-srp-page="day-book"] .r23-table .r23-num{text-align:right!important}
+[data-srp-page="day-book"] .r23-pagination{min-height:36px}
+@media(max-width:1180px){[data-srp-page="day-book"] .r22-filter-controls{grid-template-columns:minmax(210px,1.3fr) minmax(145px,1fr) minmax(145px,1fr) minmax(96px,.7fr)!important}[data-srp-page="day-book"] .r22-filter-controls>.srp-btn,[data-srp-page="day-book"] .r22-filter-controls>.r22-more-filters{align-self:end}.r28-daybook-summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.r28-daybook-kpi{min-height:64px}.r28-daybook-lines{margin-left:22px}}
+@media(max-width:820px){[data-srp-page="day-book"] .tegh-authoritative-report{height:auto!important;min-height:620px!important}.r28-daybook-summary-cards{gap:7px}.r28-daybook-kpi{grid-template-columns:38px minmax(0,1fr);min-height:60px;padding:8px}.r28-daybook-kpi-icon{width:34px;height:34px;font-size:22px}.r28-daybook-kpi em{display:none}.r28-daybook-scroll{max-height:58dvh}.r28-daybook-tools>span:first-child{max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.r28-daybook-lines{margin-left:0}.r28-daybook-lines>header{display:grid}.r28-daybook-pagination{display:grid!important;grid-template-columns:1fr auto;gap:5px}.r28-daybook-pagination>label{grid-column:1/-1;justify-self:end}}
+
+/* Cash Forecast owns one bounded result scroller. Its form, KPIs and chart do
+   not consume the table's flex basis or reintroduce light-only surfaces. */
+[data-srp-page="cash-forecast"] .r22-workspace{min-height:0!important;overflow:hidden!important}
+[data-srp-page="cash-forecast"] .r15-forecast.r22-fill-path{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;overflow:hidden!important;background:var(--tegh-surface)!important;color:var(--tegh-text)!important}
+[data-srp-page="cash-forecast"] .r15-forecast :is(.srp-register-filter,.tegh-fa-kpis,.tegh-fa-chart){flex:0 0 auto;min-width:0}
+[data-srp-page="cash-forecast"] .r15-forecast .srp-table-wrap{flex:1 1 180px!important;height:auto!important;min-height:180px!important;max-height:none!important;overflow:auto!important}
+[data-srp-page="cash-forecast"] .r15-forecast :is(.srp-register-filter,.tegh-fa-kpis article,.tegh-fa-chart){background:var(--tegh-surface-elevated)!important;color:var(--tegh-text)!important;border-color:var(--tegh-line)!important}
+[data-srp-page="cash-forecast"] .r15-forecast :is(label,b,strong){color:var(--tegh-text)!important}
+[data-srp-page="cash-forecast"] .r15-forecast :is(small,span){color:var(--tegh-muted)!important}
+@media(max-height:620px),(max-width:820px){[data-srp-page="cash-forecast"] .r22-workspace{overflow-y:auto!important}[data-srp-page="cash-forecast"] .r15-forecast.r22-fill-path{flex:0 0 auto!important;height:auto!important;overflow:visible!important}[data-srp-page="cash-forecast"] .r15-forecast .srp-table-wrap{flex:0 0 auto!important;max-height:45dvh!important}}
+
+/* Compact catalogue and unified export. */
+.r27-report-catalogue{display:flex;flex-direction:column;flex:1 1 0;min-height:0;overflow:hidden;padding:10px!important}.r27-report-catalogue-toolbar{display:grid;grid-template-columns:minmax(180px,1fr) minmax(150px,220px) auto;gap:8px;align-items:center;flex:0 0 auto;padding-bottom:8px;border-bottom:1px solid var(--tegh-line)}.r27-report-catalogue-toolbar h2{display:none}.r27-report-catalogue-toolbar label{min-width:0}.r27-report-catalogue-toolbar input,.r27-report-catalogue-toolbar select{width:100%;min-height:36px}.r27-report-groups{display:flex;flex-direction:column;flex:1 1 0;min-height:0;gap:8px;overflow:auto;scroll-behavior:auto;padding-top:8px}.r27-report-group{flex:0 0 auto;min-height:max-content;border:1px solid var(--tegh-line);border-radius:9px;overflow:visible}.r27-report-group>header{display:flex;justify-content:space-between;align-items:center;padding:6px 9px;background:var(--tegh-row-alt)}.r27-report-group h3{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.05em}.r27-report-group>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--tegh-line)}.r27-report-group button{display:grid;grid-template-columns:26px minmax(0,1fr) auto;align-items:center;gap:7px;min-height:38px;padding:6px 8px;border:0;background:var(--tegh-surface);color:var(--tegh-text);text-align:left}.r27-report-group button:hover{background:var(--tegh-accent-soft)}.r27-report-group button b{white-space:normal;overflow-wrap:break-word}.r27-report-group button em{font-size:10px;color:var(--tegh-accent);font-style:normal}.r27-report-group[hidden],.r27-report-group button[hidden]{display:none!important}
+.r27-export-menu{position:relative}.r27-export-menu>summary{list-style:none;cursor:pointer;border:1px solid var(--tegh-line);border-radius:8px;padding:8px 11px;background:var(--tegh-surface-elevated);font-weight:750}.r27-export-menu>summary::-webkit-details-marker{display:none}.r27-export-menu>div{position:absolute;right:0;top:calc(100% + 4px);z-index:50;display:grid;min-width:180px;padding:5px;border:1px solid var(--tegh-line);border-radius:9px;background:var(--tegh-surface-elevated);box-shadow:var(--tegh-shadow)}.r27-export-menu>div button{width:100%;justify-content:flex-start}
+.srp-account-results,.srp-select-results,[data-account-results],[data-gl-results],[role="listbox"]{max-height:min(340px,45vh);overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+
+/* Numbered, compact routine forms with visible completion state. */
+.r27-task-form{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px 11px!important;align-content:start;padding:12px!important}.r27-task-form>.full,.r27-task-form>h3,.r27-task-form>fieldset,.r27-task-form>.r27-form-actions{grid-column:1/-1}.r27-task-form .r27-field{position:relative;display:grid;grid-template-columns:auto 1fr auto;gap:3px 6px;align-items:center;min-width:0;padding-top:2px;font-size:11px}.r27-task-form .r27-field>input,.r27-task-form .r27-field>select,.r27-task-form .r27-field>textarea{grid-column:1/-1;width:100%;min-width:0;min-height:36px;padding:7px 9px}.r27-task-form .r27-field>textarea{min-height:58px}.r27-field-number{display:inline-grid;place-items:center;width:23px;height:18px;border-radius:5px;background:var(--tegh-accent-soft);color:var(--tegh-accent);font-size:9px;font-weight:800}.r27-required{justify-self:start;color:var(--tegh-danger);font-size:9px;font-weight:750}.r27-field-state{justify-self:end;color:var(--tegh-warning);font-size:9px}.r27-field-state[data-state="complete"]{color:var(--tegh-success)}.r27-form-actions{position:sticky;bottom:0;z-index:4;margin:0!important;padding:8px;background:var(--tegh-surface-elevated);border-top:1px solid var(--tegh-line)}
+
+/* Stable state changes: geometry does not move on hover or selection. Keep
+   high-volume scroll surfaces cheap to paint; scrolling must track the pointer
+   immediately instead of waiting for row transitions or shadow repaints. */
+.r23-table-meta,.r23-pagination,.tegh-recon-side-actions{contain:layout}.r23-scroll,.tegh-recon-table-scroll,.r27-report-groups{scroll-behavior:auto!important;overscroll-behavior:contain;scrollbar-gutter:stable;contain:none!important;will-change:auto!important}.r23-table tbody tr,.tegh-recon-side tbody tr{transition:none!important}.r23-table tr:hover,.tegh-recon-side tr:hover{box-shadow:none!important}.r23-table button,.tegh-recon-side button{transition:background-color .12s,color .12s,border-color .12s!important}.r23-table button:hover,.tegh-recon-side button:hover{transform:none!important}
+
+.tegh-signout-surface{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;background:var(--tegh-canvas);color:var(--tegh-text)}.tegh-signout-surface>div{display:grid;justify-items:center;gap:8px}.tegh-signout-surface b{font-size:20px}.tegh-signout-spinner{width:32px;height:32px;border:3px solid var(--tegh-line);border-top-color:var(--tegh-accent);border-radius:50%;animation:r27spin .75s linear infinite}@keyframes r27spin{to{transform:rotate(1turn)}}
+html[data-signed-out="1"] .sr-session-loader{display:none!important}html[data-signed-out="1"] .sr-gate{display:grid!important}
+
+html[data-tegh-theme="dark"] :is(.topbar,.srp-page,.srp-page-body,.content,.sra-shell,.sra-header,.sra-tabs,.srp-find-results,.r17-menu-panel,.tegh-top-module-menu,.tegh-top-more-menu,.tegh-utility-rail){background:var(--tegh-surface)!important;color:var(--tegh-text)!important;border-color:var(--tegh-line)!important}
+html[data-tegh-theme="dark"] :is(.srp-dashboard-head,.srp-module-hero,.srp-dashboard-tile,.srp-option-grid>button,.srp-kpi,.r15-appearance-preview,.tegh-bkw,.tegh-guided-report-grid>button,.tegh-guided-more-reports){background:var(--tegh-surface)!important;color:var(--tegh-text)!important;border-color:var(--tegh-line)!important}
+html[data-tegh-theme="dark"] [data-srp-page="tegh-preferences"] :is(.srp-form>.srp-check,.r25-preview-head span,.r25-preview-figure figcaption){color:var(--tegh-muted)!important}
+@media(prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] :is(.topbar,.srp-page,.srp-page-body,.content,.sra-shell,.sra-header,.sra-tabs,.srp-find-results,.r17-menu-panel,.tegh-top-module-menu,.tegh-top-more-menu,.tegh-utility-rail){background:var(--tegh-surface)!important;color:var(--tegh-text)!important;border-color:var(--tegh-line)!important}
+  html[data-tegh-theme="auto"] :is(.srp-dashboard-head,.srp-module-hero,.srp-dashboard-tile,.srp-option-grid>button,.srp-kpi,.r15-appearance-preview,.tegh-bkw,.tegh-guided-report-grid>button,.tegh-guided-more-reports){background:var(--tegh-surface)!important;color:var(--tegh-text)!important;border-color:var(--tegh-line)!important}
+  html[data-tegh-theme="auto"] [data-srp-page="tegh-preferences"] :is(.srp-form>.srp-check,.r25-preview-head span,.r25-preview-figure figcaption){color:var(--tegh-muted)!important}
+}
+
+/* R28 Step 03: one Banking Workspace with explicit Post and Match modes. */
+html[data-tegh-shell] .srp-page[data-srp-page="bank-reconciliation"] .srp-page-head h1{white-space:nowrap}
+html[data-tegh-shell] .r28-banking-workspace{display:flex!important;flex-direction:column!important;gap:10px!important;min-height:0!important;overflow:hidden!important}
+html[data-tegh-shell] .r28-banking-workspace>.r22-workspace{display:flex!important;flex-direction:column!important;gap:10px!important;min-height:0!important;overflow:hidden!important}
+html[data-tegh-shell] .r28-banking-top{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border:1px solid var(--tegh-border,#cad9d1);border-radius:10px;background:var(--tegh-porcelain,#fff)}
+html[data-tegh-shell] .r28-banking-top .srp-register-filter{display:flex!important;align-items:end!important;gap:8px!important;margin:0!important;padding:0!important;flex-wrap:wrap!important}
+html[data-tegh-shell] .r28-banking-top .srp-register-filter label{display:grid;gap:4px;min-width:140px;font-size:.78rem}html[data-tegh-shell] .r28-banking-top .srp-register-filter label:first-child{flex:1;min-width:220px}
+html[data-tegh-shell] .r28-mode-question{display:flex;align-items:center;gap:14px;min-height:38px}html[data-tegh-shell] .r28-mode-question>span{font-size:.78rem;font-weight:700;color:var(--tegh-ink-muted,#51655b)}
+
+/* Step 12: statement import and local converter share one bounded page. */
+.r28-upload-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start;min-width:0}
+.r28-upload-grid>div{min-width:0}.r28-upload-grid .srp-card{height:100%;min-width:0}.r28-upload-grid .srp-form{grid-template-columns:minmax(0,1fr)}
+.r28-upload-grid .srp-section-title{align-items:start}.r28-upload-grid .srp-actions{display:flex;flex-wrap:wrap;gap:7px}
+@media(max-width:900px){.r28-upload-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Step 12: account directory. Account actions remain scoped to each row. */
+.r28-bank-directory{display:flex;flex-direction:column;gap:12px;min-height:0}
+.r28-bank-directory-controls{display:grid;grid-template-columns:minmax(190px,280px) minmax(220px,1fr);gap:10px;align-items:end}
+.r28-bank-directory-controls label{display:grid;gap:4px;font-size:12px}.r28-bank-directory-controls :is(input,select){width:100%}
+.r28-bank-account-list{display:grid;grid-auto-rows:max-content;align-content:start;gap:9px;min-height:0;overflow:auto;scroll-behavior:auto}.r28-bank-account-row{align-self:start;min-height:0;height:auto}
+.r28-bank-account-row{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(360px,1.4fr) minmax(280px,1fr);gap:14px;align-items:center;padding:12px;border:1px solid var(--tegh-line);border-radius:9px;background:var(--tegh-surface)}
+.r28-bank-account-row h3{margin:0 0 3px}.r28-bank-account-row p{margin:0 0 6px;color:var(--tegh-muted)}
+.r28-bank-account-row dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px;margin:0}.r28-bank-account-row dt{font-size:11px;color:var(--tegh-muted)}.r28-bank-account-row dd{margin:2px 0 0;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.r28-bank-account-actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.r28-bank-account-actions details{position:relative}.r28-bank-account-actions summary{list-style:none}.r28-bank-account-actions details>div{position:absolute;right:0;z-index:20;display:grid;min-width:180px;padding:5px;border:1px solid var(--tegh-line);border-radius:8px;background:var(--tegh-surface);box-shadow:var(--tegh-shadow)}.r28-bank-account-actions details>div button{padding:8px;border:0;background:transparent;text-align:left;color:var(--tegh-text)}
+@media(max-width:1100px){.r28-bank-account-row{grid-template-columns:minmax(180px,1fr) minmax(280px,1.4fr)}.r28-bank-account-actions{grid-column:1/-1;justify-content:flex-start}}
+@media(max-width:700px){.r28-bank-directory-controls,.r28-bank-account-row{grid-template-columns:minmax(0,1fr)}.r28-bank-account-row dl{grid-template-columns:minmax(0,1fr)}.r28-bank-account-actions{grid-column:auto}.r28-bank-account-actions>*{flex:1 1 150px}.r28-bank-account-actions .srp-btn{width:100%}}
+.r28-bank-ledger-report{display:flex;flex-direction:column;gap:8px;min-height:0}.r28-bank-ledger-report>[data-tegh-authoritative-report]{flex:1 1 0;min-height:180px}.r28-ledger-find{display:flex;align-items:end;gap:7px;flex-wrap:wrap}.r28-ledger-find label{display:grid;gap:3px;flex:1 1 260px}.r28-ledger-find [role=status]{flex:1 1 100%;font-size:12px;color:var(--tegh-muted)}
+
+/* Final shared header contract: title/actions first row, filters/search second. */
+html[data-tegh-activity-shell="r22"] .srp-page-head.r22-toolbar{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:6px!important;height:auto!important;max-width:100%}
+html[data-tegh-activity-shell="r22"] .r22-toolbar-primary{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-width:0}
+html[data-tegh-activity-shell="r22"] .r22-toolbar-primary .r22-title{flex:1 1 auto;min-width:0;max-width:none}
+html[data-tegh-activity-shell="r22"] .r22-toolbar-primary .r22-title h1{max-width:none;white-space:normal}
+html[data-tegh-activity-shell="r22"] .r22-toolbar-controls{display:flex;align-items:end;width:100%;min-width:0;flex:0 0 auto}
+html[data-tegh-activity-shell="r22"] .r22-toolbar-controls:empty{display:none}
+html[data-tegh-activity-shell="r22"] .r22-toolbar-controls form{width:100%;max-width:none}
+html[data-tegh-shell] .r28-mode-question>div{display:inline-flex;border:1px solid var(--tegh-border,#cad9d1);border-radius:8px;overflow:hidden;background:var(--tegh-surface-mist,#eef5f1)}
+html[data-tegh-shell] .r28-mode-question button{min-height:34px;padding:6px 18px;border:0;border-right:1px solid var(--tegh-border,#cad9d1);background:transparent;color:inherit;font-weight:700;cursor:pointer}html[data-tegh-shell] .r28-mode-question button:last-child{border-right:0}html[data-tegh-shell] .r28-mode-question button.active{background:var(--tegh-brand,#087f67);color:#fff;box-shadow:inset 0 -2px 0 rgba(0,0,0,.12)}
+html[data-tegh-shell] .r28-banking-grid{display:grid;grid-template-columns:minmax(340px,34fr) minmax(0,66fr);gap:12px;flex:1;min-height:0;overflow:hidden}html[data-tegh-shell] .r28-banking-grid>.r28-bank-panel,html[data-tegh-shell] .r28-banking-grid>.r28-detail-panel{grid-column:auto!important;grid-row:auto!important}
+html[data-tegh-shell] .r28-bank-panel,html[data-tegh-shell] .r28-detail-panel{display:flex!important;flex-direction:column!important;gap:8px!important;min-width:0!important;min-height:0!important;padding:10px!important;overflow:hidden!important}
+html[data-tegh-shell] .r28-bank-panel>header,html[data-tegh-shell] .r28-post-panel>header,html[data-tegh-shell] .r28-match-panel>header{display:flex;align-items:center;justify-content:space-between;gap:12px}html[data-tegh-shell] .r28-bank-panel>header>div{display:flex;align-items:baseline;gap:8px}
+html[data-tegh-shell] .r28-bank-panel h3,html[data-tegh-shell] .r28-post-panel h3,html[data-tegh-shell] .r28-match-panel h3{margin:0;font-size:1rem}html[data-tegh-shell] .r28-bank-panel header span,html[data-tegh-shell] .r28-post-panel header small,html[data-tegh-shell] .r28-match-panel header small{font-size:.76rem;color:var(--tegh-ink-muted,#51655b)}
+html[data-tegh-shell] .r28-bank-tools,html[data-tegh-shell] .r28-match-tools{display:flex;align-items:end;gap:6px;flex-wrap:wrap}html[data-tegh-shell] .r28-bank-tools label:first-child,html[data-tegh-shell] .r28-match-tools label:first-child{flex:1;min-width:150px}html[data-tegh-shell] .r28-bank-tools label,html[data-tegh-shell] .r28-match-tools label{display:grid;gap:3px;font-size:.72rem}
+html[data-tegh-shell] .r28-bank-tools :is(input,select),html[data-tegh-shell] .r28-match-tools :is(input,select){min-height:32px;padding:5px 7px;border:1px solid var(--tegh-border,#cad9d1);border-radius:6px;background:var(--tegh-porcelain,#fff);color:inherit}
+html[data-tegh-shell] .r28-bank-scroll,html[data-tegh-shell] .r28-book-scroll{flex:1;min-height:180px;overflow:auto!important;contain:none!important;will-change:auto!important;scroll-behavior:auto}html[data-tegh-shell] .r28-bank-panel .r15-recon-table{min-width:610px!important}html[data-tegh-shell] .r28-detail-panel .r15-recon-table{min-width:680px!important}
+html[data-tegh-shell] .r28-bank-pagination{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:34px;padding-top:4px;border-top:1px solid var(--tegh-border,#cad9d1);font-size:.74rem;color:var(--tegh-ink-muted,#51655b)}html[data-tegh-shell] .r28-bank-pagination nav{display:flex;align-items:center;gap:4px}html[data-tegh-shell] .r28-bank-pagination button{display:grid;place-items:center;min-width:28px;height:28px;padding:0 7px;border:1px solid var(--tegh-border,#cad9d1);border-radius:6px;background:var(--tegh-porcelain,#fff);color:inherit;font:inherit;font-weight:700;cursor:pointer}html[data-tegh-shell] .r28-bank-pagination button.active{border-color:var(--tegh-brand,#087f67);background:var(--tegh-brand,#087f67);color:#fff}html[data-tegh-shell] .r28-bank-pagination button:disabled{opacity:.42;cursor:not-allowed}
+html[data-tegh-shell] .r28-post-panel,html[data-tegh-shell] .r28-match-panel{display:flex;flex-direction:column;gap:10px;min-height:0;height:100%}html[data-tegh-shell] .r28-post-panel>header{padding:8px 10px;border-radius:8px;background:var(--tegh-surface-mist,#eef5f1)}html[data-tegh-shell] .r28-post-panel>header p{margin:3px 0 0;font-size:.78rem}
+html[data-tegh-shell] .r28-post-panel form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;min-height:0;overflow:auto;padding:2px}html[data-tegh-shell] .r28-post-panel form>label{display:grid;gap:4px;font-size:.78rem;font-weight:650}html[data-tegh-shell] .r28-post-panel form>label.full,html[data-tegh-shell] .r28-post-panel form>.full{grid-column:1/-1}
+html[data-tegh-shell] .r28-post-panel form :is(input,select){width:100%;min-height:38px;padding:7px 9px;border:1px solid var(--tegh-border,#cad9d1);border-radius:7px;background:var(--tegh-porcelain,#fff);color:inherit}html[data-tegh-shell] .r28-post-preview{border-top:1px solid var(--tegh-border,#cad9d1);padding-top:8px}html[data-tegh-shell] .r28-post-preview h4{margin:0 0 8px}html[data-tegh-shell] .r28-post-preview-table{width:100%}
+html[data-tegh-shell] .r28-post-panel footer{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:4px}html[data-tegh-shell] .r28-match-panel>p{margin:0;font-size:.78rem;color:var(--tegh-ink-muted,#51655b)}html[data-tegh-shell] .r28-match-panel .r28-book-scroll{flex:1;min-height:240px}
+html[data-tegh-shell] .r28-workspace-empty{display:grid;place-content:center;text-align:center;min-height:360px;padding:30px;color:var(--tegh-ink-muted,#51655b)}html[data-tegh-shell] .r28-workspace-empty span{display:grid;place-items:center;width:46px;height:46px;margin:0 auto 12px;border-radius:50%;background:var(--tegh-surface-mist,#eef5f1);color:var(--tegh-brand,#087f67);font-weight:800}html[data-tegh-shell] .r28-workspace-empty h3{margin:0 0 6px;color:var(--tegh-ink,#15352a)}html[data-tegh-shell] .r28-workspace-empty p{max-width:420px;margin:0}
+
+@media(max-width:1050px){.r27-daybook-summary{grid-template-columns:18px 86px 110px minmax(130px,1fr) minmax(130px,1fr) 100px 100px}.r27-daybook-type,.r27-daybook-status{display:none}.r27-report-group>div{grid-template-columns:repeat(2,minmax(0,1fr))}.r27-task-form{grid-template-columns:repeat(2,minmax(0,1fr))!important}html[data-tegh-shell] .r28-banking-workspace{overflow:auto!important}html[data-tegh-shell] .r28-banking-grid{grid-template-columns:1fr;overflow:visible}html[data-tegh-shell] .r28-bank-panel,html[data-tegh-shell] .r28-detail-panel{min-height:560px!important}html[data-tegh-shell] .r28-mode-question{align-items:flex-start;flex-direction:column;gap:6px}}
+@media(max-width:820px){html,body{overflow:hidden}.stage>.content{padding:8px!important}.tegh-recon-workspace{display:flex!important}.tegh-recon-workspace>.tegh-recon-side{display:none!important}.tegh-recon-workspace[data-mobile-side="bank"]>#tegh-recon-bank-panel,.tegh-recon-workspace[data-mobile-side="book"]>#tegh-recon-book-panel{display:flex!important}.r27-report-catalogue-toolbar{grid-template-columns:1fr 1fr}.r27-report-catalogue-toolbar h2{grid-column:1/-1}.r27-report-group>div{grid-template-columns:1fr}.r27-task-form{grid-template-columns:1fr!important}.r27-daybook-summary{min-width:720px}.r23-scroll{overflow:auto!important}}
+@media(prefers-reduced-motion:reduce){.tegh-signout-spinner{animation-duration:1.6s}}
+
+/* R28 Step 06: read-only Bank Reconciliation Report. */
+html[data-tegh-shell] .srp-page[data-srp-page="report-bank-reconciliation"] .srp-page-head .r22-title{flex:0 0 auto;min-width:max-content}
+html[data-tegh-shell] .srp-page[data-srp-page="report-bank-reconciliation"] .srp-page-head h1{max-width:none;white-space:nowrap}
+html[data-tegh-shell] .srp-page[data-srp-page="report-bank-reconciliation"] .srp-page-body{overflow:hidden!important}
+html[data-tegh-shell] .r28-recon-report{height:100%;min-height:0;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+html[data-tegh-shell] .r28-recon-filters{display:grid!important;grid-template-columns:minmax(220px,1.2fr) 150px 142px 142px minmax(190px,1fr) auto;gap:8px!important;align-items:end;margin:0!important;padding:9px 10px!important;border:1px solid var(--tegh-border,#cad9d1);border-radius:10px;background:var(--tegh-porcelain,#fff)}
+html[data-tegh-shell] .r28-recon-filters label{display:grid;gap:3px;min-width:0;font-size:.72rem;font-weight:700;color:var(--tegh-ink-muted,#51655b)}html[data-tegh-shell] .r28-recon-filters :is(input,select){width:100%;min-width:0;min-height:34px;padding:5px 7px;border:1px solid var(--tegh-border,#cad9d1);border-radius:7px;background:var(--tegh-porcelain,#fff);color:var(--tegh-ink,#15352a)}
+html[data-tegh-shell] .r28-recon-history-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 3px;color:var(--tegh-ink-muted,#51655b)}html[data-tegh-shell] .r28-recon-history-head>div{display:flex;align-items:baseline;gap:8px}html[data-tegh-shell] .r28-recon-history-head small{text-transform:uppercase;letter-spacing:.05em;font-size:.66rem}html[data-tegh-shell] .r28-recon-history-head b{color:var(--tegh-ink,#15352a);font-size:.86rem}html[data-tegh-shell] .r28-recon-history-head>span{font-size:.72rem}
+html[data-tegh-shell] [data-r28-recon-history-view]{flex:1;min-height:0;display:flex}html[data-tegh-shell] .r28-recon-history-card{flex:1;min-height:0;display:flex;flex-direction:column;padding:0!important;overflow:hidden}
+html[data-tegh-shell] .r28-recon-history-scroll{flex:1;min-height:160px;overflow:auto!important;scroll-behavior:auto;overscroll-behavior:contain;scrollbar-gutter:stable}html[data-tegh-shell] .r28-recon-history-scroll table{min-width:1180px}html[data-tegh-shell] .r28-recon-history-scroll td small{display:block;margin-top:2px;color:var(--tegh-ink-muted,#51655b);white-space:nowrap}
+html[data-tegh-shell] .r28-recon-history-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;padding:7px 10px;border-top:1px solid var(--tegh-border,#cad9d1);font-size:.76rem;color:var(--tegh-ink-muted,#51655b)}html[data-tegh-shell] .r28-recon-history-footer nav{display:flex;align-items:center;gap:8px}html[data-tegh-shell] .r28-recon-history-footer nav b{min-width:90px;text-align:center;color:var(--tegh-ink,#15352a)}
+html[data-tegh-shell] .r28-recon-status{display:inline-flex;align-items:center;min-height:25px;padding:3px 8px;border:1px solid var(--tegh-border,#cad9d1);border-radius:999px;background:var(--tegh-surface-mist,#eef5f1);font-size:.7rem;font-weight:800;white-space:nowrap}html[data-tegh-shell] .r28-recon-status.complete{border-color:#8dd9c5;background:#e6f8f1;color:#086d57}html[data-tegh-shell] .r28-recon-status.reopened{border-color:#f0c78e;background:#fff4df;color:#9b5900}html[data-tegh-shell] .r28-recon-status.draft{color:var(--tegh-ink-muted,#51655b)}
+html[data-tegh-shell] .r28-recon-detail{overflow:auto;padding-right:3px;scroll-behavior:auto;overscroll-behavior:contain;scrollbar-gutter:stable}html[data-tegh-shell] .r28-recon-detail-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:8;padding:3px 0;background:var(--tegh-canvas,#f5f8f6)}
+html[data-tegh-shell] .r28-recon-identity{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 14px;border:1px solid var(--tegh-border,#cad9d1);border-radius:11px;background:var(--tegh-porcelain,#fff)}html[data-tegh-shell] .r28-recon-identity h2{margin:2px 0 3px;font-size:1.22rem}html[data-tegh-shell] .r28-recon-identity p{margin:0;color:var(--tegh-ink-muted,#51655b)}html[data-tegh-shell] .r28-recon-identity>div:last-child{display:grid;justify-items:end;gap:5px}html[data-tegh-shell] .r28-recon-identity>div:last-child small{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.67rem;color:var(--tegh-ink-muted,#51655b)}
+html[data-tegh-shell] .r28-recon-meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;overflow:hidden;border:1px solid var(--tegh-border,#cad9d1);border-radius:9px;background:var(--tegh-border,#cad9d1)}html[data-tegh-shell] .r28-recon-meta>span{display:grid;gap:2px;padding:7px 10px;background:var(--tegh-porcelain,#fff)}html[data-tegh-shell] .r28-recon-meta small{font-size:.64rem;text-transform:uppercase;letter-spacing:.04em;color:var(--tegh-ink-muted,#51655b)}html[data-tegh-shell] .r28-recon-meta b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.78rem}
+html[data-tegh-shell] .r28-recon-bridge{display:grid;grid-template-columns:1fr 1fr;gap:10px}html[data-tegh-shell] .r28-recon-bridge>div{display:grid;grid-template-rows:auto repeat(5,minmax(31px,auto));padding:10px 12px;border:1px solid var(--tegh-border,#cad9d1);border-radius:10px;background:var(--tegh-porcelain,#fff)}html[data-tegh-shell] .r28-recon-bridge header{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-bottom:6px;border-bottom:1px solid var(--tegh-border,#cad9d1)}html[data-tegh-shell] .r28-recon-bridge header small{text-transform:uppercase;letter-spacing:.05em;color:var(--tegh-brand,#087f67)}html[data-tegh-shell] .r28-recon-bridge p{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0;padding:5px 0;font-size:.78rem}html[data-tegh-shell] .r28-recon-bridge p b{font-variant-numeric:tabular-nums;white-space:nowrap}html[data-tegh-shell] .r28-recon-bridge .total{border-top:1px solid var(--tegh-border,#cad9d1);font-size:.88rem}html[data-tegh-shell] .r28-recon-bridge .spacer{visibility:hidden}
+html[data-tegh-shell] .r28-recon-difference{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:16px;padding:9px 12px;border:1px solid #8dd9c5;border-radius:10px;background:#e6f8f1;color:#086d57}html[data-tegh-shell] .r28-recon-difference.attention{border-color:#f0c78e;background:#fff4df;color:#8a5100}html[data-tegh-shell] .r28-recon-difference span{display:grid}html[data-tegh-shell] .r28-recon-difference small{text-transform:uppercase;letter-spacing:.05em;font-size:.65rem}html[data-tegh-shell] .r28-recon-difference strong{font-size:1.15rem;font-variant-numeric:tabular-nums}html[data-tegh-shell] .r28-recon-difference em{min-width:90px;text-align:center;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.72);font-style:normal;font-size:.72rem;font-weight:800}
+html[data-tegh-shell] .r28-recon-exceptions{padding:8px 11px!important}html[data-tegh-shell] .r28-recon-exceptions p{margin:3px 0;font-size:.75rem}
+html[data-tegh-shell] .r28-recon-sections{display:grid;gap:7px}html[data-tegh-shell] .r28-recon-detail-section{overflow:hidden;border:1px solid var(--tegh-border,#cad9d1);border-radius:9px;background:var(--tegh-porcelain,#fff)}html[data-tegh-shell] .r28-recon-detail-section>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 11px;cursor:pointer;font-size:.8rem;font-weight:800}html[data-tegh-shell] .r28-recon-detail-section>summary b{display:grid;place-items:center;min-width:24px;height:22px;border-radius:999px;background:var(--tegh-surface-mist,#eef5f1);color:var(--tegh-brand,#087f67);font-size:.68rem}html[data-tegh-shell] .r28-recon-detail-scroll{max-height:310px;overflow:auto!important;scroll-behavior:auto;overscroll-behavior:contain;scrollbar-gutter:stable}html[data-tegh-shell] .r28-recon-detail-scroll table{min-width:950px}
+html[data-tegh-shell] .r28-recon-audit{display:grid;gap:0;margin:0;padding:0 11px 9px;list-style:none}html[data-tegh-shell] .r28-recon-audit li{display:grid;grid-template-columns:160px minmax(0,1fr);gap:3px 10px;padding:7px 0;border-top:1px solid var(--tegh-border,#cad9d1);font-size:.75rem}html[data-tegh-shell] .r28-recon-audit li span{color:var(--tegh-ink-muted,#51655b)}html[data-tegh-shell] .r28-recon-audit li p{grid-column:1/-1;margin:0}
+html[data-tegh-shell] .r28-recon-disclosure{padding:8px 10px;border-radius:8px;background:var(--tegh-surface-mist,#eef5f1);font-size:.72rem;color:var(--tegh-ink-muted,#51655b)}
+@media(max-width:1180px){html[data-tegh-shell] .r28-recon-filters{grid-template-columns:1fr 140px 140px 140px}html[data-tegh-shell] .r28-recon-filters label.grow:last-of-type{grid-column:1/-2}html[data-tegh-shell] .r28-recon-meta{grid-template-columns:1fr 1fr}}
+@media(max-width:820px){html[data-tegh-shell] .srp-page[data-srp-page="report-bank-reconciliation"] .srp-page-body{overflow:auto!important}html[data-tegh-shell] .r28-recon-report{height:auto;overflow:visible}html[data-tegh-shell] .r28-recon-filters{grid-template-columns:1fr 1fr}html[data-tegh-shell] .r28-recon-filters label.grow{grid-column:1/-1}html[data-tegh-shell] .r28-recon-bridge{grid-template-columns:1fr}html[data-tegh-shell] .r28-recon-identity{align-items:flex-start;flex-direction:column}html[data-tegh-shell] .r28-recon-identity>div:last-child{justify-items:start}}
+@media(prefers-reduced-motion:reduce){html[data-tegh-shell] .r28-recon-history-scroll,html[data-tegh-shell] .r28-recon-detail,html[data-tegh-shell] .r28-recon-detail-scroll{scroll-behavior:auto}}
+
+/* R28 Step 07: reconciliation completion, fixed report paging and labelled compact navigation. */
+html[data-tegh-shell] .r28-recon-completion{max-width:1120px;margin:0 auto}
+html[data-tegh-shell] .r28-recon-completion-form{display:grid;gap:14px}
+html[data-tegh-shell] .r28-recon-completion-filters{display:grid;grid-template-columns:minmax(220px,1fr) 150px 150px auto;align-items:end;gap:9px}
+html[data-tegh-shell] .r28-recon-completion-filters label,html[data-tegh-shell] .r28-recon-completion-fields label{display:grid;gap:4px;font-size:.76rem;font-weight:700;color:var(--tegh-ink-muted,#51655b)}
+html[data-tegh-shell] .r28-recon-completion-filters :is(input,select),html[data-tegh-shell] .r28-recon-completion-fields :is(input,textarea){width:100%;min-width:0;border:1px solid var(--tegh-border,#cad9d1);border-radius:7px;background:var(--tegh-porcelain,#fff);color:var(--tegh-ink,#15352a)}
+html[data-tegh-shell] .r28-recon-completion-filters :is(input,select),html[data-tegh-shell] .r28-recon-completion-fields input{min-height:38px;padding:7px 9px}html[data-tegh-shell] .r28-recon-completion-fields textarea{padding:8px 9px;resize:vertical}
+html[data-tegh-shell] .r28-recon-completion-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;overflow:hidden;border:1px solid var(--tegh-border,#cad9d1);border-radius:9px;background:var(--tegh-border,#cad9d1)}
+html[data-tegh-shell] .r28-recon-completion-summary>div{display:grid;gap:3px;padding:11px 12px;background:var(--tegh-porcelain,#fff)}html[data-tegh-shell] .r28-recon-completion-summary small{font-size:.68rem;color:var(--tegh-ink-muted,#51655b)}html[data-tegh-shell] .r28-recon-completion-summary b{font-size:1rem}html[data-tegh-shell] .r28-recon-completion-summary .ready b{color:#08715b}html[data-tegh-shell] .r28-recon-completion-summary .attention b{color:#a25b00}
+html[data-tegh-shell] .r28-recon-completion-fields{display:grid;grid-template-columns:minmax(240px,.7fr) minmax(300px,1.3fr);gap:12px;align-items:start}
+html[data-tegh-shell] .r28-recon-completion-difference{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 12px;border:1px solid #efc07d;border-radius:8px;background:#fff4df;color:#875000;font-size:.8rem}html[data-tegh-shell] .r28-recon-completion-difference.balanced{border-color:#8dd9c5;background:#e6f8f1;color:#086d57}html[data-tegh-shell] .r28-recon-completion-difference b{font-size:.9rem;font-variant-numeric:tabular-nums}
+html[data-tegh-shell] .r23-fixed-page-size{font-size:.75rem;color:var(--tegh-ink-muted,#51655b);white-space:nowrap}
+@media(min-width:821px){
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode){--r22-nav:156px;--r17-nav-compact:156px;--tegh-main-nav-compact:156px}
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar{width:156px!important;min-width:156px!important;padding:12px 8px!important}
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar>nav{width:140px!important;min-width:140px!important;max-width:140px!important;overflow-x:hidden!important}
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar>.side-foot{width:140px!important;min-width:140px!important;max-width:140px!important}
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar :is(nav>.srp-nav-parent,nav>.srp-standalone-nav,.side-foot>button){display:grid!important;grid-template-columns:28px minmax(0,1fr)!important;justify-items:stretch!important;align-items:center!important;width:140px!important;min-width:140px!important;height:auto!important;min-height:46px!important;margin:2px 0!important;padding:8px 9px!important;gap:8px!important;text-align:left!important}
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar :is(nav>.srp-nav-parent,nav>.srp-standalone-nav,.side-foot>button)>.nav-code{display:grid!important;grid-column:1!important;justify-self:center!important}
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar :is(nav>.srp-nav-parent,nav>.srp-standalone-nav,.side-foot>button)>.nav-copy{display:block!important;grid-column:2!important;min-width:0!important;width:auto!important;opacity:1!important;visibility:visible!important}
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar .nav-copy b{display:block!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:normal!important;font-size:12px!important;line-height:1.15!important;color:inherit!important}
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar :is(.srp-subnav,.srp-chevron){display:none!important}
+}
+@media(max-width:820px){html[data-tegh-shell] .r28-recon-completion-filters,html[data-tegh-shell] .r28-recon-completion-summary,html[data-tegh-shell] .r28-recon-completion-fields{grid-template-columns:1fr}html[data-tegh-shell] .r28-recon-completion-difference{align-items:flex-start;flex-direction:column}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}html[data-tegh-shell] :is(.r27-native-scroll,.r23-scroll,.tegh-recon-table-scroll,.r27-report-groups,.r28-bank-scroll,.r28-book-scroll){scroll-behavior:auto!important}}
+
+/* R28 Step 08: large-data paging and mobile Banking refinement. */
+html[data-tegh-shell] .r28-bank-pagination>span{flex:0 0 auto;white-space:nowrap}
+html[data-tegh-shell] .r28-bank-pagination nav{min-width:0;justify-content:flex-end;overflow:hidden}
+html[data-tegh-shell] .r28-bank-pagination .r28-page-gap{display:grid;place-items:center;min-width:16px;height:28px;color:var(--tegh-ink-muted,#51655b);font-weight:800}
+@media(max-width:1050px){
+  html[data-tegh-shell] .r28-bank-pagination{flex-wrap:wrap;align-items:center}
+  html[data-tegh-shell] .r28-bank-pagination nav{justify-content:flex-start;overflow:visible}
+}
+@media(max-width:600px){
+  html[data-tegh-shell] .srp-page[data-srp-page="bank-reconciliation"] .srp-page-head h1{font-size:clamp(1.08rem,5.5vw,1.45rem)!important;letter-spacing:-.035em}
+  html[data-tegh-shell] .r28-banking-top{padding:9px}
+  html[data-tegh-shell] .r28-banking-top .srp-register-filter{display:grid!important;grid-template-columns:1fr 1fr!important;align-items:end!important;width:100%}
+  html[data-tegh-shell] .r28-banking-top .srp-register-filter label:first-child{grid-column:1/-1;min-width:0}
+  html[data-tegh-shell] .r28-banking-top .srp-register-filter label{min-width:0}
+  html[data-tegh-shell] .r28-banking-top .srp-register-filter .srp-btn{grid-column:1/-1;width:100%}
+  html[data-tegh-shell] .r28-mode-question>div{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  html[data-tegh-shell] .r28-mode-question button{min-width:0;padding-inline:9px}
+  html[data-tegh-shell] .r28-bank-panel,html[data-tegh-shell] .r28-detail-panel{min-height:520px!important;padding:9px!important}
+  html[data-tegh-shell] .r28-bank-tools,html[data-tegh-shell] .r28-match-tools{display:grid;grid-template-columns:1fr 1fr;align-items:end}
+  html[data-tegh-shell] .r28-bank-tools label:first-child,html[data-tegh-shell] .r28-match-tools label:first-child{grid-column:1/-1;min-width:0}
+  html[data-tegh-shell] .r28-bank-tools>*:is(button),html[data-tegh-shell] .r28-match-tools>*:is(button){width:100%;min-width:0}
+  html[data-tegh-shell] .r28-post-panel form{grid-template-columns:1fr}
+  html[data-tegh-shell] .r28-post-panel form>label.full,html[data-tegh-shell] .r28-post-panel form>.full{grid-column:auto}
+  html[data-tegh-shell] .r28-post-panel footer{align-items:stretch;flex-direction:column}
+  html[data-tegh-shell] .r28-post-panel footer .srp-btn{width:100%}
+  html[data-tegh-shell] .r28-bank-pagination{align-items:flex-start;flex-direction:column;gap:6px}
+  html[data-tegh-shell] .r28-bank-pagination nav{width:100%;justify-content:flex-start;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+  html[data-tegh-shell] .r28-recon-filters{grid-template-columns:1fr}
+  html[data-tegh-shell] .r28-recon-filters label.grow,html[data-tegh-shell] .r28-recon-filters label.grow:last-of-type{grid-column:auto}
+  html[data-tegh-shell] .r28-recon-history-head,html[data-tegh-shell] .r28-recon-history-footer{align-items:flex-start;flex-direction:column}
+  html[data-tegh-shell] .r28-recon-history-footer nav{width:100%;justify-content:space-between}
+  html[data-tegh-shell] .r28-recon-history-footer nav b{min-width:0}
+  html[data-tegh-shell] .r28-upload-statement .srp-actions{align-items:stretch;flex-direction:column}
+  html[data-tegh-shell] .r28-upload-statement .srp-actions .srp-btn{width:100%}
+}
+
+/* R28 Step 09: restore one reliable touch-scroll owner on phones. The mobile
+   shell is bounded between the fixed header and bottom navigation, so the
+   stage—not the locked document—owns vertical swipes across every route. */
+@media(max-width:820px){
+  html,body{height:100%;overflow:hidden!important}
+  #root,.app{height:100vh!important;min-height:100vh!important;height:100dvh!important;min-height:100dvh!important;overflow:hidden!important}
+  html[data-tegh-shell] .stage{
+    flex:1 1 auto!important;
+    height:100%!important;
+    max-height:100vh!important;
+    max-height:100dvh!important;
+    min-height:0!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-y:contain;
+    scroll-behavior:auto;
+    touch-action:auto
+  }
+  html[data-tegh-shell] .stage>.content,
+  html[data-tegh-shell] .stage>.srp-page{
+    display:block!important;
+    flex:0 0 auto!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important
+  }
+  html[data-tegh-shell] .stage>.content{
+    padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))!important
+  }
+  html[data-tegh-shell] .stage>.content>.srp-page,
+  html[data-tegh-shell] .stage>.srp-page{
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important
+  }
+  html[data-tegh-shell] .srp-page-body{
+    flex:0 0 auto!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+    overscroll-behavior:auto!important;
+    scrollbar-gutter:auto!important
+  }
+  html[data-tegh-shell] :is(.r28-banking-workspace,.r28-banking-workspace>.r22-workspace,.r28-banking-grid,.r28-recon-report){
+    height:auto!important;
+    overflow:visible!important
+  }
+  html[data-tegh-shell] body.r19-drawer-open .stage{overflow:hidden!important}
+}
+
+/* R28 Step 14: authoritative banking and register composition. */
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-toolbar-controls form.r22-filter-controls{
+  display:flex!important;flex-wrap:wrap!important;align-items:end!important;gap:6px!important
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-toolbar-controls form.r22-filter-controls>.r23-search-field{
+  order:20!important;flex:1 1 100%!important;width:100%!important;max-width:none!important
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-toolbar-controls form.r22-filter-controls>.r23-search-field input{
+  width:100%!important;max-width:none!important
+}
+.r28-upload-grid{display:flex!important;flex-direction:column!important;gap:10px!important;width:100%!important}
+.r28-upload-grid>div{width:100%!important}
+.r28-upload-grid .srp-card{height:auto!important;padding:12px!important}
+.r28-upload-grid .srp-section-title{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important}
+.r28-template-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
+.r28-upload-grid :is(.r28-upload-form,.r28-converter-form){display:grid!important;grid-template-columns:minmax(220px,.8fr) minmax(280px,1.2fr) auto!important;align-items:end!important;gap:8px 10px!important}
+.r28-upload-grid :is(.r28-upload-form,.r28-converter-form)>.srp-actions{align-self:end!important;margin:0!important}
+.r28-upload-grid :is(.r28-upload-form,.r28-converter-form)>[role="status"],.r28-upload-grid .tegh-bank-preview-progress{grid-column:1/-1!important;margin:0!important}
+.r28-accepted-columns{margin:7px 0 0!important;color:var(--tegh-muted)}
+.r28-bank-report-filter{display:grid!important;grid-template-columns:minmax(220px,1fr) 96px 150px 150px auto!important;align-items:end!important;gap:7px!important;margin:0!important}
+.r28-bank-report-filter>label{display:grid!important;gap:3px!important;min-width:0!important}
+.r28-bank-report-filter :is(input,select){width:100%!important;min-width:0!important;height:36px!important}
+.r28-bank-report-filter>.r28-currency-field{align-self:end!important}
+.r28-bank-report-filter>.r28-bank-report-search{grid-column:1/-1!important;width:100%!important}
+.r28-bank-ledger-report,.r28-bank-transaction-report{padding:10px!important;gap:8px!important}
+.r28-bank-transaction-report>.srp-report-toolbar{margin-top:0!important}
+.r28-bank-directory-controls{grid-template-columns:minmax(220px,320px) minmax(280px,1fr)!important}
+.r28-bank-directory-search{align-self:end!important}
+.r28-bank-directory-search input{height:38px!important}
+.r28-bank-account-list{scrollbar-gutter:stable;overscroll-behavior:contain}
+.r28-bank-account-actions details>div{top:calc(100% + 4px)}
+@media(max-width:900px){
+  .r28-upload-grid :is(.r28-upload-form,.r28-converter-form),.r28-bank-report-filter{grid-template-columns:minmax(0,1fr)!important}
+  .r28-bank-report-filter>.r28-bank-report-search{grid-column:auto!important}
+  .r28-bank-directory-controls{grid-template-columns:minmax(0,1fr)!important}
+}
+@media(max-width:600px){
+  .r28-upload-grid .srp-section-title{flex-direction:column!important}
+  .r28-template-actions{justify-content:flex-start}
+  .r28-upload-grid .srp-actions{width:100%!important}
+  .r28-upload-grid .srp-actions>*{flex:1 1 100%!important}
+}
+@media(max-width:820px) and (prefers-reduced-motion:reduce){
+  html[data-tegh-shell] .stage{scroll-behavior:auto}
+}
+
+/* R28 Step 10: keep the Match and Post transaction lists as real tables.
+   The activity-shell enhancer adds r22-stacked-table to every data table.
+   Its unconditional card-grid rules conflict with the fixed 38px banking
+   rows, leaving each cell only a few pixels high.  These route-scoped rules
+   restore native table layout for both the bank and book-entry panes while
+   retaining their independent horizontal and vertical scroll containers. */
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r28-banking-workspace table.r15-recon-table.r22-stacked-table{
+  display:table!important;
+  width:100%!important;
+  table-layout:fixed!important
+}
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r28-banking-workspace table.r15-recon-table.r22-stacked-table>thead{
+  display:table-header-group!important;
+  position:static!important;
+  width:auto!important;
+  height:auto!important;
+  overflow:visible!important;
+  clip-path:none!important
+}
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r28-banking-workspace table.r15-recon-table.r22-stacked-table>tbody{
+  display:table-row-group!important;
+  width:auto!important
+}
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r28-banking-workspace table.r15-recon-table.r22-stacked-table tr{
+  display:table-row!important;
+  width:auto!important;
+  min-width:0!important;
+  height:38px!important;
+  max-height:38px!important;
+  padding:0!important
+}
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r28-banking-workspace table.r15-recon-table.r22-stacked-table :is(th,td){
+  display:table-cell!important;
+  width:auto;
+  min-width:0!important;
+  max-width:none;
+  height:38px!important;
+  max-height:38px!important;
+  padding:4px 7px!important;
+  overflow:hidden!important;
+  vertical-align:middle!important;
+  white-space:nowrap!important;
+  text-align:left;
+  text-overflow:ellipsis
+}
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r28-banking-workspace table.r15-recon-table.r22-stacked-table :is(th,td)::before{
+  display:none!important;
+  content:none!important
+}
+html[data-tegh-shell][data-tegh-activity-shell="r22"] .r28-banking-workspace table.r15-recon-table.r22-stacked-table .srp-money{
+  text-align:right!important
+}
+
+/* R28 Step 11: reference-aligned Banking panes with no horizontal table
+   scrolling, plus the approved compact icon-and-label navigation rail. */
+html[data-tegh-shell] .r28-banking-grid{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)
+}
+html[data-tegh-shell] :is(.r28-bank-scroll,.r28-book-scroll){
+  overflow-x:hidden!important;
+  overflow-y:auto!important
+}
+html[data-tegh-shell] :is(.r28-bank-panel,.r28-detail-panel) .r15-recon-table{
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  table-layout:fixed!important
+}
+html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .select-col{width:34px!important}
+html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .date-col{width:92px!important}
+html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .ref-col{width:72px!important}
+html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .amount-col{width:104px!important}
+html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .status-col{width:88px!important}
+html[data-tegh-shell] .r28-banking-workspace .r15-recon-table :is(th,td){
+  min-width:0!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  text-overflow:ellipsis!important
+}
+html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .r27-recon-description{
+  display:block!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  text-overflow:ellipsis!important
+}
+html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .r27-recon-description>span{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+@media(min-width:821px){
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode){
+    --r22-nav:104px;
+    --r17-nav-compact:104px;
+    --tegh-main-nav-compact:104px
+  }
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar{
+    width:104px!important;
+    min-width:104px!important;
+    padding:10px 8px!important
+  }
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar>nav,
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar>.side-foot{
+    width:88px!important;
+    min-width:88px!important;
+    max-width:88px!important;
+    overflow-x:hidden!important
+  }
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar :is(nav>.srp-nav-parent,nav>.srp-standalone-nav,.side-foot>button){
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    grid-template-rows:30px auto!important;
+    justify-items:center!important;
+    align-items:center!important;
+    width:88px!important;
+    min-width:88px!important;
+    min-height:66px!important;
+    margin:2px 0!important;
+    padding:7px 4px!important;
+    gap:3px!important;
+    text-align:center!important
+  }
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar :is(nav>.srp-nav-parent,nav>.srp-standalone-nav,.side-foot>button)>.nav-code{
+    display:grid!important;
+    grid-column:1!important;
+    grid-row:1!important;
+    justify-self:center!important
+  }
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar :is(nav>.srp-nav-parent,nav>.srp-standalone-nav,.side-foot>button)>.nav-copy{
+    display:block!important;
+    grid-column:1!important;
+    grid-row:2!important;
+    width:100%!important;
+    min-width:0!important;
+    opacity:1!important;
+    visibility:visible!important;
+    text-align:center!important
+  }
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar .nav-copy b{
+    display:block!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+    font-size:11px!important;
+    line-height:1.15!important;
+    color:inherit!important
+  }
+  html[data-tegh-activity-shell="r22"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar .nav-copy small{
+    display:none!important
+  }
+}
+@media(max-width:600px){
+  html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .select-col{width:30px!important}
+  html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .date-col{width:76px!important}
+  html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .amount-col{width:84px!important}
+  html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .status-col{width:72px!important}
+  html[data-tegh-shell] .r28-book-table :is(col.ref-col,th.ref-col,td.ref-col){display:none!important}
+}
+@media(max-width:1050px){
+  html[data-tegh-shell] .r28-banking-grid{grid-template-columns:minmax(0,1fr)}
+}
+
+/* R28 Step 13: compact premium activity shell.
+   The R17 compatibility layer assigns the first page-header child a 20rem
+   flex basis. R22 nests that row inside the page body, so the legacy basis
+   became 320px of empty vertical space on every enhanced route. Own all
+   header geometry here and keep controls in the normal two-row flow. */
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .srp-page-head.r22-toolbar{
+  position:relative!important;
+  top:auto!important;
+  z-index:20!important;
+  flex:0 0 auto!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:6px var(--r22-space) 7px!important;
+  gap:6px!important;
+  border:0!important;
+  border-bottom:1px solid color-mix(in srgb,var(--tegh-line,#d7e2dd) 82%,transparent)!important;
+  background:var(--tegh-canvas,#f5f8f6)!important;
+  box-shadow:0 1px 0 rgba(10,45,35,.025)!important
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .srp-page-head.r22-toolbar>.r22-toolbar-primary{
+  display:flex!important;
+  flex:0 0 auto!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  width:100%!important;
+  height:40px!important;
+  min-height:40px!important;
+  min-width:0!important;
+  gap:9px!important;
+  margin:0!important;
+  padding:0!important
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-toolbar-primary>.r22-title{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  height:auto!important;
+  margin:0!important
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-toolbar-primary>.r22-title h1{
+  display:block!important;
+  margin:0!important;
+  overflow:hidden!important;
+  color:var(--tegh-text,#16352b)!important;
+  font-size:clamp(1.22rem,1.8vw,1.55rem)!important;
+  font-weight:720!important;
+  line-height:1.12!important;
+  letter-spacing:-.025em!important;
+  white-space:nowrap!important;
+  text-overflow:ellipsis!important
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-toolbar-primary>.r22-return{
+  display:grid!important;
+  flex:0 0 34px!important;
+  order:-1!important;
+  place-items:center!important;
+  width:34px!important;
+  min-width:34px!important;
+  height:34px!important;
+  min-height:34px!important;
+  margin:0!important;
+  padding:0!important;
+  border:1px solid var(--tegh-line,#d7e2dd)!important;
+  border-radius:9px!important;
+  background:var(--tegh-surface,#fff)!important;
+  color:var(--tegh-accent,#087f67)!important;
+  box-shadow:0 1px 2px rgba(10,45,35,.06)!important
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-toolbar-primary>.r22-return:hover{
+  border-color:color-mix(in srgb,var(--tegh-accent,#087f67) 38%,var(--tegh-line,#d7e2dd))!important;
+  background:var(--tegh-accent-soft,#eaf6f1)!important
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-toolbar-primary>.r22-return svg{
+  display:block;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-toolbar-primary>.tegh-page-head-actions{
+  display:flex!important;
+  flex:0 0 auto!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  min-width:0!important;
+  margin:0!important;
+  gap:6px!important
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .srp-page-head.r22-toolbar>.r22-toolbar-controls{
+  display:flex!important;
+  flex:0 0 auto!important;
+  align-items:end!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .srp-page-head.r22-toolbar>.r22-toolbar-controls:empty{
+  display:none!important
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .srp-page-body.r22-render-root{
+  grid-template-rows:auto minmax(0,1fr)!important;
+  gap:7px!important;
+  padding:0!important
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-workspace{
+  padding:0 var(--r22-space) 12px!important
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-workspace :where(.srp-card,.sra-card,.srctl-card,.r20-report-controls,.tegh-authoritative-report){
+  border-color:color-mix(in srgb,var(--tegh-line,#d7e2dd) 92%,var(--tegh-accent,#087f67))!important;
+  border-radius:12px!important;
+  box-shadow:0 1px 2px rgba(8,38,30,.035),0 8px 24px rgba(8,38,30,.025)!important
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-workspace :where(.srp-btn,.sra-btn,.srctl-btn,button:not(.r17-detail-toggle)){
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-workspace :where(button,a,summary) :where(svg,.nav-code){
+  flex:0 0 auto
+}
+html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-workspace :where(input,select,textarea):focus{
+  border-color:var(--tegh-accent,#087f67)!important;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--tegh-accent,#087f67) 14%,transparent)!important
+}
+
+/* Banking surfaces use one visual language: restrained depth, strong grouping
+   and stable icon/text alignment without changing any posting behaviour. */
+html[data-tegh-shell] :is(.r28-banking-top,.r28-bank-panel,.r28-detail-panel,.r28-upload-grid .srp-card,.r28-bank-account-row){
+  border-color:color-mix(in srgb,var(--tegh-line,#d7e2dd) 90%,var(--tegh-accent,#087f67))!important;
+  border-radius:12px!important;
+  background:var(--tegh-surface,#fff)!important;
+  box-shadow:0 1px 2px rgba(8,38,30,.045),0 8px 24px rgba(8,38,30,.035)!important
+}
+html[data-tegh-shell] .r28-banking-top{
+  padding:9px 11px!important;
+  gap:7px!important
+}
+html[data-tegh-shell] :is(.r28-bank-panel,.r28-detail-panel){
+  padding:0!important;
+  gap:0!important
+}
+html[data-tegh-shell] :is(.r28-bank-panel,.r28-detail-panel)>header{
+  min-height:46px;
+  padding:8px 11px;
+  border-bottom:1px solid var(--tegh-line,#d7e2dd);
+  background:linear-gradient(180deg,var(--tegh-surface,#fff),var(--tegh-canvas,#f5f8f6))
+}
+html[data-tegh-shell] :is(.r28-bank-panel,.r28-detail-panel)>.r28-bank-tools,
+html[data-tegh-shell] :is(.r28-bank-panel,.r28-detail-panel)>.r28-match-tools{
+  padding:8px 10px;
+  border-bottom:1px solid color-mix(in srgb,var(--tegh-line,#d7e2dd) 75%,transparent)
+}
+html[data-tegh-shell] .r28-bank-pagination{
+  min-height:40px!important;
+  padding:5px 10px!important;
+  background:var(--tegh-canvas,#f5f8f6)
+}
+html[data-tegh-shell] .r28-mode-question>div{
+  padding:3px;
+  gap:3px;
+  border-radius:10px!important
+}
+html[data-tegh-shell] .r28-mode-question button{
+  border:0!important;
+  border-radius:7px!important;
+  min-width:150px
+}
+html[data-tegh-shell] .r28-bank-account-row{
+  position:relative;
+  padding:14px 15px!important;
+  transition:border-color .14s ease,box-shadow .14s ease
+}
+html[data-tegh-shell] .r28-bank-account-row::before{
+  content:'';
+  position:absolute;
+  inset:12px auto 12px 0;
+  width:3px;
+  border-radius:0 3px 3px 0;
+  background:var(--tegh-accent,#087f67)
+}
+html[data-tegh-shell] .r28-bank-account-row:hover{
+  border-color:color-mix(in srgb,var(--tegh-accent,#087f67) 42%,var(--tegh-line,#d7e2dd))!important;
+  box-shadow:0 2px 5px rgba(8,38,30,.06),0 12px 28px rgba(8,38,30,.05)!important
+}
+html[data-tegh-shell] .r28-bank-account-actions :is(button,summary){
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  min-height:36px!important;
+  line-height:1.15!important
+}
+
+@media(max-width:820px){
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .srp-page-head.r22-toolbar{
+    padding:6px 8px!important;
+    gap:5px!important
+  }
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .srp-page-head.r22-toolbar>.r22-toolbar-primary{
+    height:38px!important;
+    min-height:38px!important
+  }
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-toolbar-primary>.r22-title h1{
+    font-size:clamp(1.05rem,5vw,1.35rem)!important
+  }
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-toolbar-primary>.tegh-page-head-actions{
+    flex-wrap:nowrap!important
+  }
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] .r22-workspace{
+    padding:0 8px calc(76px + env(safe-area-inset-bottom,0px))!important
+  }
+  html[data-tegh-shell] .r28-mode-question button{min-width:0;flex:1 1 0}
+}
+
+/* R28 Step 15: live-review repairs.
+   Keep the current report replacement explicit while the sealed result loads,
+   and let the two compact bank reports share one title/filter row where the
+   desktop viewport has enough room. */
+.srp-report-loading{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:58px;
+  padding:12px 14px;
+  border:1px solid var(--tegh-line,#d7e2dd);
+  border-radius:10px;
+  background:var(--tegh-surface,#fff);
+  color:var(--tegh-text,#16352b)
+}
+.srp-report-loading::before{
+  content:'';
+  width:18px;
+  height:18px;
+  flex:0 0 18px;
+  border:2px solid color-mix(in srgb,var(--tegh-accent,#087f67) 22%,transparent);
+  border-top-color:var(--tegh-accent,#087f67);
+  border-radius:50%;
+  animation:tegh-step15-spin .75s linear infinite
+}
+.srp-report-loading b,.srp-report-loading span{display:block}
+.srp-report-loading span{font-size:12px;color:var(--tegh-muted,#52635b)}
+@keyframes tegh-step15-spin{to{transform:rotate(360deg)}}
+
+/* Labels are budgeted by the controller before columns mount. These rules keep
+   drag, sort and filter controls beside a complete label instead of ellipsis. */
+.r23-table thead th{overflow:visible}
+.r23-header-cell{width:100%;white-space:nowrap;overflow:visible}
+.r23-column-sort{flex:1 1 auto;overflow:visible;text-overflow:clip;white-space:nowrap}
+
+@media(min-width:1200px){
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] :is(
+    .srp-page[data-srp-page="report-bank-general-ledger"],
+    .srp-page[data-srp-page="report-bank-transactions"]
+  ) .srp-page-head.r22-toolbar{
+    display:grid!important;
+    grid-template-columns:minmax(245px,auto) minmax(0,1fr)!important;
+    align-items:center!important;
+    column-gap:10px!important
+  }
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] :is(
+    .srp-page[data-srp-page="report-bank-general-ledger"],
+    .srp-page[data-srp-page="report-bank-transactions"]
+  ) .srp-page-head.r22-toolbar>.r22-toolbar-primary{
+    width:auto!important
+  }
+  html[data-tegh-viewport="r17"][data-tegh-activity-shell="r22"] :is(
+    .srp-page[data-srp-page="report-bank-general-ledger"],
+    .srp-page[data-srp-page="report-bank-transactions"]
+  ) .srp-page-head.r22-toolbar>.r22-toolbar-controls{
+    width:auto!important;
+    justify-content:flex-end!important
+  }
+}
+
+@media(prefers-reduced-motion:reduce){.srp-report-loading::before{animation:none}}
+
+/* Step 16: one desktop navigation geometry and a dedicated middle scroller. */
+@media(min-width:821px){
+  :root[data-tegh-activity-shell="r22"][data-tegh-viewport="r17"]{--r17-nav:240px;--r22-nav:240px;--tegh-main-nav-width:240px}
+  html[data-tegh-viewport="r17"] body:not(.tegh-top-navigation-mode):not(.sr-sidebar-collapsed) .sidebar{width:240px!important;min-width:240px!important}
+  html[data-tegh-viewport="r17"] body:not(.tegh-top-navigation-mode):not(.sr-sidebar-collapsed) .stage{width:calc(100% - 240px)!important;max-width:calc(100% - 240px)!important;margin-left:0!important}
+  html[data-tegh-viewport="r17"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode){--r22-nav:72px;--r17-nav-compact:72px;--tegh-main-nav-compact:72px}
+  html[data-tegh-viewport="r17"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar{width:72px!important;min-width:72px!important;padding:10px 8px!important}
+  html[data-tegh-viewport="r17"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .stage{width:calc(100% - 72px)!important;max-width:calc(100% - 72px)!important;margin-left:0!important}
+  html[data-tegh-viewport="r17"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar>nav,
+  html[data-tegh-viewport="r17"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar>.side-foot{width:56px!important;min-width:56px!important;max-width:56px!important}
+  html[data-tegh-viewport="r17"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar :is(nav>.srp-nav-parent,nav>.srp-standalone-nav,.side-foot>button){display:grid!important;grid-template-columns:1fr!important;grid-template-rows:1fr!important;width:56px!important;min-width:56px!important;height:40px!important;min-height:40px!important;padding:5px!important;margin:2px 0!important}
+  html[data-tegh-viewport="r17"] body.sr-sidebar-collapsed:not(.tegh-top-navigation-mode) .sidebar .nav-copy{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important}
+}
+html[data-tegh-viewport="r17"] body:not(.tegh-top-navigation-mode) .sidebar{display:flex!important;flex-direction:column!important;overflow-x:hidden!important}
+html[data-tegh-viewport="r17"] body.tegh-top-navigation-mode .sidebar{display:none!important}
+html[data-tegh-viewport="r17"] .sidebar>nav{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important}
+
+/* Cash Flow keeps the table useful; supporting reconciliation follows it. */
+[data-srp-page="cash-flow"] .tegh-authoritative-report,
+[data-srp-page="cash-flow"] .srp-card{display:flex;flex-direction:column;min-height:400px}
+[data-srp-page="cash-flow"] .r23-warnings{flex:0 0 auto;max-height:140px;overflow:auto}
+[data-srp-page="cash-flow"] .r23-scroll,[data-srp-page="cash-flow"] .srp-table-wrap{min-height:240px;order:3}
+[data-srp-page="cash-flow"] [aria-label="Cash reconciliation"]{order:4;max-height:140px;overflow:auto}
+[data-srp-page="cash-flow"] [aria-label="Cash reconciliation"] details{max-height:100px;overflow:auto}
+@media(max-height:760px){
+  [data-srp-page="cash-flow"] .r22-workspace{overflow-y:auto!important}
+  [data-srp-page="cash-flow"] .tegh-authoritative-report{flex:0 0 auto;min-height:400px}
+}
+
+/* Step 16I: Guided Home actions must keep readable contrast in dark mode. */
+html[data-tegh-theme="dark"] .tegh-guided-task>button{
+  background:var(--tegh-accent,#54d4b6)!important;
+  color:#06261e!important;
+  border-color:color-mix(in srgb,var(--tegh-accent,#54d4b6) 72%,#fff)!important
+}
+html[data-tegh-theme="dark"] :is(.tegh-guided-shortcuts button,.tegh-guided-help-strip button){
+  background:var(--tegh-surface-elevated,#172c25)!important;
+  color:var(--tegh-text,#edf7f3)!important;
+  border-color:var(--tegh-line,#345048)!important
+}
+html[data-tegh-theme="dark"] :is(.tegh-guided-task>button,.tegh-guided-shortcuts button,.tegh-guided-help-strip button):hover{
+  border-color:var(--tegh-accent,#54d4b6)!important;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--tegh-accent,#54d4b6) 16%,transparent)!important
+}
+@media(prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] .tegh-guided-task>button{
+    background:var(--tegh-accent,#54d4b6)!important;
+    color:#06261e!important;
+    border-color:color-mix(in srgb,var(--tegh-accent,#54d4b6) 72%,#fff)!important
+  }
+  html[data-tegh-theme="auto"] :is(.tegh-guided-shortcuts button,.tegh-guided-help-strip button){
+    background:var(--tegh-surface-elevated,#172c25)!important;
+    color:var(--tegh-text,#edf7f3)!important;
+    border-color:var(--tegh-line,#345048)!important
+  }
+  html[data-tegh-theme="auto"] :is(.tegh-guided-task>button,.tegh-guided-shortcuts button,.tegh-guided-help-strip button):hover{
+    border-color:var(--tegh-accent,#54d4b6)!important;
+    box-shadow:0 0 0 3px color-mix(in srgb,var(--tegh-accent,#54d4b6) 16%,transparent)!important
+  }
+}
+
+/* Step 16K: Settings must use the selected dark palette, not the legacy
+   hard-coded white dashboard surfaces. */
+html[data-tegh-theme="dark"] .app{
+  background:var(--tegh-canvas,#091411)!important;
+  color:var(--tegh-text,#edf7f3)!important
+}
+html[data-tegh-theme="dark"] :is(.tegh-settings-hero,.tegh-settings-category-card,.tegh-settings-search-results,.srp-settings-search-control,.srp-toast){
+  background:var(--tegh-surface,#10211c)!important;
+  color:var(--tegh-text,#edf7f3)!important;
+  border-color:var(--tegh-line,#345048)!important;
+  box-shadow:var(--tegh-shadow,0 12px 32px rgba(0,0,0,.28))!important
+}
+html[data-tegh-theme="dark"] .tegh-settings-category-card:is(:hover,:focus-visible){
+  background:var(--tegh-surface-elevated,#172c25)!important;
+  border-color:var(--tegh-accent,#54d4b6)!important
+}
+html[data-tegh-theme="dark"] .tegh-settings-category-card.is-platform{
+  background:color-mix(in srgb,var(--tegh-warning,#f1be5b) 7%,var(--tegh-surface,#10211c))!important;
+  border-color:color-mix(in srgb,var(--tegh-warning,#f1be5b) 48%,var(--tegh-line,#345048))!important
+}
+html[data-tegh-theme="dark"] :is(.tegh-settings-hero p,.tegh-settings-category-description,.tegh-settings-category-footer){
+  color:var(--tegh-muted,#a7bbb3)!important
+}
+html[data-tegh-theme="dark"] .tegh-settings-category-footer{
+  border-color:var(--tegh-line,#345048)!important
+}
+html[data-tegh-theme="dark"] :is(.srp-settings-search-field>label,.tegh-settings-category-title){
+  color:var(--tegh-text,#edf7f3)!important
+}
+html[data-tegh-theme="dark"] :is(.tegh-settings-kicker,.tegh-settings-category-overline,.tegh-settings-category-footer svg){
+  color:var(--tegh-accent,#54d4b6)!important
+}
+html[data-tegh-theme="dark"] .tegh-settings-category-icon{
+  background:var(--tegh-accent-soft,#173b32)!important;
+  color:var(--tegh-accent,#54d4b6)!important
+}
+html[data-tegh-theme="dark"] .tegh-settings-category-card.is-platform .tegh-settings-category-icon{
+  background:color-mix(in srgb,var(--tegh-warning,#f1be5b) 15%,var(--tegh-surface,#10211c))!important;
+  color:var(--tegh-warning,#f1be5b)!important
+}
+html[data-tegh-theme="dark"] .srp-settings-search-clear{
+  background:var(--tegh-surface-elevated,#172c25)!important;
+  color:var(--tegh-text,#edf7f3)!important
+}
+@media(prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] .app{background:var(--tegh-canvas,#091411)!important;color:var(--tegh-text,#edf7f3)!important}
+  html[data-tegh-theme="auto"] :is(.tegh-settings-hero,.tegh-settings-category-card,.tegh-settings-search-results,.srp-settings-search-control,.srp-toast){background:var(--tegh-surface,#10211c)!important;color:var(--tegh-text,#edf7f3)!important;border-color:var(--tegh-line,#345048)!important}
+  html[data-tegh-theme="auto"] .tegh-settings-category-card:is(:hover,:focus-visible){background:var(--tegh-surface-elevated,#172c25)!important;border-color:var(--tegh-accent,#54d4b6)!important}
+  html[data-tegh-theme="auto"] .tegh-settings-category-card.is-platform{background:color-mix(in srgb,var(--tegh-warning,#f1be5b) 7%,var(--tegh-surface,#10211c))!important;border-color:color-mix(in srgb,var(--tegh-warning,#f1be5b) 48%,var(--tegh-line,#345048))!important}
+  html[data-tegh-theme="auto"] :is(.tegh-settings-hero p,.tegh-settings-category-description,.tegh-settings-category-footer){color:var(--tegh-muted,#a7bbb3)!important}
+  html[data-tegh-theme="auto"] .tegh-settings-category-footer{border-color:var(--tegh-line,#345048)!important}
+  html[data-tegh-theme="auto"] :is(.srp-settings-search-field>label,.tegh-settings-category-title){color:var(--tegh-text,#edf7f3)!important}
+  html[data-tegh-theme="auto"] :is(.tegh-settings-kicker,.tegh-settings-category-overline,.tegh-settings-category-footer svg){color:var(--tegh-accent,#54d4b6)!important}
+  html[data-tegh-theme="auto"] .tegh-settings-category-icon{background:var(--tegh-accent-soft,#173b32)!important;color:var(--tegh-accent,#54d4b6)!important}
+  html[data-tegh-theme="auto"] .tegh-settings-category-card.is-platform .tegh-settings-category-icon{background:color-mix(in srgb,var(--tegh-warning,#f1be5b) 15%,var(--tegh-surface,#10211c))!important;color:var(--tegh-warning,#f1be5b)!important}
+  html[data-tegh-theme="auto"] .srp-settings-search-clear{background:var(--tegh-surface-elevated,#172c25)!important;color:var(--tegh-text,#edf7f3)!important}
+}
+
+/* Step 16L: operational forms, register shells and page actions must use the
+   selected dark palette. Legacy R17/R22 rules otherwise repaint these
+   surfaces white after the page-specific renderer has finished. */
+html[data-tegh-theme="dark"] :is(
+  form[data-tegh-form-layout="compact"],
+  .srp-form.srp-inline-editor,
+  .r22-menu-panel,
+  .tegh-authoritative-report,
+  .srp-table-wrap,
+  .r23-scroll
+){
+  background:var(--tegh-surface,#10211c)!important;
+  color:var(--tegh-text,#edf7f3)!important;
+  border-color:var(--tegh-line,#345048)!important
+}
+html[data-tegh-theme="dark"] form[data-tegh-form-layout="compact"] :is(label,legend,h2,h3,strong),
+html[data-tegh-theme="dark"] .srp-form.srp-inline-editor :is(label,legend,h2,h3,strong){
+  color:var(--tegh-text,#edf7f3)!important
+}
+html[data-tegh-theme="dark"] form[data-tegh-form-layout="compact"] :is(fieldset,.tegh-form-section,.srp-actions,.r27-form-actions),
+html[data-tegh-theme="dark"] .srp-form.srp-inline-editor :is(fieldset,.tegh-form-section,.srp-actions,.r27-form-actions){
+  background:transparent!important;
+  border-color:var(--tegh-line,#345048)!important
+}
+html[data-tegh-theme="dark"] :is(.srp-page-head,.r22-workspace,.r22-render-root) details>summary{
+  background:var(--tegh-surface-elevated,#172c25)!important;
+  color:var(--tegh-text,#edf7f3)!important;
+  border-color:var(--tegh-line,#345048)!important
+}
+html[data-tegh-theme="dark"] :is(.srp-form,.r22-form-grid,.r27-task-form) :is(input,select,textarea){
+  background:var(--tegh-surface-elevated,#172c25)!important;
+  color:var(--tegh-text,#edf7f3)!important;
+  border-color:var(--tegh-line,#345048)!important
+}
+html[data-tegh-theme="dark"] :is(.srp-ci-line,.srp-ci-summary,.srp-ci-totals>div,.srp-ci-line-total>span){
+  background:var(--tegh-surface,#10211c)!important;
+  color:var(--tegh-text,#edf7f3)!important;
+  border-color:var(--tegh-line,#345048)!important
+}
+html[data-tegh-theme="dark"] :is(.srp-ci-line-total>strong,.srp-ci-totals>.total){
+  background:var(--tegh-accent-soft,#173b32)!important;
+  color:var(--tegh-accent,#54d4b6)!important;
+  border-color:var(--tegh-line,#345048)!important
+}
+html[data-tegh-theme="dark"] .r22-invoice-notes>summary{
+  background:var(--tegh-surface-elevated,#172c25)!important;
+  color:var(--tegh-text,#edf7f3)!important;
+  border-color:var(--tegh-line,#345048)!important
+}
+@media(prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] :is(form[data-tegh-form-layout="compact"],.srp-form.srp-inline-editor,.r22-menu-panel,.tegh-authoritative-report,.srp-table-wrap,.r23-scroll){background:var(--tegh-surface,#10211c)!important;color:var(--tegh-text,#edf7f3)!important;border-color:var(--tegh-line,#345048)!important}
+  html[data-tegh-theme="auto"] form[data-tegh-form-layout="compact"] :is(label,legend,h2,h3,strong),html[data-tegh-theme="auto"] .srp-form.srp-inline-editor :is(label,legend,h2,h3,strong){color:var(--tegh-text,#edf7f3)!important}
+  html[data-tegh-theme="auto"] form[data-tegh-form-layout="compact"] :is(fieldset,.tegh-form-section,.srp-actions,.r27-form-actions),html[data-tegh-theme="auto"] .srp-form.srp-inline-editor :is(fieldset,.tegh-form-section,.srp-actions,.r27-form-actions){background:transparent!important;border-color:var(--tegh-line,#345048)!important}
+  html[data-tegh-theme="auto"] :is(.srp-page-head,.r22-workspace,.r22-render-root) details>summary{background:var(--tegh-surface-elevated,#172c25)!important;color:var(--tegh-text,#edf7f3)!important;border-color:var(--tegh-line,#345048)!important}
+  html[data-tegh-theme="auto"] :is(.srp-form,.r22-form-grid,.r27-task-form) :is(input,select,textarea){background:var(--tegh-surface-elevated,#172c25)!important;color:var(--tegh-text,#edf7f3)!important;border-color:var(--tegh-line,#345048)!important}
+  html[data-tegh-theme="auto"] :is(.srp-ci-line,.srp-ci-summary,.srp-ci-totals>div,.srp-ci-line-total>span){background:var(--tegh-surface,#10211c)!important;color:var(--tegh-text,#edf7f3)!important;border-color:var(--tegh-line,#345048)!important}
+  html[data-tegh-theme="auto"] :is(.srp-ci-line-total>strong,.srp-ci-totals>.total){background:var(--tegh-accent-soft,#173b32)!important;color:var(--tegh-accent,#54d4b6)!important;border-color:var(--tegh-line,#345048)!important}
+  html[data-tegh-theme="auto"] .r22-invoice-notes>summary{background:var(--tegh-surface-elevated,#172c25)!important;color:var(--tegh-text,#edf7f3)!important;border-color:var(--tegh-line,#345048)!important}
+}
+
+/* Step 16M: the persistent module context bar is injected after the page
+   renderer and inherits legacy hard-coded light colours. Keep the bar,
+   Activity/Reports switch, workflow tabs and step actions readable in the
+   selected dark palette without changing navigation behaviour. */
+html[data-tegh-theme="dark"] .tegh-context-bar{
+  background:var(--tegh-surface,#10211c)!important;
+  color:var(--tegh-text,#edf7f3)!important;
+  border-color:var(--tegh-line,#345048)!important;
+  box-shadow:var(--tegh-shadow,0 12px 32px rgba(0,0,0,.28))!important
+}
+html[data-tegh-theme="dark"] .tegh-context-top{
+  background:var(--tegh-surface-elevated,#172c25)!important;
+  color:var(--tegh-text,#edf7f3)!important;
+  border-color:var(--tegh-line,#345048)!important
+}
+html[data-tegh-theme="dark"] .tegh-context-top :is(small,strong){color:var(--tegh-text,#edf7f3)!important}
+html[data-tegh-theme="dark"] .tegh-context-top small{color:var(--tegh-muted,#a7bbb3)!important}
+html[data-tegh-theme="dark"] .tegh-context-switch{
+  background:var(--tegh-canvas,#091411)!important;
+  border-color:var(--tegh-line,#345048)!important
+}
+html[data-tegh-theme="dark"] :is(.tegh-context-switch button,.tegh-context-all){color:var(--tegh-muted,#a7bbb3)!important}
+html[data-tegh-theme="dark"] :is(.tegh-context-switch button.active,.tegh-context-all){
+  background:var(--tegh-surface,#10211c)!important;
+  color:var(--tegh-text,#edf7f3)!important;
+  border-color:var(--tegh-line,#345048)!important
+}
+html[data-tegh-theme="dark"] .tegh-context-switch button.active{
+  background:var(--tegh-accent,#54d4b6)!important;
+  color:#06261e!important
+}
+html[data-tegh-theme="dark"] .tegh-context-tab{
+  background:var(--tegh-surface,#10211c)!important;
+  color:var(--tegh-muted,#a7bbb3)!important;
+  border-color:var(--tegh-line,#345048)!important
+}
+html[data-tegh-theme="dark"] .tegh-context-tab:hover{
+  background:var(--tegh-surface-elevated,#172c25)!important;
+  color:var(--tegh-accent,#54d4b6)!important
+}
+html[data-tegh-theme="dark"] .tegh-context-tab.active{
+  background:var(--tegh-accent-soft,#173b32)!important;
+  color:var(--tegh-accent,#54d4b6)!important
+}
+html[data-tegh-theme="dark"] .tegh-context-tabs.workflow .tegh-context-tab>span{
+  background:var(--tegh-surface-elevated,#172c25)!important;
+  color:var(--tegh-accent,#54d4b6)!important
+}
+html[data-tegh-theme="dark"] .tegh-context-tabs.workflow .tegh-context-tab.active>span{
+  background:var(--tegh-accent,#54d4b6)!important;
+  color:#06261e!important
+}
+@media(prefers-color-scheme:dark){
+  html[data-tegh-theme="auto"] .tegh-context-bar{background:var(--tegh-surface,#10211c)!important;color:var(--tegh-text,#edf7f3)!important;border-color:var(--tegh-line,#345048)!important;box-shadow:var(--tegh-shadow,0 12px 32px rgba(0,0,0,.28))!important}
+  html[data-tegh-theme="auto"] .tegh-context-top{background:var(--tegh-surface-elevated,#172c25)!important;color:var(--tegh-text,#edf7f3)!important;border-color:var(--tegh-line,#345048)!important}
+  html[data-tegh-theme="auto"] .tegh-context-top :is(small,strong){color:var(--tegh-text,#edf7f3)!important}
+  html[data-tegh-theme="auto"] .tegh-context-top small{color:var(--tegh-muted,#a7bbb3)!important}
+  html[data-tegh-theme="auto"] .tegh-context-switch{background:var(--tegh-canvas,#091411)!important;border-color:var(--tegh-line,#345048)!important}
+  html[data-tegh-theme="auto"] :is(.tegh-context-switch button,.tegh-context-all){color:var(--tegh-muted,#a7bbb3)!important}
+  html[data-tegh-theme="auto"] :is(.tegh-context-switch button.active,.tegh-context-all){background:var(--tegh-surface,#10211c)!important;color:var(--tegh-text,#edf7f3)!important;border-color:var(--tegh-line,#345048)!important}
+  html[data-tegh-theme="auto"] .tegh-context-switch button.active{background:var(--tegh-accent,#54d4b6)!important;color:#06261e!important}
+  html[data-tegh-theme="auto"] .tegh-context-tab{background:var(--tegh-surface,#10211c)!important;color:var(--tegh-muted,#a7bbb3)!important;border-color:var(--tegh-line,#345048)!important}
+  html[data-tegh-theme="auto"] .tegh-context-tab:hover{background:var(--tegh-surface-elevated,#172c25)!important;color:var(--tegh-accent,#54d4b6)!important}
+  html[data-tegh-theme="auto"] .tegh-context-tab.active{background:var(--tegh-accent-soft,#173b32)!important;color:var(--tegh-accent,#54d4b6)!important}
+  html[data-tegh-theme="auto"] .tegh-context-tabs.workflow .tegh-context-tab>span{background:var(--tegh-surface-elevated,#172c25)!important;color:var(--tegh-accent,#54d4b6)!important}
+  html[data-tegh-theme="auto"] .tegh-context-tabs.workflow .tegh-context-tab.active>span{background:var(--tegh-accent,#54d4b6)!important;color:#06261e!important}
+}
+
+/* Audit repair: bounded menus must scroll internally instead of extending
+   beyond the viewport or relying on the locked document as a fallback. */
+:is(
+  .r17-menu-panel,
+  .r22-menu-panel,
+  .tegh-top-module-menu,
+  .tegh-top-more-menu,
+  .tegh-workspace-search-dialog,
+  .srp-find-results,
+  .r15-find-menu>div
+){
+  max-width:calc(100vw - 16px);
+  max-height:70vh;
+  max-height:min(70dvh,560px);
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch
+}
+
+/* Audit repair: semantic state surfaces adapt to every theme. The original
+   literal colours above remain as fallbacks for browsers without color-mix. */
+html[data-tegh-shell] :is(.r28-recon-status.complete,.r28-recon-difference,.r28-recon-completion-difference.balanced){
+  border-color:color-mix(in srgb,var(--tegh-success) 58%,var(--tegh-line));
+  background:color-mix(in srgb,var(--tegh-success) 14%,var(--tegh-surface));
+  color:var(--tegh-success)
+}
+html[data-tegh-shell] :is(.r28-recon-status.reopened,.r28-recon-difference.attention,.r28-recon-completion-difference){
+  border-color:color-mix(in srgb,var(--tegh-warning) 58%,var(--tegh-line));
+  background:color-mix(in srgb,var(--tegh-warning) 14%,var(--tegh-surface));
+  color:var(--tegh-warning)
+}
+html[data-tegh-shell] .r28-recon-difference em{
+  background:color-mix(in srgb,var(--tegh-surface) 78%,transparent);
+  color:inherit
+}
+html[data-tegh-shell] :is(.r28-recon-completion-summary .ready b,.r28-recon-completion-difference.balanced b){color:var(--tegh-success)}
+html[data-tegh-shell] :is(.r28-recon-completion-summary .attention b,.r28-recon-completion-difference:not(.balanced) b){color:var(--tegh-warning)}
+
+/* Audit repair: the 821–1050px layout previously gave both the page and the
+   Banking workspace vertical overflow, producing nested scroll traps. */
+@media(min-width:821px) and (max-width:1050px){
+  html[data-tegh-shell] .srp-page[data-srp-page="bank-reconciliation"] .srp-page-body{overflow-y:auto!important}
+  html[data-tegh-shell] :is(.r28-banking-workspace,.r28-banking-workspace>.r22-workspace,.r28-banking-grid){
+    flex:0 0 auto!important;
+    height:auto!important;
+    overflow:visible!important
+  }
+}
+
+/* Audit repair: on phones the stage is the only vertical page scroller.
+   Tables may still pan horizontally, while forms and lists expand naturally. */
+@media(max-width:820px){
+  html[data-tegh-shell] :is(.r28-post-panel form,.r28-bank-account-list){overflow:visible!important}
+  html[data-tegh-shell] :is(.r28-bank-scroll,.r28-book-scroll){
+    flex:0 0 auto!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    contain:none!important;
+    touch-action:pan-x pan-y;
+    -webkit-overflow-scrolling:touch
+  }
+  html[data-tegh-shell] .r28-bank-account-actions details[open]>div{
+    position:relative;
+    inset:auto;
+    top:auto;
+    right:auto;
+    bottom:auto;
+    left:auto;
+    width:100%;
+    max-width:240px;
+    margin-top:4px
+  }
+}
+
+@media(forced-colors:active){
+  :is(input,select,textarea,button,a,summary,[tabindex]):focus-visible{outline:2px solid Highlight!important}
+  :is(.srp-status,.r23-status-pill,.r28-recon-status){forced-color-adjust:auto}
+}
+
+/* Fixed application heights and overflow locks must not clip printed reports. */
+@media print{
+  html,body,#root,.app,.stage,.stage>.content,.stage>.srp-page,
+  .stage>.content>.srp-page,.srp-page-body,.r22-render-root,.r22-workspace,
+  .tegh-authoritative-report,.r23-view,.r23-scroll,.srp-table-wrap{
+    width:auto!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:visible!important
+  }
+  .sidebar,.topbar,.tegh-context-bar,.r23-pagination,.r27-form-actions{display:none!important}
+  .stage{max-width:none!important;margin:0!important}
+  .srp-table thead,.r23-table thead{display:table-header-group}
+  .srp-table tr,.r23-table tr{break-inside:avoid}
+}

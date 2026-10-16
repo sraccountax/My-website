@@ -1,0 +1,324 @@
+[
+ {
+  "id": "CV-A1",
+  "area": "R145",
+  "title": "Statement A: every row read with an amount and a date (12 rows, none needing manual entry)",
+  "status": "PASS",
+  "evidence": "[12,0]"
+ },
+ {
+  "id": "CV-A2",
+  "area": "R145",
+  "title": "Statement A: net, money out and money in match the statement",
+  "status": "PASS",
+  "evidence": "[11213,347732,358945]"
+ },
+ {
+  "id": "CV-A3",
+  "area": "R145",
+  "title": "Statement A: opening and closing balances read and the rows balance to them",
+  "status": "PASS",
+  "evidence": "[512345,523558,true,false]"
+ },
+ {
+  "id": "CV-A4",
+  "area": "R145",
+  "title": "Statement A: first and last dates (years from the statement period) and the reviewed hand-off",
+  "status": "PASS",
+  "evidence": "[\"2026-01-02\",\"2026-01-30\",null,12,512345,523558]"
+ },
+ {
+  "id": "CV-A5",
+  "area": "R145",
+  "title": "Statement A: the review screen says the balances agree",
+  "status": "PASS",
+  "evidence": "Opening balance $… with these rows, comes to the closing balance of $… printed on the statement ✓ All 6 running balances agree."
+ },
+ {
+  "id": "CV-A6",
+  "area": "R145",
+  "title": "Statement A: wrapped description lines are joined to their transaction, and the side panel is ignored",
+  "status": "PASS",
+  "evidence": "[9,false]"
+ },
+ {
+  "id": "CV-B1",
+  "area": "R145",
+  "title": "Statement B: every row read with an amount and a date (10 rows, none needing manual entry)",
+  "status": "PASS",
+  "evidence": "[10,0]"
+ },
+ {
+  "id": "CV-B2",
+  "area": "R145",
+  "title": "Statement B: net, money out and money in match the statement",
+  "status": "PASS",
+  "evidence": "[59867,91232,151099]"
+ },
+ {
+  "id": "CV-B3",
+  "area": "R145",
+  "title": "Statement B: opening and closing balances read and the rows balance to them",
+  "status": "PASS",
+  "evidence": "[-245000,-185133,true,true]"
+ },
+ {
+  "id": "CV-B4",
+  "area": "R145",
+  "title": "Statement B: first and last dates (years from the statement period) and the reviewed hand-off",
+  "status": "PASS",
+  "evidence": "[\"2025-12-08\",\"2026-01-06\",null,10,-245000,-185133]"
+ },
+ {
+  "id": "CV-B5",
+  "area": "R145",
+  "title": "Statement B: the review screen says the balances agree",
+  "status": "PASS",
+  "evidence": "Balance owed $… with these rows, comes to the new balance owed of $… printed on the statement ✓"
+ },
+ {
+  "id": "CV-B6",
+  "area": "R145",
+  "title": "Card statement: December rows get 2025 and January rows 2026; payments are money in, charges money out; the payment slip after \"Continued\" is not a row",
+  "status": "PASS",
+  "evidence": "[\"2025-12-30\",[true,true,true],false]"
+ },
+ {
+  "id": "CV-C1",
+  "area": "R145",
+  "title": "Statement C: every row read with an amount and a date (9 rows, none needing manual entry)",
+  "status": "PASS",
+  "evidence": "[9,0]"
+ },
+ {
+  "id": "CV-C2",
+  "area": "R145",
+  "title": "Statement C: net, money out and money in match the statement",
+  "status": "PASS",
+  "evidence": "[135352,52103,187455]"
+ },
+ {
+  "id": "CV-C3",
+  "area": "R145",
+  "title": "Statement C: opening and closing balances read and the rows balance to them",
+  "status": "PASS",
+  "evidence": "[800000,935352,true,false]"
+ },
+ {
+  "id": "CV-C4",
+  "area": "R145",
+  "title": "Statement C: first and last dates (years from the statement period) and the reviewed hand-off",
+  "status": "PASS",
+  "evidence": "[\"2025-09-02\",\"2025-09-15\",null,9,800000,935352]"
+ },
+ {
+  "id": "CV-C5",
+  "area": "R145",
+  "title": "Statement C: the review screen says the balances agree",
+  "status": "PASS",
+  "evidence": "Opening balance $… with these rows, comes to the closing balance of $… printed on the statement ✓ All 5 running balances agree. All 4 page totals agree."
+ },
+ {
+  "id": "CV-C6",
+  "area": "R145",
+  "title": "Chequing statement: all page totals (Debits/Credits count and amount) agree; balance-forward lines and the footer note are not rows",
+  "status": "PASS",
+  "evidence": "[4,true,false]"
+ },
+ {
+  "id": "CV-E1",
+  "area": "R145",
+  "title": "Statement E: every row read with an amount and a date (4 rows, none needing manual entry)",
+  "status": "PASS",
+  "evidence": "[4,0]"
+ },
+ {
+  "id": "CV-E2",
+  "area": "R145",
+  "title": "Statement E: net, money out and money in match the statement",
+  "status": "PASS",
+  "evidence": "[235438,14562,250000]"
+ },
+ {
+  "id": "CV-E3",
+  "area": "R145",
+  "title": "Statement E: opening and closing balances read and the rows balance to them",
+  "status": "PASS",
+  "evidence": "[100000,335438,true,false]"
+ },
+ {
+  "id": "CV-E4",
+  "area": "R145",
+  "title": "Statement E: first and last dates (years from the statement period) and the reviewed hand-off",
+  "status": "PASS",
+  "evidence": "[\"2026-03-02\",\"2026-03-15\",null,4,100000,335438]"
+ },
+ {
+  "id": "CV-E5",
+  "area": "R145",
+  "title": "Statement E: the review screen says the balances agree",
+  "status": "PASS",
+  "evidence": "Opening balance $… with these rows, comes to the closing balance of $… printed on the statement ✓ All 4 running balances agree."
+ },
+ {
+  "id": "CV-D1",
+  "area": "R145",
+  "title": "Statement with a missing line: still read, but flagged as not balancing, with the running-balance difference marked on the row",
+  "status": "PASS",
+  "evidence": "[11,false,true,true,true]"
+ },
+ {
+  "id": "CV-F1",
+  "area": "R145",
+  "title": "Statement with no column headings: the column reader steps aside and the general reader still reads it",
+  "status": "PASS",
+  "evidence": "[3,null,-77900,\"2026-04-01\"]"
+ },
+ {
+  "id": "CV-B7",
+  "area": "R145",
+  "title": "Card statement read into a bank account: the review warns that a credit card account may be the right one",
+  "status": "PASS",
+  "evidence": "This looks like a credit card statement, but a bank account is selected. Choose the credit card account if that is the r"
+ },
+ {
+  "id": "CV-UI1",
+  "area": "R145",
+  "title": "Converter screen: statement A shows a green \"balances agree\" check, 12 rows and nothing needing correction",
+  "status": "PASS",
+  "evidence": "12 dated rows · Nothing imported or posted."
+ },
+ {
+  "id": "CV-UI2",
+  "area": "R145",
+  "title": "Confirming the review hands the rows and the statement balances to the server preview, which shows no difference",
+  "status": "PASS",
+  "evidence": "12 reviewed rows · Jan 2, 2026 to Jan 30, 2026 · CAD. | preview 12 rows, opening 512345, closing 523558"
+ },
+ {
+  "id": "CV-UI3",
+  "area": "R145",
+  "title": "Converter screen: the card statement into the credit card account balances (owed amounts shown as owed)",
+  "status": "PASS",
+  "evidence": "Balance owed $2,450.00, with these rows, comes to the new balance owed of $1,851.33 printed on the statement ✓"
+ },
+ {
+  "id": "CV-UI4",
+  "area": "R145",
+  "title": "Converter screen: the statement with a missing line shows an amber \"do not add up\" check and marks the row",
+  "status": "PASS",
+  "evidence": "These rows do not add up: Opening balance $5,123.45, with these rows, comes to $3,735.58, not the closing balance of $5,235.58. Check for a missing or misread l"
+ },
+ {
+  "id": "DI-I1",
+  "area": "R145",
+  "title": "Document Intake reads the text PDF invoice (two-column header, line items, HST, Net 30): every field right",
+  "status": "PASS",
+  "evidence": "pdf_text; partyName, documentNumber, documentDate, dueDate, subtotalCents, taxCents, totalCents, businessIdentifier, lineItems | R144 reader: 8/9"
+ },
+ {
+  "id": "DI-I2",
+  "area": "R145",
+  "title": "Document Intake reads the French (Québec) invoice: TPS + TVQ, \"185,69 $\" amounts, \"15 mars 2026\": every field right",
+  "status": "PASS",
+  "evidence": "pdf_text; partyName, documentNumber, documentDate, subtotalCents, taxCents, totalCents, lineItems | R144 reader: 1/7"
+ },
+ {
+  "id": "DI-I3",
+  "area": "R145",
+  "title": "Document Intake reads the phone-style receipt photo with a date that reads both ways (03/04/2026): every field right",
+  "status": "PASS",
+  "evidence": "ocr; partyName, documentNumber, documentDate, alternatives, subtotalCents, taxCents, totalCents | R144 reader: 5/7"
+ },
+ {
+  "id": "DI-I4",
+  "area": "R145",
+  "title": "Document Intake reads the scanned (image-only) PDF invoice: GST + PST, \"Mar 20, 2026\", Net 15: every field right",
+  "status": "PASS",
+  "evidence": "ocr; partyName, documentNumber, documentDate, dueDate, subtotalCents, taxCents, totalCents | R144 reader: 0/7 (error: this[#fr].getOrInsertComputed is not a function)"
+ },
+ {
+  "id": "DI-I6",
+  "area": "R145",
+  "title": "Document Intake reads the tiny low-contrast café receipt photo: every field right",
+  "status": "PASS",
+  "evidence": "ocr; partyName, documentNumber, documentDate, subtotalCents, taxCents, totalCents | R144 reader: 1/6"
+ },
+ {
+  "id": "DI-I7",
+  "area": "R145",
+  "title": "Document Intake reads the scanned bill that is mostly blank page (little text): every field right",
+  "status": "PASS",
+  "evidence": "ocr; partyName, documentNumber, documentDate, subtotalCents, taxCents, totalCents | R144 reader: 0/6 (error: this[#fr].getOrInsertComputed is not a function)"
+ },
+ {
+  "id": "DI-I5",
+  "area": "R145",
+  "title": "Document Intake reads the fuel receipt photo with tax \"included\" in the total: every field right",
+  "status": "PASS",
+  "evidence": "ocr; partyName, documentDate, subtotalCents, taxCents, totalCents | R144 reader: 4/5"
+ },
+ {
+  "id": "DI-CMP",
+  "area": "R145",
+  "title": "Field accuracy across the six documents, R145 reader vs the R144 reader (for information)",
+  "status": "INFO",
+  "evidence": "R145 47/47 fields; R144 19/47 fields"
+ },
+ {
+  "id": "DI-AMB",
+  "area": "R145",
+  "title": "An ambiguous numeric date is never guessed: the date stays empty and both readings are offered",
+  "status": "PASS",
+  "evidence": "[\"\",2,true]"
+ },
+ {
+  "id": "DI-SCAN",
+  "area": "R145",
+  "title": "Scanned PDFs are read by OCR in this browser (the bundled PDF reader no longer needs Map.getOrInsertComputed)",
+  "status": "PASS",
+  "evidence": "[\"ocr\",true]"
+ },
+ {
+  "id": "DI-UI0",
+  "area": "R145",
+  "title": "DEF-14: the Upload document panel shows a full-width \"Upload and Extract Locally\" button inside the panel",
+  "status": "PASS",
+  "evidence": "button 372×40 at x 890, form right edge 1262"
+ },
+ {
+  "id": "DI-UI1",
+  "area": "R145",
+  "title": "Document Intake screen: the uploaded invoice shows the read fields and \"Subtotal + tax = total ✓\"",
+  "status": "PASS",
+  "evidence": "INV-20418 | 2026-03-04 | 2026-04-03 | 359.00 | 46.67 | 405.67 | Subtotal + tax = total ✓"
+ },
+ {
+  "id": "DI-UI2",
+  "area": "R145",
+  "title": "Changing the tax so the amounts no longer add up shows the difference straight away",
+  "status": "PASS",
+  "evidence": "Subtotal + tax is more than the total by 3.33. Check the amounts against the source."
+ },
+ {
+  "id": "DI-UI3",
+  "area": "R145",
+  "title": "A receipt photo with 03/04/2026 offers \"March 4, 2026\" and \"April 3, 2026\"; choosing one fills the date and the review saves as ready",
+  "status": "PASS",
+  "evidence": "March 4, 2026 / April 3, 2026 → 2026-03-04; state ready"
+ },
+ {
+  "id": "CV-JS",
+  "area": "R145",
+  "title": "No JavaScript errors",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "CV-NOPOST",
+  "area": "R145",
+  "title": "Nothing was imported, drafted or posted: no bank transactions, vendor invoices or journal entries in the test company",
+  "status": "PASS",
+  "evidence": "[\"0\",\"0\",\"0\"]"
+ }
+]
