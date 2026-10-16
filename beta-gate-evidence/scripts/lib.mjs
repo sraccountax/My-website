@@ -8,6 +8,11 @@ const _mfaStep=()=>Math.floor((Date.now()/1000+_mfaOff)/30);
 function _mfaTotp(secret,step=_mfaStep()){const key=_b32d(secret),buf=Buffer.alloc(8);buf.writeBigUInt64BE(BigInt(step));const hm=crypto.createHmac('sha1',key).update(buf).digest();const o=hm[hm.length-1]&0x0f;const bin=((hm[o]&0x7f)<<24)|((hm[o+1]&0xff)<<16)|((hm[o+2]&0xff)<<8)|(hm[o+3]&0xff);return String(bin%1000000).padStart(6,'0')}
 async function _mfaWaitNextStep(){const s0=_mfaStep();while(_mfaStep()<=s0)await new Promise(r=>setTimeout(r,1000))}
 const _sqlQuote=v=>"'"+String(v).replace(/'/g,"''")+"'";
+// Cross-process lock (atomic mkdir) so concurrent logins of one account do not interleave enrolment.
+async function _mfaLock(key){const dir='/tmp/tegh-mfa-lock-'+String(key).replace(/[^A-Za-z0-9_-]/g,'');const t0=Date.now();
+ for(;;){try{fs.mkdirSync(dir);break}catch(e){if(e.code!=='EEXIST')throw e;try{if(Date.now()-fs.statSync(dir).mtimeMs>90000)fs.rmSync(dir,{recursive:true,force:true})}catch{}
+  if(Date.now()-t0>180000)throw new Error('mfa lock timeout for '+key);await new Promise(r=>setTimeout(r,150))}}
+ return()=>{try{fs.rmSync(dir,{recursive:true,force:true})}catch{}}}
 export class S{constructor(){this.c={};this.csrf='';this.cid=''}
  ck(){return Object.entries(this.c).map(([k,v])=>k+'='+v).join('; ')}
  async call(route,{method='GET',json,company=true,headers={},origin=ORIGIN,raw=false,body}={}){const h={'Cookie':this.ck(),...headers};if(origin)h.Origin=origin;if(company&&this.cid)h['X-Company-Id']=this.cid;if(json)h['Content-Type']='application/json';if(this.csrf&&method!=='GET'&&!('X-CSRF-Token' in headers))h['X-CSRF-Token']=this.csrf;
@@ -21,16 +26,22 @@ export class S{constructor(){this.c={};this.csrf='';this.cid=''}
   // R164: this account must clear two-step verification. Re-enrol a fresh TOTP secret on every
   // forced login (each secret has its own replay counter) so rapid/repeated test logins never
   // collide on a 30s step. Reset any prior enrolment first; the confirm verifies the session.
-  if(r.b.mfaEnrolled){const uid=sql('SELECT id FROM users WHERE email='+_sqlQuote(email));if(uid){sql("DELETE FROM user_mfa WHERE user_id='"+uid+"'");sql("DELETE FROM user_mfa_recovery_codes WHERE user_id='"+uid+"'")}}
-  const beg=await this.call('auth/mfa/enroll-begin',{method:'POST',json:{password},company:false});
-  if(beg.s!==200)throw new Error('mfa enroll-begin '+beg.s+' '+JSON.stringify(beg.b));
-  const secret=beg.b.secret;
-  for(let attempt=0;attempt<2;attempt++){
-   const cf=await this.call('auth/mfa/enroll-confirm',{method:'POST',json:{code:_mfaTotp(secret)},company:false});
-   if(cf.s===200){this.csrf=cf.b.csrfToken||this.csrf;return cf.b}
-   if(cf.s===422&&attempt===0){await _mfaWaitNextStep();continue}
-   throw new Error('mfa enroll-confirm '+cf.s+' '+JSON.stringify(cf.b))
-  }
+  // Parallel test processes may sign the same account in at once (e.g. 29-r161 seeds two companies
+  // concurrently). Reset-and-re-enrol is not atomic across processes, so hold a per-account lock for it.
+  const uid=sql('SELECT id FROM users WHERE email='+_sqlQuote(email));
+  const release=await _mfaLock(uid||email);
+  try{
+   sql("DELETE FROM user_mfa WHERE user_id='"+uid+"'");sql("DELETE FROM user_mfa_recovery_codes WHERE user_id='"+uid+"'");
+   const beg=await this.call('auth/mfa/enroll-begin',{method:'POST',json:{password},company:false});
+   if(beg.s!==200)throw new Error('mfa enroll-begin '+beg.s+' '+JSON.stringify(beg.b));
+   const secret=beg.b.secret;
+   for(let attempt=0;attempt<2;attempt++){
+    const cf=await this.call('auth/mfa/enroll-confirm',{method:'POST',json:{code:_mfaTotp(secret)},company:false});
+    if(cf.s===200){this.csrf=cf.b.csrfToken||this.csrf;return cf.b}
+    if(cf.s===422&&attempt===0){await _mfaWaitNextStep();continue}
+    throw new Error('mfa enroll-confirm '+cf.s+' '+JSON.stringify(cf.b))
+   }
+  }finally{release()}
  }}
 export const sql=q=>execFileSync('mysql',[process.env.GATE_DB||'tegh_gate','-N','-B','-e',q],{encoding:'utf8'}).trim();
 export const results=[];
