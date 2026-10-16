@@ -1617,7 +1617,9 @@
       try {
         const body = await request('auth/mfa/verify', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': mfaCtx.csrf }, body: JSON.stringify(payload) }, 16000);
         setProgress('Verified.', 'Opening your workspace…', true);
-        await openApplication(body);
+        // Open through the same path as an ordinary sign-in: a fresh auth/me, not the verify response
+        // (which carries MFA-only fields), so the app starts from exactly the usual session identity.
+        await openApplication(await confirmFreshSession({ csrfToken: body.csrfToken || mfaCtx.csrf }));
       } catch (error) { if (button) button.disabled = false; showError(error, 'auth/mfa/verify'); }
     });
     mfaEl('[data-mfa-use-recovery]')?.addEventListener('click', (e) => { e.preventDefault(); mfaCtx.recovery = true;
@@ -1650,9 +1652,12 @@
       } catch (error) { btn.disabled = false; showError(error, 'auth/mfa/enroll-confirm'); }
     });
     mfaEl('[data-mfa-recovery-done]')?.addEventListener('click', async (e) => { e.preventDefault();
-      if (mfaCtx.verifiedBody) { setProgress('Verified.', 'Opening your workspace…', true); await openApplication(mfaCtx.verifiedBody); } });
+      if (mfaCtx.verifiedBody) { setProgress('Verified.', 'Opening your workspace…', true); await openApplication(await confirmFreshSession({ csrfToken: mfaCtx.verifiedBody.csrfToken || mfaCtx.csrf })); } });
     mfaEl('[data-mfa-cancel]')?.addEventListener('click', async (e) => { e.preventDefault();
       try { await request('auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': mfaCtx.csrf }, body: '{}' }, 9000); } catch (_) {}
+      // The sign-in button was disabled when the password was submitted; re-enable it so the person can sign in again.
+      const signInButton = loginForm?.querySelector('button[type="submit"]'); if (signInButton) signInButton.disabled = false;
+      if (loginForm?.password) loginForm.password.value = '';
       showLogin(); setProgress('Sign-in is ready.', 'Enter your email and password.', false);
     });
   }

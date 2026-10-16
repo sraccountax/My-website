@@ -41,26 +41,33 @@ async function completeMfa(page, password) {
 
 function attach(page) {
   if (page.__teghMfa) return; page.__teghMfa = true;
-  let pending = null;
-  page.route(u => isLogin(String(u)), async route => {
-    const req = route.request();
-    if (req.method() === 'POST') {
-      try {
-        const body = req.postDataJSON() || {};
-        pending = {password: String(body.password || '')};
-        const uid = body.email ? sql('SELECT id FROM users WHERE email=' + quote(body.email)) : '';
-        if (uid) { sql(`DELETE FROM user_mfa WHERE user_id='${uid}'`); sql(`DELETE FROM user_mfa_recovery_codes WHERE user_id='${uid}'`); }
-      } catch (e) { console.error('[mfa-preload] reset failed:', e.message); }
-    }
-    await route.fallback();
-  }).catch(() => {});
+  let busy = false;
+  // No request interception (page.route disables the HTTP cache and was found to change app timing).
+  // Instead react to the login response. If the account is already enrolled with a secret this test
+  // does not know, reset its MFA in the database, cancel the challenge and sign in again, so the server
+  // offers enrolment; then complete enrolment through the real screen.
   page.on('response', async resp => {
-    if (!isLogin(resp.url()) || resp.request().method() !== 'POST' || !pending) return;
-    const creds = pending; pending = null;
+    if (!isLogin(resp.url()) || resp.request().method() !== 'POST' || busy) return;
+    let creds = {}; try { creds = JSON.parse(resp.request().postData() || '{}'); } catch {}
     let body = null; try { body = await resp.json(); } catch { return; }
     if (!body || !body.mfaRequired) return;
-    try { await completeMfa(page, creds.password); }
-    catch (e) { console.error('[mfa-preload] MFA completion failed:', e.message); }
+    busy = true;
+    try {
+      if (body.mfaEnrolled) {
+        const uid = creds.email ? sql('SELECT id FROM users WHERE email=' + quote(creds.email)) : '';
+        if (uid) { sql(`DELETE FROM user_mfa WHERE user_id='${uid}'`); sql(`DELETE FROM user_mfa_recovery_codes WHERE user_id='${uid}'`); }
+        await page.waitForSelector('#sr-mfa-form:not([hidden])', {timeout: 20000});
+        await page.click('#sr-mfa-form [data-mfa-cancel]');
+        await page.waitForSelector('#sr-login-form:not([hidden])', {timeout: 20000});
+        await page.fill('#sr-login-form input[name=email]', String(creds.email || ''));
+        await page.fill('#sr-login-form input[name=password]', String(creds.password || ''));
+        busy = false; // the next login response (enrolment required) is handled by this listener
+        await page.click('#sr-login-form button[type=submit]');
+        return;
+      }
+      await completeMfa(page, String(creds.password || ''));
+    } catch (e) { console.error('[mfa-preload] MFA completion failed:', e.message); }
+    finally { busy = false; }
   });
 }
 
