@@ -26,6 +26,10 @@ async function freshLogin(){const s=new S();const r=await s.call('auth/login',{m
 
 let secret='';
 
+// Start from a known fresh MFA state regardless of prior suites (the MFA-aware harness login
+// enrols the owner during earlier suites; this suite tests enrolment from scratch).
+{const uid=sql("SELECT id FROM users WHERE email='"+EMAIL+"'");if(uid){sql("DELETE FROM user_mfa WHERE user_id='"+uid+"'");sql("DELETE FROM user_mfa_recovery_codes WHERE user_id='"+uid+"'")}sql('DELETE FROM login_attempts');}
+
 await t('M-01','A privileged login with a correct password returns an MFA challenge, not a usable session (enrolment required on first run)',async()=>{
   const {r}=await freshLogin();
   return {ok:r.s===200&&r.b.mfaRequired===true&&r.b.mfaEnrollmentRequired===true&&!r.b.companies,info:`status ${r.s}; mfaRequired ${r.b.mfaRequired}; enrollmentRequired ${r.b.mfaEnrollmentRequired}; companies present ${!!r.b.companies}`}});
