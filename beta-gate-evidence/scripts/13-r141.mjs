@@ -1,6 +1,6 @@
 // R141: DEF-08 starter codes, country + province/state, foreign tax codes, OBS-2 links,
 // tax code report usage, dashboard figure mapping, payroll Canada-only, Clarity removal.
-import {S,sql,rec,check,save,need,mails} from './lib.mjs';import fs from 'fs';
+import {S,sql,rec,check,save,need,mails,waitMail} from './lib.mjs';import fs from 'fs';
 const ids=JSON.parse(fs.readFileSync('/srv/gate/t/ids.json'));const A='R141';
 const o=new S();await o.login('owner@gate.test','Gate!Owner#2026pw');
 const mk=async(json)=>o.call('companies',{method:'POST',company:false,json:{businessType:'corporation',currency:'CAD',accountingBasis:'accrual',moduleMode:'both',fiscalYearEnd:'12-31',booksStartDate:'2026-01-01',...json}});
@@ -53,7 +53,7 @@ r=await n.call('platform/invite-details',{method:'POST',company:false,json:{emai
 r=await n.call('platform/invite-details',{method:'POST',company:false,json:{email:'someone.else@gate.test',code}});check('OB-03',A,'The same code with a different email address is refused',r.s,410);
 r=await n.call('platform/invite-details',{method:'POST',company:false,json:{email:em,code},origin:'https://evil.example'});check('OB-04',A,'POST lookup from a foreign origin refused',r.s>=400,true);
 const al=fs.readFileSync('/srv/gate/apache-access.log','utf8');const hits=al.split('\n').filter(l=>code&&l.includes(code.replace('-','')));rec('OB-05',A,'Invitation codes never appear in the web access log',code&&hits.length===0?'PASS':'FAIL',hits.length+' log line(s) contain the code');
-const rr=await new S().call('auth/password-reset-request',{method:'POST',company:false,json:{email:'viewer@gate.test'}});const rm=mails().reverse().find(x=>/viewer@gate.test/.test(x.t)&&/passwordReset/.test(x.t));
+const rmBefore=mails().length;const rr=await new S().call('auth/password-reset-request',{method:'POST',company:false,json:{email:'viewer@gate.test'}});const rm=await waitMail(x=>/viewer@gate.test/.test(x.t)&&/passwordReset/.test(x.t),rmBefore);
 rec('OB-06',A,'Password reset email link carries the token after #',rm&&/app\.html#passwordReset=/.test(rm.t)?'PASS':(rm?'FAIL':'BLOCKED'),rr.s+' '+(rm?rm.t.match(/https:\/\/gate\.test\/app\.html[^\s"<]*/)?.[0]?.replace(/=[A-Za-z0-9_-]{10,}/,'=<token>'):'no reset email captured'));
 // ---------- Tax code report ----------
 o.cid=ids.BC;r=await o.call('tax-codes?usage=1');const bcCode=sql(`SELECT id FROM tax_codes WHERE company_id='${ids.BC}' AND code='BC'`);

@@ -1,0 +1,12 @@
+PASS cidr v4 in
+PASS cidr v4 out
+PASS cidr v6 in
+PASS cidr family mismatch
+PASS cidr garbage
+PASS default: header ignored
+PASS cloudflare on, peer not Cloudflare: header ignored
+PASS cloudflare on, peer is Cloudflare: header used
+PASS cloudflare on, malformed header: peer used
+PASS custom ranges replace defaults
+PASS no peer
+client-ip: 11 passed, 0 failed

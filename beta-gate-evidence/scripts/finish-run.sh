@@ -1,7 +1,7 @@
 #!/bin/bash
 [ -f /srv/gate/t/clock.env ] && . /srv/gate/t/clock.env
 # UI matrix (both halves), swipe-trap scan and R118 -> ZIP upgrade, after gate-run.sh.
-ZIP="$1"; cd /srv/gate/t; export NODE_EXTRA_CA_CERTS=/srv/gate/pki/ca.crt
+ZIP="$1"; cd /srv/gate/t; export NODE_EXTRA_CA_CERTS=/srv/gate/pki/ca.crt; export NODE_OPTIONS="--import /srv/gate/t/mfa-preload.mjs"
 sed -n 1,8p matrix.sh > /tmp/m1.sh
 timeout 1500 bash /tmp/m1.sh > /srv/gate/ev/matrix.log 2>&1
 timeout 1500 bash /tmp/m2.sh >> /srv/gate/ev/matrix.log 2>&1

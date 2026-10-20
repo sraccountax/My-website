@@ -63,3 +63,5 @@ import fs from 'fs';
 export function save(file){const p='/srv/gate/ev/'+file;let prev=[];try{prev=JSON.parse(fs.readFileSync(p,'utf8'))}catch{};const ids=new Set(results.map(r=>r.id));fs.writeFileSync(p,JSON.stringify([...prev.filter(r=>!ids.has(r.id)),...results],null,1))}
 const dec=t=>t+'\n'+[...t.matchAll(/Content-Transfer-Encoding: base64\s*\n\s*\n([A-Za-z0-9+\/=\s]+?)(?:\n--|$)/g)].map(m=>Buffer.from(m[1].replace(/\s+/g,''),'base64').toString('utf8')).join('\n');
 export const mails=()=>fs.readdirSync('/srv/gate/mail').sort().map(f=>({f,t:dec(fs.readFileSync('/srv/gate/mail/'+f,'utf8'))}));
+// R164: some emails (password reset) are sent just after the response; wait for one to arrive (up to 15 s).
+export async function waitMail(pred,since=0,ms=15000){const t0=Date.now();for(;;){const m=mails().slice(since).find(pred);if(m||Date.now()-t0>ms)return m;await new Promise(r=>setTimeout(r,250))}}

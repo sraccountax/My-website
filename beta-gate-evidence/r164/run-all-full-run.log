@@ -1,0 +1,98 @@
+=== 01-install
+=== 02-setup
+{
+  BC: 'company_99a59884b10bf4c9012391ee1fc0b01b',
+  QC: 'company_2997839fe8de2553bca3812a5a346e7b',
+  ON: 'company_f641f6dfee95755e26453e9bebbae47d',
+  X: 'company_776b3d3a2b556765abe2bca8c2fa3e2a'
+}
+=== 02b-invite
+=== 03-acct
+expense 6000 equity 3000 bank gl 1000
+=== 04-tax
+INFO     CB-02      Cash basis: invoice issue posting recorded for review | {}
+=== 05-fx
+=== 06-sec
+INFO     XS-01      XSS payload customer stored as text (rendering checked in UI run) | 201
+=== 06b
+=== 07-cv
+=== 08-pay
+INFO     PY-01      Employee with SIN fields submitted: refused or SIN discarded | 422 sin_not_accepted Tegh does not store Social Insurance Numbers (SINs). Remove the SIN and use the Employee ID instead.
+INFO     PY-07      Payroll rate tables: year/version reported for owner verification | "effectiveFrom":"2026-01-01" "effectiveTo":"2026-06-30" "effectiveFrom":"2026-07-01" "effectiveTo":"2026-12-31"
+=== 09-backup
+=== 09b
+=== 10-ops
+INFO     LG-03      PHP error log: warnings recorded (see evidence) | PHP Warning:  POST Content-Length of 11534510 bytes exceeds the limit of 8388608 bytes in Unknown on line 0'
+INFO     SP-02      Public contact page offers a working contact path (form posts to /api/marketing) | no mailto
+=== 13-r141
+=== 14-r142
+=== 15-r144
+=== 16-r145
+INFO     DI-CMP     Field accuracy across the six documents, R145 reader vs the R144 reader (for information) | R145 47/47 fields; R144 19/47 fields
+=== 18-r149
+=== 19-r151
+=== 20-r151ui
+=== 21-r152
+=== 22-r153
+=== 23-r154
+=== 24-beta
+=== 25-r157
+FAIL     ON-06      A new user’s first screen is onboarding step 1 (create the company) with all six steps sho | page.waitForSelector: Timeout 40000ms exceeded. Call log: [2m - waiting for locator('[data-r157-first-steps]') to be visible[22m 
+FAIL     ON-07      After the company is created the onboarding page opens; modules are locked (lock badges),  | page.fill: Timeout 30000ms exceeded. Call log: [2m - waiting for locator('[data-first-owner-company-form] [name=name]')[22m 
+FAIL     ON-08      The chart of accounts step applies the template from the page and then shows what Tegh det | page.click: Timeout 30000ms exceeded. Call log: [2m - waiting for locator('[data-onb-step="chart"]')[22m 
+FAIL     ON-09      Signing in again while onboarding is incomplete opens the onboarding page again | page.waitForSelector: Timeout 40000ms exceeded. Call log: [2m - waiting for locator('[data-r157-onboarding]') to be visible[22m 
+FAIL     ON-10      Settings lists Onboarding and the Tegh tour | Settings › Onboarding opens 
+FAIL     ON-11      Marking the remaining steps complete on the page finishes onboarding and unlocks Tegh | page.click: Timeout 30000ms exceeded. Call log: [2m - waiting for locator('[data-onb-step="chart"]')[22m 
+FAIL     ON-12      The Tegh Assist tour spotlights the real menus step by step and ends with the bank stateme | page.click: Timeout 30000ms exceeded. Call log: [2m - waiting for locator('[data-onb-tour]')[22m 
+FAIL     ON-13      Signing in after onboarding opens Home (not onboarding), nothing is locked, and the animat | page.waitForFunction: Timeout 40000ms exceeded.
+=== 26-r158
+=== 27-r159
+=== 28-r160
+=== 29-r161
+=== 30-guided
+=== 31-r163
+=== 32-r163-sec
+
+10/10 R163 security checks passed
+=== 33-sec
+
+13/13 auth/client-view/payroll security checks passed
+=== 34-mfa
+clock offset (server-real seconds): -1591026
+
+12/12 MFA checks passed
+=== 35-session
+=== 36-monitor
+=== 37-audit
+=== 38-files
+victims {
+  stmt: [
+    'company_20ae8ffaa12bb077188b40dc8c7b7379',
+    'import_28a42731a79f4e0401a8ce89167a6742'
+  ],
+  att: [
+    'company_d8667d69743063cbca3fd7bed1bff4f1',
+    'invoice_e71be6672d70e7af0c280c9824c6eb9f',
+    'invatt_639708e881139a2dc11d4447f16462b2'
+  ],
+  nd: [
+    'company_d978b616f107782121dbfa8d28d64170',
+    'nadoc_688a7d82aa49997e3881696e9433ec4f'
+  ],
+  inv: [
+    'company_9d3c70931a478ede6569b3a398df3ed3',
+    'invoice_99eb8918b687a5b9552953d51995ebaf'
+  ]
+}
+=== 39-restore
+=== e2e
+201 company_9a575889fa837f21fb2ffdbed6689dcc
+=== w1
+=== w2
+=== w3
+=== w4
+=== w5
+=== w6
+=== w7
+=== w8
+=== w9

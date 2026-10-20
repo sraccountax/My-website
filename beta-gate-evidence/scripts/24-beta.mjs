@@ -3,7 +3,7 @@
 // recovery (uploaded files restored byte for byte), accounting (repeated requests and clicks, every posted entry balances)
 // and multi-company with different currencies. Expected values are worked out here, never with Tegh's code.
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';import fs from 'fs';import crypto from 'crypto';import {execFileSync} from 'child_process';
-import {S,sql,rec,need,save,mails} from './lib.mjs';
+import {S,sql,rec,need,save,mails,waitMail} from './lib.mjs';
 const A='BETA';const o=new S();await o.login('owner@gate.test','Gate!Owner#2026pw');const stamp=Date.now().toString(36);
 const t=async(id,title,fn)=>{try{const r=await fn();rec(id,A,title,r.ok?'PASS':'FAIL',r.info||'')}catch(e){rec(id,A,title,'FAIL',e.message.replace(/\s+/g,' ').slice(0,300))}};
 const as=id=>({headers:{'X-Company-Id':id},company:false});
@@ -16,7 +16,7 @@ const upload=async(s,cid,route,fields,name='receipt.pdf')=>{const fd=new FormDat
 const getBytes=async(s,cid,route)=>{const r=await s.call(route,{...as(cid),raw:true});return {s:r.status,buf:Buffer.from(await r.arrayBuffer())}};
 // A member invited and signed up through the normal invitation flow (code read from the test mail sandbox).
 let inviteN=0;const invite=async(cid,role,email)=>{const before=mails().length;const r=need('invite',await o.call('platform/invitations',{method:'POST',company:false,json:{action:'create_account',email,scope:'company',assignments:[{companyId:cid,role}],operationKey:'gate-beta-'+stamp+'-'+(++inviteN)}}));
-  const mail=mails().slice(before).find(m=>m.t.includes(email));const code=mail?.t.match(/invitation code:\s*([A-Z0-9]{5}-[A-Z0-9]{5})/)?.[1];return {r,code}};
+  const mail=await waitMail(m=>m.t.includes(email),before);const code=mail?.t.match(/invitation code:\s*([A-Z0-9]{5}-[A-Z0-9]{5})/)?.[1];return {r,code}};
 const accept=async(email,code,password)=>{const n=new S();const d=await n.call('platform/invite-details',{method:'POST',company:false,json:{email,code}});
   return {d,a:await n.call('platform/invite-accept',{method:'POST',company:false,json:{email,code,password,confirmPassword:password,acceptTerms:true,termsVersion:d.b?.invitation?.termsVersion,privacyVersion:d.b?.invitation?.privacyVersion}})}};
 const PW='Beta!Tester#2026pw',PW2='Beta!Reset#2026pw';
@@ -54,7 +54,7 @@ await t('BS-05','A revoked invitation cannot be accepted',async()=>{const email=
 await t('BS-06','Password reset: the email carries a one-time link; the new password works, the old one and the link are refused afterwards, and earlier sessions end',async()=>{
   const email=`beta-reset-${stamp}@gate.test`;const {code}=await invite(CA.id,'viewer',email);need('accept',(await accept(email,code,PW)).a);
   const old=new S();await old.login(email,PW);const before=mails().length;
-  const req=await new S().call('auth/password-reset-request',{method:'POST',company:false,json:{email}});const mail=mails().slice(before).find(m=>m.t.includes(email));
+  const req=await new S().call('auth/password-reset-request',{method:'POST',company:false,json:{email}});const mail=await waitMail(m=>m.t.includes(email),before);
   const token=decodeURIComponent(mail?.t.match(/#passwordReset=([A-Za-z0-9%_.-]+)/)?.[1]||'');
   const done=await new S().call('auth/password-reset-complete',{method:'POST',company:false,json:{token,newPassword:PW2,confirmPassword:PW2}});
   const reuse=await new S().call('auth/password-reset-complete',{method:'POST',company:false,json:{token,newPassword:PW,confirmPassword:PW}});
