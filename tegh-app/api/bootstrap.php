@@ -318,10 +318,45 @@ function secret_hash(string $value): string
     return hash_hmac('sha256', $value, (string)config('app.secret'));
 }
 
+// R164: the client address used for rate limits and bot checks. Forwarded headers are ignored unless
+// the operator names a trusted proxy in config (security.trusted_proxy = 'cloudflare') AND the direct
+// peer is inside that proxy's ranges; otherwise any caller could choose its own rate-limit bucket.
+const TEGH_CLOUDFLARE_RANGES = [
+    '173.245.48.0/20','103.21.244.0/22','103.22.200.0/22','103.31.4.0/22','141.101.64.0/18','108.162.192.0/18',
+    '190.93.240.0/20','188.114.96.0/20','197.234.240.0/22','198.41.128.0/17','162.158.0.0/15','104.16.0.0/13',
+    '104.24.0.0/14','172.64.0.0/13','131.0.72.0/22',
+    '2400:cb00::/32','2606:4700::/32','2803:f800::/32','2405:b500::/32','2405:8100::/32','2a06:98c0::/29','2c0f:f248::/32',
+];
+
+function ip_in_cidr(string $ip, string $cidr): bool
+{
+    [$net, $bits] = array_pad(explode('/', $cidr, 2), 2, null);
+    $ipBin = @inet_pton($ip); $netBin = @inet_pton((string)$net);
+    if ($ipBin === false || $netBin === false || strlen($ipBin) !== strlen($netBin)) return false;
+    $bits = $bits === null ? strlen($ipBin) * 8 : (int)$bits;
+    $bytes = intdiv($bits, 8); $rem = $bits % 8;
+    if (substr($ipBin, 0, $bytes) !== substr($netBin, 0, $bytes)) return false;
+    if ($rem === 0) return true;
+    $mask = (0xff << (8 - $rem)) & 0xff;
+    return (ord($ipBin[$bytes]) & $mask) === (ord($netBin[$bytes]) & $mask);
+}
+
+function client_ip(): string
+{
+    $peer = (string)($_SERVER['REMOTE_ADDR'] ?? '');
+    if (strtolower(trim((string)(config('security.trusted_proxy') ?? ''))) !== 'cloudflare') return $peer !== '' ? $peer : 'unknown';
+    $ranges = config('security.trusted_proxy_ranges');
+    $ranges = is_array($ranges) && $ranges ? array_map('strval', $ranges) : TEGH_CLOUDFLARE_RANGES;
+    $trusted = false;
+    foreach ($ranges as $range) { if (ip_in_cidr($peer, $range)) { $trusted = true; break; } }
+    $forwarded = trim((string)($_SERVER['HTTP_CF_CONNECTING_IP'] ?? ''));
+    if ($trusted && $forwarded !== '' && filter_var($forwarded, FILTER_VALIDATE_IP)) return $forwarded;
+    return $peer !== '' ? $peer : 'unknown';
+}
+
 function client_ip_hash(): string
 {
-    $ip = (string)($_SERVER['REMOTE_ADDR'] ?? 'unknown');
-    return secret_hash($ip);
+    return secret_hash(client_ip());
 }
 
 function user_agent_hash(): string

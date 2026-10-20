@@ -484,6 +484,8 @@ function handle_mfa_verify(): never
     }
     mfa_clear_failures((string)$user['id']);
     mfa_mark_session_verified((string)$user['sessionId']);
+    // A recovery code usually means a lost or exposed device: end the account's other sessions.
+    if ($isRecovery) tegh_end_user_sessions((string)$user['id'], (string)$user['sessionId']);
     mfa_audit($user, '', 'mfa.verified', 'user', (string)$user['id'], ['method' => $isRecovery ? 'recovery' : 'totp']);
     // Hand back the full identity so the client can enter the app. session_record() is memoized
     // within this request and still reflects the pre-verification row, so set verified explicitly.
@@ -509,6 +511,7 @@ function handle_mfa_disable(): never
     }
     db()->prepare('DELETE FROM user_mfa WHERE user_id=?')->execute([(string)$user['id']]);
     db()->prepare('DELETE FROM user_mfa_recovery_codes WHERE user_id=?')->execute([(string)$user['id']]);
+    tegh_end_user_sessions((string)$user['id'], (string)$user['sessionId']); // R164: a weaker sign-in method ends other sessions
     mfa_audit($user, '', 'mfa.disabled', 'user', (string)$user['id'], []);
     json_response(['enabled' => false, 'message' => 'Two-step verification is off for this account.']);
 }
@@ -539,4 +542,38 @@ function mfa_require_password(array $user, string $password): void
         usleep(400000);
         fail('That password is not correct.', 401, 'password_confirmation_invalid', false);
     }
+}
+
+/* --------------------------------------------------------------------- R164 item 3: step-up + session invalidation */
+
+/**
+ * Renewed authentication for sensitive administrative changes. Accepted when this session signed in
+ * within the last $windowSeconds, or when the request carries the signed-in user's current password.
+ * Otherwise the change is refused with a code the client can act on (sign in again, or re-enter password).
+ */
+function tegh_require_recent_auth(array $user, array $input, int $windowSeconds = 900): void
+{
+    // Session age is measured on the database clock, the same clock that stamped created_at.
+    $age = db()->prepare('SELECT TIMESTAMPDIFF(SECOND, created_at, UTC_TIMESTAMP()) FROM sessions WHERE id=? AND user_id=? LIMIT 1');
+    $age->execute([(string)($user['sessionId'] ?? ''), (string)$user['id']]);
+    $seconds = $age->fetchColumn();
+    if ($seconds !== false && $seconds !== null && (int)$seconds >= 0 && (int)$seconds <= $windowSeconds) return;
+    $password = (string)($input['password'] ?? '');
+    if ($password === '') {
+        fail('For security, confirm your password (or sign out and sign in again) before making this change.', 403, 'recent_authentication_required', false);
+    }
+    mfa_require_password($user, $password);
+}
+
+/** End every session of a user (e.g. after their access or role changed) so the next sign-in applies the new rules, including MFA. */
+function tegh_end_user_sessions(string $userId, ?string $exceptSessionId = null): int
+{
+    if ($exceptSessionId !== null) {
+        $stmt = db()->prepare('DELETE FROM sessions WHERE user_id=? AND id<>?');
+        $stmt->execute([$userId, $exceptSessionId]);
+    } else {
+        $stmt = db()->prepare('DELETE FROM sessions WHERE user_id=?');
+        $stmt->execute([$userId]);
+    }
+    return $stmt->rowCount();
 }

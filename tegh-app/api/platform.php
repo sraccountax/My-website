@@ -326,6 +326,8 @@ function platform_members(array $user,array $company): never
     require_company_permission($company,'users.manage');require_method('POST');require_csrf();$input=request_json();$action=(string)($input['action']??'change_role');
     $memberId=clean_text($input['memberId']??'','User',64);
     if($memberId===(string)$user['id']&&in_array($action,['change_role','suspend','remove','transfer_ownership'],true))fail('You cannot change your own company access through this action.',409,'self_membership_change_blocked');
+    // R164: changing another user's company access needs a recent sign-in or the current password.
+    tegh_require_recent_auth($user,$input);
     $stmt=db()->prepare('SELECT cm.role,cm.status,u.email,u.display_name FROM company_members cm JOIN users u ON u.id=cm.user_id WHERE cm.company_id=? AND cm.user_id=? FOR UPDATE');
     db()->beginTransaction();
     try{
@@ -345,7 +347,7 @@ function platform_members(array $user,array $company): never
             if($passwordHash===false||!password_verify($password,(string)$passwordHash))fail('Your current password is incorrect.',403,'password_incorrect');
             db()->prepare("UPDATE company_members SET role='owner',status='active',status_reason=NULL,suspended_at=NULL,revoked_at=NULL,updated_by=? WHERE company_id=? AND user_id=?")->execute([$user['id'],$companyId,$memberId]);
             db()->prepare("UPDATE company_members SET role='admin',updated_by=? WHERE company_id=? AND user_id=? AND role='owner'")->execute([$user['id'],$companyId,$user['id']]);
-            audit_event($user,$companyId,'company.ownership_transferred','company_member',$memberId,['newOwnerEmail'=>$member['email'],'newOwnerUserId'=>$memberId,'previousOwnerUserId'=>$user['id'],'previousOwnerNewRole'=>'admin']);
+            tegh_end_user_sessions($memberId);audit_event($user,$companyId,'company.ownership_transferred','company_member',$memberId,['newOwnerEmail'=>$member['email'],'newOwnerUserId'=>$memberId,'previousOwnerUserId'=>$user['id'],'previousOwnerNewRole'=>'admin']);
             db()->commit();json_response(['transferred'=>true,'newOwnerId'=>$memberId,'previousOwnerRole'=>'admin']);
         }
         if($action==='change_role'){
@@ -353,7 +355,7 @@ function platform_members(array $user,array $company): never
             $role=(string)($input['role']??'viewer');if(!in_array($role,['admin','editor','viewer'],true))fail('Choose Admin, Editor or Viewer. Use Transfer Ownership to change the Company Owner.');
             if($targetIsOwner&&$ownerCount<=1)fail('Transfer ownership before changing the last owner.',409,'last_owner_required');
             db()->prepare('UPDATE company_members SET role=?,updated_by=? WHERE company_id=? AND user_id=?')->execute([$role,$user['id'],$companyId,$memberId]);
-            audit_event($user,$companyId,'company.member_role_changed','company_member',$memberId,['email'=>$member['email'],'from'=>$member['role'],'to'=>$role]);
+            tegh_end_user_sessions($memberId);audit_event($user,$companyId,'company.member_role_changed','company_member',$memberId,['email'=>$member['email'],'from'=>$member['role'],'to'=>$role]);
             db()->commit();json_response(['updated'=>true,'role'=>$role]);
         }
         if($action==='suspend'){
@@ -361,7 +363,7 @@ function platform_members(array $user,array $company): never
             if($targetIsOwner&&$ownerCount<=1)fail('The last active owner cannot be suspended.',409,'last_owner_required');
             $reason=clean_text($input['reason']??'Access suspended by company administrator','Suspension reason',500);
             db()->prepare("UPDATE company_members SET status='suspended',status_reason=?,suspended_at=UTC_TIMESTAMP(),revoked_at=NULL,updated_by=? WHERE company_id=? AND user_id=?")->execute([$reason,$user['id'],$companyId,$memberId]);
-            audit_event($user,$companyId,'company.member_suspended','company_member',$memberId,['email'=>$member['email'],'role'=>$member['role'],'reason'=>$reason]);
+            tegh_end_user_sessions($memberId);audit_event($user,$companyId,'company.member_suspended','company_member',$memberId,['email'=>$member['email'],'role'=>$member['role'],'reason'=>$reason]);
             db()->commit();json_response(['suspended'=>true]);
         }
         if($action==='reactivate'){
@@ -375,7 +377,7 @@ function platform_members(array $user,array $company): never
             if($targetIsOwner&&$ownerCount<=1)fail('The last owner cannot be removed.',409,'last_owner_required');
             $reason=clean_text($input['reason']??'Access removed by company administrator','Removal reason',500);
             db()->prepare("UPDATE company_members SET status='revoked',status_reason=?,revoked_at=UTC_TIMESTAMP(),suspended_at=NULL,updated_by=? WHERE company_id=? AND user_id=?")->execute([$reason,$user['id'],$companyId,$memberId]);
-            audit_event($user,$companyId,'company.member_removed','company_member',$memberId,['email'=>$member['email'],'role'=>$member['role'],'reason'=>$reason,'membershipRecordRetained'=>true]);
+            tegh_end_user_sessions($memberId);audit_event($user,$companyId,'company.member_removed','company_member',$memberId,['email'=>$member['email'],'role'=>$member['role'],'reason'=>$reason,'membershipRecordRetained'=>true]);
             db()->commit();json_response(['removed'=>true]);
         }
         fail('Member action is invalid.');

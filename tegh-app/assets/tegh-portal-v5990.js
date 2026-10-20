@@ -638,6 +638,20 @@ const TeghPortal = (() => {
     const params=Object.entries(opt.params||{}).filter(([,value])=>value!==undefined&&value!==null).sort(([a],[b])=>a.localeCompare(b));
     return JSON.stringify([method,clientScopeKey(),clientDataGeneration,String(route),String(cid||''),params]);
   }
+  // R164: sensitive admin actions need a recent sign-in. When the server asks for it, collect the
+  // password in a small dialog and retry the same request once with it; the password is never stored.
+  function askStepUpPassword(message){
+    return new Promise(resolve=>{
+      const dlg=document.createElement('dialog');dlg.className='tegh-stepup';dlg.setAttribute('aria-labelledby','tegh-stepup-title');
+      dlg.innerHTML='<form method="dialog"><h2 id="tegh-stepup-title">Confirm your password</h2><p></p><label>Password<input type="password" name="password" autocomplete="current-password" required></label><div class="tegh-stepup-actions"><button type="button" value="cancel">Cancel</button><button type="submit" value="ok">Confirm</button></div></form>';
+      dlg.querySelector('p').textContent=message||'For security, confirm your password before making this change.';
+      const input=dlg.querySelector('input'),done=v=>{dlg.close();dlg.remove();resolve(v)};
+      dlg.querySelector('button[value=cancel]').addEventListener('click',()=>done(''));
+      dlg.addEventListener('cancel',e=>{e.preventDefault();done('')});
+      dlg.querySelector('form').addEventListener('submit',e=>{e.preventDefault();const v=input.value;input.value='';if(v)done(v)});
+      document.body.appendChild(dlg);dlg.showModal();input.focus();
+    });
+  }
   async function api(route,opt={}){
     const method=String(opt.method||'GET').toUpperCase(),invalidatesWorkspace=!['GET','HEAD','OPTIONS'].includes(method)&&!['agent/learning-signal','agent/interface-preferences','insights/ask','insights/bank-suggestions','insights/dismiss','native-agent/opportunistic'].includes(route),selection=JSON.stringify(selectedCompanyIds()),a=await auth();
     if(selection!=='[]'&&selection!==JSON.stringify(selectedCompanyIds()))throw staleClientRead();
@@ -661,6 +675,7 @@ const TeghPortal = (() => {
     const type=r.headers.get('content-type')||'';let b;
     try{b=type.includes('json')?await r.json():await r.blob()}catch(error){if(invalidatesWorkspace)invalidateClientReads();throw Object.assign(Error(method==='GET'?'The server returned an unreadable response. Retry this view.':'The result could not be read. Check the operation status or affected records before submitting again.'),{status:r.status,code:method==='GET'?'invalid_response':'operation_outcome_unknown',outcome:method==='GET'?undefined:'unknown'})}
     if(method==='GET'&&(scopeGeneration!==clientScopeGeneration||dataGeneration!==clientDataGeneration||scope!==clientScopeKey()))throw staleClientRead();
+    if(r.status===403&&b?.code==='recent_authentication_required'&&opt.json&&typeof opt.json==='object'&&!opt.__stepUp){const pw=await askStepUpPassword(b.error);if(pw)return api(route,{...opt,json:{...opt.json,password:pw},__stepUp:true})}
     if(!r.ok){if(r.status===401){authCache=null;authLoadedAt=0;clearClientScope()}else if(r.status===403)invalidateClientReads();if(method!=='GET'&&r.status>=500){if(invalidatesWorkspace)invalidateClientReads();throw Object.assign(Error('The server could not confirm the result. Check the operation status or affected records before submitting again.'),{status:r.status,code:'operation_outcome_unknown',outcome:'unknown',requestId:b?.requestId||r.headers.get('X-SR-Request-ID')||'',body:b})}const fallback=r.status===401?'Your session has expired. Sign in again.':r.status===403?'You do not have permission to complete this action.':r.status===409?'This record changed or is no longer available. Refresh and try again.':r.status>=500?'Tegh could not complete this request. Try again. If it continues, contact support.':`Tegh could not complete this request (${r.status}).`;const error=Object.assign(Error(userFacingError(b?.error,fallback)),{status:r.status,code:b?.code||'request_error',requestId:b?.requestId||r.headers.get('X-SR-Request-ID')||'',body:b});throw error}
     const commit=confirmedAccountingCommit(route,method,opt.json,b);
     if(commit){commit.companyId=cid;try{window.dispatchEvent(new CustomEvent('tegh:accounting-commit',{detail:commit}))}catch{}}

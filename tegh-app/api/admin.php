@@ -111,13 +111,26 @@ function admin_users(array $user): never
         json_response(['users'=>$rows]);
     }
 
-    require_method('POST');require_csrf();$input=request_json();$action=(string)($input['action']??'');
+    require_method('POST');require_csrf();$input=request_json();$action=(string)($input['action']??'');tegh_require_recent_auth($user,$input);
     $targetId=clean_text($input['userId']??'','User',64);
     if($targetId===(string)$user['id'])fail('Your own platform-owner login cannot be deactivated or deleted.',409,'self_admin_action_blocked');
     $lookup=db()->prepare('SELECT id,email,display_name,active,platform_role,deleted_at FROM users WHERE id=? LIMIT 1');$lookup->execute([$targetId]);
     $target=$lookup->fetch();if(!$target)fail('The selected user no longer exists.',404,'user_not_found');
     if((string)$target['platform_role']==='platform_owner')fail('Another platform-owner account cannot be changed here.',409,'platform_owner_protected');
 
+    // R164: MFA recovery when a user lost both the authenticator and the recovery codes. Clears their
+    // enrolment and ends their sessions; their next sign-in requires them to enrol again.
+    if($action==='reset_mfa'){
+        $cleared=0;
+        db_transaction_retry(function()use($user,$targetId,$target,&$cleared):bool{
+            if(schema_table_exists('user_mfa')){$d=db()->prepare('DELETE FROM user_mfa WHERE user_id=?');$d->execute([$targetId]);$cleared=$d->rowCount();}
+            if(schema_table_exists('user_mfa_recovery_codes'))db()->prepare('DELETE FROM user_mfa_recovery_codes WHERE user_id=?')->execute([$targetId]);
+            tegh_end_user_sessions($targetId);
+            platform_audit_event($user,'platform.user_mfa_reset','user',$targetId,['email'=>$target['email'],'hadEnrolment'=>$cleared>0]);
+            return true;
+        });
+        json_response(['mfaReset'=>true,'hadEnrolment'=>$cleared>0,'message'=>'Two-step verification was reset. The person must set it up again at their next sign-in.']);
+    }
     if($action==='deactivate'||$action==='reactivate'){
         $active=$action==='reactivate';
         if($active&&$target['deleted_at']!==null)fail('A deleted login cannot be reactivated. Create a new account setup for the person.',409,'deleted_login');

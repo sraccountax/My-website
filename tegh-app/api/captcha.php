@@ -170,7 +170,8 @@ function captcha_validate_token(string $token, string $expectedAction): bool
     $token = trim($token);
     if ($token === '' || strlen($token) > 2048) return false;
     $payload = ['secret'=>(string)$cfg['secretKey'],'response'=>$token];
-    $remoteIp = trim((string)($_SERVER['REMOTE_ADDR'] ?? ''));
+    $remoteIp = function_exists('client_ip') ? client_ip() : trim((string)($_SERVER['REMOTE_ADDR'] ?? ''));
+    if ($remoteIp === 'unknown') $remoteIp = '';
     if ($remoteIp !== '') $payload['remoteip'] = $remoteIp;
     try { $result = captcha_http_siteverify($payload); }
     catch (Throwable $e) { fail('The security check could not be verified. Please try again.',503,'captcha_provider_unavailable',false); }

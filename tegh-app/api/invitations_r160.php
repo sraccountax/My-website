@@ -124,6 +124,7 @@ function tegh_r160_handle_lookup(array $user, array $input): never
 function tegh_r160_handle_restore(array $user, array $input): never
 {
     admin_require_platform_owner($user);
+    tegh_require_recent_auth($user, $input); // R164: restoring a login is an admin action that needs a recent sign-in
     $email = safe_email($input['email'] ?? '');
     $token = base64url_encode(random_bytes(32));
     $result = db_transaction_retry(static function () use ($user, $email, $token): array {

@@ -28,6 +28,14 @@ return [
         'maintenance_flag_path' => '',
         'maintenance_stale_after_seconds' => 3600,
     ],
+    // R164: client address used for rate limits and bot checks. Leave trusted_proxy empty unless the site is
+    // served through Cloudflare's proxy (orange cloud); then set 'cloudflare' so CF-Connecting-IP is trusted,
+    // but only when the direct peer is inside Cloudflare's published ranges (https://www.cloudflare.com/ips/).
+    // trusted_proxy_ranges overrides the built-in list; leave it empty to use the built-in list.
+    'security' => [
+        'trusted_proxy' => '',
+        'trusted_proxy_ranges' => [],
+    ],
     // R156: who operates this Tegh service. Shown on the Terms and Privacy pages; invitations cannot be sent until every
     // field except the two numbers is filled in. Use the real legal name and a mailbox someone reads.
     'operator' => [

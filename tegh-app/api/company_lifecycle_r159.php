@@ -253,6 +253,7 @@ function admin_company_deletion_requests(array $user): never
     $input = request_json();
     $requestId = clean_text($input['requestId'] ?? '', 'Request', 64);
     $decision = (string)($input['action'] ?? '');
+    tegh_require_recent_auth($user, $input); // R164: approving or rejecting a permanent deletion needs a recent sign-in or the password
     if (!in_array($decision, ['approve', 'reject'], true)) fail('Choose approve or reject.', 422, 'deletion_decision_invalid');
     $note = trim((string)($input['note'] ?? ''));
     if ($note !== '') $note = clean_text($note, 'Note', 1000);

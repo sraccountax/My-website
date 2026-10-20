@@ -479,9 +479,37 @@ function handle_password_reset_request(): never
         throw $error;
     }
 
-    // Deliberately return the same response whether or not the address exists.
-    if ($user) send_password_reset_email((string)$user['email'], $token);
-    json_response(['ok'=>true,'message'=>'If an active Tegh account exists for that email, a password reset link has been sent.']);
+    // Deliberately return the same response, at the same speed, whether or not the address exists.
+    $body = ['ok'=>true,'message'=>'If an active Tegh account exists for that email, a password reset link has been sent.'];
+    tegh_respond_then($body, $user ? static fn() => send_password_reset_email((string)$user['email'], $token) : null);
+}
+
+// R164: answers the client before doing work whose duration or failure would reveal something (for
+// example whether an email address has an account). Under PHP-FPM the response is flushed first; on
+// other SAPIs both paths are padded to the same minimum duration. A failure in the deferred work is
+// logged, never shown, so the response cannot become an account-existence oracle.
+function tegh_respond_then(array $body, ?callable $after, float $floorSeconds = 0.75): never
+{
+    $started = (float)($_SERVER['REQUEST_TIME_FLOAT'] ?? microtime(true));
+    $run = static function () use ($after): void {
+        if ($after === null) return;
+        try { $after(); } catch (Throwable $error) { error_log('Tegh deferred work failed request='.request_id().' class='.$error::class); }
+    };
+    if (function_exists('fastcgi_finish_request')) {
+        @ignore_user_abort(true);
+        $remaining = $floorSeconds - (microtime(true) - $started);
+        if ($remaining > 0) usleep((int)($remaining * 1000000));
+        http_response_code(200);
+        echo json_encode($body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+        while (ob_get_level() > 0) @ob_end_flush();
+        fastcgi_finish_request();
+        $run();
+        exit;
+    }
+    $run();
+    $remaining = $floorSeconds - (microtime(true) - $started);
+    if ($remaining > 0) usleep((int)($remaining * 1000000));
+    json_response($body);
 }
 
 function handle_password_reset_details(): never
