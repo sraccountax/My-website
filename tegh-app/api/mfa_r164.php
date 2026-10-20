@@ -2,32 +2,29 @@
 declare(strict_types=1);
 
 /*
- * R164: multi-factor authentication (TOTP) for privileged accounts.
+ * R164: two-step sign-in.
  *
- * Scope and policy
- *  - MFA is REQUIRED for the platform owner (administrator) and for any user who holds the
- *    `owner` or `admin` role on at least one company (the people who can post, void, approve
- *    or manage users — the "accountant" accounts). Pure viewer/editor-only and client-view
- *    users are not forced to enrol.
- *  - Enrolment is mandatory and hard-gated: a required user is signed in with an
- *    unverified session and can reach only the MFA routes until a factor is confirmed.
+ * Policy (owner decision, R164 revision)
+ *  - Every sign-in needs a second step. The default second step is a 6-digit code emailed to the account's
+ *    registered address: nothing to set up, it is on for everyone.
+ *  - An authenticator app (TOTP, RFC 6238) is optional. A person who sets one up (Account › Two-step
+ *    verification, with a QR code) may use it instead of the email code. Recovery codes come with it.
+ *  - "Trust this device for 30 days": after a successful second step the browser can be remembered; that
+ *    browser then signs in with the password alone until the 30 days end or the trust is withdrawn (password
+ *    change or reset, administrator MFA reset, deactivation or deletion, or "Forget trusted devices").
+ *  - Sessions created where the email address was just proven (accepting an emailed invitation) or by the
+ *    setup key (first platform owner) are already verified.
  *
  * Design
- *  - Time-based one-time passwords (RFC 6238): HMAC-SHA1, 30-second step, 6 digits, a +/-1
- *    step window, implemented in pure PHP (no external service, no outside AI).
- *  - The shared secret is stored encrypted at rest with AES-256-GCM. The key is derived from
- *    app.secret by HKDF, so the secret is useless without the server key and is tied to the
- *    same key that already protects sessions and reset tokens. app.secret must therefore not
- *    be rotated without re-enrolling MFA (documented in the operator checklist).
- *  - One-time recovery codes are generated at enrolment, shown once, and stored only as
- *    HMAC-SHA256 hashes (secret_hash), compared in constant time, single-use.
- *  - Login becomes two-step for enrolled users: a correct password creates an *unverified*
- *    session (mfa_verified = 0); the second step verifies a TOTP or recovery code and marks
- *    the session verified. The main API router blocks unverified sessions from every route
- *    except the MFA endpoints, logout and the identity probe.
+ *  - Email codes: 6 random digits, stored only as a keyed hash, single use, valid 10 minutes, bound to the
+ *    session that asked for it, at most 5 wrong tries per code, at most 5 codes per 15 minutes per account.
+ *  - TOTP: HMAC-SHA1, 30-second step, +/-1 step, replay guard; the secret is encrypted with AES-256-GCM under a
+ *    key derived from app.secret (app.secret must not be rotated without re-enrolling authenticators).
+ *  - Trusted devices: a random 256-bit token in an HttpOnly, Secure, SameSite=Strict cookie; only its keyed hash
+ *    is stored, with the browser's user-agent hash; expiry is checked on the database clock.
+ *  - Until the second step completes the session is UNVERIFIED and the router allows only the sign-in routes.
  *
- * All schema changes are additive and made on first use, outside any transaction, matching
- * the pattern used by the other R1xx modules.
+ * All schema changes are additive and made on first use, matching the other R1xx modules.
  */
 
 const TEGH_MFA_DIGITS = 6;
@@ -37,6 +34,12 @@ const TEGH_MFA_MAX_FAILURES = 5;      // before a temporary lock
 const TEGH_MFA_LOCK_MINUTES = 15;
 const TEGH_MFA_RECOVERY_CODES = 10;
 const TEGH_MFA_CHALLENGE_MINUTES = 10;
+const TEGH_EMAIL_OTP_MINUTES = 10;       // an emailed sign-in code is valid this long
+const TEGH_EMAIL_OTP_MAX_TRIES = 5;      // wrong entries per code before it is withdrawn
+const TEGH_EMAIL_OTP_MAX_PER_WINDOW = 10; // codes per account per 15 minutes
+const TEGH_EMAIL_OTP_RESEND_SECONDS = 30;
+const TEGH_TRUSTED_DEVICE_DAYS = 30;
+const TEGH_TRUSTED_DEVICE_COOKIE = 'tegh_td';
 
 /**
  * MFA events are account-level, not company-level, so they go to the platform audit log
@@ -92,12 +95,42 @@ function mfa_schema_ready(): bool
  CONSTRAINT user_mfa_recovery_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
         }
+        if (!schema_table_exists('user_email_otp')) {
+            db()->exec("CREATE TABLE IF NOT EXISTS user_email_otp (
+ id VARCHAR(64) NOT NULL PRIMARY KEY,
+ user_id VARCHAR(64) NOT NULL,
+ session_id VARCHAR(64) NOT NULL,
+ code_hash CHAR(64) NOT NULL,
+ tries INT NOT NULL DEFAULT 0,
+ expires_at DATETIME NOT NULL,
+ used_at DATETIME NULL,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ KEY user_email_otp_user_idx (user_id, created_at),
+ KEY user_email_otp_session_idx (session_id),
+ CONSTRAINT user_email_otp_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        }
+        if (!schema_table_exists('user_trusted_devices')) {
+            db()->exec("CREATE TABLE IF NOT EXISTS user_trusted_devices (
+ id VARCHAR(64) NOT NULL PRIMARY KEY,
+ user_id VARCHAR(64) NOT NULL,
+ token_hash CHAR(64) NOT NULL,
+ user_agent_hash CHAR(64) NOT NULL,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ expires_at DATETIME NOT NULL,
+ last_used_at DATETIME NULL,
+ revoked_at DATETIME NULL,
+ KEY user_trusted_devices_user_idx (user_id),
+ CONSTRAINT user_trusted_devices_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        }
         if (schema_table_exists('sessions') && !schema_column_exists('sessions', 'mfa_verified')) {
             // Existing sessions predate MFA; default them verified so they are not locked out
             // mid-session. New sessions set the value explicitly at creation.
             schema_add_column('sessions', 'mfa_verified', "TINYINT(1) NOT NULL DEFAULT 1");
         }
         $ready = schema_table_exists('user_mfa') && schema_table_exists('user_mfa_recovery_codes')
+            && schema_table_exists('user_email_otp') && schema_table_exists('user_trusted_devices')
             && schema_column_exists('sessions', 'mfa_verified');
     } catch (Throwable $e) {
         error_log('Tegh R164 MFA setup: ' . $e->getMessage());
@@ -217,21 +250,13 @@ function mfa_totp_match(string $base32Secret, string $code, ?int $lastUsedStep =
 
 /* --------------------------------------------------------------------- policy + status */
 
-/** True when this user must have MFA: platform owner, or owner/admin on any company. */
+/**
+ * True when this user needs a second sign-in step. Since the R164 revision every account does: the emailed code
+ * is always available, and an authenticator app is an optional alternative.
+ */
 function mfa_required_for_user(string $userId): bool
 {
-    if (schema_column_exists('users', 'platform_role')) {
-        $stmt = db()->prepare("SELECT 1 FROM users WHERE id=? AND platform_role='platform_owner' LIMIT 1");
-        $stmt->execute([$userId]);
-        if ($stmt->fetchColumn() !== false) return true;
-    }
-    if (schema_table_exists('company_members')) {
-        $statusClause = schema_column_exists('company_members', 'status') ? " AND status='active'" : '';
-        $stmt = db()->prepare("SELECT 1 FROM company_members WHERE user_id=? AND role IN ('owner','admin')$statusClause LIMIT 1");
-        $stmt->execute([$userId]);
-        if ($stmt->fetchColumn() !== false) return true;
-    }
-    return false;
+    return $userId !== '';
 }
 
 /** @return array{confirmed:bool,locked:bool,lockedUntil:?string,row:?array} */
@@ -319,6 +344,168 @@ function mfa_recovery_remaining(string $userId): int
     return (int)$stmt->fetchColumn();
 }
 
+/* --------------------------------------------------------------------- emailed sign-in codes */
+
+/** "o***@example.com": enough for the person to recognise the address, not enough to learn it. */
+function mfa_email_hint(string $email): string
+{
+    [$local, $domain] = array_pad(explode('@', $email, 2), 2, '');
+    return mb_substr($local, 0, 1) . str_repeat('*', max(2, min(6, mb_strlen($local) - 1))) . '@' . $domain;
+}
+
+/**
+ * Create and email a sign-in code for this session. Returns ['sent'=>bool,'message'=>string]. A code is never
+ * returned to the caller. Earlier unused codes for the session stop working.
+ */
+function mfa_send_email_code(array $user, string $sessionId): array
+{
+    $userId = (string)$user['id'];
+    // The account-wide cap limits abuse; the short wait applies only to resending within the same sign-in, so a
+    // second sign-in (another tab, a mistyped password) always gets its own code.
+    $recent = db()->prepare('SELECT COUNT(*), TIMESTAMPDIFF(SECOND, MAX(IF(session_id=?, created_at, NULL)), UTC_TIMESTAMP()) FROM user_email_otp WHERE user_id=? AND created_at >= UTC_TIMESTAMP() - INTERVAL 15 MINUTE');
+    $recent->execute([$sessionId, $userId]);
+    [$count, $sinceLast] = $recent->fetch(PDO::FETCH_NUM) ?: [0, null];
+    if ((int)$count >= TEGH_EMAIL_OTP_MAX_PER_WINDOW) {
+        return ['sent' => false, 'code' => 'mfa_email_rate_limited', 'message' => 'Too many codes were requested. Wait 15 minutes, or use your authenticator app or a recovery code.'];
+    }
+    if ($sinceLast !== null && (int)$sinceLast < TEGH_EMAIL_OTP_RESEND_SECONDS) {
+        return ['sent' => false, 'code' => 'mfa_email_wait', 'message' => 'A code was just sent. Wait a few seconds before asking for another.'];
+    }
+    $code = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    db()->prepare('UPDATE user_email_otp SET used_at=UTC_TIMESTAMP() WHERE session_id=? AND used_at IS NULL')->execute([$sessionId]);
+    db()->prepare('INSERT INTO user_email_otp (id,user_id,session_id,code_hash,expires_at) VALUES (?,?,?,?,UTC_TIMESTAMP()+INTERVAL ? MINUTE)')
+        ->execute([new_id('emailotp'), $userId, $sessionId, secret_hash('tegh.email-otp|' . $sessionId . '|' . $code), TEGH_EMAIL_OTP_MINUTES]);
+    $subject = 'Your Tegh sign-in code: ' . $code;
+    $text = "Your Tegh sign-in code is $code\n\nIt works once and expires in " . TEGH_EMAIL_OTP_MINUTES . " minutes.\n\nIf you did not try to sign in, someone may know your password: change it now and tell your administrator.";
+    $html = '<!doctype html><html><body style="margin:0;background:#f2f6f7;color:#18333b"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f2f6f7"><tr><td align="center" style="padding:32px 16px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid #d9e5e7;border-radius:16px"><tr><td style="padding:32px;font-family:Arial,sans-serif"><div style="font-size:13px;font-weight:700;letter-spacing:.08em;color:#0d6670">TEGH</div><h1 style="font-size:22px;margin:14px 0;color:#173740">Your sign-in code</h1><p style="font:700 34px/1.2 Consolas,Menlo,monospace;letter-spacing:6px;margin:18px 0;color:#0d6670">' . $code . '</p><p style="font-size:14px;line-height:1.55;color:#5f747a">It works once and expires in ' . TEGH_EMAIL_OTP_MINUTES . ' minutes.</p><hr style="border:0;border-top:1px solid #e2ebed;margin:24px 0"><p style="font-size:12px;line-height:1.5;color:#768a90">If you did not try to sign in, someone may know your password. Change it now and tell your administrator.</p></td></tr></table></td></tr></table></body></html>';
+    try {
+        if (!function_exists('sr_mail_send') && is_file(__DIR__ . '/portal.php')) require_once __DIR__ . '/portal.php';
+        $result = sr_mail_send(null, $userId, (string)$user['email'], 'login_code', $subject, $text, $html);
+        if (empty($result['sent'])) throw new RuntimeException((string)($result['status'] ?? 'not sent'));
+    } catch (Throwable $error) {
+        error_log('Tegh sign-in code email failed request=' . request_id() . ' class=' . $error::class);
+        // Everyone signs in with an emailed code, so a mail outage locks people out: alert the operator (throttled).
+        if (!function_exists('tegh_monitor_alert') && is_file(__DIR__ . '/monitoring_r164.php')) require_once __DIR__ . '/monitoring_r164.php';
+        if (function_exists('tegh_monitor_alert')) tegh_monitor_alert('login_email_failed', 'A sign-in code could not be emailed. Check the SMTP settings; people without an authenticator app cannot sign in until email works.', ['Time (UTC)' => gmdate('Y-m-d H:i'), 'Request reference' => request_id()]);
+        return ['sent' => false, 'code' => 'mfa_email_failed', 'message' => 'The sign-in code could not be emailed. Try again shortly, or use your authenticator app or a recovery code.'];
+    }
+    mfa_audit($user, '', 'mfa.email_code_sent', 'user', $userId, []);
+    return ['sent' => true, 'code' => 'mfa_email_sent', 'message' => 'We emailed a 6-digit code to ' . mfa_email_hint((string)$user['email']) . '.'];
+}
+
+/** Check an emailed code for this session. Wrong tries are counted per code; the 5th withdraws it. */
+function mfa_check_email_code(string $userId, string $sessionId, string $code): bool
+{
+    $code = preg_replace('/\D/', '', $code) ?? '';
+    $find = db()->prepare('SELECT id,code_hash,tries FROM user_email_otp WHERE user_id=? AND session_id=? AND used_at IS NULL AND expires_at > UTC_TIMESTAMP() ORDER BY created_at DESC LIMIT 1 FOR UPDATE');
+    $find->execute([$userId, $sessionId]);
+    $row = $find->fetch();
+    if (!$row) return false;
+    if (strlen($code) === 6 && hash_equals((string)$row['code_hash'], secret_hash('tegh.email-otp|' . $sessionId . '|' . $code))) {
+        db()->prepare('UPDATE user_email_otp SET used_at=UTC_TIMESTAMP() WHERE id=?')->execute([$row['id']]);
+        return true;
+    }
+    $tries = (int)$row['tries'] + 1;
+    db()->prepare('UPDATE user_email_otp SET tries=?, used_at=IF(?>=?,UTC_TIMESTAMP(),used_at) WHERE id=?')->execute([$tries, $tries, TEGH_EMAIL_OTP_MAX_TRIES, $row['id']]);
+    return false;
+}
+
+/* --------------------------------------------------------------------- trusted devices */
+
+/** True when this browser carries a valid, unexpired, unrevoked trust for this user. */
+function mfa_trusted_device_valid(string $userId): bool
+{
+    if (!mfa_schema_ready()) return false;
+    $raw = (string)($_COOKIE[TEGH_TRUSTED_DEVICE_COOKIE] ?? '');
+    if (!preg_match('/^([A-Za-z0-9_]{1,64})\.([A-Za-z0-9_-]{40,64})$/', $raw, $m)) return false;
+    $stmt = db()->prepare('SELECT token_hash,user_agent_hash FROM user_trusted_devices WHERE id=? AND user_id=? AND revoked_at IS NULL AND expires_at > UTC_TIMESTAMP() LIMIT 1');
+    $stmt->execute([$m[1], $userId]);
+    $row = $stmt->fetch();
+    if (!$row || !hash_equals((string)$row['token_hash'], secret_hash('tegh.trusted-device|' . $m[2]))) return false;
+    if (!hash_equals((string)$row['user_agent_hash'], user_agent_hash())) return false;
+    db()->prepare('UPDATE user_trusted_devices SET last_used_at=UTC_TIMESTAMP() WHERE id=?')->execute([$m[1]]);
+    return true;
+}
+
+function mfa_trust_this_device(array $user): void
+{
+    $id = new_id('tdev');
+    $token = base64url_encode(random_bytes(32));
+    db()->prepare('INSERT INTO user_trusted_devices (id,user_id,token_hash,user_agent_hash,expires_at) VALUES (?,?,?,?,UTC_TIMESTAMP()+INTERVAL ? DAY)')
+        ->execute([$id, (string)$user['id'], secret_hash('tegh.trusted-device|' . $token), user_agent_hash(), TEGH_TRUSTED_DEVICE_DAYS]);
+    setcookie(TEGH_TRUSTED_DEVICE_COOKIE, $id . '.' . $token, [
+        'expires' => time() + TEGH_TRUSTED_DEVICE_DAYS * 86400, 'path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'Strict',
+    ]);
+    mfa_audit($user, '', 'mfa.device_trusted', 'user', (string)$user['id'], ['days' => TEGH_TRUSTED_DEVICE_DAYS]);
+}
+
+/** Withdraw every trusted device of a user (password change or reset, MFA reset, deactivation, deletion, or on request). */
+function mfa_revoke_trusted_devices(string $userId): int
+{
+    if (!function_exists('schema_table_exists') || !schema_table_exists('user_trusted_devices')) return 0;
+    $stmt = db()->prepare('UPDATE user_trusted_devices SET revoked_at=UTC_TIMESTAMP() WHERE user_id=? AND revoked_at IS NULL');
+    $stmt->execute([$userId]);
+    return $stmt->rowCount();
+}
+
+function mfa_trusted_device_count(string $userId): int
+{
+    $stmt = db()->prepare('SELECT COUNT(*) FROM user_trusted_devices WHERE user_id=? AND revoked_at IS NULL AND expires_at > UTC_TIMESTAMP()');
+    $stmt->execute([$userId]);
+    return (int)$stmt->fetchColumn();
+}
+
+/**
+ * Called by handle_login after a correct password. A trusted browser gets a verified session at once.
+ * Otherwise the session is unverified, a code is emailed, and the client is told which methods it may use.
+ */
+function mfa_login_second_step(array $user): never
+{
+    $userId = (string)$user['id'];
+    if (!mfa_schema_ready()) json_response(auth_payload($user, create_session($userId, true)));
+    if (mfa_trusted_device_valid($userId)) {
+        $session = create_session($userId, true);
+        mfa_audit($user, '', 'mfa.trusted_device_used', 'user', $userId, []);
+        json_response(auth_payload($user, $session));
+    }
+    $session = create_session($userId, false);
+    $send = mfa_send_email_code($user, (string)$session['sessionId']);
+    $totp = mfa_is_enrolled($userId);
+    json_response([
+        'mfaRequired' => true, 'mfaEnrolled' => $totp, 'methods' => $totp ? ['email', 'totp', 'recovery'] : ['email'],
+        'emailHint' => mfa_email_hint((string)$user['email']), 'emailSent' => $send['sent'], 'emailStatus' => $send['code'],
+        'trustDays' => TEGH_TRUSTED_DEVICE_DAYS, 'csrfToken' => $session['csrfToken'], 'message' => $send['message'],
+    ]);
+}
+
+/** Resend the emailed code for the current (unverified) session. */
+function handle_mfa_email_send(): never
+{
+    require_method('POST');
+    require_csrf();
+    if (!mfa_schema_ready()) fail('Two-step verification is not available on this installation.', 503, 'mfa_unavailable', false);
+    $user = require_user();
+    $result = mfa_send_email_code($user, (string)$user['sessionId']);
+    if (!$result['sent']) fail($result['message'], $result['code'] === 'mfa_email_failed' ? 503 : 429, $result['code'], false);
+    json_response(['sent' => true, 'emailHint' => mfa_email_hint((string)$user['email']), 'message' => $result['message']]);
+}
+
+/** Forget every trusted device of the signed-in user (password required). */
+function handle_mfa_devices(): never
+{
+    require_method('GET', 'POST');
+    $user = require_user();
+    mfa_require_verified_session();
+    if (request_method() === 'GET') json_response(['trustedDevices' => mfa_trusted_device_count((string)$user['id']), 'trustDays' => TEGH_TRUSTED_DEVICE_DAYS]);
+    require_csrf();
+    $input = request_json();
+    mfa_require_password($user, (string)($input['password'] ?? ''));
+    $n = mfa_revoke_trusted_devices((string)$user['id']);
+    setcookie(TEGH_TRUSTED_DEVICE_COOKIE, '', ['expires' => 1, 'path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'Strict']);
+    mfa_audit($user, '', 'mfa.trusted_devices_forgotten', 'user', (string)$user['id'], ['count' => $n]);
+    json_response(['forgotten' => $n, 'message' => $n === 1 ? 'One trusted device was forgotten.' : "$n trusted devices were forgotten."]);
+}
+
 /* --------------------------------------------------------------------- session verification flag */
 
 function mfa_mark_session_verified(string $sessionId): void
@@ -346,14 +533,9 @@ function mfa_gate(string $route): void
     $session = session_record();
     if (!$session) return; // unauthenticated requests are handled by the normal auth gate
     if (mfa_session_is_verified($session)) return;
-    $allowed = in_array($route, ['auth/me', 'auth/logout', 'auth/mfa/verify', 'auth/mfa/enroll-begin',
-        'auth/mfa/enroll-confirm', 'auth/mfa/status'], true);
+    $allowed = in_array($route, ['auth/me', 'auth/logout', 'auth/mfa/verify', 'auth/mfa/email-send', 'auth/mfa/status'], true);
     if ($allowed) return;
-    $userId = (string)$session['user_id'];
-    if (mfa_is_enrolled($userId)) {
-        fail('Enter your authentication code to continue.', 403, 'mfa_verification_required', false);
-    }
-    fail('Set up two-step verification to continue.', 403, 'mfa_enrollment_required', false);
+    fail('Enter the sign-in code we emailed you to continue.', 403, 'mfa_verification_required', false);
 }
 
 /* --------------------------------------------------------------------- handlers */
@@ -370,6 +552,10 @@ function mfa_status_payload(array $user, ?array $session = null): array
         'locked' => $state['locked'],
         'lockedUntil' => $state['lockedUntil'],
         'recoveryCodesRemaining' => $state['confirmed'] ? mfa_recovery_remaining($userId) : 0,
+        'methods' => $state['confirmed'] ? ['email', 'totp', 'recovery'] : ['email'],
+        'emailHint' => mfa_email_hint((string)($user['email'] ?? '')),
+        'trustedDevices' => mfa_schema_ready() ? mfa_trusted_device_count($userId) : 0,
+        'trustDays' => TEGH_TRUSTED_DEVICE_DAYS,
     ];
 }
 
@@ -391,6 +577,7 @@ function handle_mfa_enroll_begin(): never
     require_csrf();
     if (!mfa_schema_ready()) fail('Two-step verification is not available on this installation.', 503, 'mfa_unavailable', false);
     $user = require_user();
+    mfa_require_verified_session();
     $input = request_json();
     mfa_require_password($user, (string)($input['password'] ?? ''));
     $state = mfa_state((string)$user['id']);
@@ -417,6 +604,7 @@ function handle_mfa_enroll_confirm(): never
     require_csrf();
     if (!mfa_schema_ready()) fail('Two-step verification is not available on this installation.', 503, 'mfa_unavailable', false);
     $user = require_user();
+    mfa_require_verified_session();
     $input = request_json();
     $code = (string)($input['code'] ?? '');
 
@@ -438,8 +626,7 @@ function handle_mfa_enroll_confirm(): never
         return ['recoveryCodes' => $codes];
     });
 
-    // Confirming enrolment with a valid code also clears the second factor for this session.
-    mfa_mark_session_verified((string)$user['sessionId']);
+    // The session was already verified (mfa_require_verified_session); setting up an app never verifies a session.
     mfa_audit($user, '', 'mfa.enabled', 'user', (string)$user['id'], ['method' => 'totp', 'recoveryCodesIssued' => TEGH_MFA_RECOVERY_CODES]);
     $payload = auth_payload($user);
     $payload['mfa']['verified'] = true;
@@ -449,7 +636,7 @@ function handle_mfa_enroll_confirm(): never
     json_response($payload);
 }
 
-/** Second login step: verify a TOTP or recovery code and mark the session verified. */
+/** Second sign-in step: an emailed code, an authenticator code or a recovery code; optionally trust this browser. */
 function handle_mfa_verify(): never
 {
     require_method('POST');
@@ -458,62 +645,62 @@ function handle_mfa_verify(): never
     $user = require_user();
     $input = request_json();
     $code = trim((string)($input['code'] ?? ''));
-    $isRecovery = !empty($input['recovery']);
+    $method = (string)($input['method'] ?? (!empty($input['recovery']) ? 'recovery' : 'email'));
+    if (!in_array($method, ['email', 'totp', 'recovery'], true)) fail('Choose how to verify.', 422, 'mfa_method_invalid');
+    $userId = (string)$user['id'];
 
-    $state = mfa_state((string)$user['id']);
-    if (!$state['confirmed']) fail('Two-step verification is not set up for this account.', 409, 'mfa_not_enrolled');
-    if ($state['locked']) fail('Too many incorrect codes. Try again later or use a recovery code.', 429, 'mfa_locked', false);
+    $state = mfa_state($userId);
+    if ($method !== 'email') {
+        if (!$state['confirmed']) fail('No authenticator app is set up for this account. Use the emailed code.', 409, 'mfa_not_enrolled');
+        if ($state['locked']) fail('Too many incorrect codes. Try again later or use the emailed code.', 429, 'mfa_locked', false);
+    }
 
-    $ok = false;
-    if ($isRecovery) {
-        $ok = mfa_consume_recovery_code((string)$user['id'], $code);
-    } else {
+    $ok = db_transaction_retry(static function () use ($method, $userId, $user, $code, $state): bool {
+        if ($method === 'email') return mfa_check_email_code($userId, (string)$user['sessionId'], $code);
+        if ($method === 'recovery') return mfa_consume_recovery_code($userId, $code);
         $row = $state['row'];
         $secret = mfa_decrypt_secret((string)$row['secret_cipher'], (string)$row['secret_nonce'], (string)$row['secret_tag']);
         $step = mfa_totp_match($secret, $code, $row['last_used_step'] !== null ? (int)$row['last_used_step'] : null);
-        if ($step !== null) {
-            db()->prepare('UPDATE user_mfa SET last_used_step=? WHERE user_id=?')->execute([$step, (string)$user['id']]);
-            $ok = true;
-        }
-    }
+        if ($step === null) return false;
+        db()->prepare('UPDATE user_mfa SET last_used_step=? WHERE user_id=?')->execute([$step, $userId]);
+        return true;
+    });
 
     if (!$ok) {
-        mfa_register_failure((string)$user['id']);
-        mfa_audit($user, '', 'mfa.verify_failed', 'user', (string)$user['id'], ['method' => $isRecovery ? 'recovery' : 'totp']);
-        fail('That code is not correct.', 422, 'mfa_code_invalid');
+        if ($method !== 'email') mfa_register_failure($userId);
+        mfa_audit($user, '', 'mfa.verify_failed', 'user', $userId, ['method' => $method]);
+        fail($method === 'email' ? 'That code is not correct or has expired. Check the latest email, or ask for a new code.' : 'That code is not correct.', 422, 'mfa_code_invalid');
     }
-    mfa_clear_failures((string)$user['id']);
+    if ($method !== 'email' && $state['confirmed']) mfa_clear_failures($userId);
     mfa_mark_session_verified((string)$user['sessionId']);
-    // A recovery code usually means a lost or exposed device: end the account's other sessions.
-    if ($isRecovery) tegh_end_user_sessions((string)$user['id'], (string)$user['sessionId']);
-    mfa_audit($user, '', 'mfa.verified', 'user', (string)$user['id'], ['method' => $isRecovery ? 'recovery' : 'totp']);
-    // Hand back the full identity so the client can enter the app. session_record() is memoized
-    // within this request and still reflects the pre-verification row, so set verified explicitly.
+    // A recovery code usually means a lost or exposed device: end the account's other sessions and trusted devices.
+    if ($method === 'recovery') { tegh_end_user_sessions($userId, (string)$user['sessionId']); mfa_revoke_trusted_devices($userId); }
+    elseif (!empty($input['rememberDevice'])) mfa_trust_this_device($user);
+    mfa_audit($user, '', 'mfa.verified', 'user', $userId, ['method' => $method, 'deviceTrusted' => $method !== 'recovery' && !empty($input['rememberDevice'])]);
+    // session_record() is memoized within this request and still reflects the pre-verification row.
     $payload = auth_payload($user);
     $payload['mfa']['verified'] = true;
     $payload['verified'] = true;
-    $payload['recoveryCodeUsed'] = $isRecovery;
-    $payload['recoveryCodesRemaining'] = mfa_recovery_remaining((string)$user['id']);
+    $payload['recoveryCodeUsed'] = $method === 'recovery';
+    $payload['recoveryCodesRemaining'] = $state['confirmed'] ? mfa_recovery_remaining($userId) : 0;
     json_response($payload);
 }
 
-/** Turn MFA off (step-up by password). Only allowed when the account no longer requires it. */
+/** Remove the authenticator app (step-up by password). Emailed codes remain the second step. */
 function handle_mfa_disable(): never
 {
     require_method('POST');
     require_csrf();
     if (!mfa_schema_ready()) fail('Two-step verification is not available on this installation.', 503, 'mfa_unavailable', false);
     $user = require_user();
+    mfa_require_verified_session();
     $input = request_json();
     mfa_require_password($user, (string)($input['password'] ?? ''));
-    if (mfa_required_for_user((string)$user['id'])) {
-        fail('This account must keep two-step verification on. Ask the administrator to change the account role first.', 409, 'mfa_required_for_role');
-    }
     db()->prepare('DELETE FROM user_mfa WHERE user_id=?')->execute([(string)$user['id']]);
     db()->prepare('DELETE FROM user_mfa_recovery_codes WHERE user_id=?')->execute([(string)$user['id']]);
     tegh_end_user_sessions((string)$user['id'], (string)$user['sessionId']); // R164: a weaker sign-in method ends other sessions
-    mfa_audit($user, '', 'mfa.disabled', 'user', (string)$user['id'], []);
-    json_response(['enabled' => false, 'message' => 'Two-step verification is off for this account.']);
+    mfa_audit($user, '', 'mfa.disabled', 'user', (string)$user['id'], ['method' => 'totp']);
+    json_response(['enabled' => false, 'message' => 'The authenticator app is removed. Sign-in codes will come by email.']);
 }
 
 /** Regenerate recovery codes (step-up by password); invalidates the old set. */
@@ -523,12 +710,25 @@ function handle_mfa_recovery_regenerate(): never
     require_csrf();
     if (!mfa_schema_ready()) fail('Two-step verification is not available on this installation.', 503, 'mfa_unavailable', false);
     $user = require_user();
+    mfa_require_verified_session();
     $input = request_json();
     mfa_require_password($user, (string)($input['password'] ?? ''));
     if (!mfa_is_enrolled((string)$user['id'])) fail('Two-step verification is not set up for this account.', 409, 'mfa_not_enrolled');
     $codes = mfa_issue_recovery_codes((string)$user['id']);
     mfa_audit($user, '', 'mfa.recovery_codes_regenerated', 'user', (string)$user['id'], ['count' => TEGH_MFA_RECOVERY_CODES]);
     json_response(['recoveryCodes' => $codes, 'message' => 'New recovery codes generated. The previous codes no longer work.']);
+}
+
+/**
+ * Managing sign-in methods (authenticator setup or removal, recovery codes, trusted devices) needs a session that has
+ * already passed the second step. Otherwise someone holding only the password could add their own authenticator and
+ * skip the emailed code. These routes are dispatched before the router's MFA gate, so each handler checks itself.
+ */
+function mfa_require_verified_session(): void
+{
+    if (!mfa_session_is_verified(session_record())) {
+        fail('Enter the sign-in code we emailed you first.', 403, 'mfa_verification_required', false);
+    }
 }
 
 /** Step-up: confirm the signed-in user's current password before a sensitive MFA change. */

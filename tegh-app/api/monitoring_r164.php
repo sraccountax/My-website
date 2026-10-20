@@ -22,6 +22,7 @@ const TEGH_MONITOR_KINDS = [
     'auth_suspicious' => 'Suspicious sign-in activity',
     'security_config' => 'Security settings changed',
     'deleted_reappeared' => 'Deleted logins or companies are present again',
+    'login_email_failed' => 'Sign-in codes could not be emailed',
 ];
 
 // Settings whose change is security relevant. Only the names of changed settings are recorded and sent, never values;

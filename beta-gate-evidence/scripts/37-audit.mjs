@@ -50,14 +50,14 @@ await t('AU-04','A company deletion request and the platform owner\'s decision a
   return {ok:dec.s===200&&/R164 audit deletion request test/.test(a)&&b==='1',info:`request audited ${!!a}; decision ${dec.s}, audited rows ${b}`}});
 
 await t('AU-05','Changing public registration (a security setting) needs a recent sign-in and is recorded with old/new value and reason',async()=>{
-  const cur=need('reg',await o.call('platform/registration',{company:false}));
+  const cur=need('reg',await o.call('platform/registration',{company:false}));const before=Number(sql("SELECT COUNT(*) FROM platform_audit_log WHERE action='platform.registration_changed' AND metadata_json LIKE '%R164 audit%'"));
   sql(`UPDATE sessions SET created_at=UTC_TIMESTAMP()-INTERVAL 1 HOUR WHERE user_id=(SELECT id FROM users WHERE email=${q(OWNER)})`);
   const body={enabled:!cur.ownerSettingEnabled,confirmation:'CHANGE REGISTRATION',reason:'R164 audit toggle test',revision:cur.revision};
   const refused=await o.call('platform/registration',{method:'POST',json:body,company:false});
   const ch=await o.call('platform/registration',{method:'POST',json:{...body,password:OPW},company:false});
   const back=await o.call('platform/registration',{method:'POST',json:{enabled:cur.ownerSettingEnabled,confirmation:'CHANGE REGISTRATION',reason:'R164 audit restore',revision:cur.revision+1,password:OPW},company:false});
   const n=sql("SELECT COUNT(*) FROM platform_audit_log WHERE action='platform.registration_changed' AND metadata_json LIKE '%R164 audit%'");
-  return {ok:refused.s===403&&ch.s===200&&back.s===200&&Number(n)===2,info:`without password ${refused.s} ${refused.b?.code}; change ${ch.s}; restore ${back.s}; audit rows ${n}`}});
+  return {ok:refused.s===403&&ch.s===200&&back.s===200&&Number(n)-before===2,info:`without password ${refused.s} ${refused.b?.code}; change ${ch.s}; restore ${back.s}; audit rows ${n}`}});
 
 await t('AU-06','MFA changes are recorded at account level (enrolment, verification, disable) without the secret or codes',async()=>{
   const rows=sql("SELECT COUNT(*) FROM platform_audit_log WHERE action IN ('mfa.enabled','mfa.enrollment_started','mfa.verified','mfa.disabled','mfa.recovery_codes_regenerated','platform.user_mfa_reset')");

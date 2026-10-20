@@ -6890,6 +6890,44 @@ const TeghPortal = (() => {
     await loadRequests();
   },{module:'My account',back:()=>openSettingsCategory('help'),backLabel:'Help'})}
 
+  // R164 (revised): every sign-in asks for a code emailed to the registered address (or skips it on a trusted
+  // device for 30 days). An authenticator app is optional; set it up here with a QR code.
+  let qrLibrary=null;
+  function loadQrLibrary(){if(window.qrcode)return Promise.resolve(window.qrcode);if(qrLibrary)return qrLibrary;qrLibrary=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='/assets/qrcode-generator-2.0.4.js?v=5990-r164-tegh';s.onload=()=>window.qrcode?resolve(window.qrcode):reject(Error('QR code library missing'));s.onerror=()=>{qrLibrary=null;reject(Error('The QR code could not load. Use the setup key instead.'))};document.head.appendChild(s)});return qrLibrary}
+  function qrSvg(text,size=200){const q=window.qrcode(0,'M');q.addData(text);q.make();const n=q.getModuleCount(),quiet=4,total=n+quiet*2,ns='http://www.w3.org/2000/svg';const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox',`0 0 ${total} ${total}`);svg.setAttribute('width',size);svg.setAttribute('height',size);svg.setAttribute('role','img');svg.setAttribute('aria-label','QR code for your authenticator app');svg.setAttribute('shape-rendering','crispEdges');svg.style.cssText=`width:${size}px;height:${size}px;max-width:100%;display:block`;const bg=document.createElementNS(ns,'rect');bg.setAttribute('width',total);bg.setAttribute('height',total);bg.setAttribute('fill','#fff');svg.appendChild(bg);let d='';for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c+quiet} ${r+quiet}h1v1h-1z`;const path=document.createElementNS(ns,'path');path.setAttribute('d',d);path.setAttribute('fill','#000');svg.appendChild(path);return svg}
+  async function renderMfaCard(card){
+    if(!card)return;
+    let st;try{st=await api('auth/mfa/status')}catch(err){card.innerHTML='<h2>Two-step verification</h2><p class="srp-note">The sign-in settings could not load. Reload the page to try again.</p>';return}
+    const recoveryLeft=Number(st.recoveryCodesRemaining||0),trusted=Number(st.trustedDevices||0),days=Number(st.trustDays||30);
+    card.innerHTML=`<h2>Two-step verification</h2>
+      <p><b>Code by email: on.</b> Every sign-in asks for a 6-digit code sent to <b data-mfa-hint></b>, except on a device you chose to trust for ${days} days.</p>
+      <p>Trusted devices: <b>${trusted}</b> <button class="srp-btn secondary" data-mfa-forget ${trusted?'':'disabled'}>Forget trusted devices</button></p>
+      <hr>
+      ${st.enrolled?`<p><b>Authenticator app: on.</b> You can use it instead of the emailed code. Recovery codes left: <b>${recoveryLeft}</b>.</p>
+        <div class="srp-actions"><button class="srp-btn secondary" data-mfa-recovery>New recovery codes</button><button class="srp-btn secondary" data-mfa-remove>Remove authenticator app</button></div>`
+      :`<p><b>Authenticator app: optional.</b> Use Google Authenticator, Microsoft Authenticator, 1Password or a similar app instead of waiting for the email.</p>
+        <div class="srp-actions"><button class="srp-btn" data-mfa-setup>Set up authenticator app</button></div>`}
+      <div data-mfa-work hidden></div>`;
+    $('[data-mfa-hint]',card).textContent=st.emailHint||'your email';
+    const work=$('[data-mfa-work]',card);
+    const showCodes=(codes,title)=>{work.hidden=false;work.innerHTML=`<p><b>${esc(title)}</b> Each code works once if you cannot use the app. They are shown only now; store them somewhere safe.</p><ul class="srp-mfa-codes"></ul><div class="srp-actions"><button class="srp-btn" data-mfa-done>I have saved them</button></div>`;const ul=$('ul',work);(codes||[]).forEach(c=>{const li=document.createElement('li');li.textContent=String(c);ul.appendChild(li)});$('[data-mfa-done]',work).onclick=()=>renderMfaCard(card)};
+    $('[data-mfa-forget]',card)?.addEventListener('click',async()=>{const pw=await askStepUpPassword('Confirm your password to forget every trusted device. The next sign-in on each of them asks for a code.');if(!pw)return;try{const r=await api('auth/mfa/devices',{method:'POST',json:{password:pw}});toast('Trusted devices forgotten',r.message||'','success');renderMfaCard(card)}catch(err){toast('Not changed',err.message,'error')}});
+    $('[data-mfa-recovery]',card)?.addEventListener('click',async()=>{const pw=await askStepUpPassword('Confirm your password to create new recovery codes. The old codes stop working.');if(!pw)return;try{const r=await api('auth/mfa/recovery-codes',{method:'POST',json:{password:pw}});showCodes(r.recoveryCodes,'New recovery codes.')}catch(err){toast('Not changed',err.message,'error')}});
+    $('[data-mfa-remove]',card)?.addEventListener('click',async()=>{const pw=await askStepUpPassword('Confirm your password to remove the authenticator app. Sign-in codes will come by email.');if(!pw)return;try{const r=await api('auth/mfa/disable',{method:'POST',json:{password:pw}});toast('Authenticator app removed',r.message||'','success');renderMfaCard(card)}catch(err){toast('Not changed',err.message,'error')}});
+    $('[data-mfa-setup]',card)?.addEventListener('click',async()=>{
+      const pw=await askStepUpPassword('Confirm your password to set up an authenticator app.');if(!pw)return;
+      let begin;try{begin=await api('auth/mfa/enroll-begin',{method:'POST',json:{password:pw}})}catch(err){toast('Setup not started',err.message,'error');return}
+      work.hidden=false;$('[data-mfa-setup]',card).hidden=true;
+      work.innerHTML=`<ol class="srp-mfa-steps"><li>Scan this QR code with your authenticator app.<div class="srp-mfa-qr" data-mfa-qr></div>Can't scan? Enter this key instead: <code class="srp-mfa-key" data-mfa-key></code></li>
+        <li><label>Enter the 6-digit code the app shows<input data-mfa-code inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"></label></li></ol>
+        <div class="srp-actions"><button class="srp-btn" data-mfa-confirm>Turn on authenticator app</button><button class="srp-btn secondary" data-mfa-cancel>Cancel</button></div>`;
+      $('[data-mfa-key]',work).textContent=String(begin.secret||'').replace(/(.{4})/g,'$1 ').trim();
+      try{await loadQrLibrary();$('[data-mfa-qr]',work).appendChild(qrSvg(String(begin.otpauthUri||'')))}catch(err){$('[data-mfa-qr]',work).textContent=err.message}
+      $('[data-mfa-code]',work).focus();
+      $('[data-mfa-cancel]',work).onclick=()=>renderMfaCard(card);
+      $('[data-mfa-confirm]',work).onclick=async()=>{const btn=$('[data-mfa-confirm]',work);btn.disabled=true;try{const r=await api('auth/mfa/enroll-confirm',{method:'POST',json:{code:$('[data-mfa-code]',work).value.trim()}});authCache=null;showCodes(r.recoveryCodes,'Authenticator app is on. Save these recovery codes.')}catch(err){btn.disabled=false;toast('Code not accepted',err.message,'error')}};
+    });
+  }
   function openAccount(){showPage('account-access','Account & Access','Manage your account, companies, security and users in one place.',async body=>{
     const a=await auth(true),companies=a.companies||[],isPlatformOwner=a.user?.platformRole==='platform_owner';
     const selected=companies.find(c=>c.id===companyId())||companies[0]||null,canManageUsers=['owner','admin'].includes(selected?.role||'');
@@ -6919,7 +6957,9 @@ const TeghPortal = (() => {
           <div class="full"><button class="srp-btn">Change password</button></div>
         </form>
       </section>
+      <section class="srp-card half" data-mfa-card><h2>Two-step verification</h2><p>Loading…</p></section>
     </div>`;
+    void renderMfaCard($('[data-mfa-card]',body));
     $('[data-account-tab="users"]',body)?.addEventListener('click',openUsers);
     $('[data-profile]',body).onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,btn=$('button',f);if(!btn)return;btn.disabled=true;try{await api('auth/profile',{method:'PUT',json:{displayName:f.displayName.value}});authCache=null;toast('Profile updated','Your display name was saved.','success');openAccount()}catch(err){toast('Profile not updated',err.message,'error');btn.disabled=false}};
     $('[data-password]',body).onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,btn=$('button',f);if(!btn)return;if(f.newPassword.value!==f.confirmPassword.value){toast('Passwords do not match','Enter the same new password in both fields.','error');return}btn.disabled=true;try{await api('auth/change-password',{method:'POST',json:{currentPassword:f.currentPassword.value,newPassword:f.newPassword.value}});f.reset();toast('Password changed','Other signed-in sessions were closed.','success')}catch(err){toast('Password not changed',err.message,'error')}finally{btn.disabled=false}};

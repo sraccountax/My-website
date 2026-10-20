@@ -47,7 +47,10 @@
 @media (prefers-color-scheme:dark){.sr-mfa-recovery{background:rgba(255,255,255,.08)}}
 .tegh-stepup{border:1px solid #d9e5e7;border-radius:12px;padding:20px 22px;max-width:380px;width:calc(100% - 32px);color:#18333b;background:#fff}.tegh-stepup::backdrop{background:rgba(10,30,35,.45)}.tegh-stepup h2{margin:0 0 8px;font-size:18px}.tegh-stepup p{margin:0 0 12px;font-size:14px;line-height:1.5}.tegh-stepup label{display:grid;gap:6px;font-weight:600;font-size:14px}.tegh-stepup input{padding:9px 10px;border:1px solid #b9cbd0;border-radius:8px;font:inherit}.tegh-stepup-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.tegh-stepup-actions button{padding:8px 14px;border-radius:8px;border:1px solid #b9cbd0;background:#fff;font:inherit;cursor:pointer}.tegh-stepup-actions button[type=submit]{background:#0d6670;border-color:#0d6670;color:#fff}
 @media (prefers-color-scheme:dark){.tegh-stepup{background:#122a30;color:#e6f0f2;border-color:#2a4850}.tegh-stepup input,.tegh-stepup-actions button{background:#0c1f24;color:#e6f0f2;border-color:#2a4850}}
-.sr-mfa-note{opacity:.85}</style>
+.sr-mfa-note{opacity:.85}
+.sr-mfa-trust{display:flex!important;flex-direction:row!important;align-items:center;gap:8px;font-weight:500}.sr-mfa-trust input{width:auto!important;margin:0}.sr-mfa-trust[hidden]{display:none!important}
+.srp-mfa-qr{margin:10px 0;line-height:0}.srp-mfa-qr svg{border-radius:8px;border:1px solid #d9e5e7;width:200px!important;height:200px!important;max-width:100%}.srp-mfa-key{display:inline-block;font:700 15px/1.6 Consolas,Menlo,monospace;letter-spacing:1px;word-break:break-all;padding:2px 8px;border-radius:6px;background:rgba(0,0,0,.06)}.srp-mfa-steps{padding-left:20px;display:grid;gap:12px}.srp-mfa-steps label{display:grid;gap:6px;max-width:260px}.srp-mfa-codes{list-style:none;padding:12px;margin:8px 0;border-radius:8px;background:rgba(0,0,0,.06);columns:2;font:700 15px/1.9 Consolas,Menlo,monospace}
+@media (prefers-color-scheme:dark){.srp-mfa-key,.srp-mfa-codes{background:rgba(255,255,255,.08)}}</style>
 
 
 
@@ -152,32 +155,15 @@
 <button class="sr-gate-primary" type="submit">Create owner</button>
 </form>
 <form aria-labelledby="sr-choose-login" class="sr-gate-form" hidden="" id="sr-mfa-form" novalidate="" role="tabpanel">
-<h2 data-mfa-title>Two-step verification</h2>
-<p data-mfa-intro>Open your authenticator app and enter the current 6-digit code for Tegh.</p>
-<div data-mfa-view="verify" hidden="">
-<label data-mfa-totp-field>Authentication code<input autocomplete="one-time-code" inputmode="numeric" maxlength="6" name="code" pattern="[0-9]*" placeholder="123456" spellcheck="false"/></label>
-<label data-mfa-recovery-field hidden="">Recovery code<input autocomplete="off" name="recoveryCode" placeholder="XXXXX-XXXXX" spellcheck="false"/></label>
+<h2 data-mfa-title>Check your email</h2>
+<p data-mfa-intro>We emailed a 6-digit sign-in code to <b data-mfa-email-hint></b>. It expires in 10 minutes.</p>
+<label><span data-mfa-code-caption>Code from the email</span><input autocomplete="one-time-code" inputmode="numeric" maxlength="11" name="code" placeholder="123456" spellcheck="false"/></label>
+<label class="sr-mfa-trust"><input name="rememberDevice" type="checkbox"/> <span data-mfa-trust-text>Trust this device for 30 days (no code on this browser)</span></label>
 <button class="sr-gate-primary" data-mfa-verify type="submit">Verify and continue</button>
-<a class="sr-gate-link" data-mfa-use-recovery href="#">Use a recovery code instead</a>
-<a class="sr-gate-link" data-mfa-use-totp hidden="" href="#">Use an authenticator code instead</a>
-</div>
-<div data-mfa-view="enrol" hidden="">
-<p class="sr-mfa-note">Use an authenticator app such as Google Authenticator, Microsoft Authenticator, 1Password or Authy.</p>
-<label>Confirm your password<input autocomplete="current-password" name="enrolPassword" type="password"/></label>
-<button class="sr-gate-primary" data-mfa-begin type="button">Start setup</button>
-<div data-mfa-secret-block hidden="">
-<p>1. Add this key to your authenticator app (or tap the link on this device):</p>
-<code class="sr-mfa-key" data-mfa-secret></code>
-<a class="sr-gate-link" data-mfa-otpauth href="#" rel="noopener">Open in your authenticator app</a>
-<label>2. Enter the 6-digit code it shows<input autocomplete="one-time-code" inputmode="numeric" maxlength="6" name="enrolCode" pattern="[0-9]*" spellcheck="false"/></label>
-<button class="sr-gate-primary" data-mfa-confirm type="button">Turn on two-step verification</button>
-</div>
-<div data-mfa-recovery-block hidden="">
-<p><b>Save these one-time recovery codes.</b> Each works once if you lose your authenticator. They are shown only now.</p>
-<ul class="sr-mfa-recovery" data-mfa-recovery-list></ul>
-<button class="sr-gate-primary" data-mfa-recovery-done type="button">I have saved them — continue</button>
-</div>
-</div>
+<a class="sr-gate-link" data-mfa-resend href="#">Email me a new code</a>
+<a class="sr-gate-link" data-mfa-method="totp" hidden="" href="#">Use my authenticator app instead</a>
+<a class="sr-gate-link" data-mfa-method="recovery" hidden="" href="#">Use a recovery code</a>
+<a class="sr-gate-link" data-mfa-method="email" hidden="" href="#">Use the emailed code instead</a>
 <a class="sr-gate-link" data-mfa-cancel href="#">Cancel and sign in as a different account</a>
 </form>
 <section aria-live="polite" class="sr-gate-progress" id="sr-gate-progress">

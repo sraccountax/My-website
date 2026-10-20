@@ -57,6 +57,8 @@ try {
     if ($route === 'auth/mfa/enroll-begin') handle_mfa_enroll_begin();
     if ($route === 'auth/mfa/enroll-confirm') handle_mfa_enroll_confirm();
     if ($route === 'auth/mfa/verify') handle_mfa_verify();
+    if ($route === 'auth/mfa/email-send') handle_mfa_email_send();
+    if ($route === 'auth/mfa/devices') handle_mfa_devices();
     if ($route === 'auth/mfa/disable') handle_mfa_disable();
     if ($route === 'auth/mfa/recovery-codes') handle_mfa_recovery_regenerate();
 

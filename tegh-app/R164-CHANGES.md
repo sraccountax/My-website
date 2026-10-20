@@ -5,16 +5,28 @@ R164 = R163 plus security hardening. Accounting behaviour is unchanged. New tabl
 
 ## Sign-in and accounts
 
-- **Two-step verification (TOTP) is required** for the platform owner and for every owner or admin of a company.
-  Enrolment works with any authenticator app (setup key shown on screen). Ten single-use recovery codes are issued and
-  stored only as keyed hashes. The TOTP secret is encrypted (AES-256-GCM) with a key derived from `app.secret`.
-  Codes are single-use, and five wrong codes lock the account for 15 minutes.
-  Tables `user_mfa`, `user_mfa_recovery_codes` and column `sessions.mfa_verified` are added on first use.
-- Initial setup and accepting an invitation as an owner or admin now require MFA enrolment before the session can be
-  used.
-- **Recovery:** a person who lost their authenticator signs in with a recovery code, which ends their other sessions.
-  If both are lost, the platform owner uses **Platform Owner Home › Users › Actions › Reset two-step verification**,
-  but only after confirming the person's identity outside Tegh. This ends their sessions and is audited.
+- **Every sign-in needs a second step.** By default it is a 6-digit code emailed to the account's registered
+  address. Nothing to set up, on for every account. The code is stored only as a keyed hash, works once, expires
+  after 10 minutes and is bound to that sign-in. Five wrong entries withdraw it. A new code can be emailed after
+  30 seconds, at most 10 per account per 15 minutes.
+- **"Trust this device for 30 days"** is a checkbox on the code screen. That browser then signs in with the password
+  alone for 30 days. Trust is withdrawn by a password change or reset, an administrator MFA reset, deactivation or
+  deletion, a recovery-code sign-in, or **Account & Access › Two-step verification › Forget trusted devices**.
+- **Authenticator app (optional).** In Account & Access a person can set up Google Authenticator, Microsoft
+  Authenticator, 1Password or similar by **scanning a QR code** (or typing the key), then use it instead of the
+  emailed code. Ten single-use recovery codes come with it. The secret is encrypted (AES-256-GCM, key derived from
+  `app.secret`). Setup, removal and new recovery codes need the password and an already-verified session.
+- Tables `user_email_otp`, `user_trusted_devices`, `user_mfa` and `user_mfa_recovery_codes`, and column
+  `sessions.mfa_verified`, are added on first use. The QR code is drawn in the browser with the bundled
+  `assets/qrcode-generator-2.0.4.js` (MIT); nothing is sent to an outside service.
+- Accepting an emailed invitation and the first platform-owner setup (setup key) already prove the person, so those
+  sessions start verified. The emailed code applies from the next sign-in.
+- **Email delivery is now required to sign in** for anyone without an authenticator app. A failed code email raises
+  an operator alert ("Sign-in codes could not be emailed").
+- **Recovery:** someone who lost access to their email but has the authenticator app uses it, or a recovery code.
+  Otherwise the platform owner confirms their identity outside Tegh, corrects the email address or resets their MFA
+  (**Platform Owner Home › Users › Actions › Reset two-step verification**). This ends their sessions and trusted
+  devices and is audited.
 - **Recent sign-in required.** A password confirmation is needed when the sign-in is more than 15 minutes old, for:
   member role changes, suspension, removal and ownership transfer; platform user administration (deactivate,
   reactivate, MFA reset); login restore; approving or rejecting company deletion; and changing public registration.
@@ -101,11 +113,11 @@ New suites:
 
 | Suite | Checks | Covers |
 |---|---|---|
-| `34-mfa` | 12 | MFA |
+| `34-mfa` | 17 | Emailed codes, trusted devices, optional authenticator with QR (decoded in the browser), the sign-in gate |
 | `35-session` | 14 | Step-up, sessions, reset parity, proxy, portal dialog |
 | `36-monitor` | 10 | Monitoring |
 | `37-audit` | 7 | Audit records |
 | `38-files` | 11 | Cross-company file and record access, download headers, uploads, invitations |
 | `39-restore` | 7 | Restore safety |
 
-Also: an MFA unit test (13 checks) and a client-IP unit test (11 checks). The backup operations suite passes 22/22.
+Also: a TOTP unit test (13 checks) and a client-IP unit test (11 checks). The backup operations suite passes 22/22.

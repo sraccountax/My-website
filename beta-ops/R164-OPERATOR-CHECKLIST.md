@@ -34,21 +34,28 @@ real host. Nothing on this list has been checked on IONOS by the developer; the 
 | `mail.*` | Working SMTP account | Alerts, resets and invitations need it. |
 | `deletion_register_path` | Leave empty (default is next to the incident log, in the private folder) | Must stay outside the web root and outside `storage/`. |
 
-## D. Two-step verification (MFA)
+## D. Two-step sign-in (emailed code, trusted devices, optional authenticator)
 
-- [ ] Sign in as the platform owner. Tegh asks you to set up two-step verification. Scan the key with an
-  authenticator app, enter the code, and store the 10 recovery codes offline (password manager or paper in a safe
-  place).
-- [ ] Ask each company owner or admin to sign in and enrol. Until they enrol they can only reach the enrolment screen.
-- [ ] Recovery procedure:
-  1. Someone who lost their phone signs in with a recovery code, then turns MFA off and on again to get a new key and
-     new codes.
-  2. Someone who lost both: confirm who they are **outside Tegh** (phone call to a known number). Then use
-     Platform Owner Home › View Users › Actions › Reset two-step verification. They enrol again at the next sign-in.
-     The action is recorded in the platform audit log.
-- [ ] If the platform owner loses both: from SSH run
-  `mysql <db> -e "DELETE FROM user_mfa WHERE user_id=(SELECT id FROM users WHERE platform_role='platform_owner'); DELETE FROM user_mfa_recovery_codes WHERE user_id=(SELECT id FROM users WHERE platform_role='platform_owner')"`,
-  then sign in and enrol again. Do this only from your own SSH session.
+- [ ] **Email must work first.** Every sign-in emails a 6-digit code. Send yourself a test invitation or password
+  reset and confirm it arrives (not in spam) before anyone else signs in. Check SPF, DKIM and DMARC for the sending
+  domain.
+- [ ] Sign in as the platform owner, enter the emailed code and (on your own computer only) tick "Trust this device
+  for 30 days".
+- [ ] Strongly recommended for the platform owner: **Account & Access › Two-step verification › Set up
+  authenticator app**. Scan the QR code, enter the code and store the 10 recovery codes offline. Then a mail outage
+  cannot lock you out.
+- [ ] Tell testers: the code arrives by email at each sign-in. They may tick "Trust this device" on their own
+  computer (never on a shared one) and may add an authenticator app in Account & Access.
+- [ ] **Recovery procedure:**
+  1. Someone without email access but with the authenticator app uses it, or a recovery code.
+  2. Otherwise, confirm who they are **outside Tegh** (a phone call to a known number). Then use Platform Owner Home
+     › View Users › Actions › Reset two-step verification. This ends their sessions and trusted devices. If their
+     email address changed, correct it before they sign in again.
+  3. If the platform owner cannot receive email and has no authenticator, fix SMTP. As a last resort, from your own
+     SSH session:
+     `mysql <db> -e "UPDATE sessions SET mfa_verified=1 WHERE user_id=(SELECT id FROM users WHERE platform_role='platform_owner') ORDER BY created_at DESC LIMIT 1"`
+     right after entering the password on the sign-in page. Then set up the authenticator app at once.
+- [ ] A "Sign-in codes could not be emailed" alert means people are locked out: fix the mail settings first.
 
 ## E. Deny rules — probe from your own computer
 

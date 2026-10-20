@@ -181,7 +181,7 @@ function handle_setup(): never
     }
     $stmt = db()->prepare("INSERT INTO users (id,email,display_name,password_hash,platform_role,account_plan,signup_source,terms_accepted_at) VALUES (?,?,?,?,'platform_owner','free_preview','initial_setup',UTC_TIMESTAMP())");
     $stmt->execute([$userId,$email,$displayName,$hash]);
-    $session = create_session($userId, false); // R164: the platform owner sets up two-step verification before anything else
+    $session = create_session($userId, true); // R164: the setup key proves this person; emailed codes apply from the next sign-in
     $user = ['id' => $userId, 'email' => $email, 'displayName' => $displayName];
     json_response(auth_payload($user, $session), 201);
 }
@@ -289,22 +289,10 @@ function handle_login(): never
     $userId = (string)$row['id'];
     $user = ['id' => $userId, 'email' => (string)$row['email'], 'displayName' => (string)$row['display_name']];
 
-    // R164: a correct password is the first factor. If this account has two-step verification
-    // enrolled, or must enrol it, the session is created UNVERIFIED and the app is withheld until
-    // the second step completes (handled by auth/mfa/verify or the enrolment routes). Accounts
-    // that neither have nor need MFA are fully verified immediately, exactly as before.
-    $mfaReady = function_exists('mfa_schema_ready') && mfa_schema_ready();
-    $enrolled = $mfaReady && mfa_is_enrolled($userId);
-    $mustEnrol = $mfaReady && !$enrolled && mfa_required_for_user($userId);
-    $session = create_session($userId, !($enrolled || $mustEnrol));
-    if ($enrolled) {
-        json_response(['mfaRequired' => true, 'mfaEnrolled' => true, 'csrfToken' => $session['csrfToken'],
-            'message' => 'Enter the code from your authenticator app.']);
-    }
-    if ($mustEnrol) {
-        json_response(['mfaRequired' => true, 'mfaEnrolled' => false, 'mfaEnrollmentRequired' => true,
-            'csrfToken' => $session['csrfToken'], 'message' => 'Set up two-step verification to continue.']);
-    }
+    // R164: a correct password is the first factor. The second step (an emailed code, or the optional
+    // authenticator app) is required unless this browser is trusted; see mfa_login_second_step().
+    if (function_exists('mfa_login_second_step')) mfa_login_second_step($user);
+    $session = create_session($userId);
     json_response(auth_payload($user, $session));
 }
 
@@ -411,6 +399,7 @@ function handle_change_password(): never
     try {
         db()->prepare('UPDATE users SET password_hash = ? WHERE id = ?')->execute([$newHash, $user['id']]);
         db()->prepare('DELETE FROM sessions WHERE user_id = ? AND id <> ?')->execute([$user['id'], $user['sessionId']]);
+        if (function_exists('mfa_revoke_trusted_devices')) mfa_revoke_trusted_devices((string)$user['id']); // R164
         db()->commit();
     } catch (Throwable $error) {
         db()->rollBack();
@@ -561,6 +550,7 @@ function handle_password_reset_complete(): never
         // A credential reset invalidates every browser session, including a
         // potentially stolen one. The user signs in again with the new secret.
         db()->prepare('DELETE FROM sessions WHERE user_id=?')->execute([$userId]);
+        if (function_exists('mfa_revoke_trusted_devices')) mfa_revoke_trusted_devices((string)$userId); // R164
         db()->commit();
         $resetUser=['id'=>$userId,'email'=>(string)$row['email'],'displayName'=>(string)$row['display_name']];
     } catch (Throwable $error) {

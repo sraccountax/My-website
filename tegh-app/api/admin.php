@@ -126,7 +126,7 @@ function admin_users(array $user): never
         db_transaction_retry(function()use($user,$targetId,$target,&$cleared):bool{
             if(schema_table_exists('user_mfa')){$d=db()->prepare('DELETE FROM user_mfa WHERE user_id=?');$d->execute([$targetId]);$cleared=$d->rowCount();}
             if(schema_table_exists('user_mfa_recovery_codes'))db()->prepare('DELETE FROM user_mfa_recovery_codes WHERE user_id=?')->execute([$targetId]);
-            tegh_end_user_sessions($targetId);
+            tegh_end_user_sessions($targetId);mfa_revoke_trusted_devices($targetId);
             platform_audit_event($user,'platform.user_mfa_reset','user',$targetId,['email'=>$target['email'],'hadEnrolment'=>$cleared>0]);
             return true;
         });
@@ -137,7 +137,7 @@ function admin_users(array $user): never
         if($active&&$target['deleted_at']!==null)fail('A deleted login cannot be reactivated. Create a new account setup for the person.',409,'deleted_login');
         db_transaction_retry(function()use($user,$targetId,$target,$active,$action):bool{
             db()->prepare('UPDATE users SET active=? WHERE id=?')->execute([$active?1:0,$targetId]);
-            if(!$active)db()->prepare('DELETE FROM sessions WHERE user_id=?')->execute([$targetId]);
+            if(!$active){db()->prepare('DELETE FROM sessions WHERE user_id=?')->execute([$targetId]);mfa_revoke_trusted_devices($targetId);}
             platform_audit_event($user,$active?'platform.user_reactivated':'platform.user_deactivated','user',$targetId,['email'=>$target['email']]);
             return true;
         });
@@ -185,7 +185,7 @@ function admin_users(array $user): never
             }
         }
         db()->prepare('DELETE FROM company_members WHERE user_id=?')->execute([$targetId]);
-        db()->prepare('DELETE FROM sessions WHERE user_id=?')->execute([$targetId]);
+        db()->prepare('DELETE FROM sessions WHERE user_id=?')->execute([$targetId]);mfa_revoke_trusted_devices($targetId);
         $anon='deleted+'.substr(hash('sha256',$targetId),0,24).'@invalid.local';
         $randomHash=password_hash(base64url_encode(random_bytes(32)),password_algorithm());
         if(!is_string($randomHash))throw new RuntimeException('Password hashing is unavailable.');

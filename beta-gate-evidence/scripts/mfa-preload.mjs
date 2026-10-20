@@ -23,82 +23,39 @@ const isLogin = u => { try { const url = new URL(u); return url.searchParams.get
 // R164: setup and invitation acceptance can also return a session that must enrol MFA before use.
 const isAccountStart = u => { try { const url = new URL(u); const r = url.searchParams.get('route') || url.pathname.replace(/^.*\/api\//, ''); return /^(auth\/setup|platform\/invite-accept)$/.test(r); } catch { return false; } };
 
-// Cross-process lock per account (atomic mkdir), as in lib.mjs: parallel browsers signing in as the same account
-// would otherwise reset each other's enrolment half-way through.
+// R164 (revised): the second step is a 6-digit code emailed to the account. Read it from the test mailbox and enter
+// it in the real sign-in form, as the person would. "Trust this device" is left unticked: each browser context is new.
 import fs from 'fs';
-async function mfaLock(key) {
-  const dir = '/tmp/tegh-mfa-lock-' + String(key).replace(/[^A-Za-z0-9_-]/g, ''); const t0 = Date.now();
-  for (;;) {
-    try { fs.mkdirSync(dir); break; } catch (e) {
-      if (e.code !== 'EEXIST') throw e;
-      try { if (Date.now() - fs.statSync(dir).mtimeMs > 90000) fs.rmSync(dir, {recursive: true, force: true}); } catch {}
-      if (Date.now() - t0 > 240000) throw new Error('mfa lock timeout for ' + key);
-      await new Promise(r => setTimeout(r, 200));
+const decodeMail = t => t + '\n' + [...t.matchAll(/Content-Transfer-Encoding: base64\s*\n\s*\n([A-Za-z0-9+\/=\s]+?)(?:\n--|$)/g)].map(m => Buffer.from(m[1].replace(/\s+/g, ''), 'base64').toString('utf8')).join('\n');
+const mailFiles = () => fs.readdirSync('/srv/gate/mail').sort();
+async function emailedCode(email, since) {
+  const t0 = Date.now();
+  while (Date.now() - t0 < 20000) {
+    for (const f of mailFiles().slice(since)) {
+      const t = decodeMail(fs.readFileSync('/srv/gate/mail/' + f, 'utf8'));
+      if (t.includes(email)) { const m = t.match(/sign-in code is (\d{6})/); if (m) return m[1]; }
     }
+    await new Promise(r => setTimeout(r, 250));
   }
-  return () => { try { fs.rmSync(dir, {recursive: true, force: true}); } catch {} };
-}
-
-async function completeMfa(page, password) {
-  const form = '#sr-mfa-form';
-  await page.waitForSelector(`${form}:not([hidden])`, {timeout: 20000});
-  const enrolling = await page.locator(`${form} [data-mfa-view="enrol"]`).isVisible();
-  if (!enrolling) throw new Error('MFA verify view shown although enrolment was reset');
-  await page.fill(`${form} [name=enrolPassword]`, password);
-  await page.click(`${form} [data-mfa-begin]`);
-  await page.waitForFunction(sel => (document.querySelector(sel)?.textContent || '').trim().length >= 16, `${form} [data-mfa-secret]`, {timeout: 20000});
-  const secret = (await page.textContent(`${form} [data-mfa-secret]`)).trim();
-  for (let attempt = 0; attempt < 2; attempt++) {
-    await page.fill(`${form} [name=enrolCode]`, totp(secret));
-    await page.click(`${form} [data-mfa-confirm]`);
-    try { await page.waitForSelector(`${form} [data-mfa-recovery-done]`, {state: 'visible', timeout: 12000}); break; }
-    catch (e) { if (attempt) throw e; const s0 = step(); while (step() <= s0) await new Promise(r => setTimeout(r, 1000)); }
-  }
-  await page.click(`${form} [data-mfa-recovery-done]`);
+  return '';
 }
 
 function attach(page) {
   if (page.__teghMfa) return; page.__teghMfa = true;
-  let busy = false;
-  // No request interception (page.route disables the HTTP cache and was found to change app timing).
-  // Instead react to the login response. If the account is already enrolled with a secret this test
-  // does not know, reset its MFA in the database, cancel the challenge and sign in again, so the server
-  // offers enrolment; then complete enrolment through the real screen.
+  let since = 0;
+  page.on('request', req => { if (isLogin(req.url()) && req.method() === 'POST') since = mailFiles().length; });
   page.on('response', async resp => {
-    if (isAccountStart(resp.url()) && resp.request().method() === 'POST' && !busy) {
-      let creds = {}; try { creds = JSON.parse(resp.request().postData() || '{}'); } catch {}
-      let body = null; try { body = await resp.json(); } catch { return; }
-      if (!body?.auth?.mfa || body.auth.mfa.verified !== false || !creds.password) return;
-      busy = true;
-      try { await completeMfa(page, String(creds.password)); } catch (e) { console.error('[mfa-preload] MFA after account start failed:', e.message); }
-      finally { busy = false; }
-      return;
-    }
-    if (!isLogin(resp.url()) || resp.request().method() !== 'POST' || busy) return;
+    if (!isLogin(resp.url()) || resp.request().method() !== 'POST' || globalThis.__teghMfaManual) return; // a test that checks the screen itself
     let creds = {}; try { creds = JSON.parse(resp.request().postData() || '{}'); } catch {}
     let body = null; try { body = await resp.json(); } catch { return; }
     if (!body || !body.mfaRequired) return;
-    busy = true;
-    // Hold the account lock from the first login response until enrolment completes (it spans the re-login).
-    if (!page.__mfaRelease) { let key = ''; try { key = creds.email ? sql('SELECT id FROM users WHERE email=' + quote(creds.email)) : ''; } catch {} page.__mfaRelease = await mfaLock(key || creds.email || 'unknown'); }
-    let keepLock = false;
     try {
-      if (body.mfaEnrolled) {
-        const uid = creds.email ? sql('SELECT id FROM users WHERE email=' + quote(creds.email)) : '';
-        if (uid) { sql(`DELETE FROM user_mfa WHERE user_id='${uid}'`); sql(`DELETE FROM user_mfa_recovery_codes WHERE user_id='${uid}'`); }
-        await page.waitForSelector('#sr-mfa-form:not([hidden])', {timeout: 20000});
-        await page.click('#sr-mfa-form [data-mfa-cancel]');
-        await page.waitForSelector('#sr-login-form:not([hidden])', {timeout: 20000});
-        await page.fill('#sr-login-form input[name=email]', String(creds.email || ''));
-        await page.fill('#sr-login-form input[name=password]', String(creds.password || ''));
-        busy = false; // the next login response (enrolment required) is handled by this listener
-        keepLock = true;
-        await page.click('#sr-login-form button[type=submit]');
-        return;
-      }
-      await completeMfa(page, String(creds.password || ''));
-    } catch (e) { console.error('[mfa-preload] MFA completion failed:', e.message); }
-    finally { busy = false; if (!keepLock && page.__mfaRelease) { page.__mfaRelease(); page.__mfaRelease = null; } }
+      const code = await emailedCode(String(creds.email || ''), since);
+      if (!code) throw new Error('no sign-in code email for ' + creds.email);
+      await page.waitForSelector('#sr-mfa-form:not([hidden])', {timeout: 20000});
+      await page.fill('#sr-mfa-form input[name=code]', code);
+      await page.click('#sr-mfa-form [data-mfa-verify]');
+    } catch (e) { console.error('[mfa-preload] sign-in code entry failed:', e.message); }
   });
 }
 
