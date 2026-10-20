@@ -24,6 +24,8 @@ try {
     require_once __DIR__ . '/captcha.php';
     require_once __DIR__ . '/auth.php';
     require_once __DIR__ . '/mfa_r164.php';
+    require_once __DIR__ . '/monitoring_r164.php';
+    tegh_monitor_opportunistic();
     require_once __DIR__ . '/company_profile_r153.php';
     require_once __DIR__ . '/migration_recovery_v5600.php';
     require_once __DIR__ . '/entitlements_v5610.php';

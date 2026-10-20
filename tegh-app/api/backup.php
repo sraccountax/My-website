@@ -206,7 +206,7 @@ function handle_backup_export(): never
         db()->prepare('INSERT INTO backup_restore_log (id,company_id,backup_id,action,filename,payload_sha256,performed_by,details_json) VALUES (?,?,?,?,?,?,?,?)')->execute([new_id('backuplog'),$companyId,$backupId,'export',$filename,$sha,$user['id'],json_encode(['recordCounts'=>$snapshot['recordCounts'],'evidenceCount'=>count($evidence),'excludedCollections'=>backup_exclusions()],JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR)]);
         audit_event($user,$companyId,'backup.exported','company_backup',$backupId,['format'=>'tegh-backup','formatVersion'=>2,'payloadSha256'=>$sha]);
         clearstatcache(true,$tmp);$size=filesize($tmp);if($size===false||$size<4)throw new RuntimeException('The backup file could not be verified.');
-        header('Content-Type: application/vnd.tegh.backup');header('Content-Disposition: attachment; filename="'.$filename.'"');header('Content-Length: '.$size);header('X-Content-Type-Options: nosniff');header('Cache-Control: no-store');if(readfile($tmp)!==$size)throw new RuntimeException('The backup download was interrupted.');
+        header('Content-Type: application/vnd.tegh.backup');header('Content-Disposition: attachment; filename="'.$filename.'"');header('Content-Length: '.$size);header('X-Content-Type-Options: nosniff');header('Cache-Control: no-store');header('X-Tegh-Download: 1');if(readfile($tmp)!==$size)throw new RuntimeException('The backup download was interrupted.');
     }finally{@unlink($tmp);}exit;
 }
 

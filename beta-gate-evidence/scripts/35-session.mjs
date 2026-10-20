@@ -107,6 +107,39 @@ await t('SP-13','Forwarded IP headers are ignored unless a trusted proxy is conf
   const buckets=Number(sql(`SELECT COUNT(DISTINCT requested_ip_hash) FROM password_reset_requests WHERE created_at>=UTC_TIMESTAMP()-INTERVAL 2 HOUR`));
   return {ok:buckets===1,info:`distinct IP buckets for spoofed + plain requests: ${buckets}`}});
 
+// --- Browser: the portal asks for the password when the server requires a recent sign-in, then retries ---
+await t('SP-14','Portal: with an old sign-in, "Reset two-step verification" opens a password dialog; Cancel changes nothing, the right password completes it',async()=>{
+  const {chromium}=await import('/opt/node22/lib/node_modules/playwright/index.mjs');
+  const shift=Number(process.env.GATE_CLOCK_SHIFT_SECONDS||0)*1000;
+  const target=mkMember('uimfa','viewer');sql(`INSERT INTO user_mfa (user_id,secret_cipher,secret_nonce,secret_tag,confirmed) VALUES (${q(target.id)},'x','x','x',1)`);
+  const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium',args:['--no-proxy-server','--host-resolver-rules=MAP gate.test 127.0.0.1']});
+  try{
+    const ctx=await b.newContext({viewport:{width:1440,height:900},ignoreHTTPSErrors:true});if(shift>0){await ctx.clock.install({time:Date.now()-shift});await ctx.clock.resume()}
+    const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message.slice(0,160)));
+    p.on('dialog',d=>d.accept());const net=[];p.on('response',r=>{if(/\/api\//.test(r.url())&&(r.request().method()==='POST'||r.status()>=400))r.text().then(t=>net.push(r.request().method()+' '+r.url().replace(/^.*\/api\//,'')+' '+r.status()+' '+t.slice(0,100))).catch(()=>{})});p.on('console',m=>{if(m.type()==='error')net.push('console '+m.text().slice(0,140))});
+    await p.goto('https://gate.test/app.html');await p.fill('#sr-login-form input[name=email]',OWNER);await p.fill('#sr-login-form input[name=password]',OPW);await p.click('#sr-login-form button[type=submit]');
+    await p.waitForFunction(()=>window.TeghPortal&&document.querySelector('.sidebar,.topbar'),null,{timeout:60000});await p.waitForTimeout(2000);
+    ageSession(ownerId);
+    await p.evaluate(()=>TeghPortal.openPlatformAdmin());
+    await p.getByRole('button',{name:/View Users/}).first().click();
+    const sel=`[data-admin-user-action="reset_mfa"][data-user-id="${target.id}"]`;const btn=p.locator(sel);
+    // Row actions open in a floating overlay (as in 30-guided); click the floating copy when it exists.
+    const press=async()=>{const floating=p.locator('#tegh-overlay-root '+sel);await ((await floating.count())?floating.first():btn.first()).click();
+      // window.confirm is the app's own dialog; approve it and the action replays.
+      const cont=p.getByRole('button',{name:'Continue',exact:true}).last();await cont.waitFor({timeout:10000});await cont.click()};
+    try{await btn.waitFor({state:'attached',timeout:30000})}catch(e){const d=await p.evaluate(id=>({resets:document.querySelectorAll('[data-admin-user-action=reset_mfa]').length,hasId:!!document.querySelector(`[data-user-id="${id}"]`),page:document.querySelector('[data-page],main')?.getAttribute('data-page')||'',h1:document.querySelector('h1')?.textContent||''}),target.id);throw new Error('reset button not found '+JSON.stringify(d))}
+    const openMenu=async()=>{const row=p.locator('[data-admin-user-row]',{hasText:target.email});await row.scrollIntoViewIfNeeded();await row.locator('details.r22-row-actions > summary').click();await p.waitForTimeout(300)};
+    await openMenu();
+    await press();try{await p.waitForSelector('dialog.tegh-stepup[open]',{timeout:15000})}catch(e){console.error('NETLOG',JSON.stringify(net,null,0));throw new Error('no step-up dialog; toast '+(await p.locator('.srp-toast,[role=status]').allInnerTexts()).join('/').slice(0,200)+'; network '+JSON.stringify(net.slice(-6)))}
+    await p.click('dialog.tegh-stepup button[value=cancel]');await p.waitForTimeout(1200);
+    const afterCancel=Number(sql(`SELECT COUNT(*) FROM user_mfa WHERE user_id=${q(target.id)}`));
+    await openMenu();await press();await p.waitForSelector('dialog.tegh-stepup[open]',{timeout:15000});
+    await p.fill('dialog.tegh-stepup input[name=password]',OPW);await p.click('dialog.tegh-stepup button[type=submit]');
+    let left=1;for(let i=0;i<20&&left;i++){await p.waitForTimeout(500);left=Number(sql(`SELECT COUNT(*) FROM user_mfa WHERE user_id=${q(target.id)}`))}
+    const dialogsLeft=await p.locator('dialog.tegh-stepup').count();
+    return {ok:afterCancel===1&&left===0&&dialogsLeft===0&&errs.length===0,info:`after cancel MFA rows ${afterCancel}; after password ${left}; dialogs left ${dialogsLeft}; page errors ${errs.length} ${errs[0]||''}`};
+  }finally{await b.close()}});
+
 // Clean up the synthetic company's member rows and restore the owner session age (no existing company touched).
 ageSession('__none__');
 save('session.json');

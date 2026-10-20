@@ -54,7 +54,7 @@ function tegh_handle_registration_control(): never
 {
     require_method('GET','POST');$user=require_user();admin_require_platform_owner($user);tegh_schema44_require();
     if(request_method()==='GET'){header('Cache-Control: no-store');json_response(tegh_release_registration_payload());}
-    require_csrf();$input=request_json();
+    require_csrf();$input=request_json();tegh_require_recent_auth($user,$input); // R164: a security setting; needs a recent sign-in
     if(!array_key_exists('enabled',$input)||!is_bool($input['enabled']))fail('Choose a registration mode.',422,'registration_mode_invalid');
     if(($input['confirmation']??'')!=='CHANGE REGISTRATION')fail('Confirm the registration change.',409,'confirmation_required');
     $reason=trim(clean_text($input['reason']??'','Reason',1000));if(strlen($reason)<8)fail('Provide a reason of at least 8 characters.',422,'reason_required');

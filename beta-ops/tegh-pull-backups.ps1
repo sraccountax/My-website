@@ -36,7 +36,15 @@ foreach ($name in $names) {
     if ($LASTEXITCODE -eq 0 -and (Get-Item $tmp).Length -gt 0) { Move-Item -Force $tmp $dest; $new++; Log "downloaded $name ($([math]::Round((Get-Item $dest).Length / 1KB)) KB)" }
     else { Remove-Item -ErrorAction SilentlyContinue $tmp; $failed++; Log "FAIL download of $name" }
 }
-Get-ChildItem $LocalDir -Filter 'tegh-*.tar.age' | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-$KeepDays) } | ForEach-Object { Remove-Item $_.FullName; Log "removed old copy $($_.Name)" }
+# R164: retention is by the date the backup was MADE (from its name, UTC), not the download date, so a copy that was
+# downloaded late is not kept longer than KeepDays. Deletion is verified; a copy that could not be removed fails the run.
+$cutoff = (Get-Date).ToUniversalTime().AddDays(-$KeepDays)
+function BackupDate([string]$name) { if ($name -match '^tegh-(\d{8}-\d{6})\.tar\.age$') { return [datetime]::ParseExact($Matches[1], 'yyyyMMdd-HHmmss', $null) } return $null }
+$expired = Get-ChildItem $LocalDir -Filter 'tegh-*.tar.age' | Where-Object { $d = BackupDate $_.Name; $d -ne $null -and $d -lt $cutoff }
+foreach ($old in $expired) { Remove-Item -Force $old.FullName -ErrorAction SilentlyContinue; if (Test-Path $old.FullName) { $failed++; Log "FAIL could not remove expired copy $($old.Name)" } else { Log "removed expired copy $($old.Name)" } }
+Get-ChildItem $LocalDir -Filter '*.part' | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-1) } | Remove-Item -Force -ErrorAction SilentlyContinue
+$oldest = Get-ChildItem $LocalDir -Filter 'tegh-*.tar.age' | ForEach-Object { BackupDate $_.Name } | Where-Object { $_ -ne $null } | Sort-Object | Select-Object -First 1
+if ($oldest) { Log "oldest copy kept: $($oldest.ToString('yyyy-MM-dd HH:mm')) UTC (limit $KeepDays days)" }
 $total = (Get-ChildItem $LocalDir -Filter 'tegh-*.tar.age').Count
 Log "done: $new new, $failed failed, $total encrypted backups on this laptop"
 if ($failed -gt 0) { exit 1 }

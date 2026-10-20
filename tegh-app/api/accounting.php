@@ -2435,6 +2435,9 @@ function handle_attachments(): never
         $stmt->execute([$expenseId, $companyId]);
         $path = $stmt->fetchColumn();
         if ($path === false || $path === null) fail('A receipt is not attached to this expense.', 404, 'receipt_not_found');
+        // R164: role check and stored-path ownership check (defence in depth; the query is already company-scoped).
+        require_company_permission($company, 'attachments.view');
+        if (!str_starts_with((string)$path, $companyId . '/')) fail('A receipt is not attached to this expense.', 404, 'receipt_not_found');
         stream_private_file((string)$path, 'receipt-' . $expenseId);
     }
     require_method('POST', 'DELETE');

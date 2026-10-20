@@ -118,6 +118,10 @@ function stream_private_file(string $relative, string $downloadName): never
     header('Content-Length: ' . (string)filesize($absolute));
     header('Content-Disposition: attachment; filename="' . $safeName . '"');
     header('Cache-Control: private, no-store, max-age=0');
+    // R164: a stored file can never run script in the Tegh origin, even if a browser renders it inline.
+    header('X-Content-Type-Options: nosniff');
+    header('Content-Security-Policy: sandbox; default-src \'none\'');
+    header('X-Tegh-Download: 1'); // the web server applies the sandbox policy to responses with this marker
     $stream = fopen($absolute, 'rb');
     if ($stream === false) {
         fail('The stored source file could not be opened.', 500, 'stored_file_unreadable');
@@ -893,6 +897,9 @@ function handle_imports(): never
         $stmt->execute([$batchId, $companyId]);
         $batch = $stmt->fetch();
         if (!$batch) fail('The imported source could not be found.', 404, 'import_not_found');
+        // R164: role check and stored-path ownership check (defence in depth; the query is already company-scoped).
+        require_company_permission($company, 'banking.view');
+        if (!str_starts_with((string)$batch['source_path'], $companyId . '/')) fail('The imported source could not be found.', 404, 'import_not_found');
         stream_private_file((string)$batch['source_path'], (string)$batch['filename']);
     }
     require_method('POST');

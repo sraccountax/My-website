@@ -19,7 +19,10 @@
 #                    key can open (for an off-site copy on a laptop or in cloud storage). The server needs only the public key.
 #   TEGH_ENCRYPTED_OUT folder for the encrypted files (default TEGH_OUT/encrypted)
 #   TEGH_AGE         the age program (default: age on the PATH, else ~/bin/age)
-#   TEGH_KEEP_DAYS   local copies to keep (default 14)
+#   TEGH_KEEP_DAYS   local copies to keep (default 14): copies older than this many days are deleted, and the deletion is
+#                    verified (the run fails if an expired copy is still present)
+#   TEGH_STATUS      status file read by Tegh's monitoring (R164); default TEGH_STORAGE/runtime/backup-status.json. Every run
+#                    records success or failure there, so a failed or missing daily backup raises an operator alert.
 #   MYSQL_DEFAULTS   optional my.cnf with [client] user= and password= (keeps the password off the command line)
 #
 # Consistency (R158):
@@ -46,14 +49,23 @@ if [ -n "${MYSQL_DEFAULTS:-}" ]; then MY=(mysql --defaults-extra-file="$MYSQL_DE
 [ -d "$TEGH_STORAGE" ] || { echo "FAIL storage folder $TEGH_STORAGE not found"; exit 1; }
 umask 077
 DIR="$TEGH_OUT/tegh-$(date -u +%Y%m%d-%H%M%S)"; mkdir -p "$DIR"
-die(){ echo "FAIL $*"; rm -rf "$DIR"; exit 1; }
+STATUS="${TEGH_STATUS:-$TEGH_STORAGE/runtime/backup-status.json}"
+# R164: record each run for the monitoring check. Only times, a status word and a short reason; no data.
+status(){ local run="$1" msg="${2:-}" ok prev; prev=""
+  [ -f "$STATUS" ] && prev=$(grep -o '"lastSuccessAt":"[^"]*"' "$STATUS" | head -1 | cut -d'"' -f4 || true)
+  ok="$prev"; [ "$run" = ok ] && ok="$(date -u +%FT%TZ)"
+  msg=$(printf '%s' "$msg" | tr -d '"\\' | tr '\n' ' ' | cut -c1-300)
+  mkdir -p "$(dirname "$STATUS")"
+  printf '{"lastRunStatus":"%s","lastRunAt":"%s","lastRunMessage":"%s","lastSuccessAt":"%s"}\n' "$run" "$(date -u +%FT%TZ)" "$msg" "$ok" > "$STATUS.tmp" && mv "$STATUS.tmp" "$STATUS"
+  chown --reference="$TEGH_STORAGE" "$STATUS" 2>/dev/null || true; chmod 0640 "$STATUS" 2>/dev/null || true; }
+die(){ echo "FAIL $*"; rm -rf "$DIR"; status failed "$*"; exit 1; }
 echo "$(date -u +%FT%TZ) backup start -> $DIR"
 
 # One query; any database error stops the backup (its message is shown). UTC so timestamps compare the same way.
 q(){ "${MY[@]}" -N -B "$TEGH_DB" -e "SET SESSION time_zone='+00:00'; SET SESSION group_concat_max_len=1048576; $1"; }
 
 # --- pause changes ---------------------------------------------------------------------------------------------------
-if [ -e "$FLAG" ]; then echo "FAIL Tegh is already in maintenance mode ($FLAG); not taking a backup now"; rm -rf "$DIR"; exit 1; fi
+if [ -e "$FLAG" ]; then die "Tegh is already in maintenance mode ($FLAG); not taking a backup now"; fi
 mkdir -p "$(dirname "$FLAG")"
 TOKEN=$(head -c 24 /dev/urandom | od -An -tx1 | tr -d ' \n')
 printf '{"token":"%s","reason":"backup","startedAt":"%s"}' "$TOKEN" "$(date -u +%FT%TZ)" > "$FLAG"
@@ -122,19 +134,26 @@ companies=$(grep -c '^ledger' "$DIR/checks.tsv" || true)
 echo "consistent snapshot: db $(du -h "$DIR/db.sql.gz" | cut -f1), files $(wc -l < "$DIR/files.sha256"), tables $(grep -c '^rows' "$DIR/checks.tsv"), content fingerprints $(grep -c '^fp' "$DIR/checks.tsv"), companies with postings ${companies:-0}"
 
 if [ -n "${TEGH_OFFSITE:-}" ]; then rsync -a "$DIR" "$TEGH_OFFSITE/" && echo "copied to $TEGH_OFFSITE"; fi
-find "$TEGH_OUT" -maxdepth 1 -type d -name 'tegh-*' -mtime +"$KEEP" -exec rm -rf {} + || true
+# Retention: delete copies older than KEEP days (by age in minutes, so 14 means 14 days, not 15), then verify.
+find "$TEGH_OUT" -maxdepth 1 -type d -name 'tegh-*' -mmin +"$((KEEP*1440))" -exec rm -rf {} + || true
+left=$(find "$TEGH_OUT" -maxdepth 1 -type d -name 'tegh-*' -mmin +"$((KEEP*1440))" | wc -l)
+[ "$left" -eq 0 ] || { status failed "retention: $left expired backup folder(s) could not be deleted"; echo "FAIL retention: $left expired backup folder(s) could not be deleted"; exit 1; }
+echo "retention: $(find "$TEGH_OUT" -maxdepth 1 -type d -name 'tegh-*' | wc -l) local copies kept (limit ${KEEP} days)"
 
 # Optional encrypted copy (age). Written to a temporary name first, so a download never picks up half a file.
 if [ -n "${TEGH_ENCRYPT_TO:-}" ]; then
   AGE="${TEGH_AGE:-$(command -v age || echo "$HOME/bin/age")}"; ENC="${TEGH_ENCRYPTED_OUT:-$TEGH_OUT/encrypted}"
-  [ -x "$AGE" ] || { echo "FAIL encrypted copy: the age program was not found ($AGE); the backup itself is complete"; exit 1; }
+  [ -x "$AGE" ] || { echo "FAIL encrypted copy: the age program was not found ($AGE); the backup itself is complete"; status failed "encrypted copy: age program not found"; exit 1; }
   if [ -f "$TEGH_ENCRYPT_TO" ]; then RCPT=(-R "$TEGH_ENCRYPT_TO"); else RCPT=(-r "$TEGH_ENCRYPT_TO"); fi
   mkdir -p "$ENC"; NAME="$(basename "$DIR").tar.age"
   if tar -C "$(dirname "$DIR")" -cf - "$(basename "$DIR")" | "$AGE" "${RCPT[@]}" -o "$ENC/.$NAME.part" && mv "$ENC/.$NAME.part" "$ENC/$NAME"; then
     echo "encrypted copy: $ENC/$NAME ($(du -h "$ENC/$NAME" | cut -f1))"
   else
-    rm -f "$ENC/.$NAME.part"; echo "FAIL encrypted copy could not be written; the backup itself is complete"; exit 1
+    rm -f "$ENC/.$NAME.part"; echo "FAIL encrypted copy could not be written; the backup itself is complete"; status failed "encrypted copy could not be written"; exit 1
   fi
-  find "$ENC" -maxdepth 1 -type f -name 'tegh-*.tar.age' -mtime +"$KEEP" -delete || true
+  find "$ENC" -maxdepth 1 -type f -name 'tegh-*.tar.age' -mmin +"$((KEEP*1440))" -delete || true
+  left=$(find "$ENC" -maxdepth 1 -type f -name 'tegh-*.tar.age' -mmin +"$((KEEP*1440))" | wc -l)
+  [ "$left" -eq 0 ] || { status failed "retention: $left expired encrypted file(s) could not be deleted"; echo "FAIL retention of encrypted copies"; exit 1; }
 fi
+status ok "backup complete"
 echo "$(date -u +%FT%TZ) backup done"

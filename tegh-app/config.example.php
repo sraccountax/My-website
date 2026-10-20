@@ -36,6 +36,23 @@ return [
         'trusted_proxy' => '',
         'trusted_proxy_ranges' => [],
     ],
+    // R164: operator monitoring (api/monitor-cron.php from cron, every 15-60 minutes). Alerts go to alert_email,
+    // or to operator.support_email when it is empty. One email per kind per throttle window; no personal or
+    // financial data in alerts. backup_status_path defaults to <storage_path>/runtime/backup-status.json, which
+    // beta-ops/tegh-backup.sh writes on every run.
+    'monitoring' => [
+        'alert_email' => '',
+        'alert_throttle_minutes' => 60,
+        'expect_daily_backup' => true,
+        'backup_max_age_hours' => 26,
+        'backup_status_path' => '',
+        'auth_window_minutes' => 15,
+        'failed_login_threshold' => 30,
+        'spray_threshold' => 8,
+        'mfa_lock_threshold' => 1,
+        'reset_request_threshold' => 20,
+        'opportunistic' => true,
+    ],
     // R156: who operates this Tegh service. Shown on the Terms and Privacy pages; invitations cannot be sent until every
     // field except the two numbers is filled in. Use the real legal name and a mailbox someone reads.
     'operator' => [

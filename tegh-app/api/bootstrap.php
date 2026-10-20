@@ -554,6 +554,7 @@ function record_system_incident(
             'context_json'=>$contextJson,'created_at'=>$occurredAt,
         ];
         system_incident_write_private_log($event);
+        if (function_exists('tegh_monitor_serious_error')) tegh_monitor_serious_error($event['severity'], $event['error_code'], (int)$status, $requestId);
         try {
             if (function_exists('schema_table_exists') && schema_table_exists('platform_incident_log')) {
                 $pdo = db();
