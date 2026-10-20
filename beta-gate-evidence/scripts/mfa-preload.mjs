@@ -28,16 +28,20 @@ const isAccountStart = u => { try { const url = new URL(u); const r = url.search
 import fs from 'fs';
 const decodeMail = t => t + '\n' + [...t.matchAll(/Content-Transfer-Encoding: base64\s*\n\s*\n([A-Za-z0-9+\/=\s]+?)(?:\n--|$)/g)].map(m => Buffer.from(m[1].replace(/\s+/g, ''), 'base64').toString('utf8')).join('\n');
 const mailFiles = () => fs.readdirSync('/srv/gate/mail').sort();
-async function emailedCode(email, since) {
+async function emailedCodes(email, since) {
+  // Every code emailed to this account since this sign-in started, oldest first. Parallel browsers signing in as the
+  // same account each get their own code (bound to their own sign-in), so the right one is found by trying them.
   const t0 = Date.now();
   while (Date.now() - t0 < 20000) {
+    const codes = [];
     for (const f of mailFiles().slice(since)) {
       const t = decodeMail(fs.readFileSync('/srv/gate/mail/' + f, 'utf8'));
-      if (t.includes(email)) { const m = t.match(/sign-in code is (\d{6})/); if (m) return m[1]; }
+      if (t.includes(email)) { const m = t.match(/sign-in code is (\d{6})/); if (m) codes.push(m[1]); }
     }
+    if (codes.length) return codes;
     await new Promise(r => setTimeout(r, 250));
   }
-  return '';
+  return [];
 }
 
 function attach(page) {
@@ -50,11 +54,24 @@ function attach(page) {
     let body = null; try { body = await resp.json(); } catch { return; }
     if (!body || !body.mfaRequired) return;
     try {
-      const code = await emailedCode(String(creds.email || ''), since);
-      if (!code) throw new Error('no sign-in code email for ' + creds.email);
+      const email = String(creds.email || '');
       await page.waitForSelector('#sr-mfa-form:not([hidden])', {timeout: 20000});
-      await page.fill('#sr-mfa-form input[name=code]', code);
-      await page.click('#sr-mfa-form [data-mfa-verify]');
+      const tried = new Set(); let accepted = false;
+      for (let round = 0; round < 3 && !accepted; round++) {
+        for (const code of (await emailedCodes(email, since)).filter(c => !tried.has(c))) {
+          tried.add(code);
+          const answer = page.waitForResponse(r => /auth(%2F|\/)mfa(%2F|\/)verify/.test(r.url()), {timeout: 15000});
+          await page.fill('#sr-mfa-form input[name=code]', code);
+          await page.click('#sr-mfa-form [data-mfa-verify]');
+          if ((await answer).status() === 200) { accepted = true; break; }
+        }
+        if (!accepted) await new Promise(r => setTimeout(r, 1000));
+      }
+      if (!accepted) throw new Error('no accepted sign-in code for ' + email + ' (tried ' + tried.size + ')');
+      // Test database only: browser contexts carry no trusted-device cookie, so suites sign the same account in far
+      // more often than a person would. Remove that account's already-used codes so the product's limit of 10 codes per
+      // 15 minutes (tested in 34-mfa E-05) is not reached by the harness itself. The current code is untouched.
+      try { sql('DELETE o FROM user_email_otp o JOIN users u ON u.id=o.user_id WHERE u.email=' + quote(String(creds.email || '')) + ' AND o.used_at IS NOT NULL'); } catch {}
     } catch (e) { console.error('[mfa-preload] sign-in code entry failed:', e.message); }
   });
 }

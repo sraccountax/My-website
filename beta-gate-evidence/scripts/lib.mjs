@@ -46,6 +46,8 @@ export class S{constructor(){this.c={};this.csrf='';this.cid=''}
   const v=await this.call('auth/mfa/verify',{method:'POST',json:{method:'email',code,rememberDevice:true},company:false});
   if(v.s!==200)throw new Error('mfa verify '+v.s+' '+JSON.stringify(v.b));
   this.csrf=v.b.csrfToken||this.csrf;if(this.c[_TD])_tdCache[email]=this.c[_TD];
+  // Test database only: drop this account's used codes so harness sign-ins never reach the 10-per-15-minutes limit.
+  try{sql('DELETE o FROM user_email_otp o JOIN users u ON u.id=o.user_id WHERE u.email='+_sqlQuote(email)+' AND o.used_at IS NOT NULL')}catch{}
   return v.b
  }
 }
