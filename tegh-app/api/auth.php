@@ -181,7 +181,7 @@ function handle_setup(): never
     }
     $stmt = db()->prepare("INSERT INTO users (id,email,display_name,password_hash,platform_role,account_plan,signup_source,terms_accepted_at) VALUES (?,?,?,?,'platform_owner','free_preview','initial_setup',UTC_TIMESTAMP())");
     $stmt->execute([$userId,$email,$displayName,$hash]);
-    $session = create_session($userId);
+    $session = create_session($userId, false); // R164: the platform owner sets up two-step verification before anything else
     $user = ['id' => $userId, 'email' => $email, 'displayName' => $displayName];
     json_response(auth_payload($user, $session), 201);
 }
@@ -267,6 +267,11 @@ function handle_login(): never
     // same algorithm/cost when the account does not exist — so a non-existent email costs the same as a wrong password.
     $passwordVerified = password_verify($password, $row ? (string)$row['password_hash'] : login_decoy_hash());
     $valid = (bool)$row && $passwordVerified;
+    if ($valid && tegh_deletion_registered('user', (string)$row['id'])) {
+        // R164: a deleted login brought back by a restore of an older backup cannot sign in.
+        tegh_deletion_reappeared('user', (string)$row['id']);
+        $valid = false;
+    }
     record_login_attempt($email, $valid);
     if (!$valid) {
         usleep(600000);

@@ -14,7 +14,7 @@ require_once __DIR__ . '/portal.php';
 require_once __DIR__ . '/monitoring_r164.php';
 try {
     $report = tegh_monitor_sweep('cron');
-    $alerts = array_merge($report['backups']['alerts'] ?? [], $report['auth']['alerts'] ?? [], $report['config']['alerts'] ?? []);
+    $alerts = array_merge($report['backups']['alerts'] ?? [], $report['auth']['alerts'] ?? [], $report['config']['alerts'] ?? [], $report['deletions']['alerts'] ?? []);
     echo gmdate('c'), ' monitor ', $alerts ? 'ALERT ' . implode(',', $alerts) : 'ok',
         ' lastBackup=', $report['backups']['lastSuccessAt'] ?? 'none',
         ' failedLogins=', $report['auth']['failedLogins'] ?? 'n/a',

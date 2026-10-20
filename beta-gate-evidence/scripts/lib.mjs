@@ -17,7 +17,17 @@ export class S{constructor(){this.c={};this.csrf='';this.cid=''}
  ck(){return Object.entries(this.c).map(([k,v])=>k+'='+v).join('; ')}
  async call(route,{method='GET',json,company=true,headers={},origin=ORIGIN,raw=false,body}={}){const h={'Cookie':this.ck(),...headers};if(origin)h.Origin=origin;if(company&&this.cid)h['X-Company-Id']=this.cid;if(json)h['Content-Type']='application/json';if(this.csrf&&method!=='GET'&&!('X-CSRF-Token' in headers))h['X-CSRF-Token']=this.csrf;
   const r=await fetch(B+route,{method,headers:h,body:json?JSON.stringify(json):body,redirect:'manual'});for(const s of r.headers.getSetCookie?.()||[]){const [kv]=s.split(';');const i=kv.indexOf('=');const k=kv.slice(0,i),v=kv.slice(i+1);if(v===''||/Max-Age=0|expires=Thu, 01 Jan 1970/i.test(s))delete this.c[k];else this.c[k]=v}
-  if(raw)return r;const t=await r.text();let b;try{b=JSON.parse(t)}catch{b=t}return {s:r.status,b,h:r.headers}}
+  if(raw)return r;const t=await r.text();let b;try{b=JSON.parse(t)}catch{b=t}
+  // R164: setup and invitation acceptance create a session that must enrol MFA first when the role requires it.
+  // Remember the password used there, and on mfa_enrollment_required enrol (as the person would) and retry once.
+  if(json&&typeof json.password==='string'&&/^(auth\/setup|platform\/invite-accept)/.test(route)&&r.status<300){this._mfaPw=json.password;this.csrf=b?.auth?.csrfToken||b?.csrfToken||this.csrf}
+  if(r.status===403&&b?.code==='mfa_enrollment_required'&&this._mfaPw&&!this._mfaRetry){this._mfaRetry=true;try{await this._enrolNow(this._mfaPw)}finally{this._mfaRetry=false}return this.call(route,{method,json,company,headers,origin,raw,body})}
+  return {s:r.status,b,h:r.headers}}
+ async _enrolNow(password){
+  const beg=await this.call('auth/mfa/enroll-begin',{method:'POST',json:{password},company:false});
+  if(beg.s!==200)throw new Error('mfa enroll-begin '+beg.s+' '+JSON.stringify(beg.b));
+  for(let attempt=0;attempt<2;attempt++){const cf=await this.call('auth/mfa/enroll-confirm',{method:'POST',json:{code:_mfaTotp(beg.b.secret)},company:false});
+   if(cf.s===200){this.csrf=cf.b.csrfToken||this.csrf;return}if(cf.s===422&&attempt===0){await _mfaWaitNextStep();continue}throw new Error('mfa enroll-confirm '+cf.s)}}
  async login(email,password){
   const r=await this.call('auth/login',{method:'POST',json:{email,password},company:false});
   if(r.s!==200)throw new Error('login '+r.s+' '+JSON.stringify(r.b));

@@ -156,6 +156,8 @@ function tegh_r160_handle_restore(array $user, array $input): never
         platform_audit_event($user, 'platform.user_login_restored', 'user', $id, ['previousState' => $state['status'], 'emailSha256' => tegh_r160_email_fingerprint($email)]);
         return ['userId' => $id, 'was' => $state['status']];
     });
+    // R164: a deliberate, audited restore by the platform owner lifts the login's entry on the deletion register.
+    if (function_exists('tegh_deletion_register_add') && tegh_deletion_registered('user', (string)$result['userId'])) tegh_deletion_register_add('user', (string)$result['userId'], ['restored' => true, 'by' => (string)$user['id']]);
     $delivery = [];
     try { $delivery = tegh_r160_restore_email($email, $result['was'], $token); }
     catch (Throwable $e) { error_log('Tegh R160 restore email: ' . $e->getMessage()); $delivery = ['sent' => false, 'status' => 'failed', 'message' => 'The login was restored, but the email could not be sent.']; }

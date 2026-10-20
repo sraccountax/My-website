@@ -20,6 +20,8 @@ const step = () => Math.floor((Date.now() / 1000 + OFF) / 30);
 function b32(s) { const al = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'; s = String(s).toUpperCase().replace(/[^A-Z2-7]/g, ''); let bits = 0, val = 0; const out = []; for (const ch of s) { val = (val << 5) | al.indexOf(ch); bits += 5; if (bits >= 8) { bits -= 8; out.push((val >> bits) & 0xff); } } return Buffer.from(out); }
 function totp(secret, st = step()) { const buf = Buffer.alloc(8); buf.writeBigUInt64BE(BigInt(st)); const h = crypto.createHmac('sha1', b32(secret)).update(buf).digest(); const o = h[h.length - 1] & 15; const n = ((h[o] & 127) << 24) | (h[o + 1] << 16) | (h[o + 2] << 8) | h[o + 3]; return String(n % 1e6).padStart(6, '0'); }
 const isLogin = u => { try { const url = new URL(u); return url.searchParams.get('route') === 'auth/login' || /\/api\/auth\/login\/?$/.test(url.pathname); } catch { return false; } };
+// R164: setup and invitation acceptance can also return a session that must enrol MFA before use.
+const isAccountStart = u => { try { const url = new URL(u); const r = url.searchParams.get('route') || url.pathname.replace(/^.*\/api\//, ''); return /^(auth\/setup|platform\/invite-accept)$/.test(r); } catch { return false; } };
 
 async function completeMfa(page, password) {
   const form = '#sr-mfa-form';
@@ -47,6 +49,15 @@ function attach(page) {
   // does not know, reset its MFA in the database, cancel the challenge and sign in again, so the server
   // offers enrolment; then complete enrolment through the real screen.
   page.on('response', async resp => {
+    if (isAccountStart(resp.url()) && resp.request().method() === 'POST' && !busy) {
+      let creds = {}; try { creds = JSON.parse(resp.request().postData() || '{}'); } catch {}
+      let body = null; try { body = await resp.json(); } catch { return; }
+      if (!body?.auth?.mfa || body.auth.mfa.verified !== false || !creds.password) return;
+      busy = true;
+      try { await completeMfa(page, String(creds.password)); } catch (e) { console.error('[mfa-preload] MFA after account start failed:', e.message); }
+      finally { busy = false; }
+      return;
+    }
     if (!isLogin(resp.url()) || resp.request().method() !== 'POST' || busy) return;
     let creds = {}; try { creds = JSON.parse(resp.request().postData() || '{}'); } catch {}
     let body = null; try { body = await resp.json(); } catch { return; }

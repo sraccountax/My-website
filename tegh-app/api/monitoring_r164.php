@@ -21,6 +21,7 @@ const TEGH_MONITOR_KINDS = [
     'server_error'    => 'Serious server errors',
     'auth_suspicious' => 'Suspicious sign-in activity',
     'security_config' => 'Security settings changed',
+    'deleted_reappeared' => 'Deleted logins or companies are present again',
 ];
 
 // Settings whose change is security relevant. Only the names of changed settings are recorded and sent, never values;
@@ -258,10 +259,31 @@ function tegh_monitor_check_config(): array
     return $report;
 }
 
+/** After a restore of an older backup: logins or companies on the deletion register exist again in the database. */
+function tegh_monitor_check_deletions(): array
+{
+    $register = tegh_deletion_register(true);
+    $report = ['registered' => ['user' => count($register['user']), 'company' => count($register['company'])], 'reappeared' => ['user' => 0, 'company' => 0], 'alerts' => []];
+    foreach ([['user', 'SELECT COUNT(*) FROM users WHERE deleted_at IS NULL AND id IN '], ['company', 'SELECT COUNT(*) FROM companies WHERE id IN ']] as [$type, $sql]) {
+        foreach (array_chunk(array_keys($register[$type]), 500) as $ids) {
+            $q = db()->prepare($sql . '(' . implode(',', array_fill(0, count($ids), '?')) . ')');
+            $q->execute($ids);
+            $report['reappeared'][$type] += (int)$q->fetchColumn();
+        }
+    }
+    if ($report['reappeared']['user'] + $report['reappeared']['company'] > 0) {
+        $report['alerts'][] = 'deleted_reappeared';
+        tegh_monitor_alert('deleted_reappeared', 'Items deleted earlier are in the database again, usually because an older backup was restored. They are blocked from use; delete them again from Platform administration.', [
+            'Logins' => $report['reappeared']['user'], 'Companies' => $report['reappeared']['company'],
+        ]);
+    }
+    return $report;
+}
+
 function tegh_monitor_sweep(string $trigger): array
 {
     $report = ['trigger' => $trigger, 'ranAt' => gmdate('c'), 'recipientConfigured' => tegh_monitor_recipient() !== ''];
-    foreach (['backups' => 'tegh_monitor_check_backups', 'auth' => 'tegh_monitor_check_auth', 'config' => 'tegh_monitor_check_config'] as $name => $check) {
+    foreach (['backups' => 'tegh_monitor_check_backups', 'auth' => 'tegh_monitor_check_auth', 'config' => 'tegh_monitor_check_config', 'deletions' => 'tegh_monitor_check_deletions'] as $name => $check) {
         try { $report[$name] = $check(); }
         catch (Throwable $error) { $report[$name] = ['error' => $error::class]; error_log('Tegh monitor ' . $name . ' check failed: ' . $error::class); }
     }

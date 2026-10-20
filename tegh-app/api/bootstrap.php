@@ -815,7 +815,8 @@ function create_session(string $userId, bool $mfaVerified = true): array
     }
     set_session_cookie($token, $expiresAt->getTimestamp());
     set_csrf_cookie($csrf, $expiresAt->getTimestamp());
-    return ['csrfToken' => $csrf, 'expiresAt' => $expiresAt->format(DateTimeInterface::ATOM)];
+    // R164: mfa_verified lets auth_payload() tell the client at once whether two-step verification is still needed.
+    return ['csrfToken' => $csrf, 'expiresAt' => $expiresAt->format(DateTimeInterface::ATOM), 'mfa_verified' => $mfaVerified ? 1 : 0];
 }
 
 function csrf_cookie_value(): string
@@ -845,9 +846,79 @@ function session_record(): ?array
         clear_session_cookie();
         return null;
     }
+    if (tegh_deletion_registered('user', (string)$row['user_id'])) {
+        // R164: a session restored together with a deleted login is never honoured.
+        db()->prepare('DELETE FROM sessions WHERE user_id = ?')->execute([$row['user_id']]);
+        tegh_deletion_reappeared('user', (string)$row['user_id']);
+        clear_session_cookie();
+        return null;
+    }
     $record = $row;
     db()->prepare('UPDATE sessions SET last_seen_at = UTC_TIMESTAMP() WHERE id = ?')->execute([$row['session_id']]);
     return $record;
+}
+
+/*
+ * R164 deletion register. A restore of an older database backup must not silently bring back a login or a company
+ * that was deleted after that backup was taken. Every completed deletion is appended to a small file kept in the
+ * private folder, outside the database and outside the backed-up storage folder, so a restore does not roll it back.
+ * Sign-in, sessions and company selection refuse anything on the register, and monitoring alerts the operator.
+ * Entries hold only the internal ID, type, time and (for logins) a hash of the email address.
+ */
+function tegh_deletion_register_path(): ?string
+{
+    $configured = trim((string)(config('deletion_register_path') ?? ''));
+    if ($configured !== '') return $configured;
+    $log = function_exists('system_incident_log_path') ? system_incident_log_path() : null;
+    return $log !== null ? dirname($log) . DIRECTORY_SEPARATOR . 'deletion-register.ndjson' : null;
+}
+
+/** @return array<string,array<string,array>> type => id => entry */
+function tegh_deletion_register(bool $reload = false): array
+{
+    static $cache = null;
+    if ($cache !== null && !$reload) return $cache;
+    $cache = ['user' => [], 'company' => []];
+    $path = tegh_deletion_register_path();
+    if ($path === null || !is_file($path)) return $cache;
+    foreach (@file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
+        $entry = json_decode($line, true);
+        if (!is_array($entry) || !isset($cache[$entry['type'] ?? '']) || !is_string($entry['id'] ?? null)) continue;
+        // A later "restored" entry (the platform owner deliberately restored a login) cancels the deletion entry.
+        if (!empty($entry['restored'])) unset($cache[$entry['type']][$entry['id']]);
+        else $cache[$entry['type']][$entry['id']] = $entry;
+    }
+    return $cache;
+}
+
+function tegh_deletion_registered(string $type, string $id): bool
+{
+    return $id !== '' && isset(tegh_deletion_register()[$type][$id]);
+}
+
+/** Call only after the deletion has been committed. A failure to write is logged loudly but does not undo the deletion. */
+function tegh_deletion_register_add(string $type, string $id, array $extra = []): void
+{
+    $path = tegh_deletion_register_path();
+    if ($path === null) { error_log('Tegh deletion register: no private folder; deletion of ' . $type . ' not registered'); return; }
+    $entry = (!empty($extra['restored']) ? ['type' => $type, 'id' => $id, 'restored' => true, 'restoredAt' => gmdate('c')] : ['type' => $type, 'id' => $id, 'deletedAt' => gmdate('c')])
+        + ['requestId' => request_id()] + array_intersect_key($extra, array_flip(['emailSha256', 'by']));
+    if (@file_put_contents($path, json_encode($entry, JSON_UNESCAPED_SLASHES) . PHP_EOL, FILE_APPEND | LOCK_EX) === false) {
+        error_log('Tegh deletion register could not be written for ' . $type . ' ' . $id);
+        if (function_exists('record_system_incident')) record_system_incident('Deletion register could not be written.', 500, 'deletion_register_write_failed', null, ['source' => 'deletion_register', 'severity' => 'error', 'type' => $type, 'id' => $id]);
+        return;
+    }
+    @chmod($path, 0600);
+    tegh_deletion_register(true);
+}
+
+/** A deleted login or company is present in the database again (an older backup was restored). Refuse and record it once. */
+function tegh_deletion_reappeared(string $type, string $id): void
+{
+    static $noted = [];
+    if (isset($noted[$type . $id])) return;
+    $noted[$type . $id] = true;
+    if (function_exists('record_system_incident')) record_system_incident('A deleted ' . $type . ' is present again after a restore and was refused.', 410, 'deleted_' . $type . '_reappeared', null, ['source' => 'deletion_register', 'severity' => 'error', 'type' => $type, 'id' => $id]);
 }
 
 function require_user(): array
@@ -948,6 +1019,10 @@ function require_company(array $user): array
     $companyId = trim((string)($_SERVER['HTTP_X_COMPANY_ID'] ?? $_GET['companyId'] ?? ''));
     if ($companyId === '') {
         fail('Choose a company first.', 409, 'company_required');
+    }
+    if (tegh_deletion_registered('company', $companyId)) {
+        tegh_deletion_reappeared('company', $companyId);
+        fail('This company was deleted and is not available.', 410, 'company_deleted', false);
     }
     $statusClause = schema_column_exists('company_members','status') ? " AND cm.status='active'" : '';
     $stmt = db()->prepare("SELECT c.*, cm.role FROM companies c

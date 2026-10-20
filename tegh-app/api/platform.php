@@ -438,7 +438,7 @@ function platform_invite_accept(): never
     $stmt=db()->prepare('SELECT id,email,display_name FROM users WHERE email=(SELECT email FROM company_invitations WHERE token_hash=? LIMIT 1) AND active=1 LIMIT 1');
     $stmt->execute([secret_hash($token)]);$acceptedUser=$stmt->fetch();
     if(!$acceptedUser) fail('The account was set up, but it could not be opened. Sign in using the email that received the setup link.',500,'invitation_session_unavailable');
-    $session=create_session((string)$acceptedUser['id']);
+    $session=create_session((string)$acceptedUser['id'],!(function_exists('mfa_required_for_user')&&mfa_required_for_user((string)$acceptedUser['id']))); // R164: owners/admins enrol MFA before using the session
     $user=['id'=>(string)$acceptedUser['id'],'email'=>(string)$acceptedUser['email'],'displayName'=>(string)$acceptedUser['display_name']];
     json_response(['accepted'=>true,'auth'=>auth_payload($user,$session)]);
 }

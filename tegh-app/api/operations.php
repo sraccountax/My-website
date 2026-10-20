@@ -1670,6 +1670,7 @@ function purge_expired_test_companies(?string $userId = null): array
             });
             // A concurrent change can make the locked row ineligible. No confirmed deletion means no transition.
             if ($result === []) continue;
+            tegh_deletion_register_add('company', $companyId, ['by' => 'test-mode-expiry']);
             operations_remove_company_storage(private_storage_root() . '/' . $companyId);
             $deleted[] = ['id'=>$companyId,'name'=>(string)$row['name'],'summary'=>$result];
         } catch (Throwable $error) {
@@ -1725,6 +1726,8 @@ function operations_company_delete_execute(array $actor, string $companyId, stri
 
         return ['summary' => $summary, 'deletedRows' => $deletedRows];
     });
+
+    tegh_deletion_register_add('company', $companyId, ['by' => (string)($actor['id'] ?? '')]); // R164: after commit
 
     // Storage cleanup is deliberately best-effort after the database commit.
     // A file-permission problem must not misreport a successful deletion as a

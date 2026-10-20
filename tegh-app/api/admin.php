@@ -85,6 +85,7 @@ function admin_company_directory(array $user): never
         ]);
         return ['summary'=>$summary];
     });
+    tegh_deletion_register_add('company',$companyId,['by'=>(string)$user['id']]); // R164: after commit
     $cleanup=operations_remove_company_storage($storage);
     json_response(tegh_deletion_transition_payload($user,[$companyId])+['deleted'=>true,'companyId'=>$companyId,'storageCleanup'=>$cleanup['status'],'storageCleanupNeedsAttention'=>$cleanup['status']==='pending','recordSummary'=>$result['summary']]);
 }
@@ -200,6 +201,9 @@ function admin_users(array $user): never
         ]);
         return ['deletedCompanies'=>$deletedCompanies,'retainedCompanies'=>$retainedCompanies];
     });
+    // R164: after commit. The old address is kept only as a hash, as in the platform audit record.
+    tegh_deletion_register_add('user',$targetId,['by'=>(string)$user['id'],'emailSha256'=>hash('sha256',strtolower(trim((string)$target['email'])))]);
+    foreach($result['deletedCompanies'] as $company)tegh_deletion_register_add('company',(string)$company['id'],['by'=>(string)$user['id']]);
     $storageCleanup=[];
     foreach($result['deletedCompanies'] as $company){
         $cleanup=operations_remove_company_storage(private_storage_root().'/'.$company['id']);

@@ -258,7 +258,7 @@ function tegh_handle_invite_accept(): never
         tegh_record_terms_acceptance($id,(string)$invite['id']);db()->prepare("UPDATE account_invitations SET status='accepted',accepted_by=?,accepted_at=UTC_TIMESTAMP() WHERE id=? AND status='pending'")->execute([$id,$invite['id']]);db()->prepare("UPDATE account_invitation_tokens SET status='consumed' WHERE invitation_id=? AND status='active'")->execute([$invite['id']]);
         $actor=['id'=>$id,'email'=>$invite['email'],'displayName'=>$name];platform_audit_event($actor,'platform.invitation_accepted','invitation',(string)$invite['id'],['companyCount'=>count($invite['assignments']),'existingAccount'=>(bool)$member,'termsVersion'=>TEGH_TERMS_VERSION,'privacyVersion'=>TEGH_PRIVACY_VERSION]);return $actor;
     }));}catch(Throwable $error){tegh_fail_service($error);}
-    $session=create_session((string)$user['id']);json_response(['accepted'=>true,'auth'=>auth_payload($user,$session)]);
+    $session=create_session((string)$user['id'],!(function_exists('mfa_required_for_user')&&mfa_required_for_user((string)$user['id'])));json_response(['accepted'=>true,'auth'=>auth_payload($user,$session)]);
 }
 function tegh_handle_email_health(): never
 {
