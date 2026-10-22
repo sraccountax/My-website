@@ -12,7 +12,7 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R167 PRIVATE BETA CANDIDATE (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R168 PRIVATE BETA CANDIDATE (invitation-only, sample data only)
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -70,10 +70,11 @@ R164 (private beta package, replaces R163): security hardening for the invitatio
 R165 (private beta package, replaces R164): report row actions open the record they name. View on a vendor invoice and View note on a credit or debit note (CN, DN, SCN, SDN) open a read-only document page with the lines, totals, balance and the actions allowed for the role, instead of re-opening the register with the row highlighted; the same from the selection bar, the Day Book, ledgers and agent findings; the Credit & Debit Notes screens get a View button. Browser files only; no database change. See R165-CHANGES.md.
 R166 (private beta package, replaces R165): with Top navigation the bar uses the sidebar's deep green and light text (active page in the sidebar's green); dropdown menus built on <details> (Profile, Create, invoice Document, register row menus, More Filters) are no longer drawn off to the right before jumping into place. Browser files only; no database change. See R166-CHANGES.md.
 R167 (private beta package, replaces R166): tidier sidebar submenus — indented under their module with lighter text, a divider instead of the Activity/Reports headings, the current page marked, about 30% shorter, and the Receivables and Payables trial balances named AR Trial Balance and AP Trial Balance. Browser files only; no database change. See R167-CHANGES.md.
+R168 (private beta package, replaces R167): working in several tabs — Ctrl/Cmd-click, Shift-click or middle-click opens a menu entry, record or View action in a new tab in the same company; each tab keeps its own company (switching in one tab no longer reloads the others); the address names the company and more screens survive a refresh (create forms, customer/vendor documents, GIFI and Tax Code reports). Browser files only; no database change. See R168-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json
-and tegh-build.json all identify this package as R167; per-file hashes kept in
+and tegh-build.json all identify this package as R168; per-file hashes kept in
 their "history" sections record earlier releases and are not expected to match.
 
 Fresh installation (empty database): upload the package, put config.php outside

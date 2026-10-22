@@ -1,6 +1,29 @@
 (() => {
   'use strict';
   try {
+    // R168: each browser tab keeps its own company. The selected company (and the multi-company selection) are read
+    // from this tab's sessionStorage first; localStorage keeps the last choice as the default for new tabs. A tab
+    // opened from a Tegh link carries the company in the address (#...&co=), so it opens in the same company.
+    // Every request still sends the company and the server checks the person's access to it.
+    try {
+      const KEYS = new Set(['sr-accountax-company','sr-accountax-companies']), TAB = 'tegh-tab:';
+      const proto = Storage.prototype, get = proto.getItem, set = proto.setItem, remove = proto.removeItem;
+      const local = window.localStorage, session = window.sessionStorage;
+      if (local && session && !proto.__teghTabCompany) {
+        proto.__teghTabCompany = true;
+        proto.getItem = function (key) { if (this === local && KEYS.has(key)) { const tab = get.call(session, TAB + key); if (tab !== null) return tab; } return get.call(this, key); };
+        proto.setItem = function (key, value) { if (this === local && KEYS.has(key)) set.call(session, TAB + key, String(value)); return set.call(this, key, value); };
+        proto.removeItem = function (key) { if (this === local && KEYS.has(key)) remove.call(session, TAB + key); return remove.call(this, key); };
+        // Only a tab's first load takes the company from the address (or, without one, the last company used in any
+        // tab); after that the tab's own choice wins, so refreshing never undoes a company switch made in this tab.
+        if (get.call(session, TAB + 'sr-accountax-company') === null) {
+          const co = new URLSearchParams((location.hash || '').replace(/^#/, '')).get('co');
+          const ids = String(co || '').split(',').map(id => id.trim()).filter(id => /^company_[A-Za-z0-9]+$/.test(id)).slice(0, 50);
+          if (ids.length) { set.call(session, TAB + 'sr-accountax-company', ids[0]); set.call(session, TAB + 'sr-accountax-companies', JSON.stringify(ids)); }
+          else for (const key of KEYS) { const value = get.call(local, key); if (value !== null) set.call(session, TAB + key, value); }
+        }
+      }
+    } catch {}
     // Apply the last explicit shell choice before React and the portal mount.
     // This small global cache avoids a light-theme flash while the company-
     // scoped preference and server copy are still loading.
@@ -17,7 +40,7 @@
     // R141: invitation and password-reset tokens arrive after '#'.
     new URLSearchParams((location.hash || '').replace(/^#/, '')).forEach((value, key) => { if (['accountSetup','passwordReset'].includes(key) && !params.has(key)) params.set(key, value); });
     const version = '5990';
-    const assetRevision = '5990-r167-sidenav';
+    const assetRevision = '5990-r168-tabs';
     const signedOut = params.get('signed-out') === '1';
     if (signedOut) {
       document.documentElement.dataset.signedOut = '1';

@@ -6,7 +6,7 @@
   const notices=new Set();
   function clear(){notices.forEach(item=>item.close());notices.clear()}
   ['tegh:invalidate-scope','tegh:scope-invalidated','tegh:company-scope-invalidated'].forEach(name=>window.addEventListener(name,clear));
-  window.addEventListener('storage',e=>{if(e.key===null||['sr-accountax-company','sr-accountax-companies'].includes(e.key))clear()});
+  window.addEventListener('storage',e=>{if(e.key===null)clear()});
   function offer(blob,filename){
     const url=URL.createObjectURL(blob),item=document.createElement('div');item.className='tegh-output-notice success tegh-download-notice';item.setAttribute('role','status');
     let region=document.querySelector('#tegh-output-live');if(!region){region=document.createElement('div');region.id='tegh-output-live';region.className='tegh-output-live';document.body.append(region)}
