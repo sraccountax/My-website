@@ -683,6 +683,25 @@ function pst_rate_mpct_from_input(array $input, ?int $fallback = null): int
     return (int)$v;
 }
 
+/** Keep same-second audit rows in insertion order under the company write lock. */
+function audit_ordered_id(?array $last, string $candidate, string $createdAt): string
+{
+    if ($last === null || $createdAt > (string)$last['created_at']) return $candidate;
+    if ($createdAt < (string)$last['created_at']) throw new RuntimeException('Audit clock moved backwards. Retry after the clock catches up.');
+    if (strcmp($candidate, (string)$last['id']) > 0) return $candidate;
+    // Existing audit IDs and IDs remapped by a signed restore both use a
+    // 128-bit hex suffix. Increment the latest ID instead of allowing a random
+    // lower ID to sort before its predecessor and fork the next chain link.
+    if (!preg_match('/\A((?:audit|rest)_)([a-f0-9]{32})\z/', (string)$last['id'], $match)) throw new RuntimeException('Audit ordering requires review of the latest record ID.');
+    $hex = $match[2];
+    for ($i = 31; $i >= 0; $i--) {
+        if ($hex[$i] === 'f') { $hex[$i] = '0'; continue; }
+        $hex[$i] = '0123456789abcdef'[hexdec($hex[$i]) + 1];
+        return $match[1].$hex;
+    }
+    throw new RuntimeException('Audit ID range exhausted for this second. Retry in a moment.');
+}
+
 function audit_event(array $user, string $companyId, string $action, string $entityType, string $entityId, array $metadata = []): void
 {
     $pdo = db();
@@ -710,9 +729,13 @@ function audit_event(array $user, string $companyId, string $action, string $ent
         $json = json_encode($metadata, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
         if (function_exists('schema_column_exists') && schema_column_exists('audit_log', 'entry_hash')) {
             $createdAt = gmdate('Y-m-d H:i:s');
-            $stmt = $pdo->prepare('SELECT entry_hash FROM audit_log WHERE company_id=? ORDER BY created_at DESC,id DESC LIMIT 1');
+            // A locking read sees the latest committed tail even when the
+            // caller established a repeatable-read snapshot before the lock.
+            $stmt = $pdo->prepare('SELECT id,entry_hash,created_at FROM audit_log WHERE company_id=? ORDER BY created_at DESC,id DESC LIMIT 1 FOR UPDATE');
             $stmt->execute([$companyId]);
-            $previous = (string)($stmt->fetchColumn() ?: '');
+            $last = $stmt->fetch() ?: null;
+            $previous = (string)($last['entry_hash'] ?? '');
+            $id = audit_ordered_id($last, $id, $createdAt);
             $rid = request_id();
             $entry = hash('sha256', implode('|', [$companyId,$previous,$id,(string)$user['id'],(string)$user['email'],$action,$entityType,$entityId,$json,$rid,$createdAt]));
             $pdo->prepare('INSERT INTO audit_log (id,company_id,actor_user_id,actor_email,action,entity_type,entity_id,metadata_json,previous_hash,entry_hash,request_id,ip_hash,user_agent_hash,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)')

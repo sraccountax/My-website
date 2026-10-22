@@ -158,7 +158,24 @@ function backup_record_queries(): array
     if(schema_table_exists('accounting_note_lines'))$queries['accountingNoteLines']='SELECT * FROM accounting_note_lines WHERE company_id = ? ORDER BY note_id,sort_order,id';
     // R152: supplier memory learned from verified vendor invoices.
     if(schema_table_exists('vendor_document_memory'))$queries['vendorDocumentMemory']='SELECT * FROM vendor_document_memory WHERE company_id = ? ORDER BY vendor_id';
+    foreach (backup_r164_company_tables() as $key => $table) {
+        if (schema_table_exists($table)) $queries[$key] = 'SELECT * FROM '.$table.' WHERE company_id = ? ORDER BY company_id'.($key === 'companyOnboarding' ? '' : ($key === 'guidedStatementBatches' ? ',month_id,batch_id' : ',id'));
+    }
     return $queries;
+}
+
+/** Retained company workflow evidence; client authentication grants stay excluded. */
+function backup_r164_company_tables(): array
+{
+    return ['companyOnboarding'=>'company_onboarding','guidedStatementMonths'=>'guided_statement_months','guidedStatementBatches'=>'guided_statement_batches','accountantRequests'=>'accountant_requests'];
+}
+
+function backup_prepare_r164_storage(): void
+{
+    require_once __DIR__.'/onboarding_r157.php';
+    require_once __DIR__.'/guided_r163.php';
+    if (!tegh_onboarding_ready()) throw new RuntimeException('Company onboarding storage is unavailable.');
+    tegh_guided_r163_ready();
 }
 
 function backup_canonicalize(mixed $value): mixed
@@ -195,6 +212,7 @@ function handle_backup_export(): never
     // R151: line tables are created on first use; make sure they exist before export/restore.
     if(function_exists('note_lines_ready'))note_lines_ready();if(function_exists('r151_schema_ready'))r151_schema_ready();if(function_exists('r152_schema_ready'))r152_schema_ready();
     require_method('POST');require_csrf();$user=require_user();$company=require_company($user);require_company_permission($company,'company.backup');
+    backup_prepare_r164_storage();
     if(!class_exists('ZipArchive'))fail('The server ZIP extension is required for Tegh backups.',503,'zip_unavailable');
     $snapshot=backup_capture_snapshot($company);$backupId=new_id('backup');$companyId=(string)$company['id'];
     $evidence=backup_collect_evidence($snapshot['records'],$companyId);
@@ -241,6 +259,7 @@ function backup_restore_map(): array
     if(schema_table_exists('bill_lines'))$map['billLines']='bill_lines';
     if(schema_table_exists('accounting_note_lines'))$map['accountingNoteLines']='accounting_note_lines';
     if(schema_table_exists('vendor_document_memory'))$map['vendorDocumentMemory']='vendor_document_memory';
+    foreach (backup_r164_company_tables() as $key => $table) if (schema_table_exists($table)) $map[$key] = $table;
     return $map;
 }
 
@@ -251,7 +270,7 @@ function backup_insert_row(string $table,array $row,string $companyId,string $us
     $userColumns=['user_id','created_by','updated_by','approved_by','verified_by','run_by','initiated_by','invited_by','accepted_by','posted_by','actor_user_id','prepared_by','reviewed_by','reopened_by','locked_by','unlocked_by','reversed_by','gl_posted_by','matched_by','unreconciled_by','test_created_by','checked_by','performed_by','requested_by','assigned_to','assigned_user_id','changed_by','uploaded_by','actor_id','removed_by','linked_by','dismissed_by','snoozed_by','resolved_by','recovered_by','attested_by','voided_by','hold_by','released_by','suspended_by'];
     if($table==='payroll_employees'){unset($row['sin_ciphertext'],$row['sin_last_four']);} // R130: never restore SINs from older backups.
     if(array_key_exists('company_id',$row))$row['company_id']=$companyId;
-    foreach($userColumns as $column)if(array_key_exists($column,$row)&&$row[$column]!==null&&$row[$column]!=='')$row[$column]=$userId;
+    foreach(array_merge($userColumns,['started_by','completed_by']) as $column)if(array_key_exists($column,$row)&&$row[$column]!==null&&$row[$column]!=='')$row[$column]=$userId;
     if(array_key_exists('actor_email',$row)){$stmt=db()->prepare('SELECT email FROM users WHERE id=?');$stmt->execute([$userId]);$row['actor_email']=(string)$stmt->fetchColumn();}
     $unknown=array_diff_key($row,$available);if($unknown!==[])throw new RuntimeException('Restore would discard unsupported columns in '.$table.': '.implode(', ',array_keys($unknown)));
     $columns=array_keys($row);$sql='INSERT INTO `'.$table.'` (`'.implode('`,`',$columns).'`) VALUES ('.implode(',',array_fill(0,count($columns),'?')).')';db()->prepare($sql)->execute(array_values($row));
@@ -295,6 +314,16 @@ function backup_rehash_journal_entries(string $companyId): void
     foreach($entries->fetchAll() as $entry){$lines->execute([(string)$entry['id']]);$update->execute([journal_entry_content_hash((string)$entry['entry_date'],(string)$entry['memo'],$lines->fetchAll()),(string)$entry['id'],$companyId]);}
 }
 
+/** Verified archives are cloned with new run/employee IDs, both covered by this HMAC. */
+function backup_rehash_payroll_items(string $companyId): void
+{
+    require_once __DIR__.'/payroll.php';
+    $items=db()->prepare('SELECT i.* FROM payroll_run_items i JOIN payroll_runs r ON r.id=i.payroll_run_id WHERE r.company_id=?');
+    $items->execute([$companyId]);
+    $update=db()->prepare('UPDATE payroll_run_items SET locked_hash=? WHERE id=? AND payroll_run_id=?');
+    foreach ($items->fetchAll() as $item) $update->execute([payroll_item_integrity_hash($item),(string)$item['id'],(string)$item['payroll_run_id']]);
+}
+
 function handle_backup_restore(): never
 {
     // R151: line tables are created on first use; make sure they exist before export/restore.
@@ -302,6 +331,8 @@ function handle_backup_restore(): never
     require_method('POST');require_csrf();$user=require_user();
     $selectedCompanyId=trim((string)($_SERVER['HTTP_X_COMPANY_ID']??$_GET['companyId']??''));
     if($selectedCompanyId!==''){$membership=db()->prepare("SELECT role FROM company_members WHERE company_id=? AND user_id=? AND status='active'");$membership->execute([$selectedCompanyId,$user['id']]);if($membership->fetchColumn()!=='owner')fail('Only the Company Owner can restore a Tegh backup.',403,'role_forbidden');}
+    // A destination may not have opened the onboarding or guided modules yet.
+    backup_prepare_r164_storage();
     if(!class_exists('ZipArchive'))fail('The server ZIP extension is required for Tegh restore.',503,'zip_unavailable');
     if(!isset($_FILES['backup'])||!is_array($_FILES['backup']))fail('Choose a Tegh backup file.');$file=$_FILES['backup'];$name=(string)($file['name']??'');
     if(!in_array(strtolower(pathinfo($name,PATHINFO_EXTENSION)),['tegh','srbooks'],true))fail('Choose a .tegh backup file.',415,'backup_extension_invalid');
@@ -323,10 +354,12 @@ function backup_exclusions(): array
 {
     return [
         'sessions/password_reset_tokens/app_config'=>'Authentication sessions, reset links and installation secrets are never exported.',
+        'payrollEmployees.sin_ciphertext/payrollEmployees.sin_last_four'=>'Social Insurance Numbers are deliberately omitted; restore payroll identity details separately through an authorized secure process.',
         'ai_agent_action_authorizations/ai_agent_result_sets/ai_agent_tasks/data_import_previews'=>'Temporary previews, execution confirmations and in-flight tasks must be prepared again.',
         'feature_entitlements/entitlement_requests/entitlement_subjects/signup_feature_intents/feature_usage_daily'=>'Platform access policy and usage remain owned by the installation and are not cloned.',
         'platform_incident_log/client_error_events'=>'Installation diagnostics are retained in the separate server recovery backup.',
         'companyMembers'=>'The historical member list is evidence only; the restored company initially grants access only to the restoring owner.',
+        'client_view_links/client_view_codes/client_view_sessions'=>'Client viewing links and their authentication codes/sessions are never cloned; the restoring owner must explicitly share new links.',
     ];
 }
 
@@ -414,6 +447,11 @@ function backup_verify_archive(ZipArchive $zip): array
     $files=[];foreach($payload['evidenceManifest'] as $item){if(!is_array($item)||($item['status']??'')!=='present')throw new RuntimeException('The backup records a missing required supporting file.');$relative=(string)($item['relativePath']??'');$archive=(string)($item['archivePath']??'');if(!backup_safe_evidence_path($relative,$sourceId)||!str_starts_with($archive,'evidence/')||str_contains($archive,'..')||str_contains($archive,'\\')||isset($files[$relative]))throw new RuntimeException('The supporting file manifest contains an unsafe or duplicate path.');$contents=$zip->getFromName($archive);if(!is_string($contents)||strlen($contents)!==(int)($item['sizeBytes']??-1)||!hash_equals((string)($item['sha256']??''),hash('sha256',$contents)))throw new RuntimeException('A supporting file is missing, truncated or corrupted.');$files[$relative]=true;}
     if(count($payload['evidenceManifest'])!==(int)($manifest['evidenceCount']??-1))throw new RuntimeException('The supporting file count does not agree with its manifest.');
     foreach(backup_evidence_specs() as [$key,$column,$kind])foreach($payload['records'][$key]??[] as $row){$relative=(string)($row[$column]??'');if($relative!==''&&!isset($files[$relative]))throw new RuntimeException('A referenced '.$kind.' file is absent from the backup manifest.');}
+    // Every archive member must be authenticated by the signed file manifest.
+    // Never accept unsigned extras, even though restore does not extract them.
+    $expectedMembers=['manifest.json'=>true,'payload.json'=>true];
+    foreach($payload['evidenceManifest'] as $item){$name=(string)$item['archivePath'];if(isset($expectedMembers[$name]))throw new RuntimeException('Duplicate supporting archive member.');$expectedMembers[$name]=true;}
+    foreach($names as $name=>$_)if(!isset($expectedMembers[$name]))throw new RuntimeException('The backup contains an unexpected archive member.');
     return ['manifest'=>$manifest,'payload'=>$payload,'payloadSha256'=>$sha];
 }
 
@@ -479,7 +517,7 @@ function backup_restore_verified_payload(array $payload,array $user,ZipArchive $
     $pdo->beginTransaction();try{
         backup_insert_row('companies',$clone['company'],$companyId,(string)$user['id']);$pdo->prepare("INSERT INTO company_members (company_id,user_id,role) VALUES (?,?,'owner')")->execute([$companyId,$user['id']]);
         foreach($order as $key=>$table)foreach($clone['records'][$key] as $row)backup_insert_row($table,$row,$companyId,(string)$user['id']);
-        backup_rehash_journal_entries($companyId);backup_rehash_audit_company($companyId);
+        backup_rehash_journal_entries($companyId);backup_rehash_payroll_items($companyId);backup_rehash_audit_company($companyId);
         foreach($clone['evidenceManifest'] as $item){$contents=$zip->getFromName((string)$item['archivePath']);if(!is_string($contents)||!hash_equals((string)$item['sha256'],hash('sha256',$contents)))throw new RuntimeException('Stored evidence verification failed.');$root=private_storage_root();$dest=$root.'/'.$item['relativePath'];$dir=dirname($dest);if(file_exists($dest))throw new RuntimeException('A restored supporting file already exists.');if(!is_dir($dir)){if(!is_dir($root.'/'.$companyId))$createdDirectories[]=$root.'/'.$companyId;if(!@mkdir($dir,0700,true)&&!is_dir($dir))throw new RuntimeException('Stored evidence directory could not be created.');$createdDirectories[]=$dir;}$handle=@fopen($dest,'xb');if($handle===false)throw new RuntimeException('A supporting file could not be created.');$writtenFiles[]=$dest;try{$offset=0;$length=strlen($contents);while($offset<$length){$written=fwrite($handle,substr($contents,$offset));if($written===false||$written===0)throw new RuntimeException('A supporting file could not be written completely.');$offset+=$written;}if(!fflush($handle)||(function_exists('fsync')&&!fsync($handle)))throw new RuntimeException('A supporting file could not be safely flushed.');}finally{fclose($handle);}if(!chmod($dest,0600))throw new RuntimeException('A supporting file could not be protected.');}
         if(function_exists('tegh_company_entitlements_initialize'))tegh_company_entitlements_initialize($user,$companyId,(string)$clone['company']['name'],false);
         $sha=hash('sha256',backup_canonical_json($payload));$details=['sourceCompanyId'=>$payload['company']['id'],'sourceVersion'=>$payload['applicationVersion']??null,'recordCounts'=>$payload['recordCounts'],'restoredMemberCount'=>1,'previousMembersNeedReview'=>count($payload['companyMembers']??[]),'safetyChanges'=>'New company identity; owner access only; invitations revoked; automation paused; pending email requires manual review; original actor evidence retained in signed archive.'];

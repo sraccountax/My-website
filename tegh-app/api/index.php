@@ -193,6 +193,7 @@ try {
     require_once __DIR__ . '/ai_research.php';
     require_once __DIR__ . '/portal.php';
     require_once __DIR__ . '/marketing.php';
+    require_once __DIR__ . '/privacy_operations.php';
     require_once __DIR__ . '/data_imports.php';
     require_once __DIR__ . '/platform.php';
     require_once __DIR__ . '/native_agents.php';
@@ -301,6 +302,7 @@ require_once __DIR__ . '/report_comparison_r20.php';
     if ($route === 'backup/restore') handle_backup_restore();
     if ($route === 'portal' || str_starts_with($route,'portal/')) handle_portal(trim(substr($route,strlen('portal')),'/'));
     if ($route === 'marketing' || str_starts_with($route,'marketing/')) handle_marketing(trim(substr($route,strlen('marketing')),'/'));
+    if ($route === 'privacy-operations' || str_starts_with($route,'privacy-operations/')) handle_privacy_operations(trim(substr($route,strlen('privacy-operations')),'/'));
     if (str_starts_with($route,'data-imports/bank-transaction-categories/')) handle_tegh_bank_categories(substr($route,strlen('data-imports/bank-transaction-categories/')));
     if ($route === 'data-imports' || str_starts_with($route,'data-imports/')) handle_data_imports(trim(substr($route,strlen('data-imports')),'/'));
     if ($route === 'platform' || str_starts_with($route,'platform/')) handle_platform(trim(substr($route,strlen('platform')),'/'));

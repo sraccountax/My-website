@@ -130,6 +130,18 @@ function decode_invoice_snapshot(mixed $json, array $fallback): array
     return $fallback;
 }
 
+function invoice_sequence_integer(mixed $value): int
+{
+    $digits=ltrim((string)$value,'0');
+    if($digits===''||!ctype_digit($digits))fail('The invoice number sequence is unavailable.',409,'invoice_sequence_unavailable');
+    // Reserve room for the next counter without converting a BIGINT UNSIGNED
+    // to a lossy float or clamping it to PHP_INT_MAX.
+    $limit=(string)(PHP_INT_MAX-1);
+    if(strlen($digits)>strlen($limit)||(strlen($digits)===strlen($limit)&&strcmp($digits,$limit)>0))
+        fail('The invoice number sequence is exhausted. Contact the administrator before issuing another invoice.',409,'invoice_sequence_exhausted');
+    return (int)$digits;
+}
+
 function reserve_invoice_number(string $companyId): string
 {
     return db_transaction_retry(function () use ($companyId): string {
@@ -142,15 +154,15 @@ function reserve_invoice_number(string $companyId): string
             // Defensive repair for an installation where the sequence row was
             // removed manually. Normal migrations and company creation already
             // provision this row.
-            $maxStmt = db()->prepare("SELECT GREATEST(1001,
-                COALESCE(MAX(CASE WHEN number LIKE 'INV-%' THEN CAST(SUBSTRING(number, 5) AS UNSIGNED) END), 1000) + 1)
+            $maxStmt = db()->prepare("SELECT GREATEST(1000,
+                COALESCE(MAX(CASE WHEN number LIKE 'INV-%' THEN CAST(SUBSTRING(number, 5) AS UNSIGNED) END), 1000))
                 FROM invoices WHERE company_id = ?");
             $maxStmt->execute([$companyId]);
-            $number = (int)$maxStmt->fetchColumn();
+            $number = invoice_sequence_integer(invoice_sequence_integer($maxStmt->fetchColumn())+1);
             db()->prepare("INSERT INTO document_sequences (company_id, document_type, next_number)
                 VALUES (?, 'invoice', ?)")->execute([$companyId, $number + 1]);
         } else {
-            $number = (int)$current;
+            $number = invoice_sequence_integer($current);
             db()->prepare("UPDATE document_sequences SET next_number = ?
                 WHERE company_id = ? AND document_type = 'invoice'")
                 ->execute([$number + 1, $companyId]);

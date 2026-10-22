@@ -168,9 +168,13 @@ function tegh_schema_normalize_default(mixed $value): ?string
 /** @return array<string,mixed>|null */
 function tegh_schema_column_actual(string $table,string $column): ?array
 {
+    $row=null;
+    if(function_exists('schema_startup_contract_rows'))foreach(schema_startup_contract_rows('columns',$table)??[] as $candidate)if($candidate['COLUMN_NAME']===$column){$row=$candidate;break;}
+    if($row===null){
     $stmt=db()->prepare('SELECT COLUMN_TYPE,IS_NULLABLE,COLUMN_DEFAULT,EXTRA,CHARACTER_SET_NAME,COLLATION_NAME
         FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=? AND COLUMN_NAME=? LIMIT 1');
     $stmt->execute([$table,$column]);$row=$stmt->fetch();if(!$row)return null;
+    }
     return [
         'type'=>tegh_schema_normalize_type($row['COLUMN_TYPE']),
         'nullable'=>strtoupper((string)$row['IS_NULLABLE'])==='YES',
@@ -184,9 +188,13 @@ function tegh_schema_column_actual(string $table,string $column): ?array
 /** @return array<string,mixed>|null */
 function tegh_schema_index_actual(string $table,string $index): ?array
 {
+    $rows=[];
+    if(function_exists('schema_startup_contract_rows'))$rows=array_values(array_filter(schema_startup_contract_rows('indexes',$table)??[],static fn(array $r):bool=>$r['INDEX_NAME']===$index));
+    if(!$rows){
     $stmt=db()->prepare('SELECT NON_UNIQUE,COLUMN_NAME,SUB_PART,COLLATION
         FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=? AND INDEX_NAME=? ORDER BY SEQ_IN_INDEX');
     $stmt->execute([$table,$index]);$rows=$stmt->fetchAll();if(!$rows)return null;
+    }
     return [
         'unique'=>(int)$rows[0]['NON_UNIQUE']===0,
         'columns'=>array_map(static fn(array $row):string=>(string)$row['COLUMN_NAME'],$rows),
@@ -197,6 +205,9 @@ function tegh_schema_index_actual(string $table,string $index): ?array
 /** @return array<string,mixed>|null */
 function tegh_schema_foreign_key_actual(string $table,string $constraint): ?array
 {
+    $rows=[];
+    if(function_exists('schema_startup_contract_rows'))$rows=array_values(array_filter(schema_startup_contract_rows('foreignKeys',$table)??[],static fn(array $r):bool=>$r['CONSTRAINT_NAME']===$constraint));
+    if(!$rows){
     $stmt=db()->prepare('SELECT k.COLUMN_NAME,k.REFERENCED_TABLE_NAME,k.REFERENCED_COLUMN_NAME,rc.UPDATE_RULE,rc.DELETE_RULE
         FROM information_schema.KEY_COLUMN_USAGE k
         JOIN information_schema.REFERENTIAL_CONSTRAINTS rc
@@ -204,6 +215,7 @@ function tegh_schema_foreign_key_actual(string $table,string $constraint): ?arra
         WHERE k.CONSTRAINT_SCHEMA=DATABASE() AND k.TABLE_NAME=? AND k.CONSTRAINT_NAME=?
         ORDER BY k.ORDINAL_POSITION');
     $stmt->execute([$table,$constraint]);$rows=$stmt->fetchAll();if(!$rows)return null;
+    }
     $updateRule=strtoupper((string)$rows[0]['UPDATE_RULE']);$deleteRule=strtoupper((string)$rows[0]['DELETE_RULE']);
     // MySQL/MariaDB may expose the default RESTRICT action as NO ACTION.
     if($updateRule==='NO ACTION')$updateRule='RESTRICT';if($deleteRule==='NO ACTION')$deleteRule='RESTRICT';

@@ -304,6 +304,7 @@ function tegh_schema40_normalize_check(string $clause): string
 function tegh_schema40_check_actual(string $table,string $constraint): ?string
 {
     try{
+        if(function_exists('schema_startup_contract_rows'))foreach(schema_startup_contract_rows('checks',$table)??[] as $row)if($row['CONSTRAINT_NAME']===$constraint)return (string)$row['CHECK_CLAUSE'];
         $stmt=db()->prepare('SELECT cc.CHECK_CLAUSE FROM information_schema.TABLE_CONSTRAINTS tc JOIN information_schema.CHECK_CONSTRAINTS cc ON cc.CONSTRAINT_SCHEMA=tc.CONSTRAINT_SCHEMA AND cc.CONSTRAINT_NAME=tc.CONSTRAINT_NAME WHERE tc.CONSTRAINT_SCHEMA=DATABASE() AND tc.TABLE_NAME=? AND tc.CONSTRAINT_NAME=? AND tc.CONSTRAINT_TYPE=\'CHECK\' LIMIT 1');
         $stmt->execute([$table,$constraint]);$clause=$stmt->fetchColumn();return $clause===false?null:(string)$clause;
     }catch(PDOException){return null;}

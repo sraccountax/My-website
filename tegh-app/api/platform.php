@@ -472,6 +472,16 @@ function platform_voucher_from_audit(array $user,string $companyId,string $actio
     }catch(Throwable $e){record_system_incident('A voucher-register background update did not complete.',500,'voucher_background_update_failed',$e,['source'=>'background_error','route'=>'platform/vouchers','companyId'=>$companyId,'auditAction'=>$action,'entityType'=>$entityType,'entityId'=>$entityId]);error_log('Tegh voucher warning request='.request_id().' '.$e->getMessage());}
 }
 
+function platform_sequence_integer(mixed $value,bool $allowZero=false): int
+{
+    $raw=(string)$value;if(!ctype_digit($raw))fail('The transaction number sequence is unavailable.',409,'voucher_sequence_unavailable');
+    $digits=ltrim($raw,'0');if($digits===''){if($allowZero)return 0;fail('The transaction number sequence is unavailable.',409,'voucher_sequence_unavailable');}
+    $limit=(string)(PHP_INT_MAX-1);
+    if(strlen($digits)>strlen($limit)||(strlen($digits)===strlen($limit)&&strcmp($digits,$limit)>0))
+        fail('The transaction number sequence is exhausted. Contact the administrator before saving another document.',409,'voucher_sequence_exhausted');
+    return (int)$digits;
+}
+
 function platform_reserve_voucher(string $companyId,string $prefix): array
 {
     $prefix=strtoupper($prefix);if(!preg_match('/^[A-Z]{2,4}$/',$prefix))throw new InvalidArgumentException('Transaction prefix is invalid.');
@@ -485,13 +495,13 @@ function platform_reserve_voucher(string $companyId,string $prefix): array
     $lock=db()->prepare('SELECT next_serial FROM voucher_sequences WHERE company_id=? FOR UPDATE');$lock->execute([$companyId]);$next=$lock->fetchColumn();
     if($next===false){db()->prepare('INSERT IGNORE INTO voucher_sequences (company_id,next_serial) VALUES (?,1)')->execute([$companyId]);$lock->execute([$companyId]);$next=$lock->fetchColumn();}
     $max=db()->prepare('SELECT COALESCE(MAX(serial_number),0) FROM vouchers WHERE company_id=?');$max->execute([$companyId]);
-    $serial=max(1,(int)$next,(int)$max->fetchColumn()+1);
+    $serial=platform_sequence_integer(max(1,platform_sequence_integer($next),platform_sequence_integer($max->fetchColumn(),true)+1));
     db()->prepare('UPDATE voucher_sequences SET next_serial=? WHERE company_id=?')->execute([$serial+1,$companyId]);
 
     $mlock=db()->prepare('SELECT next_serial FROM transaction_sequences WHERE company_id=? AND prefix=? FOR UPDATE');$mlock->execute([$companyId,$prefix]);$mnext=$mlock->fetchColumn();
     if($mnext===false){db()->prepare('INSERT IGNORE INTO transaction_sequences (company_id,prefix,next_serial) VALUES (?,?,1)')->execute([$companyId,$prefix]);$mlock->execute([$companyId,$prefix]);$mnext=$mlock->fetchColumn();}
     $mmax=db()->prepare("SELECT COALESCE(MAX(CASE WHEN voucher_number REGEXP '^[A-Z]{2,4}-[0-9]+$' THEN CAST(SUBSTRING_INDEX(voucher_number,'-',-1) AS UNSIGNED) ELSE 0 END),0) FROM vouchers WHERE company_id=? AND prefix=?");$mmax->execute([$companyId,$prefix]);
-    $moduleSerial=max(1,(int)$mnext,(int)$mmax->fetchColumn()+1);
+    $moduleSerial=platform_sequence_integer(max(1,platform_sequence_integer($mnext),platform_sequence_integer($mmax->fetchColumn(),true)+1));
     db()->prepare('UPDATE transaction_sequences SET next_serial=? WHERE company_id=? AND prefix=?')->execute([$moduleSerial+1,$companyId,$prefix]);
     return ['serial'=>$serial,'moduleSerial'=>$moduleSerial,'number'=>$prefix.'-'.str_pad((string)$moduleSerial,3,'0',STR_PAD_LEFT)];
 }

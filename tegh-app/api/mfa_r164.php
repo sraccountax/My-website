@@ -462,7 +462,7 @@ function mfa_trusted_device_count(string $userId): int
 function mfa_login_second_step(array $user): never
 {
     $userId = (string)$user['id'];
-    if (!mfa_schema_ready()) json_response(auth_payload($user, create_session($userId, true)));
+    if (!mfa_schema_ready()) fail('Two-step verification is temporarily unavailable. Ask the operator to check the installation.', 503, 'mfa_unavailable', false);
     if (mfa_trusted_device_valid($userId)) {
         $session = create_session($userId, true);
         mfa_audit($user, '', 'mfa.trusted_device_used', 'user', $userId, []);
@@ -518,8 +518,8 @@ function mfa_mark_session_verified(string $sessionId): void
 function mfa_session_is_verified(?array $session): bool
 {
     if (!$session) return false;
-    if (!schema_column_exists('sessions', 'mfa_verified')) return true;
-    return (int)($session['mfa_verified'] ?? 1) === 1;
+    if (!schema_column_exists('sessions', 'mfa_verified')) return false;
+    return (int)($session['mfa_verified'] ?? 0) === 1;
 }
 
 /**
@@ -529,9 +529,9 @@ function mfa_session_is_verified(?array $session): bool
  */
 function mfa_gate(string $route): void
 {
-    if (!mfa_schema_ready()) return;
     $session = session_record();
     if (!$session) return; // unauthenticated requests are handled by the normal auth gate
+    if (!mfa_schema_ready()) fail('Two-step verification is temporarily unavailable. Ask the operator to check the installation.', 503, 'mfa_unavailable', false);
     if (mfa_session_is_verified($session)) return;
     $allowed = in_array($route, ['auth/me', 'auth/logout', 'auth/mfa/verify', 'auth/mfa/email-send', 'auth/mfa/status'], true);
     if ($allowed) return;
@@ -655,10 +655,17 @@ function handle_mfa_verify(): never
         if ($state['locked']) fail('Too many incorrect codes. Try again later or use the emailed code.', 429, 'mfa_locked', false);
     }
 
-    $ok = db_transaction_retry(static function () use ($method, $userId, $user, $code, $state): bool {
+    $ok = db_transaction_retry(static function () use ($method, $userId, $user, $code): bool {
         if ($method === 'email') return mfa_check_email_code($userId, (string)$user['sessionId'], $code);
+        // Read under the lock, including on transaction retries. A pre-transaction
+        // snapshot lets simultaneous requests accept the same TOTP counter, or
+        // use a factor that was disabled while this request was waiting.
+        $find = db()->prepare('SELECT * FROM user_mfa WHERE user_id=? LIMIT 1 FOR UPDATE');
+        $find->execute([$userId]);
+        $row = $find->fetch();
+        if (!$row || !(int)$row['confirmed']) return false;
+        if ($row['locked_until'] !== null && strtotime((string)$row['locked_until'] . ' UTC') > time()) return false;
         if ($method === 'recovery') return mfa_consume_recovery_code($userId, $code);
-        $row = $state['row'];
         $secret = mfa_decrypt_secret((string)$row['secret_cipher'], (string)$row['secret_nonce'], (string)$row['secret_tag']);
         $step = mfa_totp_match($secret, $code, $row['last_used_step'] !== null ? (int)$row['last_used_step'] : null);
         if ($step === null) return false;

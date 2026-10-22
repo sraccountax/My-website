@@ -3,7 +3,7 @@
 
   const VERSION = '5.9.9';
   const BUILD = '5990';
-  const ASSET_REVISION = '5990-r164-tegh';
+  const ASSET_REVISION = '5990-r164-audit3';
   const AUTH_CACHE_MS = 60000;
   const POST_COMMIT_SESSION_GRACE_MS = 45000;
   const RECOVERY_MARKER_KEY = 'tegh-session-recovery-v5990';
@@ -73,11 +73,8 @@
   installDeferredOCR();
   const escHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[character]));
   const rawFetch = window.fetch.bind(window);
-  const trackConversion = (event) => {
-    try {
-      rawFetch('/api/index.php?route=marketing/event', {method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',keepalive:true,body:JSON.stringify({event})}).catch(()=>{});
-    } catch (_) {}
-  };
+  // Optional marketing measurement is disabled pending owner approval.
+  const trackConversion = () => false;
   const params = new URL(window.location.href).searchParams;
   const forceSignIn = params.get('forceSignIn') === '1' || params.get('signin') === '1' || document.documentElement.dataset.signedOut === '1';
   const forceRegister = params.get('register') === '1';

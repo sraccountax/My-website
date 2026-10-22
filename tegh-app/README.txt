@@ -1,3 +1,17 @@
+UNAPPROVED COMPLETE DEPLOYMENT CANDIDATE
+TEGH-R164-COMPLETE-20261021T184424Z
+This complete package has not been deployed or approved for production.
+Policy drafts require owner/legal approval. Live IONOS, SMTP, backup, malware-scanning and restoration acceptance remain open.
+Preserve the host config.php, database, private storage, logs, security records and backups.
+Do not recursively delete the document root. Use the reviewed installation and rollback instructions.
+
+UNAPPROVED AUDIT CANDIDATE - NOT RELEASE-READY
+Tegh-R164-UNAPPROVED-AUDIT-CANDIDATE-20261021T140002Z
+Local synthetic testing only; not deployed. Critical coverage and IONOS acceptance remain open.
+Do not use a testing config/database or copy audit/runtime files to a host.
+Preserve the existing host private config, storage, audit/deletion register and backups.
+No automated deployment or migration has been performed by this package builder.
+
 TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R164 PRIVATE BETA CANDIDATE (invitation-only, sample data only)
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before

@@ -1,18 +1,79 @@
 <?php
 declare(strict_types=1);
 
+/** Both endpoints run the same read-only readiness scan (prepare requires CSRF). */
+function schema_readonly_startup_request(): bool
+{
+    $route = trim((string)($_GET['route'] ?? $_SERVER['PATH_INFO'] ?? ''), '/');
+    $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    return ($method === 'GET' && $route === 'startup/status')
+        || ($method === 'POST' && $route === 'startup/prepare');
+}
+
+/** Request-only actual contracts. No cross-request trust or schema-version shortcut. */
+function schema_startup_contract_rows(string $kind, string $table): ?array
+{
+    if (!schema_readonly_startup_request()) return null;
+    static $snapshots=[];
+    if (!isset($snapshots[$kind])) {
+        $queries=[
+            'columns'=>'SELECT TABLE_NAME,COLUMN_NAME,DATA_TYPE,COLUMN_TYPE,IS_NULLABLE,COLUMN_DEFAULT,EXTRA,CHARACTER_SET_NAME,COLLATION_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE()',
+            'indexes'=>'SELECT TABLE_NAME,INDEX_NAME,COLUMN_NAME,NON_UNIQUE,SEQ_IN_INDEX,SUB_PART,COLLATION FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=DATABASE() ORDER BY TABLE_NAME,INDEX_NAME,SEQ_IN_INDEX',
+            'foreignKeys'=>'SELECT k.TABLE_NAME,k.CONSTRAINT_NAME,k.COLUMN_NAME,k.REFERENCED_TABLE_NAME,k.REFERENCED_COLUMN_NAME,rc.UPDATE_RULE,rc.DELETE_RULE FROM information_schema.KEY_COLUMN_USAGE k JOIN information_schema.REFERENTIAL_CONSTRAINTS rc ON rc.CONSTRAINT_SCHEMA=k.CONSTRAINT_SCHEMA AND rc.TABLE_NAME=k.TABLE_NAME AND rc.CONSTRAINT_NAME=k.CONSTRAINT_NAME WHERE k.CONSTRAINT_SCHEMA=DATABASE() ORDER BY k.TABLE_NAME,k.CONSTRAINT_NAME,k.ORDINAL_POSITION',
+            'checks'=>"SELECT tc.TABLE_NAME,tc.CONSTRAINT_NAME,cc.CHECK_CLAUSE FROM information_schema.TABLE_CONSTRAINTS tc JOIN information_schema.CHECK_CONSTRAINTS cc ON cc.CONSTRAINT_SCHEMA=tc.CONSTRAINT_SCHEMA AND cc.CONSTRAINT_NAME=tc.CONSTRAINT_NAME WHERE tc.CONSTRAINT_SCHEMA=DATABASE() AND tc.CONSTRAINT_TYPE='CHECK'",
+        ];
+        if(!isset($queries[$kind]))throw new InvalidArgumentException('Unknown startup contract kind.');
+        $snapshots[$kind]=[];
+        foreach(db()->query($queries[$kind])->fetchAll(PDO::FETCH_ASSOC) as $row){$row=array_change_key_case($row,CASE_UPPER);$snapshots[$kind][$row['TABLE_NAME']][]=$row;}
+    }
+    return $snapshots[$kind][$table]??[];
+}
+
+/** Positive metadata snapshot for the read-only startup scan; never used by mutations. */
+function schema_startup_metadata(string $kind): array
+{
+    if (!schema_readonly_startup_request()) return [];
+    static $snapshots = [];
+    if (isset($snapshots[$kind])) return $snapshots[$kind];
+    $queries = [
+        'tables' => 'SELECT table_name FROM information_schema.tables WHERE table_schema=DATABASE()',
+        'columns' => 'SELECT table_name,column_name FROM information_schema.columns WHERE table_schema=DATABASE()',
+        'indexes' => 'SELECT table_name,index_name FROM information_schema.statistics WHERE table_schema=DATABASE()',
+        'constraints' => 'SELECT table_name,constraint_name FROM information_schema.table_constraints WHERE table_schema=DATABASE()',
+    ];
+    if (!isset($queries[$kind])) throw new InvalidArgumentException('Unknown schema metadata kind.');
+    $positive = [];
+    foreach (db()->query($queries[$kind])->fetchAll(PDO::FETCH_NUM) as $row) $positive[implode("\0", $row)] = true;
+    return $snapshots[$kind] = $positive;
+}
+
 function schema_table_exists(string $table): bool
 {
+    // Startup status is a read-only readiness scan and repeats the same probes
+    // across many schema revisions. Cache only positive results, for this
+    // request/route only; migration and mutation requests always query afresh.
+    static $present = [];
+    $cacheable = schema_readonly_startup_request();
+    if ($cacheable && isset($present[$table])) return true;
+    if ($cacheable && isset(schema_startup_metadata('tables')[$table])) return true;
     $stmt = db()->prepare('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?');
     $stmt->execute([$table]);
-    return (int)$stmt->fetchColumn() > 0;
+    $exists = (int)$stmt->fetchColumn() > 0;
+    if ($cacheable && $exists) $present[$table] = true;
+    return $exists;
 }
 
 function schema_column_exists(string $table, string $column): bool
 {
+    static $present = [];
+    $cacheable = schema_readonly_startup_request();
+    if ($cacheable && isset($present[$table][$column])) return true;
+    if ($cacheable && isset(schema_startup_metadata('columns')[$table."\0".$column])) return true;
     $stmt = db()->prepare('SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?');
     $stmt->execute([$table, $column]);
-    return (int)$stmt->fetchColumn() > 0;
+    $exists = (int)$stmt->fetchColumn() > 0;
+    if ($cacheable && $exists) $present[$table][$column] = true;
+    return $exists;
 }
 
 function schema_add_column(string $table, string $column, string $definition): void
@@ -31,6 +92,7 @@ function schema_column_nullable(string $table, string $column): bool
 
 function schema_constraint_exists(string $table, string $constraint): bool
 {
+    if (isset(schema_startup_metadata('constraints')[$table."\0".$constraint])) return true;
     $stmt = db()->prepare('SELECT COUNT(*) FROM information_schema.table_constraints
         WHERE table_schema = DATABASE() AND table_name = ? AND constraint_name = ?');
     $stmt->execute([$table, $constraint]);
@@ -39,6 +101,7 @@ function schema_constraint_exists(string $table, string $constraint): bool
 
 function schema_index_exists(string $table,string $index): bool
 {
+    if (isset(schema_startup_metadata('indexes')[$table."\0".$index])) return true;
     $stmt=db()->prepare('SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema=DATABASE() AND table_name=? AND index_name=?');
     $stmt->execute([$table,$index]);
     return (int)$stmt->fetchColumn()>0;

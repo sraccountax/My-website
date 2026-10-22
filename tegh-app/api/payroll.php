@@ -105,8 +105,15 @@ function payroll_dynamic_federal_basic(float $annualIncome, ?array $basic = null
     $basic ??= ['maximum'=>16_452.0,'minimum'=>14_829.0,'reductionStart'=>181_440.0,'reductionEnd'=>258_482.0];
     if ($annualIncome <= $basic['reductionStart']) return (float)$basic['maximum'];
     if ($annualIncome >= $basic['reductionEnd']) return (float)$basic['minimum'];
-    return $basic['maximum'] - ($basic['maximum'] - $basic['minimum'])
-        * (($annualIncome - $basic['reductionStart']) / ($basic['reductionEnd'] - $basic['reductionStart']));
+    return round($basic['maximum'] - ($basic['maximum'] - $basic['minimum'])
+        * (($annualIncome - $basic['reductionStart']) / ($basic['reductionEnd'] - $basic['reductionStart'])), 2);
+}
+
+function payroll_dynamic_manitoba_basic(float $annualIncome, float $maximum): float
+{
+    if ($annualIncome <= 200000.0) return $maximum;
+    if ($annualIncome >= 400000.0) return 0.0;
+    return round($maximum - ($annualIncome - 200000.0) * ($maximum / 200000.0), 2);
 }
 
 /** @param array{thresholds:array<int,float>,rates:array<int,float>,constants:array<int,float>} $schedule */
@@ -215,7 +222,7 @@ function payroll_calculate_2026(array $input, ?array $rateSnapshot = null): arra
     if (!isset($rates['provinces'][$province])) {
         throw new InvalidArgumentException('The province of employment is unsupported.');
     }
-    $periods = payroll_frequency_periods((string)$input['frequency']);
+    $periods = payroll_calendar_periods((string)$input['frequency'], $payDate, $input['payCalendarAnchor'] ?? null);
     $gross = max(0.0, ((int)$input['grossPayCents']) / 100);
     $pensionable = max(0.0, ((int)($input['pensionablePayCents'] ?? $input['grossPayCents'])) / 100);
     $insurable = max(0.0, ((int)($input['insurablePayCents'] ?? $input['grossPayCents'])) / 100);
@@ -236,9 +243,16 @@ function payroll_calculate_2026(array $input, ?array $rateSnapshot = null): arra
     }
 
     $cppMaximum = round($cppRates['max'] * ($pensionableMonths / 12), 2);
-    $cpp = ($cppExempt || $pensionableMonths === 0) ? 0.0 : max(0.0, min(
+    // CPP Regulations s.5(5)-(6): ordinary exemption is truncated to cents;
+    // 53/27 calendars add a separately rounded adjustment to the ordinary CPP.
+    $ordinaryPeriods = payroll_frequency_periods((string)$input['frequency']);
+    $ordinaryExemption = floor($cppRates['basicExemption'] * 100 / $ordinaryPeriods) / 100;
+    $calendarExemption = floor($cppRates['basicExemption'] * 100 / $periods) / 100;
+    $ordinaryCpp = round($cppRates['rate'] * max(0.0, $pensionable - $ordinaryExemption), 2);
+    $calendarAdjustment = $periods > $ordinaryPeriods ? round(($ordinaryExemption - $calendarExemption) * $cppRates['rate'], 2) : 0.0;
+    $cpp = ($cppExempt || $pensionableMonths === 0 || $pensionable <= $calendarExemption) ? 0.0 : max(0.0, min(
         $cppMaximum - $ytdCpp,
-        $cppRates['rate'] * max(0.0, $pensionable - ($cppRates['basicExemption'] / $periods)),
+        $ordinaryCpp + $calendarAdjustment,
     ));
     // T4127 C2 is the lesser of the remaining prorated annual maximum and the
     // current-period earnings newly exposed above the prorated YMPE. Do not
@@ -275,14 +289,31 @@ function payroll_calculate_2026(array $input, ?array $rateSnapshot = null): arra
         ? max(0.0, ((int)$input['provincialTd1Cents']) / 100)
         : ($provincial['basic'] === 'dynamic_federal'
             ? payroll_dynamic_federal_basic($annualIncome, $constants['federalBasic'])
-            : ($provincial['basic'] === 'dynamic_manitoba' ? $constants['manitobaBasic'] : (float)$provincial['basic']));
+            : ($provincial['basic'] === 'dynamic_manitoba' ? payroll_dynamic_manitoba_basic($annualIncome,(float)$constants['manitobaBasic']) : (float)$provincial['basic']));
+    $provincialCredits = $provincial['rates'][0] * ($provincialBasic + $annualBaseCppCredit + $annualEiCredit);
+    // CRA T4127 K4P (Yukon) and K5P (Alberta). These credits are separate
+    // from the personal amount, CPP and EI credits already included above.
+    $supplementalCredit = $province === 'AB' ? max(0.0, ($provincialCredits - 4896.0) * 0.25) : 0.0;
+    if ($province === 'YT') $supplementalCredit = $provincial['rates'][0] * $employmentAmount;
     $provincialBaseTax = max(0.0,
         payroll_schedule_tax($annualIncome, $provincial)
-        - $provincial['rates'][0] * ($provincialBasic + $annualBaseCppCredit + $annualEiCredit)
+        - $provincialCredits - $supplementalCredit
     );
     $provincialTax = $provincialBaseTax;
     $provincialAdjustments = 0.0;
-    if ($province === 'ON') {
+    if ($province === 'BC') {
+        // CRA T4127 Option 1 factor S: the July release prorates the reduction.
+        // Keep the explicit upper cutoff; it is not the zero of the taper.
+        $july = $rates['half'] === 'H2';
+        $reductionMaximum = $july ? 805.0 : 575.0;
+        $reductionCutoff = $july ? 44952.0 : 41722.0;
+        $reduction = $annualIncome > $reductionCutoff ? 0.0 : max(0.0, min(
+            $provincialBaseTax,
+            $reductionMaximum - max(0.0, $annualIncome - 25570.0) * 0.0356,
+        ));
+        $provincialAdjustments = -$reduction;
+        $provincialTax = max(0.0, $provincialBaseTax - $reduction);
+    } elseif ($province === 'ON') {
         $ontario = $constants['ontario'];
         $surtax = 0.0;
         foreach ($ontario['surtaxRates'] as $index => $rate) {
@@ -307,6 +338,7 @@ function payroll_calculate_2026(array $input, ?array $rateSnapshot = null): arra
         $employerEiRequiredToDateCents - $ytdEmployerEiCents,
     ));
     return [
+        'payPeriodsInYear' => $periods,
         'employeeCppCents' => $cppCents,
         'employeeCpp2Cents' => $cpp2Cents,
         'employeeEiCents' => $eiCents,
@@ -765,7 +797,7 @@ function payroll_insert_calculated_run_items(string $companyId,string $runId,str
         $rateSnapshot=payroll_validate_rate_release($rateSnapshot??payroll_rates_for_date($payDate,$companyId));
         payroll_assert_rate_date($rateSnapshot,$payDate);
     }catch(InvalidArgumentException $error){fail($error->getMessage(),422,'payroll_rate_release_required');}
-    $periods=payroll_frequency_periods($frequency);
+    $periods=payroll_calendar_periods($frequency,$payDate);
     $employeeStmt=db()->prepare('SELECT * FROM payroll_employees WHERE id=? AND company_id=? AND active=1 LIMIT 1');
     $insert=db()->prepare('INSERT INTO payroll_run_items (id,payroll_run_id,employee_id,regular_hours_milli,overtime_hours_milli,regular_pay_cents,overtime_pay_cents,additional_pay_cents,vacation_pay_cents,taxable_benefits_cents,gross_pay_cents,pensionable_pay_cents,insurable_pay_cents,employee_cpp_cents,employee_cpp2_cents,employee_ei_cents,estimated_income_tax_cents,other_deductions_cents,net_pay_cents,employer_cpp_cents,employer_cpp2_cents,employer_ei_cents,calculation_json,locked_hash) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
     $seen=[];
@@ -777,7 +809,13 @@ function payroll_insert_calculated_run_items(string $companyId,string $runId,str
         $employeeStmt->execute([$employeeId,$companyId]);$employee=$employeeStmt->fetch();
         if(!$employee)fail('A selected employee is unavailable.',$unavailableStatus,'payroll_employee_unavailable');
         if((string)$employee['pay_frequency']!==$frequency)fail('All employees in a run must use the selected frequency.',$validationStatus,'payroll_employee_frequency_mismatch');
+        $calendar=db()->prepare("SELECT r.pay_date FROM payroll_runs r JOIN payroll_run_items i ON i.payroll_run_id=r.id WHERE r.company_id=? AND i.employee_id=? AND r.frequency=? AND r.id<>? AND r.status<>'reversed' ORDER BY r.pay_date,r.id LIMIT 1");
+        $calendar->execute([$companyId,$employeeId,$frequency,$runId]);$calendarAnchor=$calendar->fetchColumn();
+        try{$periods=payroll_calendar_periods($frequency,$payDate,$calendarAnchor===false?null:(string)$calendarAnchor);}catch(InvalidArgumentException $error){fail($error->getMessage(),422,'payroll_calendar_mismatch');}
         if((string)$employee['province_of_employment']==='QC')fail('Quebec payroll is blocked.',$validationStatus,'quebec_payroll_unsupported');
+        $duplicate=db()->prepare("SELECT r.id FROM payroll_runs r JOIN payroll_run_items i ON i.payroll_run_id=r.id WHERE r.company_id=? AND i.employee_id=? AND r.period_start=? AND r.period_end=? AND r.id<>? AND r.status<>'reversed' LIMIT 1");
+        $duplicate->execute([$companyId,$employeeId,$periodStart,$periodEnd,$runId]);
+        if($duplicate->fetchColumn()!==false)fail('This employee already has an active pay run for this period. Recalculate that draft or follow the payroll correction process.',409,'payroll_employee_period_duplicate');
         if((string)$employee['hire_date']>$periodEnd)fail($employee['first_name'].' '.$employee['last_name'].' was not hired by this pay period.',$validationStatus,'payroll_employee_not_hired');
         if($employee['termination_date']!==null&&$periodStart>(string)$employee['termination_date'])fail($employee['first_name'].' '.$employee['last_name'].' was terminated before this pay period.',$validationStatus,'payroll_employee_terminated');
         $regularHours=array_key_exists('regularHours',$entry)?payroll_safe_hours_milli($entry['regularHours'],'Regular hours'):(int)$employee['standard_hours_milli'];
@@ -833,6 +871,7 @@ function handle_payroll_run_create(array $user, array $company): never
     $runId = new_id('payrun');
     db()->beginTransaction();
     try {
+        $companyLock=db()->prepare('SELECT id FROM companies WHERE id=? FOR UPDATE');$companyLock->execute([$company['id']]);
         try { $rateSet = payroll_rates_for_date($payDate, (string)$company['id']); } catch (InvalidArgumentException $error) { fail($error->getMessage(), 422, 'payroll_rate_release_required'); }
         $sequenceStmt=db()->prepare('SELECT COALESCE(MAX(run_sequence),0)+1 FROM payroll_runs WHERE company_id=? AND period_start=? AND period_end=? AND frequency=?');$sequenceStmt->execute([$company['id'],$periodStart,$periodEnd,$frequency]);$runSequence=(int)$sequenceStmt->fetchColumn();
         db()->prepare("INSERT INTO payroll_runs (id,company_id,period_start,period_end,pay_date,frequency,run_sequence,status,calculation_version,rate_snapshot_json,created_by,create_operation_key,create_request_hash) VALUES (?,?,?,?,?,?,?,'draft',?,?,?,?,?)")
@@ -963,6 +1002,11 @@ function handle_payroll_finalize(array $user, array $company): never
     $journal=null;$draftId=null;
     db()->beginTransaction();
     try{
+        // Different runs can share employees. Serialize before the first
+        // consistent read so the YTD snapshot includes any preceding finalization.
+        // Locking only the selected run allows both stale drafts to pass review.
+        $companyLock=db()->prepare('SELECT id FROM companies WHERE id=? FOR UPDATE');$companyLock->execute([$company['id']]);
+        if($companyLock->fetchColumn()===false)fail('The selected company is unavailable.',403,'company_forbidden');
         $stmt=db()->prepare("SELECT * FROM payroll_runs WHERE id=? AND company_id=? FOR UPDATE");$stmt->execute([$runId,$company['id']]);$run=$stmt->fetch();if(!$run)fail('Payroll run not found.',404,'payroll_run_not_found');if($run['status']!=='draft')fail('Only a draft run can be finalised.',409,'payroll_run_locked');
         try{
             payroll_assert_draft_rate_snapshot($run,payroll_rates_for_date((string)$run['pay_date'],(string)$company['id']));

@@ -323,6 +323,12 @@
     const rows=[line(m.columns.map(c=>c.label))];
     m.rows.forEach((r,i)=>{rows.push(line(m.columns.map(c=>raw(r,c))));if(m.groupBy&&(!m.rows[i+1]||m.rows[i+1][m.groupBy]!==r[m.groupBy])){let total=m.groupTotals?.[r[m.groupBy]];if(total!=null){if(typeof total!=='object'){const c=m.columns.filter(c=>c.type==='money').at(-1);total=c?{[c.key]:total}:{};}rows.push(line(m.columns.map((c,j)=>j===0?'Total '+(m.groupLabels?.[r[m.groupBy]]||r[m.groupBy]):raw(total,c))));}}});
     for(const r of m.summaryRows||[])rows.push(line(m.columns.map((c,i)=>i===0?r.accountName||r.label||'Report total':raw(r,c))));
+    // Retain the same supplied monetary totals used by Excel/PDF. Source or
+    // filtered-view totals are prepared before export; do not infer sums for
+    // mixed currencies or non-additive running/closing-balance columns here.
+    const totals=m.totals||{};
+    if(m.columns.some((c,i)=>i>0&&c.type==='money'&&Object.hasOwn(totals,c.key)))
+      rows.push(line(m.columns.map((c,i)=>i===0?'Total':c.type==='money'&&Object.hasOwn(totals,c.key)?raw(totals,c):'')));
     return new Blob(['\uFEFF'+rows.join('\r\n')+'\r\n'],{type:'text/csv;charset=utf-8'});
   }
   function invalidate(page){const s=states.get(page);if(s){s.stale=true;s.observer?.disconnect();s.viewportCleanup?.();closeLayers(s);s.host.setAttribute('aria-busy','true');s.host.dataset.ready='false';status(s,'Updating report…');}}

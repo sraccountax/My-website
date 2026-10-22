@@ -71,9 +71,10 @@ function marketing_contact_submit(): never
     if ($age < 2) fail('The form was submitted too quickly. Please try again.', 400, 'marketing_submission_too_fast', false);
     if ($age > 3600 || $age < 0) fail('The form session expired. Reload the page and try again.', 400, 'marketing_token_expired', false);
     marketing_rate_limit_check();
-    $name = required_text($body['name'] ?? '', 'Name', 120); $email = safe_email($body['email'] ?? '');
+    // Use the shared required-text validator; required_text() is not part of bootstrap.
+    $name = clean_text($body['name'] ?? '', 'Name', 120); $email = safe_email($body['email'] ?? '');
     $company = optional_text($body['company'] ?? '', 160) ?? ''; $phone = optional_text($body['phone'] ?? '', 40) ?? '';
-    $help = required_text($body['help'] ?? '', 'What can we help with?', 120); $message = required_text($body['message'] ?? '', 'Message', 2000);
+    $help = clean_text($body['help'] ?? '', 'What can we help with?', 120); $message = clean_text($body['message'] ?? '', 'Message', 2000);
     marketing_consume_nonce($nonce, (int)$issuedAt);
     $recipientRaw = trim((string)(config('mail.marketing_to') ?? config('mail.reply_to') ?? config('mail.from_email') ?? ''));
     if ($recipientRaw === '') fail('The contact form is temporarily unavailable. Please try again later.', 503, 'marketing_mail_unconfigured', false);
@@ -90,6 +91,9 @@ function marketing_contact_submit(): never
 function marketing_event_collect(): never
 {
     require_method('POST'); assert_same_origin(); $body = request_json();
+    if (!(bool)(config('privacy.optional_metrics_enabled') ?? false)) {
+        json_response(['ok' => true, 'recorded' => false, 'reason' => 'optional_metrics_disabled'], 202);
+    }
     $event = trim((string)($body['event'] ?? ''));
     $allowed = ['join_beta_click','signup_started','signup_completed','request_demo_view','request_demo_started','request_demo_success','ask_tegh_demo_click','pricing_view','migration_view'];
     if (!in_array($event, $allowed, true)) fail('Unknown marketing event.', 400, 'marketing_event_invalid', false);
@@ -107,7 +111,7 @@ function marketing_event_collect(): never
             }
         } finally { @flock($handle, LOCK_UN); @fclose($handle); }
     }
-    json_response(['ok' => true], 202);
+    json_response(['ok' => true, 'recorded' => true], 202);
 }
 
 function handle_marketing(string $subroute): never

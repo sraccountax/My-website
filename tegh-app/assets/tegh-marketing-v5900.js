@@ -38,7 +38,9 @@
   $$('.report-tab').forEach(btn=>btn.addEventListener('click',()=>{$$('.report-tab').forEach(x=>x.classList.toggle('active',x===btn));const title=$('[data-report-title]'),period=$('[data-report-period]');if(!title)return;const name=btn.dataset.report||'Profit & Loss';title.textContent=name;if(period)period.textContent=name==='Balance Sheet'?'As of August 31, 2026':'August 1–31, 2026'}));
 
   const allowedEvents=new Set(['join_beta_click','signup_started','request_demo_view','request_demo_started','request_demo_success','ask_tegh_demo_click','pricing_view','migration_view']);
-  const track=(event)=>{if(!allowedEvents.has(event))return;try{fetch('/api/index.php?route=marketing/event',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',keepalive:true,body:JSON.stringify({event})}).catch(()=>{})}catch(_){}};
+  // Optional marketing measurement is disabled for the initial beta. Keep the
+  // public API shape so existing callers remain harmless and no request fires.
+  const track=(event)=>{if(!allowedEvents.has(event))return false;return false};
   window.TeghMarketing={track};
   $$('a[href*="register=1"]').forEach(a=>a.addEventListener('click',()=>{track('join_beta_click');track('signup_started')}));
   $$('a[href="/ask-tegh.html"],a[href="#ask"]').forEach(a=>a.addEventListener('click',()=>track('ask_tegh_demo_click')));

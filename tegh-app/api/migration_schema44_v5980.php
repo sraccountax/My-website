@@ -136,7 +136,7 @@ function tegh_schema44_status(): array
 {
     $issues=[];$pdo=db();
     foreach(tegh_schema44_table_sql() as $table=>$sql){
-        $s=$pdo->prepare('SELECT COLUMN_NAME,DATA_TYPE,IS_NULLABLE,COLUMN_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?');$s->execute([$table]);$actual=[];foreach($s->fetchAll() as $row)$actual[$row['COLUMN_NAME']]=$row;
+        $columnRows=schema_startup_contract_rows('columns',$table);if($columnRows===null){$s=$pdo->prepare('SELECT COLUMN_NAME,DATA_TYPE,IS_NULLABLE,COLUMN_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?');$s->execute([$table]);$columnRows=$s->fetchAll();}$actual=[];foreach($columnRows as $row)$actual[$row['COLUMN_NAME']]=$row;
         if(!$actual){$issues[]=['object'=>$table,'code'=>'missing_table','repairable'=>true];continue;}
         preg_match_all('/(?:\(|,)\s*([a-z_]+)\s+(VARCHAR|CHAR|INT|BIGINT|MEDIUMTEXT|LONGTEXT|TEXT|DATETIME)\b(?:\((\d+)\))?([^,\n]*)/i',$sql,$columns,PREG_SET_ORDER);
         foreach($columns as $column){
@@ -145,16 +145,16 @@ function tegh_schema44_status(): array
             $nullable=!str_contains(strtoupper($column[4]),'NOT NULL')&&!str_contains(strtoupper($column[4]),'PRIMARY KEY');
             if(strtolower($got['DATA_TYPE'])!==$type||($expectedSize!==''&&!str_starts_with(strtolower($got['COLUMN_TYPE']),"$type($expectedSize)"))||(!$nullable&&$got['IS_NULLABLE']!=='NO')||(str_contains(strtoupper($column[4]),'UNSIGNED')&&!str_contains(strtolower($got['COLUMN_TYPE']),'unsigned')))$issues[]=['object'=>"$table.$name",'code'=>'column_contract_mismatch','repairable'=>false];
         }
-        $idx=$pdo->prepare('SELECT INDEX_NAME,COLUMN_NAME,NON_UNIQUE,SEQ_IN_INDEX FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=? ORDER BY INDEX_NAME,SEQ_IN_INDEX');$idx->execute([$table]);$indexes=[];
-        foreach($idx->fetchAll() as $row){$key=(string)$row['INDEX_NAME'];$indexes[$key]['unique']=(int)$row['NON_UNIQUE']===0;$indexes[$key]['columns'][]=(string)$row['COLUMN_NAME'];}
+        $indexRows=schema_startup_contract_rows('indexes',$table);if($indexRows===null){$idx=$pdo->prepare('SELECT INDEX_NAME,COLUMN_NAME,NON_UNIQUE,SEQ_IN_INDEX FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=? ORDER BY INDEX_NAME,SEQ_IN_INDEX');$idx->execute([$table]);$indexRows=$idx->fetchAll();}$indexes=[];
+        foreach($indexRows as $row){$key=(string)$row['INDEX_NAME'];$indexes[$key]['unique']=(int)$row['NON_UNIQUE']===0;$indexes[$key]['columns'][]=(string)$row['COLUMN_NAME'];}
         foreach(tegh_schema44_index_contract($sql) as $key=>$expected){
             if(!isset($indexes[$key]))$issues[]=['object'=>"$table.$key",'code'=>'missing_index','repairable'=>false];
             elseif($indexes[$key]!==$expected)$issues[]=['object'=>"$table.$key",'code'=>'index_contract_mismatch','repairable'=>false];
         }
         preg_match_all('/CONSTRAINT\s+([a-z_0-9]+)\s+FOREIGN\s+KEY\s*\(([^)]+)\)\s+REFERENCES\s+([a-z_0-9]+)\s*\(([^)]+)\)\s+ON\s+DELETE\s+(CASCADE|RESTRICT|SET NULL|NO ACTION)/i',$sql,$fks,PREG_SET_ORDER);
         if($fks){
-            $fk=$pdo->prepare('SELECT k.CONSTRAINT_NAME,k.COLUMN_NAME,k.REFERENCED_TABLE_NAME,k.REFERENCED_COLUMN_NAME,r.DELETE_RULE FROM information_schema.KEY_COLUMN_USAGE k JOIN information_schema.REFERENTIAL_CONSTRAINTS r ON r.CONSTRAINT_SCHEMA=k.CONSTRAINT_SCHEMA AND r.TABLE_NAME=k.TABLE_NAME AND r.CONSTRAINT_NAME=k.CONSTRAINT_NAME WHERE k.CONSTRAINT_SCHEMA=DATABASE() AND k.TABLE_NAME=?');$fk->execute([$table]);$actualFk=[];
-            foreach($fk->fetchAll() as $row)$actualFk[$row['CONSTRAINT_NAME']]=$row;
+            $foreignRows=schema_startup_contract_rows('foreignKeys',$table);if($foreignRows===null){$fk=$pdo->prepare('SELECT k.CONSTRAINT_NAME,k.COLUMN_NAME,k.REFERENCED_TABLE_NAME,k.REFERENCED_COLUMN_NAME,r.DELETE_RULE FROM information_schema.KEY_COLUMN_USAGE k JOIN information_schema.REFERENTIAL_CONSTRAINTS r ON r.CONSTRAINT_SCHEMA=k.CONSTRAINT_SCHEMA AND r.TABLE_NAME=k.TABLE_NAME AND r.CONSTRAINT_NAME=k.CONSTRAINT_NAME WHERE k.CONSTRAINT_SCHEMA=DATABASE() AND k.TABLE_NAME=?');$fk->execute([$table]);$foreignRows=$fk->fetchAll();}$actualFk=[];
+            foreach($foreignRows as $row)$actualFk[$row['CONSTRAINT_NAME']]=$row;
             foreach($fks as $m){$got=$actualFk[$m[1]]??null;if(!$got||$got['COLUMN_NAME']!==trim($m[2])||$got['REFERENCED_TABLE_NAME']!==$m[3]||$got['REFERENCED_COLUMN_NAME']!==trim($m[4])||strtoupper($got['DELETE_RULE'])!==strtoupper($m[5]))$issues[]=['object'=>$table.'.'.$m[1],'code'=>'foreign_key_contract_mismatch','repairable'=>false];}
         }
     }

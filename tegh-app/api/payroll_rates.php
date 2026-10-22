@@ -11,7 +11,28 @@ declare(strict_types=1);
  * Primary source: CRA T4127, 122nd and 123rd editions.
  */
 
-const SR_PAYROLL_CALCULATION_VERSION = 'CRA-T4127-2026.2-verified-tax';
+const SR_PAYROLL_CALCULATION_VERSION = 'CRA-T4127-2026.4-verified-tax';
+
+/** Regular pay calendar, not the employee's count of payments since hire. */
+function payroll_calendar_periods(string $frequency, string $payDate, ?string $anchor = null): int
+{
+    $regular = payroll_frequency_periods($frequency);
+    foreach ([$payDate, $anchor ?? $payDate] as $date) {
+        $parsed = DateTimeImmutable::createFromFormat('!Y-m-d', $date, new DateTimeZone('UTC'));
+        if (!$parsed || $parsed->format('Y-m-d') !== $date) throw new InvalidArgumentException('Payroll calendar date is invalid.');
+    }
+    if (!in_array($frequency, ['weekly','biweekly'], true)) return $regular;
+    $step = $frequency === 'weekly' ? 7 : 14;
+    $pay = new DateTimeImmutable($payDate, new DateTimeZone('UTC'));
+    $origin = new DateTimeImmutable($anchor ?? $payDate, new DateTimeZone('UTC'));
+    $offset = (int)$origin->diff($pay)->format('%r%a');
+    if ($offset % $step !== 0) throw new InvalidArgumentException('Pay date does not follow the employee regular pay calendar.');
+    $first = new DateTimeImmutable($pay->format('Y').'-01-01', new DateTimeZone('UTC'));
+    $distance = (int)$first->diff($origin)->format('%r%a');
+    $first = $first->modify('+'.(($distance % $step + $step) % $step).' days');
+    $last = new DateTimeImmutable($pay->format('Y').'-12-31', new DateTimeZone('UTC'));
+    return intdiv((int)$first->diff($last)->format('%a'), $step) + 1;
+}
 
 function payroll_frequency_periods(string $frequency): int
 {

@@ -174,8 +174,9 @@ function tax_code_compute(array $code, int $amountCents, string $mode = 'exclusi
     if ($mode === 'inclusive') {
         $net = (int)round(($amountCents * 100000) / (100000 + $total));
         $tax = $amountCents - $net;
-        $parts = []; $left = $tax; $last = count($comps) - 1;
-        foreach ($comps as $i => $c) { $p = $i === $last ? $left : (int)round($tax * (int)$c['rateMpct'] / $total); $parts[] = $p; $left -= $p; }
+        // Allocate rounded cents without making the final component negative or
+        // assigning a rounding residue to a zero-rate component.
+        $parts = tax_allocate($tax, array_map(static fn(array $c): int => (int)$c['rateMpct'], $comps));
         return ['net' => $net, 'gross' => $amountCents, 'tax' => $tax, 'parts' => $parts];
     }
     $parts = array_map(static fn(array $c): int => (int)round(($amountCents * (int)$c['rateMpct']) / 100000), $comps);

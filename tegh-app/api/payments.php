@@ -245,7 +245,7 @@ function payment_unapply_service(array $user,array $company,array $input,bool $m
     try{
         $company=tegh_bank_reauthorize_mutation($user,$company,'');
         $operation=payment_application_operation_begin($user,$companyId,$operationKey,$hash);if($operation['replay']){if($manageTransaction)db()->commit();return $operation['result'];}
-        $q=db()->prepare("SELECT pa.*,pp.payment_type,pp.party_id,pp.status payment_status FROM party_payment_applications pa JOIN party_payments pp ON pp.id=pa.payment_id AND pp.company_id=pa.company_id WHERE pa.company_id=? AND pa.id=? FOR UPDATE");$q->execute([$companyId,$applicationId]);$application=$q->fetch(PDO::FETCH_ASSOC);
+        $q=db()->prepare("SELECT pa.*,pp.payment_type,pp.party_id,pp.status payment_status,pp.journal_entry_id payment_journal_entry_id,pp.payment_account_id,pp.amount_cents payment_amount_cents,op.operation_key FROM party_payment_applications pa JOIN party_payments pp ON pp.id=pa.payment_id AND pp.company_id=pa.company_id JOIN party_payment_application_operations op ON op.id=pa.operation_id AND op.company_id=pa.company_id WHERE pa.company_id=? AND pa.id=? FOR UPDATE");$q->execute([$companyId,$applicationId]);$application=$q->fetch(PDO::FETCH_ASSOC);
         if(!$application||(string)$application['status']!=='posted'||(string)$application['payment_status']!=='posted')fail('This payment application is no longer available to unapply.',409,'payment_application_unavailable');
         $type=(string)$application['payment_type'];require_company_permission($company,$type==='customer'?'invoices.write':'bills.write');
         if($date<(string)$application['application_date'])fail('The unapply date cannot precede the application date.',422,'payment_unapply_date_invalid');
@@ -254,13 +254,27 @@ function payment_unapply_service(array $user,array $company,array $input,bool $m
         if(!$document)fail('The linked document is unavailable.',409,'payment_application_document_unavailable');
         $recognitionReversalId=null;
         if($application['recognition_journal_entry_id']!==null)$recognitionReversalId=add_reversing_journal_entry($user,$companyId,(string)$application['recognition_journal_entry_id'],$date,$type.'_payment_application_reversal',$applicationId,'Unapply payment allocation');
+        elseif((string)$application['operation_key']==='initial:'.(string)$application['payment_id']){
+            // Direct receipts/payments include recognition in the payment journal.
+            // Convert that original posting to an unapplied advance without
+            // rewriting it: negate its lines, then retain bank versus AR/AP at
+            // the payment's actual carrying amount. This also reverses cash-basis
+            // revenue/tax recognition and realized FX until the next application.
+            $q=db()->prepare('SELECT jl.account_id,SUM(jl.credit_cents-jl.debit_cents) amount FROM journal_lines jl JOIN journal_entries je ON je.id=jl.journal_entry_id WHERE je.company_id=? AND je.id=? GROUP BY jl.account_id');
+            $q->execute([$companyId,(string)$application['payment_journal_entry_id']]);$amounts=[];foreach($q->fetchAll(PDO::FETCH_ASSOC) as $line)$amounts[(string)$line['account_id']]=(int)$line['amount'];
+            if(!$amounts)throw new RuntimeException('The original payment journal is unavailable.');
+            $bank=(string)$application['payment_account_id'];$control=account_by_code($companyId,$type==='customer'?'1200':'2050');$amount=(int)$application['payment_amount_cents'];$sign=$type==='customer'?1:-1;
+            $amounts[$bank]=($amounts[$bank]??0)+$sign*$amount;$amounts[$control]=($amounts[$control]??0)-$sign*$amount;$lines=[];
+            foreach($amounts as $accountId=>$net)if($net!==0)$lines[]=['accountId'=>$accountId,'debitCents'=>max(0,$net),'creditCents'=>max(0,-$net),'memo'=>'Unapply direct payment recognition'];
+            if($lines)$recognitionReversalId=add_journal_entry($user,$companyId,$date,$type.'_payment_initial_unapply',$applicationId,'Unapply direct payment recognition',$lines);
+        }
         $restoreBase=(int)$application['document_carrying_cents'];$restoreForeign=(int)$application['foreign_amount_cents'];
         db()->prepare("UPDATE `$table` SET balance_cents=LEAST(total_cents,balance_cents+?),foreign_balance_cents=LEAST(foreign_total_cents,foreign_balance_cents+?),status=? WHERE company_id=? AND id=?")
             ->execute([$restoreBase,$restoreForeign,$openStatus,$companyId,(string)$document['id']]);
         db()->prepare("UPDATE party_payment_applications SET status='reversed',reversed_by=?,reversed_at=UTC_TIMESTAMP() WHERE company_id=? AND id=? AND status='posted'")
             ->execute([(string)$user['id'],$companyId,$applicationId]);
         $reversalId=new_id('payapply');
-        db()->prepare("INSERT INTO party_payment_applications(id,company_id,payment_id,document_type,document_id,partner_type,partner_id,application_date,foreign_amount_cents,payment_carrying_cents,document_carrying_cents,recognition_journal_entry_id,status,reversal_of_id,operation_id,created_by,reversed_by,reversed_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'reversed',?,?,?,?,?,UTC_TIMESTAMP())")
+        db()->prepare("INSERT INTO party_payment_applications(id,company_id,payment_id,document_type,document_id,partner_type,partner_id,application_date,foreign_amount_cents,payment_carrying_cents,document_carrying_cents,recognition_journal_entry_id,status,reversal_of_id,operation_id,created_by,reversed_by,reversed_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'reversed',?,?,?,?,UTC_TIMESTAMP())")
             ->execute([$reversalId,$companyId,(string)$application['payment_id'],(string)$application['document_type'],(string)$application['document_id'],(string)$application['partner_type'],(string)$application['partner_id'],$date,$restoreForeign,(int)$application['payment_carrying_cents'],$restoreBase,$recognitionReversalId,$applicationId,(string)$operation['operation']['id'],(string)$user['id'],(string)$user['id']]);
         db()->prepare("UPDATE party_payments SET applied_cents=(SELECT COALESCE(SUM(payment_carrying_cents),0) FROM party_payment_applications WHERE company_id=? AND payment_id=? AND status='posted') WHERE company_id=? AND id=?")
             ->execute([$companyId,(string)$application['payment_id'],$companyId,(string)$application['payment_id']]);
@@ -283,7 +297,12 @@ function assert_party_payment_posting_invariants(string $companyId,string $payme
     if($payment['document_id']===null||$priorDocumentBalance===null)return;
     $table=(string)$payment['payment_type']==='customer'?'invoices':'bills';
     $balance=db()->prepare("SELECT balance_cents FROM `$table` WHERE id=? AND company_id=?");$balance->execute([$payment['document_id'],$companyId]);$current=$balance->fetchColumn();
-    if($current===false||!party_payment_invariant_values((int)$payment['debits'],(int)$payment['credits'],$priorDocumentBalance,(int)$current,(int)$payment['applied_cents']))throw new RuntimeException('The payment amount does not equal the document balance reduction.');
+    // Payment carrying value and document carrying value differ on FX settlement.
+    // Keep the payment's applied amount in payment currency/base carrying value;
+    // independently reconcile the document reduction to its allocation records.
+    $allocation=db()->prepare("SELECT COALESCE(SUM(document_carrying_cents),0) document_amount,COALESCE(SUM(payment_carrying_cents),0) payment_amount FROM party_payment_applications WHERE company_id=? AND payment_id=? AND status='posted'");
+    $allocation->execute([$companyId,$paymentId]);$carrying=$allocation->fetch(PDO::FETCH_ASSOC);
+    if((int)$carrying['payment_amount']!==(int)$payment['applied_cents']||$current===false||!party_payment_invariant_values((int)$payment['debits'],(int)$payment['credits'],$priorDocumentBalance,(int)$current,(int)$carrying['document_amount']))throw new RuntimeException('The payment allocation does not equal its carrying value or document balance reduction.');
 }
 
 function post_party_refund(array $user,array $company,array $input,string $flow): never
@@ -482,7 +501,7 @@ function post_party_payment(array $user, array $company, array $input): never
           (id,company_id,payment_type,flow_kind,party_id,document_id,payment_date,reference,memo,amount_cents,applied_cents,currency,
            foreign_amount_cents,exchange_rate_micros,payment_account_id,journal_entry_id,status,created_by)
           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'posted',?)")
-            ->execute([$paymentId,$companyId,$type,$type==='customer'?'customer_receipt':'vendor_payment',$partyId,$documentId,$paymentDate,$reference,$memo,$actualAmount,$unapplied?0:$carryingReduction,
+            ->execute([$paymentId,$companyId,$type,$type==='customer'?'customer_receipt':'vendor_payment',$partyId,$documentId,$paymentDate,$reference,$memo,$actualAmount,$unapplied?0:$actualAmount,
                 $currency,$foreignAmount,$rate,$paymentAccountId,$entryId,$user['id']]);
         if(!$unapplied){
             $operationId=new_id('payapplyop');$operationKey='initial:'.$paymentId;$payloadHash=payment_application_payload_hash($companyId,(string)$user['id'],$paymentDate,[['paymentId'=>$paymentId,'documentId'=>$documentId,'foreignAmountCents'=>$foreignAmount]]);
@@ -633,12 +652,23 @@ function reverse_party_payment(array $user, array $company, array $input): never
             : null;
         $reversalId = add_reversing_journal_entry($user,$companyId,(string)$payment['journal_entry_id'],$date,
             (string)$payment['payment_type'].'_payment_reversal',$paymentId,'Reverse payment '.$payment['reference']);
-        if ($payment['document_id'] !== null && (string)$payment['payment_type'] === 'customer') {
+        // An initial direct allocation can have a separate recognition correction
+        // after unapply. Reverse it together with the original payment, leaving
+        // the restored invoice/bill and all historical journal hashes intact.
+        $initialCorrections=db()->prepare("SELECT je.id,je.entry_date FROM journal_entries je JOIN party_payment_applications pa ON pa.id=je.source_id AND pa.company_id=je.company_id WHERE je.company_id=? AND pa.payment_id=? AND je.source_type=? AND je.status='posted' FOR UPDATE");
+        $initialCorrections->execute([$companyId,$paymentId,(string)$payment['payment_type'].'_payment_initial_unapply']);
+        foreach($initialCorrections->fetchAll(PDO::FETCH_ASSOC) as $correction){
+            if($date<(string)$correction['entry_date'])fail('Reversal date cannot precede the payment unapply date.',422,'payment_reversal_date_invalid');
+            add_reversing_journal_entry($user,$companyId,(string)$correction['id'],$date,(string)$payment['payment_type'].'_initial_unapply_reversal',$paymentId,'Reverse direct payment unapply recognition');
+        }
+        // Modern allocations were restored by explicit unapply. Only legacy
+        // directly-applied payments still have an amount to restore here.
+        if ($payment['document_id'] !== null && (int)$payment['applied_cents'] > 0 && (string)$payment['payment_type'] === 'customer') {
             db()->prepare("UPDATE invoices SET balance_cents=LEAST(total_cents,balance_cents+?),
               foreign_balance_cents=LEAST(foreign_total_cents,foreign_balance_cents+?),
               status='sent' WHERE id=? AND company_id=?")
                 ->execute([(int)$payment['applied_cents'],(int)$payment['foreign_amount_cents'],$payment['document_id'],$companyId]);
-        } elseif ($payment['document_id'] !== null) {
+        } elseif ($payment['document_id'] !== null && (int)$payment['applied_cents'] > 0) {
             db()->prepare("UPDATE bills SET balance_cents=LEAST(total_cents,balance_cents+?),
               foreign_balance_cents=LEAST(foreign_total_cents,foreign_balance_cents+?),
               status='open' WHERE id=? AND company_id=?")
@@ -723,7 +753,7 @@ function record_bank_party_payment(
        foreign_amount_cents,exchange_rate_micros,payment_account_id,journal_entry_id,bank_transaction_id,status,created_by,matched_at)
       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'posted',?,UTC_TIMESTAMP())")
         ->execute([$paymentId,$companyId,$type,$type==='customer'?'customer_receipt':'vendor_payment',$partyId,$document['id'],$transaction['transaction_date'],$reference,'',
-            $actualAmount,$appliedAmount,$transaction['currency'],$foreignAmount,$transaction['exchange_rate_micros'],
+            $actualAmount,$actualAmount,$transaction['currency'],$foreignAmount,$transaction['exchange_rate_micros'],
             $bankLedgerId,$journalEntryId,$transaction['id'],$user['id']]);
     $operationId=new_id('payapplyop');$operationKey='initial:'.$paymentId;$payloadHash=payment_application_payload_hash($companyId,(string)$user['id'],(string)$transaction['transaction_date'],[['paymentId'=>$paymentId,'documentId'=>(string)$document['id'],'foreignAmountCents'=>$foreignAmount]]);
     db()->prepare("INSERT INTO party_payment_application_operations(id,company_id,user_id,operation_key,payload_hash,status) VALUES(?,?,?,?,?,'active')")->execute([$operationId,$companyId,$user['id'],$operationKey,$payloadHash]);

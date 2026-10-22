@@ -56,16 +56,24 @@ return [
     // R156: who operates this Tegh service. Shown on the Terms and Privacy pages; invitations cannot be sent until every
     // field except the two numbers is filled in. Use the real legal name and a mailbox someone reads.
     'operator' => [
-        'legal_name' => '',          // e.g. 'Example Accounting Services Inc.'
-        'address' => '',             // business mailing address
-        'privacy_email' => '',       // privacy questions and deletion requests
-        'support_email' => '',       // tester support
-        'hosting_provider' => '',    // e.g. 'IONOS SE'
-        'data_location' => '',       // country/region of the database and files, e.g. 'Canada'
+        'legal_name' => 'SR Accountax', // confirm whether this is the legal contracting name or a trade name before approval
+        'address' => '41 Dufay Rd, Brampton, ON, L7A4A2, Canada',
+        'privacy_email' => 'enquiry@sraccountax.ca',
+        'support_email' => 'enquiry@sraccountax.ca',
+        'hosting_provider' => 'IONOS',
+        'data_location' => 'United States',
         'backup_location' => '',     // where the off-site backup copy is kept
         'mail_provider' => '',       // the SMTP provider that delivers Tegh's emails
         'backup_retention_days' => 14,
         'deletion_response_days' => 30,
+    ],
+    // Optional analytics and advertising remain disabled for the initial beta.
+    // Theme preferences use localStorage; no public-site analytics cookie is set.
+    'privacy' => [
+        'optional_metrics_enabled' => false,
+        'advertising_enabled' => false,
+        'retention_enforcement_enabled' => false,
+        'retention_schedule_version' => 'proposal-2026-10-21',
     ],
     // R163: Connect with an accountant. Requests are emailed to request_email with the time per finding and the rate;
     // the person asking sees only the findings and the total. The rate is in cents per hour, before GST/HST.

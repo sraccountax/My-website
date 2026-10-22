@@ -364,6 +364,7 @@ function handle_update_profile(): never
     require_method('PUT');
     require_csrf();
     $user = require_user();
+    mfa_require_verified_session();
     $input = request_json();
     $displayName = clean_text($input['displayName'] ?? '', 'Display name', 160);
     db()->prepare('UPDATE users SET display_name = ? WHERE id = ?')->execute([$displayName, $user['id']]);
@@ -381,6 +382,7 @@ function handle_change_password(): never
     require_method('POST');
     require_csrf();
     $user = require_user();
+    mfa_require_verified_session();
     $input = request_json();
     $current = (string)($input['currentPassword'] ?? '');
     $next = (string)($input['newPassword'] ?? '');

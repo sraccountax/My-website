@@ -27,7 +27,7 @@ html,body{margin:0;background:var(--cv-bg);color:var(--cv-ink);font:15px/1.5 sys
 .cv-link{font:inherit;background:none;border:0;color:var(--cv-brand);font-weight:700;cursor:pointer;padding:6px}
 .cv-intro h1{margin:0;font-size:24px}
 .cv-intro p{margin:4px 0 14px}
-.cv-tabs{display:flex;gap:6px;margin:0 0 16px;border-bottom:1px solid var(--cv-line)}
+.cv-tabs{display:flex;gap:6px;margin:0 0 16px;border-bottom:1px solid var(--cv-line);overflow-x:auto;scrollbar-width:thin}
 .cv-tab{font:inherit;font-weight:700;background:none;border:0;border-bottom:3px solid transparent;padding:8px 12px;color:var(--cv-muted);cursor:pointer}
 .cv-tab.is-active{color:var(--cv-ink);border-bottom-color:var(--cv-brand)}
 .cv-summary{background:var(--cv-surface);border:1px solid var(--cv-line);border-radius:14px;padding:14px 18px;margin:0 0 14px}
@@ -45,7 +45,8 @@ html,body{margin:0;background:var(--cv-bg);color:var(--cv-ink);font:15px/1.5 sys
 .cv-report-menu{margin:0 0 14px}
 .cv-dates{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin:0 0 14px}
 .cv-dates label{display:grid;gap:4px;font-size:13px;color:var(--cv-muted);font-weight:600}
-.cv-dates input{font:inherit;padding:7px 10px;border:1px solid var(--cv-line);border-radius:8px;background:var(--cv-bg);color:var(--cv-ink)}
+.cv-dates input,.cv-dates textarea{font:inherit;padding:7px 10px;border:1px solid var(--cv-line);border-radius:8px;background:var(--cv-bg);color:var(--cv-ink)}
+.cv-dates textarea{min-width:min(480px,80vw);min-height:88px;resize:vertical}
 .cv-report-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin:0 0 10px}
 .cv-report-head h2{margin:0}
 .cv-report-head small{color:var(--cv-muted)}

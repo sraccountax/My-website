@@ -16,7 +16,7 @@
 
 <!-- R139: no third-party analytics or session recording in the signed-in app (accounting data stays in Tegh). -->
 
-<script src="/assets/tegh-preflight-v5990.js?v=5990-r164-tegh"></script>
+<script src="/assets/tegh-preflight-v5990.js?v=5990-r164-audit3"></script>
 
 
 
@@ -39,7 +39,7 @@
 
 <script defer="" src="/assets/tegh-motion-v5700.js?v=5700-r28-s16ah-scroll-hit-test-correction"></script>
 <script defer="" src="/assets/tegh-experience-v5700.js?v=5700"></script>
-<script defer="" src="/assets/tegh-gate-v5990.js?v=5990-r164-tegh"></script>
+<script defer="" src="/assets/tegh-gate-v5990.js?v=5990-r164-audit3"></script>
 <meta content="5.9.9 / Build 5990" name="tegh-release"/><style>[data-registration-cta][hidden]{display:none!important}
 .sr-mfa-key{display:block;font:700 20px/1.4 Consolas,Menlo,monospace;letter-spacing:3px;word-break:break-all;padding:10px 12px;margin:8px 0;border-radius:8px;background:rgba(0,0,0,.06)}
 @media (prefers-color-scheme:dark){.sr-mfa-key{background:rgba(255,255,255,.08)}}
@@ -117,7 +117,8 @@
 <label>Password<input autocomplete="new-password" name="password" required="" type="password"/></label>
 <label>Confirm password<input autocomplete="new-password" name="confirm" required="" type="password"/></label>
 
-<label class="sr-gate-check"><input name="acceptTerms" required="" type="checkbox"/> I accept the <a href="/terms.html" rel="noopener" target="_blank">terms of use</a> and <a href="/privacy.html" rel="noopener" target="_blank">privacy notice</a>.</label>
+<p class="sr-gate-collection">SR Accountax uses your name and email to create and secure your TEGH account and provide the service. Production data is intended to be hosted in the United States. <a href="/privacy.html" rel="noopener" target="_blank">Read the collection notice and Privacy Policy</a>.</p>
+<label class="sr-gate-check"><input name="acceptTerms" required="" type="checkbox"/> I accept the <a href="/terms.html" rel="noopener" target="_blank">Beta Terms of Use</a> and acknowledge the <a href="/privacy.html" rel="noopener" target="_blank">Privacy Policy</a>.</label>
 <label class="sr-captcha-honeypot" aria-hidden="true">Website<input autocomplete="off" name="website" tabindex="-1" type="text"/></label>
 <div class="sr-captcha-wrap" data-captcha-wrap="register" hidden=""><div class="sr-captcha-slot" id="sr-register-captcha"></div><small>This security check helps prevent automated account creation.</small></div>
 <button class="sr-gate-primary" type="submit">Create account</button>
@@ -140,7 +141,8 @@
 <label data-invite-name>Your name<input autocomplete="name" maxlength="160" name="displayName" type="text"/></label>
 <label>Password<input autocomplete="new-password" name="password" required="" type="password"/></label>
 <label data-invite-confirm>Confirm password<input autocomplete="new-password" name="confirm" required="" type="password"/></label>
-<label class="sr-gate-check"><input name="acceptTerms" type="checkbox" required=""/><span>I accept the <a href="/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</span></label>
+<p class="sr-gate-collection">SR Accountax uses your name and email to create and secure your TEGH account and provide the service. Production data is intended to be hosted in the United States. <a href="/privacy.html" target="_blank" rel="noopener">Read the collection notice and Privacy Policy</a>.</p>
+<label class="sr-gate-check"><input name="acceptTerms" type="checkbox" required=""/><span>I accept the <a href="/terms.html" target="_blank" rel="noopener">Beta Terms of Use</a> and acknowledge the <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
 <button class="sr-gate-primary" type="submit">Create account</button>
 <p class="sr-invite-alt" data-invite-existing hidden>Forgot your password? <a href="#" data-invite-forgot>Reset it</a>, then enter your invitation code again.</p>
 </form>

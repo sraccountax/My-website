@@ -1365,14 +1365,26 @@ function tegh_agent_registry_endpoint(array $user,array $company): never
     require_method('GET');
     $out=[];$usage=function_exists('tegh_ai_action_usage_counts')?tegh_ai_action_usage_counts($user,$company):[];
     $isPlatformOwner=platform_role_for_user((string)$user['id'])==='platform_owner';
+    $featureDecisions=[]; // One actor/company and one read-only registry response.
     foreach(tegh_action_registry() as $a){
         if(!company_role_can((string)$company['role'],(string)$a['required_permission']))continue;
         if(!empty($a['owner_only'])&&!$isPlatformOwner)continue;
-        $feature=(string)($a['required_feature_key']??'');if($feature!==''&&function_exists('tegh_resolve_feature')&&!tegh_resolve_feature($user,$company,$feature)['allowed'])continue;
+        $feature=(string)($a['required_feature_key']??'');
+        if($feature!==''&&function_exists('tegh_resolve_feature')){
+            if(!array_key_exists($feature,$featureDecisions))$featureDecisions[$feature]=(bool)tegh_resolve_feature($user,$company,$feature)['allowed'];
+            if(!$featureDecisions[$feature])continue;
+        }
         $a['learned_usage_count']=(int)($usage[(string)$a['action_id']]??0);$out[]=$a;
     }
     $ids=array_map(static fn(array $action):string=>(string)$action['action_id'],$out);sort($ids,SORT_STRING);
-    $revision=0;if(function_exists('tegh_entitlement_my_payload'))$revision=(int)(tegh_entitlement_my_payload($user,$company)['revision']??0);
+    // Registry needs the revision, not a second resolution of the entire feature
+    // catalogue and access-request history. Read the same three subject revisions.
+    $revision=0;
+    if(function_exists('tegh_entitlement_subject_existing'))foreach([
+        tegh_entitlement_subject_existing('account',(string)$user['id'],null,null),
+        tegh_entitlement_subject_existing('company',null,(string)$company['id'],null),
+        tegh_entitlement_subject_existing('company_user',null,(string)$company['id'],(string)$user['id']),
+    ] as $subject)if($subject)$revision=max($revision,tegh_entitlement_current_revision((string)$subject['id']));
     json_response(['version'=>SR_ACCOUNTAX_VERSION,'build'=>SR_ACCOUNTAX_BUILD,'schema'=>SR_ACCOUNTAX_SCHEMA_VERSION,'count'=>count($out),'classHash'=>hash('sha256',implode("\n",$ids)),'entitlementRevision'=>$revision,'actions'=>$out]);
 }
 
