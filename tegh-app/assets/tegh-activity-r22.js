@@ -185,6 +185,21 @@
       window.addEventListener(eventName, () => close(undefined,false));
     }
     window.TeghOverlayManager = api;
+    // R166: a <details> menu is opened by the browser and placed by its 'toggle' handlers, which run after the first
+    // paint, so the panel flashed at its default place (often off to the right) and then jumped into view. Keep it
+    // invisible from the click until those handlers have placed it (at most 200 ms if no toggle arrives).
+    const menuDetails = 'details.r17-menu,details.r22-menu,details.r22-row-actions,details.r19-menu';
+    document.addEventListener('click', event => {
+      const summary = event.target.closest?.('summary'), control = summary?.parentElement;
+      if (!control || control.open || !control.matches(menuDetails) || control.querySelector(':scope > summary') !== summary) return;
+      const panels = [...control.children].filter(node => node !== summary);
+      if (!panels.length) return;
+      panels.forEach(node => node.style.setProperty('visibility', 'hidden', 'important'));
+      let shown = false;
+      const show = () => { if (shown) return; shown = true; control.removeEventListener('toggle', show); panels.forEach(node => node.style.removeProperty('visibility')); };
+      control.addEventListener('toggle', show);
+      setTimeout(show, 200);
+    }, true);
     return api;
   })();
   const tableSelector = 'table.srp-table,table.sra-table,table.srctl-table,table.tegh-authoritative-table,table.r20-profit-table,table.r19-invoice-table,.tegh-review-preview-table table';

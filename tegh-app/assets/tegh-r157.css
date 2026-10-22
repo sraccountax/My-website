@@ -328,3 +328,27 @@ html[data-tegh-shell] .r28-post-panel footer .srp-btn{white-space:nowrap;flex:no
 /* R163: cards carry a "span 12 columns" rule, which made a one-column grid grow empty columns; the two columns are flex stacks. */
 .r163-main,.r163-side{display:flex!important;flex-direction:column;gap:12px}
 .r163-main>*,.r163-side>*{width:100%;max-width:none;box-sizing:border-box;margin:0}
+
+/* R166: with Top navigation the bar uses the sidebar's colours (deep green, light text), so both layouts look alike.
+   Dropdown panels opened from the bar stay light, as they do from the sidebar. */
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar{background:linear-gradient(90deg,#081a16 0%,#0b2821 45%,#0d3028 100%)!important;color:#f3faf6!important;border-bottom:1px solid rgba(255,255,255,.08)!important;box-shadow:0 8px 28px rgba(8,26,22,.18)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar .tegh-top-menubar>button,
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar :is(.tegh-top-module,.tegh-top-more)>button{color:rgba(243,250,246,.88)!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar .tegh-top-menubar>button:hover,
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar :is(.tegh-top-module,.tegh-top-more)>button:is(:hover,[aria-expanded="true"]){color:#fff!important;background:rgba(255,255,255,.09)!important}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar .tegh-top-menubar>button:is(.active,[aria-current="page"]),
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar :is(.tegh-top-module,.tegh-top-more)>button:is(.active,[aria-current="page"]){color:#fff!important;background:#007558!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)!important}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar :is(.tegh-top-menubar,.tegh-top-module,.tegh-top-more) svg{color:currentColor!important;stroke:currentColor}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar .srp-company-trigger,
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar .srp-company-trigger :is(b,span,em,small){color:#f3faf6!important;background:transparent!important}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar .srp-company-trigger:hover{background:rgba(255,255,255,.08)!important}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar .srp-global-search{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.18)!important;box-shadow:none!important}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar .srp-global-search :is(input,button){background:transparent!important;color:#fff!important;border-color:transparent!important}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar .srp-global-search input::placeholder{color:rgba(243,250,246,.66)!important}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar .top-actions :is(.tegh-shell-utility,.bell,.r17-menu>summary,.r19-mobile-menu){color:#f3faf6!important;background:rgba(255,255,255,.06)!important;border-color:rgba(255,255,255,.18)!important;box-shadow:none!important}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar .top-actions :is(.tegh-shell-utility,.bell,.r17-menu>summary):hover{background:rgba(255,255,255,.14)!important;color:#fff!important}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar .top-actions .r17-create-menu>summary{background:#007558!important;border-color:rgba(255,255,255,.16)!important;color:#fff!important}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar .top-actions svg{color:currentColor}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar :is(button,summary):focus-visible{outline:3px solid #e8c978!important;outline-offset:2px!important}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar .r19-mobile-menu{color:#f3faf6!important;background:rgba(255,255,255,.06)!important;border-color:rgba(255,255,255,.18)!important}
+html[data-tegh-navigation-layout="top"] body.tegh-top-navigation-mode .topbar .r19-mobile-menu svg{color:currentColor!important;stroke:currentColor!important}
