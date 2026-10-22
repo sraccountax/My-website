@@ -8562,3 +8562,6 @@ html[data-tegh-activity-shell="r22"] .r17-quick-list button{grid-template-column
 .tegh-document-review [data-intake-line]{min-width:0}
 .tegh-document-card>header>div,.tegh-document-card .srp-form>label{min-width:0;overflow-wrap:anywhere}
 @media(max-width:720px){.tegh-document-review{grid-template-columns:minmax(0,1fr)}.tegh-document-review [data-intake-line]{grid-template-columns:minmax(0,1fr)}}
+/* R165: read-only vendor invoice and note page reuses the invoice detail layout. */
+.r19-invoice-detail .r19-link{min-height:0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;color:var(--srp-accent,#346086)!important;font:inherit!important;text-decoration:underline;cursor:pointer}
+.r19-invoice-detail .r19-detail-actions{display:flex;flex-wrap:wrap;gap:8px}
