@@ -185,6 +185,29 @@
       window.addEventListener(eventName, () => close(undefined,false));
     }
     window.TeghOverlayManager = api;
+    // R167: mark the sidebar entry for the page on screen. Tegh pages do not carry their menu entry, so the sidebar
+    // remembers which entry opened which page (for this browser tab) and marks it whenever that page is shown.
+    (() => {
+      const KEY = 'tegh-subnav-pages'; let map = {}, pending = '';
+      try { map = JSON.parse(sessionStorage.getItem(KEY) || '{}') || {}; } catch (_) { map = {}; }
+      document.addEventListener('click', event => {
+        const item = event.target.closest?.('aside.sidebar .srp-subnav button[data-srp-action-id]');
+        if (item) pending = item.dataset.srpActionId;
+        else if (event.target.closest?.('aside.sidebar nav > button, .stage, .topbar')) pending = '';
+      }, true);
+      const mark = () => {
+        const page = document.querySelector('.srp-page')?.dataset.srpPage || '';
+        if (!page) return;
+        if (pending) { map[page] = pending; pending = ''; try { sessionStorage.setItem(KEY, JSON.stringify(map)); } catch (_) {} }
+        const current = map[page] || '';
+        document.querySelectorAll('aside.sidebar .srp-subnav button[data-srp-action-id]').forEach(item => {
+          const on = !!current && item.dataset.srpActionId === current;
+          item.classList.toggle('tegh-subnav-current', on);
+          if (on) item.setAttribute('aria-current', 'page'); else if (item.getAttribute('aria-current') === 'page') item.removeAttribute('aria-current');
+        });
+      };
+      window.addEventListener('tegh:page-rendered', () => { requestAnimationFrame(mark); setTimeout(mark, 400); });
+    })();
     // R166: a <details> menu is opened by the browser and placed by its 'toggle' handlers, which run after the first
     // paint, so the panel flashed at its default place (often off to the right) and then jumped into view. Keep it
     // invisible from the click until those handlers have placed it (at most 200 ms if no toggle arrives).

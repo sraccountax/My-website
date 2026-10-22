@@ -1204,7 +1204,8 @@ const TeghPortal = (() => {
   function settingsDisplayName(name){return settingsDisplayNames[name]||titleCasePhrase(name)}
   // R122: short sidebar labels that fit on one line. Internal menu keys (routing, permissions, search) are unchanged.
   const menuItemDisplayNames={'Match And Post Transactions':'Match and Post','Reconcile Bank Account':'Reconcile Account','Manage Bank Accounts':'Bank Accounts','Bank Transaction Report':'Transactions Report','Bank General Ledger Report':'Bank General Ledger','Bank Reconciliation Report':'Bank Reconciliation','Customer Invoice & Note Register':'Invoice Register','Vendor Invoice & Note Register':'Invoice Register','General Ledger Account Report':'General Ledger','Products and Services':'Products','Customer Payments':'Payments','Vendor Payments':'Payments','Period Trial Balance':'Trial Balance','Payroll & Tax Center':'Payroll Center','Payroll Verification':'Verification','CRA Remittance':'Remittance Records','Recurring Transactions':'Recurring'};
-  const menuItemDisplayName=name=>menuItemDisplayNames[name]||titleCasePhrase(name);
+  // R167: the module's own trial balance is named after it, so the three sidebar entries are not read as duplicates.
+  const menuItemDisplayName=(name,module='')=>name==='Period Trial Balance'&&module==='Receivables'?'AR Trial Balance':name==='Period Trial Balance'&&module==='Payables'?'AP Trial Balance':menuItemDisplayNames[name]||titleCasePhrase(name);
   // R126: top navigation uses the same short names as the sidebar.
   const menuItemDisplayLookup=Object.fromEntries(Object.entries(menuItemDisplayNames).map(([key,value])=>[key.toLowerCase(),value]));
   const topMenuLabel=name=>menuItemDisplayLookup[String(name||'').toLowerCase()]||name;
@@ -3720,8 +3721,8 @@ const TeghPortal = (() => {
         if(label==='Payroll'&&!permissionAllowed('payroll.view',access)){parent.hidden=true;return}
         if(label==='Advanced accounting'&&access?.role==='viewer'){parent.hidden=true;return}
         const items=[];const sections=moduleSections[label]||{};
-        Object.entries(sections).forEach(([section,names])=>{const allowed=names.filter(name=>menuItemAllowed(label,name,access));if(!allowed.length)return;items.push({heading:section});allowed.forEach(name=>items.push({label:label==='My account'?settingsDisplayName(name):menuItemDisplayName(name),sourceName:name,group:section,actionId:menuActionId(label,name),action:()=>{window.TeghWorkflowGroups?.setPreferredGroup?.(label,section);invokeMenuAction(label,menuActionId(label,name))}}))});
-        if(!Object.keys(sections).length)(menus[label]||[]).filter(([name])=>menuItemAllowed(label,name,access)).forEach(([name])=>items.push({label:label==='My account'?settingsDisplayName(name):menuItemDisplayName(name),sourceName:name,actionId:menuActionId(label,name),action:()=>invokeMenuAction(label,menuActionId(label,name))}));
+        Object.entries(sections).forEach(([section,names])=>{const allowed=names.filter(name=>menuItemAllowed(label,name,access));if(!allowed.length)return;items.push({heading:section});allowed.forEach(name=>items.push({label:label==='My account'?settingsDisplayName(name):menuItemDisplayName(name,label),sourceName:name,group:section,actionId:menuActionId(label,name),action:()=>{window.TeghWorkflowGroups?.setPreferredGroup?.(label,section);invokeMenuAction(label,menuActionId(label,name))}}))});
+        if(!Object.keys(sections).length)(menus[label]||[]).filter(([name])=>menuItemAllowed(label,name,access)).forEach(([name])=>items.push({label:label==='My account'?settingsDisplayName(name):menuItemDisplayName(name,label),sourceName:name,actionId:menuActionId(label,name),action:()=>invokeMenuAction(label,menuActionId(label,name))}));
         addSubmenu(parent,label,items);
       });
     }

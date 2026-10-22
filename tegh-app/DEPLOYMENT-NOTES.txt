@@ -12,10 +12,11 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R166 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R167 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R166 (R118–R166 change notes are
-included). R166 is the private beta package (it replaces R165): with Top navigation the bar uses the sidebar's
+This package contains every release through R167 (R118–R167 change notes are
+included). R167 is the private beta package (it replaces R166): tidier sidebar submenus with the current page
+marked (see R167-CHANGES.md). Browser files only; no database change. R166 (replaced R165): with Top navigation the bar uses the sidebar's
 colours, and dropdown menus no longer appear off to the right before jumping into place (see R166-CHANGES.md).
 Browser files only; no database change. R165 (replaced R164): report row actions open the record they name — View on a
 vendor invoice or a credit/debit note opens a read-only document page (see R165-CHANGES.md). Browser files only; no
