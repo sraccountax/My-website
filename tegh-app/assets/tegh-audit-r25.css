@@ -45,7 +45,7 @@ html[data-tegh-activity-shell="r22"] .r22-task-split .r22-scroll-region {
   overflow:auto;
   scrollbar-gutter:stable;
   overscroll-behavior:auto;
-  touch-action:pan-x pan-y;
+  touch-action:pan-x pan-y pinch-zoom;
 }
 html[data-tegh-activity-shell="r22"] .r23-scroll.srp-table-wrap {
   /* Do not let the R23 minimum height win over the available-height grid. */

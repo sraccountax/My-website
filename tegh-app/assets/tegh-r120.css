@@ -704,7 +704,7 @@ html[data-tegh-theme="dark"] .srp-page .srp-status.verified{color:var(--tegh-ink
 @media (max-width:820px){
   .sidebar .srp-subnav{display:none!important}
   .sidebar .srp-nav-parent .srp-chevron{display:none!important}
-  .sidebar nav{min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
+  .sidebar nav{min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-x pan-y pinch-zoom}
 }
 /* R131: drawer header — logo and TEGH wordmark sit above the company chip (no overlap). */
 @media (max-width:820px){
@@ -1011,7 +1011,7 @@ html[data-tegh-theme="dark"] .r151-remove:hover{background:#3a1b17}
 /* R151: sidebar scrolling — size to the visible screen (phones hide part of 100vh behind the browser bar),
    allow touch scrolling, and keep the list scrollable when sections are open */
 aside.sidebar{height:100vh;height:100dvh;min-height:0!important;max-height:100dvh}
-aside.sidebar nav{min-height:0!important;overflow-y:auto!important;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+aside.sidebar nav{min-height:0!important;overflow-y:auto!important;touch-action:pan-x pan-y pinch-zoom;-webkit-overflow-scrolling:touch}
 aside.sidebar nav>.srp-subnav.is-open{max-height:none}
 /* R152: Document Intake — invoice lines, duplicate warning, supplier memory; intake note on the vendor invoice form */
 .r151-intake-note{margin:0 0 14px;padding:10px 14px;border-radius:10px;border:1px solid #9cd3c3;background:#eef8f4;color:#183c33;font-size:14px}

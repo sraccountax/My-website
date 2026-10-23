@@ -1220,7 +1220,7 @@ html[data-tegh-shell] :is(.r28-recon-completion-summary .attention b,.r28-recon-
     overflow-x:auto!important;
     overflow-y:hidden!important;
     contain:none!important;
-    touch-action:pan-x pan-y;
+    touch-action:pan-x pan-y pinch-zoom;
     -webkit-overflow-scrolling:touch
   }
   html[data-tegh-shell] .r28-bank-account-actions details[open]>div{

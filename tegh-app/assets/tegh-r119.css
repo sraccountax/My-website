@@ -40,7 +40,7 @@ html[data-tegh-shell] .r23-scroll,
 html[data-tegh-shell][data-tegh-activity-shell] .r23-scroll.srp-table-wrap{
   overflow-x:auto!important;
   overflow-y:auto!important;
-  touch-action:pan-x pan-y!important;
+  touch-action:pan-x pan-y pinch-zoom!important;
   -webkit-overflow-scrolling:touch;
 }
 html[data-tegh-shell] .r23-table{table-layout:fixed!important;width:100%!important}

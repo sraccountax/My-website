@@ -18,7 +18,7 @@ html:has(#root > .auth-shell) body {
   overflow-x: hidden !important;
   overflow-y: auto !important;
   overscroll-behavior-y: auto !important;
-  touch-action: pan-y !important;
+  touch-action: pan-x pan-y pinch-zoom !important;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -43,7 +43,7 @@ html:has(#root > .auth-shell) .auth-shell {
   min-height: 100dvh !important;
   max-height: none !important;
   overflow: visible !important;
-  touch-action: pan-y !important;
+  touch-action: pan-x pan-y pinch-zoom !important;
 }
 
 html:not([data-tegh-shell]) .sr-gate-panel,
@@ -117,12 +117,12 @@ html:has(#root > .auth-shell) .auth-shell {
     padding: 0 !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
-    overscroll-behavior-x: none !important;
+    overscroll-behavior-x: auto !important;
     overscroll-behavior-y: auto !important;
     scroll-behavior: auto !important;
     scroll-padding-block: 8px calc(18px + env(safe-area-inset-bottom, 0px)) !important;
     scrollbar-gutter: auto !important;
-    touch-action: pan-y !important;
+    touch-action: pan-x pan-y pinch-zoom !important;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -172,7 +172,7 @@ html:has(#root > .auth-shell) .auth-shell {
 
   html[data-tegh-shell] body:is(.r19-drawer-open, .srp-modal-open) .stage {
     overflow: hidden !important;
-    touch-action: none !important;
+    touch-action: pinch-zoom !important;
   }
 
   /* Desktop drag rails can intercept a touch swipe. Mobile uses native scroll. */
@@ -196,7 +196,8 @@ html:has(#root > .auth-shell) .auth-shell {
     max-height: 100dvh !important;
     padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
     overflow: hidden !important;
-    overscroll-behavior: contain !important;
+    overscroll-behavior-x: auto !important;
+    overscroll-behavior-y: contain !important;
   }
 
   html[data-tegh-viewport][data-tegh-layout-revision][data-tegh-reference][data-tegh-design][data-tegh-shell] .sidebar > nav {
@@ -204,9 +205,10 @@ html:has(#root > .auth-shell) .auth-shell {
     min-height: 0 !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
-    overscroll-behavior: contain !important;
+    overscroll-behavior-x: auto !important;
+    overscroll-behavior-y: contain !important;
     scrollbar-gutter: auto !important;
-    touch-action: pan-y !important;
+    touch-action: pan-x pan-y pinch-zoom !important;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -220,7 +222,8 @@ html:has(#root > .auth-shell) .auth-shell {
     max-height: min(52dvh, 460px) !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
-    overscroll-behavior: contain !important;
+    overscroll-behavior-x: auto !important;
+    overscroll-behavior-y: contain !important;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -381,10 +384,10 @@ html:has(#root > .auth-shell) .auth-shell {
     min-width: 0 !important;
     overflow-x: auto !important;
     overflow-y: hidden !important;
-    overscroll-behavior-inline: contain !important;
+    overscroll-behavior-inline: auto !important;
     scroll-snap-type: x proximity !important;
     scrollbar-gutter: auto !important;
-    touch-action: pan-x !important;
+    touch-action: pan-x pan-y pinch-zoom !important;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -516,7 +519,7 @@ html:has(#root > .auth-shell) .auth-shell {
     overflow: visible !important;
     overscroll-behavior: auto !important;
     scrollbar-gutter: auto !important;
-    touch-action: pan-y !important;
+    touch-action: pan-x pan-y pinch-zoom !important;
   }
 
   html[data-tegh-shell] .r27-report-catalogue-toolbar {
@@ -583,7 +586,7 @@ html:has(#root > .auth-shell) .auth-shell {
     max-height: none !important;
     overflow: visible !important;
     scrollbar-gutter: auto !important;
-    touch-action: pan-y !important;
+    touch-action: pan-x pan-y pinch-zoom !important;
   }
 
   /* Shared authoritative registers are always readable record cards on a
@@ -678,8 +681,8 @@ html:has(#root > .auth-shell) .auth-shell {
     max-width: 100% !important;
     overflow-x: auto !important;
     overflow-y: visible !important;
-    overscroll-behavior-x: contain !important;
-    touch-action: pan-x pan-y !important;
+    overscroll-behavior-x: auto !important;
+    touch-action: pan-x pan-y pinch-zoom !important;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -1009,8 +1012,9 @@ html:has(#root > .auth-shell) .auth-shell {
     min-height: 0 !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
-    overscroll-behavior: contain !important;
-    touch-action: pan-y !important;
+    overscroll-behavior-x: auto !important;
+    overscroll-behavior-y: contain !important;
+    touch-action: pan-x pan-y pinch-zoom !important;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -1048,8 +1052,9 @@ html:has(#root > .auth-shell) .auth-shell {
     border-radius: 12px !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
-    overscroll-behavior: contain !important;
-    touch-action: pan-y !important;
+    overscroll-behavior-x: auto !important;
+    overscroll-behavior-y: contain !important;
+    touch-action: pan-x pan-y pinch-zoom !important;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -1081,8 +1086,9 @@ html:has(#root > .auth-shell) .auth-shell {
     padding: 12px !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
-    overscroll-behavior: contain !important;
-    touch-action: pan-y !important;
+    overscroll-behavior-x: auto !important;
+    overscroll-behavior-y: contain !important;
+    touch-action: pan-x pan-y pinch-zoom !important;
     -webkit-overflow-scrolling: touch;
   }
 }
