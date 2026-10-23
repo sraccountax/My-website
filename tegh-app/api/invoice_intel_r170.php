@@ -688,6 +688,11 @@ function r170_submit(array $user, array $company, array $input): array
         }
         // Keep the token on job 0 so a repeated submit is recognised; it no longer grants anything (state is not processing).
         foreach ($ids as $jobId) r170_reanalyse($user, $company, $jobId, true);
+        // A new invoice can be a duplicate of open ones from the same supplier: check those again too.
+        $vendors = $pdo->prepare('SELECT DISTINCT vendor_id FROM invoice_intel_jobs WHERE company_id=? AND document_id=? AND vendor_id IS NOT NULL');
+        $vendors->execute([$companyId, $documentId]);
+        $others = $pdo->prepare("SELECT id FROM invoice_intel_jobs WHERE company_id=? AND vendor_id=? AND document_id<>? AND target_id IS NULL AND state IN ('ready','review_required','blocked') LIMIT 50");
+        foreach ($vendors->fetchAll(PDO::FETCH_COLUMN) as $vendorId) { $others->execute([$companyId, (string)$vendorId, $documentId]); foreach ($others->fetchAll(PDO::FETCH_COLUMN) as $other) r170_reanalyse($user, $company, (string)$other, true); }
         audit_event($user, $companyId, 'invoice_intel.read', 'native_agent_document', $documentId, ['jobs' => $ids, 'segments' => count($ids), 'method' => $method, 'pageCount' => $pageCount, 'ocrPages' => $ocrPages, 'rawTextStored' => false, 'accountingWrites' => 0, 'providerAttempts' => 0]);
         $pdo->commit();
     } catch (Throwable $e) { if ($pdo->inTransaction()) $pdo->rollBack(); throw $e; }
@@ -789,6 +794,14 @@ function r170_suggestions(array $company, ?string $vendorId, array $lines): arra
             continue;
         }
         if (($line['kind'] ?? '') === 'freight' && $freight) { $out[] = ['index' => $index, 'accountId' => $freight, 'taxCodeId' => null, 'source' => 'freight', 'reason' => 'Freight line; ' . $accounts[$freight] . ' is the company\'s freight account']; continue; }
+        // Same wording on an earlier invoice is strong evidence; the vendor's configured default comes before the
+        // weaker "most used on earlier invoices" fallback.
+        if (isset($byIndex[$index]) && ($byIndex[$index]['source'] ?? '') === 'line_match' && isset($accounts[(string)$byIndex[$index]['accountId']])) {
+            $s = $byIndex[$index];
+            $out[] = ['index' => $index, 'accountId' => (string)$s['accountId'], 'taxCodeId' => $s['taxCodeId'] ?? null, 'source' => (string)$s['source'], 'reason' => (string)$s['reason'] . ' (' . $accounts[(string)$s['accountId']] . ')'];
+            continue;
+        }
+        if ($vendorDefault !== '' && isset($accounts[$vendorDefault])) { $out[] = ['index' => $index, 'accountId' => $vendorDefault, 'taxCodeId' => $byIndex[$index]['taxCodeId'] ?? null, 'source' => 'vendor_setting', 'reason' => 'The vendor\'s default expense account (' . $accounts[$vendorDefault] . ') in Vendors']; continue; }
         if (isset($byIndex[$index]) && isset($accounts[(string)$byIndex[$index]['accountId']])) {
             $s = $byIndex[$index];
             $out[] = ['index' => $index, 'accountId' => (string)$s['accountId'], 'taxCodeId' => $s['taxCodeId'] ?? null, 'source' => (string)$s['source'], 'reason' => (string)$s['reason'] . ' (' . $accounts[(string)$s['accountId']] . ')'];
@@ -1071,8 +1084,10 @@ function r170_duplicates(array $company, array $row, ?string $vendorId, string $
         elseif (!$sameVendor && $number !== '' && (string)$bill['number'] === $number) $out[] = $item + ['class' => 'review', 'reason' => 'number_other_vendor', 'message' => 'Another supplier\'s invoice already uses number ' . $number . ' (' . $label . '). Tegh needs vendor invoice numbers to be unique, so add a supplier prefix to this number if it is a different invoice.'];
     }
     // Other invoices read by Invoice Intelligence
-    $q = db()->prepare('SELECT j.id,j.document_id,j.segment_index,j.vendor_id,j.invoice_number,j.invoice_number_norm,j.invoice_date,j.total_cents,j.currency,j.content_simhash,j.target_id,j.state,d.sha256,d.original_name FROM invoice_intel_jobs j JOIN native_agent_documents d ON d.id=j.document_id AND d.company_id=j.company_id WHERE j.company_id=? AND j.id<>? AND j.state NOT IN (\'cancelled\',\'failed\') ORDER BY j.created_at DESC LIMIT 1000');
-    $q->execute([$companyId, (string)$row['id']]);
+    $q = db()->prepare('SELECT j.id,j.document_id,j.segment_index,j.vendor_id,j.invoice_number,j.invoice_number_norm,j.invoice_date,j.total_cents,j.currency,j.content_simhash,j.target_id,j.state,d.sha256,d.original_name FROM invoice_intel_jobs j JOIN native_agent_documents d ON d.id=j.document_id AND d.company_id=j.company_id WHERE j.company_id=? AND j.id<>? AND j.state NOT IN (\'cancelled\',\'failed\')
+        AND (j.target_id IS NOT NULL OR j.created_at<? OR (j.created_at=? AND (j.document_id<>? AND j.document_id<? OR j.document_id=? AND j.segment_index<?))) ORDER BY j.created_at DESC LIMIT 1000');
+    // Only invoices uploaded earlier (or already drafted) count: the first copy can proceed, later copies are flagged.
+    $q->execute([$companyId, (string)$row['id'], (string)$row['created_at'], (string)$row['created_at'], (string)$row['document_id'], (string)$row['document_id'], (string)$row['document_id'], (int)$row['segment_index']]);
     $mineSha = (string)($row['sha256'] ?? '');
     foreach ($q->fetchAll() as $other) {
         $label = sprintf('"%s"%s', $other['original_name'], $other['invoice_number'] ? ' (invoice ' . $other['invoice_number'] . ')' : '');
@@ -1343,7 +1358,11 @@ function r170_create_draft(array $user, array $company, array $input): array
         $accept = ($input['acceptComputedTotal'] ?? false) === true;
         if ($differs && !$accept) fail($differs[0]['message'] . ' Confirm Tegh\'s total to continue, or correct the lines.', 409, 'invoice_intel_total_differs');
         $reviewFlags = array_values(array_filter($analysis['validations'] ?? [], static fn($v) => $v['severity'] === 'review' && $v['code'] !== 'tegh_total_differs'));
-        if (($reviewFlags || ($analysis['reviewClass'] ?? '') !== 'ready') && ($input['confirmReviewed'] ?? false) !== true) fail('Some fields still need review. Check them against the document, then confirm.', 409, 'invoice_intel_review_required');
+        if (($reviewFlags || ($analysis['reviewClass'] ?? '') !== 'ready') && ($input['confirmReviewed'] ?? false) !== true) {
+            $low = array_keys(array_filter($analysis['confidence']['fields'] ?? [], static fn($f) => ($f['level'] ?? '') === 'low'));
+            $why = $reviewFlags ? $reviewFlags[0]['message'] : ($low ? 'Low confidence: ' . implode(', ', $low) . '.' : 'The supplier match is not confirmed.');
+            fail('Some fields still need review (' . $why . ') Check them against the document, then confirm.', 409, 'invoice_intel_review_required');
+        }
         $vendorId = (string)$row['vendor_id'];
         if ((string)$row['doc_class'] === 'credit_note') {
             require_company_permission($company, 'ap.credit_note.write');
@@ -1520,7 +1539,13 @@ function handle_invoice_intel(string $action): never
     r170_require_schema();
     if (request_method() === 'GET') {
         if ($action === 'jobs') json_response(r170_list($company, $_GET));
-        if ($action === 'job') { require_company_permission($company, 'bills.view'); json_response(['job' => r170_detail($company, r170_job_row($company, clean_text($_GET['jobId'] ?? '', 'Invoice', 64)))]); }
+        if ($action === 'job') {
+            require_company_permission($company, 'bills.view');
+            $row = r170_job_row($company, clean_text($_GET['jobId'] ?? '', 'Invoice', 64));
+            // Checks depend on other invoices and on Vendors, so an open invoice is checked again when it is opened.
+            if (empty($row['target_id']) && in_array((string)$row['state'], ['ready', 'review_required', 'blocked'], true) && company_role_can((string)$company['role'], 'bills.write')) $row = r170_reanalyse($user, $company, (string)$row['id']);
+            json_response(['job' => r170_detail($company, $row)]);
+        }
         if ($action === 'options') { require_company_permission($company, 'bills.view'); json_response(r170_options($company)); }
         if ($action === 'source') json_response(r170_source_for_bill($company, $_GET));
         fail('Invoice Intelligence route not found.', 404, 'route_not_found');

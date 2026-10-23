@@ -704,16 +704,34 @@
     },
     async recognise(worker, canvas) {
       const result = await worker.recognize(canvas, {}, { text: true, blocks: true });
-      const words = [];
-      const visit = list => { for (const block of list || []) for (const para of block.paragraphs || []) for (const line of para.lines || []) for (const word of line.words || []) words.push(word); };
-      visit(result?.data?.blocks);
-      if (!words.length && Array.isArray(result?.data?.words)) words.push(...result.data.words);
+      const lines = [];
+      for (const block of result?.data?.blocks || []) for (const para of block.paragraphs || []) for (const line of para.lines || []) lines.push(line);
       const W = canvas.width, H = canvas.height;
-      return words.filter(word => word && String(word.text || '').trim() && word.bbox).map(word => {
+      // Each word sits on its line's baseline (word boxes differ in height and descenders). The page's tilt is the
+      // median slope of the long baselines; word positions are turned back by it so one printed line stays one row.
+      // The boxes kept for highlighting stay in the scan's own coordinates.
+      const slopes = lines.map(l => l.baseline).filter(b => b && b.x1 - b.x0 > W * 0.15).map(b => (b.y1 - b.y0) / (b.x1 - b.x0)).sort((a, b) => a - b);
+      const tilt = slopes.length ? Math.atan(slopes[Math.floor(slopes.length / 2)]) : 0;
+      const cos = Math.cos(tilt), sin = Math.sin(tilt), cx = W / 2, cy = H / 2;
+      const out = [];
+      for (const line of lines) {
+        const b = line.baseline && line.baseline.x1 > line.baseline.x0 ? line.baseline : null;
+        const slope = b ? (b.y1 - b.y0) / (b.x1 - b.x0) : 0;
+        for (const word of line.words || []) {
+          if (!word?.bbox || !String(word.text || '').trim()) continue;
+          const {x0, y0, x1, y1} = word.bbox, h = Math.max(1, y1 - y0), mid = (x0 + x1) / 2;
+          const base = b ? b.y0 + (mid - b.x0) * slope : y1;
+          const rx = cx + (mid - cx) * cos + (base - cy) * sin, ry = cy - (mid - cx) * sin + (base - cy) * cos;
+          out.push({str: String(word.text).trim(), transform: [h, 0, 0, h, rx - (x1 - x0) / 2, H - ry], width: Math.max(1, x1 - x0), height: h,
+            conf: Math.round(Number(word.confidence || 0)), box: [x0 / W, y0 / H, (x1 - x0) / W, h / H]});
+        }
+      }
+      if (!out.length && Array.isArray(result?.data?.words)) for (const word of result.data.words) {
+        if (!word?.bbox || !String(word.text || '').trim()) continue;
         const {x0, y0, x1, y1} = word.bbox, h = Math.max(1, y1 - y0);
-        return {str: String(word.text).trim(), transform: [h, 0, 0, h, x0, H - y1], width: Math.max(1, x1 - x0), height: h, conf: Math.round(Number(word.confidence || 0)),
-          box: [x0 / W, y0 / H, (x1 - x0) / W, h / H]};
-      });
+        out.push({str: String(word.text).trim(), transform: [h, 0, 0, h, x0, H - y1], width: Math.max(1, x1 - x0), height: h, conf: Math.round(Number(word.confidence || 0)), box: [x0 / W, y0 / H, (x1 - x0) / W, h / H]});
+      }
+      return out;
     },
   });
   const ocrQuality = items => {
@@ -748,7 +766,38 @@
       if (quality.score > best.quality.score * 1.15) { if (bestCanvas !== canvas) bestCanvas.width = bestCanvas.height = 1; best = {rotation, items, quality}; bestCanvas = turned; }
       else turned.width = turned.height = 1;
     }
+    // A noisy or faint scan: remove speckle (3×3 median) and make it black and white (Otsu threshold), read again and
+    // keep whichever reading Tesseract is more confident about.
+    if (best.quality.mean < 75) {
+      check();
+      const clean = despeckle(bestCanvas);
+      const items = await adapters.recognise(worker, clean);
+      const quality = ocrQuality(items);
+      if (quality.score > best.quality.score) { if (bestCanvas !== canvas) bestCanvas.width = bestCanvas.height = 1; best = {...best, items, quality}; bestCanvas = clean; }
+      else clean.width = clean.height = 1;
+    }
     return {...best, canvas: bestCanvas};
+  }
+  function despeckle(source) {
+    const w = source.width, h = source.height;
+    const src = source.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, w, h).data;
+    const grey = new Uint8Array(w * h);
+    for (let i = 0, j = 0; j < grey.length; i += 4, j++) grey[j] = (src[i] * 299 + src[i + 1] * 587 + src[i + 2] * 114) / 1000 | 0;
+    const med = new Uint8Array(w * h), win = new Uint8Array(9), hist = new Uint32Array(256);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      let n = 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const yy = Math.min(h - 1, Math.max(0, y + dy)), xx = Math.min(w - 1, Math.max(0, x + dx)); win[n++] = grey[yy * w + xx]; }
+      win.sort(); const v = win[4]; med[y * w + x] = v; hist[v]++;
+    }
+    // Otsu: the threshold that best separates ink from paper.
+    let sum = 0; for (let v = 0; v < 256; v++) sum += v * hist[v];
+    let sumB = 0, wB = 0, best = 0, threshold = 128;
+    for (let v = 0; v < 256; v++) { wB += hist[v]; if (!wB) continue; const wF = w * h - wB; if (!wF) break; sumB += v * hist[v]; const mB = sumB / wB, mF = (sum - sumB) / wF, between = wB * wF * (mB - mF) ** 2; if (between > best) { best = between; threshold = v; } }
+    const out = window.document.createElement('canvas'); out.width = w; out.height = h;
+    const ctx = out.getContext('2d'); const img = ctx.createImageData(w, h);
+    for (let j = 0, i = 0; j < med.length; j++, i += 4) { const v = med[j] > threshold ? 255 : 0; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+    ctx.putImageData(img, 0, 0);
+    return out;
   }
   async function readDocumentPages(file, options = {}) {
     if (!(file instanceof Blob) || file.size < 1 || file.size > 10 * 1024 * 1024) throw Object.assign(new RangeError('Documents must be between 1 byte and 10 MB.'), {code: 'unsupported'});

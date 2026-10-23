@@ -45,6 +45,9 @@
 .ii-title p{margin:2px 0 0;color:var(--tegh-muted);font-size:.85rem;overflow-wrap:anywhere}
 .ii-done{padding:12px 14px;border-radius:10px;background:color-mix(in srgb,var(--tegh-emerald,#247362) 10%,transparent);display:grid;gap:8px}
 .ii-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:14px;align-items:start}
+/* Shell card rules make every card span the page; keep the document and the form in their own columns. */
+.ii-review .ii-split>.ii-viewer{grid-column:1!important;grid-row:1!important;width:auto!important;max-width:none!important;margin:0!important}
+.ii-review .ii-split>.ii-form-col{grid-column:2!important;grid-row:1!important;min-width:0}
 .ii-viewer{position:sticky;top:12px;display:grid;grid-template-rows:auto minmax(0,1fr);height:calc(100vh - 150px);min-height:420px;padding:0!important;overflow:hidden}
 .ii-viewer-bar{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid var(--tegh-line);font-size:.85rem;flex-wrap:wrap}
 .ii-viewer-gap{flex:1}
@@ -127,6 +130,7 @@
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (max-width:1099px){
   .ii-split{grid-template-columns:minmax(0,1fr)}
+  .ii-review .ii-split>.ii-viewer,.ii-review .ii-split>.ii-form-col{grid-column:1!important;grid-row:auto!important}
   .ii-viewer{position:relative;top:auto;height:62vh}
 }
 @media (max-width:640px){

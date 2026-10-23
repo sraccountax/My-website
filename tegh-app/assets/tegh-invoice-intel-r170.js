@@ -265,6 +265,8 @@
       // Labels the general reader misses: "No de facture: X", "Credit Note No.: X", "N° de note", "Bill No. X".
       const m = /\b(?:n[o°º]\.?\s*de\s+(?:la\s+)?(?:facture|note)|num[eé]ro\s+de\s+(?:facture|note)|credit\s+(?:note|memo)\s*(?:no\.?|number|#)|bill\s*(?:no\.?|number|#)|invoice\s*(?:no\.?|number|#))\s*[:#]?\s*([A-Z0-9][A-Z0-9._\/-]{1,39})/i.exec(fold(text));
       if (m && /\d/.test(m[1])) number = m[1];
+      // OCR punctuation noise around the label ("Invoice'No,:, LC-88240").
+      if (!number) { const n = /\b(?:invoice|bill|credit\s+(?:note|memo))[\s'’`.,:;]*(?:no|n[o°º]|number|#)[\s'’`.,:;#]*([A-Z0-9][A-Z0-9._\/-]{2,39})/i.exec(fold(text)); if (n && /\d/.test(n[1])) number = n[1]; }
     }
     if (number) locate('invoiceNumber', [number], number);
     if (c.documentDate) {
@@ -440,7 +442,8 @@
     worker.active = true;
     try {
       for (let guard = 0; guard < 200; guard++) {
-        if (!ctx.page?.isConnected) break;
+        // Read only while Invoice Intelligence is the screen in front: leaving it stops the worker after the current file.
+        if (!ctx.page?.isConnected || !/^#tegh=invoice-intel(?:&|$)/.test(location.hash)) break;
         const claim = await ctx.api('invoice-intel/claim', {method: 'POST', json: {}});
         if (!claim?.claimed) {
           if (claim?.reason === 'busy') { worker.status = 'Other windows are reading invoices. Waiting…'; notify(); await new Promise(r => setTimeout(r, 8000)); continue; }
@@ -465,7 +468,7 @@
 
   async function renderQueue(body, ctx) {
     const {api, esc, toast} = ctx;
-    const [options, list] = await Promise.all([api('invoice-intel/options'), api('invoice-intel/jobs?' + new URLSearchParams({state: ctx.filter.state || 'open', ...(ctx.filter.review ? {review: ctx.filter.review} : {}), ...(ctx.filter.vendorId ? {vendorId: ctx.filter.vendorId} : {}), ...(ctx.filter.duplicates ? {duplicates: '1'} : {}), ...(ctx.filter.q ? {q: ctx.filter.q} : {})}))]);
+    const [options, list] = await Promise.all([api('invoice-intel/options'), api('invoice-intel/jobs', {params: {state: ctx.filter.state || 'open', ...(ctx.filter.review ? {review: ctx.filter.review} : {}), ...(ctx.filter.vendorId ? {vendorId: ctx.filter.vendorId} : {}), ...(ctx.filter.duplicates ? {duplicates: '1'} : {}), ...(ctx.filter.q ? {q: ctx.filter.q} : {})}})]);
     const filter = {state: 'open', ...ctx.filter};
     const counts = list.counts || {};
     const n = s => Number(counts[s] || 0);
@@ -512,9 +515,11 @@
     const workerLine = body.querySelector('[data-ii-worker]');
     const showStatus = status => { if (workerLine?.isConnected) { workerLine.textContent = status; workerLine.hidden = !status; } };
     worker.listeners.clear(); worker.listeners.add(showStatus); showStatus(worker.status);
-    const startWorker = () => { if (options.canWrite) void runWorker(ctx, () => { if (ctx.page?.isConnected && body.querySelector('[data-ii-queue]')) refreshRows(); }); };
+    const startWorker = () => { if (options.canWrite) void runWorker(ctx, () => refreshRows()); };
     let refreshTimer = null;
-    const refreshRows = () => { clearTimeout(refreshTimer); refreshTimer = setTimeout(() => { if (ctx.page?.isConnected && !body.querySelector('dialog[open]')) reload(); }, 400); };
+    // Refresh the list only while the queue is still the screen in front; never pull the person back to it.
+    const onQueue = () => ctx.page?.isConnected && /^#tegh=invoice-intel(?:&|$)/.test(location.hash);
+    const refreshRows = () => { clearTimeout(refreshTimer); refreshTimer = setTimeout(() => { if (onQueue() && !document.querySelector('dialog[open]')) reload(); }, 400); };
 
     body.querySelectorAll('[data-ii-state]').forEach(b => b.onclick = () => reload({state: b.dataset.iiState, review: '', duplicates: ''}));
     body.querySelector('[data-ii-filters]').onsubmit = event => { event.preventDefault(); const f = new FormData(event.currentTarget); reload({vendorId: f.get('vendorId') || '', q: f.get('q') || '', duplicates: f.get('duplicates') ? '1' : ''}); };
@@ -650,7 +655,7 @@
 
   async function renderJob(body, ctx) {
     const {api, esc, toast} = ctx;
-    const [options, detail] = await Promise.all([api('invoice-intel/options'), api('invoice-intel/job?jobId=' + encodeURIComponent(ctx.jobId))]);
+    const [options, detail] = await Promise.all([api('invoice-intel/options'), api('invoice-intel/job', {params: {jobId: ctx.jobId}})]);
     const job = detail.job;
     const analysis = job.analysis || {};
     const open = ['ready', 'review_required', 'blocked'].includes(job.state) && options.canWrite;
