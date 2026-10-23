@@ -1,0 +1,51 @@
+[
+ {
+  "id": "PZ-01",
+  "area": "R169",
+  "title": "Sign-in page: pinch zooms in and the zoomed page moves sideways",
+  "status": "PASS",
+  "evidence": "zoom 1.44; x 41→118"
+ },
+ {
+  "id": "PZ-02",
+  "area": "R169",
+  "title": "Dashboard: zoom in, move right, down and left, zoom back out",
+  "status": "PASS",
+  "evidence": "zoom 1.45; right x 42→120; down 0/142→330/142; left x→0; zoom out 1; screen kept true"
+ },
+ {
+  "id": "PZ-03",
+  "area": "R169",
+  "title": "Report (Vendor Invoice & Note Register): zoom in and move around",
+  "status": "PASS",
+  "evidence": "zoom 1.45; right x 42→120; down 0/142→334/142; left x→0; zoom out 1; screen kept true"
+ },
+ {
+  "id": "PZ-04",
+  "area": "R169",
+  "title": "Trial Balance: zoom in and move around",
+  "status": "PASS",
+  "evidence": "zoom 1.45; right x 42→120; down 0/142→319/142; left x→0; zoom out 1; screen kept true"
+ },
+ {
+  "id": "PZ-05",
+  "area": "R169",
+  "title": "Customer invoice form: zoom in and move around",
+  "status": "PASS",
+  "evidence": "zoom 1.45; right x 42→120; down 0/142→331/142; left x→0; zoom out 1; screen kept true"
+ },
+ {
+  "id": "PZ-06",
+  "area": "R169",
+  "title": "Without zoom: one-finger scrolling still scrolls the screen and the page never scrolls sideways",
+  "status": "PASS",
+  "evidence": "scale 1; scrolled 0→345; sideways x 0, page overflow 0; screen kept true"
+ },
+ {
+  "id": "PZ-07",
+  "area": "R169",
+  "title": "No browser errors",
+  "status": "PASS",
+  "evidence": "none"
+ }
+]
