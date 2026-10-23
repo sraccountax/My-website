@@ -1,0 +1,72 @@
+/* Tegh R26 — workflow continuity, compact filters and user-controlled report columns. */
+html[data-tegh-shell] .r19-dashboard .r17-dashboard-actions{
+  min-height:0!important;overflow:hidden!important;
+}
+html[data-tegh-shell] .r19-dashboard .r17-quick-list{
+  min-height:0!important;max-height:100%!important;overflow-y:auto!important;overflow-x:hidden!important;
+  scrollbar-gutter:stable;overscroll-behavior:contain;
+}
+html[data-tegh-shell] .r19-dashboard .r17-quick-list>button{flex:0 0 auto!important;}
+
+/* Inline scope controls: label + actual field on one line in task/report toolbars. */
+html[data-tegh-shell] :is(.srp-register-filter,.srp-filter,.r22-filter-controls,.r15-recon-toolbar,.tegh-review-account-control,.r26-inline-filter)
+  >label:has(>input[type="date"]),
+html[data-tegh-shell] :is(.srp-register-filter,.srp-filter,.r22-filter-controls,.r15-recon-toolbar,.tegh-review-account-control,.r26-inline-filter)
+  >label:has(>select[name="bankAccountId"]),
+html[data-tegh-shell] .tegh-review-account-control>label:has(>[data-review-account-select]),
+html[data-tegh-shell] label:has(>[data-review-from]),
+html[data-tegh-shell] label:has(>[data-review-to]){
+  display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;
+  white-space:nowrap!important;width:auto!important;min-width:0!important;flex:0 1 auto!important;
+}
+html[data-tegh-shell] :is(.srp-register-filter,.srp-filter,.r22-filter-controls,.r15-recon-toolbar,.tegh-review-account-control,.r26-inline-filter)
+  >label:has(>input[type="date"])>input,
+html[data-tegh-shell] label:has(>[data-review-from])>[data-review-from],
+html[data-tegh-shell] label:has(>[data-review-to])>[data-review-to]{width:144px!important;min-width:132px!important;}
+html[data-tegh-shell] :is(.r15-recon-toolbar,.tegh-review-account-control)>label:has(>select){max-width:min(360px,42vw)!important;}
+
+/* Reconciliation: one compact line until a user explicitly opens detail. */
+html[data-tegh-shell] .r15-recon-table :is(th,td){padding:4px 6px!important;vertical-align:middle!important;line-height:1.25!important;}
+html[data-tegh-shell] .r15-recon-table tbody tr{height:38px!important;}
+html[data-tegh-shell] .r26-recon-row-detail{margin:0!important;padding:0!important;border:0!important;background:transparent!important;min-width:0!important;}
+html[data-tegh-shell] .r26-recon-row-detail>summary{list-style:none!important;display:flex!important;align-items:center!important;gap:6px!important;min-width:0!important;cursor:pointer!important;}
+html[data-tegh-shell] .r26-recon-row-detail>summary::-webkit-details-marker{display:none!important;}
+html[data-tegh-shell] .r26-recon-row-detail>summary>span{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;flex:1 1 auto!important;}
+html[data-tegh-shell] .r26-recon-row-detail>summary>small{flex:0 0 auto!important;max-width:115px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;color:var(--tegh-muted,#60746d)!important;}
+html[data-tegh-shell] .r26-recon-row-detail:not([open]) .r26-recon-row-expanded{display:none!important;}
+html[data-tegh-shell] .r26-recon-row-expanded{padding:6px 0 2px!important;}
+html[data-tegh-shell] .r26-recon-row-expanded p{margin:0 0 3px!important;}
+
+/* Draggable report/register columns and accessible order editor. */
+html[data-tegh-shell] .r26-table-drag{display:inline-flex;align-items:center;justify-content:center;width:16px;min-width:16px;margin-inline-end:3px;cursor:grab;color:var(--tegh-muted,#60746d);font-weight:700;user-select:none;}
+html[data-tegh-shell] .r26-table-drag:active{cursor:grabbing;}
+html[data-tegh-shell] .r23-table th.is-drop-target{box-shadow:inset 3px 0 0 var(--tegh-accent,#087b63)!important;background:color-mix(in srgb,var(--tegh-accent,#087b63) 8%,var(--tegh-surface,#fff))!important;}
+html[data-tegh-shell] .r26-column-order{display:flex!important;flex-direction:column!important;gap:4px!important;}
+html[data-tegh-shell] .r26-column-order-row{display:grid!important;grid-template-columns:22px 18px minmax(0,1fr) 34px 34px!important;align-items:center!important;gap:6px!important;min-height:38px!important;padding:4px 6px!important;border:1px solid var(--tegh-line,#d5e1dc)!important;border-radius:8px!important;background:var(--tegh-surface,#fff)!important;}
+html[data-tegh-shell] .r26-column-order-row.is-dragging{opacity:.55;}
+html[data-tegh-shell] .r26-column-order-row.is-drop-target{border-color:var(--tegh-accent,#087b63)!important;}
+html[data-tegh-shell] .r26-column-grip{cursor:grab;user-select:none;color:var(--tegh-muted,#60746d);font-weight:700;}
+html[data-tegh-shell] .r26-column-order-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+html[data-tegh-shell] .r26-column-order-row .r23-btn{min-height:30px!important;padding:2px 7px!important;}
+
+/* Day Book journal groups start collapsed; the group line is the compact record. */
+html[data-tegh-shell] .r26-daybook-group>th{padding:3px 6px!important;background:var(--tegh-surface-mist,#eef5f1)!important;}
+html[data-tegh-shell] .r26-daybook-group-toggle{width:100%!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;min-height:34px!important;padding:3px 6px!important;border:0!important;background:transparent!important;text-align:left!important;font-weight:700!important;color:inherit!important;}
+
+/* Optional transfer method explanation stays compact. */
+html[data-tegh-shell] .r26-transfer-methods{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:8px 0;}
+html[data-tegh-shell] .r26-transfer-methods>section{border:1px solid var(--tegh-line,#d5e1dc);border-radius:10px;padding:10px;background:var(--tegh-surface,#fff);}
+html[data-tegh-shell] .r26-transfer-methods p{margin:4px 0 0;color:var(--tegh-muted,#60746d);}
+@media (max-width:760px){
+  html[data-tegh-shell] .r26-transfer-methods{grid-template-columns:1fr;}
+  html[data-tegh-shell] :is(.srp-register-filter,.srp-filter,.r22-filter-controls,.r15-recon-toolbar,.tegh-review-account-control,.r26-inline-filter)>label:has(>input[type="date"]){flex:1 1 155px!important;}
+}
+
+/* R26 shared compact scope labels, assigned by ActivityShell after each render. */
+html[data-tegh-shell] label.r26-inline-field{
+  display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;
+  white-space:nowrap!important;width:auto!important;min-width:0!important;flex:0 1 auto!important;
+}
+html[data-tegh-shell] label.r26-inline-field>input[type="date"]{width:144px!important;min-width:132px!important;}
+html[data-tegh-shell] label.r26-inline-field>select{min-width:150px!important;max-width:min(360px,42vw)!important;}
+@media (max-width:760px){html[data-tegh-shell] label.r26-inline-field{white-space:normal!important;flex-wrap:wrap!important;}}

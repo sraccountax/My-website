@@ -1,0 +1,47 @@
+== A. backup during writes
+   2026-10-07T04:39:04Z backup start -> /srv/gate/backups/tegh-20261007-043904
+   2026-10-07T04:39:04Z changes paused (maintenance flag); waiting 3s for running requests
+   2026-10-07T04:39:11Z changes resumed
+   consistent snapshot: db 520K, files 25, tables 167, companies with postings 19
+   2026-10-07T04:39:11Z backup done
+   writer: {"ok":96,"maintenance_backup":21,"other":0}
+PASS  A1 backup taken while writes were attempted is consistent (figures identical before and after)
+PASS  A2 writes during the pause were refused with 'Tegh is making a backup' (503) and writes before/after succeeded
+PASS  A3 maintenance flag removed after the backup
+   PASS  restore target is designated (/srv/rst/sr-accountax-private/.tegh-restore-target) and is not the live database (tegh_gate) or storage (/srv/gate/sr-accountax-private/storage)
+   PASS  backup files match SHA256SUMS
+   PASS  database restored into tegh_restore_test
+   PASS  upload folder restored into /srv/rst/sr-accountax-private/storage
+   PASS  all 25 uploaded files restored with the same SHA-256
+   PASS  row counts of 167 tables equal the backup checks
+   PASS  posted debits/credits of 19 companies equal the backup checks
+   PASS  every restored company's posted entries balance
+   
+   RESTORE VERIFIED: /srv/gate/backups/tegh-20261007-043904
+PASS  A4 restore verified with every table's row count equal (no tolerance for tables written during the backup)
+== B. refused restore targets
+PASS  B1 database name without 'restore': REFUSED  RESTORE_DB 'tegh_gate' does not contain 'restore'; use a dedicated restore-test database
+PASS  B2 restore database equal to the live database: REFUSED  RESTORE_DB is the LIVE database (tegh_restore_test)
+PASS  B3 restore storage = live storage (even with a marker placed next to it): REFUSED  RESTORE_STORAGE is the live storage folder or inside it (/srv/gate/sr-accountax-private/storage)
+PASS  B4 restore storage containing the live storage: REFUSED  RESTORE_STORAGE contains the live storage folder (/srv/gate/sr-accountax-private/storage)
+PASS  B5 folder not designated (no .tegh-restore-target): REFUSED  /srv/rst-unmarked/.tegh-restore-target not found: designate this folder for restore tests first (see the top of this script)
+PASS  B6 live database (327 journal lines) and live storage (25 files) unchanged after the refused attempts
+== C. empty installation
+   2026-10-07T04:39:43Z backup start -> /srv/gate/backups/empty/tegh-20261007-043943
+   2026-10-07T04:39:44Z changes paused (maintenance flag); waiting 1s for running requests
+   2026-10-07T04:39:48Z changes resumed
+   consistent snapshot: db 32K, files 0, tables 167, companies with postings 0
+   2026-10-07T04:39:48Z backup done
+PASS  C1 backup of an installation with no records and no uploads
+   PASS  restore target is designated (/srv/rst-empty/.tegh-restore-target) and is not the live database (tegh_empty_src) or storage (/srv/empty-src/storage)
+   PASS  backup files match SHA256SUMS
+   PASS  database restored into tegh_restore_empty
+   PASS  upload folder restored into /srv/rst-empty/storage
+   PASS  the backup holds no uploaded files
+   PASS  row counts of 167 tables equal the backup checks
+   PASS  posted debits/credits of 0 companies equal the backup checks
+   PASS  every restored company's posted entries balance
+   
+   RESTORE VERIFIED: /srv/gate/backups/empty/tegh-20261007-043943
+PASS  C2 restore of the empty installation verified
+RESULT: 12 PASS / 0 FAIL

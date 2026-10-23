@@ -1,0 +1,67 @@
+{
+  "engineVersion": "4.0.0",
+  "release": "5.0.0",
+  "build": 5000,
+  "intentModel": {
+    "id": "tegh-native-intent-v4",
+    "version": "4.0.0",
+    "registryActionCount": 149,
+    "executionClassCounts": {
+      "immediate": 121,
+      "prepared": 20,
+      "authorized": 8
+    },
+    "registrySha256": "d9674cccd1b01df0ea33c1347f209ceeb00d045ea45508e4943ed09c723388ed"
+  },
+  "embeddingModel": {
+    "id": "tegh-native-embedding-v1",
+    "version": "1.0.0",
+    "dimension": 192
+  },
+  "runtime": {
+    "webWorker": true,
+    "webGpuCapabilityDetection": true,
+    "wasmFallback": true,
+    "deterministicFallback": true,
+    "providerRequests": 0
+  },
+  "assets": [
+    {
+      "path": "/assets/tegh-ai/runtime/tegh-ai-core-v4.js",
+      "sizeBytes": 13835,
+      "sha256": "a070aafa4ae57279d01271ef373fdee0dd48ba89d5339efdbedade4df23d7892",
+      "cache": "immutable"
+    },
+    {
+      "path": "/assets/tegh-ai/runtime/tegh-ai-runtime-v4.js",
+      "sizeBytes": 4295,
+      "sha256": "ec82ef8508db4679188c81089786daa052e030492a5d18f3104e31bfc34083e1",
+      "cache": "immutable"
+    },
+    {
+      "path": "/assets/tegh-ai/runtime/tegh-ai-worker-v4.js",
+      "sizeBytes": 4638,
+      "sha256": "c186ed1997c2886b7a424be5c8b15b44c319a1ea81c48e16cfda5a57cc5751dd",
+      "cache": "immutable"
+    },
+    {
+      "path": "/assets/tegh-ai/runtime/tegh-vector-v1.wasm",
+      "sizeBytes": 584,
+      "sha256": "1db53d68e671f4220ec822b891331686f28f2c87ee744d39692e9b3b4b102255",
+      "cache": "immutable"
+    },
+    {
+      "path": "/assets/tegh-ai/intent/v4/model.json",
+      "sizeBytes": 76406,
+      "sha256": "8ad7e2778ea34521faa9555369814e846fb0a4a64f71c8eaf83c3e540f98df86",
+      "cache": "immutable"
+    },
+    {
+      "path": "/assets/tegh-ai/embedding/v1/model.json",
+      "sizeBytes": 432,
+      "sha256": "6bed301527a69ee71225f4936dfe3197383433f8b56b3eca667acf97f36e84e0",
+      "cache": "immutable"
+    }
+  ],
+  "totalSizeBytes": 100190
+}

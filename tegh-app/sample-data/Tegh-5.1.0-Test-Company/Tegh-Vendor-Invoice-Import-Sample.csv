@@ -1,0 +1,2 @@
+﻿Import Bill Reference,Vendor Invoice Number,Vendor Name,Bill Date,Due Date,Payment Terms,Custom Terms Days,Vendor Reference,Line Number,Product Service Code,Description,Quantity,Unit Price Amount,Expense Asset GL Code,Tax Treatment,Original Amount,Amount Previously Paid,Outstanding Amount,Notes
+TEGH-QA-VI-001,QA-BILL-001,Sample Office Supplies Ltd.,2026-09-12,2026-10-12,Net 30,,QA-VREF-001,1,,Fictional office supplies,1,500.00,6400,GST/HST,,,,Fictional sample; import as draft

@@ -1,0 +1,104 @@
+=== 01-install
+=== 02-setup
+{
+  BC: 'company_17f0446b76ef5db8e14d14a1ef8c79ff',
+  QC: 'company_406a79e28f675b1d4cd00819aa1c892a',
+  ON: 'company_2c95013c3a4261fa37cc553a618373a7',
+  X: 'company_8dc4b5af702531f2ea871b904c575ad1'
+}
+=== 02b-invite
+=== 03-acct
+expense 6000 equity 3000 bank gl 1000
+=== 04-tax
+INFO     CB-02      Cash basis: invoice issue posting recorded for review | {}
+=== 05-fx
+=== 06-sec
+INFO     XS-01      XSS payload customer stored as text (rendering checked in UI run) | 201
+=== 06b
+=== 07-cv
+=== 08-pay
+INFO     PY-01      Employee with SIN fields submitted: refused or SIN discarded | 422 sin_not_accepted Tegh does not store Social Insurance Numbers (SINs). Remove the SIN and use the Employee ID instead.
+INFO     PY-07      Payroll rate tables: year/version reported for owner verification | "effectiveFrom":"2026-01-01" "effectiveTo":"2026-06-30" "effectiveFrom":"2026-07-01" "effectiveTo":"2026-12-31"
+=== 09-backup
+=== 09b
+=== 10-ops
+INFO     LG-03      PHP error log: warnings recorded (see evidence) | PHP Warning:  POST Content-Length of 11534510 bytes exceeds the limit of 8388608 bytes in Unknown on line 0'
+INFO     SP-02      Public contact page offers a working contact path (form posts to /api/marketing) | mailto:enquiry@sraccountax.ca,mailto:enquiry@sraccountax.ca
+=== 13-r141
+FAIL     PW-01      Product page says Payroll Support Tool, Canada excluding Quebec (R142 wording), no "payrol | 
+=== 14-r142
+FAIL     WR-09      Product and Subscriptions pages say Canada, excluding Quebec; no "Canada only" | 
+=== 15-r144
+=== 16-r145
+INFO     DI-CMP     Field accuracy across the six documents, R145 reader vs the R144 reader (for information) | R145 47/47 fields; R144 19/47 fields
+=== 18-r149
+=== 19-r151
+=== 20-r151ui
+=== 21-r152
+=== 22-r153
+=== 23-r154
+=== 24-beta
+FAIL     BS-07      Accepting an invitation records the terms and privacy versions shown on the published Term | pages: terms undefined, privacy undefined; recorded 2026-10-21-beta.1|2026-10-21-beta.1
+FAIL     BS-09      Terms and Privacy pages: the operator, contacts, hosting, beta conditions, deletion proced | terms missing: Gate Test Operator Inc., support@gate.test, Private beta, Invitation only, Free, Sample data only, Data may be reset, No guarantee of availability, Not for real filings or payroll, 2026
+=== 25-r157
+=== 26-r158
+=== 27-r159
+=== 28-r160
+=== 29-r161
+=== 30-guided
+=== 31-r163
+=== 32-r163-sec
+
+10/10 R163 security checks passed
+=== 33-sec
+
+13/13 auth/client-view/payroll security checks passed
+=== 34-mfa
+=== 35-session
+=== 36-monitor
+=== 37-audit
+=== 38-files
+victims {
+  stmt: [
+    'company_74acd106e085bb2115a975873ce0748f',
+    'import_1261fb66f6d5eb358fc2bafe627b9398'
+  ],
+  att: [
+    'company_97689a25ce6349208f1e43af96401c3a',
+    'invoice_c6b11be22b4df4a45d2c912900d430af',
+    'invatt_e2d5bace6c06796ffda4b8713f726149'
+  ],
+  nd: [
+    'company_4e1c9cb00850321fc7167830d97ae578',
+    'nadoc_355cd9f0d20b96ae1b2449c07a76228a'
+  ],
+  inv: [
+    'company_22108da00d596a04584cb8465e0fef8f',
+    'invoice_1e250a4fa23707d1c19d08e4ace15192'
+  ]
+}
+=== 39-restore
+=== 40-r165
+=== 41-r166
+=== 42-r167
+=== 43-r168
+=== 44-r169
+=== e2e
+201 company_33f39d1af3c6e5c6623f075603144305
+=== w1
+=== w2
+=== w3
+=== w4
+=== w5
+=== w6
+=== w7
+201 company_c5a345fcdf5219124b601545bb49925f
+=== w1
+=== w2
+=== w3
+=== w4
+=== w5
+=== w6
+=== w7
+=== w8
+=== w9

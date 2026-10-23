@@ -1,0 +1,143 @@
+{
+ "mode": "summary",
+ "organization": {
+  "id": "company_6849010fe278ef1878cb058e698ba913",
+  "name": "Gate Test ON Corp",
+  "currency": "CAD",
+  "accountingBasis": "accrual",
+  "fiscalYearEnd": "12-31",
+  "fiscalYearEndDate": "2026-12-31",
+  "booksStartDate": "2026-01-01"
+ },
+ "currentThrough": "2026-09-16",
+ "bankAccounts": [
+  {
+   "id": "bank_a8c0f3f3e1def9049cb2299a76fdf3d4",
+   "name": "Business Chequing",
+   "accountType": "bank",
+   "currency": "CAD",
+   "bookBalanceCents": 0,
+   "statementBalanceCents": 0
+  },
+  {
+   "id": "bank_90724046d5d40993f94e31bfe14d0d30",
+   "name": "Business Credit Card",
+   "accountType": "credit_card",
+   "currency": "CAD",
+   "bookBalanceCents": 0,
+   "statementBalanceCents": 0
+  }
+ ],
+ "bankTransactions": [],
+ "cashFlow": [
+  {
+   "key": "2026-04",
+   "label": "Apr",
+   "incoming": 0,
+   "outgoing": 0,
+   "inHeight": 8,
+   "outHeight": 8
+  },
+  {
+   "key": "2026-05",
+   "label": "May",
+   "incoming": 0,
+   "outgoing": 0,
+   "inHeight": 8,
+   "outHeight": 8
+  },
+  {
+   "key": "2026-06",
+   "label": "Jun",
+   "incoming": 0,
+   "outgoing": 0,
+   "inHeight": 8,
+   "outHeight": 8
+  },
+  {
+   "key": "2026-07",
+   "label": "Jul",
+   "incoming": 0,
+   "outgoing": 0,
+   "inHeight": 8,
+   "outHeight": 8
+  },
+  {
+   "key": "2026-08",
+   "label": "Aug",
+   "incoming": 0,
+   "outgoing": 0,
+   "inHeight": 8,
+   "outHeight": 8
+  },
+  {
+   "key": "2026-09",
+   "label": "Sep",
+   "incoming": 0,
+   "outgoing": 0,
+   "inHeight": 8,
+   "outHeight": 8
+  }
+ ],
+ "summary": {
+  "periodStart": "2026-01-01",
+  "periodEnd": "2026-09-30",
+  "bankBalanceCents": 0,
+  "statementBalanceCents": 0,
+  "unpaidInvoicesCents": 22600,
+  "overdueInvoicesCents": 0,
+  "openInvoiceCount": 1,
+  "openBillCount": 1,
+  "dueSoonBillCount": 1,
+  "receivableControlCents": 22600,
+  "receivableSubledgerCents": 22600,
+  "receivableDifferenceCents": 0,
+  "receivableControlApplicable": true,
+  "payableControlCents": 11300,
+  "payableSubledgerCents": 11300,
+  "payableDifferenceCents": 0,
+  "payableControlApplicable": true,
+  "taxPayableCents": 0,
+  "taxSummary": {
+   "gstHstCollectedCents": 0,
+   "gstHstRecoverableCents": 0,
+   "gstHstNetCents": 0,
+   "pstPayableCents": 0,
+   "pstRecoverableCents": 0,
+   "qstPayableCents": 0,
+   "qstRecoverableCents": 0,
+   "otherTaxNetCents": 1300,
+   "otherTaxAccountCount": 2
+  },
+  "transactionsToReview": 0,
+  "duplicateTransactions": 0,
+  "incomeYtdCents": 20000,
+  "expensesYtdCents": 10000,
+  "netIncomeYtdCents": 10000,
+  "ledgerDebitsCents": 33900,
+  "ledgerCreditsCents": 33900,
+  "ledgerDifferenceCents": 0
+ },
+ "workflowEvidence": {
+  "accounts": 47,
+  "customers": 1,
+  "vendors": 1,
+  "documents": 2,
+  "bankTransactions": 0,
+  "reconciliations": 0,
+  "payroll": 0,
+  "opening": 0
+ },
+ "openingBalanceStatus": {
+  "posted": false,
+  "importCount": 0,
+  "draftCount": 0
+ },
+ "lastCompletedReconciliation": null,
+ "performance": {
+  "queryCount": 11,
+  "durationMs": 5.68,
+  "projection": "dashboard-summary-v5610"
+ },
+ "accountingWrites": 0
+}

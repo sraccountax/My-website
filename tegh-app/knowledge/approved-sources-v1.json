@@ -1,0 +1,321 @@
+{
+  "manifestVersion": "1.2.0",
+  "checkedAt": "2026-08-19",
+  "policy": "Only approved public authoritative metadata, links and Tegh-authored summaries are bundled. Full CPA Canada Handbook and IFRS Standards text is not bundled without a licence permitting commercial product integration. A server-side override manifest can be updated independently of the application deployment.",
+  "sources": [
+    {
+      "id": "cra-keeping-records",
+      "name": "Canada Revenue Agency — Keeping records",
+      "authority": "primary_government",
+      "jurisdiction": "CA",
+      "framework": "tax_bookkeeping",
+      "topics": [
+        "bookkeeping",
+        "records",
+        "audit_trail",
+        "source_documents"
+      ],
+      "url": "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/keeping-records.html",
+      "publishedOrUpdated": "2026-06-30",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_authoritative_link_and_original_summary",
+      "summary": "Business records should support income, expenses, GST/HST and payroll obligations, including electronic records and audit trails. Tegh should preserve source evidence and transaction traceability."
+    },
+    {
+      "id": "cra-gst-hst-payroll-records",
+      "name": "Canada Revenue Agency — GST/HST and payroll records",
+      "authority": "primary_government",
+      "jurisdiction": "CA",
+      "framework": "tax_bookkeeping",
+      "topics": [
+        "gst_hst",
+        "input_tax_credit",
+        "payroll",
+        "records"
+      ],
+      "url": "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/keeping-records/gst-hst-payroll-records.html",
+      "publishedOrUpdated": "2026-03-05",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_authoritative_link_and_original_summary",
+      "summary": "GST/HST registrants need records detailed enough to support tax collected/payable, rebates/refunds and ITCs; employers need payroll records supporting hours, CPP, EI and tax withholdings. Tegh should require supporting facts rather than infer unsupported claims."
+    },
+    {
+      "id": "cra-gst-records",
+      "name": "Canada Revenue Agency — GST/HST records to keep",
+      "authority": "primary_government",
+      "jurisdiction": "CA",
+      "framework": "tax_bookkeeping",
+      "topics": [
+        "gst_hst",
+        "input_tax_credit",
+        "records",
+        "sales",
+        "purchases"
+      ],
+      "url": "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/gst-hst-businesses/calculate-prepare-report/gst-hst-records-keep.html",
+      "publishedOrUpdated": "2025-06-16",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_authoritative_link_and_original_summary",
+      "summary": "Sales and purchase invoices and other GST/HST-related business records should support returns and claims; Tegh should not infer unsupported input tax credits."
+    },
+    {
+      "id": "fras-aspe-landscape",
+      "name": "Accounting Standards Board / FRAS Canada — Canadian reporting framework and private-enterprise standard setting",
+      "authority": "primary_standard_setter_public_material",
+      "jurisdiction": "CA",
+      "framework": "ASPE",
+      "topics": [
+        "aspe",
+        "private_enterprise",
+        "reporting_framework",
+        "professional_judgment"
+      ],
+      "url": "https://connect.frascanada.ca/acsb-2027-2032-strategic-plan",
+      "publishedOrUpdated": "2026-05-22",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_metadata_and_original_summary_only",
+      "requiresLicensedFullText": true,
+      "summary": "Canada’s AcSB supports IFRS application for publicly accountable enterprises and establishes domestic standards for private enterprises. Tegh uses this public standard-setter material for framework context; authoritative CPA Canada Handbook Part II text is not bundled."
+    },
+    {
+      "id": "ifrs-issued-standards",
+      "name": "IFRS Foundation — Issued IFRS Accounting Standards",
+      "authority": "primary_standard_setter_public_material",
+      "jurisdiction": "international",
+      "framework": "IFRS",
+      "topics": [
+        "ifrs",
+        "reporting_framework",
+        "professional_judgment",
+        "standards"
+      ],
+      "url": "https://www.ifrs.org/issued-standards/list-of-standards/",
+      "publishedOrUpdated": "2026",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_metadata_and_original_summary_only",
+      "requiresLicensedFullText": true,
+      "summary": "The IFRS Foundation is the authoritative source for IFRS Accounting Standards and related materials. Tegh does not bundle full IFRS Standards text in this release."
+    },
+    {
+      "id": "ifrs-commercial-licensing",
+      "name": "IFRS Foundation — IFRS Accounting Licensing",
+      "authority": "primary_standard_setter_licensing",
+      "jurisdiction": "international",
+      "framework": "IFRS",
+      "topics": [
+        "licensing",
+        "standards_integration"
+      ],
+      "url": "https://www.ifrs.org/products-and-services/ifrs-accounting-licensing/",
+      "publishedOrUpdated": "2026",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_licensing_metadata",
+      "summary": "Commercial integration of IFRS Accounting Standards into products or services requires an IFRS Foundation licence. Tegh therefore keeps licensed full-text integration as an optional connector rather than redistributing that content."
+    },
+    {
+      "id": "cra-record-retention-location",
+      "name": "Canada Revenue Agency — Where to keep records and how long to retain them",
+      "authority": "primary_government",
+      "jurisdiction": "CA",
+      "framework": "tax_bookkeeping",
+      "topics": [
+        "bookkeeping",
+        "records",
+        "audit_trail",
+        "retention"
+      ],
+      "url": "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/keeping-records/where-keep-your-records-long-request-permission-destroy-them-early.html",
+      "publishedOrUpdated": "2026-08",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_authoritative_link_and_original_summary",
+      "summary": "CRA generally requires required records and supporting documents to be retained for six years from the end of the last tax year they relate to, subject to exceptions. Tegh should preserve auditable records and avoid destructive advice that conflicts with retention obligations."
+    },
+    {
+      "id": "cra-gst-charge-collect",
+      "name": "Canada Revenue Agency — Charge and collect the GST/HST",
+      "authority": "primary_government",
+      "jurisdiction": "CA",
+      "framework": "tax_bookkeeping",
+      "topics": [
+        "gst_hst",
+        "place_of_supply",
+        "sales",
+        "records",
+        "tax_rate"
+      ],
+      "url": "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/gst-hst-businesses/charge-collect-which-rate.html",
+      "publishedOrUpdated": "2026",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_authoritative_link_and_original_summary",
+      "summary": "GST/HST treatment depends on the nature and place of supply, and records must support tax collected and tax paid/payable on eligible purchases. Tegh should use company tax configuration and transaction facts rather than hard-code one rate."
+    },
+    {
+      "id": "fras-aspe-public-application-example",
+      "name": "Accounting Standards Board / FRAS Canada — Public ASPE application material example",
+      "authority": "primary_standard_setter_public_material",
+      "jurisdiction": "CA",
+      "framework": "ASPE",
+      "topics": [
+        "agriculture",
+        "inventory",
+        "measurement",
+        "disclosure",
+        "professional_judgment"
+      ],
+      "url": "https://www.frascanada.ca/-/media/frascanada/aspe/documents/section-3041-agriculture.pdf",
+      "publishedOrUpdated": "2023-03",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_standard_setter_material",
+      "requiresLicensedFullText": true,
+      "summary": "FRAS Canada publishes selected public application resources that explain particular ASPE issues while noting that Handbook-linked authoritative material is subscriber content. Tegh may retrieve legally public resources but must not treat them as a substitute for licensed Handbook text."
+    },
+    {
+      "id": "ifrs-15-revenue",
+      "name": "IFRS Foundation — IFRS 15 Revenue from Contracts with Customers",
+      "authority": "primary_standard_setter_public_material",
+      "jurisdiction": "international",
+      "framework": "IFRS",
+      "topics": [
+        "revenue",
+        "recognition",
+        "measurement"
+      ],
+      "url": "https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/",
+      "publishedOrUpdated": "current public standard page checked 2026-08-19",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_standard_metadata_and_original_summary_only",
+      "requiresLicensedFullText": true,
+      "summary": "IFRS 15 addresses revenue from customer contracts and the transfer of promised goods or services. Tegh uses this public standard page as authoritative topic metadata; framework-specific conclusions still require the applicable Standard and complete facts."
+    },
+    {
+      "id": "ifrs-16-leases",
+      "name": "IFRS Foundation — IFRS 16 Leases",
+      "authority": "primary_standard_setter_public_material",
+      "jurisdiction": "international",
+      "framework": "IFRS",
+      "topics": [
+        "leases",
+        "recognition",
+        "measurement"
+      ],
+      "url": "https://www.ifrs.org/issued-standards/list-of-standards/ifrs-16-leases/",
+      "publishedOrUpdated": "current public standard page checked 2026-08-19",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_standard_metadata_and_original_summary_only",
+      "requiresLicensedFullText": true,
+      "summary": "IFRS 16 is the IFRS Accounting Standard for leases. Tegh can flag lease-related questions for IFRS-specific review and retrieve licensed/public supporting material where available rather than treating ordinary rent bookkeeping as a complete lease-accounting conclusion."
+    },
+    {
+      "id": "ias-16-ppe",
+      "name": "IFRS Foundation — IAS 16 Property, Plant and Equipment",
+      "authority": "primary_standard_setter_public_material",
+      "jurisdiction": "international",
+      "framework": "IFRS",
+      "topics": [
+        "ppe",
+        "fixed_assets",
+        "capitalization",
+        "depreciation",
+        "measurement"
+      ],
+      "url": "https://www.ifrs.org/issued-standards/list-of-standards/ias-16-property-plant-and-equipment/",
+      "publishedOrUpdated": "current public standard page checked 2026-08-19",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_standard_metadata_and_original_summary_only",
+      "requiresLicensedFullText": true,
+      "summary": "IAS 16 addresses recognition and measurement of property, plant and equipment, depreciation and related impairment considerations. Tegh should flag possible capital expenditures rather than automatically expensing them when facts indicate multi-period use."
+    },
+    {
+      "id": "ias-2-inventories",
+      "name": "IFRS Foundation — IAS 2 Inventories",
+      "authority": "primary_standard_setter_public_material",
+      "jurisdiction": "international",
+      "framework": "IFRS",
+      "topics": [
+        "inventory",
+        "measurement",
+        "cost_of_sales"
+      ],
+      "url": "https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/",
+      "publishedOrUpdated": "current public standard page checked 2026-08-19",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_standard_metadata_and_original_summary_only",
+      "requiresLicensedFullText": true,
+      "summary": "IAS 2 addresses inventory cost and subsequent expense recognition, including lower-of-cost-and-net-realisable-value considerations. Tegh should treat inventory classification and write-down questions as accounting-policy matters, not generic expense coding."
+    },
+    {
+      "id": "ias-36-impairment",
+      "name": "IFRS Foundation — IAS 36 Impairment of Assets",
+      "authority": "primary_standard_setter_public_material",
+      "jurisdiction": "international",
+      "framework": "IFRS",
+      "topics": [
+        "impairment",
+        "ppe",
+        "intangible_assets",
+        "measurement"
+      ],
+      "url": "https://www.ifrs.org/issued-standards/list-of-standards/ias-36-impairment-of-assets/",
+      "publishedOrUpdated": "current public standard page checked 2026-08-19",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_standard_metadata_and_original_summary_only",
+      "requiresLicensedFullText": true,
+      "summary": "IAS 36 addresses impairment of assets within its scope. Tegh should raise an accounting check when facts suggest carrying amounts may not be recoverable rather than silently reducing or rewriting an asset balance."
+    },
+    {
+      "id": "ias-37-provisions",
+      "name": "IFRS Foundation — IAS 37 Provisions, Contingent Liabilities and Contingent Assets",
+      "authority": "primary_standard_setter_public_material",
+      "jurisdiction": "international",
+      "framework": "IFRS",
+      "topics": [
+        "provisions",
+        "accruals",
+        "contingencies"
+      ],
+      "url": "https://www.ifrs.org/issued-standards/list-of-standards/ias-37-provisions-contingent-liabilities-and-contingent-assets/",
+      "publishedOrUpdated": "current public standard page checked 2026-08-19",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_standard_metadata_and_original_summary_only",
+      "requiresLicensedFullText": true,
+      "summary": "IAS 37 addresses provisions and contingencies. Tegh should distinguish an ordinary known accrual from obligations involving uncertainty or professional judgement and request the facts needed before proposing recognition."
+    },
+    {
+      "id": "ias-21-foreign-currency",
+      "name": "IFRS Foundation — IAS 21 The Effects of Changes in Foreign Exchange Rates",
+      "authority": "primary_standard_setter_public_material",
+      "jurisdiction": "international",
+      "framework": "IFRS",
+      "topics": [
+        "foreign_currency",
+        "fx",
+        "measurement"
+      ],
+      "url": "https://www.ifrs.org/issued-standards/list-of-standards/ias-21-the-effects-of-changes-in-foreign-exchange-rates/",
+      "publishedOrUpdated": "current public standard page checked 2026-08-19",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_standard_metadata_and_original_summary_only",
+      "requiresLicensedFullText": true,
+      "summary": "IAS 21 addresses foreign-currency transactions and translation. Tegh should preserve transaction currency and company-approved exchange-rate evidence and avoid inventing a rate when source data is missing."
+    },
+    {
+      "id": "ias-12-income-taxes",
+      "name": "IFRS Foundation — IAS 12 Income Taxes",
+      "authority": "primary_standard_setter_public_material",
+      "jurisdiction": "international",
+      "framework": "IFRS",
+      "topics": [
+        "income_tax",
+        "deferred_tax",
+        "recognition",
+        "measurement"
+      ],
+      "url": "https://www.ifrs.org/issued-standards/list-of-standards/ias-12-income-taxes/",
+      "publishedOrUpdated": "current public standard page checked 2026-08-19",
+      "retrievedAt": "2026-08-19",
+      "licenceClass": "public_standard_metadata_and_original_summary_only",
+      "requiresLicensedFullText": true,
+      "summary": "IAS 12 addresses current and deferred income taxes. Tegh should treat deferred-tax conclusions as framework-specific accounting analysis and not confuse them with GST/HST bookkeeping or current tax remittance workflows."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+[
+ {
+  "n": "01-payroll-notice",
+  "ok": true,
+  "info": "Tegh Payroll Support is for Canadian payroll outside Quebec. I || Rate tables loaded: CRA T4127 — January 2026 (from 2026-01-01); CRA T4127 — July 2026 (from 2026-07-01). Each pay run uses the table in effect on its pay date.",
+  "errs": []
+ },
+ {
+  "n": "02-payroll-manager",
+  "ok": true,
+  "info": "rate line shown",
+  "errs": []
+ },
+ {
+  "n": "03-product-activity",
+  "ok": true,
+  "info": "note OK",
+  "errs": []
+ },
+ {
+  "n": "04-registration-guide",
+  "ok": true,
+  "info": "registered: true,true,true,true",
+  "errs": []
+ },
+ {
+  "n": "04b-registration-unregistered",
+  "ok": true,
+  "info": "unregistered: true,true",
+  "errs": []
+ },
+ {
+  "n": "04c-registration-foreign",
+  "ok": true,
+  "info": "foreign adviser line shown",
+  "errs": []
+ },
+ {
+  "n": "05-tax-codes-note",
+  "ok": true,
+  "info": "14 rows",
+  "errs": []
+ },
+ {
+  "n": "06-company-details-full-guide",
+  "ok": true,
+  "info": "true,true,true,true",
+  "errs": []
+ }
+]

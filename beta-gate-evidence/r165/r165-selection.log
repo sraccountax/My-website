@@ -1,0 +1,49 @@
+OK              Profit and Loss | 4000 Service Revenue CAD 0.00 CAD 0.00 C | Open Account Ledger | page:report-gl-account-ledger
+OK              Balance Sheet | 1100 GST/HST Recoverable CAD 91.49 | Open Account Ledger | page:report-gl-account-ledger
+OK              Trial Balance | 1100 GST/HST Recoverable CAD 65.49 CAD 0 | Open Account Ledger | page:report-gl-account-ledger
+OK              General Ledger Account Report | Sep 23, 2026 SCN-001 SCN-001 Vendor Cred | View Journal Entry | page:day-book
+OK              General Ledger Detail | Sep 23, 2026 SCN-001 SCN-001 Vendor Cred | View Journal Entry | page:day-book
+OK              General Ledger Detail | Sep 23, 2026 SCN-001 SCN-001 Vendor Cred | Open Account Ledger | page:report-gl-account-ledger
+OK              General Ledger Detail | Sep 20, 2026 CN-001 CN-001 Customer Cred | View Journal Entry | page:day-book
+OK              General Ledger Detail | Sep 20, 2026 CN-001 CN-001 Customer Cred | Open Account Ledger | page:report-gl-account-ledger
+OK              General Ledger Detail | Sep 22, 2026 DN-001 DN-001 Customer Debi | View Journal Entry | page:day-book
+OK              General Ledger Detail | Sep 22, 2026 DN-001 DN-001 Customer Debi | Open Account Ledger | page:report-gl-account-ledger
+SKIP Audit History
+OK              Receivable Ageing | R151 Client Ltd CN-1002 Open credit / de | Customer Ledger | page:ledger-customer
+OK              Receivable Ageing | R151 Client Ltd DN-1001 Issued document  | View Invoice | page:invoice-detail
+OK              Receivable Ageing | R151 Client Ltd DN-1001 Issued document  | Record Payment | page:customer-payments
+OK              Receivable Ageing | R151 Client Ltd DN-1001 Issued document  | Customer Ledger | page:ledger-customer
+OK              Customer Balances | R151 Client Ltd 3 CAD 1,878.40 -CAD 345. | Customer Ledger | page:ledger-customer
+OK              Customer Balances | R151 Client Ltd 3 CAD 1,878.40 -CAD 345. | Record Payment | page:customer-payments
+OK              Customer Balances | R151 Client Ltd 3 CAD 1,878.40 -CAD 345. | Edit Customer | page:customers
+OK              Customer Invoice & Note Register | INV-1001 Invoice — R151 Client Ltd Sep 1 | View Invoice | page:invoice-detail
+OK              Customer Invoice & Note Register | INV-1001 Invoice — R151 Client Ltd Sep 1 | Record Payment | page:customer-payments
+OK              Customer Invoice & Note Register | INV-1001 Invoice — R151 Client Ltd Sep 1 | Credit Note | page:customer-document
+OK              Customer Invoice & Note Register | INV-1001 Invoice — R151 Client Ltd Sep 1 | Debit Note | page:customer-document
+OK              Customer Invoice & Note Register | INV-1001 Invoice — R151 Client Ltd Sep 1 | View Journal Entry | page:day-book
+OK              Customer Invoice & Note Register | CN-1001 Credit Note INV-1001 R151 Client | View Note | page:document-view
+OK              Customer Invoice & Note Register | CN-1001 Credit Note INV-1001 R151 Client | View Journal Entry | page:day-book
+OK              Customer Invoice & Note Register | DN-1001 Debit Note OLD-779 R151 Client L | View Invoice | page:invoice-detail
+OK              Customer Invoice & Note Register | DN-1001 Debit Note OLD-779 R151 Client L | Record Payment | page:customer-payments
+OK              Customer Invoice & Note Register | DN-1001 Debit Note OLD-779 R151 Client L | Credit Note | page:customer-document
+OK              Customer Invoice & Note Register | DN-1001 Debit Note OLD-779 R151 Client L | Debit Note | page:customer-document
+OK              Customer Invoice & Note Register | DN-1001 Debit Note OLD-779 R151 Client L | View Journal Entry | page:day-book
+OK              Payable Ageing | R151 Supplies Co VI-2-mvj1lrjf Issued do | View Vendor Invoice | page:document-view
+OK              Payable Ageing | R151 Supplies Co VI-2-mvj1lrjf Issued do | Record Payment | page:vendor-payments
+OK              Payable Ageing | R151 Supplies Co VI-2-mvj1lrjf Issued do | Vendor Ledger | page:ledger-vendor
+OK              Vendor Balances | R151 Supplies Co 5 CAD 2,659.53 CAD 0.00 | Vendor Ledger | page:ledger-vendor
+OK              Vendor Balances | R151 Supplies Co 5 CAD 2,659.53 CAD 0.00 | Record Payment | page:vendor-payments
+OK              Vendor Balances | R151 Supplies Co 5 CAD 2,659.53 CAD 0.00 | Edit Vendor | page:vendors
+OK              Vendor Invoice & Note Register | VI-1-mvj1lrjf Invoice — R151 Supplies Co | View Vendor Invoice | page:document-view
+OK              Vendor Invoice & Note Register | VI-1-mvj1lrjf Invoice — R151 Supplies Co | Record Payment | page:vendor-payments
+OK              Vendor Invoice & Note Register | VI-1-mvj1lrjf Invoice — R151 Supplies Co | Supplier Credit Note | page:vendor-document
+OK              Vendor Invoice & Note Register | VI-1-mvj1lrjf Invoice — R151 Supplies Co | Supplier Debit Note | page:vendor-document
+OK              Vendor Invoice & Note Register | VI-1-mvj1lrjf Invoice — R151 Supplies Co | View Journal Entry | page:day-book
+OK              Vendor Invoice & Note Register | SCN-1001 Supplier Credit Note SUP-CR-9 R | View Note | page:document-view
+OK              Vendor Invoice & Note Register | SCN-1001 Supplier Credit Note SUP-CR-9 R | View Journal Entry | page:day-book
+SKIP Bank Reconciliation Summary
+SKIP Tax Code Report
+OK              GST/HST/PST Summary | 1100 GST/HST Recoverable CAD 0.00 CAD 96 | Open Account Ledger | page:report-gl-account-ledger
+SKIP Pay Run Register
+SKIP Budget versus Actual
+SKIP Fixed Asset Register
