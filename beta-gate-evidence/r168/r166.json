@@ -1,0 +1,72 @@
+[
+ {
+  "id": "TB-01",
+  "area": "R166",
+  "title": "Top navigation: the bar is the sidebar green with light text (contrast at least 7:1)",
+  "status": "PASS",
+  "evidence": "bar linear-gradient(90deg, rgb(8, 26, 22) 0%, rgb(11, 40, 33) 45%, rgb(13, 48, 40) 100%) · text rgba(243, 250, 246, 0.88) · contrast 13.5:1 · sidebar rgb(13, 48, 40)"
+ },
+ {
+  "id": "TB-02",
+  "area": "R166",
+  "title": "Top navigation: the current page is highlighted in the sidebar's active green",
+  "status": "PASS",
+  "evidence": "rgb(0, 117, 88)"
+ },
+ {
+  "id": "DD-01",
+  "area": "R166",
+  "title": "Top bar menu (Banking) is painted in one place",
+  "status": "PASS",
+  "evidence": "640,53"
+ },
+ {
+  "id": "DD-02",
+  "area": "R166",
+  "title": "Profile menu is painted in one place",
+  "status": "PASS",
+  "evidence": "864,53"
+ },
+ {
+  "id": "DD-03",
+  "area": "R166",
+  "title": "Invoice details › Document menu is painted in one place (it used to appear about 180 px to the right first)",
+  "status": "PASS",
+  "evidence": "1004,106"
+ },
+ {
+  "id": "DD-04",
+  "area": "R166",
+  "title": "Customers › row menu is painted in one place",
+  "status": "PASS",
+  "evidence": "1004,106"
+ },
+ {
+  "id": "DD-05",
+  "area": "R166",
+  "title": "Report row Actions menu is painted in one place",
+  "status": "PASS",
+  "evidence": "997,331"
+ },
+ {
+  "id": "DD-06",
+  "area": "R166",
+  "title": "Menus still open and work after the change (Create menu lists its items)",
+  "status": "PASS",
+  "evidence": "10 items"
+ },
+ {
+  "id": "TB-03",
+  "area": "R166",
+  "title": "Side navigation is unchanged (white header bar)",
+  "status": "PASS",
+  "evidence": "none rgb(255, 255, 255)"
+ },
+ {
+  "id": "TB-04",
+  "area": "R166",
+  "title": "No browser errors during these checks",
+  "status": "PASS",
+  "evidence": "none"
+ }
+]
