@@ -41,8 +41,9 @@ Audit events and logs record field names, counts, states and IDs. They never rec
 
 - Company backups include the four new tables and, as before, the original files (`native-documents` in private
   storage).
-- Evidence snippets stay encrypted inside the backup. Restoring onto a host with a different `app.secret` keeps
-  everything except the snippets.
+- Evidence snippets stay encrypted inside the backup. Restoring as a new company on the same host re-encrypts them
+  for the copy's new identifiers, so the copy can still show them. Restoring onto a host with a different
+  `app.secret` keeps everything except the snippets.
 - Storage: one original file per upload (up to 10 MB), plus about 5–50 KB of database rows per invoice.
 
 ## Retention

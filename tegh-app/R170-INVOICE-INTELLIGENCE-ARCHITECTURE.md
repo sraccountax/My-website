@@ -83,6 +83,11 @@ or runs cron for this account must be checked by the operator (see `R170-OPERATI
 - Inventory: bills post to expense or asset accounts through the existing service. There is no perpetual inventory
   receipt to match.
 - Rotation is detected for scanned pages by trying 0°, 90°, 180° and 270° and keeping the angle with the best
-  Tesseract confidence. Strong skew (more than a few degrees) is left to Tesseract and can lower accuracy.
+  Tesseract confidence. A small tilt is measured from the text baselines and corrected before columns are read.
+- Very poor scans are not read reliably. In the synthetic set, a 100 dpi scan with heavy noise (F06) could not be read
+  at all; it goes to **Review required** with the reason, and nothing is guessed.
+- Vendor invoice numbers are unique per company in the existing vendor invoice service, not per supplier. Two
+  suppliers using the same number cannot both be drafted with that number; the second draft is refused with the
+  service's own message and the number must be changed by the reviewer (for example with a suffix).
 - The browser must stay open while a batch is read. Jobs left half-done resume when Invoice Intelligence is opened
   again.

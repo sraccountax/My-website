@@ -3713,6 +3713,7 @@ const TeghPortal = (() => {
         'Payables':[
           {label:'Suppliers',sourceName:'Vendors',description:'View suppliers, contact details, terms and balances.',action:()=>openVendors()},
           {label:'Bills',sourceName:'Vendor Invoice & Note Register',description:'Create and review supplier bills.',action:()=>openBills()},
+          {label:'Read Supplier Bills',sourceName:'Invoice Intelligence',description:'Upload supplier invoice PDFs; Tegh reads and checks them and prepares draft bills for you to review.',action:()=>openInvoiceIntelligence()},
           {label:'Payments',sourceName:'Vendor Payments',description:'Record and review payments to suppliers.',action:()=>openPayments('vendor')}
         ],
         'Banking':[

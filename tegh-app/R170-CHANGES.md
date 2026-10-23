@@ -12,6 +12,7 @@ Running it, recovery and backups: `R170-OPERATIONS.md`.
 ## Where it is
 
 - **Payables › Invoice Intelligence** in the sidebar and in top navigation.
+- In Guided mode: **Money Out › Read Supplier Bills**.
 - Tegh Assist answers vendor invoice questions such as:
   - "Show possible duplicate invoices"
   - "Find invoices missing GL accounts"
@@ -144,9 +145,9 @@ New:
 
 Changed:
 - `api/index.php` (route)
-- `api/backup.php` (new tables in backups)
+- `api/backup.php`: new tables in backups; a restored copy re-encrypts the evidence for its new identifiers.
 - `assets/tegh-native-ocr-v5220.js`: page reader with word positions, confidence and rotation; password and page
   limits; discount, unit and item-code columns.
-- `assets/tegh-portal-v5990.js`: menu entry, route, Tegh Assist questions, and the Original PDF button.
+- `assets/tegh-portal-v5990.js`: menu entry (Full and Guided), route, Tegh Assist questions, and the Original PDF button.
 - `assets/tegh-gate-v5990.js` (on-demand module)
 - `app.html`, `assets/tegh-preflight-v5990.js`: cache token `5990-r170-intel`.

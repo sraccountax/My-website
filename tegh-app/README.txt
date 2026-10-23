@@ -12,7 +12,7 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R169 PRIVATE BETA CANDIDATE (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R170 PRIVATE BETA CANDIDATE (invitation-only, sample data only)
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -72,10 +72,11 @@ R166 (private beta package, replaces R165): with Top navigation the bar uses the
 R167 (private beta package, replaces R166): tidier sidebar submenus — indented under their module with lighter text, a divider instead of the Activity/Reports headings, the current page marked, about 30% shorter, and the Receivables and Payables trial balances named AR Trial Balance and AP Trial Balance. Browser files only; no database change. See R167-CHANGES.md.
 R168 (private beta package, replaces R167): working in several tabs — Ctrl/Cmd-click, Shift-click or middle-click opens a menu entry, record or View action in a new tab in the same company; each tab keeps its own company (switching in one tab no longer reloads the others); the address names the company and more screens survive a refresh (create forms, customer/vendor documents, GIFI and Tax Code reports). Browser files only; no database change. See R168-CHANGES.md.
 R169 (private beta package, replaces R168): on a phone, pinch-zoom works again, and a zoomed screen can be moved left, right, up and down; normal one-finger scrolling is unchanged. Browser style sheets only; no migration. See R169-CHANGES.md.
+R170 (private beta package, replaces R169): Invoice Intelligence in Payables (Guided: Money Out › Read Supplier Bills). Supplier invoice PDFs and images are read in the browser with the bundled OCR, checked in exact cents (arithmetic, tax, duplicates, dates, locked periods, accounts), reviewed beside the document and turned into DRAFT vendor invoices or supplier credit notes through the existing services; a draft posts nothing, and suppliers, accounts and tax codes are never created from a document. Four new tables, created automatically on first use (see R170-MIGRATION.md). See R170-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json
-and tegh-build.json all identify this package as R169; per-file hashes kept in
+and tegh-build.json all identify this package as R170; per-file hashes kept in
 their "history" sections record earlier releases and are not expected to match.
 
 Fresh installation (empty database): upload the package, put config.php outside

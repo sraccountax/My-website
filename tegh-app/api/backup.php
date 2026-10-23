@@ -178,6 +178,8 @@ function backup_prepare_r164_storage(): void
     require_once __DIR__.'/guided_r163.php';
     if (!tegh_onboarding_ready()) throw new RuntimeException('Company onboarding storage is unavailable.');
     tegh_guided_r163_ready();
+    require_once __DIR__.'/invoice_intel_r170.php';
+    if (!r170_schema_ready()) throw new RuntimeException('Invoice Intelligence storage is unavailable.');
 }
 
 function backup_canonicalize(mixed $value): mixed
@@ -486,6 +488,8 @@ function backup_clone_payload(array $payload,string $newCompanyId): array
         $original=$row;foreach($row as $column=>$value)if($column==='id'||str_ends_with((string)$column,'_id')||str_ends_with((string)$column,'_path'))$row[$column]=$remap($value);foreach($row as $column=>$value)if(is_string($value)&&str_ends_with((string)$column,'_json')&&!str_ends_with((string)$column,'snapshot_json')){try{$decoded=json_decode($value,true,512,JSON_THROW_ON_ERROR);$mapped=$remap($decoded);if($mapped!==$decoded)$row[$column]=json_encode($mapped,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_PRESERVE_ZERO_FRACTION|JSON_THROW_ON_ERROR);}catch(JsonException){/* Preserve historic non-JSON payloads; schema validation still applies. */}}
         if($key==='outboundEmailAttempts')$row['operation_key']=hash('sha256',$newCompanyId.'|'.(string)$original['operation_key']);
         if($key==='reconciliationMatchProposals')$row['proposal_hash']=hash('sha256',$newCompanyId.'|'.(string)$original['proposal_hash']);
+        // R170: Invoice Intelligence evidence is bound to its company and job; re-encrypt it for the copy's new identifiers.
+        if($key==='invoiceIntelJobs'&&!empty($original['evidence_enc'])){require_once __DIR__.'/invoice_intel_r170.php';$row['evidence_enc']=r170_encrypt(r170_decrypt((string)$original['evidence_enc'],$sourceId.'|'.(string)$original['id']),$newCompanyId.'|'.(string)$row['id']);$row['lease_token']=null;$row['leased_by']=null;}
         if($key==='companyInvitations'){$row['token_hash']=hash('sha256',random_bytes(32));$row['status']='revoked';}
         if($key==='auditLog'){$meta=json_decode((string)($row['metadata_json']??'{}'),true);$meta=is_array($meta)?$meta:[];$meta['_restoreSource']=['companyId'=>$sourceId,'recordId'=>$original['id']??null,'actorUserId'=>$original['actor_user_id']??null,'actorEmail'=>$original['actor_email']??null,'entryHash'=>$original['entry_hash']??null];$row['metadata_json']=json_encode($meta,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR);$row['entry_hash']='';$row['previous_hash']='';$row['request_id']='restored';}
         $clone['records'][$key][$index]=backup_prepare_native_restore_row($key,$row);
