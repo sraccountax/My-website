@@ -409,6 +409,9 @@ await t('II-UI-ASSIST', 'Tegh Assist in the app answers "Show possible duplicate
   return {ok: await p.locator('[data-ii-answer="duplicates"] [data-ii-a-job]').count() > 0, info: (await p.locator('[data-ii-answer]').textContent()).slice(0, 200)};
 });
 await t('II-UI-GUIDED', 'Guided mode: Money Out › Read Supplier Bills opens Invoice Intelligence', async () => {
+  // II-UI-ASSIST leaves the Tegh Assist dialog open over the page; close it first.
+  await p.keyboard.press('Escape'); await p.waitForTimeout(400);
+  if (await p.locator('.tegh-assist-scrim').count()) { await p.reload(); await p.waitForFunction(() => window.TeghPortal && document.querySelector('.sidebar,.topbar'), null, {timeout: 40000}); }
   // The layout checks above end in top navigation; Guided's menu is checked in the sidebar.
   await p.evaluate(() => { const prefs = JSON.parse(localStorage.getItem('tegh-preferences') || '{}'); prefs.navigationLayout = 'side'; localStorage.setItem('tegh-preferences', JSON.stringify(prefs)); TeghPortal.refreshNavigation(); });
   await p.evaluate(() => TeghPortal.switchBookkeepingMode('owner')); await p.waitForTimeout(2500);
@@ -417,7 +420,7 @@ await t('II-UI-GUIDED', 'Guided mode: Money Out › Read Supplier Bills opens In
   await p.waitForTimeout(500);
   await p.locator('.sidebar nav button[data-srp-menu="Payables"]:has-text("Read Supplier Bills")').first().click();
   const opened = await p.waitForFunction(() => [...document.querySelectorAll('.srp-page')].pop()?.dataset.srpPage === 'invoice-intel', null, {timeout: 30000}).then(() => true, () => false);
-  const note = await p.locator('[data-ii-vendor-note]').count();
+  const note = await p.locator('[data-ii-vendor-note]').first().waitFor({timeout: 20000}).then(() => 1, () => 0);
   await p.evaluate(() => TeghPortal.switchBookkeepingMode('accountant')); await p.waitForTimeout(2500);
   return {ok: opened && note > 0, info: `screen opened ${opened}; supplier note shown ${note > 0}`};
 });
