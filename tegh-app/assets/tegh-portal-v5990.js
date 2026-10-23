@@ -8351,13 +8351,15 @@ const TeghPortal = (() => {
     if(document.documentElement.dataset.srpHistoryRouting)return;document.documentElement.dataset.srpHistoryRouting='1';
     addEventListener('popstate',()=>restoreHistoryRoute(history.state?.teghRoute||historyRouteFromLocation()||'dashboard'));
     const initial=historyRouteFromLocation();if(initial)setTimeout(()=>restoreHistoryRoute(initial),220);
+    const openId=(location.hash.match(/(?:^#|&)tegh-open=([^&]+)/)||[])[1],openMenuEntry=()=>{try{invokeMenuAction('',decodeURIComponent(openId))}catch{openDashboard()}};
     // R168: start-up can still open the Dashboard (for example after the workspace finishes loading) over the screen
     // the address asked for. If that happens before the person clicks or types anything, restore the screen once more.
-    if(initial&&initial!=='dashboard'){let touched=false,retried=false;const started=Date.now(),touch=()=>{touched=true};addEventListener('pointerdown',touch,{capture:true,once:true});addEventListener('keydown',touch,{capture:true,once:true});
-      const watch=()=>setTimeout(()=>{const page=[...document.querySelectorAll('.srp-page')].pop();if(!retried&&!touched&&Date.now()-started<15000&&page?.dataset.srpPage==='dashboard'){retried=true;restoreHistoryRoute(initial)}},50);
+    const reopen=initial&&initial!=='dashboard'?()=>restoreHistoryRoute(initial):(!initial&&openId?openMenuEntry:null);
+    if(reopen){let touched=false,retried=false;const started=Date.now(),touch=()=>{touched=true};addEventListener('pointerdown',touch,{capture:true,once:true});addEventListener('keydown',touch,{capture:true,once:true});
+      const watch=()=>setTimeout(()=>{const page=[...document.querySelectorAll('.srp-page')].pop();if(!retried&&!touched&&Date.now()-started<15000&&page?.dataset.srpPage==='dashboard'){retried=true;reopen()}},50);
       addEventListener('tegh:page-rendered',watch);setTimeout(()=>removeEventListener('tegh:page-rendered',watch),15000)}
     // R168: a tab opened from a menu entry (Ctrl/Cmd-click or middle-click) runs that entry once it is ready.
-    const openId=(location.hash.match(/(?:^#|&)tegh-open=([^&]+)/)||[])[1];if(!initial&&openId)setTimeout(()=>{try{invokeMenuAction('',decodeURIComponent(openId))}catch{openDashboard()}},220);
+    if(!initial&&openId)setTimeout(openMenuEntry,220);
     installNewTabLinks();
   }
   function init(){
