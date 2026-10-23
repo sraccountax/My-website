@@ -167,7 +167,9 @@ function backup_record_queries(): array
 /** Retained company workflow evidence; client authentication grants stay excluded. */
 function backup_r164_company_tables(): array
 {
-    return ['companyOnboarding'=>'company_onboarding','guidedStatementMonths'=>'guided_statement_months','guidedStatementBatches'=>'guided_statement_batches','accountantRequests'=>'accountant_requests'];
+    // R170: Invoice Intelligence jobs (evidence stays encrypted), corrections, duplicate overrides and learned coding rules.
+    return ['companyOnboarding'=>'company_onboarding','guidedStatementMonths'=>'guided_statement_months','guidedStatementBatches'=>'guided_statement_batches','accountantRequests'=>'accountant_requests',
+        'invoiceIntelJobs'=>'invoice_intel_jobs','invoiceIntelCorrections'=>'invoice_intel_corrections','invoiceIntelOverrides'=>'invoice_intel_overrides','invoiceIntelVendorRules'=>'invoice_intel_vendor_rules'];
 }
 
 function backup_prepare_r164_storage(): void

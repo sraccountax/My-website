@@ -1006,7 +1006,7 @@ const TeghPortal = (() => {
     if(key==='agent-center')return'Dashboard';
     if(key==='month-end-close')return'Reports';
     if(key==='native-agent-settings')return'My account';
-    if(key==='document-intake')return'Payables';
+    if(key==='document-intake'||key==='invoice-intel')return'Payables';
     if(key==='collection-drafts')return'Receivables';
     if(['customers','customer-invoice','invoices','customer-notes','customer-payments','products','ledger-customer','aging-receivable','trial-balance-receivables'].includes(key))return'Receivables';
     if(['vendors','bills','vendor-notes','vendor-payments','ledger-vendor','aging-payable','trial-balance-payables'].includes(key))return'Payables';
@@ -1156,7 +1156,7 @@ const TeghPortal = (() => {
       ['Period Trial Balance',()=>openPeriodTrialBalance('receivables','Receivables')]
     ],
     'Payables':[
-      ['Create Vendor',()=>openVendors('new')],['Products and Services',()=>openProducts('Payables')],['Vendor Invoices',()=>openBills('new')],['Supplier Credit Notes',()=>openAccountingNotes('vendor','vendor_credit')],['Supplier Debit Notes',()=>openAccountingNotes('vendor','vendor_debit')],['Vendor Payments',()=>openPayments('vendor')],['Document Intake',()=>openDocumentIntake()],['Vendors',()=>openVendors()],['Vendor Invoice & Note Register',()=>openBills()],['Vendor Ledgers',()=>openLedgers('vendor')],['Payable Ageing',()=>openAgeing('payable')],
+      ['Create Vendor',()=>openVendors('new')],['Products and Services',()=>openProducts('Payables')],['Vendor Invoices',()=>openBills('new')],['Supplier Credit Notes',()=>openAccountingNotes('vendor','vendor_credit')],['Supplier Debit Notes',()=>openAccountingNotes('vendor','vendor_debit')],['Vendor Payments',()=>openPayments('vendor')],['Document Intake',()=>openDocumentIntake()],['Invoice Intelligence',()=>openInvoiceIntelligence()],['Vendors',()=>openVendors()],['Vendor Invoice & Note Register',()=>openBills()],['Vendor Ledgers',()=>openLedgers('vendor')],['Payable Ageing',()=>openAgeing('payable')],
       ['Period Trial Balance',()=>openPeriodTrialBalance('payables','Payables')]
     ],
     'Payroll':[
@@ -1185,7 +1185,7 @@ const TeghPortal = (() => {
   const moduleSections={
     // R119: credit and debit notes are tabs of the invoice screen, and one register lists invoices and notes.
     'Receivables':{Activity:['Create Customer','Products and Services','Customer Invoices','Customer Payments','Collection Drafts'],Reports:['Customers','Customer Invoice & Note Register','Customer Ledgers','Receivable Ageing','Period Trial Balance']},
-    'Payables':{Activity:['Create Vendor','Products and Services','Vendor Invoices','Vendor Payments','Document Intake'],Reports:['Vendors','Vendor Invoice & Note Register','Vendor Ledgers','Payable Ageing','Period Trial Balance']},
+    'Payables':{Activity:['Create Vendor','Products and Services','Vendor Invoices','Invoice Intelligence','Vendor Payments','Document Intake'],Reports:['Vendors','Vendor Invoice & Note Register','Vendor Ledgers','Payable Ageing','Period Trial Balance']},
     'Banking':{Activity:['Upload Statement','Match And Post Transactions','Reconcile Bank Account','Bank Transfers','Manage Bank Accounts'],Reports:['Bank Transaction Report','Bank General Ledger Report','Bank Reconciliation Report']},
     'General ledger':{Activity:['Journal Entries','Expense Vouchers'],Reports:['Day Book','General Ledger Account Report','Period Trial Balance','GIFI Report']},
     'Payroll':{Activity:['Payroll & Tax Center','Quick Calculation','Employees','Pay Run Register','Payroll Verification','CRA Remittance'],Reports:['Payroll History']},
@@ -1365,7 +1365,7 @@ const TeghPortal = (() => {
     'Onboarding':'Set up the company step by step: chart of accounts, tax codes, bank accounts, data and team','Take the Tegh Tour':'A two-minute tour of Tegh with Tegh Assist',
     'Tegh Command Centre':'Find and run approved Tegh commands','Agent Center':'Review accounting alerts and choose the next safe step','Month-End Close':'Check whether the selected month is ready for review','Native Agent Settings':'Choose which checks run, when they run, and who is notified','My Account':'Profile and signed-in account preferences','Company Setup':'Set up company details, accounts, opening balances, tax, currency, and periods','Bookkeeping Mode':'Choose Guided or Full Accounting without changing accounting data','Add Company or Client File':'Create another company or client file from Settings','Business Profile':'Review company identity and operating details','Company Details':'Company identity, address, financial year, tax numbers, and book dates','Invoice Templates':'Choose and brand customer invoice layouts','Sales & Purchase Defaults':'Set common customer, vendor, payment-term, item, and purchase choices','Tegh Preferences':'Choose Ask Tegh, notification, and navigation preferences','Dashboard & Reconciliation':'Set the forecast horizon and require a preview before matching','Notifications':'View current alerts and follow them to the related work','Keyboard Shortcuts':'See the keyboard commands for search and common tasks','Connections':'Configure private on-device intelligence for Tegh Assist','Tegh AI Learned Rules':'Review or remove company-specific suggestions saved by Tegh','Tegh AI Improvement Lab':'Test proposed agent changes without using live company transactions','User Management':'Add users and manage their company roles','Client Viewing Links':'Share a view-only dashboard and chosen reports with a client','Payroll Rates':'Review statutory payroll rates','Data Import':'Check and import lists, draft invoices, accounts, and opening balances','Currencies and Data Imports':'Review currencies and import settings','Audit History':'See who changed company settings and accounting records','Backup and Restore':'Download a backup or restore company data','Platform Administration':'Start common Platform Owner tasks from one page','QA Centre':'Run read-only deployment checks and inspect isolated synthetic test evidence','Feature Control':'Review feature requests and manage company or user access','System Incident Audit':'Review recent system errors and diagnostic records','Bookkeeping Guide':'Learn the setup-to-reporting order and open guided workflows','FAQ':'Search answers about setup, banking, payroll, reports, and access','Support':'Find support channels and diagnose common issues','Open Source / AI Licences':'Review third-party software and AI component licences'
   };
-  Object.assign(moduleItemDescriptions,{'Bank Transfers':'Move money between your own bank and credit-card accounts','Collection Drafts':'Reminder emails ready to send to customers who are late paying','Customer Invoice & Note Register':'Every invoice, credit note and debit note in one list','Period Trial Balance':'Balances of every account for the period you choose','Document Intake':'Upload receipts and bills and turn them into entries'});
+  Object.assign(moduleItemDescriptions,{'Invoice Intelligence':'Read supplier invoice PDFs and prepare draft vendor invoices for review','Bank Transfers':'Move money between your own bank and credit-card accounts','Collection Drafts':'Reminder emails ready to send to customers who are late paying','Customer Invoice & Note Register':'Every invoice, credit note and debit note in one list','Period Trial Balance':'Balances of every account for the period you choose','Document Intake':'Upload receipts and bills and turn them into entries'});
   function moduleItemDescription(name){return moduleItemDescriptions[name]||'Open this workspace and review its records.'}
   function moduleCounts(w,label){const map={
     'Receivables':[(w.customers||[]).length,'customers',(w.invoices||[]).filter(x=>x.status!=='paid').length,'open invoices'],
@@ -7673,6 +7673,18 @@ const TeghPortal = (() => {
     }).catch(error=>{nativeAPARModulePromise=null;throw error});
     return nativeAPARModulePromise;
   }
+  // R170: Invoice Intelligence. The screen itself is in tegh-invoice-intel-r170.js; the portal gives it the page,
+  // the API client and the navigation it needs. Route "invoice-intel:<job>" reopens one invoice after refresh.
+  function openInvoiceIntelligence(options={}){
+    const jobId=/^[A-Za-z0-9_-]{1,64}$/.test(String(options.jobId||''))?String(options.jobId):'';
+    showPage('invoice-intel','Invoice Intelligence','Read supplier invoice PDFs, check every figure and prepare draft vendor invoices. A draft posts nothing until it is issued.',async(body,page)=>{
+      await Promise.all([window.TeghLoadFeature?.('invoice-intel'),window.TeghLoadFeature?.('ocr')]);
+      if(!window.TeghInvoiceIntel)throw Error('Invoice Intelligence did not load. Refresh the page.');
+      await window.TeghInvoiceIntel.render(body,{api,toast,esc,page,jobId,filter:options.filter||{},upload:!!options.upload,
+        openJob:id=>openInvoiceIntelligence({jobId:id}),openQueue:filter=>openInvoiceIntelligence({filter}),
+        openRegisterAt:billId=>openBills('view',billId),openNote:id=>openDocumentView('note',id,{side:'vendor'}),openBill:id=>openDocumentView('bill',id,{side:'vendor'}),openVendors:()=>openVendors(),openNewVendor:()=>openVendors('new')});
+    },{route:jobId?`invoice-intel:${jobId}`:'invoice-intel',module:'Payables',cache:false});
+  }
   async function openDocumentIntake(options={}){
     try{return (await nativeAPARModule()).openDocumentIntake(nativeAPARAdapter(),options)}
     catch(error){toast('Document Intake unavailable',userFacingError(error),'error')}
@@ -8204,6 +8216,15 @@ const TeghPortal = (() => {
           // R144: "anything unusual?" opens Tegh Intelligence; questions about money spent, sales, top expenses or top
           // customers are answered from the posted ledger by Tegh itself before the usual command routing.
           if(!compound&&/\b(?:insights?|anything (?:unusual|wrong|odd|strange)|worth a look|anomal\w*|red flags?|what did tegh (?:notice|find))\b/i.test(question)){result.innerHTML='<p>Opening Tegh Intelligence…</p>';openInsights();return}
+          // R170: questions about vendor invoices read by Invoice Intelligence (import, missing GL, duplicates, why an
+          // account, tax mismatches, approvals, a vendor's history, preparing drafts). Answers come from stored records.
+          if(!compound&&/\b(?:invoices?|bills?|duplicat\w*|gl|accounts?|approval|drafts?|vendor|supplier|tax(?:es)?|select\w*|chose|choose)\b/i.test(question)&&!window.TeghInvoiceIntel)await window.TeghLoadFeature?.('invoice-intel').catch(()=>{});
+          if(!compound&&window.TeghInvoiceIntel&&window.TeghInvoiceIntel.matchesQuestion(question)){
+            const asked=++requestNumber;result.innerHTML='<p role="status" class="tegh-assist-thinking">Checking vendor invoices…</p>';
+            try{const ans=await api('invoice-intel/ask',{method:'POST',json:{question,jobId:document.querySelector('[data-ii-job]')?.dataset.iiJob||''}});if(!live()||asked!==requestNumber)return;
+              if(ans?.answered){window.TeghInvoiceIntel.renderAnswer(result,ans,{esc,api,toast,openJob:id=>{options.onNavigate?.();openInvoiceIntelligence({jobId:id})},openQueue:filter=>{options.onNavigate?.();openInvoiceIntelligence({filter,upload:!!filter?.upload})},openBill:id=>{options.onNavigate?.();openDocumentView('bill',id,{side:'vendor'})}});return}
+            }catch(error){/* fall through to the usual routing */}
+          }
           if(!compound&&/\b(?:spen[dt]|spending|cost|costs|paid|sales|revenue|income|turnover|sold|biggest|largest|top|best|highest)\b/i.test(question)&&!/\b(?:owe|owed|owing|create|new|add|record|enter|run|post|send|invoice (?:a|my|the)|pay (?:my|a|the|our))\b/i.test(question)){
             const asked=++requestNumber;result.innerHTML='<p role="status" class="tegh-assist-thinking">Reading your books…</p>';
             try{const ans=await api('insights/ask',{method:'POST',json:{question}});if(!live()||asked!==requestNumber)return;
@@ -8307,6 +8328,7 @@ const TeghPortal = (() => {
       if(clean==='month-end-close')return openMonthEndClose();
       if(clean==='native-agent-settings')return openNativeAgentSettings();
       if(clean==='document-intake')return openDocumentIntake();
+      if(clean==='invoice-intel'||clean.startsWith('invoice-intel:'))return openInvoiceIntelligence({jobId:clean.slice(14)});
       if(clean==='collection-drafts')return openCollectionDrafts();
       if(clean==='guided-bookkeeping')return openGuidedBookkeeping();
       if(clean==='guided-review')return openGuidedTransactionQueue();
@@ -8422,7 +8444,7 @@ const TeghPortal = (() => {
     invokeMenuAction,getModuleNavigationSections:(module)=>Object.fromEntries(Object.entries(moduleSections[module]||{}).map(([group,names])=>[group,names.map(name=>({id:menuActionId(module,name),name}))])),
     openVoidTransaction,openVoidRegister,openImportedTransactions,
     refreshNavigation:()=>applyNavigationLayout(teghPreferences().navigationLayout),
-    openInsights,openTeghPreferences,openWorkspacePreferences,openRequestedDownloads,openAccount,openCreateCompany,openBookkeepingModeSettings,openCompanySetup,openReleaseAdministration,transitionAfterCompanyDeletion,openPlatformAdmin,openQaGuardian,openPlatformFeatureControl,openModulesAccess,openCommandCentre,openAdvancedReconciliation,openExplicitTeghAssistant,openFinancialAnalyst,openFlexibleCashForecast,openFinancialReport,openGlAccountLedger,openTaxCodes,openTaxCodeReport,openDashboardFigures,openProducts,openInventoryReport,openLedgers,openDayBook,openAgeing,openBackup,openUsers,openRates,openSupport,openFaq,
+    openInsights,openInvoiceIntelligence,openTeghPreferences,openWorkspacePreferences,openRequestedDownloads,openAccount,openCreateCompany,openBookkeepingModeSettings,openCompanySetup,openReleaseAdministration,transitionAfterCompanyDeletion,openPlatformAdmin,openQaGuardian,openPlatformFeatureControl,openModulesAccess,openCommandCentre,openAdvancedReconciliation,openExplicitTeghAssistant,openFinancialAnalyst,openFlexibleCashForecast,openFinancialReport,openGlAccountLedger,openTaxCodes,openTaxCodeReport,openDashboardFigures,openProducts,openInventoryReport,openLedgers,openDayBook,openAgeing,openBackup,openUsers,openRates,openSupport,openFaq,
     openIntegrity,openAuditHistory,openOpeningBalances,openDataImport,openGifiReport,openGifiMapping,openVendors,openBills,openPayments,openBankReview,openFinancialAccounts,openBankReconciliation,openBankImports,openBankTransfers,openPeriodTrialBalance,
     openExpenseVouchers,openManualJournals,openPayrollManager,openPayrollQuickCalculator,openPayrollRemittance,openInvoiceTemplates,openTutorial:openTutorialHub,openIntroTutorial:openTutorial,openWelcome:openWelcomeScreen,
     openCreateTestCompany:()=>openCreateCompany({testMode:true}),

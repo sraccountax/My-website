@@ -295,6 +295,8 @@ require_once __DIR__ . '/report_comparison_r20.php';
     if ($route === 'agent' || str_starts_with($route, 'agent/')) handle_ai_agent(trim(substr($route, strlen('agent')), '/'));
     if ($route === 'native-agent' || str_starts_with($route, 'native-agent/')) handle_native_agent(trim(substr($route, strlen('native-agent')), '/'));
     if ($route === 'native-ap-ar' || str_starts_with($route, 'native-ap-ar/')) handle_native_ap_ar(trim(substr($route, strlen('native-ap-ar')), '/'));
+    // R170: Invoice Intelligence (vendor invoice PDFs → reviewed draft vendor invoices).
+    if ($route === 'invoice-intel' || str_starts_with($route, 'invoice-intel/')) { require_once __DIR__ . '/invoice_intel_r170.php'; handle_invoice_intel(trim(substr($route, strlen('invoice-intel')), '/')); }
     if ($route === 'financial-analysis' || str_starts_with($route, 'financial-analysis/')) handle_financial_analysis(trim(substr($route, strlen('financial-analysis')), '/'));
     if ($route === 'reports/v5600' || str_starts_with($route, 'reports/v5600/')) handle_report_periods_v5600(trim(substr($route, strlen('reports/v5600')), '/'));
     if ($route === 'payroll-tax-agent' || str_starts_with($route, 'payroll-tax-agent/')) handle_payroll_tax_agent(trim(substr($route, strlen('payroll-tax-agent')), '/'));

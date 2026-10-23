@@ -425,6 +425,9 @@
     ['tax', /^(?:tax(?:es)?|tx|tax\s*code|code\s+(?:de\s+)?taxe|taxable|gst\s*\/\s*hst|tps\s*\/\s*tvq)$/],
     ['desc', /^(?:description|items?|item\s+description|articles?|produits?|products?|services?|products?\s*(?:\/|&|and)\s*services?|produits?\s*(?:\/|et)\s*services?|details?|designation|libelle|particulars|description\s+de\s+l'article)$/],
     ['code', /^(?:sku|code|item\s*(?:#|no\.?|code)|part\s*(?:#|no\.?)|no\.?\s*d'article|ref\.?)$/],
+    // R170: discount and unit-of-measure columns.
+    ['disc', /^(?:disc(?:ount)?\.?|remise|escompte|rabais)$/],
+    ['uom', /^(?:uom|u\/m|unit\s+of\s+measure|unite\s+de\s+mesure)$/],
   ];
   const LINE_STOP = /^(?:sub\s*-?\s*total|sous\s*-?\s*total|total|grand\s+total|(?:gst|hst|pst|qst|rst|tps|tvq|tvh|tvp|vat|tax|taxes)\b|amount\s+(?:due|payable)|balance\s+(?:due|owing)|montant\s+(?:du|total|a\s+payer|exigible)|notes?\b|thank|merci|payment|paiement|terms\b|conditions\b|previous\s+balance|solde)/;
   const headingOf = text => { const t = fold(text).toLowerCase().replace(/\s+/g, ' ').replace(/\s*\((?:\$|cad|usd)\)$/, '').replace(/[:.]$/, '').trim(); return LINE_HEADINGS.find(([, re]) => re.test(t))?.[0] || null; };
@@ -439,7 +442,7 @@
       // "Item" beside a "Description" column holds item codes: the description column is the one named so.
       const descCols = cols.filter(col => col.role === 'desc');
       if (descCols.length > 1) { const named = descCols.find(col => /descr|designation|libelle|details?/.test(fold(rows[h].cells.find(cell => cell.x === col.x)?.text || '').toLowerCase())) || descCols.at(-1); descCols.forEach(col => { if (col !== named) col.role = 'code'; }); }
-      const firstNumeric = Math.min(...cols.filter(col => ['qty', 'unit', 'amount'].includes(col.role)).map(col => col.x));
+      const firstNumeric = Math.min(...cols.filter(col => ['qty', 'unit', 'amount', 'disc'].includes(col.role)).map(col => col.x));
       // A heading owns the space up to the next heading: numbers by their right edge (right-aligned), words by their left.
       const owner = (cell, numeric) => {
         const edge = numeric ? cell.r : cell.x;
@@ -456,7 +459,9 @@
         for (const cell of row.cells) {
           const qty = quantityText(cell.text), money = moneyIn(cell.text, french), numeric = qty !== null || (money.length === 1 && /^[\s$(\-]*[\d]/.test(cell.text.replace(/^(?:CAD|USD|C\$|US\$)\s*/i, '')));
           const col = owner(cell, numeric);
-          if (numeric && col && ['qty', 'unit', 'amount'].includes(col.role) && values[col.role] === undefined) {
+          if (col?.role === 'code' && values.code === undefined && cell.text.length <= 40) { values.code = cell.text.trim(); continue; }
+          if (col?.role === 'uom' && values.uom === undefined && cell.text.length <= 16 && !numeric) { values.uom = cell.text.trim(); continue; }
+          if (numeric && col && ['qty', 'unit', 'amount', 'disc'].includes(col.role) && values[col.role] === undefined) {
             if (col.role === 'qty' && qty !== null) { values.qty = qty; continue; }
             if (col.role !== 'qty' && money.length === 1) { values[col.role] = money[0]; continue; }
             if (col.role !== 'qty' && qty !== null && /^\d+$/.test(qty)) { values[col.role] = Number(qty) * 100; continue; }
@@ -467,7 +472,7 @@
         const labels = words.map(word => fold(word.text).toLowerCase().trim());
         if (values.qty === undefined && labels.some(label => LINE_STOP.test(label))) break;
         const description = words.filter(word => word.role === 'desc' || (!word.role && word.x < firstNumeric - 2)).map(word => word.text).join(' ').replace(/\s+/g, ' ').trim();
-        if (values.amount === undefined && values.qty !== undefined && values.unit !== undefined) values.amount = Math.round(quantityMilli(values.qty) * values.unit / 1000);
+        if (values.amount === undefined && values.qty !== undefined && values.unit !== undefined) values.amount = Math.round(quantityMilli(values.qty) * values.unit / 1000) - Math.abs(values.disc || 0);
         if (values.amount === undefined) {
           // A text-only line just under an item continues its description.
           if (description && previous && lastY - row.y <= row.h * 2.4 && values.qty === undefined && values.unit === undefined) { previous.description = `${previous.description} ${description}`.slice(0, 300); lastY = row.y; }
@@ -479,8 +484,12 @@
         if (values.unit !== undefined) item.unitCents = values.unit;
         if (values.qty !== undefined && values.unit === undefined && quantityMilli(values.qty) > 0 && (values.amount * 1000) % quantityMilli(values.qty) === 0) item.unitCents = values.amount * 1000 / quantityMilli(values.qty);
         if (values.qty === undefined && values.unit !== undefined && values.unit > 0 && values.amount % values.unit === 0) item.quantity = String(values.amount / values.unit);
-        item.checked = item.quantity !== undefined && item.unitCents !== undefined && Math.abs(Math.round(quantityMilli(item.quantity) * item.unitCents / 1000) - item.amountCents) <= 1;
+        if (values.disc) item.discountCents = Math.abs(values.disc);
+        item.checked = item.quantity !== undefined && item.unitCents !== undefined && Math.abs(Math.round(quantityMilli(item.quantity) * item.unitCents / 1000) - (item.discountCents || 0) - item.amountCents) <= 1;
         if (values.tax) item.taxHint = values.tax.slice(0, 16);
+        if (values.code) item.itemCode = values.code.slice(0, 40);
+        if (values.uom) item.unit = values.uom.slice(0, 16);
+        item.y = row.y;
         items.push(item); previous = item; lastY = row.y;
         if (items.length >= 100) break;
       }
@@ -675,6 +684,158 @@
     }
   }
 
+  // R170: page-by-page reading for Invoice Intelligence. Two adapters produce the same item shape (pdf.js text
+  // items: str, transform [h,0,0,h,x,y] with y measured up from the bottom of the page, width, height) plus a
+  // normalised box (top-left origin, 0..1) and, for OCR, Tesseract's own word confidence. Another engine can be
+  // plugged in by passing options.adapters with the same two methods.
+  const PAGE_ADAPTERS = Object.freeze({
+    async textLayer(page, viewport, runtime) {
+      const content = await page.getTextContent();
+      const out = [];
+      for (const item of content.items) {
+        if (typeof item.str !== 'string' || !item.str.trim()) continue;
+        const t = runtime.Util.transform(viewport.transform, item.transform);
+        const h = Math.hypot(t[2], t[3]) || Math.abs(item.height || 10);
+        const x = t[4], baseline = t[5], w = Math.abs(item.width || 0) * viewport.scale;
+        out.push({str: item.str, transform: [h, 0, 0, h, x, viewport.height - baseline], width: w, height: h,
+          box: [x / viewport.width, (baseline - h) / viewport.height, w / viewport.width, h / viewport.height]});
+      }
+      return out;
+    },
+    async recognise(worker, canvas) {
+      const result = await worker.recognize(canvas, {}, { text: true, blocks: true });
+      const words = [];
+      const visit = list => { for (const block of list || []) for (const para of block.paragraphs || []) for (const line of para.lines || []) for (const word of line.words || []) words.push(word); };
+      visit(result?.data?.blocks);
+      if (!words.length && Array.isArray(result?.data?.words)) words.push(...result.data.words);
+      const W = canvas.width, H = canvas.height;
+      return words.filter(word => word && String(word.text || '').trim() && word.bbox).map(word => {
+        const {x0, y0, x1, y1} = word.bbox, h = Math.max(1, y1 - y0);
+        return {str: String(word.text).trim(), transform: [h, 0, 0, h, x0, H - y1], width: Math.max(1, x1 - x0), height: h, conf: Math.round(Number(word.confidence || 0)),
+          box: [x0 / W, y0 / H, (x1 - x0) / W, h / H]};
+      });
+    },
+  });
+  const ocrQuality = items => {
+    const words = items.filter(item => /[A-Za-z0-9]{2,}/.test(item.str));
+    if (!words.length) return {mean: 0, score: 0, words: 0};
+    const mean = words.reduce((sum, item) => sum + item.conf, 0) / words.length;
+    return {mean: Math.round(mean), score: mean * Math.log(words.length + 1), words: words.length};
+  };
+  const rotatedCanvas = (source, degrees) => {
+    if (!degrees) return source;
+    const canvas = window.document.createElement('canvas');
+    const turn = degrees % 180 !== 0;
+    canvas.width = turn ? source.height : source.width; canvas.height = turn ? source.width : source.height;
+    const context = canvas.getContext('2d', { alpha: false });
+    context.fillStyle = '#fff'; context.fillRect(0, 0, canvas.width, canvas.height);
+    context.translate(canvas.width / 2, canvas.height / 2); context.rotate(degrees * Math.PI / 180);
+    context.drawImage(source, -source.width / 2, -source.height / 2);
+    return canvas;
+  };
+  // Scanned pages: read upright first; when the result is poor, try the page turned 90°, 180° and 270° and keep the
+  // reading with the best Tesseract confidence. Returns items in the coordinates of the upright (turned) page.
+  async function recognisePage(worker, canvas, adapters, check) {
+    let best = {rotation: 0, items: await adapters.recognise(worker, canvas)};
+    best.quality = ocrQuality(best.items);
+    if (best.quality.mean >= 70 && best.quality.words >= 12) return {...best, canvas};
+    let bestCanvas = canvas;
+    for (const rotation of [90, 180, 270]) {
+      check();
+      const turned = rotatedCanvas(canvas, rotation);
+      const items = await adapters.recognise(worker, turned);
+      const quality = ocrQuality(items);
+      if (quality.score > best.quality.score * 1.15) { if (bestCanvas !== canvas) bestCanvas.width = bestCanvas.height = 1; best = {rotation, items, quality}; bestCanvas = turned; }
+      else turned.width = turned.height = 1;
+    }
+    return {...best, canvas: bestCanvas};
+  }
+  async function readDocumentPages(file, options = {}) {
+    if (!(file instanceof Blob) || file.size < 1 || file.size > 10 * 1024 * 1024) throw Object.assign(new RangeError('Documents must be between 1 byte and 10 MB.'), {code: 'unsupported'});
+    const adapters = {...PAGE_ADAPTERS, ...(options.adapters || {})};
+    const maxPages = Math.min(30, options.maxPages || 30), maxOcrPages = Math.min(15, options.maxOcrPages || 15);
+    const signal = options.signal;
+    const check = () => { if (signal?.aborted) throw new DOMException('Reading cancelled.', 'AbortError'); };
+    const type = String(file.type || '').toLowerCase();
+    const head = new TextDecoder().decode(await file.slice(0, 1024).arrayBuffer());
+    if (type.startsWith('image/')) {
+      const worker = await createOcrWorker(options.onProgress);
+      try {
+        const source = await prepareImage(file);
+        if (!(source instanceof HTMLCanvasElement)) throw Object.assign(new TypeError('This image could not be opened.'), {code: 'unreadable'});
+        const read = await recognisePage(worker, source, adapters, check);
+        const page = {page: 1, width: read.canvas.width, height: read.canvas.height, rotation: read.rotation, method: 'ocr', items: read.items, meanConf: read.quality.mean};
+        page.text = layoutTextFromItems(page.items);
+        return {pages: [page], pageCount: 1, ocrPages: 1, method: 'ocr', localOnly: true, providerAttempts: 0};
+      } finally { await worker.terminate().catch(() => {}); }
+    }
+    if (!head.includes('%PDF-')) throw Object.assign(new TypeError('This file is not a PDF.'), {code: 'not_pdf'});
+    const runtime = await pdfjs(); check();
+    const loading = runtime.getDocument({data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false});
+    let pdf = null, worker = null, renderTask = null, timer = null, passwordAsked = 0;
+    const cancel = () => { renderTask?.cancel(); void worker?.terminate().catch(() => {}); void loading.destroy().catch(() => {}); };
+    signal?.addEventListener('abort', cancel, {once: true});
+    // The password is asked for and used only in this browser. It is never sent to the server.
+    loading.onPassword = async (update, reason) => {
+      passwordAsked++;
+      try {
+        const password = await options.onPassword?.(reason === 2);
+        if (password == null || signal?.aborted) { loading.__teghPasswordRefused = true; cancel(); return; }
+        update(password);
+      } catch (_) { loading.__teghPasswordRefused = true; cancel(); }
+    };
+    try {
+      timer = setTimeout(cancel, options.timeoutMs || 240000);
+      try { pdf = await loading.promise; }
+      catch (error) {
+        if (loading.__teghPasswordRefused || error?.name === 'PasswordException') throw Object.assign(new Error('This PDF is protected by a password.'), {code: passwordAsked > 1 ? 'pdf_password_wrong' : 'pdf_password_required'});
+        throw Object.assign(new Error('This PDF could not be opened. It may be damaged.'), {code: 'pdf_corrupt'});
+      }
+      check();
+      if (pdf.numPages > maxPages) throw Object.assign(new RangeError(`This PDF has ${pdf.numPages} pages. Invoice Intelligence reads up to ${maxPages}; split the file.`), {code: 'pdf_too_many_pages'});
+      const pages = []; let ocrPages = 0;
+      for (let index = 1; index <= pdf.numPages; index++) {
+        check();
+        progress(options.onProgress, 'reading_pdf', (index - 1) / pdf.numPages, `Page ${index} of ${pdf.numPages}`);
+        const page = await pdf.getPage(index);
+        try {
+          const viewport = page.getViewport({scale: 1});
+          let items = await adapters.textLayer(page, viewport, runtime); check();
+          const characters = items.reduce((n, item) => n + item.str.replace(/\s/g, '').length, 0);
+          let entry = {page: index, width: viewport.width, height: viewport.height, rotation: 0, method: 'text', items, meanConf: null};
+          if (characters < 40) {
+            if (++ocrPages > maxOcrPages) throw Object.assign(new RangeError(`More than ${maxOcrPages} scanned pages. Split the file.`), {code: 'pdf_too_many_pages'});
+            worker ||= await createOcrWorker(options.onProgress); check();
+            const scale = Math.min(2.5, Math.sqrt(12000000 / Math.max(1, viewport.width * viewport.height)));
+            const view = page.getViewport({scale});
+            const canvas = window.document.createElement('canvas'); canvas.width = Math.ceil(view.width); canvas.height = Math.ceil(view.height);
+            try {
+              renderTask = page.render({canvasContext: canvas.getContext('2d', {alpha: false}), viewport: view});
+              await renderTask.promise; renderTask = null; check();
+              const read = await recognisePage(worker, enhanceCanvas(canvas), adapters, check);
+              // OCR coordinates are canvas pixels; scale them back to page units so both kinds of page compare.
+              const k = 1 / scale;
+              items = read.items.map(item => ({...item, transform: [item.height * k, 0, 0, item.height * k, item.transform[4] * k, item.transform[5] * k], width: item.width * k, height: item.height * k}));
+              entry = {page: index, width: read.canvas.width * k, height: read.canvas.height * k, rotation: read.rotation, method: 'ocr', items, meanConf: read.quality.mean};
+              if (read.canvas !== canvas) read.canvas.width = read.canvas.height = 1;
+            } finally { canvas.width = canvas.height = 1; }
+          }
+          entry.text = layoutTextFromItems(entry.items);
+          pages.push(entry);
+        } finally { page.cleanup(); }
+      }
+      progress(options.onProgress, 'complete', 1, 'Read');
+      return {pages, pageCount: pdf.numPages, ocrPages, method: ocrPages === 0 ? 'pdf_text' : ocrPages === pdf.numPages ? 'ocr' : 'mixed', localOnly: true, providerAttempts: 0};
+    } catch (error) {
+      if (signal?.aborted) throw new DOMException('Reading cancelled.', 'AbortError');
+      throw error;
+    } finally {
+      clearTimeout(timer); signal?.removeEventListener('abort', cancel);
+      await worker?.terminate().catch(() => {});
+      if (pdf) await pdf.destroy().catch(() => {}); else await loading.destroy().catch(() => {});
+    }
+  }
+
   window.TeghNativeOCR = Object.freeze({
     version: '5.2.2',
     build: 5220,
@@ -692,5 +853,11 @@
     applySupplierMemory,
     numberShape,
     extractStatementPages,
+    readDocumentPages,
+    pageAdapters: PAGE_ADAPTERS,
+    // R170: the verified pdf.js runtime, for the Invoice Intelligence page viewer.
+    pdfRuntime: pdfjs,
+    datesIn,
+    moneyIn,
   });
 })();
