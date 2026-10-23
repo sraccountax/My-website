@@ -150,6 +150,14 @@ function r170_schema_ready(): bool
 function r170_require_schema(): void
 {
     if (!r170_schema_ready()) fail('Invoice Intelligence is unavailable on this database.', 503, 'invoice_intel_unavailable');
+    // Schema helpers used later inside transactions may run DDL on their first call, and DDL commits an open
+    // transaction in MariaDB. Run them here, before any transaction starts.
+    static $warm = false;
+    if ($warm) return;
+    $warm = true;
+    if (function_exists('r151_schema_ready')) r151_schema_ready();
+    if (function_exists('tegh_tax_codes_ready')) tegh_tax_codes_ready();
+    if (function_exists('tegh_schema41_status')) tegh_schema41_status();
 }
 
 /* ---------- encryption of evidence (document text snippets) ---------- */
@@ -1509,8 +1517,8 @@ function handle_invoice_intel(string $action): never
 {
     $user = require_user();
     $company = require_company($user);
+    r170_require_schema();
     if (request_method() === 'GET') {
-        r170_require_schema();
         if ($action === 'jobs') json_response(r170_list($company, $_GET));
         if ($action === 'job') { require_company_permission($company, 'bills.view'); json_response(['job' => r170_detail($company, r170_job_row($company, clean_text($_GET['jobId'] ?? '', 'Invoice', 64)))]); }
         if ($action === 'options') { require_company_permission($company, 'bills.view'); json_response(r170_options($company)); }

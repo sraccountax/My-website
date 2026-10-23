@@ -4984,6 +4984,9 @@ const TeghPortal = (() => {
         if(d.status!=='draft'&&d.status!=='void'&&Number(t.balanceDueCents)>0&&permissionAllowed('payments.write',access))actions.push(['Record payment',()=>openPayments('vendor',{partyId:b.vendorId,documentId:id})]);
         actions.push(['Open in register',()=>openBills('',id,returnOptions.registerOptions||{})]);
       }
+      // R170: a vendor invoice or credit note drafted by Invoice Intelligence keeps its original file one click away.
+      const intel=await api('invoice-intel/source',{params:{targetId:id}}).catch(()=>null);
+      if(intel?.found){actions.push(['Original PDF',()=>window.open(`${intel.sourceUrl}&companyId=${encodeURIComponent(origin)}`,'_blank','noopener')],['Invoice Intelligence review',()=>openInvoiceIntelligence({jobId:intel.jobId})]);}
       const status=String(d.displayStatus||d.status||'');
       body.classList.add('r19-invoice-detail');
       body.innerHTML=`<header class="r19-detail-heading"><div><button class="r19-back" type="button" data-doc-back>‹ Back</button><h2 data-preserve-case>${esc(heading)} <span class="srp-status ${esc(String(d.status||'').toLowerCase())}">${esc(titleCasePhrase(status))}</span></h2></div><div class="r19-detail-actions">${actions.map(([label,,out],i)=>out?`<button type="button" class="srp-btn secondary" data-tegh-doc-kind="${out.kind}" data-tegh-doc-id="${esc(id)}" data-tegh-doc-action="${out.action}">${esc(label)}</button>`:`<button type="button" class="srp-btn ${i===0&&!note?'':'secondary'}" data-doc-action="${i}">${esc(label)}</button>`).join('')}</div></header>

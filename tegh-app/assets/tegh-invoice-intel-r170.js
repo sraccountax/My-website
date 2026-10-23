@@ -46,6 +46,20 @@
     });
   }
 
+  // A printed row often holds two columns (supplier block on the left, invoice details on the right). Split it where
+  // the gap between words is wide and keep the cluster that starts nearest a given x.
+  const cluster = (row, x) => {
+    const groups = [];
+    for (const run of row.runs) {
+      const last = groups[groups.length - 1], prev = last?.[last.length - 1];
+      const gap = prev ? run.x - (prev.x + Math.max(prev.str.length * prev.h * 0.45, 1)) : 0;
+      if (!last || gap > Math.max(24, run.h * 3)) groups.push([run]); else last.push(run);
+    }
+    groups.sort((a, b) => Math.abs(a[0].x - x) - Math.abs(b[0].x - x));
+    return (groups[0] || []).map(r => r.str).join(' ').replace(/\s+/g, ' ').trim();
+  };
+  const DOC_WORDS = /\s*\b(?:tax\s+invoice|invoice|facture|credit\s+note|credit\s+memo|note\s+de\s+cr[ée]dit|statement\s+of\s+account|relev[ée]\s+de\s+compte|statement|receipt|re[çc]u)\b\s*$/i;
+
   const moneyStrings = cents => {
     const abs = Math.abs(cents), whole = Math.floor(abs / 100), frac = String(abs % 100).padStart(2, '0');
     const grouped = (sep) => String(whole).replace(/\B(?=(\d{3})+(?!\d))/g, sep);
@@ -201,20 +215,31 @@
     };
 
     // Supplier identity
-    if (c.partyName) {
-      const found = findRow(rows, [c.partyName], /\b(vendor|supplier|seller|from|fournisseur|vendeur)\b/i);
-      const dba = /^(.*?)\s+(?:o\/a|d\/b\/a|dba|operating\s+as|faisant\s+affaire\s+sous)\s+(.+)$/i.exec(c.partyName);
-      put('supplierName', (dba ? dba[2] : c.partyName).trim(), c.partyName, found?.row || null, found?.labelled);
+    let partyName = String(c.partyName || '').replace(DOC_WORDS, '').trim();
+    const looksLikeAddress = v => /^\d|\b[A-Z]\d[A-Z]\s?\d[A-Z]\d\b|\b(?:ON|QC|BC|AB|MB|SK|NS|NB|NL|PE)\s+[A-Z]\d/.test(v);
+    if ((!partyName || looksLikeAddress(partyName)) && rows.length) {
+      const top = rows.filter(r => r.page === segPages[0].page)[0];
+      const name = top ? cluster(top, Math.min(...top.runs.map(r => r.x))).replace(DOC_WORDS, '').trim() : '';
+      if (name && /[A-Za-zÀ-ÿ]{3}/.test(name) && !looksLikeAddress(name)) partyName = name;
+    }
+    if (partyName) {
+      const found = findRow(rows, [partyName], /\b(vendor|supplier|seller|from|fournisseur|vendeur)\b/i);
+      if (found?.row) { const left = cluster(found.row, found.row.runs.find(r => partyName.startsWith(r.str))?.x ?? found.row.runs[0].x).replace(DOC_WORDS, '').trim(); if (left && left.length >= 3 && partyName.startsWith(left.slice(0, 3))) partyName = left; }
+      const dba = /^(.*?)\s+(?:o\/a|d\/b\/a|dba|operating\s+as|faisant\s+affaire\s+sous)\s+(.+)$/i.exec(partyName);
+      put('supplierName', (dba ? dba[2] : partyName).trim(), partyName, found?.row || null, found?.labelled);
       if (dba) { put('supplierLegalName', dba[1].trim(), dba[1], found?.row || null, true); put('supplierTradingName', dba[2].trim(), dba[2], found?.row || null, true); }
       const legal = rows.find(r => /\b(?:legal\s+name|raison\s+sociale)\s*[:：]\s*(.+)$/i.test(fold(r.text)));
       if (legal) put('supplierLegalName', /[:：]\s*(.+)$/.exec(legal.text)[1].trim(), legal.text, legal, true);
       // Address: up to three rows under the supplier name that look like a street, a city with a postal code, or a unit.
       if (found?.row) {
-        const start = rows.indexOf(found.row), parts = [];
+        const start = rows.indexOf(found.row), parts = [], x0 = found.row.runs[0].x;
         for (const r of rows.slice(start + 1, start + 5)) {
           if (r.page !== found.row.page) break;
-          if (/\b\d+\s+[A-Za-zÀ-ÿ].*\b(st|street|rd|road|ave|avenue|blvd|boul|rue|ch|chemin|dr|drive|way|unit|suite|bureau|lane|ln|cres|court|ct|place|pl|highway|hwy)\b/i.test(r.text)
-            || /\b[A-Z]\d[A-Z]\s?\d[A-Z]\d\b/.test(r.text) || /\b\d{5}(?:-\d{4})?\b/.test(r.text) && /\b[A-Z]{2}\b/.test(r.text)) parts.push(r.text.replace(/\s*(?:tel|phone|t[eé]l)\b.*$/i, '').trim());
+          // Only rows that start in the supplier's own column (the right column holds the invoice details).
+          if (!r.runs.some(run => Math.abs(run.x - x0) < 40)) continue;
+          const text = cluster(r, x0);
+          if (/\b\d+\s*,?\s+[A-Za-zÀ-ÿ].*\b(st|street|rd|road|ave|avenue|blvd|boul|rue|ch|chemin|dr|drive|way|unit|suite|bureau|lane|ln|cres|court|ct|place|pl|highway|hwy|floor|wharf)\b/i.test(text)
+            || /\b[A-Z]\d[A-Z]\s?\d[A-Z]\d\b/.test(text) || /\b[A-Z]{2}\s+\d{5}(?:-\d{4})?\b/.test(text)) parts.push(text.replace(/\s*(?:tel|phone|t[eé]l)\b.*$/i, '').trim());
           else if (parts.length) break;
         }
         if (parts.length) put('supplierAddress', parts.join(', ').slice(0, 500), parts[0], found.row, false);
@@ -235,7 +260,13 @@
     else if (c.businessIdentifier) locate('supplierTaxNumbers', [c.businessIdentifier], c.businessIdentifier);
 
     // Header
-    if (c.documentNumber) locate('invoiceNumber', [c.documentNumber], c.documentNumber);
+    let number = c.documentNumber || '';
+    if (!number) {
+      // Labels the general reader misses: "No de facture: X", "Credit Note No.: X", "N° de note", "Bill No. X".
+      const m = /\b(?:n[o°º]\.?\s*de\s+(?:la\s+)?(?:facture|note)|num[eé]ro\s+de\s+(?:facture|note)|credit\s+(?:note|memo)\s*(?:no\.?|number|#)|bill\s*(?:no\.?|number|#)|invoice\s*(?:no\.?|number|#))\s*[:#]?\s*([A-Z0-9][A-Z0-9._\/-]{1,39})/i.exec(fold(text));
+      if (m && /\d/.test(m[1])) number = m[1];
+    }
+    if (number) locate('invoiceNumber', [number], number);
     if (c.documentDate) {
       const r = rows.find(row => O.datesIn(row.text).some(d => d.iso === c.documentDate) && LABELS.invoiceDate.test(fold(row.text)) && !LABELS.dueDate.test(fold(row.text)))
         || rows.find(row => O.datesIn(row.text).some(d => d.iso === c.documentDate));
@@ -280,7 +311,8 @@
     // Amounts
     const moneyField = (name, cents) => { if (!Number.isInteger(cents)) return; locate(name, moneyStrings(cents), cents); };
     moneyField('totalCents', c.totalCents);
-    moneyField('subtotalCents', c.subtotalCents);
+    if (Number.isInteger(c.subtotalCents)) moneyField('subtotalCents', c.subtotalCents);
+    else { const sub = labelledAmount(rows, /sub\s*-?\s*total|sous\s*-?\s*total/, french); if (sub) put('subtotalCents', sub.cents, sub.row.text, sub.row, true); }
     moneyField('taxCents', c.taxCents);
     if (Number.isInteger(c.amountDueCents)) moneyField('balanceDueCents', c.amountDueCents);
     const discount = labelledAmount(rows, /discount|remise|escompte|rabais/, french); if (discount) put('discountCents', Math.abs(discount.cents), discount.row.text, discount.row, true);
@@ -288,6 +320,12 @@
     const rounding = labelledAmount(rows, /rounding|arrondi/, french); if (rounding) put('roundingCents', rounding.cents, rounding.row.text, rounding.row, true);
     const paid = labelledAmount(rows, /amount\s+paid|paid|payments?(?:\s+received)?|deposit|less\s+payment|montant\s+pay[eé]/, french, /\b(to\s+be\s+paid|unpaid|payable|due)\b/i); if (paid) put('paidCents', Math.abs(paid.cents), paid.row.text, paid.row, true);
     const taxes = taxComponents(rows, french);
+    // "HST included: $41.60" on a tax-inclusive invoice: kept as an included component and as the tax total.
+    if (!taxes.length) for (const r of rows) {
+      const m = /\b(GST\s*\/\s*HST|HST|GST|PST|QST|TPS|TVQ|TVH|taxes?)\s+(?:included|incluses?)\s*:?\s*(.+)$/i.exec(fold(r.text));
+      const amounts = m ? O.moneyIn(m[2], french) : [];
+      if (amounts.length) { taxes.push({label: normaliseTaxLabel(m[1]), amountCents: amounts[0], included: true, page: r.page, row: r}); if (!fields.taxCents || fields.taxCents.value === 0 || fields.taxCents.source === 'derived') put('taxCents', amounts[0], r.text, r, true); break; }
+    }
     taxes.forEach((t, i) => { evidence['tax.' + i] = {page: t.page, snippet: t.row.text.slice(0, 240), box: t.row.box || undefined}; });
 
     // Lines: the table reader works on text and OCR pages alike (both give positioned words).
@@ -302,7 +340,7 @@
       if (Number.isInteger(item.unitCents)) line.unitPriceCents = item.unitCents;
       if (Number.isInteger(item.discountCents)) line.discountCents = item.discountCents;
       if (item.taxHint) line.taxLabel = item.taxHint;
-      if (/\b(freight|shipping|delivery|livraison|transport|courier)\b/i.test(fold(item.description))) line.kind = 'freight';
+      if (/^(?:freight|shipping(?:\s+(?:and|&)\s+handling)?|delivery\s+charge|frais\s+de\s+(?:livraison|transport)|livraison)\b/i.test(fold(item.description).trim())) line.kind = 'freight';
       if (row) { line.page = row.page; if (line.source === 'ocr') line.ocrConf = row.conf; }
       return {line, row};
     });
@@ -531,7 +569,8 @@
       <span class="ii-viewer-gap"></span><button type="button" class="ii-icon" data-v-out aria-label="Zoom out">−</button><span data-v-zoom>100%</span><button type="button" class="ii-icon" data-v-in aria-label="Zoom in">+</button><button type="button" class="ii-link" data-v-fit>Fit width</button><a class="ii-link" data-v-open target="_blank" rel="noopener">Open original</a></div>
       <div class="ii-viewer-scroll" data-v-scroll><div class="ii-viewer-page" data-v-sheet><canvas data-v-canvas></canvas><div class="ii-highlight" data-v-mark hidden></div></div><p class="ii-viewer-msg" data-v-msg hidden></p></div>`;
     const $ = s => container.querySelector(s);
-    $('[data-v-open]').href = job.sourceUrl;
+    // A new tab carries no company header, so the link names the company; the server still checks membership.
+    $('[data-v-open]').href = job.sourceUrl + '&companyId=' + encodeURIComponent(localStorage.getItem('sr-accountax-company') || '');
     const rotations = Object.fromEntries((job.pages || []).map(p => [p.page, p.rotation || 0]));
     const state = {page: job.pageFrom || 1, zoom: 0, pdf: null, image: null, pages: 1, mark: null};
     const response = await fetch(job.sourceUrl, {credentials: 'same-origin', headers: {'X-Company-Id': localStorage.getItem('sr-accountax-company') || ''}});
@@ -759,7 +798,6 @@
     $('[data-ii-recalc]').onclick = async () => { try { if (dirty) await save(); else await api('invoice-intel/recalculate', {method: 'POST', json: {jobId: job.id}}); ctx.openJob(job.id); } catch (error) { toast('Not recalculated', error.message, 'error'); } };
     $('[data-ii-retry]').onclick = async () => { if (!confirm('Read the file again? The fields and lines are read afresh; your corrections stay in the history but are not re-applied.')) return; try { await api('invoice-intel/retry', {method: 'POST', json: {jobId: job.id}}); ctx.openQueue({state: 'processing'}); } catch (error) { toast('Not retried', error.message, 'error'); } };
     $('[data-ii-cancel]').onclick = async () => { if (!confirm('Cancel this invoice? Nothing is posted. The original file stays stored.')) return; try { await api('invoice-intel/cancel', {method: 'POST', json: {jobId: job.id}}); ctx.openQueue({}); } catch (error) { toast('Not cancelled', error.message, 'error'); } };
-    $('[data-ii-new-vendor]')?.addEventListener('click', () => ctx.openNewVendor());
     $('[data-ii-add-line]').onclick = () => { const i = tbody.querySelectorAll('tr').length; tbody.insertAdjacentHTML('beforeend', lineRow({description: '', source: 'user'}, i)); dirty = true; bindRemove(); };
     const bindRemove = () => $$('[data-ii-remove]').forEach(b => b.onclick = () => { b.closest('tr').remove(); [...tbody.querySelectorAll('tr')].forEach((tr, i) => { tr.dataset.iiLine = i; tr.querySelector('.ii-line-no').firstChild.textContent = i + 1; }); dirty = true; });
     bindRemove();
