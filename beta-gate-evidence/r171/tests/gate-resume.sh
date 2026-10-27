@@ -5,6 +5,9 @@ ZIP="$1"; TAG="$2"; ST=/srv/gate/.gate-resume-state; touch $ST
 /srv/gate/t/up.sh > /srv/gate/up.log 2>&1
 cd /srv/gate/t
 if ! grep -qx reset $ST; then
+  # Pin the clock afresh for each new run: the shift is computed from the current time (2026-10-01 12:00 Toronto).
+  bash /srv/gate/t/clock-pin.sh > /srv/gate/clock-pin.txt 2>&1
+  rm -f /srv/gate/ev/tail-run.log
   bad=$(zipinfo "$ZIP" | awk 'NR>2 && $1 ~ /^-/ && $1 !~ /^-rw-r--r--/' | wc -l); echo "ZIP-PERMS: $bad file entries not 0644" > /srv/gate/zip-perms.txt
   bash /srv/gate/t/reset.sh "$ZIP" "$TAG" && cp /srv/gate/zip-perms.txt /srv/gate/ev/ && bash /srv/gate/t/paths.sh > /dev/null 2>&1; echo reset >> $ST
 fi

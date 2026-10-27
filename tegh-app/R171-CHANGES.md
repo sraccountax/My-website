@@ -5,11 +5,18 @@ feed, docked on the Dashboard.
 
 ## Where it is
 
-- **Desktop:** a small window at the bottom right of the Dashboard and of Guided Home.
-  - **Minimise** (–) turns it into a "Company feed" pill; the pill shows how many new posts are waiting.
+The feed is on the Dashboard and on Guided Home only. It does not cover the page's buttons or fields, except when you open it
+yourself on a narrower screen.
+
+- **Wide screens:** the open feed sits at the bottom right in its own strip, and the Dashboard narrows to make room.
+  This applies where the page keeps at least 1000 pixels beside it, roughly screens 1620 pixels wide or more with the
+  sidebar.
+  - **Minimise** (–) closes it to a **Company feed** button in the page heading; the button shows how many new posts
+    are waiting.
   - Tegh remembers on this device whether you keep it open or minimised.
-  - It is not shown on other screens.
-- **Phone:** a "Company feed" pill above the bottom navigation. Tapping it opens the feed full screen.
+- **Narrower screens:** the feed starts as the Company feed button in the page heading. Opened from there, it appears
+  over the page until you minimise it or press Escape.
+- **Phone:** the same button in the page heading opens the feed full screen.
 
 ## What a post looks like
 

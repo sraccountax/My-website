@@ -97,6 +97,7 @@ await t('FD-12', 'Signed-out requests are refused', async () => { const anon = n
 
 // ---------------- the window ----------------
 const shots = '/srv/gate/ev/shots';
+const {b, p, errs} = await open(CID, {w: 1920, h: 1080});
 // Theme and navigation are set the way a person sets them: on the Appearance screen (as suite 41 does).
 const appearance = async (theme, nav) => {
   await p.evaluate(() => window.TeghPortal.openTeghPreferences()); await p.waitForSelector('[data-tegh-preferences]', {timeout: 30000});
@@ -105,59 +106,95 @@ const appearance = async (theme, nav) => {
   await p.locator('[data-tegh-preferences] button[type=submit]').first().click(); await p.waitForTimeout(1500);
   return p.evaluate(() => ({theme: document.documentElement.dataset.teghTheme || '', nav: document.documentElement.dataset.teghNavigationLayout || ''}));
 };
-const {b, p, errs} = await open(CID, {w: 1440, h: 900});
-const home = async () => { await p.evaluate(() => TeghPortal.openDashboard()); await p.waitForSelector('[data-company-feed]:not([hidden])', {timeout: 30000}); await p.waitForSelector('[data-feed-post]', {timeout: 30000}); await p.waitForTimeout(800); };
+const shown = sel => p.waitForSelector(sel, {timeout: 30000}).then(() => true, () => false);
+// After a refresh the app reopens the last screen a moment later; wait for that, then open the Dashboard.
+const home = async () => {
+  await p.waitForFunction(() => document.querySelector('.srp-page'), null, {timeout: 30000}); await p.waitForTimeout(800);
+  for (let i = 0; i < 3; i++) {
+    await p.evaluate(() => TeghPortal.openDashboard());
+    await p.waitForFunction(() => [...document.querySelectorAll('.srp-page')].pop()?.dataset.srpPage === 'dashboard', null, {timeout: 30000});
+    await p.waitForTimeout(2000);
+    if (await p.evaluate(() => [...document.querySelectorAll('.srp-page')].pop()?.dataset.srpPage === 'dashboard')) break;
+  }
+  await shown('[data-feed-pill]:not([hidden]), [data-feed-panel]:not([hidden])'); await p.waitForTimeout(1000);
+};
+// Where the feed is, and which of the page's own buttons, links and fields lie under it (must be none).
 const geo = () => p.evaluate(() => {
-  const r = document.querySelector('[data-feed-panel]')?.getBoundingClientRect(), se = document.scrollingElement;
-  const pill = document.querySelector('[data-feed-pill]')?.getBoundingClientRect();
-  return {panel: r && !document.querySelector('[data-feed-panel]').hidden ? [r.x, r.y, r.width, r.height].map(Math.round) : null, pill: pill && pill.width ? [pill.x, pill.y].map(Math.round) : null, inView: r ? r.right <= innerWidth + 1 && r.bottom <= innerHeight + 1 && r.x >= 0 && r.y >= 0 : null, pageX: se.scrollWidth - se.clientWidth, posts: document.querySelectorAll('[data-feed-post]').length, vw: innerWidth, vh: innerHeight};
+  const root = document.querySelector('[data-company-feed]'), panel = root?.querySelector('[data-feed-panel]'), pill = document.querySelector('[data-feed-pill]');
+  const page = [...document.querySelectorAll('.srp-page')].pop(), se = document.scrollingElement;
+  const open = panel && !panel.hidden, box = (open ? panel : pill)?.getBoundingClientRect();
+  const covered = !box ? [] : [...page.querySelectorAll('button,a,input,select,textarea,[role=button]')].filter(e => {
+    if (e.closest('[data-company-feed]') || e.matches('[data-feed-pill]')) return false;
+    const r = e.getBoundingClientRect(); if (!r.width || !r.height) return false;
+    return r.left < box.right - 1 && r.right > box.left + 1 && r.top < box.bottom - 1 && r.bottom > box.top + 1;
+  }).map(e => (e.textContent || e.getAttribute('aria-label') || e.tagName).trim().slice(0, 30));
+  return {page: page?.dataset.srpPage, mode: root.hidden ? 'none' : open ? (root.classList.contains('is-docked') ? 'docked' : 'floating') : (pill && !pill.hidden ? 'pill' : 'none'),
+    pillInHeading: !!pill?.closest('header.srp-page-head, .tegh-guided-home-head'), box: box && [box.x, box.y, box.width, box.height].map(Math.round),
+    inView: box ? box.right <= innerWidth + 1 && box.bottom <= innerHeight + 1 && box.x >= 0 && box.y >= 0 : null, covered,
+    pageX: Math.max(se.scrollWidth - se.clientWidth, page.scrollWidth - page.clientWidth), posts: document.querySelectorAll('[data-feed-post]').length};
 });
 await p.evaluate(() => { try { localStorage.removeItem('tegh-feed-r171'); } catch (_) {} });
 await p.reload(); await p.waitForFunction(() => window.TeghPortal && document.querySelector('.sidebar,.topbar'), null, {timeout: 40000});
 await home();
-for (const [w, h, theme, nav, label] of [[1920, 1080, 'light', 'side', '1920'], [1440, 900, 'light', 'side', '1440'], [1366, 768, 'dark', 'side', '1366-dark'], [1280, 720, 'light', 'top', '1280-top'], [1024, 768, 'dark', 'top', '1024-dark-top']]) {
-  await t('FD-UI-' + label, `Dashboard at ${w}×${h}, ${theme}, ${nav} navigation: the feed window sits inside the screen at the bottom right with posts; no sideways page scroll`, async () => {
+// Wide screens: the window is open and the page keeps a strip free for it. Narrower screens: a Company feed button in
+// the page heading. Either way nothing on the page is covered and there is no sideways scroll.
+for (const [w, h, theme, nav, label, want] of [[1920, 1080, 'light', 'side', '1920', 'docked'], [2560, 1440, 'dark', 'side', '2560-dark', 'docked'], [1440, 900, 'light', 'side', '1440', 'pill'], [1366, 768, 'dark', 'side', '1366-dark', 'pill'], [1280, 720, 'light', 'top', '1280-top', 'pill'], [1920, 1080, 'dark', 'top', '1920-dark-top', 'docked'], [1024, 768, 'dark', 'top', '1024-dark-top', 'pill']]) {
+  await t('FD-UI-' + label, `Dashboard at ${w}×${h}, ${theme}, ${nav} navigation: ${want === 'docked' ? 'the feed is open beside the page' : 'a Company feed button in the page heading'}; nothing on the page is covered; no sideways scroll`, async () => {
+    await p.evaluate(() => { try { localStorage.removeItem('tegh-feed-r171'); } catch (_) {} });
     await p.setViewportSize({width: w, height: h});
     const applied = await appearance(theme, nav);
+    await p.reload(); await p.waitForFunction(() => window.TeghPortal && document.querySelector('.sidebar,.topbar'), null, {timeout: 40000});
     await home();
     const g = await geo(); await p.screenshot({path: `${shots}/r171-feed-${label}.png`});
-    return {ok: !!g.panel && g.inView && g.pageX <= 1 && g.posts > 3 && g.panel[0] + g.panel[2] > w - 40 && applied.theme === theme && applied.nav === nav, info: JSON.stringify({...g, applied})};
+    const ok = g.page === 'dashboard' && g.box && g.box[2] > 0 && g.mode === want && g.covered.length === 0 && g.pageX <= 1 && g.inView && applied.theme === theme && applied.nav === nav && (want === 'docked' ? g.posts > 3 : g.pillInHeading);
+    return {ok, info: JSON.stringify({...g, applied})};
   });
 }
-await p.setViewportSize({width: 1440, height: 900});
-await appearance('light', 'side'); await home();
+await p.setViewportSize({width: 1920, height: 1080});
+await appearance('light', 'side');
+await p.evaluate(() => { try { localStorage.removeItem('tegh-feed-r171'); } catch (_) {} });
+await p.reload(); await p.waitForFunction(() => window.TeghPortal && document.querySelector('.sidebar,.topbar'), null, {timeout: 40000});
+await home();
 await t('FD-UI-ESC', 'Names and memos are shown as text: the customer name containing markup runs nothing', async () => {
-  const shown = await p.evaluate(() => [...document.querySelectorAll('[data-feed-post]')].map(x => x.textContent).find(x => x.includes('Mallory')) || '');
-  return {ok: shown.includes('<img') && !(await p.evaluate(() => window.__xss)) && !(await p.locator('[data-company-feed] img').count()), info: shown.replace(/\s+/g, ' ').trim().slice(0, 140)};
+  const text = await p.evaluate(() => [...document.querySelectorAll('[data-feed-post]')].map(x => x.textContent).find(x => x.includes('Mallory')) || '');
+  return {ok: text.includes('<img') && !(await p.evaluate(() => window.__xss)) && !(await p.locator('[data-company-feed] img').count()), info: text.replace(/\s+/g, ' ').trim().slice(0, 140)};
 });
-await t('FD-UI-MIN', 'Minimise turns the window into a pill; the choice is kept after a refresh; the pill opens it again', async () => {
-  await p.locator('[data-feed-close]').click(); await p.waitForTimeout(300);
+await t('FD-UI-MIN', 'Minimise turns the window into the Company feed button in the heading; the choice is kept after a refresh; the button opens it again', async () => {
+  await p.locator('[data-feed-close]').click(); await p.waitForTimeout(400);
   const g1 = await geo();
-  await p.reload(); await p.waitForFunction(() => window.TeghPortal && document.querySelector('.sidebar,.topbar'), null, {timeout: 40000}); await p.waitForSelector('[data-company-feed]:not([hidden])', {timeout: 30000}); await p.waitForTimeout(1500);
+  await p.reload(); await p.waitForFunction(() => window.TeghPortal && document.querySelector('.sidebar,.topbar'), null, {timeout: 40000}); await home();
   const g2 = await geo();
   await p.locator('[data-feed-pill]').click(); await p.waitForTimeout(800); const g3 = await geo();
-  return {ok: !g1.panel && !!g1.pill && !g2.panel && !!g2.pill && !!g3.panel, info: `after minimise ${JSON.stringify(g1.panel)} pill ${!!g1.pill}; after refresh ${JSON.stringify(g2.panel)} pill ${!!g2.pill}; reopened ${!!g3.panel}`};
+  return {ok: g1.mode === 'pill' && g1.pillInHeading && g2.mode === 'pill' && g3.mode === 'docked', info: `after minimise ${g1.mode}; after refresh ${g2.mode}; reopened ${g3.mode}`};
 });
-await t('FD-UI-LIVE', 'Another person’s new activity appears without reloading, marked New, and the pill counts it while minimised', async () => {
-  await p.waitForSelector('[data-feed-post]', {timeout: 20000});
+await t('FD-UI-LIVE', 'Another person’s new activity appears without reloading, marked New, and the button counts it while minimised', async () => {
   await p.locator('[data-feed-close]').click(); await p.waitForTimeout(300);
   await ed.call('customers', {method: 'POST', json: {name: 'Northshore Deli ' + stamp, email: '', phone: '', billingAddress: '3 Test St', province: 'ON'}});
-  // The window polls every 45 seconds; wait for the poll rather than forcing it.
+  // The window checks every 45 seconds; wait for that check rather than forcing it.
   const got = await p.waitForFunction(() => /\d/.test(document.querySelector('[data-feed-pill-count]')?.textContent || ''), null, {timeout: 70000}).then(() => true, () => false);
   const count = await p.locator('[data-feed-pill-count]').textContent();
   await p.locator('[data-feed-pill]').click(); await p.waitForTimeout(600);
   const post = await p.evaluate(() => { const x = [...document.querySelectorAll('[data-feed-post]')].find(e => e.textContent.includes('Northshore Deli')); return x ? {text: x.textContent.replace(/\s+/g, ' ').trim().slice(0, 90), isNew: x.classList.contains('is-new')} : null; });
-  return {ok: got && !!post && post.isNew, info: `pill count "${count}"; post ${JSON.stringify(post)}`};
+  return {ok: got && !!post && post.isNew, info: `button count "${count}"; post ${JSON.stringify(post)}`};
+});
+await t('FD-UI-FLOAT', 'On a narrower screen the Company feed button opens the window over the page; Escape closes it again', async () => {
+  await p.setViewportSize({width: 1280, height: 800}); await home();
+  const before = await geo();
+  await p.locator('[data-feed-pill]').click(); await p.waitForTimeout(600); const open = await geo();
+  await p.keyboard.press('Escape'); await p.waitForTimeout(300); const after = await geo();
+  await p.setViewportSize({width: 1920, height: 1080}); await home();
+  return {ok: before.mode === 'pill' && open.mode === 'floating' && open.inView && open.posts > 0 && after.mode === 'pill', info: `${before.mode} → ${open.mode} (${JSON.stringify(open.box)}) → ${after.mode}`};
 });
 await t('FD-UI-OPEN', 'Choosing the invoice post opens that invoice; the feed is not shown on other screens and returns on the Dashboard', async () => {
+  if ((await geo()).mode !== 'docked') { await p.locator('[data-feed-pill]').click(); await p.waitForTimeout(600); }
   await p.locator('[data-feed-filter="sales"]').click(); await p.waitForTimeout(1200);
   await p.locator('[data-feed-open="invoice"]').first().click();
   await p.waitForFunction(() => !/tegh=dashboard/.test(location.hash), null, {timeout: 20000}); await p.waitForTimeout(1500);
-  const page = await p.evaluate(() => ({hash: location.hash.slice(0, 50), text: [...document.querySelectorAll('.srp-page')].pop()?.innerText.slice(0, 400) || '', feedHidden: document.querySelector('[data-company-feed]')?.hidden}));
+  const page = await p.evaluate(() => ({hash: location.hash.slice(0, 50), text: [...document.querySelectorAll('.srp-page')].pop()?.innerText.slice(0, 400) || '', feedHidden: document.querySelector('[data-company-feed]')?.hidden, pill: !!document.querySelector('[data-feed-pill]:not([hidden])')}));
   await home(); const back = await geo();
-  return {ok: /INV-\d+/.test(page.text) && /Harbour Bakery/.test(page.text) && page.feedHidden === true && !!back.panel, info: `${page.hash}; invoice shown ${/INV-\d+/.test(page.text)}; feed hidden there ${page.feedHidden}; back on Dashboard ${!!back.panel}`};
+  return {ok: /INV-\d+/.test(page.text) && /Harbour Bakery/.test(page.text) && page.feedHidden === true && !page.pill && back.mode === 'docked', info: `${page.hash}; invoice shown ${/INV-\d+/.test(page.text)}; feed hidden there ${page.feedHidden}, button ${page.pill}; back on Dashboard ${back.mode}`};
 });
-await t('FD-UI-KEY', 'Keyboard: a post can be reached with Tab and opened with Enter; Escape minimises the window', async () => {
+await t('FD-UI-KEY', 'Keyboard: a post can be reached and opened with Enter; Escape minimises the window', async () => {
   await p.locator('[data-feed-filter="all"]').click(); await p.waitForTimeout(1200);
   await p.locator('[data-feed-post].is-link').first().focus(); const focused = await p.evaluate(() => document.activeElement?.matches('[data-feed-post].is-link'));
   await p.keyboard.press('Escape'); await p.waitForTimeout(300); const g = await geo();
@@ -165,32 +202,32 @@ await t('FD-UI-KEY', 'Keyboard: a post can be reached with Tab and opened with E
   await p.locator('[data-feed-post].is-link').first().focus(); await p.keyboard.press('Enter');
   const left = await p.waitForFunction(() => !/tegh=dashboard/.test(location.hash), null, {timeout: 20000}).then(() => true, () => false);
   await home();
-  return {ok: focused && !g.panel && left, info: `focusable ${focused}; Escape minimised ${!g.panel}; Enter opened a record ${left}`};
+  return {ok: focused && g.mode === 'pill' && left, info: `focusable ${focused}; Escape → ${g.mode}; Enter opened a record ${left}`};
 });
-await t('FD-UI-GUIDED', 'Guided Home shows the same feed', async () => {
+await t('FD-UI-GUIDED', 'Guided Home shows the same feed and it covers nothing there (the Month-End Checklist shortcut stays clickable)', async () => {
   await p.evaluate(() => TeghPortal.switchBookkeepingMode('owner')); await p.waitForTimeout(2000);
-  await p.evaluate(() => TeghPortal.openGuidedBookkeeping()); await p.waitForTimeout(1500);
-  const shown = await p.waitForSelector('[data-company-feed]:not([hidden]) [data-feed-post]', {timeout: 30000}).then(() => true, () => false);
-  const hash = await p.evaluate(() => location.hash.slice(0, 40));
-  await p.screenshot({path: `${shots}/r171-feed-guided.png`});
+  await p.evaluate(() => TeghPortal.openGuidedBookkeeping()); await shown('[data-feed-pill]:not([hidden]), [data-feed-panel]:not([hidden])'); await p.waitForTimeout(2000);
+  const g = await geo(); await p.screenshot({path: `${shots}/r171-feed-guided.png`});
+  const sc = p.locator('[data-guided-shortcut]').last(); const name = await sc.textContent().catch(() => '');
+  const clickable = await sc.click({trial: true, timeout: 5000}).then(() => true, () => false);
   await p.evaluate(() => TeghPortal.switchBookkeepingMode('accountant')); await p.waitForTimeout(2500);
-  return {ok: shown, info: `${hash}; feed with posts ${shown}`};
+  return {ok: g.mode !== 'none' && g.covered.length === 0 && clickable, info: `${g.mode}; covered ${JSON.stringify(g.covered)}; shortcut "${(name || '').trim()}" clickable ${clickable}`};
 });
 await t('FD-JS', 'No browser errors on the desktop', async () => ({ok: errs.length === 0, info: errs.join(' | ') || 'none'}));
 await b.close();
 
 // Phone
 const ph = await open(CID, {w: 390, h: 844});
-await t('FD-PH', 'Phone 390×844: a Feed pill above the bottom navigation; it opens a full-screen sheet with the posts; minimising returns to the Dashboard; no sideways scroll', async () => {
+await t('FD-PH', 'Phone 390×844: a Company feed button in the page heading; it opens a full-screen sheet with the posts; minimising returns to the Dashboard; no sideways scroll', async () => {
   const P = ph.p;
-  await P.waitForSelector('[data-company-feed]:not([hidden]) [data-feed-pill]', {timeout: 30000}); await P.waitForTimeout(1200);
-  const pill = await P.evaluate(() => { const r = document.querySelector('[data-feed-pill]').getBoundingClientRect(), nav = document.querySelector('#r19-mobile-nav')?.getBoundingClientRect(); return {bottom: Math.round(r.bottom), navTop: nav ? Math.round(nav.top) : null, visible: r.width > 0}; });
+  await P.waitForSelector('[data-feed-pill]:not([hidden])', {timeout: 30000}); await P.waitForTimeout(1200);
+  const pill = await P.evaluate(() => { const r = document.querySelector('[data-feed-pill]').getBoundingClientRect(); return {inHeading: !!document.querySelector('[data-feed-pill]').closest('header.srp-page-head'), visible: r.width > 0 && r.right <= innerWidth}; });
   await P.locator('[data-feed-pill]').tap(); await P.waitForSelector('[data-feed-post]', {timeout: 30000}); await P.waitForTimeout(600);
   const sheet = await P.evaluate(() => { const r = document.querySelector('[data-feed-panel]').getBoundingClientRect(), se = document.scrollingElement; return {box: [r.x, r.y, r.width, r.height].map(Math.round), pageX: se.scrollWidth - se.clientWidth}; });
   await P.screenshot({path: `${shots}/r171-feed-phone.png`});
   await P.locator('[data-feed-close]').tap(); await P.waitForTimeout(400);
   const closed = await P.evaluate(() => document.querySelector('[data-feed-panel]').hidden);
-  return {ok: pill.visible && (pill.navTop === null || pill.bottom <= pill.navTop) && sheet.box[2] === 390 && sheet.box[3] === 844 && sheet.pageX <= 1 && closed, info: JSON.stringify({pill, sheet, closed})};
+  return {ok: pill.visible && pill.inHeading && sheet.box[2] === 390 && sheet.box[3] === 844 && sheet.pageX <= 1 && closed, info: JSON.stringify({pill, sheet, closed})};
 });
 await t('FD-PH-JS', 'No browser errors on the phone', async () => ({ok: ph.errs.length === 0, info: ph.errs.join(' | ') || 'none'}));
 await ph.b.close();

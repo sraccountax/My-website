@@ -26,13 +26,20 @@
   const pref = () => { try { return JSON.parse(localStorage.getItem(PREF_KEY) || '{}') || {}; } catch (_) { return {}; } };
   const savePref = patch => { try { localStorage.setItem(PREF_KEY, JSON.stringify({...pref(), ...patch})); } catch (_) {} };
   const isPhone = () => window.matchMedia('(max-width: 899px)').matches;
+  // Shown on the Dashboard and Guided Home: the page on screen decides (the address can lag behind it).
   const onHome = () => {
-    const page = [...document.querySelectorAll('.srp-page')].pop()?.dataset.srpPage || '';
-    return /^#tegh=(dashboard|guided-bookkeeping)(?:&|$)/.test(location.hash) || ['dashboard', 'guided-bookkeeping'].includes(page) && !/^#tegh=/.test(location.hash);
+    const page = [...document.querySelectorAll('.srp-page')].pop()?.dataset.srpPage;
+    return page ? ['dashboard', 'guided-bookkeeping'].includes(page) : /^#tegh=(dashboard|guided-bookkeeping)(?:&|$)/.test(location.hash);
   };
+  // The open window keeps a strip on the right of the Dashboard free when there is room for the page beside it
+  // (page at least 1000px wide), so it never covers a button. Where there is no room it starts as the pill, and if it
+  // is opened there it floats over the page until it is minimised.
+  const GUTTER = 380, MIN_PAGE = 1000;
+  const homePage = () => [...document.querySelectorAll('.srp-page')].pop();
+  const fits = () => { const page = homePage(); const left = page ? page.getBoundingClientRect().left : 0; return window.innerWidth - Math.max(0, left) - GUTTER >= MIN_PAGE; };
   const companyFromHash = () => (/[#&]co=([^&]+)/.exec(location.hash) || [])[1] || '';
 
-  let ctx = null, root = null, timer = 0, loading = false;
+  let ctx = null, root = null, pill = null, timer = 0, loading = false;
   const state = {company: '', items: [], next: null, latest: null, filter: 'all', others: false, error: '', highlight: new Set()};
 
   const money = amount => {
@@ -118,16 +125,35 @@
     return html + (state.next ? `<button type="button" class="tf-older" data-feed-older${loading ? ' disabled' : ''}>${loading ? 'Loading…' : 'Show older activity'}</button>` : '<p class="tf-end">That’s everything.</p>');
   }
 
+  // The pages draw their heading after the feed starts, and redraw it; put the pill back each time.
+  function placePill() {
+    const head = homePage()?.querySelector('header.srp-page-head, .tegh-guided-home-head');
+    if (head && pill && pill.parentElement !== head) head.appendChild(pill);
+    return head;
+  }
+
   function render() {
     if (!root) return;
-    const open = root.dataset.open === '1';
     const phone = isPhone();
+    // Open or not is decided once the page is on screen: open where it can sit beside the page (unless the person
+    // minimised it), otherwise the Company feed button. Opened by hand on a narrow screen, it floats until minimised.
+    if (!phone && onHome() && homePage() && root.dataset.userOpened !== '1') root.dataset.open = fits() && pref().desktopOpen !== false ? '1' : '0';
+    if (phone && root.dataset.userOpened !== '1') root.dataset.open = '0';
+    const open = root.dataset.open === '1';
     root.classList.toggle('is-phone', phone);
     root.hidden = !onHome();
+    const docked = !root.hidden && open && !phone && fits();
+    root.classList.toggle('is-docked', docked);
+    root.classList.toggle('is-floating', !root.hidden && open && !phone && !docked);
+    document.documentElement.classList.toggle('tf-docked', docked);
+
     const fresh = state.items.filter(isNew).length;
-    root.querySelector('[data-feed-pill-count]').textContent = fresh ? String(fresh > 99 ? '99+' : fresh) : '';
-    root.querySelector('[data-feed-pill]').setAttribute('aria-label', fresh ? `Company feed, ${fresh} new` : 'Company feed');
-    root.querySelector('[data-feed-pill]').setAttribute('aria-expanded', String(open));
+    // The pill is an ordinary button in the page heading, so it never sits over the page.
+    const head = placePill();
+    pill.hidden = root.hidden || !head || (open && !phone && docked);
+    pill.querySelector('[data-feed-pill-count]').textContent = fresh ? String(fresh > 99 ? '99+' : fresh) : '';
+    pill.setAttribute('aria-label', fresh ? `Company feed, ${fresh} new` : 'Company feed');
+    pill.setAttribute('aria-expanded', String(open));
     root.querySelector('[data-feed-panel]').hidden = !open;
     root.querySelector('[data-feed-company]').textContent = ctx?.companyName?.() || '';
     root.querySelectorAll('[data-feed-filter]').forEach(b => { const on = b.dataset.feedFilter === state.filter; b.classList.toggle('is-active', on); b.setAttribute('aria-pressed', String(on)); });
@@ -181,12 +207,14 @@
   function setOpen(open, focus = true) {
     if (!root) return;
     if (!open) state.highlight = new Set();
+    // Opened by hand where it cannot sit beside the page: it floats until minimised. Where it fits, the saved choice decides.
+    root.dataset.userOpened = open && !isPhone() && !fits() ? '1' : open && isPhone() ? '1' : '';
     root.dataset.open = open ? '1' : '0';
     if (!isPhone()) savePref({desktopOpen: open});
     document.documentElement.classList.toggle('tf-sheet-open', open && isPhone());
     render();
     if (open) { state.items.filter(unseen).forEach(i => state.highlight.add(i.id)); markSeen(); if (focus) root.querySelector(isPhone() ? '[data-feed-close]' : '[data-feed-filter].is-active')?.focus(); }
-    else if (focus) root.querySelector('[data-feed-pill]')?.focus();
+    else if (focus && pill && !pill.hidden) pill.focus();
     if (open) render();
   }
 
@@ -200,8 +228,7 @@
     const show = onHome();
     const company = companyFromHash() || ctx?.companyId?.() || '';
     root.hidden = !show;
-    if (!show) { document.documentElement.classList.remove('tf-sheet-open'); return; }
-    if (isPhone() && root.dataset.open === '1' && !root.dataset.userOpened) root.dataset.open = '0';
+    if (!show) { root.dataset.userOpened = ''; document.documentElement.classList.remove('tf-sheet-open', 'tf-docked'); if (pill) pill.hidden = true; return; }
     if (company && (company !== state.company || !state.items.length && !loading && !state.error)) load('reset'); else render();
   }
 
@@ -210,9 +237,8 @@
     root.className = 'tf-root';
     root.setAttribute('aria-label', 'Company feed');
     root.dataset.companyFeed = '';
-    root.dataset.open = isPhone() ? '0' : (pref().desktopOpen === false ? '0' : '1');
+    root.dataset.open = '0';
     root.innerHTML = `
-      <button type="button" class="tf-pill" data-feed-pill aria-controls="tf-panel"><span class="tf-dot" aria-hidden="true"></span>Company feed<span class="tf-count" data-feed-pill-count></span></button>
       <section class="tf-panel" id="tf-panel" data-feed-panel role="dialog" aria-modal="false" aria-labelledby="tf-title" hidden>
         <header class="tf-head">
           <div><h3 id="tf-title"><span class="tf-dot" aria-hidden="true"></span>Company feed</h3><p data-feed-company></p></div>
@@ -230,10 +256,13 @@
       </section>
       <p class="tf-sr" aria-live="polite" data-feed-live></p>`;
     document.body.appendChild(root);
+    pill = document.createElement('button');
+    pill.type = 'button'; pill.className = 'tf-pill'; pill.dataset.feedPill = ''; pill.setAttribute('aria-controls', 'tf-panel');
+    pill.innerHTML = '<span class="tf-dot" aria-hidden="true"></span>Company feed<span class="tf-count" data-feed-pill-count></span>';
+    pill.addEventListener('click', () => setOpen(root.dataset.open !== '1'));
     root.addEventListener('click', event => {
       const t = event.target.closest('button,[data-feed-open]');
       if (!t || !root.contains(t)) return;
-      if (t.matches('[data-feed-pill]')) { root.dataset.userOpened = '1'; setOpen(root.dataset.open !== '1'); return; }
       if (t.matches('[data-feed-close]')) { setOpen(false); return; }
       if (t.matches('[data-feed-refresh],[data-feed-retry]')) { load(state.items.length ? 'newer' : 'reset'); return; }
       if (t.matches('[data-feed-older]')) { load('older'); return; }
@@ -250,7 +279,11 @@
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && root && !root.hidden) load('newer'); });
     // The portal redraws pages without always changing the address; watch the page stack as well.
     const stage = document.querySelector('.stage') || document.body;
-    new MutationObserver(() => { const hidden = !onHome(); if (hidden !== root.hidden) sync(); }).observe(stage, {childList: true, subtree: false});
+    new MutationObserver(() => {
+      const hidden = !onHome();
+      if (hidden !== root.hidden) { sync(); return; }
+      if (!hidden && pill && !pill.isConnected) render();
+    }).observe(stage, {childList: true, subtree: true});
     setInterval(() => { root.querySelectorAll('time[datetime]').forEach(t => { t.textContent = when(t.getAttribute('datetime')); }); }, 60000);
   }
 
