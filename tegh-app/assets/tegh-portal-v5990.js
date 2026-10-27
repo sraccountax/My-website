@@ -1563,6 +1563,7 @@ const TeghPortal = (() => {
     if(onboardingGate(()=>openGuidedBookkeeping()))return;setTimeout(()=>r157ShowBankStart(),1400);
     cancelCoreRouting();collapseOther(null);activeModule='';coreModule='';
     showPage('guided-bookkeeping','Guided Home','What needs your attention today.',async body=>{
+      mountCompanyFeed();
       const [w,a]=await Promise.all([workspace(),auth()]),state=guidedTaskState(w),access=companyAccess(a)||{},canWrite=['owner','admin','editor','bookkeeper'].includes(String(access.role||'')),firstName=String(a.user?.displayName||'').trim().split(/\s+/)[0],hour=new Date().getHours(),greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening',attention=state.tasks.length;
       body.innerHTML=`<section class="tegh-guided-home-head"><div><span>Guided bookkeeping</span><h2>${esc(greeting)}${firstName?`, ${esc(firstName)}`:''}</h2><p>${attention?`<b>${attention}</b> thing${attention===1?'':'s'} need${attention===1?'s':''} your attention.`:'Your day-to-day bookkeeping is clear.'}</p></div><div class="tegh-guided-home-status ${attention?'attention':'clear'}"><b>${attention||'✓'}</b><span>${attention?'Needs attention':'Up to date'}</span></div></section>
       <section class="r163-home-statements" data-r163-home-statements><div><small data-r163-home-eyebrow>Start here · Bank statements</small><h3>Upload your bank statements, month by month</h3><p data-r163-home-progress>Tegh groups the transactions, suggests where each group goes, posts them when you confirm and reconciles the month.</p></div><button type="button" class="srp-btn" data-r163-home-open>Upload a bank statement</button></section>
@@ -2308,7 +2309,7 @@ const TeghPortal = (() => {
   // R162: at sign-in several start-up paths open the home before the signed-in user is known. The Guided/Full choice
   // is stored per user and company, so it read as Full Accounting then and a Guided user sometimes landed on this
   // Dashboard instead of Guided Home. Until the user is known, wait for it and open the home for their mode.
-  function openDashboard(afterAuth=false){if(!authCache&&!afterAuth){auth().then(()=>experienceMode()==='owner'?openGuidedBookkeeping():openDashboard(true),()=>openDashboard(true));return}if(onboardingGate(()=>experienceMode()==='owner'&&!afterAuth?openGuidedBookkeeping():openDashboard(afterAuth)))return;setTimeout(()=>r157ShowBankStart(),1400);cancelCoreRouting();collapseOther(null);activeModule='';coreModule='';dashboardOpened=true;showPage('dashboard','Dashboard','',async body=>{
+  function openDashboard(afterAuth=false){if(!authCache&&!afterAuth){auth().then(()=>experienceMode()==='owner'?openGuidedBookkeeping():openDashboard(true),()=>openDashboard(true));return}if(onboardingGate(()=>experienceMode()==='owner'&&!afterAuth?openGuidedBookkeeping():openDashboard(afterAuth)))return;setTimeout(()=>r157ShowBankStart(),1400);cancelCoreRouting();collapseOther(null);activeModule='';coreModule='';dashboardOpened=true;showPage('dashboard','Dashboard','',async body=>{mountCompanyFeed();
     const [w,a]=await Promise.all([workspaceSummary(),auth()]);
     if(!w?.summary||['bankBalanceCents','unpaidInvoicesCents','payableSubledgerCents','taxPayableCents','transactionsToReview'].some(key=>!Number.isFinite(Number(w.summary[key]))||w.summary[key]===null))throw Error('Current balances are unavailable. Retry to load verified figures.');
     const currency=w.organization?.currency||'CAD',summary=w.summary,today=todayIso(),page=body.closest('.srp-page');
@@ -7688,6 +7689,14 @@ const TeghPortal = (() => {
         openJob:id=>openInvoiceIntelligence({jobId:id}),openQueue:filter=>openInvoiceIntelligence({filter}),
         openRegisterAt:billId=>openBills('view',billId),openNote:id=>openDocumentView('note',id,{side:'vendor'}),openBill:id=>openDocumentView('bill',id,{side:'vendor'}),openVendors:()=>openVendors(),openNewVendor:()=>openVendors('new')});
     },{route:jobId?`invoice-intel:${jobId}`:'invoice-intel',module:'Payables',cache:false});
+  }
+  // R171: company feed docked on the Dashboard and Guided Home (tegh-feed-r171.js). It shows the current company's
+  // recent business activity from the audit trail and opens the record a post names.
+  function mountCompanyFeed(){
+    window.TeghLoadFeature?.('feed').then(()=>window.TeghCompanyFeed?.mount({api,companyId,
+      companyName:()=>companyAccess(authCache)?.name||'',
+      canSeePayroll:()=>['owner','admin','editor'].includes(String(companyAccess(authCache)?.role||'')),
+      openRecord:(type,id)=>type==='invoice_intel_job'?openInvoiceIntelligence({jobId:id}):openSourceRecord(type,id)})).catch(()=>{});
   }
   async function openDocumentIntake(options={}){
     try{return (await nativeAPARModule()).openDocumentIntake(nativeAPARAdapter(),options)}

@@ -87,8 +87,14 @@ Controls checked (all PASS):
 - **Backup and restore:** a backup carries the four tables; a restored copy keeps its jobs and can read its
   re-encrypted evidence.
 - **Instructions inside a document** are not followed.
-- **Review screen:** at 1920×1080 and 1366×768, light and dark, side and top navigation, zoom 125 % and 150 %:
-  document and invoice side by side, no sideways scroll.
+- **Review screen:** at 1920×1080 and 1366×768, zoom 125 % and 150 %: document and invoice side by side, no
+  sideways scroll.
+  - **Correction (found during R171):** the suite set dark mode and top navigation through a browser setting the app
+    does not read. Those runs were really light mode with side navigation, as the screenshots show. So dark mode and
+    top navigation were **not** checked on this screen in this gate.
+  - The suite now sets both on the Appearance screen and checks that they took effect. The R171 gate re-runs it; see
+    `beta-gate-evidence/r171/RESULTS.md`.
+  - The general screen matrix above was not affected; it uses the Appearance screen.
 
 ## Beta readiness
 

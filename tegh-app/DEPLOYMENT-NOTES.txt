@@ -12,10 +12,12 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R170 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R171 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R170 (R118–R170 change notes are
-included). R170 is the private beta package (it replaces R169): Invoice Intelligence in Payables reads supplier
+This package contains every release through R171 (R118–R171 change notes are
+included). R171 is the private beta package (it replaces R170): a company feed on the Dashboard shows recent business
+activity from the audit trail (see R171-CHANGES.md). Browser files and one read-only API route; no database change.
+R170 (replaced R169): Invoice Intelligence in Payables reads supplier
 invoice PDFs in the browser and prepares DRAFT vendor invoices for review (see R170-CHANGES.md). It adds four tables,
 created automatically on first use; rollback and operating notes are in R170-MIGRATION.md and R170-OPERATIONS.md.
 Before beta use, do the host checks listed at the end of R170-OPERATIONS.md. R169 (replaced R168): on a phone, pinch-zoom works and a zoomed screen can be

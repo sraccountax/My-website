@@ -3,7 +3,7 @@
 
   const VERSION = '5.9.9';
   const BUILD = '5990';
-  const ASSET_REVISION = '5990-r170-intel';
+  const ASSET_REVISION = '5990-r171-feed';
   const AUTH_CACHE_MS = 60000;
   const POST_COMMIT_SESSION_GRACE_MS = 45000;
   const RECOVERY_MARKER_KEY = 'tegh-session-recovery-v5990';
@@ -36,6 +36,8 @@
     ocr:'/assets/tegh-native-ocr-v5220.js',
     // R170: Invoice Intelligence (loads with the OCR runtime when the screen or an Assist question needs it).
     'invoice-intel':'/assets/tegh-invoice-intel-r170.js',
+    // R171: company feed on the Dashboard.
+    feed:'/assets/tegh-feed-r171.js',
     forecast:'/assets/tegh-forecast-v5300.js',
   });
   // One promise per allowlisted feature prevents concurrent requests from
