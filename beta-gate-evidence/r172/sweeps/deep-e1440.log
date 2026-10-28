@@ -1,0 +1,2 @@
+e1440: 115 screens, 1 with findings; applied {"theme":"light","nav":"side","mode":"full-accounting"}
+  fn:openClientViewLinks                       http: 403 GET /api/index.php client-view%2Fcatalog

@@ -47,3 +47,19 @@ Status: IN PROGRESS
 - New suite `47-r172.mjs` (fresh company, screens driven as a person would): 14/14 PASS — vendor directory, Assist
   width, account fields, GIFI codes kept, fixed asset schedule/closed-period lines/posting/server refusal, recurring
   invoice, budget, data import, feed coverage, phone filters, no browser errors.
+- Fix 9: on wide reports (P&L by month, registers) the table's "Actions ⋮" menu, which holds Export…, Choose
+  columns… and Filter columns…, sat past the right edge of the table and had to be scrolled to. The actions column is
+  now pinned to the right edge with a shadow; rows without row actions are not pinned (tegh-r120.css).
+- Fix 10: on Budgets and Fixed Assets the "Export ▾" menu opens over the page, and the moved PDF and Excel buttons
+  could no longer find their page, so nothing downloaded ("Report unavailable"). They now resolve the page that
+  owns the open menu (tegh-professional-output-v5990.js `ownerPage`).
+- Export sweep (`export172.mjs`, every report, every format offered): 70 downloads across 28 reports, all the right
+  format and non-empty; three CSVs are header-only because this company has no products or reconciliations (checked
+  in the database). Three screens have no export (Tegh Intelligence, GL Account Report before it is generated,
+  Pay Run Register with no runs).
+- Sweeps finished: v1440, v390 (viewer), e1440 (editor), d1440-empty (new company, no data). Viewer and editor
+  findings are all from the sweep calling a screen directly that their menus do not offer (Opening Balances, Client
+  Viewing Links, Pay Run Register); the server refuses them (403), as it should. Empty company: 0 findings.
+- `47-r172.mjs` now 16/16 PASS (adds RT-13 Fixed Assets Export ▾ PDF+Excel, RT-14 P&L Actions ⋮ on screen + PDF).
+- Next: optional journeys (interbank transfer, collection drafts), then 47-r172 into run-all.sh, docs, manifests,
+  package, full gate.

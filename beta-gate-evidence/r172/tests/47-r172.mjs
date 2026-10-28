@@ -130,6 +130,25 @@ await t('RT-11', 'The company feed shows the recurring invoice (with the custome
   const missing = want.filter(re => !texts.some(x => re.test(x)));
   return {ok: r.s === 200 && !missing.length, info: `missing: ${missing.map(String).join(', ') || 'none'}`};
 });
+const dlKind = async click => { const [dl] = await Promise.all([p.waitForEvent('download', {timeout: 30000}), click()]); const buf = fs.readFileSync(await dl.path()); return {name: dl.suggestedFilename(), n: buf.length, head: buf.slice(0, 4).toString('latin1')}; };
+await t('RT-13', 'Fixed Assets "Export ▾" menu (opened over the page) downloads a PDF and an Excel file; it gave nothing before', async () => {
+  await p.evaluate(() => TeghPortal.openReport('Fixed Asset Register')); await p.waitForTimeout(3500);
+  const ex = p.locator('.srp-page').last().locator('summary:visible').filter({hasText: /^\s*Export/}).first();
+  const got = [];
+  for (const f of ['PDF', 'Excel']) { await ex.click(); await p.waitForTimeout(400); got.push(await dlKind(() => p.locator('.tegh-overlay-layer button:visible').filter({hasText: f}).first().click())); await p.waitForTimeout(500); }
+  return {ok: got[0].head === '%PDF' && got[0].n > 1000 && got[1].head.startsWith('PK') && got[1].n > 1000, info: got.map(g => `${g.name} ${g.n} bytes`).join('; ')};
+});
+await t('RT-14', 'Profit and Loss by month at 1440 wide: the "Actions ⋮" table menu stays on screen and its Export… gives a PDF', async () => {
+  await p.evaluate(() => TeghPortal.openReport('Profit and Loss')); await p.waitForTimeout(3500);
+  const pg = p.locator('.srp-page').last();
+  const cols = pg.locator('select').filter({has: p.locator('option', {hasText: 'Monthly'})}).first();
+  if (await cols.count()) { await cols.selectOption({label: 'Monthly'}); await pg.locator('button:visible', {hasText: 'Run Report'}).first().click(); await p.waitForTimeout(3500); }
+  const btn = pg.locator('button[aria-label="Table actions"]:visible').first(); const box = await btn.boundingBox();
+  await btn.click(); await p.waitForTimeout(400); await p.locator('[role=menu] button:visible').filter({hasText: 'Export'}).first().click(); await p.waitForTimeout(600);
+  const dlg = p.locator('dialog[open], [role=dialog]').filter({hasText: 'Export report'}).first(); await dlg.locator('select').first().selectOption('pdf');
+  const got = await dlKind(() => dlg.locator('button').filter({hasText: /^Export$/}).first().click());
+  return {ok: box && box.x + box.width <= 1440 && got.head === '%PDF' && got.n > 1000, info: `button right edge ${box && Math.round(box.x + box.width)}px; ${got.name} ${got.n} bytes`};
+});
 await t('RT-JS', 'No browser errors on the desktop', async () => ({ok: errs.length === 0, info: errs.join(' | ') || 'none'}));
 await b.close();
 

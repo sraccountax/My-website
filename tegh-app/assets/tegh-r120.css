@@ -1117,3 +1117,10 @@ html[data-tegh-theme="dark"] .topbar .r155-beta-notice{background:#3a2c0c;border
 /* R172: a form inside a one-third-width card (Account & Access: your account, create a user) is too narrow for three
    columns; each field was about 130px wide. One column there. */
 html[data-tegh-activity-shell="r22"] .srp-card.third :where(.srp-form,.sra-form).r22-form-grid{grid-template-columns:minmax(0,1fr)!important}
+/* R172: the table's "Actions ⋮" menu (Export, Choose columns, Filter columns) and each row's actions sit in the last
+   column. On wide reports (monthly Profit and Loss, comparisons) that column was off to the right of the scrolling
+   table, so Export could not be found. Keep the column pinned to the right edge of the table. */
+html[data-tegh-shell] .r23-table thead th.r23-actions-head{position:sticky!important;right:0;z-index:4!important;box-shadow:-8px 0 10px -8px rgba(0,0,0,.28)}
+html[data-tegh-shell] .r23-table td.r23-row-actions{position:sticky;right:0;z-index:1;background:var(--tegh-surface,#fff);box-shadow:-8px 0 10px -8px rgba(0,0,0,.22)}
+html[data-tegh-shell] .r23-table tbody tr:hover td.r23-row-actions,html[data-tegh-shell] .r23-table tbody tr.is-selected td.r23-row-actions{background:var(--tegh-surface-elevated,var(--tegh-surface,#fff))}
+html[data-tegh-shell] .r23-table td.r23-row-actions:not(:has(button,a,details)){position:static;background:none;box-shadow:none}
