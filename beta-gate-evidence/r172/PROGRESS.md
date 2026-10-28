@@ -63,3 +63,10 @@ Status: IN PROGRESS
 - `47-r172.mjs` now 16/16 PASS (adds RT-13 Fixed Assets Export ▾ PDF+Excel, RT-14 P&L Actions ⋮ on screen + PDF).
 - Next: optional journeys (interbank transfer, collection drafts), then 47-r172 into run-all.sh, docs, manifests,
   package, full gate.
+- Packaged: R172-CHANGES.md, README/DEPLOYMENT-NOTES, cache token 5990-r172-fixes, manifests (source commit 88cfcde).
+  ZIP `/srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R172-PRIVATE-BETA.zip`, 431 files, SHA-256
+  `e0da5ad581bed5f414e2fb98cb4e30d1ae22e1167358002b24565df2f437bcaf`; FILE-MANIFEST 430 entries verified.
+- 47-r172 added to run-all.sh. Full gate started: `gate-resume.sh <zip> r172` (state /srv/gate/.gate-resume-state).
+  RESUME: if the container restarted, run `nohup setsid bash /srv/gate/t/gate-resume.sh <zip> r172` again (it skips
+  finished suites); when tail-run.log has GATE-RESUME-DONE, write RESULTS.md, commit, push, send the ZIP, set Status
+  COMPLETE and delete the check-in trigger.
