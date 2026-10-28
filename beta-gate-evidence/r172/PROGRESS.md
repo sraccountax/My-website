@@ -42,3 +42,8 @@ Status: IN PROGRESS
   suggestions fill blanks only (server-enforced `onlyBlank`), and no audit row is written when nothing changed.
 - Fix 7: the company feed missed documents made by recurring profiles, new fixed assets and completed imports; they
   now appear (e.g. "issued recurring invoice INV-1010 to Pacific Client BC · $560").
+- Fix 8: Invoice Intelligence on phones was laid out in about twelve implicit grid columns (shell cards carry
+  12-column spans), squeezing every section; the queue grid is now one explicit column (search 95px → 347px).
+- New suite `47-r172.mjs` (fresh company, screens driven as a person would): 14/14 PASS — vendor directory, Assist
+  width, account fields, GIFI codes kept, fixed asset schedule/closed-period lines/posting/server refusal, recurring
+  invoice, budget, data import, feed coverage, phone filters, no browser errors.

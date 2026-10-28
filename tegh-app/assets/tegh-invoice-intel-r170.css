@@ -140,4 +140,8 @@
   .ii-footer{position:static}
 }
 /* R172: on a phone each filter takes the full width (the search box was 95px). */
-@media (max-width:700px){.ii-filters>label{flex:1 1 100%}.ii-filters select,.ii-filters input[type=search]{width:100%!important;min-width:0!important}}
+@media (max-width:700px){.ii-filters{width:100%}.ii-filters>label{flex:1 1 100%}.ii-filters select,.ii-filters input[type=search]{width:100%!important;min-width:0!important}}
+/* R172: one explicit column. Shell cards carry 12-column spans, which made this grid invent twelve auto-sized
+   columns and squeeze every section (the phone search box was 95px). */
+.ii-shell{grid-template-columns:minmax(0,1fr)}
+.ii-shell>*{grid-column:1/-1;min-width:0}
