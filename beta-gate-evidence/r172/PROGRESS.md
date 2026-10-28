@@ -31,3 +31,14 @@ Status: IN PROGRESS
   Feb 28 (closed period) refused with a clear toast. Fix 4: lines in a closed period are now marked "Closed period ·
   reopen it to post" (no Post action) and the asset's "due" count leaves them out (advanced.php periodLocked,
   tegh-advanced-v5800.js).
+- Sweeps done: d1440-dark-top (ran before fixes 1–3), p390, p390-dark (Invoice Intelligence search 95px on phones →
+  fix 5, full-width filters), d1920 and d1024-top clean.
+- Recurring invoice journey: profile created and run → INV-1010 $500 + $60 GST/PST (BC 12%) = $560, next date Nov 1.
+- Budget journey: $1,200 for 6400 created; Budget versus Actual shows planned $1,200, actual $0 (matches the GL).
+- Data import journey: customers CSV, 5 rows → 2 eligible, 2 errors (missing name, bad email), 1 duplicate; commit
+  imported exactly the 2 eligible customers.
+- Fix 6 (data loss): opening the GIFI report silently replaced a GIFI code the user had chosen (1500: 1774 → 1740)
+  and wrote an "updated 0" audit row on every visit. The workspace now carries each account's GIFI code, standard
+  suggestions fill blanks only (server-enforced `onlyBlank`), and no audit row is written when nothing changed.
+- Fix 7: the company feed missed documents made by recurring profiles, new fixed assets and completed imports; they
+  now appear (e.g. "issued recurring invoice INV-1010 to Pacific Client BC · $560").

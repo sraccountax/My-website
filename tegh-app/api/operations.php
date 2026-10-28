@@ -1170,6 +1170,9 @@ function operations_account_mappings(array $user,array $company): never
     $rows=$input['rows']??[$input];
     if(!is_array($rows)||count($rows)<1||count($rows)>1000) fail('Select between 1 and 1,000 accounts.');
     $updated=0;
+    // R172: standard suggestions (onlyBlank) fill an account's GIFI code only where none is set, so a code a person
+    // chose is never replaced by opening the GIFI screen.
+    $onlyBlank=!empty($input['onlyBlank']);
     db()->beginTransaction();
     try{
         foreach($rows as $row){
@@ -1192,10 +1195,10 @@ function operations_account_mappings(array $user,array $company): never
             }
             if($sets===[]) continue;
             $params[]=$id;$params[]=$company['id'];
-            $stmt=db()->prepare('UPDATE accounts SET '.implode(',',$sets).' WHERE id=? AND company_id=?');
+            $stmt=db()->prepare('UPDATE accounts SET '.implode(',',$sets).' WHERE id=? AND company_id=?'.($onlyBlank?" AND (gifi_code IS NULL OR gifi_code='')":''));
             $stmt->execute($params);$updated+=$stmt->rowCount();
         }
-        audit_event($user,(string)$company['id'],'accounts.tax_mappings_updated','account',new_id('mappingbatch'),['updated'=>$updated]);
+        if($updated>0)audit_event($user,(string)$company['id'],'accounts.tax_mappings_updated','account',new_id('mappingbatch'),['updated'=>$updated,'standardSuggestions'=>$onlyBlank]);
         db()->commit();
     }catch(Throwable $e){if(db()->inTransaction())db()->rollBack();throw $e;}
     json_response(['updated'=>$updated]);

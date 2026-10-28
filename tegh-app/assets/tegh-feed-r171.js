@@ -72,6 +72,7 @@
     'vendor.created': ['added a supplier', 'added %n suppliers'],
     'invoice_intel.uploaded': ['uploaded a supplier invoice', 'uploaded %n supplier invoices for Invoice Intelligence to read'],
     'native_document.uploaded': ['uploaded a document', 'uploaded %n documents to Document Intake'],
+    'asset.depreciation_posted': ['posted depreciation', 'posted %n depreciation entries'],
   };
   const grouped = items => {
     const out = [];

@@ -328,6 +328,8 @@ function workspace_data(array $user, array $company): array
             'isControl' => (bool)$row['is_control'], 'active' => (bool)$row['active'],
             'balanceCents' => $normal === 'debit' ? $signed : -$signed,
             'periodBalanceCents' => $normal === 'debit' ? $periodSigned : -$periodSigned,
+            // R172: the GIFI screen fills standard codes only where none is set; it needs the current code to know.
+            'gifiCode' => isset($row['gifi_code']) && $row['gifi_code'] !== null ? (string)$row['gifi_code'] : '',
         ];
         $accounts[] = $mapped;
         $accountById[$mapped['id']] = $mapped;

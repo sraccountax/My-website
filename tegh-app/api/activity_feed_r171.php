@@ -21,6 +21,10 @@ function r171_actions(): array
 {
     return [
         'invoice.issued' => 'sales', 'invoice.draft_created' => 'sales', 'invoice.voided' => 'sales',
+        // R172: documents made by recurring profiles, fixed assets and completed data imports.
+        'recurring_invoice.issued' => 'sales', 'recurring_invoice.draft_generated' => 'sales',
+        'recurring_bill.issued' => 'purchases', 'recurring_bill.draft_generated' => 'purchases',
+        'recurring_journal.posted' => 'ledger', 'asset.created' => 'ledger', 'data_import.completed' => 'company',
         'customer.payment_posted' => 'sales', 'customer.created' => 'sales', 'customer.hold_placed' => 'sales', 'customer.hold_released' => 'sales',
         'bill.issued' => 'purchases', 'bill.draft_created' => 'purchases', 'bill.approved_posted' => 'purchases', 'bill.submitted_for_approval' => 'purchases',
         'vendor.payment_posted' => 'purchases', 'vendor.created' => 'purchases', 'expense.posted' => 'purchases',
@@ -182,7 +186,34 @@ function r171_post(array $row, array $meta, array $ctx): ?array
         case 'budget.created':
             $text = 'created the budget ' . r171_text($meta['name'] ?? '', 80); break;
         case 'asset.depreciation_posted':
-            $text = 'posted depreciation'; break;
+            $text = 'posted depreciation' . (($meta['date'] ?? '') !== '' ? ' for the period to ' . r171_text($meta['date'], 10) : '');
+            $amount = $money(r171_cents($meta['amountCents'] ?? null)); $group = 'asset.depreciation_posted'; break;
+        case 'asset.created':
+            $text = 'added the fixed asset ' . r171_text($meta['name'] ?? '', 80);
+            $amount = $money(r171_cents($meta['costCents'] ?? null)); break;
+        case 'recurring_invoice.issued':
+        case 'recurring_invoice.draft_generated':
+            $who = r171_text($ctx['invoices'][(string)($meta['invoiceId'] ?? '')]['party'] ?? '', 80);
+            $text = ($action === 'recurring_invoice.issued' ? 'issued' : 'prepared a draft of') . ' recurring invoice ' . r171_text($meta['number'] ?? '', 40) . ($who !== '' ? ' to ' . $who : '');
+            $detail = 'From a recurring invoice profile';
+            $amount = $money(r171_cents($meta['totalCents'] ?? null));
+            if (!empty($meta['invoiceId'])) $link = ['invoice', (string)$meta['invoiceId']]; break;
+        case 'recurring_bill.issued':
+        case 'recurring_bill.draft_generated':
+            $who = r171_text($ctx['bills'][(string)($meta['billId'] ?? '')]['party'] ?? '', 80);
+            $text = ($action === 'recurring_bill.issued' ? 'entered' : 'prepared a draft of') . ' recurring vendor invoice ' . r171_text($meta['number'] ?? '', 40) . ($who !== '' ? ' from ' . $who : '');
+            $detail = 'From a recurring vendor invoice profile';
+            $amount = $money(r171_cents($meta['totalCents'] ?? null));
+            if (!empty($meta['billId'])) $link = ['bill', (string)$meta['billId']]; break;
+        case 'recurring_journal.posted':
+            $text = 'posted a recurring journal entry' . (($meta['runDate'] ?? '') !== '' ? ' dated ' . r171_text($meta['runDate'], 10) : '');
+            $link = ['journal', (string)($meta['journalEntryId'] ?? '')]; break;
+        case 'data_import.completed':
+            $n = (int)($meta['importedCount'] ?? $meta['selectedCount'] ?? 0);
+            $kinds = ['customers' => ['customer', 'customers'], 'vendors' => ['supplier', 'suppliers'], 'products_services' => ['product or service', 'products and services'], 'employees' => ['employee', 'employees'], 'opening_balances' => ['opening balance', 'opening balances'], 'customer_invoices' => ['opening customer invoice', 'opening customer invoices'], 'vendor_invoices' => ['opening vendor invoice', 'opening vendor invoices']];
+            $kind = $kinds[(string)($meta['importType'] ?? '')] ?? ['record', 'records'];
+            $text = 'imported ' . $n . ' ' . $kind[$n === 1 ? 0 : 1];
+            break;
         case 'payroll.run_finalized':
             $text = 'finalized a pay run'; $link = ['payroll', $entity]; break;
         case 'payroll.gl_posted':
@@ -262,11 +293,13 @@ function r171_feed(array $user, array $company, array $query): array
     $rows = array_slice($rows, 0, $limit);
 
     $ids = static fn(array $types) => array_map(static fn($r) => (string)$r['entity_id'], array_filter($rows, static fn($r) => in_array((string)$r['entity_type'], $types, true)));
+    // Documents made by recurring profiles are named in the metadata, not in entity_id.
+    $metaIds = static function (string $type, string $key) use ($rows): array { $out = []; foreach ($rows as $r) { if ((string)$r['entity_type'] !== $type) continue; $m = json_decode((string)$r['metadata_json'], true); if (!empty($m[$key])) $out[] = (string)$m[$key]; } return $out; };
     $ctx = [
         'userId' => (string)$user['id'],
         'currency' => (string)($company['currency'] ?? 'CAD'),
-        'invoices' => r171_lookup($companyId, 'SELECT i.id,i.number,c.name party FROM invoices i LEFT JOIN customers c ON c.id=i.customer_id AND c.company_id=i.company_id WHERE i.company_id=? AND i.id IN (%s)', $ids(['invoice'])),
-        'bills' => r171_lookup($companyId, 'SELECT b.id,b.number,v.name party FROM bills b LEFT JOIN vendors v ON v.id=b.vendor_id AND v.company_id=b.company_id WHERE b.company_id=? AND b.id IN (%s)', $ids(['bill'])),
+        'invoices' => r171_lookup($companyId, 'SELECT i.id,i.number,c.name party FROM invoices i LEFT JOIN customers c ON c.id=i.customer_id AND c.company_id=i.company_id WHERE i.company_id=? AND i.id IN (%s)', array_merge($ids(['invoice']), $metaIds('recurring_invoice', 'invoiceId'))),
+        'bills' => r171_lookup($companyId, 'SELECT b.id,b.number,v.name party FROM bills b LEFT JOIN vendors v ON v.id=b.vendor_id AND v.company_id=b.company_id WHERE b.company_id=? AND b.id IN (%s)', array_merge($ids(['bill']), $metaIds('recurring_bill', 'billId'))),
         'notes' => schema_table_exists('accounting_notes') ? r171_lookup($companyId, 'SELECT id,number,note_kind,total_cents FROM accounting_notes WHERE company_id=? AND id IN (%s)', $ids(['accounting_note'])) : [],
         'bankTx' => r171_lookup($companyId, 'SELECT id,description,amount_cents FROM bank_transactions WHERE company_id=? AND id IN (%s)', $ids(['bank_transaction'])),
         'intelDocs' => schema_table_exists('invoice_intel_jobs') ? r171_lookup($companyId, 'SELECT DISTINCT document_id id FROM invoice_intel_jobs WHERE company_id=? AND document_id IN (%s)', $ids(['native_agent_document','native_document'])) : [],
