@@ -3,7 +3,7 @@
 Request (2026-10-28): "Start complete functionality and ui testing and fix the issues. If I am out of tokens, continue
 testing once tokens reset without me having to give you the command again."
 
-Status: IN PROGRESS
+Status: COMPLETE — R172 delivered (see RESULTS.md).
 
 ## Plan
 1. Bring the test host up on the R171 package, clock pinned (2026-10-01 Toronto).

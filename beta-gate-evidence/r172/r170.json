@@ -1,0 +1,443 @@
+[
+ {
+  "id": "II-01",
+  "area": "R170",
+  "title": "Payables › Invoice Intelligence opens with the upload area and the note that each supplier must already be in Vendors",
+  "status": "PASS",
+  "evidence": "Before you import: each supplier must already be in your list of vendors. Tegh does not create suppliers from a document. Check Vendors"
+ },
+ {
+  "id": "II-02",
+  "area": "R170",
+  "title": "Bulk upload: all 22 files become jobs and every readable file is read (nothing left queued)",
+  "status": "PASS",
+  "evidence": "24 jobs from 22 files in 78s; still waiting 0; states {\"failed\":1,\"review_required\":15,\"ready\":6,\"blocked\":2}"
+ },
+ {
+  "id": "II-ACC1",
+  "area": "R170",
+  "title": "Measured header-field accuracy across the fixtures (number, dates, totals, tax, currency)",
+  "status": "INFO",
+  "evidence": "141/147 (95.9%)"
+ },
+ {
+  "id": "II-ACC2",
+  "area": "R170",
+  "title": "Measured line-item accuracy (amount and description found)",
+  "status": "INFO",
+  "evidence": "73/75 (97.3%)"
+ },
+ {
+  "id": "II-ACC3",
+  "area": "R170",
+  "title": "Measured supplier-matching accuracy (known suppliers)",
+  "status": "INFO",
+  "evidence": "21/21 (100%)"
+ },
+ {
+  "id": "II-ACC4",
+  "area": "R170",
+  "title": "Per file",
+  "status": "INFO",
+  "evidence": "F01.pdf pdf_text: all right | F01b.pdf no job | F02.pdf pdf_text: all right | F03.pdf pdf_text: all right | F04.pdf ocr: all right | F05.pdf ocr: all right | F06.pdf ocr: invoiceNumber=\"\"≠\"PJ-3306\"; invoiceDate=\"\"≠\"2026-09-30\"; dueDate=\"\"≠\"2026-10-30\"; totalCents=\"\"≠86445; subtotalCents=\"\"≠76500; taxCents=\"\"≠9945; lines 0/2 ( vs 12500,64000) | F07.pdf pdf_text: all right | F07.pdf#1 pdf_text: all right | F07.pdf#2 pdf_text: all right | F08.pdf pdf_text: all right | F09.pdf pdf_text: all right | F10.pdf pdf_text: all right | F11.pdf pdf_text: all right | F12.pdf pdf_text: all right | F13.pdf pd"
+ },
+ {
+  "id": "II-ACC5",
+  "area": "R170",
+  "title": "Processing time per file, upload to result (seconds; includes waiting in the queue)",
+  "status": "INFO",
+  "evidence": "F11.pdf pdf_text 36s, F03.pdf pdf_text 12s, F02.pdf pdf_text 6s, F18.pdf pdf_text 53s, F20.pdf ocr 59s, F01.pdf pdf_text 12s, F08.pdf pdf_text 44s, F13.pdf pdf_text 40s, F22.pdf pdf_text 62s, F05.pdf ocr 34s, F04.pdf ocr 10s, F07.pdf pdf_text 22s, F14.pdf pdf_text 44s, F17.pdf pdf_text 50s, F16.pdf pdf_text 47s, F12.pdf pdf_text 41s, F21.pdf ocr 72s, F15.pdf pdf_text 48s, F10.pdf pdf_text 36s, F09.pdf pdf_text 33s, F06.pdf ocr 22s"
+ },
+ {
+  "id": "II-ACC6",
+  "area": "R170",
+  "title": "Exception rate: review classes after reading",
+  "status": "INFO",
+  "evidence": "{\"blocked\":3,\"review\":15,\"ready\":6}"
+ },
+ {
+  "id": "II-03",
+  "area": "R170",
+  "title": "Text PDFs (English, French, two pages, credit note, USD, discount and freight): every header field and line read exactly",
+  "status": "PASS",
+  "evidence": "F01.pdf: pdf_text: all right | F02.pdf: pdf_text: all right | F03.pdf: pdf_text: all right | F08.pdf: pdf_text: all right | F10.pdf: pdf_text: all right | F16.pdf: pdf_text: all right"
+ },
+ {
+  "id": "II-04",
+  "area": "R170",
+  "title": "Scanned PDFs are read by OCR in the browser (method ocr) with word confidence kept per field",
+  "status": "PASS",
+  "evidence": "F04.pdf ocr ready, F05.pdf ocr review_required, F06.pdf ocr review_required, F20.pdf ocr review_required, F21.pdf ocr review_required"
+ },
+ {
+  "id": "II-05",
+  "area": "R170",
+  "title": "An upside-down scan and a sideways scan are turned upright before reading (rotation found from OCR confidence)",
+  "status": "PASS",
+  "evidence": "F05 180 (ocr: all right); F21 270 (ocr: all right)"
+ },
+ {
+  "id": "II-06",
+  "area": "R170",
+  "title": "Three invoices in one PDF become three invoices, each with its own pages",
+  "status": "PASS",
+  "evidence": "0:NG-20431 1:LC-88255 2:NG-20447"
+ },
+ {
+  "id": "II-07",
+  "area": "R170",
+  "title": "Document types: credit note, statement of account (blocked: not an invoice)",
+  "status": "PASS",
+  "evidence": "F08 credit_note ref NG-20418; F17 statement blocked"
+ },
+ {
+  "id": "II-08",
+  "area": "R170",
+  "title": "Tax components are kept separately: GST and PST (BC), TPS and TVQ (Québec), HST (Ontario)",
+  "status": "PASS",
+  "evidence": "F02 GST:10300 PST:14420 | F03 GST:4124 QST:8226 | F01 HST:6317"
+ },
+ {
+  "id": "II-09",
+  "area": "R170",
+  "title": "Prices that include tax are recognised; a USD invoice keeps USD",
+  "status": "PASS",
+  "evidence": "F09 inclusive true; F10 USD"
+ },
+ {
+  "id": "II-10",
+  "area": "R170",
+  "title": "Missing invoice number and an ambiguous date are flagged for review, not guessed",
+  "status": "PASS",
+  "evidence": "F11 number_missing; F12 date_ambiguous alternatives 2026-03-09,2026-09-03"
+ },
+ {
+  "id": "II-11",
+  "area": "R170",
+  "title": "A document whose own figures do not add up is blocked, with the figures in the message",
+  "status": "PASS",
+  "evidence": "The document's own figures do not add up: subtotal $113.94 + tax $14.81 ≠ total $138.75. Check these three fields against the document."
+ },
+ {
+  "id": "II-12",
+  "area": "R170",
+  "title": "Per-line tax rounding differing from the document by a cent is shown as a rounding difference, never adjusted silently",
+  "status": "PASS",
+  "evidence": "Rounding difference: Tegh calculates $33.99; the document shows $34.00 (difference -$0.01). Tegh rounds tax per line. Accept Tegh's total, or adjust a line to match the supplier."
+ },
+ {
+  "id": "II-13",
+  "area": "R170",
+  "title": "An unknown supplier is not created: the invoice waits for review with a note to add the supplier in Vendors",
+  "status": "PASS",
+  "evidence": "supplier_unknown,account_missing; vendors named Quillstone: 0"
+ },
+ {
+  "id": "II-14",
+  "area": "R170",
+  "title": "Password-protected PDF: the password is asked for in the browser, never stored, and the invoice is read",
+  "status": "PASS",
+  "evidence": "asked true; read HIT-60231 ready; password found in stored data 0"
+ },
+ {
+  "id": "II-15",
+  "area": "R170",
+  "title": "A damaged (cut-off) PDF is refused at upload with a clear reason and is not read",
+  "status": "PASS",
+  "evidence": "failed pdf_truncated"
+ },
+ {
+  "id": "II-16",
+  "area": "R170",
+  "title": "Suggested GL accounts come from evidence: the vendor’s earlier coding (toner → 1500) and its default account (paper → 6400), each with a reason",
+  "status": "PASS",
+  "evidence": "toner Same wording as \"Black toner cartridge 26A\" on an earlier invoice from this vendor (Equipment); paper The vendor's default expense account (Office Supplies) in Vendors"
+ },
+ {
+  "id": "II-17",
+  "area": "R170",
+  "title": "The tax code is suggested from the printed tax (13% → ON) with its reason",
+  "status": "PASS",
+  "evidence": "true Tax code used for this vendor before"
+ },
+ {
+  "id": "II-18",
+  "area": "R170",
+  "title": "Uploading the same file again creates no second job (exact duplicate by file fingerprint)",
+  "status": "PASS",
+  "evidence": "201 duplicateFile true; jobs 24 → 24"
+ },
+ {
+  "id": "II-19",
+  "area": "R170",
+  "title": "A re-generated copy of an invoice (same supplier and number, different file) is blocked as a probable duplicate",
+  "status": "PASS",
+  "evidence": "blocked; probable:job_vendor_number_total"
+ },
+ {
+  "id": "II-20",
+  "area": "R170",
+  "title": "Creating a draft is refused until the rounding difference is accepted explicitly (no silent adjustment)",
+  "status": "PASS",
+  "evidence": "409 Rounding difference: Tegh calculates $549.07; the document shows $549.08 (difference -$0.01). Tegh rounds tax per line. Accept Tegh's total, or adjust a line to match the supplier. Confirm Tegh's total to continue, or correct the lines."
+ },
+ {
+  "id": "II-21",
+  "area": "R170",
+  "title": "Draft vendor invoice: created through the vendor invoice service as a draft; no journal, AP balance unchanged",
+  "status": "PASS",
+  "evidence": "200 bill draft NG-20418 vendor_bd94f803cd77f07d4f5cf2989149e558 none intel-iijob_c26270e76b7117bbf7a2b5c79d158a23; journals 1→1; AP 12939→12939"
+ },
+ {
+  "id": "II-22",
+  "area": "R170",
+  "title": "Repeating the draft request (or two at once) returns the same draft: one payable only",
+  "status": "PASS",
+  "evidence": "200/200 reused true/true; bills numbered NG-20418: 1"
+ },
+ {
+  "id": "II-23",
+  "area": "R170",
+  "title": "The original PDF stays linked to the draft (source lookup from the vendor invoice)",
+  "status": "PASS",
+  "evidence": "F01.pdf 200"
+ },
+ {
+  "id": "II-24",
+  "area": "R170",
+  "title": "Issuing the draft posts through the normal workflow: expense by line, recoverable HST to 1100, AP 2050 credit = total; balanced",
+  "status": "PASS",
+  "evidence": "200 1100:6316/0,1500:22900/0,2050:0/54907,6400:25691/0 total 54907"
+ },
+ {
+  "id": "II-25",
+  "area": "R170",
+  "title": "The invoice follows the bill: Invoice Intelligence shows it as posted",
+  "status": "PASS",
+  "evidence": "posted open"
+ },
+ {
+  "id": "II-26",
+  "area": "R170",
+  "title": "A probable duplicate can be overridden only by an owner or admin, with a reason, and the override is audited; the bill service still refuses a second invoice number",
+  "status": "PASS",
+  "evidence": "editor 403; short reason 422; owner 200; audited 1; draft 409 This invoice cannot be drafted yet: Probable duplicate: vendor invoice NG-20418 from Northgate Paper & Office Ltd. (2026; bills NG-20418 1"
+ },
+ {
+  "id": "II-27",
+  "area": "R170",
+  "title": "Supplier credit note → draft supplier credit note through the note service (posts nothing)",
+  "status": "PASS",
+  "evidence": "200 200 vendor_credit|draft|NG-20418|12939"
+ },
+ {
+  "id": "II-28",
+  "area": "R170",
+  "title": "Locked period: the date is flagged, a draft can be saved, issuing is refused by the period lock",
+  "status": "PASS",
+  "evidence": "lock 200; period_locked,tegh_total_differs,tax_mismatch; draft 200 ; issue 409 period_locked"
+ },
+ {
+  "id": "II-29",
+  "area": "R170",
+  "title": "A viewer can list invoices but cannot upload, correct, draft or read files as a worker",
+  "status": "PASS",
+  "evidence": "list 200; upload 403; save 403; draft 403; claim 403"
+ },
+ {
+  "id": "II-30",
+  "area": "R170",
+  "title": "Another company cannot see or change these invoices, even with their ids",
+  "status": "PASS",
+  "evidence": "job 404; save 404; draft 404; list 0; file 404"
+ },
+ {
+  "id": "II-31",
+  "area": "R170",
+  "title": "Leases: a wrong token cannot submit; an expired lease is claimed again; after three attempts the job stops with a clear reason",
+  "status": "PASS",
+  "evidence": "first true; wrong token 409; reclaims claimed,claimed,none; failed|retry_limit|3"
+ },
+ {
+  "id": "II-32",
+  "area": "R170",
+  "title": "Retry puts a failed file back in the queue and it is read again; a repeated submit creates nothing twice",
+  "status": "PASS",
+  "evidence": "retry 200; claim true; submit 200, again 200 reused true; jobs 1"
+ },
+ {
+  "id": "II-33",
+  "area": "R170",
+  "title": "Evidence snippets are stored encrypted; document text is not written to the audit trail or the error log",
+  "status": "PASS",
+  "evidence": "enc v1:8YRpE7mq8…; audit hits 0; error log hits false; decrypted for an authorised reader true"
+ },
+ {
+  "id": "II-34",
+  "area": "R170",
+  "title": "Corrections are recorded field by field with who and when; a corrected line is marked as the reviewer’s",
+  "status": "PASS",
+  "evidence": "200 {\"field\":\"invoiceNumber\",\"lineIndex\":null,\"before\":null,\"after\":\"HIT-60225\",\"reason\":\"Number taken from the covering email\",\"by\":\"Gate Owner\",\"at\":\"2026-10-01 16:29:03\"}"
+ },
+ {
+  "id": "II-35",
+  "area": "R170",
+  "title": "Learning: after the Northgate draft, its coding is remembered for this company only",
+  "status": "PASS",
+  "evidence": "rules 4; in other companies 0"
+ },
+ {
+  "id": "II-36",
+  "area": "R170",
+  "title": "Tegh Assist: \"Show possible duplicate invoices\" is answered from the stored invoices",
+  "status": "PASS",
+  "evidence": "duplicates: 3 invoices look like possible duplicates. (3 rows)"
+ },
+ {
+  "id": "II-37",
+  "area": "R170",
+  "title": "Tegh Assist: \"Find invoices missing GL accounts\" is answered from the stored invoices",
+  "status": "PASS",
+  "evidence": "missing_gl: 2 invoices have lines without a GL account. (2 rows)"
+ },
+ {
+  "id": "II-38",
+  "area": "R170",
+  "title": "Tegh Assist: \"Why did you select Office Supplies?\" is answered from the stored invoices",
+  "status": "PASS",
+  "evidence": "why_account: Here is the evidence behind each line coded to office supplies. Tegh suggests an account from your own earlier coding for the same supplier, (8 rows)"
+ },
+ {
+  "id": "II-39",
+  "area": "R170",
+  "title": "Tegh Assist: \"Show invoices with mismatched taxes\" is answered from the stored invoices",
+  "status": "PASS",
+  "evidence": "tax_mismatch: 5 invoices have tax that does not match Tegh's calculation or the tax lines. (5 rows)"
+ },
+ {
+  "id": "II-40",
+  "area": "R170",
+  "title": "Tegh Assist: \"Which invoices need my approval?\" is answered from the stored invoices",
+  "status": "PASS",
+  "evidence": "approvals: 0 vendor invoices are waiting for approval above the materiality threshold, and 22 invoices in Invoice Intelligence need review before draft (22 rows)"
+ },
+ {
+  "id": "II-41",
+  "area": "R170",
+  "title": "Tegh Assist: \"Review Northgate Paper's invoice history\" is answered from the stored invoices",
+  "status": "PASS",
+  "evidence": "vendor_history: Latest vendor invoices from Northgate Paper & Office Ltd.: (2 rows)"
+ },
+ {
+  "id": "II-42",
+  "area": "R170",
+  "title": "Tegh Assist: \"Prepare these invoices as drafts\" is answered from the stored invoices",
+  "status": "PASS",
+  "evidence": "prepare_drafts: 6 invoices are ready to become draft vendor invoices. Drafts do not post anything; you issue them from the register. (6 rows)"
+ },
+ {
+  "id": "II-43",
+  "area": "R170",
+  "title": "Tegh Assist: \"Import these vendor invoices\" is answered from the stored invoices",
+  "status": "PASS",
+  "evidence": "import: Open Invoice Intelligence and drop the PDF invoices on the upload area. Each supplier must already be in Payables › Vendors. (0 rows)"
+ },
+ {
+  "id": "II-44",
+  "area": "R170",
+  "title": "Tegh Assist \"Why…Office Supplies\" shows the evidence for each line coded there",
+  "status": "PASS",
+  "evidence": "Office Supplies — The vendor's default expense account (Office Supplies) in Vendors | Office Supplies — The vendor's default expense account (Office Supplies) in Vendors | Office Supplies — The vendor's default expense account (Office Supplies) in Vendors | Office Supplies — The vendor's default exp"
+ },
+ {
+  "id": "II-45",
+  "area": "R170",
+  "title": "Instructions printed inside a document are not followed (prompt injection fixture): nothing is approved or posted by asking",
+  "status": "PASS",
+  "evidence": "answered true approvals; journals unchanged true"
+ },
+ {
+  "id": "II-UI-1920",
+  "area": "R170",
+  "title": "Review screen at 1920×1080, light, side navigation: document and invoice side by side (or stacked when narrow), no sideways page scroll",
+  "status": "PASS",
+  "evidence": "{\"side\":true,\"pageX\":0,\"canvas\":true,\"draftVisible\":true,\"applied\":{\"theme\":\"light\",\"nav\":\"side\"}}"
+ },
+ {
+  "id": "II-UI-1366",
+  "area": "R170",
+  "title": "Review screen at 1366×768, light, side navigation: document and invoice side by side (or stacked when narrow), no sideways page scroll",
+  "status": "PASS",
+  "evidence": "{\"side\":true,\"pageX\":0,\"canvas\":true,\"draftVisible\":true,\"applied\":{\"theme\":\"light\",\"nav\":\"side\"}}"
+ },
+ {
+  "id": "II-UI-1366-dark",
+  "area": "R170",
+  "title": "Review screen at 1366×768, dark, side navigation: document and invoice side by side (or stacked when narrow), no sideways page scroll",
+  "status": "PASS",
+  "evidence": "{\"side\":true,\"pageX\":0,\"canvas\":true,\"draftVisible\":true,\"applied\":{\"theme\":\"dark\",\"nav\":\"side\"}}"
+ },
+ {
+  "id": "II-UI-1366-top-125",
+  "area": "R170",
+  "title": "Review screen at 1366×768 zoom 125%, light, top navigation: document and invoice side by side (or stacked when narrow), no sideways page scroll",
+  "status": "PASS",
+  "evidence": "{\"side\":false,\"pageX\":0,\"canvas\":true,\"draftVisible\":true,\"applied\":{\"theme\":\"light\",\"nav\":\"top\"}}"
+ },
+ {
+  "id": "II-UI-1920-150",
+  "area": "R170",
+  "title": "Review screen at 1920×1080 zoom 150%, dark, top navigation: document and invoice side by side (or stacked when narrow), no sideways page scroll",
+  "status": "PASS",
+  "evidence": "{\"side\":true,\"pageX\":0,\"canvas\":true,\"draftVisible\":true,\"applied\":{\"theme\":\"dark\",\"nav\":\"top\"}}"
+ },
+ {
+  "id": "II-UI-SRC",
+  "area": "R170",
+  "title": "Choosing \"Source\" beside a field highlights where it was read on the document",
+  "status": "PASS",
+  "evidence": "highlight width 240px"
+ },
+ {
+  "id": "II-UI-REFRESH",
+  "area": "R170",
+  "title": "Refreshing keeps the invoice open (address names it)",
+  "status": "PASS",
+  "evidence": "#tegh=invoice-intel%3Aiijob_62534ca5e02a11a821502aa0219f18e6"
+ },
+ {
+  "id": "II-UI-DRAFT",
+  "area": "R170",
+  "title": "From the screen: correct the supplier, accept, create the draft → the Vendor Invoice & Note Register opens on the new draft",
+  "status": "PASS",
+  "evidence": "draft; VI-004 · Lakeshore Courier Inc. · Sep 20, 2026 · $179.11 · Draft. This invoice has not produced a GL posting."
+ },
+ {
+  "id": "II-UI-ASSIST",
+  "area": "R170",
+  "title": "Tegh Assist in the app answers \"Show possible duplicate invoices\" with the list and a link to open it",
+  "status": "PASS",
+  "evidence": "3 invoices look like possible duplicates.\n      Northgate Paper & Office Ltd. · NG-20418$549.08 · blockedLakeshore Courier Inc. · LC-88255$179.11 · review requiredLakeshore Courier Inc. · LC-88240$179"
+ },
+ {
+  "id": "II-UI-GUIDED",
+  "area": "R170",
+  "title": "Guided mode: Money Out › Read Supplier Bills opens Invoice Intelligence",
+  "status": "PASS",
+  "evidence": "screen opened true; supplier note shown true"
+ },
+ {
+  "id": "II-BACKUP",
+  "area": "R170",
+  "title": "Company backup carries the Invoice Intelligence tables; a restored copy keeps its jobs and can still read their (re-encrypted) evidence",
+  "status": "PASS",
+  "evidence": "backup counts jobs 26/26, corrections 2, overrides 1, rules 7; restore 201; restored jobs 26, rules 7; F01 evidence readable in the copy true"
+ },
+ {
+  "id": "II-JS",
+  "area": "R170",
+  "title": "No browser errors",
+  "status": "PASS",
+  "evidence": "none"
+ }
+]
