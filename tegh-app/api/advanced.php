@@ -625,12 +625,19 @@ function advanced_workspace_data(array $user, array $company): array
         FROM asset_depreciation_lines dl JOIN fixed_assets fa ON fa.id = dl.asset_id
         WHERE fa.company_id = ? AND dl.status = 'planned' ORDER BY dl.period_end, dl.sequence_number LIMIT 250");
     $stmt->execute([$companyId]);
-    $depreciationLines = array_map(static function(array $row): array {
+    // R172: a period in a closed (locked) period cannot be posted; say so on the line instead of offering Post.
+    $lockedOn = [];
+    $isLocked = static function (string $date) use (&$lockedOn, $companyId): bool {
+        if (!array_key_exists($date, $lockedOn)) $lockedOn[$date] = function_exists('period_lock_for_date') && period_lock_for_date($companyId, $date) !== null;
+        return $lockedOn[$date];
+    };
+    $depreciationLines = array_map(static function(array $row) use ($isLocked): array {
         return [
             'id'=>(string)$row['id'],'assetId'=>(string)$row['asset_id'],'assetName'=>(string)$row['asset_name'],
             'sequenceNumber'=>(int)$row['sequence_number'],'periodEnd'=>(string)$row['period_end'],
             'depreciationCents'=>(int)$row['depreciation_cents'],'status'=>(string)$row['status'],
             'due'=>(string)$row['period_end']<=canadian_today(),
+            'periodLocked'=>(string)$row['period_end']<=canadian_today() && $isLocked((string)$row['period_end']),
             'sourceRevisionHash'=>advanced_depreciation_source_revision($row),
         ];
     }, $stmt->fetchAll());

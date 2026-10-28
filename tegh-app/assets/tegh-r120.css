@@ -1110,3 +1110,10 @@ html[data-tegh-theme="dark"] :is(th,td).r153-co{color:#8fe0c6}
 .topbar .r155-beta-notice .r155-beta-short{display:none}
 html[data-tegh-theme="dark"] .topbar .r155-beta-notice{background:#3a2c0c;border-color:#7a5d1c;color:#ffd88a}
 @media (max-width:1180px){.topbar .r155-beta-notice .r155-beta-long{display:none}.topbar .r155-beta-notice .r155-beta-short{display:inline}.topbar .r155-beta-notice{padding:0 10px;margin:0 6px}}
+/* R172: the simple Tegh Assist page has a single column of content. The wide-screen command-centre layout keeps three
+   columns for its rail and side panel, which put this single column into the 190px rail. */
+.srp-page[data-srp-page="command-centre"] .tegh-command-shell.tegh-assist-simple{grid-template-columns:minmax(0,1fr)!important;max-width:880px!important}
+.srp-page[data-srp-page="command-centre"] .tegh-command-shell.tegh-assist-simple>*{grid-column:1/-1!important;position:static!important}
+/* R172: a form inside a one-third-width card (Account & Access: your account, create a user) is too narrow for three
+   columns; each field was about 130px wide. One column there. */
+html[data-tegh-activity-shell="r22"] .srp-card.third :where(.srp-form,.sra-form).r22-form-grid{grid-template-columns:minmax(0,1fr)!important}

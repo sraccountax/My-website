@@ -200,6 +200,12 @@
       const registerFilters=new Set(['start','end','from','to','q','status']);
       Object.keys(params).forEach(key=>{if(!registerFilters.has(key))delete params[key]});
     }
+    // R172: the customer and vendor directories sit beside the Create Customer / Create Vendor forms; a vendor's
+    // default-currency field is not a directory filter (the definition refused it and the directory did not load).
+    if(route==='customer-directory'||route==='vendor-directory'){
+      const directoryFilters=new Set(['q','status']);
+      Object.keys(params).forEach(key=>{if(!directoryFilters.has(key))delete params[key]});
+    }
     return params;
   }
   function markReportLayout(page,context){page.dataset.teghReportSurface=context?.model?'ready':'loading';if(context?.model?.groupBy)page.dataset.teghGroupedReport='1';else delete page.dataset.teghGroupedReport}
