@@ -121,4 +121,10 @@ for d in r165 r166 r167 r168 r169 r170 r171 r172 r174; do
   [ -d $EV/$d/tests ] && cp -r $EV/$d/tests/. $G/t/ 2>/dev/null || true
 done
 echo -n "$(cat $G/sr-accountax-private/.setup-key)" > $G/t/.setup-key
+
+# --- synthetic test fixtures (statements, invoices, documents; R170 supplier invoices) ---
+command -v pdftoppm >/dev/null || DEBIAN_FRONTEND=noninteractive apt-get install -y -qq poppler-utils >/dev/null
+[ -x $G/venv/bin/python ] || { python3 -m venv $G/venv && $G/venv/bin/pip install -q reportlab pypdf pillow; }
+mkdir -p $G/t/conv/fx; (cd $G/t/conv && for f in make-fixtures.mjs make-banks.mjs make-invoices.mjs make-docs.mjs; do node $f >/dev/null 2>&1 || echo "fixture script $f failed"; done)
+(cd $G/t && $G/venv/bin/python make-fixtures.py >/dev/null 2>&1 || echo "R170 fixtures failed")
 echo "gate host ready"
