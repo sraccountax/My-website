@@ -85,6 +85,32 @@ touch $G/apache-error.log $G/apache-access.log
 service php8.3-fpm start >/dev/null 2>&1 || service php8.3-fpm restart >/dev/null
 service apache2 start >/dev/null 2>&1 || service apache2 reload >/dev/null
 
+# --- upgrade-test site (https://gate.test:8443): the R118 source with its own database and private config ---
+mkdir -p /srv/upg/www /srv/upg/sr-accountax-private/storage
+mysql -e "CREATE DATABASE IF NOT EXISTS tegh_upg CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; GRANT ALL PRIVILEGES ON tegh_upg.* TO 'tegh_gate'@'localhost'; FLUSH PRIVILEGES;"
+sed -e "s#'base_url' => 'https://gate.test'#'base_url' => 'https://gate.test:8443'#" -e "s#dbname=tegh_gate#dbname=tegh_upg#" -e "s#'session_cookie' => 'tegh_session'#'session_cookie' => 'tegh_upg_session'#" $CFG > /srv/upg/sr-accountax-private/config.php
+chown -R www-data:www-data /srv/upg/sr-accountax-private; chmod 750 /srv/upg/sr-accountax-private
+grep -q "Listen 8443" /etc/apache2/ports.conf || echo "Listen 8443" >> /etc/apache2/ports.conf
+cat > /etc/apache2/sites-available/tegh-upg.conf <<'VH'
+<VirtualHost *:8443>
+  ServerName gate.test
+  DocumentRoot /srv/upg/www
+  SSLEngine on
+  SSLCertificateFile /srv/gate/pki/srv.crt
+  SSLCertificateKeyFile /srv/gate/pki/srv.key
+  <Directory /srv/upg/www>
+    AllowOverride All
+    Require all granted
+  </Directory>
+  <FilesMatch "\.php$">
+    SetHandler "proxy:unix:/run/php/php8.3-fpm.sock|fcgi://localhost"
+  </FilesMatch>
+  ErrorLog /srv/gate/apache-error.log
+  CustomLog /srv/gate/apache-access.log combined
+</VirtualHost>
+VH
+a2ensite -q tegh-upg >/dev/null 2>&1; service apache2 reload >/dev/null 2>&1 || service apache2 restart >/dev/null
+
 # --- test scripts ---
 cp -r $EV/scripts/. $G/t/
 for d in r165 r166 r167 r168 r169 r170 r171 r172 r174; do

@@ -12,7 +12,7 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R173 PRIVATE BETA CANDIDATE (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R174 PRIVATE BETA CANDIDATE (invitation-only, sample data only)
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -76,10 +76,11 @@ R170 (private beta package, replaces R169): Invoice Intelligence in Payables (Gu
 R171 (private beta package, replaces R170): a company feed on the Dashboard and Guided Home (beside the page on wide screens, behind a button in the page heading elsewhere, full screen on phones) shows recent business activity in the selected company in plain language — invoices, payments, bank work, journals, closing, team changes — from the existing audit trail; payroll and team-member details follow the reader's permissions, and no email addresses are shown. Browser files and one read-only API route; no database change. See R171-CHANGES.md.
 R172 (private beta package, replaces R171): ten fixes from a full functional and screen test. Opening the GIFI report no longer replaces GIFI codes a person chose. Also fixed: Create Vendor's supplier list, the Tegh Assist page width, Account & Access field widths, depreciation in a closed period, phone filters, Invoice Intelligence on phones, the Actions ⋮ menu on wide reports, Export on Budgets and Fixed Assets, and company feed coverage. No database change. See R172-CHANGES.md.
 R173 (private beta package, replaces R172): the public pages and the sign-in screen use the design of sraccountax.ca (Manrope and Playfair Display, navy, teal and gold, white header, navy footer); the words, the signed-in app, accounting and the database are unchanged. See R173-CHANGES.md.
+R174 (private beta package, replaces R173): Site & Release Settings for the platform owner (Platform Owner Home › Site & release settings) — release stage Beta/Production, public sign-up, the top-bar notice, the version label and Beta labels, business details, versioned policy pages (Privacy, Terms, Security, Cookies, DPA, Subprocessors) and the beta wording on the public pages, all changeable without a new release; every change needs a reason and is kept in the change history. Three tables are created on first use. See R174-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json
-and tegh-build.json all identify this package as R173; per-file hashes kept in
+and tegh-build.json all identify this package as R174; per-file hashes kept in
 their "history" sections record earlier releases and are not expected to match.
 
 Fresh installation (empty database): upload the package, put config.php outside
