@@ -60,7 +60,7 @@ return [
     'monitoring' => ['alert_email' => 'alerts@gate.test', 'alert_throttle_minutes' => 60, 'expect_daily_backup' => true, 'backup_max_age_hours' => 26, 'backup_status_path' => '', 'auth_window_minutes' => 15, 'failed_login_threshold' => 30, 'spray_threshold' => 8, 'mfa_lock_threshold' => 1, 'reset_request_threshold' => 20, 'opportunistic' => true],
     'operator' => ['legal_name' => 'Gate Test Operator Inc.', 'address' => '1 Test Street, Toronto, ON M5V 0A1, Canada', 'privacy_email' => 'privacy@gate.test', 'support_email' => 'support@gate.test', 'hosting_provider' => 'Gate test host (local)', 'data_location' => 'Test environment', 'backup_location' => 'Local test backup folder', 'mail_provider' => 'Local SMTP sandbox', 'backup_retention_days' => 14, 'deletion_response_days' => 30],
     'privacy' => ['optional_metrics_enabled' => false, 'advertising_enabled' => false, 'retention_enforcement_enabled' => false, 'retention_schedule_version' => 'proposal-2026-10-21'],
-    'accountant' => ['request_email' => 'accountants@gate.test', 'hourly_rate_cents' => 3000],
+    'accountant' => ['request_email' => 'enquiry@sraccountax.ca', 'hourly_rate_cents' => 3000],
     'db' => ['dsn' => 'mysql:host=localhost;dbname=tegh_gate;charset=utf8mb4', 'user' => 'tegh_gate', 'password' => '$(cat $DBPW_FILE)'],
     'storage_path' => __DIR__ . '/storage',
     'incident_log_path' => __DIR__ . '/system-incidents.ndjson',
