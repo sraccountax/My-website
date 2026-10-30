@@ -12,10 +12,12 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R172 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R173 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R172 (R118–R172 change notes are
-included). R172 is the private beta package (it replaces R171): ten fixes from a full functional and screen test,
+This package contains every release through R173 (R118–R173 change notes are
+included). R173 is the private beta package (it replaces R172): the public pages and the sign-in screen use the design
+of sraccountax.ca (see R173-CHANGES.md). Style sheets, fonts and page head tags only; no database or server change.
+R172 (replaced R171): ten fixes from a full functional and screen test,
 including GIFI codes a person chose no longer being replaced (see R172-CHANGES.md). No database change.
 R171 (replaced R170): a company feed on the Dashboard shows recent business
 activity from the audit trail (see R171-CHANGES.md). Browser files and one read-only API route; no database change.
