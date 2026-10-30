@@ -33,10 +33,17 @@ function tegh_provider_feature(string $key): bool
 {
     return $key==='tegh.ai.advanced'||preg_match('/(?:^|\.)(?:connected|provider|research)(?:\.|$)/i',$key)===1;
 }
+/**
+ * R174: the platform owner's setting decides. config app.public_signup_force_off = true is the emergency force-off
+ * for the server operator. (Before R174, app.public_signup_enabled had to be true in config.php as well.)
+ */
+function tegh_public_signup_force_off(): bool
+{
+    return config('app.public_signup_force_off') === true;
+}
 function tegh_effective_public_registration(): bool
 {
-    // An absent/unreadable deployment setting is an emergency force-off.
-    if(config('app.public_signup_enabled')!==true)return false;
+    if(tegh_public_signup_force_off())return false;
     try {
         $s=db()->prepare("SELECT value_json FROM platform_release_settings WHERE setting_key='public_registration'");$s->execute();
         return $s->fetchColumn()==='true';
@@ -47,7 +54,7 @@ function tegh_release_registration_payload(): array
     $setting=false;$revision=0;
     $s=db()->query("SELECT value_json,revision FROM platform_release_settings WHERE setting_key='public_registration'");
     if($r=$s->fetch()){$setting=$r['value_json']==='true';$revision=(int)$r['revision'];}
-    $deployment=config('app.public_signup_enabled')===true;
+    $deployment=!tegh_public_signup_force_off();
     return ['publicSignupEnabled'=>$deployment&&$setting,'ownerSettingEnabled'=>$setting,'deploymentAllowsPublicSignup'=>$deployment,'revision'=>$revision,'mode'=>$deployment&&$setting?'Public account creation enabled':'Invitation only'];
 }
 function tegh_handle_registration_control(): never
@@ -75,7 +82,7 @@ function tegh_record_terms_acceptance(string $userId,?string $invitationId): voi
 {
     // The invitation contract requires Schema 44. Public registration is closed before that schema exists.
     db()->prepare('INSERT INTO terms_acceptances (id,user_id,invitation_id,terms_version,privacy_version,request_reference,accepted_at) VALUES (?,?,?,?,?,?,UTC_TIMESTAMP())')
-        ->execute([new_id('terms'),$userId,$invitationId,TEGH_TERMS_VERSION,TEGH_PRIVACY_VERSION,request_id()]);
+        ->execute([new_id('terms'),$userId,$invitationId,tegh_terms_version(),tegh_privacy_version(),request_id()]);
     db()->prepare('UPDATE users SET terms_accepted_at=COALESCE(terms_accepted_at,UTC_TIMESTAMP()) WHERE id=?')->execute([$userId]);
 }
 function tegh_native_package_initialize(string $companyId,string $companyName,?array $actor=null): array

@@ -200,6 +200,7 @@ function handle_auth_security(): never
     $profile = captcha_public_profile();
     $profile['publicSignupEnabled'] = tegh_effective_public_registration();
     $profile['registrationMode'] = $profile['publicSignupEnabled'] ? 'Public account creation enabled' : 'Invitation only';
+    $profile['releaseStage'] = function_exists('r174_release_stage') ? r174_release_stage() : 'beta';
     header('Cache-Control: no-store');
     $profile['loginChallengeNow'] = false;
     if ($profile['enabled'] && $profile['configured'] && $profile['loginMode'] !== 'off') {

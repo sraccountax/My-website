@@ -1121,6 +1121,8 @@
       if(showRegisterButton)showRegisterButton.hidden=false;
       if(!profile.publicSignupEnabled&&!inviteToken&&!inviteCode&&registerForm&&!registerForm.hidden)showInviteNeeded();
       authSecurity = {...authSecurity, ...(profile || {})};
+      // R174: after the switch to Production (Site & Release Settings) the sign-up forms link the "Terms of Use".
+      if(authSecurity.releaseStage==='production')document.querySelectorAll('.sr-gate a[href="/terms.html"]').forEach(a=>{if(/^Beta Terms of Use$/.test(a.textContent.trim()))a.textContent='Terms of Use'});
       authSecurity.loginFailureThreshold = Math.max(1, Number(authSecurity.loginFailureThreshold || 2));
       return authSecurity;
     }).catch((error) => {
@@ -1931,7 +1933,7 @@
     document.documentElement.classList.remove('sr-gate-session-pending');
     showOnlyForm(inviteNeeded);markChoice('register');
     const note=inviteNeeded?.querySelector('[data-invite-needed-message]');
-    if(note){note.dataset.state=message?'error':'';if(message)note.textContent=message;else note.innerHTML='Tegh is in an invitation-only beta. When you are invited, you receive an email titled <b>“Set up your Tegh account”</b> with a 10-character invitation code.'}
+    if(note){note.dataset.state=message?'error':'';if(message)note.textContent=message;else note.innerHTML=`${authSecurity?.releaseStage==='production'?'Tegh accounts are created by invitation.':'Tegh is in an invitation-only beta.'} When you are invited, you receive an email titled <b>“Set up your Tegh account”</b> with a 10-character invitation code.`}
     setProgress(message?'Check the email address and code.':'Create your account with your invitation code.',message?'Ask the person who invited you to send a new invitation if the code has expired, or sign in if you already have an account.':'Enter the email address the invitation was sent to and the code from the email.',false);
   }
   const INVITE_CODE_ALPHABET='23456789ABCDEFGHJKMNPQRSTUVWXYZ';

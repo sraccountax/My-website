@@ -144,8 +144,10 @@ function auth_payload(array $user, ?array $session = null): array
         'aiConfigured' => false, // Release is native-only; do not expose provider configuration.
         'publicSignupEnabled' => public_signup_enabled(),
         'freePreview' => false,
-        // R155: optional notice shown in the top bar, e.g. for a private beta (config app.beta_notice).
-        'betaNotice' => mb_substr(trim((string)(config('app.beta_notice') ?? '')), 0, 300),
+        // R155: optional notice shown in the top bar. R174: set in Site & Release Settings (config app.beta_notice is
+        // the default until the owner saves the notice settings).
+        'betaNotice' => r174_app_flags()['notice']['text'],
+        'site' => r174_app_flags(),
         // R164: two-step verification state so the client can show enrol/verify screens and the
         // "manage two-step verification" controls without a second round trip.
         'mfa' => function_exists('mfa_status_payload') ? mfa_status_payload($user, $session) : null,

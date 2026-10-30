@@ -18,8 +18,12 @@ return [
         'setup_key' => 'REPLACE_WITH_A_SEPARATE_ONE_TIME_SETUP_KEY',
         'session_cookie' => 'tegh_session',
         'session_hours' => 12,
-        'public_signup_enabled' => false,
-        // R155: a short notice shown to every signed-in user in the top bar. Leave blank to show nothing.
+        // R174: public sign-up is switched on and off by the platform owner (Site & Release Settings). Set
+        // public_signup_force_off to true only as an emergency stop; it overrides the owner's setting.
+        // public_signup_enabled is no longer read.
+        'public_signup_force_off' => false,
+        // R155: a short notice shown to every signed-in user in the top bar. R174: this is the default only; the
+        // platform owner can change or turn off the notice in Site & Release Settings.
         // Suggested for the invitation-only beta (sample data only):
         'beta_notice' => 'Private beta: use sample data only. Do not enter real client, employee or bank records. Beta data may be reset.',
         // Keep false during normal operation. The protected Schema 44 upgrader

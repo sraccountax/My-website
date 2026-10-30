@@ -24,6 +24,14 @@ function tegh_operator_details(): array
 {
     $cfg = config('operator');
     $cfg = is_array($cfg) ? $cfg : [];
+    // R174: values the platform owner entered in Site & Release Settings replace the config.php values; a blank
+    // owner field keeps the config.php value.
+    if (function_exists('r174_operator_overrides')) {
+        foreach (r174_operator_overrides() as $key => $value) {
+            if (is_string($value) && trim($value) !== '') $cfg[$key] = $value;
+            elseif (is_int($value)) $cfg[$key] = $value;
+        }
+    }
     $out = [];
     foreach (array_keys(TEGH_OPERATOR_FIELDS) as $key) $out[$key] = mb_substr(trim((string)($cfg[$key] ?? '')), 0, 300);
     $out['backup_retention_days'] = max(0, min(3650, (int)($cfg['backup_retention_days'] ?? 14)));
@@ -43,7 +51,7 @@ function tegh_operator_missing(): array
 function tegh_operator_require_complete(): void
 {
     $missing = tegh_operator_missing();
-    if ($missing) fail('Invitations are paused until the operator details on the Terms and Privacy pages are complete. Add them to the operator section of config.php: ' . implode(', ', $missing) . '.', 409, 'operator_details_missing');
+    if ($missing) fail('Invitations are paused until the operator details on the Terms and Privacy pages are complete. Add them in Platform Owner › Site & Release Settings › Business details (or the operator section of config.php): ' . implode(', ', $missing) . '.', 409, 'operator_details_missing');
 }
 
 function handle_public_operator(): never

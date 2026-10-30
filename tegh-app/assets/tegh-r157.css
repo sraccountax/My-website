@@ -363,3 +363,44 @@ html:not([data-tegh-navigation-layout="top"]) body:not(.sr-sidebar-collapsed) as
 html:not([data-tegh-navigation-layout="top"]) body:not(.sr-sidebar-collapsed) aside.sidebar .srp-subnav>button:hover{color:#fff!important;background:rgba(255,255,255,.06)!important}
 html:not([data-tegh-navigation-layout="top"]) body:not(.sr-sidebar-collapsed) aside.sidebar .srp-subnav>button:is(.active,.tegh-subnav-current,[aria-current="page"]){color:#fff!important;font-weight:600!important;background:rgba(255,255,255,.1)!important;box-shadow:inset 3px 0 0 #6fd3a8!important}
 html:not([data-tegh-navigation-layout="top"]) body:not(.sr-sidebar-collapsed) aside.sidebar .srp-subnav>button:focus-visible{outline:2px solid #e8c978!important;outline-offset:1px!important}
+
+/* R174: Site & Release Settings can hide the Beta feature labels and the version label (bottom left). */
+html[data-tegh-hide-beta-labels] :is(.r157-beta-badge,.r157-beta-note){display:none!important}
+html[data-tegh-hide-version] .srp-sites-release{display:none!important}
+/* R174: Site & Release Settings (Platform Owner) */
+.r174-panel .srp-card h3{margin-top:18px}
+.r174-choice{display:grid;gap:10px;border:0;padding:0;margin:0}
+.r174-choice label{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--tegh-line,#d9e5e7);border-radius:12px;cursor:pointer}
+.r174-choice label:has(input:checked){border-color:var(--tegh-accent,#0d7d68);background:var(--tegh-accent-soft,#eaf6f2)}
+.r174-choice span{display:grid;gap:2px}.r174-choice small{color:var(--tegh-muted,#5f7178);font-weight:500}
+.r174-choice input{margin-top:4px}
+.r174-small{font-size:12px;color:var(--tegh-muted,#5f7178)}
+.r174-warn{color:#9a5b00;font-weight:700}
+html[data-tegh-theme="dark"] .r174-warn{color:#ffcf73}
+.r174-alert{padding:10px 14px;border-radius:10px;border:1px solid #f0d58a;background:#fff8e6;color:#5b4310}
+html[data-tegh-theme="dark"] .r174-alert{background:#2e260f;border-color:#6d5719;color:#ffdf94}
+.r174-checklist,.r174-history,.r174-versions{display:grid;gap:8px;padding-left:18px;margin:8px 0}
+.r174-history li span,.r174-versions li small{display:block;color:var(--tegh-muted,#5f7178);font-size:12px}
+.r174-policy-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.r174-policy-tabs button{min-height:38px;padding:0 14px;border:1px solid var(--tegh-line,#d9e5e7);border-radius:999px;background:var(--tegh-surface,#fff);color:inherit;font:inherit;font-weight:700;cursor:pointer}
+.r174-policy-tabs button.active{border-color:var(--tegh-accent,#0d7d68);background:var(--tegh-accent-soft,#eaf6f2)}
+.r174-body{font-family:ui-monospace,Consolas,Menlo,monospace;font-size:13px;line-height:1.55}
+.r174-actions{display:flex;flex-wrap:wrap;gap:8px}
+.r174-publish{margin-top:18px;padding-top:14px;border-top:1px solid var(--tegh-line,#d9e5e7)}
+.r174-preview{margin-top:18px;padding:18px;border:1px dashed var(--tegh-line,#d9e5e7);border-radius:12px;max-height:520px;overflow:auto}
+.r174-preview section{padding:10px 0;border-top:1px solid var(--tegh-line,#d9e5e7)}
+.r174-wording-row{display:grid;gap:4px;padding:10px 0;border-bottom:1px solid var(--tegh-line,#d9e5e7)}
+.r174-chip{position:static!important;display:inline-flex!important}
+@media (max-width:760px){.r174-panel .srp-card[style*="grid-column"]{grid-column:1/-1!important}}
+.r174-form{display:grid;gap:14px;align-items:start;margin-top:10px}
+.r174-form>label,.r174-form .r174-wording-row>label:not(.srp-check){display:grid;gap:6px;font-weight:700;font-size:13px}
+.r174-form>label small,.r174-form .r174-wording-row label small{font-weight:500;color:var(--tegh-muted,#5f7178)}
+.r174-form :is(input:not([type=checkbox]):not([type=radio]),textarea,select){width:100%;max-width:100%;box-sizing:border-box}
+.r174-form>.srp-btn,.r174-form .r174-actions .srp-btn{justify-self:start;width:auto;min-height:42px}
+.r174-form>label.srp-check{display:flex;gap:10px;align-items:flex-start;font-weight:600}
+.r174-form [role=status]:empty{display:none}
+.r174-form[data-r174-operator]{grid-template-columns:repeat(2,minmax(0,1fr))}
+.r174-form[data-r174-operator]>:is(.r174-reason,.srp-btn,[role=status]){grid-column:1/-1}
+@media (max-width:760px){.r174-form[data-r174-operator]{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:900px){html .r174-tabs{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:thin}
+ html .r174-tabs button{flex:0 0 auto!important;white-space:nowrap!important;width:auto!important;min-width:0!important}}

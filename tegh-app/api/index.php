@@ -17,8 +17,12 @@ try {
     }
 
     // R156: operator details for the public Terms and Privacy pages (no sign-in needed).
+    // R174: Site & Release Settings (owner-edited operator details, page wording and published policies) load first.
+    require_once __DIR__ . '/site_settings_r174.php';
     require_once __DIR__ . '/legal_r156.php';
     if ($route === 'public/operator') handle_public_operator();
+    if ($route === 'site/public') handle_site_public();
+    if ($route === 'site/policy') handle_site_policy_public();
 
     require_once __DIR__ . '/migrations.php';
     require_once __DIR__ . '/captcha.php';
@@ -309,6 +313,7 @@ require_once __DIR__ . '/report_comparison_r20.php';
     if ($route === 'privacy-operations' || str_starts_with($route,'privacy-operations/')) handle_privacy_operations(trim(substr($route,strlen('privacy-operations')),'/'));
     if (str_starts_with($route,'data-imports/bank-transaction-categories/')) handle_tegh_bank_categories(substr($route,strlen('data-imports/bank-transaction-categories/')));
     if ($route === 'data-imports' || str_starts_with($route,'data-imports/')) handle_data_imports(trim(substr($route,strlen('data-imports')),'/'));
+    if ($route === 'site-admin' || str_starts_with($route, 'site-admin/')) handle_site_admin(trim(substr($route, strlen('site-admin')), '/'));
     if ($route === 'platform' || str_starts_with($route,'platform/')) handle_platform(trim(substr($route,strlen('platform')),'/'));
     if ($route === 'admin' || str_starts_with($route,'admin/')) handle_admin(trim(substr($route,strlen('admin')),'/'));
     if ($route === 'entitlements' || str_starts_with($route,'entitlements/')) handle_entitlements(trim(substr($route,strlen('entitlements')),'/'));

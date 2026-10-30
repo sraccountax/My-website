@@ -230,12 +230,12 @@ function tegh_handle_invite_details(): never
     $req=tegh_invitation_request_token($input);$token=$req['token'];
     try{$invite=tegh_service_boundary(fn()=>tegh_invitation_validate_token($token));}catch(Throwable $error){if($error instanceof TeghServiceFailure)fail($req['byCode']?'That email address and invitation code don’t match an open invitation. Check the code in your email, or ask for a new invitation.':'This invitation is unavailable or expired.',410,$req['byCode']?'invitation_code_invalid':'invitation_unavailable');throw $error;}
     $s=db()->prepare('SELECT id,active,deleted_at FROM users WHERE email=?');$s->execute([$invite['email']]);$u=$s->fetch();if($u&&((int)$u['active']!==1||$u['deleted_at']!==null))fail('The Tegh login for this email is deactivated, so the invitation cannot be accepted. Ask the person who invited you to reactivate it.',410,'invitation_user_deactivated');
-    header('Cache-Control: no-store');header('Referrer-Policy: no-referrer');json_response(['invitation'=>['email'=>$invite['email'],'scope'=>$invite['scope'],'existingUser'=>(bool)$u,'suggestedName'=>$u?'':platform_default_display_name((string)$invite['email']),'assignments'=>$invite['assignments'],'termsVersion'=>TEGH_TERMS_VERSION,'privacyVersion'=>TEGH_PRIVACY_VERSION]]);
+    header('Cache-Control: no-store');header('Referrer-Policy: no-referrer');json_response(['invitation'=>['email'=>$invite['email'],'scope'=>$invite['scope'],'existingUser'=>(bool)$u,'suggestedName'=>$u?'':platform_default_display_name((string)$invite['email']),'assignments'=>$invite['assignments'],'termsVersion'=>tegh_terms_version(),'privacyVersion'=>tegh_privacy_version()]]);
 }
 function tegh_handle_invite_accept(): never
 {
     require_method('POST');assert_same_origin();tegh_schema44_require();$input=request_json();$token=tegh_invitation_request_token($input)['token'];
-    if(empty($input['acceptTerms'])||($input['termsVersion']??'')!==TEGH_TERMS_VERSION||($input['privacyVersion']??'')!==TEGH_PRIVACY_VERSION)fail('Read and accept the current Terms and Privacy Notice.',422,'terms_required');
+    if(empty($input['acceptTerms'])||($input['termsVersion']??'')!==tegh_terms_version()||($input['privacyVersion']??'')!==tegh_privacy_version())fail('Read and accept the current Terms and Privacy Notice.',422,'terms_required');
     try{$user=tegh_service_boundary(fn()=>db_transaction_retry(function()use($input,$token):array{
         $invite=tegh_invitation_validate_token($token,true);$password=(string)($input['password']??'');
         $s=db()->prepare('SELECT * FROM users WHERE email=? FOR UPDATE');$s->execute([$invite['email']]);$member=$s->fetch();
@@ -256,7 +256,7 @@ function tegh_handle_invite_accept(): never
             db()->prepare("INSERT INTO company_members (company_id,user_id,role,status,updated_by) VALUES (?,?,?,'active',?) ON DUPLICATE KEY UPDATE role=VALUES(role),status='active',status_reason=NULL,suspended_at=NULL,revoked_at=NULL,updated_by=VALUES(updated_by)")->execute([$assignment['companyId'],$id,$assignment['role'],$invite['invited_by']]);
         }
         tegh_record_terms_acceptance($id,(string)$invite['id']);db()->prepare("UPDATE account_invitations SET status='accepted',accepted_by=?,accepted_at=UTC_TIMESTAMP() WHERE id=? AND status='pending'")->execute([$id,$invite['id']]);db()->prepare("UPDATE account_invitation_tokens SET status='consumed' WHERE invitation_id=? AND status='active'")->execute([$invite['id']]);
-        $actor=['id'=>$id,'email'=>$invite['email'],'displayName'=>$name];platform_audit_event($actor,'platform.invitation_accepted','invitation',(string)$invite['id'],['companyCount'=>count($invite['assignments']),'existingAccount'=>(bool)$member,'termsVersion'=>TEGH_TERMS_VERSION,'privacyVersion'=>TEGH_PRIVACY_VERSION]);return $actor;
+        $actor=['id'=>$id,'email'=>$invite['email'],'displayName'=>$name];platform_audit_event($actor,'platform.invitation_accepted','invitation',(string)$invite['id'],['companyCount'=>count($invite['assignments']),'existingAccount'=>(bool)$member,'termsVersion'=>tegh_terms_version(),'privacyVersion'=>tegh_privacy_version()]);return $actor;
     }));}catch(Throwable $error){tegh_fail_service($error);}
     $session=create_session((string)$user['id'],true); /* R164: the emailed invitation code proves the address */json_response(['accepted'=>true,'auth'=>auth_payload($user,$session)]);
 }

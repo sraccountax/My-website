@@ -608,7 +608,7 @@ const TeghPortal = (() => {
     const b=await r.json().catch(()=>({}));
     if(requestGeneration!==authRequestGeneration||selection!==JSON.stringify(selectedCompanyIds()))throw staleClientRead();
     if(!r.ok){if(r.status===401||r.status===403){authCache=null;authLoadedAt=0;clearClientScope()}throw Object.assign(Error(userFacingError(b.error||'Sign in is required.','Sign in is required.')),{status:r.status,code:'authentication_required'})}
-    authCache=reconcileCompanySelection(b);authLoadedAt=Date.now();installBetaNotice();window.TeghReferenceUI?.setIdentity?.(authCache.user||{});window.TeghRegistersR23?.setUser(authCache.user?.id||'');observeClientScope();return authCache;
+    authCache=reconcileCompanySelection(b);authLoadedAt=Date.now();applySiteFlags();installBetaNotice();window.TeghReferenceUI?.setIdentity?.(authCache.user||{});window.TeghRegistersR23?.setUser(authCache.user?.id||'');observeClientScope();return authCache;
   }
   function confirmedAccountingCommit(route,method,input,result){
     if(['GET','HEAD','OPTIONS'].includes(method))return null;
@@ -2960,13 +2960,23 @@ const TeghPortal = (() => {
   const currentThemeChoice=()=>{const theme=teghPreferences().theme;return ['light','dark'].includes(theme)?theme:'auto'};
   // R155: private beta notice. A badge inside the top bar (the area under the bar is covered by the page header), with the
   // full text from config app.beta_notice on hover, focus and tap. Nothing is shown when the setting is blank.
+  // R174: Site & Release Settings (platform owner) decide whether the version label and the Beta feature labels show.
+  function applySiteFlags(){
+    const site=authCache?.site||{},root=document.documentElement;
+    root.toggleAttribute('data-tegh-hide-version',site.showVersion===false);
+    root.toggleAttribute('data-tegh-hide-beta-labels',site.showBetaLabels===false);
+  }
   function installBetaNotice(){
-    const text=String(authCache?.betaNotice||'').trim(),bar=$('.topbar'),actions=$('.top-actions',bar);let note=$('[data-r155-beta-notice]');
+    const text=String(authCache?.betaNotice||'').trim(),label=String(authCache?.site?.notice?.label||'Private beta · sample data only').trim(),bar=$('.topbar'),actions=$('.top-actions',bar);let note=$('[data-r155-beta-notice]');
     if(!text){note?.remove();return}
     if(!bar||!actions){setTimeout(installBetaNotice,300);return}
     if(!note){note=document.createElement('button');note.type='button';note.className='r155-beta-notice';note.dataset.r155BetaNotice='1';
-      note.innerHTML='<span class="r155-beta-long">Private beta · sample data only</span><span class="r155-beta-short">Beta</span>';
-      note.addEventListener('click',()=>toast('Private beta',note.dataset.full,'warning'))}
+      note.innerHTML='<span class="r155-beta-long"></span><span class="r155-beta-short"></span>';
+      note.addEventListener('click',()=>toast(note.dataset.label||'Notice',note.dataset.full,'warning'))}
+    // R174: the label comes from Site & Release Settings. Phones show a short form: "Beta" for a beta notice, the
+    // label's first part when it is short, otherwise "Notice".
+    const first=label.split(/\s*[·|:]\s*/)[0].trim(),short=/\bbeta\b/i.test(first)?'Beta':first.length<=10&&first?first:'Notice';
+    $('.r155-beta-long',note).textContent=label;$('.r155-beta-short',note).textContent=short;note.dataset.label=label;
     // Between the company selector and the top-bar actions, where the bar has free space.
     if(note.nextElementSibling!==actions)bar.insertBefore(note,actions);
     note.dataset.full=text;note.title=text;note.setAttribute('aria-label',text);
@@ -6774,12 +6784,167 @@ const TeghPortal = (() => {
         if(action==='approve'&&request&&(companyId()===request.companyId))return transitionAfterCompanyDeletion({deleted:true,companyId:request.companyId,deletedCompanyIds:[request.companyId],notice:'Company deleted.'});reload()}
       catch(error){toast(action==='approve'?'Not deleted':'Not rejected',userFacingError(error),'error');$$('button',form).forEach(b=>b.disabled=false)}});
   }
+  // R174: Site & Release Settings — what the platform owner changes when moving from the beta to production, without a
+  // new release: release stage, sign-up, the top-bar notice and labels, business details, policy pages and the beta
+  // wording on the public pages. Every save asks for a reason and is kept in the change history.
+  function r174LoadSiteRenderer(){
+    if(window.TeghSiteText)return Promise.resolve(window.TeghSiteText);
+    return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='/assets/tegh-site-r174.js?v=r174';s.onload=()=>resolve(window.TeghSiteText);s.onerror=()=>reject(new Error('The preview could not be loaded.'));document.head.append(s)});
+  }
+  // Turn a built-in policy page into editable text (## headings, paragraphs, lists).
+  function r174PageToText(html){
+    const doc=new DOMParser().parseFromString(html,'text/html'),main=doc.querySelector('main'),article=main?.querySelector('article.legal')||main;
+    if(!article)return {title:'',lead:'',body:''};
+    const inline=node=>[...node.childNodes].map(n=>{if(n.nodeType===3)return n.textContent;if(n.nodeName==='B'||n.nodeName==='STRONG')return `**${n.textContent.trim()}**`;if(n.nodeName==='A'){const href=n.getAttribute('href')||'';return /^(https:\/\/|mailto:|\/)/i.test(href)?`[${n.textContent.trim()}](${href})`:n.textContent}return inline(n)}).join('').replace(/\s+/g,' ').trim();
+    const lines=[];
+    const walk=node=>{for(const el of node.children){
+      if(el.matches('.legal-meta'))continue;
+      if(el.tagName==='SECTION'||el.tagName==='DIV'){walk(el);continue}
+      if(el.tagName==='H2')lines.push('',`## ${inline(el)}`);
+      else if(el.tagName==='H3')lines.push('',`### ${inline(el)}`);
+      else if(el.tagName==='P')lines.push('',inline(el));
+      else if(el.tagName==='UL'||el.tagName==='OL'){lines.push('');[...el.children].forEach((li,i)=>lines.push(`${el.tagName==='OL'?`${i+1}.`:'-'} ${inline(li)}`))}
+      else if(el.tagName==='TABLE'){lines.push('');[...el.querySelectorAll('tr')].forEach(tr=>{const cells=[...tr.children].map(c=>inline(c)).filter(Boolean);if(cells.length)lines.push(`- ${cells.join(' — ')}`)})}
+    }};
+    walk(article);
+    return {title:main.querySelector('.page-intro h1')?.textContent.trim()||'',lead:main.querySelector('.page-intro .lead')?.textContent.trim()||'',body:lines.join('\n').replace(/^\n+/,'').replace(/\n{3,}/g,'\n\n')};
+  }
+  function openSiteReleaseSettings(options={}){showPage('site-release-settings','Site & Release Settings','Change the release stage, sign-up, labels, business details, policy pages and public wording without a new release. Platform owner only.',async body=>{
+    const a=await auth(true);if(a.user?.platformRole!=='platform_owner'){body.innerHTML='<section class="srp-card"><h2>Platform owner only</h2><p>This screen is restricted to the owner of Tegh.</p></section>';return}
+    let state,tab=options.tab||'release',policyKey=options.policy||'privacy',editing=null;
+    const on=v=>v?'On':'Off';
+    const reasonField=(name='reason')=>`<label class="full r174-reason">Reason for this change <small>(kept in the change history)</small><input name="${name}" minlength="8" maxlength="1000" required placeholder="For example: moving to the production release"></label>`;
+    const saveGroups=async(groups,reason,status)=>{status.textContent='Saving…';const payload={};for(const [g,value] of Object.entries(groups))payload[g]={value,revision:state.groups[g].revision};
+      try{state=await api('site-admin/save',{method:'POST',json:{groups:payload,reason}});status.textContent='Saved.';toast('Settings saved','The change is live and recorded in the change history.','success');return true}
+      catch(error){status.textContent=userFacingError(error);return false}};
+    const policyRows=key=>(state.policies||[]).filter(p=>p.key===key);
+    const published=key=>policyRows(key).find(p=>p.status==='published');
+    const today=()=>new Date().toLocaleDateString('en-CA');
+
+    const releasePanel=()=>{const g=state.groups,l=g.labels.value,stage=g.release.value.stage,reg=state.registration,text=Object.keys(g.site_text.value||{}).length;
+      const policyLines=Object.entries(state.policyKeys).map(([k,p])=>{const pub=published(k);return `<li><b>${esc(p.title)}</b>: ${pub?`published version ${esc(pub.version)}${pub.reviewBanner?' · <span class="r174-warn">review-draft banner on</span>':''}`:'<span class="r174-warn">built-in beta page</span>'}</li>`}).join('');
+      return `<div class="srp-grid">
+        <section class="srp-card" style="grid-column:span 6"><h2>Release stage</h2><p>The stage changes how Tegh describes itself. On <b>Production</b>, the sign-in screen no longer calls the service a beta and the sign-up forms link the “Terms of Use”.</p>
+          <form class="r174-form" data-r174-stage><fieldset class="full r174-choice"><legend class="sr-only">Release stage</legend><label><input type="radio" name="stage" value="beta" ${stage==='beta'?'checked':''}> <span><b>Beta</b><small>Private beta wording and labels</small></span></label><label><input type="radio" name="stage" value="production" ${stage==='production'?'checked':''}> <span><b>Production</b><small>Regular release</small></span></label></fieldset>${reasonField()}<button class="srp-btn" type="submit">Save release stage</button><p class="full" role="status" data-status></p></form></section>
+        <section class="srp-card" style="grid-column:span 6"><h2>Moving to production</h2><p>One step sets the stage to Production, turns off the top-bar notice, hides the version label and hides the Beta labels on features. Sign-up, policies and page wording are separate decisions below.</p>
+          <form class="r174-form" data-r174-production>${reasonField()}<button class="srp-btn" type="submit">Apply production settings</button><p class="full" role="status" data-status></p></form>
+          <p class="r174-small">To go back, choose Beta above and turn the notice and labels on again under <b>Notice &amp; labels</b>.</p></section>
+        <section class="srp-card" style="grid-column:1/-1"><h2>Where things stand</h2><ul class="r174-checklist">
+          <li><b>Stage</b>: ${stage==='production'?'Production':'Beta'}</li>
+          <li><b>Sign-up</b>: ${esc(reg.mode)}${reg.deploymentAllowsPublicSignup?'':' · <span class="r174-warn">emergency force-off is set in config.php</span>'}</li>
+          <li><b>Top-bar notice</b>: ${on(l.noticeEnabled)}${l.noticeEnabled?` (“${esc(l.noticeLabel)}”)`:''}</li>
+          <li><b>Version label</b> (bottom left, “Version ${esc(state.versionLabel)}”): ${l.showVersion?'shown':'hidden'}</li>
+          <li><b>Beta labels on features</b>: ${l.showBetaLabels?'shown':'hidden'}</li>
+          <li><b>Business details</b>: ${state.operatorMissing.length?`<span class="r174-warn">missing ${esc(state.operatorMissing.join(', '))}</span> (invitations are paused until complete)`:'complete'}</li>
+          <li><b>Public wording</b>: ${text?`${text} change${text===1?'':'s'} from the built-in beta wording`:'<span class="r174-warn">built-in beta wording</span>'}</li>
+          <li><b>Versions people accept at sign-up</b>: Terms ${esc(state.acceptedVersions.terms)} · Privacy ${esc(state.acceptedVersions.privacy)}</li>
+          ${policyLines}</ul></section>
+        <section class="srp-card" style="grid-column:1/-1"><h2>Change history</h2>${state.history.length?`<ul class="r174-history">${state.history.map(h=>`<li><b>${esc({release:'Release stage',labels:'Notice & labels',operator:'Business details',site_text:'Public wording'}[h.group]||h.group)}</b> · ${esc(h.at)} UTC${h.by?` · ${esc(h.by)}`:''}<span>${esc(h.reason)}</span></li>`).join('')}</ul>`:'<p class="srp-muted">No changes yet. Policy publishing is listed under Policies; sign-up changes are kept with Invitations &amp; Access.</p>'}</section>
+      </div>`};
+
+    const signupPanel=()=>{const r=state.registration;return `<div class="srp-grid"><section class="srp-card" style="grid-column:span 7"><h2>Who can create an account</h2>
+      ${r.deploymentAllowsPublicSignup?'':'<p class="r174-alert" role="note"><b>Public sign-up is switched off on the server.</b> config.php sets <code>public_signup_force_off</code> to true. Remove it (or set it to false) to use the choice below.</p>'}
+      <form class="r174-form" data-r174-signup><fieldset class="full r174-choice"><legend class="sr-only">Sign-up</legend>
+        <label><input type="radio" name="enabled" value="false" ${!r.ownerSettingEnabled?'checked':''}> <span><b>Invitation only</b><small>People join with the 10-character code from an invitation email.</small></span></label>
+        <label><input type="radio" name="enabled" value="true" ${r.ownerSettingEnabled?'checked':''}> <span><b>Invitation or open sign-up</b><small>Anyone can create an account on the sign-in screen. Invitation codes keep working.</small></span></label></fieldset>
+        ${reasonField()}<button class="srp-btn" type="submit">Save sign-up setting</button><p class="full" role="status" data-status></p></form></section>
+      <section class="srp-card" style="grid-column:span 5"><h2>Now</h2><p><b>${esc(r.mode)}</b></p><p>Sign-in, password reset and invitation codes work in both modes. Open sign-up uses the bot check when one is configured.</p><button type="button" class="srp-btn secondary" data-r174-invites>Invitations &amp; Access</button></section></div>`};
+
+    const labelsPanel=()=>{const l=state.groups.labels.value;return `<div class="srp-grid"><section class="srp-card" style="grid-column:span 7"><h2>Top-bar notice and labels</h2>
+      <form class="r174-form" data-r174-labels>
+        <label class="full srp-check"><input type="checkbox" name="noticeEnabled" ${l.noticeEnabled?'checked':''}> Show the notice in the top bar for everyone who is signed in</label>
+        <label class="full">Notice label <small>(shown in the top bar)</small><input name="noticeLabel" maxlength="60" value="${esc(l.noticeLabel)}"></label>
+        <label class="full">Full notice <small>(shown when someone taps the label)</small><textarea name="noticeText" maxlength="300" rows="3">${esc(l.noticeText)}</textarea></label>
+        <label class="full srp-check"><input type="checkbox" name="showVersion" ${l.showVersion?'checked':''}> Show “Version ${esc(state.versionLabel)}” at the bottom of the side menu</label>
+        <label class="full srp-check"><input type="checkbox" name="showBetaLabels" ${l.showBetaLabels?'checked':''}> Show the “Beta” labels and reminders on Document Intake and the PDF statement reader</label>
+        ${reasonField()}<button class="srp-btn" type="submit">Save notice &amp; labels</button><p class="full" role="status" data-status></p></form></section>
+      <section class="srp-card" style="grid-column:span 5"><h2>Preview</h2><p>Top bar:</p><p><span class="r155-beta-notice r174-chip" data-r174-chip></span></p><p class="r174-small">Changes apply when people next load Tegh.</p></section></div>`};
+
+    const operatorPanel=()=>{const v=state.groups.operator.value,c=state.configOperator;return `<section class="srp-card"><h2>Business details</h2><p>Shown on the policy pages (write <code>{{legal_name}}</code>, <code>{{address}}</code>, <code>{{privacy_email}}</code> and so on in policy text) and used for invitations. A blank field uses the value from config.php.</p>
+      ${state.operatorMissing.length?`<p class="r174-alert" role="note"><b>Invitations are paused</b> until these are filled in: ${esc(state.operatorMissing.join(', '))}.</p>`:''}
+      <form class="r174-form" data-r174-operator>${Object.entries(state.operatorFields).map(([k,label])=>`<label>${esc(label)}<input name="${k}" maxlength="300" ${k.endsWith('_email')?'type="email"':''} value="${esc(v[k]||'')}" placeholder="${esc(c[k]?`config.php: ${c[k]}`:'Not set')}"><small class="r174-small">Placeholder <code>{{${k}}}</code></small></label>`).join('')}
+        <label>Backup copies kept for (days)<input name="backup_retention_days" type="number" min="0" max="3650" value="${esc(v.backup_retention_days??'')}" placeholder="${esc(state.operatorEffective.backup_retention_days)}"></label>
+        <label>Answer deletion requests within (days)<input name="deletion_response_days" type="number" min="1" max="90" value="${esc(v.deletion_response_days??'')}" placeholder="${esc(state.operatorEffective.deletion_response_days)}"></label>
+        ${reasonField()}<button class="srp-btn" type="submit">Save business details</button><p class="full" role="status" data-status></p></form></section>`};
+
+    const wordingPanel=()=>{const v=state.groups.site_text.value||{};return `<section class="srp-card"><h2>Public pages: beta wording</h2><p>These lines on the public pages mention the beta. Leave a field blank to keep the page’s own wording, write new wording, or hide the line.</p>
+      <form class="r174-form" data-r174-wording>${state.siteTextFields.map(f=>{const cur=v[f.key]||{};return `<div class="full r174-wording-row"><label>${esc(f.label)}${f.multiline?`<textarea name="t:${f.key}" maxlength="${f.max}" rows="4" placeholder="${esc(f.default)}">${esc(cur.text||'')}</textarea>`:`<input name="t:${f.key}" maxlength="${f.max}" value="${esc(cur.text||'')}" placeholder="${esc(f.default)}">`}</label><small class="r174-small">Now: ${esc(cur.hidden?'hidden':(cur.text||f.default))}</small><label class="srp-check"><input type="checkbox" name="h:${f.key}" ${cur.hidden?'checked':''}> Hide this line</label></div>`}).join('')}
+        ${reasonField()}<button class="srp-btn" type="submit">Save public wording</button><p class="full" role="status" data-status></p></form></section>`};
+
+    const policiesPanel=()=>{const keys=state.policyKeys,meta=keys[policyKey],rows=policyRows(policyKey),pub=rows.find(r=>r.status==='published'),drafts=rows.filter(r=>r.status==='draft'),old=rows.filter(r=>r.status==='archived');
+      const draft=editing||drafts[0]||null;
+      return `<nav class="r174-policy-tabs" aria-label="Policy">${Object.entries(keys).map(([k,p])=>`<button type="button" class="${k===policyKey?'active':''}" data-r174-policy="${k}" aria-pressed="${k===policyKey}">${esc(p.title)}</button>`).join('')}</nav>
+      <div class="srp-grid">
+        <section class="srp-card" style="grid-column:span 4"><h2>${esc(meta.title)}</h2>
+          <p>${pub?`Live: <b>version ${esc(pub.version)}</b>, effective ${esc(pub.effectiveDate)}${pub.reviewBanner?' · review-draft banner shown':''}.`:'Live: the <b>built-in beta page</b>. Publish a version to replace it.'}</p>
+          <p><a href="${esc(meta.page)}" target="_blank" rel="noopener">Open the public page ↗</a></p>
+          ${pub?`<form class="r174-form" data-r174-unpublish>${reasonField()}<button class="srp-btn secondary" type="submit">Go back to the built-in page</button><p class="full" role="status" data-status></p></form>`:''}
+          <h3>Drafts</h3>${drafts.length?`<ul class="r174-versions">${drafts.map(d=>`<li><button type="button" class="srp-btn secondary" data-r174-open="${esc(d.id)}">Edit ${esc(d.version)}</button> <small>saved ${esc(d.updatedAt)} UTC</small></li>`).join('')}</ul>`:'<p class="srp-muted">No drafts.</p>'}
+          <h3>Earlier versions</h3>${old.length||pub?`<ul class="r174-versions">${[pub,...old].filter(Boolean).map(d=>`<li><b>${esc(d.version)}</b> · ${d.status==='published'?'live':'retired'} · published ${esc(d.publishedAt||'')} UTC<small>${esc(d.publishReason||'')}</small> <button type="button" class="srp-btn secondary" data-r174-copy="${esc(d.id)}">Start a new draft from this</button></li>`).join('')}</ul>`:'<p class="srp-muted">None published yet.</p>'}
+        </section>
+        <section class="srp-card" style="grid-column:span 8"><h2>${draft?.id?`Draft ${esc(draft.version)}`:'New draft'}</h2>
+          <form class="r174-form" data-r174-policy-form>
+            <label>Version<input name="version" required maxlength="40" pattern="[A-Za-z0-9][A-Za-z0-9._\\-]*" value="${esc(draft?.version||'')}" placeholder="for example ${esc(today())}"></label>
+            <label>Effective date<input name="effectiveDate" type="date" required value="${esc(draft?.effectiveDate||today())}"></label>
+            <label class="full">Title<input name="title" required maxlength="160" value="${esc(draft?.title||meta.title)}"></label>
+            <label class="full">Line under the title<input name="lead" maxlength="400" value="${esc(draft?.lead||'')}"></label>
+            <label class="full">Text<textarea name="body" required rows="18" maxlength="60000" class="r174-body">${esc(draft?.body||'')}</textarea></label>
+            <p class="full r174-small">Write <b>## </b> at the start of a line for a section heading, <b>### </b> for a smaller heading, <b>- </b> for a bullet, a blank line between paragraphs, <b>**bold**</b>, and links as <b>[text](https://…)</b> or <b>[text](mailto:…)</b>. Business details: <code>{{legal_name}}</code>, <code>{{address}}</code>, <code>{{privacy_email}}</code>, <code>{{support_email}}</code>, <code>{{hosting_provider}}</code>, <code>{{data_location}}</code>.</p>
+            <label class="full srp-check"><input type="checkbox" name="reviewBanner" ${draft?.reviewBanner?'checked':''}> Show a “Review draft” banner on the page</label>
+            <label class="full">Banner text<input name="bannerText" maxlength="300" value="${esc(draft?.bannerText||'')}" placeholder="Draft for review. Not yet final."></label>
+            <div class="full r174-actions"><button class="srp-btn secondary" type="button" data-r174-import>Start from the current public page</button><button class="srp-btn secondary" type="button" data-r174-preview>Preview</button><button class="srp-btn" type="submit">Save draft</button>${draft?.id?`<button class="srp-btn secondary" type="button" data-r174-delete>Delete draft</button>`:''}</div>
+            <p class="full" role="status" data-status></p></form>
+          ${draft?.id?`<form class="r174-form r174-publish" data-r174-publish><h3 class="full">Publish ${esc(draft.version)}</h3><p class="full">The public page shows this version straight away${policyKey==='terms'||policyKey==='privacy'?`, and people who sign up from now on accept version ${esc(draft.version)}`:''}. Published versions cannot be edited; make a new draft instead.</p>${reasonField()}<button class="srp-btn" type="submit">Publish version ${esc(draft.version)}</button><p class="full" role="status" data-status></p></form>`:''}
+          <div class="r174-preview" data-r174-preview-box hidden></div>
+        </section></div>`};
+
+    const render=()=>{
+      const tabs=[['release','Release'],['signup','Sign-up'],['labels','Notice & labels'],['operator','Business details'],['policies','Policies'],['wording','Public wording']];
+      body.innerHTML=`<nav class="srp-support-tabs r160-tabs r174-tabs" role="tablist" aria-label="Site and release settings">${tabs.map(([k,t])=>`<button type="button" role="tab" data-r174-tab="${k}" aria-selected="${k===tab}" class="${k===tab?'active':''}">${esc(t)}</button>`).join('')}</nav>
+        <div class="r174-panel">${({release:releasePanel,signup:signupPanel,labels:labelsPanel,operator:operatorPanel,policies:policiesPanel,wording:wordingPanel}[tab])()}</div>`;
+      $$('[data-r174-tab]',body).forEach(b=>b.onclick=()=>{tab=b.dataset.r174Tab;editing=null;render()});
+      const activeTab=$('.r174-tabs .active',body);if(activeTab){const nav=activeTab.parentElement;nav.scrollLeft=Math.max(0,activeTab.offsetLeft-nav.clientWidth/2+activeTab.offsetWidth/2)}
+      bind();
+    };
+    const formStatus=form=>$('[data-status]',form);
+    const busy=async(form,work)=>{if(form.dataset.busy==='1'||!form.reportValidity())return;form.dataset.busy='1';const b=$('[type=submit]',form);if(b)b.disabled=true;try{await work()}finally{form.dataset.busy='0';if(b)b.disabled=false}};
+
+    const bind=()=>{
+      const stageForm=$('[data-r174-stage]',body);if(stageForm)stageForm.onsubmit=e=>{e.preventDefault();busy(stageForm,async()=>{if(await saveGroups({release:{stage:stageForm.stage.value}},stageForm.reason.value,formStatus(stageForm)))render()})};
+      const prod=$('[data-r174-production]',body);if(prod)prod.onsubmit=e=>{e.preventDefault();busy(prod,async()=>{if(!await teghConfirm('Set the stage to Production, turn off the top-bar notice, and hide the version label and the Beta labels?',{title:'Apply production settings',confirmLabel:'Apply',danger:false}))return;
+        const l=state.groups.labels.value;if(await saveGroups({release:{stage:'production'},labels:{...l,noticeEnabled:false,showVersion:false,showBetaLabels:false}},prod.reason.value,formStatus(prod)))render()})};
+      const signup=$('[data-r174-signup]',body);if(signup)signup.onsubmit=e=>{e.preventDefault();busy(signup,async()=>{const st=formStatus(signup);st.textContent='Saving…';
+        try{const r=await api('platform/registration',{method:'POST',json:{enabled:signup.enabled.value==='true',revision:state.registration.revision,confirmation:'CHANGE REGISTRATION',reason:signup.reason.value}});state.registration=r;st.textContent=`Saved — ${r.mode}`;toast('Sign-up saved',r.mode,'success');render()}catch(error){st.textContent=userFacingError(error)}})};
+      $('[data-r174-invites]',body)?.addEventListener('click',()=>openReleaseAdministration({tab:'settings'}));
+      const labels=$('[data-r174-labels]',body);if(labels){const chip=$('[data-r174-chip]',body),sync=()=>{chip.textContent=labels.noticeLabel.value||'—';chip.title=labels.noticeText.value;chip.style.opacity=labels.noticeEnabled.checked?'1':'.35'};sync();labels.addEventListener('input',sync);labels.addEventListener('change',sync);
+        labels.onsubmit=e=>{e.preventDefault();busy(labels,async()=>{if(await saveGroups({labels:{noticeEnabled:labels.noticeEnabled.checked,noticeLabel:labels.noticeLabel.value,noticeText:labels.noticeText.value,showVersion:labels.showVersion.checked,showBetaLabels:labels.showBetaLabels.checked}},labels.reason.value,formStatus(labels))){render();try{const me=await auth(true);authCache.site=me.site;authCache.betaNotice=me.betaNotice;applySiteFlags();installBetaNotice()}catch{}}})}}
+      const op=$('[data-r174-operator]',body);if(op)op.onsubmit=e=>{e.preventDefault();busy(op,async()=>{const value={};Object.keys(state.operatorFields).forEach(k=>value[k]=op[k].value.trim());['backup_retention_days','deletion_response_days'].forEach(k=>{if(op[k].value!=='')value[k]=Number(op[k].value)});if(await saveGroups({operator:value},op.reason.value,formStatus(op)))render()})};
+      const wording=$('[data-r174-wording]',body);if(wording)wording.onsubmit=e=>{e.preventDefault();busy(wording,async()=>{const value={};state.siteTextFields.forEach(f=>{const t=wording[`t:${f.key}`].value.trim(),h=wording[`h:${f.key}`].checked;if(t||h)value[f.key]={text:t,hidden:h}});if(await saveGroups({site_text:value},wording.reason.value,formStatus(wording)))render()})};
+      $$('[data-r174-policy]',body).forEach(b=>b.onclick=()=>{policyKey=b.dataset.r174Policy;editing=null;render()});
+      $$('[data-r174-open]',body).forEach(b=>b.onclick=()=>{editing=state.policies.find(p=>p.id===b.dataset.r174Open)||null;render()});
+      $$('[data-r174-copy]',body).forEach(b=>b.onclick=()=>{const src=state.policies.find(p=>p.id===b.dataset.r174Copy);editing=src?{...src,id:'',version:'',status:'draft',effectiveDate:today()}:null;render()});
+      const pf=$('[data-r174-policy-form]',body);
+      if(pf){const current=()=>editing||policyRows(policyKey).find(p=>p.status==='draft')||null;
+        const values=()=>({id:current()?.id||'',key:policyKey,version:pf.version.value.trim(),effectiveDate:pf.effectiveDate.value,title:pf.title.value,lead:pf.lead.value,body:pf.body.value,reviewBanner:pf.reviewBanner.checked,bannerText:pf.bannerText.value});
+        pf.onsubmit=e=>{e.preventDefault();busy(pf,async()=>{const st=formStatus(pf);st.textContent='Saving draft…';try{state=await api('site-admin/policy-draft',{method:'POST',json:values()});editing=state.policies.find(p=>p.id===state.savedId)||null;render();toast('Draft saved','Drafts are not public until you publish them.','success')}catch(error){st.textContent=userFacingError(error)}})};
+        $('[data-r174-import]',pf).onclick=async()=>{if(pf.body.value.trim()&&!await teghConfirm('Replace the text in the editor with the text of the current public page?',{title:'Start from the current page',confirmLabel:'Replace',danger:false}))return;const st=formStatus(pf);st.textContent='Reading the public page…';try{const r=await fetch(state.policyKeys[policyKey].page,{credentials:'same-origin'});const page=r174PageToText(await r.text());if(!page.body)throw new Error('No text was found on the page.');pf.body.value=page.body;if(page.title)pf.title.value=page.title;if(page.lead)pf.lead.value=page.lead;st.textContent='Copied the built-in page. Check the text, then save the draft.'}catch(error){st.textContent=userFacingError(error)}};
+        $('[data-r174-preview]',pf).onclick=async()=>{const box=$('[data-r174-preview-box]',body);try{const r=await r174LoadSiteRenderer();box.replaceChildren();const h=document.createElement('h2');h.textContent=pf.title.value;const lead=document.createElement('p');lead.className='r174-small';lead.textContent=pf.lead.value;box.append(h,lead,r.render(pf.body.value));box.hidden=false;box.scrollIntoView({behavior:'smooth',block:'start'})}catch(error){toast('Preview unavailable',userFacingError(error),'error')}};
+        $('[data-r174-delete]',pf)?.addEventListener('click',async()=>{if(!await teghConfirm('Delete this draft? Published versions are not affected.',{title:'Delete draft',confirmLabel:'Delete',danger:true}))return;try{state=await api('site-admin/policy-delete',{method:'POST',json:{id:current().id}});editing=null;render()}catch(error){toast('Not deleted',userFacingError(error),'error')}});
+        const pubForm=$('[data-r174-publish]',body);if(pubForm)pubForm.onsubmit=e=>{e.preventDefault();busy(pubForm,async()=>{const d=current();if(!d?.id)return;const st=formStatus(pubForm);
+          if(pf.version.value.trim()!==d.version||pf.body.value!==d.body||pf.title.value!==d.title){st.textContent='Save the draft first, then publish it.';return}
+          if(!await teghConfirm(`Publish version ${d.version} of the ${state.policyKeys[policyKey].title}? It replaces what the public page shows now.`,{title:'Publish',confirmLabel:'Publish',danger:false}))return;
+          st.textContent='Publishing…';try{state=await api('site-admin/policy-publish',{method:'POST',json:{id:d.id,reason:pubForm.reason.value}});editing=null;render();toast('Published',`Version ${d.version} is live.`,'success')}catch(error){st.textContent=userFacingError(error)}})};
+      }
+      const unpub=$('[data-r174-unpublish]',body);if(unpub)unpub.onsubmit=e=>{e.preventDefault();busy(unpub,async()=>{if(!await teghConfirm('Show the built-in page again? The published versions stay in the history.',{title:'Go back to the built-in page',confirmLabel:'Go back',danger:false}))return;try{state=await api('site-admin/policy-unpublish',{method:'POST',json:{key:policyKey,reason:unpub.reason.value}});render()}catch(error){formStatus(unpub).textContent=userFacingError(error)}})};
+    };
+    try{state=await api('site-admin',{noCache:true});render()}catch(error){body.innerHTML=`<p role="alert">${esc(userFacingError(error))}</p>`}
+  },{module:'My account',back:openPlatformAdmin,cache:false})}
   function openPlatformAdmin(){showPage('platform-administration','Platform Owner Home','Review platform requests, companies, users, and system health. This page cannot open private company books.',async body=>{
     const a=await auth(true);if(a.user?.platformRole!=='platform_owner'){body.innerHTML='<section class="srp-card"><h2>Platform owner only</h2><p>This screen is restricted to the owner of Tegh.</p></section>';return}
     const load=async()=>{
       const [userResult,companyResult,requestResult,deletionResult]=await Promise.all([api('admin/users'),api('admin/companies'),api('entitlements/platform/inbox').catch(error=>({requests:[],unavailable:userFacingError(error)})),api('admin/deletion-requests',{noCache:true}).catch(error=>({requests:[],unavailable:userFacingError(error)}))]),users=userResult.users||[],companies=companyResult.companies||[],pendingRequests=requestResult.requests||[],deletionRequests=deletionResult.requests||[];
       body.innerHTML=`<section class="srp-admin-boundary"><b>Platform controls are separate from company books.</b><span>You can manage access, companies, logins, and system health here. You can open a company only when that company has added you as a member.</span></section>
-        <section class="srp-card"><div class="srp-section-title"><div><small>Start here</small><h2>What do you want to manage?</h2><p>The most common Platform Owner tasks are listed first.</p></div></div><div class="sr-owner-quick-grid"><article class="sr-owner-quick-card"><strong>Feature requests</strong><p>${requestResult.unavailable?'The request count could not be loaded. Open the inbox to try again.':pendingRequests.length?`${pendingRequests.length} request${pendingRequests.length===1?' is':'s are'} ready for your decision.`:'No requests are waiting for your decision.'}</p><button type="button" class="srp-btn" data-admin-feature-requests>Review requests${pendingRequests.length?` (${pendingRequests.length})`:''}</button></article><article class="sr-owner-quick-card"><strong>Companies</strong><p>Find a company, see its owners, and manage platform records without opening its books.</p><button type="button" class="srp-btn secondary" data-admin-jump-companies>View companies (${companies.length})</button></article><article class="sr-owner-quick-card"><strong>Users</strong><p>Find a login, check company roles, deactivate access, or restore a user.</p><button type="button" class="srp-btn secondary" data-admin-jump-users>View users (${users.length})</button></article><article class="sr-owner-quick-card"><strong>Payroll updates</strong><p>Check CRA updates once, review the changes, and choose rates for all companies.</p><button type="button" class="srp-btn secondary" data-admin-payroll-updates>Check payroll updates</button></article><article class="sr-owner-quick-card"><strong>QA Centre</strong><p>Run read-only deployment checks and inspect isolated synthetic evidence.</p><button type="button" class="srp-btn secondary" data-admin-qa-centre>Open QA Centre</button></article><article class="sr-owner-quick-card"><strong>System errors</strong><p>Review recent errors and diagnostic references when something has failed.</p><button type="button" class="srp-btn secondary" data-admin-system-errors>View errors</button></article></div></section>
+        <section class="srp-card"><div class="srp-section-title"><div><small>Start here</small><h2>What do you want to manage?</h2><p>The most common Platform Owner tasks are listed first.</p></div></div><div class="sr-owner-quick-grid"><article class="sr-owner-quick-card"><strong>Feature requests</strong><p>${requestResult.unavailable?'The request count could not be loaded. Open the inbox to try again.':pendingRequests.length?`${pendingRequests.length} request${pendingRequests.length===1?' is':'s are'} ready for your decision.`:'No requests are waiting for your decision.'}</p><button type="button" class="srp-btn" data-admin-feature-requests>Review requests${pendingRequests.length?` (${pendingRequests.length})`:''}</button></article><article class="sr-owner-quick-card"><strong>Site &amp; release settings</strong><p>Sign-up, the beta notice and labels, business details, policy pages and public wording, for the move to production.</p><button type="button" class="srp-btn secondary" data-admin-site-settings>Open settings</button></article><article class="sr-owner-quick-card"><strong>Companies</strong><p>Find a company, see its owners, and manage platform records without opening its books.</p><button type="button" class="srp-btn secondary" data-admin-jump-companies>View companies (${companies.length})</button></article><article class="sr-owner-quick-card"><strong>Users</strong><p>Find a login, check company roles, deactivate access, or restore a user.</p><button type="button" class="srp-btn secondary" data-admin-jump-users>View users (${users.length})</button></article><article class="sr-owner-quick-card"><strong>Payroll updates</strong><p>Check CRA updates once, review the changes, and choose rates for all companies.</p><button type="button" class="srp-btn secondary" data-admin-payroll-updates>Check payroll updates</button></article><article class="sr-owner-quick-card"><strong>QA Centre</strong><p>Run read-only deployment checks and inspect isolated synthetic evidence.</p><button type="button" class="srp-btn secondary" data-admin-qa-centre>Open QA Centre</button></article><article class="sr-owner-quick-card"><strong>System errors</strong><p>Review recent errors and diagnostic references when something has failed.</p><button type="button" class="srp-btn secondary" data-admin-system-errors>View errors</button></article></div></section>
         <div data-admin-override-host></div>
         ${r159DeletionRequestsHtml(deletionRequests,deletionResult.unavailable)}
         <section class="srp-card" data-admin-companies><div class="srp-section-title"><div><h2>Companies</h2><p>This list shows platform information only. “No book access” means you cannot open that company.</p></div><div><input type="search" data-admin-company-search placeholder="Search companies"><span class="srp-status posted">${companies.filter(c=>c.active!==false).length} active</span>${companies.some(c=>c.active===false)?`<span class="srp-status">${companies.filter(c=>c.active===false).length} archived</span>`:''}</div></div><div class="srp-table-wrap"><table class="srp-table"><thead><tr><th>Company</th><th>Owners</th><th>Members</th><th>Your access</th><th>Actions</th></tr></thead><tbody>${companies.map(c=>`<tr data-admin-company-row data-search="${esc((c.name+' '+c.legalName+' '+c.ownerEmails).toLowerCase())}"><td><b>${esc(c.name)}</b><br><small>${esc(c.legalName)} · ${esc(c.province)} · ${esc(c.currency)}</small>${c.testMode?'<br><span class="srp-status draft">Test Mode</span>':''}${c.active===false?'<br><span class="srp-status">Archived</span>':''}</td><td><small>${esc(c.ownerEmails||'No owner')}</small></td><td>${c.memberCount}</td><td>${c.accessRole?`<span class="srp-status posted">${esc(titleCasePhrase(c.accessRole))}</span>`:'<span class="srp-status">No book access</span>'}</td><td><div class="srp-row-actions">${c.accessRole?`<button class="srp-btn secondary" data-admin-open-company="${esc(c.id)}">Open my membership</button>`:''}<button class="srp-btn danger" data-admin-delete-company="${esc(c.id)}">Permanent actions</button></div></td></tr>`).join('')||'<tr><td colspan="5" class="srp-empty">No active companies.</td></tr>'}</tbody></table></div></section>
@@ -6788,6 +6953,7 @@ const TeghPortal = (() => {
       const host=$('[data-admin-override-host]',body);
       const releaseButton=document.createElement('button');releaseButton.type='button';releaseButton.className='srp-btn';releaseButton.textContent='Invitations & Access';releaseButton.onclick=openReleaseAdministration;body.prepend(releaseButton);
       $('[data-admin-feature-requests]',body).onclick=()=>openPlatformFeatureControl({tab:'requests'});
+      $('[data-admin-site-settings]',body).onclick=()=>openSiteReleaseSettings();
       $('[data-admin-jump-companies]',body).onclick=()=>$('[data-admin-companies]',body).scrollIntoView({behavior:'smooth',block:'start'});
       $('[data-admin-jump-users]',body).onclick=()=>$('[data-admin-users]',body).scrollIntoView({behavior:'smooth',block:'start'});
       $('[data-admin-payroll-updates]',body).onclick=openRates;
@@ -8358,7 +8524,7 @@ const TeghPortal = (() => {
         'payroll-quick-calculator':()=>openPayrollQuickCalculator(),'payroll-employees':()=>openPayrollManager('employees'),'payroll-runs':()=>openPayrollManager('runs'),'payroll-run-edit':()=>openPayrollManager('runs'),'payroll-history':()=>openPayrollHistory(),'payroll-verification':()=>openPayrollVerification(),'payroll-remittance':()=>openPayrollRemittance(),
         'bookkeeping-workspace':()=>openBookkeepingWorkspace(),'guided-bookkeeping':()=>openGuidedBookkeeping(),'guided-review':()=>openGuidedTransactionQueue(),'guided-month-end':()=>openGuidedMonthEnd(),'guided-statements':()=>openGuidedStatements(),'guided-financial-statements':()=>openGuidedFinancialStatements(),'agent-center':()=>openAgentCenter(),'payroll-tax-center':()=>openPayrollTaxCenter(),'document-intake':()=>openDocumentIntake(),'collection-drafts':()=>openCollectionDrafts(),'month-end-close':()=>openMonthEndClose(),'native-agent-settings':()=>openNativeAgentSettings(),'reports-centre':()=>openReportsDashboard(),'financial-analyst':()=>openFinancialAnalyst(),'financial-trial-balance':()=>openPeriodTrialBalance('general-ledger','Reports'),'cash-flow':()=>openCashFlow(),'cash-forecast':()=>openFlexibleCashForecast(),'report-gl-account-ledger':()=>openGlAccountLedger('','Reports'),'report-inventory':()=>openInventoryReport(),'account-access':()=>openAccount(),'bookkeeping-mode-settings':()=>openBookkeepingModeSettings(),'requested-downloads':()=>openRequestedDownloads(),'workspace-preferences':()=>openWorkspacePreferences(),'tegh-preferences':()=>openTeghPreferences(),'tegh-connections':()=>openTeghConnections(),'tegh-ai-licences':()=>openTeghAiLicences(),'tegh-learned-rules':()=>openTeghLearnedRules(),'tegh-improvement-lab':()=>openTeghImprovementLab(),'sales-purchase-defaults':()=>openSalesPurchaseDefaults(),'company-setup':()=>openCompanySetup(),'insights':()=>openInsights(),'company-details':()=>openCompanyDetails(),'sales-tax-rates':()=>openSalesTaxRates(),'tax-codes':()=>openTaxCodes(),'invoice-templates':()=>openInvoiceTemplates(),'company-create':()=>openCreateCompany(),'company-delete':()=>openAccount(),backup:()=>openBackup(),users:()=>openUsers(),rates:()=>openRates(),currencies:()=>openCurrencies(),'period-locking':()=>openPeriodLocks(),support:()=>openSupport(),faq:()=>openFaq(),'tutorial-hub':()=>openTutorialHub(),'audit-history':()=>openAuditHistory(),
         'advanced-budgets':()=>openAdvancedWorkspace('budgets'),'advanced-assets':()=>openAdvancedWorkspace('assets'),'advanced-analytics':()=>openAdvancedWorkspace('analytics'),'advanced-collections':()=>openAdvancedWorkspace('collections'),'recurring-transactions':()=>openAdvancedWorkspace('recurring','My account','','Recurring Transactions'),
-        'release-administration':()=>openReleaseAdministration(),'platform-administration':()=>openPlatformAdmin(),'qa-guardian':()=>openQaGuardian(),'system-incidents':()=>openSystemIncidents(),'modules-access':()=>openModulesAccess(),'platform-feature-control':()=>openPlatformFeatureControl()
+        'release-administration':()=>openReleaseAdministration(),'site-release-settings':()=>openSiteReleaseSettings(),'platform-administration':()=>openPlatformAdmin(),'qa-guardian':()=>openQaGuardian(),'system-incidents':()=>openSystemIncidents(),'modules-access':()=>openModulesAccess(),'platform-feature-control':()=>openPlatformFeatureControl()
       };
       if(direct[clean])return direct[clean]();
       if(clean.startsWith('financial-'))return openFinancialReport(clean.slice(10));
@@ -8458,7 +8624,7 @@ const TeghPortal = (() => {
     invokeMenuAction,getModuleNavigationSections:(module)=>Object.fromEntries(Object.entries(moduleSections[module]||{}).map(([group,names])=>[group,names.map(name=>({id:menuActionId(module,name),name}))])),
     openVoidTransaction,openVoidRegister,openImportedTransactions,
     refreshNavigation:()=>applyNavigationLayout(teghPreferences().navigationLayout),
-    openInsights,openInvoiceIntelligence,openTeghPreferences,openWorkspacePreferences,openRequestedDownloads,openAccount,openCreateCompany,openBookkeepingModeSettings,openCompanySetup,openReleaseAdministration,transitionAfterCompanyDeletion,openPlatformAdmin,openQaGuardian,openPlatformFeatureControl,openModulesAccess,openCommandCentre,openAdvancedReconciliation,openExplicitTeghAssistant,openFinancialAnalyst,openFlexibleCashForecast,openFinancialReport,openGlAccountLedger,openTaxCodes,openTaxCodeReport,openDashboardFigures,openProducts,openInventoryReport,openLedgers,openDayBook,openAgeing,openBackup,openUsers,openRates,openSupport,openFaq,
+    openInsights,openInvoiceIntelligence,openTeghPreferences,openWorkspacePreferences,openRequestedDownloads,openAccount,openCreateCompany,openBookkeepingModeSettings,openCompanySetup,openReleaseAdministration,openSiteReleaseSettings,transitionAfterCompanyDeletion,openPlatformAdmin,openQaGuardian,openPlatformFeatureControl,openModulesAccess,openCommandCentre,openAdvancedReconciliation,openExplicitTeghAssistant,openFinancialAnalyst,openFlexibleCashForecast,openFinancialReport,openGlAccountLedger,openTaxCodes,openTaxCodeReport,openDashboardFigures,openProducts,openInventoryReport,openLedgers,openDayBook,openAgeing,openBackup,openUsers,openRates,openSupport,openFaq,
     openIntegrity,openAuditHistory,openOpeningBalances,openDataImport,openGifiReport,openGifiMapping,openVendors,openBills,openPayments,openBankReview,openFinancialAccounts,openBankReconciliation,openBankImports,openBankTransfers,openPeriodTrialBalance,
     openExpenseVouchers,openManualJournals,openPayrollManager,openPayrollQuickCalculator,openPayrollRemittance,openInvoiceTemplates,openTutorial:openTutorialHub,openIntroTutorial:openTutorial,openWelcome:openWelcomeScreen,
     openCreateTestCompany:()=>openCreateCompany({testMode:true}),

@@ -28,7 +28,7 @@ const TEGH_MONITOR_KINDS = [
 // Settings whose change is security relevant. Only the names of changed settings are recorded and sent, never values;
 // values are compared as keyed hashes so secrets are never stored in the monitoring state.
 const TEGH_MONITOR_SECURITY_SETTINGS = [
-    'app.secret', 'app.base_url', 'app.session_hours', 'app.public_signup_enabled', 'app.maintenance_mode',
+    'app.secret', 'app.base_url', 'app.session_hours', 'app.public_signup_enabled', 'app.public_signup_force_off', 'app.maintenance_mode',
     'captcha.enabled', 'captcha.registration_required', 'captcha.login_mode', 'captcha.site_key', 'captcha.secret_key',
     'security.trusted_proxy', 'security.trusted_proxy_ranges', 'storage_path', 'incident_log_path',
     'mail.from_email', 'mail.smtp_host', 'monitoring.alert_email', 'db.dsn', 'db.user', 'db.password',
