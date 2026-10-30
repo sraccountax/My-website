@@ -9,13 +9,16 @@ mkdir -p $G/{www,t,pki,mail,ev/shots,backups} $G/sr-accountax-private/storage
 grep -q gate.test /etc/hosts || echo "127.0.0.1 gate.test" >> /etc/hosts
 
 # --- test CA and server certificate ---
-if [ ! -f $G/pki/srv.crt ]; then
+# Issued with a start date of 1 January 2026: the gate pins the server clock back (clock-pin.sh), and a certificate
+# issued "today" would not be valid yet on that clock, so emailed sign-in codes could not be sent over TLS.
+if [ ! -f $G/pki/srv.crt ] || [ "$1" = renew-certs ]; then
   cd $G/pki
-  openssl req -x509 -newkey rsa:2048 -nodes -days 825 -keyout ca.key -out ca.crt -subj "/CN=Tegh Gate Test CA" 2>/dev/null
-  openssl req -newkey rsa:2048 -nodes -keyout srv.key -out srv.csr -subj "/CN=gate.test" 2>/dev/null
+  OSSL="faketime 2026-01-01 openssl"
+  $OSSL req -x509 -newkey rsa:2048 -nodes -days 825 -keyout ca.key -out ca.crt -subj "/CN=Tegh Gate Test CA" 2>/dev/null
+  $OSSL req -newkey rsa:2048 -nodes -keyout srv.key -out srv.csr -subj "/CN=gate.test" 2>/dev/null
   printf 'subjectAltName=DNS:gate.test,DNS:localhost,IP:127.0.0.1\nextendedKeyUsage=serverAuth\n' > srv.ext
-  openssl x509 -req -in srv.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out srv.crt -days 825 -extfile srv.ext 2>/dev/null
-  head -c 18 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' > smtp.pw
+  $OSSL x509 -req -in srv.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out srv.crt -days 825 -extfile srv.ext 2>/dev/null
+  [ -f smtp.pw ] || head -c 18 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' > smtp.pw
   chmod 600 ca.key srv.key smtp.pw; chmod 644 srv.key   # Apache and the sandbox read the server key
 fi
 cp $G/pki/ca.crt /usr/local/share/ca-certificates/tegh-gate-ca.crt; update-ca-certificates >/dev/null 2>&1
