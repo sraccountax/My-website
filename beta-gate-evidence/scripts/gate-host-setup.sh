@@ -127,4 +127,6 @@ command -v pdftoppm >/dev/null || DEBIAN_FRONTEND=noninteractive apt-get install
 [ -x $G/venv/bin/python ] || { python3 -m venv $G/venv && $G/venv/bin/pip install -q reportlab pypdf pillow; }
 mkdir -p $G/t/conv/fx; (cd $G/t/conv && for f in make-fixtures.mjs make-banks.mjs make-invoices.mjs make-docs.mjs; do node $f >/dev/null 2>&1 || echo "fixture script $f failed"; done)
 (cd $G/t && $G/venv/bin/python make-fixtures.py >/dev/null 2>&1 || echo "R170 fixtures failed")
+# 16-r145 compares the current reader with the R144 one: the R144 file is the reader just before the R145 commit.
+(cd $REPO && git show 11d8489^:tegh-app/assets/tegh-native-ocr-v5220.js > $G/t/conv/ocr-r144.js)
 echo "gate host ready"
