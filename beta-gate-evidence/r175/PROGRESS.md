@@ -1,6 +1,6 @@
 # R174 + R175 progress
 
-Status: GATE RUNNING on the R175 ZIP (R175 includes R174).
+Status: COMPLETE — see RESULTS.md.
 
 **Package:** `/srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R175-PRIVATE-BETA.zip`
 

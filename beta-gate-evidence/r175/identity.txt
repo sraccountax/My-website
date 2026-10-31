@@ -1,0 +1,4 @@
+zip: /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R175-PRIVATE-BETA.zip
+3475f7331146ea72e0f78ed65996cd001eeff55291388a340546c5310d1cac42  /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R175-PRIVATE-BETA.zip
+tag: r175
+FILE-MANIFEST: all 445 entries OK

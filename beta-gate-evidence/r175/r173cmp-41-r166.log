@@ -1,0 +1,13 @@
+PASS     TB-01      Top navigation: the bar is the sidebar green with light text (contrast at least 7:1) | bar linear-gradient(90deg, rgb(8, 26, 22) 0%, rgb(11, 40, 33) 45%, rgb(13, 48, 40) 100%) · text rgba(243, 250, 246, 0.88) · contrast 13.5:1 · sidebar rgb(13, 48, 40)
+PASS     TB-02      Top navigation: the current page is highlighted in the sidebar's active green | rgb(0, 117, 88)
+FAIL     DD-01      Top bar menu (Banking) is painted in one place | locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('.tegh-top-menubar button').filter({ hasText: 'Banking' }).first()[22m
+[2m    - locator resolved to <button type="butto
+PASS     DD-02      Profile menu is painted in one place | 864,53
+PASS     DD-03      Invoice details › Document menu is painted in one place (it used to appear about 180 px to | 1004,106
+PASS     DD-04      Customers › row menu is painted in one place | 1004,106
+PASS     DD-05      Report row Actions menu is painted in one place | 1001,331
+PASS     DD-06      Menus still open and work after the change (Create menu lists its items) | 10 items
+PASS     TB-03      Side navigation is unchanged (white header bar) | none rgb(255, 255, 255)
+PASS     TB-04      No browser errors during these checks | none

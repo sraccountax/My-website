@@ -3,7 +3,7 @@
 # (the container can restart mid-gate; the database and evidence files survive a restart).
 ZIP="$1"; STATE=/srv/gate/ev/.tail-state; touch $STATE
 [ -f /srv/gate/t/clock.env ] && . /srv/gate/t/clock.env
-export NODE_EXTRA_CA_CERTS=/srv/gate/pki/ca.crt NODE_OPTIONS="--import /srv/gate/t/mfa-preload.mjs"
+export NODE_EXTRA_CA_CERTS=/srv/gate/pki/ca.crt NODE_OPTIONS="--import /srv/gate/t/mfa-preload.mjs" GATE_SETUP_KEY_FILE=${GATE_SETUP_KEY_FILE:-/srv/gate/t/.setup-key}
 /srv/gate/t/up.sh > /srv/gate/up.log 2>&1
 step(){ grep -qx "$1" $STATE && { echo "skip $1"; return 1; }; echo "=== $1 $(date +%H:%M)"; return 0; }
 done_(){ echo "$1" >> $STATE; }

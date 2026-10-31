@@ -1,0 +1,149 @@
+[
+ {
+  "id": "SR-01",
+  "area": "R174",
+  "title": "Only the platform owner can read or change the settings (editor 403, signed out 401)",
+  "status": "PASS",
+  "evidence": "editor GET 403, signed out 401, editor save 403, editor draft 403"
+ },
+ {
+  "id": "SR-02",
+  "area": "R174",
+  "title": "Defaults before any change: Beta stage, notice from config.php, version and Beta labels shown, blank overrides",
+  "status": "PASS",
+  "evidence": "{\"stage\":\"beta\",\"notice\":true,\"version\":true,\"beta\":true,\"me\":{\"stage\":\"beta\",\"notice\":{\"enabled\":true,\"label\":\"Private beta · sample data only\",\"text\":\"Private beta: use sample data only. Do not enter real client, employee or bank records. Beta data may be reset.\"},\"showVersion\":true,\"showBetaLabels\":true}}"
+ },
+ {
+  "id": "SR-03",
+  "area": "R174",
+  "title": "Saves are refused without a reason (422), with an out-of-date revision (409) and with invalid values (422)",
+  "status": "PASS",
+  "evidence": "reason 422, stale 409, stage 422, email 422, unknown wording 422; rows saved 0"
+ },
+ {
+  "id": "SR-04",
+  "area": "R174",
+  "title": "Notice off, version label hidden, Beta labels hidden: saved with history and audit; auth/me reflects it at once",
+  "status": "PASS",
+  "evidence": "save 200; me {\"stage\":\"beta\",\"notice\":{\"enabled\":false,\"label\":\"Private beta · sample data only\",\"text\":\"\"},\"showVersion\":false,\"showBetaLabels\":false}; history 1; revision 1"
+ },
+ {
+  "id": "SR-05",
+  "area": "R174",
+  "title": "A custom notice label and text reach every signed-in user (editor sees it); markup is kept as plain text",
+  "status": "PASS",
+  "evidence": "{\"enabled\":true,\"label\":\"Maintenance Sunday\",\"text\":\"Tegh is closed Sunday 2-4 a.m. <b>ET</b>\"}"
+ },
+ {
+  "id": "SR-06",
+  "area": "R174",
+  "title": "Business details: an owner value replaces config.php on the public operator details; a blank field falls back",
+  "status": "PASS",
+  "evidence": "legal Owner Set Name Ltd.; support support@gate.test; complete true"
+ },
+ {
+  "id": "SR-07",
+  "area": "R174",
+  "title": "Public wording: replaced and hidden lines are served to the public pages; unchanged lines are not sent",
+  "status": "PASS",
+  "evidence": "{\"footer_note\":{\"text\":\"No automatic paid conversion <script>x</script>\",\"hidden\":false},\"footer_legal\":{\"text\":\"\",\"hidden\":true}}"
+ },
+ {
+  "id": "SR-08",
+  "area": "R174",
+  "title": "Policy drafts: invalid version refused; a draft is not public; publishing needs a reason",
+  "status": "PASS",
+  "evidence": "bad version 422; draft 200; public before publish null; publish without reason 422"
+ },
+ {
+  "id": "SR-09",
+  "area": "R174",
+  "title": "Publishing makes the version public with business details filled in; published versions cannot be edited or deleted; a duplicate version is refused",
+  "status": "PASS",
+  "evidence": "publish 200; public version P-mvvigdhg; edit 409; delete 409; duplicate 409"
+ },
+ {
+  "id": "SR-10",
+  "area": "R174",
+  "title": "Publishing a new Terms version changes what invitees accept: the old version is refused, the new one is recorded",
+  "status": "PASS",
+  "evidence": "details T-mvvigdhg/P-mvvigdhg; old version 422; accept 200; recorded T-mvvigdhg|P-mvvigdhg"
+ },
+ {
+  "id": "SR-11",
+  "area": "R174",
+  "title": "Sign-up: \"Invitation or open sign-up\" lets the public create an account (with the published versions); back to invitation only refuses it",
+  "status": "PASS",
+  "evidence": "on 200; profile true; register 201 → public_signup|T-mvvigdhg; off 200; register after 403"
+ },
+ {
+  "id": "SR-12",
+  "area": "R174",
+  "title": "Emergency stop: public_signup_force_off in config.php overrides the owner setting",
+  "status": "PASS",
+  "evidence": "owner on 200; profile false; register 403; owner view {\"deployment\":false,\"owner\":true}"
+ },
+ {
+  "id": "SR-13",
+  "area": "R174",
+  "title": "Production stage: auth/security reports it (the sign-in screen stops calling Tegh a beta)",
+  "status": "PASS",
+  "evidence": "save 200; releaseStage production"
+ },
+ {
+  "id": "SR-UI-01",
+  "area": "R174",
+  "title": "Privacy page shows the published version: sections, business details, effective date; injected markup is shown as text and runs nothing",
+  "status": "PASS",
+  "evidence": "{\"h1\":\"Privacy Policy\",\"meta\":\"Effective date: November 1, 2026 · Version: P-mvvigdhg · Contact: enquiry@sraccountax.ca\",\"sections\":2,\"imgs\":0,\"js\":0,\"mail\":\"privacy\",\"banner\":false,\"li\":2,\"errs\":[],\"dialogs\":[]}"
+ },
+ {
+  "id": "SR-UI-02",
+  "area": "R174",
+  "title": "Public wording on the pages: footer line replaced (markup as text), policy note hidden; unpublished pages keep their built-in text",
+  "status": "PASS",
+  "evidence": "{\"info\":{\"note\":\"No automatic paid conversion <script>x</script>\",\"scripts\":0,\"legalShown\":false,\"title\":\"Free during beta\"},\"sec\":{\"h1\":\"Security Statement\",\"banner\":true}}"
+ },
+ {
+  "id": "SR-UI-03",
+  "area": "R174",
+  "title": "Sign-in screen on Production: no \"invitation-only beta\", the sign-up forms link \"Terms of Use\"",
+  "status": "PASS",
+  "evidence": "{\"msg\":\"Tegh accounts are created by invitation. When you are invited, you receive an email titled “Set up your Tegh account” with a 10-character invitation code.\",\"terms\":[\"Terms of Use\",\"Terms of Use\",\"Terms\"]}"
+ },
+ {
+  "id": "SR-UI-04",
+  "area": "R174",
+  "title": "Owner screen: Platform Owner Home → Site & release settings; the notice chip and version label show before the change",
+  "status": "PASS",
+  "evidence": "{\"chip\":\"Private beta · sample data only\",\"version\":true,\"tabs\":[\"Release\",\"Sign-up\",\"Notice & Labels\",\"Business Details\",\"Policies\",\"Public Wording\"]}"
+ },
+ {
+  "id": "SR-UI-05",
+  "area": "R174",
+  "title": "\"Apply production settings\" with a reason: stage Production; after reload the notice chip and the version label are gone",
+  "status": "PASS",
+  "evidence": "{\"chip\":false,\"version\":false,\"hideVersion\":true,\"hideBeta\":true,\"row\":\"Gate: moving to the production release\"}"
+ },
+ {
+  "id": "SR-UI-06",
+  "area": "R174",
+  "title": "Policies tab: start from the current public page, preview, save a draft, publish with a reason",
+  "status": "PASS",
+  "evidence": "preview sections 3; live C-mvvigdhg"
+ },
+ {
+  "id": "SR-UI-07",
+  "area": "R174",
+  "title": "Phone 390×844: the settings page has no sideways scroll; no browser errors on the owner screens",
+  "status": "PASS",
+  "evidence": "sideways 0px; errors none"
+ },
+ {
+  "id": "SR-99",
+  "area": "R174",
+  "title": "Restore: beta stage, config notice, labels shown, no overrides, built-in policy pages, invitation only",
+  "status": "PASS",
+  "evidence": "published 0; signup false; stage beta; operator Gate Test Operator Inc."
+ }
+]
