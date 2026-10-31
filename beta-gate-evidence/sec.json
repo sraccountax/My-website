@@ -1,0 +1,450 @@
+[
+ {
+  "id": "SI-02",
+  "area": "SEC",
+  "title": "Other company: BC invoice detail by ID refused",
+  "status": "PASS",
+  "evidence": "404 {\"error\":\"That invoice is not available in this company.\",\"code\":\"invoice_unavailable\"}"
+ },
+ {
+  "id": "SI-03",
+  "area": "SEC",
+  "title": "Other company: BC invoice PDF model refused",
+  "status": "PASS",
+  "evidence": "404 {\"error\":\"That invoice output is unavailable.\",\"code\":\"invoice_output_unavailable\"}"
+ },
+ {
+  "id": "SI-04",
+  "area": "SEC",
+  "title": "Other company: payment against BC invoice refused",
+  "status": "PASS",
+  "evidence": "409 {\"error\":\"Choose an open issued invoice.\",\"code\":\"payment_document_unavailable\"}"
+ },
+ {
+  "id": "SI-05",
+  "area": "SEC",
+  "title": "Other company: editing BC tax code by ID refused",
+  "status": "PASS",
+  "evidence": "422 {\"error\":\"GST: choose at least one GL account (sales or purchases).\",\"code\":\"tax_code_account_requir"
+ },
+ {
+  "id": "SI-06",
+  "area": "SEC",
+  "title": "Other company: deleting BC tax code refused",
+  "status": "PASS",
+  "evidence": "404 {\"error\":\"That tax code no longer exists.\",\"code\":\"tax_code_not_found\"}"
+ },
+ {
+  "id": "SI-07",
+  "area": "SEC",
+  "title": "Other company: posting a BC bank transaction refused",
+  "status": "PASS",
+  "evidence": "409 {\"error\":\"A selected transaction is no longer available for posting.\",\"code\":\"transaction_unavailable\"}"
+ },
+ {
+  "id": "SI-08",
+  "area": "SEC",
+  "title": "Other company: credit note against BC invoice refused",
+  "status": "PASS",
+  "evidence": "404 {\"error\":\"The original invoice is unavailable in this company.\",\"code\":\"note_source_missing\"}"
+ },
+ {
+  "id": "SI-09",
+  "area": "SEC",
+  "title": "Other company: backup export of BC refused",
+  "status": "PASS",
+  "evidence": "403 {\"error\":\"The selected company is unavailable.\",\"code\":\"company_forbidden\"}"
+ },
+ {
+  "id": "SI-10",
+  "area": "SEC",
+  "title": "Other company: BC GL account ledger by account ID refused / empty",
+  "status": "PASS",
+  "evidence": "404 {\"error\":\"The selected General Ledger account was not found.\",\"code\":\"account_not_found\"}"
+ },
+ {
+  "id": "SI-11",
+  "area": "SEC",
+  "title": "Other company: invoicing a BC customer ID refused",
+  "status": "PASS",
+  "evidence": "400 {\"error\":\"Choose a valid customer.\",\"code\":\"request_error\"}"
+ },
+ {
+  "id": "SI-12",
+  "area": "SEC",
+  "title": "Other company: listing BC client viewing links refused",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "RO-01",
+  "area": "SEC",
+  "title": "Viewer cannot create invoices",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "RO-02",
+  "area": "SEC",
+  "title": "Viewer cannot post journals",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "RO-03",
+  "area": "SEC",
+  "title": "Viewer cannot create tax codes",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "RO-04",
+  "area": "SEC",
+  "title": "Viewer cannot reopen a locked period",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "RO-05",
+  "area": "SEC",
+  "title": "Viewer cannot post bank transactions",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "RO-06",
+  "area": "SEC",
+  "title": "Viewer can read the Trial Balance",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "RO-07",
+  "area": "SEC",
+  "title": "Viewer cannot invite users",
+  "status": "PASS",
+  "evidence": "422"
+ },
+ {
+  "id": "RO-08",
+  "area": "SEC",
+  "title": "Viewer cannot export a backup",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "RO-09",
+  "area": "SEC",
+  "title": "Editor can create a draft invoice",
+  "status": "PASS",
+  "evidence": "201 {\"invoice\":{\"id\":\"invoice_b223b9bae17bb10543b72443c3e266fe\",\"number\":\"INV-1008\",\"status\":\"draft\",\"to"
+ },
+ {
+  "id": "RO-10",
+  "area": "SEC",
+  "title": "Editor cannot reopen a locked period",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "RO-11",
+  "area": "SEC",
+  "title": "Editor cannot invite an owner",
+  "status": "PASS",
+  "evidence": "422"
+ },
+ {
+  "id": "RO-12",
+  "area": "SEC",
+  "title": "Company admin cannot grant the Owner role",
+  "status": "PASS",
+  "evidence": "422 {\"error\":\"Choose one Company Admin, Editor or Viewer role for each company. Protected roles cannot b"
+ },
+ {
+  "id": "CS-01",
+  "area": "SEC",
+  "title": "POST without CSRF token refused",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "CS-02",
+  "area": "SEC",
+  "title": "POST with wrong CSRF token refused",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "CS-03",
+  "area": "SEC",
+  "title": "POST from foreign Origin refused",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "CS-04",
+  "area": "SEC",
+  "title": "Form-encoded (simple-request) POST refused",
+  "status": "PASS",
+  "evidence": "400"
+ },
+ {
+  "id": "XS-01",
+  "area": "SEC",
+  "title": "XSS payload customer stored as text (rendering checked in UI run)",
+  "status": "INFO",
+  "evidence": "201"
+ },
+ {
+  "id": "UP-01",
+  "area": "SEC",
+  "title": "Receipt upload of .php refused",
+  "status": "PASS",
+  "evidence": "400 {\"error\":\"This file extension is not supported.\",\"code\":\"request_error\"}"
+ },
+ {
+  "id": "UP-02",
+  "area": "SEC",
+  "title": "Receipt upload of .svg refused",
+  "status": "PASS",
+  "evidence": "400"
+ },
+ {
+  "id": "UP-03",
+  "area": "SEC",
+  "title": "PHP disguised as .png refused by content check",
+  "status": "PASS",
+  "evidence": "415 {\"error\":\"The file contents do not match an allowed format.\",\"code\":\"file_type_i"
+ },
+ {
+  "id": "UP-04",
+  "area": "SEC",
+  "title": "Valid PDF receipt accepted and stored outside the web root",
+  "status": "PASS",
+  "evidence": "201 key=company_…/receipts/….pdf"
+ },
+ {
+  "id": "UP-05",
+  "area": "SEC",
+  "title": "Statement upload-start with .php refused",
+  "status": "PASS",
+  "evidence": "415 {\"error\":\"This statement file extension is not supported.\",\"code\":\"file_extensio"
+ },
+ {
+  "id": "UP-06",
+  "area": "SEC",
+  "title": "Statement over 10 MB refused",
+  "status": "PASS",
+  "evidence": "413"
+ },
+ {
+  "id": "UP-07",
+  "area": "SEC",
+  "title": "Receipt over 10 MB refused",
+  "status": "PASS",
+  "evidence": "400"
+ },
+ {
+  "id": "EL-01",
+  "area": "SEC",
+  "title": "Malformed JSON, SQL-like IDs, oversize and wrong-type input: clean 4xx, no paths/stack traces/SQL",
+  "status": "PASS",
+  "evidence": "400:{\"error\":\"The request body is not valid JSON.\",\"code\":\"reque | 404:{\"error\":\"That invoice is not available in this company.\",\"c | 400:{\"error\":\"Customer name must be 160 characters or fewer.\",\"c | 400:{\"error\":\"Financial report type is invalid.\",\"code\":\"request | 400:{\"error\":\"Journal date must use YYYY-MM-DD.\",\"code\":\"request"
+ },
+ {
+  "id": "EL-02",
+  "area": "SEC",
+  "title": "Authenticated API responses are not cacheable (Cache-Control no-store/private)",
+  "status": "PASS",
+  "evidence": "cache-control=private, no-store, max-age=0"
+ },
+ {
+  "id": "EL-03",
+  "area": "SEC",
+  "title": "API does not expose X-Powered-By / PHP version",
+  "status": "PASS",
+  "evidence": "x-powered-by=null server=Apache/2.4.58 (Ubuntu)"
+ },
+ {
+  "id": "EL-04",
+  "area": "SEC",
+  "title": "Server error log has no PHP fatal errors during the gate run",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "TH-01",
+  "area": "SEC",
+  "title": "Repeated wrong passwords are throttled (429 or CAPTCHA required) before 24 attempts",
+  "status": "PASS",
+  "evidence": "401,401,401,401,401,401,401,401,401,401,401,401,401,401,401,401,401,401,401,401,429,429,429,429"
+ },
+ {
+  "id": "TH-02",
+  "area": "SEC",
+  "title": "Correct password while throttled is still refused (no bypass)",
+  "status": "PASS",
+  "evidence": "429"
+ },
+ {
+  "id": "SI-01",
+  "area": "SEC",
+  "title": "Other-company admin: workspace summary with X-Company-Id of BC refused",
+  "status": "PASS",
+  "evidence": "403 {\"error\":\"The selected company is unavailable.\",\"code\":\"company_forbidden\"}"
+ },
+ {
+  "id": "SI-13",
+  "area": "SEC",
+  "title": "Anonymous API request refused (401)",
+  "status": "PASS",
+  "evidence": "401"
+ },
+ {
+  "id": "SE-01",
+  "area": "SEC",
+  "title": "After logout the old session cookie is rejected",
+  "status": "PASS",
+  "evidence": "200 -> 401"
+ },
+ {
+  "id": "CV-01",
+  "area": "CVL",
+  "title": "Create viewing link; token only in URL fragment; link email delivered to client test inbox",
+  "status": "PASS",
+  "evidence": "201 url=https://gate.test/client-view.html#<token> email=true"
+ },
+ {
+  "id": "CV-02",
+  "area": "CVL",
+  "title": "Request code: code emailed to client address (masked in response)",
+  "status": "PASS",
+  "evidence": "200 {\"sentTo\":\"cl••••@gate.test\",\"companyName\":\"Gate Test BC Ltd\",\"clientName\":\"Test Client Person\",\"expiresInMinutes\":10}"
+ },
+ {
+  "id": "CV-03",
+  "area": "CVL",
+  "title": "Wrong code refused with tries left",
+  "status": "PASS",
+  "evidence": "422 That code is not right. 4 tries left."
+ },
+ {
+  "id": "CV-04",
+  "area": "CVL",
+  "title": "Correct code signs in (Secure HttpOnly cookie)",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "CV-05",
+  "area": "CVL",
+  "title": "Client dashboard loads summary only",
+  "status": "PASS",
+  "evidence": "200 keys=periodStart,periodEnd,bankBalanceCents,unpaidInvoicesCents,overdueInvoicesCents,openInvoiceCount,openBillCount,payableSubledgerCents,taxSummary,incomeYtdCents,expensesYtdCents,netIncomeYtdCents"
+ },
+ {
+  "id": "CV-06",
+  "area": "CVL",
+  "title": "Shared report (P&L) loads",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "CV-07-general-ledger",
+  "area": "CVL",
+  "title": "Unshared report general-ledger refused",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "CV-07-trial-balance",
+  "area": "CVL",
+  "title": "Unshared report trial-balance refused",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "CV-07-payroll-runs",
+  "area": "CVL",
+  "title": "Unshared report payroll-runs refused",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "CV-07-audit-history",
+  "area": "CVL",
+  "title": "Unshared report audit-history refused",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "CV-07-ar-ageing",
+  "area": "CVL",
+  "title": "Unshared report ar-ageing refused",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "CV-08",
+  "area": "CVL",
+  "title": "Client session cannot call the accountant API",
+  "status": "PASS",
+  "evidence": "401"
+ },
+ {
+  "id": "CV-09",
+  "area": "CVL",
+  "title": "Used code cannot be reused",
+  "status": "PASS",
+  "evidence": "410"
+ },
+ {
+  "id": "CV-10",
+  "area": "CVL",
+  "title": "Guessing: after 5 wrong codes even the right code is refused",
+  "status": "PASS",
+  "evidence": "422,422,422,422,422,429 then correct=429"
+ },
+ {
+  "id": "CV-11",
+  "area": "CVL",
+  "title": "Code requests limited to 5 per hour per link",
+  "status": "PASS",
+  "evidence": "200,200,200,429,429"
+ },
+ {
+  "id": "CV-12",
+  "area": "CVL",
+  "title": "Expired code (10 min TTL) refused",
+  "status": "PASS",
+  "evidence": "410"
+ },
+ {
+  "id": "CV-13",
+  "area": "CVL",
+  "title": "Expired client session refused",
+  "status": "PASS",
+  "evidence": "401"
+ },
+ {
+  "id": "CV-14",
+  "area": "CVL",
+  "title": "Revoking the link ends active sessions and blocks new codes",
+  "status": "PASS",
+  "evidence": "before 200 after 401 start 410"
+ },
+ {
+  "id": "CV-15",
+  "area": "CVL",
+  "title": "Guessed/random token refused without revealing company",
+  "status": "PASS",
+  "evidence": "404 {\"error\":\"This viewing link is not valid. Ask your accountant for a new one.\",\"c"
+ },
+ {
+  "id": "CV-16",
+  "area": "CVL",
+  "title": "Expired link refused",
+  "status": "PASS",
+  "evidence": "410"
+ }
+]

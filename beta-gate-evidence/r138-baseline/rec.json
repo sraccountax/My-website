@@ -1,0 +1,44 @@
+[
+ {
+  "id": "BR-01",
+  "area": "REC",
+  "title": "Backup export downloads a signed .tegh archive",
+  "status": "PASS",
+  "evidence": "200 application/vnd.tegh.backup bytes=43970"
+ },
+ {
+  "id": "BR-02",
+  "area": "REC",
+  "title": "Restore into a new company succeeds",
+  "status": "PASS",
+  "evidence": "201 {\"restored\":true,\"companyId\":\"company_cbe5cb789ab4881984ee47bf62266576\",\"companyName\":\"Gate Test BC Ltd (Restored copy)\",\"payloadSha256\":\"0d3d427f921aedbd12ce5a0e224c9a3415ee5ef286a77d04ed4dafeb7e3950"
+ },
+ {
+  "id": "BR-08",
+  "area": "REC",
+  "title": "Tampered backup refused (integrity check)",
+  "status": "PASS",
+  "evidence": "500 server_error"
+ },
+ {
+  "id": "BR-06",
+  "area": "REC",
+  "title": "Tax codes, rates and GL mapping identical after restore",
+  "status": "PASS",
+  "evidence": "\"AB:GST:5000:2100/1100:active,BC:GST:5000:2100/1100:active,BC:PST:7000:2110/-:active,GST:GST:5000:2100/1100:active,MB:GST:5000:2100/1100:active,MB:RST:7000:2110/-:active,NB:HST:15000:2100/1100:active,NL:HST:15000:2100/1100:active,NS:HST:14000:2100/1100:active,NT:GST:5000:2100/1100:active,NU:GST:5000:2100/1100:active,ON:HST:13000:2100/1100:active,PE:HST:15000:2100/1100:active,QC:GST:5000:2100/1100:active,QC:QST:9975:2115/1115:active,SK:GST:5000:2100/1100:active,SK:PST:6000:2110/-:active,TMP:TMPX:1000:2100/1100:inactive,YT:GST:5000:2100/1100:active\""
+ },
+ {
+  "id": "BR-07",
+  "area": "REC",
+  "title": "No cross-company account references after restore",
+  "status": "PASS",
+  "evidence": "\"0\""
+ },
+ {
+  "id": "BR-09",
+  "area": "REC",
+  "title": "Restored document tax detail points to restored accounts only",
+  "status": "PASS",
+  "evidence": "\"0\""
+ }
+]

@@ -1,0 +1,65 @@
+[
+ {
+  "id": "MT-01",
+  "area": "R168",
+  "title": "Two tabs, two companies: switching company in one tab leaves the other tab on its company, without reloading it",
+  "status": "PASS",
+  "evidence": "new tab started in tab 1's company; tab 1 R151 Documents Inc mvk83sof (true); tab 2 Gate Test ON Corp (true); tab 1 not reloaded true; tab 1 request company company_23064d84f06cb87d00ad0cdcced10215"
+ },
+ {
+  "id": "MT-02",
+  "area": "R168",
+  "title": "Ctrl+click on a sidebar entry opens it in a new tab in the same company; the current tab stays where it was",
+  "status": "PASS",
+  "evidence": "new tab ledger-vendor \"Vendor Ledgers\" company R151 Documents Inc mvk83sof; this tab still module-payables"
+ },
+ {
+  "id": "MT-03",
+  "area": "R168",
+  "title": "Middle-click on a note number in a report opens the note in a new tab",
+  "status": "PASS",
+  "evidence": "new tab document-view \"Supplier Credit Note\"; this tab bills"
+ },
+ {
+  "id": "MT-04",
+  "area": "R168",
+  "title": "Refresh keeps the screen: a vendor invoice form, a note page and a report each reopen after reload, and the address still names them",
+  "status": "PASS",
+  "evidence": "[[\"new vendor invoice\",\"vendor-document\",\"vendor-document\",true,\"#tegh=vendor-document%3Anew%3Ainvoice&co=company_23064d84f06cb87d00ad0\",\"#tegh=vendor-document%3Anew%3Ainvoice&co=company_23064d84f06cb87d00ad0\"],[\"note page\",\"document-view\",\"document-view\",true,\"#tegh=document-view%3Anote%3Anote_2be3b87d6fe38789df3b38280ba93cb9&co=\",\"#tegh=document-view%3Anote%3Anote_2be3b87d6fe38789df3b38280ba93cb9&co=\"],[\"Payable Ageing\",\"aging-payable\",\"aging-payable\",true,\"#tegh=aging-payable&co=company_23064d84f06cb87d00ad0cdcced10215\",\"#tegh=aging-payable&co=company_23064d84f06cb87d00ad0cdcced10215\"]]"
+ },
+ {
+  "id": "MT-05",
+  "area": "R168",
+  "title": "Back returns to the previous screen",
+  "status": "PASS",
+  "evidence": "aging-payable \"Payable Ageing\""
+ },
+ {
+  "id": "MT-06",
+  "area": "R168",
+  "title": "A copied link opens in the company it names, in a brand-new tab",
+  "status": "PASS",
+  "evidence": "link #tegh=aging-payable&co=company_23064d84f06cb87d00ad0cdcced10215 → R151 Documents Inc mvk83sof aging-payable"
+ },
+ {
+  "id": "MT-07",
+  "area": "R168",
+  "title": "Refreshing after switching company in a tab keeps the new company (the old company in the address does not win)",
+  "status": "PASS",
+  "evidence": "Gate Test ON Corp true"
+ },
+ {
+  "id": "MT-08",
+  "area": "R168",
+  "title": "A link naming a company the person cannot open is not honoured: Tegh opens one of their own companies",
+  "status": "PASS",
+  "evidence": "opened Alpine Ledger Partners mvk86eup; one of this person's companies (per the server) true; the unknown id kept false"
+ },
+ {
+  "id": "MT-09",
+  "area": "R168",
+  "title": "No browser errors in any tab",
+  "status": "PASS",
+  "evidence": "none"
+ }
+]

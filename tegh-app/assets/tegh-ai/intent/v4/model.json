@@ -1,0 +1,2410 @@
+{
+    "id": "tegh-native-intent-v4",
+    "version": "4.0.0",
+    "license": "Tegh proprietary application asset",
+    "language": "multilingual-accounting-morphology",
+    "generatedFrom": "tegh_action_registry",
+    "registryActionCount": 149,
+    "executionClassCounts": {
+        "immediate": 121,
+        "prepared": 20,
+        "authorized": 8
+    },
+    "registrySha256": "d9674cccd1b01df0ea33c1347f209ceeb00d045ea45508e4943ed09c723388ed",
+    "normalization": {
+        "damerauLevenshtein": true,
+        "doubleMetaphone": true,
+        "keyboardAdjacency": true,
+        "staticAliases": false
+    },
+    "actions": [
+        {
+            "id": "nav.home",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "home",
+                "open the current bookkeeping home.",
+                "nav home",
+                "dashboard",
+                "overview",
+                "guided home",
+                "home page"
+            ]
+        },
+        {
+            "id": "nav.guided_home",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "guided home",
+                "open guided mode home.",
+                "nav guided home",
+                "home"
+            ]
+        },
+        {
+            "id": "nav.agent_center",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "agent center",
+                "open proactive native agent findings, evidence and review work.",
+                "nav agent center",
+                "native agents",
+                "needs attention",
+                "ready for review",
+                "proactive accounting",
+                "today"
+            ]
+        },
+        {
+            "id": "nav.month_end_close",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "month-end close",
+                "open the deterministic month-end close readiness workspace.",
+                "nav month end close",
+                "close checklist",
+                "month end",
+                "period readiness",
+                "closing books",
+                "agent center"
+            ]
+        },
+        {
+            "id": "nav.financial_analyst",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "financial analyst",
+                "open deterministic cash forecasts, budget variance, scenarios and management alerts.",
+                "nav financial analyst",
+                "cash forecast",
+                "budget variance",
+                "financial scenario",
+                "management alerts",
+                "planning",
+                "reports"
+            ]
+        },
+        {
+            "id": "nav.payroll_tax_center",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "payroll & tax center",
+                "open deterministic payroll and tax readiness, company review thresholds, evidence and bounded-autonomy controls.",
+                "nav payroll tax center",
+                "payroll tax agent",
+                "payroll compliance",
+                "tax readiness",
+                "source deductions",
+                "remittance review",
+                "bounded autonomy",
+                "agent center"
+            ]
+        },
+        {
+            "id": "nav.native_agent_settings",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "native agent settings",
+                "open company-wide native agent policy and privacy controls.",
+                "nav native agent settings",
+                "agent settings",
+                "connected intelligence opt in",
+                "scan cadence",
+                "materiality",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.banking",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "banking",
+                "open the banking workspace.",
+                "nav banking",
+                "bank dashboard",
+                "financial accounts"
+            ]
+        },
+        {
+            "id": "nav.bank_import",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "upload bank statement",
+                "open the existing statement import workflow.",
+                "nav bank import",
+                "import bank statement",
+                "statement upload",
+                "csv",
+                "xlsx",
+                "pdf",
+                "banking"
+            ]
+        },
+        {
+            "id": "nav.bank_review",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "review transactions",
+                "open the bank transaction review workflow.",
+                "nav bank review",
+                "bank review",
+                "categorize transactions",
+                "match transactions",
+                "review bank",
+                "banking"
+            ]
+        },
+        {
+            "id": "nav.bank_transactions",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "bank transactions",
+                "open imported bank transactions.",
+                "nav bank transactions",
+                "imported transactions",
+                "statement lines",
+                "bank register",
+                "banking"
+            ]
+        },
+        {
+            "id": "nav.reconciliation",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "reconciliation",
+                "open bank reconciliation.",
+                "nav reconciliation",
+                "reconcile bank",
+                "bank reconciliation",
+                "matching",
+                "banking"
+            ]
+        },
+        {
+            "id": "nav.bank_accounts",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "bank accounts",
+                "open financial bank and credit-card accounts.",
+                "nav bank accounts",
+                "financial accounts",
+                "credit card accounts",
+                "cash accounts",
+                "banking"
+            ]
+        },
+        {
+            "id": "nav.find_imported_deposit",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "find imported deposit",
+                "open customer payments and search imported deposits.",
+                "nav find imported deposit",
+                "match receipt",
+                "customer deposit",
+                "bank deposit",
+                "banking"
+            ]
+        },
+        {
+            "id": "nav.bank_transfers",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "bank transfers",
+                "open transfers between financial accounts.",
+                "nav bank transfers",
+                "transfer between accounts",
+                "cash transfer",
+                "banking"
+            ]
+        },
+        {
+            "id": "nav.receivables",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "receivables",
+                "open the receivables workspace.",
+                "nav receivables",
+                "money in",
+                "accounts receivable",
+                "sales"
+            ]
+        },
+        {
+            "id": "nav.customer_create",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "create customer",
+                "open the protected new-customer form.",
+                "nav customer create",
+                "add customer",
+                "new customer",
+                "client",
+                "receivables"
+            ]
+        },
+        {
+            "id": "nav.customers",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "customers",
+                "open the customer register.",
+                "nav customers",
+                "customer list",
+                "client directory",
+                "customer register",
+                "receivables"
+            ]
+        },
+        {
+            "id": "nav.products_services",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "products & services",
+                "open reusable products and services.",
+                "nav products services",
+                "items",
+                "inventory items",
+                "services",
+                "sales products",
+                "receivables"
+            ]
+        },
+        {
+            "id": "nav.customer_invoice_create",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "create customer invoice",
+                "open the normal customer invoice workflow.",
+                "nav customer invoice create",
+                "new invoice",
+                "sales invoice",
+                "invoice customer",
+                "receivables"
+            ]
+        },
+        {
+            "id": "nav.customer_invoices",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "customer invoice register",
+                "open customer invoices and their current status.",
+                "nav customer invoices",
+                "customer invoices",
+                "sales invoice register",
+                "invoice list",
+                "receivables"
+            ]
+        },
+        {
+            "id": "nav.customer_payments",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "customer payments",
+                "open customer receipts, allocations and bank matching.",
+                "nav customer payments",
+                "customer receipts",
+                "payments received",
+                "receive payment",
+                "receivables"
+            ]
+        },
+        {
+            "id": "nav.customer_ledgers",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "customer ledgers",
+                "open customer-by-customer account activity.",
+                "nav customer ledgers",
+                "customer ledger",
+                "receivable ledger",
+                "client activity",
+                "receivables"
+            ]
+        },
+        {
+            "id": "nav.payables",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "payables",
+                "open the payables workspace.",
+                "nav payables",
+                "money out",
+                "accounts payable",
+                "purchases"
+            ]
+        },
+        {
+            "id": "nav.vendor_create",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "create vendor",
+                "open the protected new-vendor form.",
+                "nav vendor create",
+                "add vendor",
+                "new supplier",
+                "create supplier",
+                "payables"
+            ]
+        },
+        {
+            "id": "nav.vendors",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "vendors",
+                "open the vendor register.",
+                "nav vendors",
+                "supplier list",
+                "vendor directory",
+                "vendor register",
+                "payables"
+            ]
+        },
+        {
+            "id": "nav.vendor_invoice_create",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "create vendor invoice",
+                "open the normal vendor invoice workflow.",
+                "nav vendor invoice create",
+                "add bill",
+                "create bill",
+                "supplier invoice",
+                "purchase invoice",
+                "payables"
+            ]
+        },
+        {
+            "id": "nav.vendor_invoices",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "vendor invoice register",
+                "open vendor invoices and their current status.",
+                "nav vendor invoices",
+                "vendor invoices",
+                "bill register",
+                "supplier bills",
+                "purchase invoices",
+                "payables"
+            ]
+        },
+        {
+            "id": "nav.vendor_payments",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "vendor payments",
+                "open vendor payments, allocations and bank matching.",
+                "nav vendor payments",
+                "pay bills",
+                "supplier payments",
+                "payments made",
+                "payables"
+            ]
+        },
+        {
+            "id": "nav.vendor_ledgers",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "vendor ledgers",
+                "open vendor-by-vendor account activity.",
+                "nav vendor ledgers",
+                "supplier ledger",
+                "payable ledger",
+                "vendor activity",
+                "payables"
+            ]
+        },
+        {
+            "id": "nav.recurring_vendor_bills",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "recurring vendor bills",
+                "open recurring vendor invoice profiles.",
+                "nav recurring vendor bills",
+                "recurring bills",
+                "scheduled vendor invoices",
+                "repeat bills",
+                "payables"
+            ]
+        },
+        {
+            "id": "nav.gl",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "general ledger",
+                "open the general ledger workspace.",
+                "nav gl",
+                "accounting",
+                "general ledger dashboard"
+            ]
+        },
+        {
+            "id": "nav.journal_create",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "create journal entry",
+                "open the controlled manual journal workflow.",
+                "nav journal create",
+                "new journal",
+                "manual journal",
+                "gl entry",
+                "adjustment",
+                "accounting"
+            ]
+        },
+        {
+            "id": "nav.journal_entries",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "journal entries",
+                "open journal entry records and recurring journal options.",
+                "nav journal entries",
+                "journal register",
+                "manual journals",
+                "general journal",
+                "accounting"
+            ]
+        },
+        {
+            "id": "nav.expense_vouchers",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "expense vouchers",
+                "open the normal expense voucher workflow.",
+                "nav expense vouchers",
+                "record expense",
+                "cash expense",
+                "expense register",
+                "receipt",
+                "accounting"
+            ]
+        },
+        {
+            "id": "nav.day_book",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "day book",
+                "open chronological source vouchers and gl lines.",
+                "nav day book",
+                "journal history",
+                "source entries",
+                "voucher register",
+                "accounting"
+            ]
+        },
+        {
+            "id": "nav.trial_balance",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "trial balance",
+                "open the period trial balance.",
+                "nav trial balance",
+                "trial balance report",
+                "debits credits",
+                "accounting"
+            ]
+        },
+        {
+            "id": "nav.account_ledger",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "account ledger",
+                "open the general ledger account activity report.",
+                "nav account ledger",
+                "gl account ledger",
+                "account activity",
+                "running balance",
+                "accounting"
+            ]
+        },
+        {
+            "id": "nav.chart_of_accounts",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "chart of accounts",
+                "open the active company chart of accounts.",
+                "nav chart of accounts",
+                "coa",
+                "account list",
+                "gl accounts",
+                "accounting"
+            ]
+        },
+        {
+            "id": "nav.opening_balances",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "opening balances",
+                "open manual opening balance setup.",
+                "nav opening balances",
+                "opening trial balance",
+                "starting balances",
+                "beginning balances",
+                "accounting"
+            ]
+        },
+        {
+            "id": "nav.gifi_report",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "gifi report",
+                "open gifi-mapped account balances.",
+                "nav gifi report",
+                "tax mapping",
+                "gifi accounts",
+                "accounting"
+            ]
+        },
+        {
+            "id": "nav.reports",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "reports",
+                "open the current reports centre.",
+                "nav reports",
+                "financial reports",
+                "management reports",
+                "how is my business doing"
+            ]
+        },
+        {
+            "id": "bank.transactions.query",
+            "mode": "immediate",
+            "actionType": "read",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "description",
+                "direction",
+                "amount",
+                "date",
+                "bankAccount",
+                "batch",
+                "status",
+                "category",
+                "tax",
+                "reconciled"
+            ],
+            "terms": [
+                "find bank transactions",
+                "filter imported bank transactions using structured server-side criteria.",
+                "bank transactions query",
+                "banking"
+            ]
+        },
+        {
+            "id": "bank.transactions.select",
+            "mode": "immediate",
+            "actionType": "read",
+            "requiredInputs": [
+                "resultSetId"
+            ],
+            "optionalInputs": [
+                "selectionFilter"
+            ],
+            "terms": [
+                "select bank transactions",
+                "change selection inside the current transaction result set.",
+                "bank transactions select",
+                "banking"
+            ]
+        },
+        {
+            "id": "report.profit_loss",
+            "mode": "immediate",
+            "actionType": "read",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "from",
+                "to",
+                "comparison"
+            ],
+            "terms": [
+                "profit & loss",
+                "income, expenses and net income for a selected reporting period.",
+                "report profit loss",
+                "p&l",
+                "pnl",
+                "income statement",
+                "profit and loss",
+                "earnings",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.balance_sheet",
+            "mode": "immediate",
+            "actionType": "read",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "asOf"
+            ],
+            "terms": [
+                "balance sheet",
+                "assets, liabilities and equity at a selected date.",
+                "report balance sheet",
+                "statement of financial position",
+                "assets liabilities equity",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.cash_flow",
+            "mode": "immediate",
+            "actionType": "read",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "from",
+                "to"
+            ],
+            "terms": [
+                "cash flow",
+                "operating, investing and financing cash movements.",
+                "report cash flow",
+                "cashflow",
+                "cash movement",
+                "operating investing financing",
+                "reports"
+            ]
+        },
+        {
+            "id": "analysis.cash_forecast",
+            "mode": "immediate",
+            "actionType": "forecast",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "scenarioId",
+                "start",
+                "end"
+            ],
+            "terms": [
+                "cash forecast",
+                "build a deterministic forward cash forecast from current books and explicit scenario assumptions.",
+                "analysis cash forecast",
+                "reports"
+            ]
+        },
+        {
+            "id": "analysis.budget_variance",
+            "mode": "immediate",
+            "actionType": "compare",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "budgetId"
+            ],
+            "terms": [
+                "budget variance analysis",
+                "compare an existing current-company budget with posted actual results.",
+                "analysis budget variance",
+                "reports"
+            ]
+        },
+        {
+            "id": "analysis.financial_scenario",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "scenarioId"
+            ],
+            "terms": [
+                "financial scenario",
+                "open saved cash-planning assumptions for review or controlled editing.",
+                "analysis financial scenario",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.trial_balance",
+            "mode": "immediate",
+            "actionType": "read",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "from",
+                "to",
+                "asOf"
+            ],
+            "terms": [
+                "trial balance",
+                "run the existing tegh trial balance report.",
+                "report trial balance",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.ar_aging",
+            "mode": "immediate",
+            "actionType": "read",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "asOf"
+            ],
+            "terms": [
+                "receivable ageing",
+                "open customer invoices grouped by overdue period.",
+                "report ar aging",
+                "ar aging",
+                "ar ageing",
+                "customer aging",
+                "customer ageing",
+                "money owed to me",
+                "receivables aging",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.ap_aging",
+            "mode": "immediate",
+            "actionType": "read",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "asOf"
+            ],
+            "terms": [
+                "payables ageing",
+                "open vendor invoices grouped by overdue period.",
+                "report ap aging",
+                "ap aging",
+                "ap ageing",
+                "vendor aging",
+                "supplier ageing",
+                "money i owe",
+                "payables aging",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.account_ledger",
+            "mode": "immediate",
+            "actionType": "read",
+            "requiredInputs": [
+                "account"
+            ],
+            "optionalInputs": [
+                "from",
+                "to"
+            ],
+            "terms": [
+                "account ledger",
+                "run the existing account ledger report.",
+                "report account ledger",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.general_ledger_detail",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "general ledger detail",
+                "open posted account activity with entry references.",
+                "report general ledger detail",
+                "detailed ledger",
+                "posted account activity",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.inventory",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "inventory report",
+                "open the product catalogue and invoice activity report.",
+                "report inventory",
+                "product report",
+                "inventory items",
+                "stock",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.customer_balances",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "customer balances",
+                "open outstanding balances summarized by customer.",
+                "report customer balances",
+                "customer balance summary",
+                "receivable balances",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.vendor_balances",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "vendor balances",
+                "open outstanding balances summarized by vendor.",
+                "report vendor balances",
+                "supplier balance summary",
+                "payable balances",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.expense_register",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "expense register",
+                "open posted costs by vendor, category and payment account.",
+                "report expense register",
+                "expenses",
+                "cost register",
+                "purchase costs",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.bank_reconciliation_summary",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "bank reconciliation summary",
+                "open book, statement and reconciliation differences.",
+                "report bank reconciliation summary",
+                "reconciliation report",
+                "bank difference",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.bank_transactions",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "bank transaction report",
+                "open imported bank activity and review status.",
+                "report bank transactions",
+                "bank report",
+                "statement transactions",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.tax_summary",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "tax summary",
+                "open gst/hst/pst control balances and net tax position.",
+                "report tax summary",
+                "gst hst pst",
+                "sales tax report",
+                "tax payable",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.pay_run_register",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "payroll reports",
+                "open the pay run register and payroll reporting records.",
+                "report pay run register",
+                "payroll report",
+                "pay run register",
+                "payroll runs",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.currency_exposure",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "currency exposure",
+                "open active currencies and exchange-rate exposure.",
+                "report currency exposure",
+                "foreign exchange",
+                "currency report",
+                "fx exposure",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.budget_actual",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "budget versus actual",
+                "open planned and actual results by account.",
+                "report budget actual",
+                "budget vs actual",
+                "variance report",
+                "reports"
+            ]
+        },
+        {
+            "id": "report.fixed_assets",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "fixed asset register",
+                "open asset cost, depreciation and book value.",
+                "report fixed assets",
+                "asset register",
+                "depreciation report",
+                "reports"
+            ]
+        },
+        {
+            "id": "nav.payroll",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "payroll",
+                "open the payroll workspace.",
+                "nav payroll",
+                "payroll dashboard",
+                "pay employees"
+            ]
+        },
+        {
+            "id": "nav.payroll_calculator",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "payroll calculator",
+                "open the no-record quick payroll calculator.",
+                "nav payroll calculator",
+                "quick calculation",
+                "pay calculator",
+                "payroll estimate",
+                "payroll"
+            ]
+        },
+        {
+            "id": "nav.payroll_employees",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "employees",
+                "open payroll employee records.",
+                "nav payroll employees",
+                "staff",
+                "employee setup",
+                "payroll people",
+                "payroll"
+            ]
+        },
+        {
+            "id": "nav.payroll_runs",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "payroll runs",
+                "open the pay run register.",
+                "nav payroll runs",
+                "pay runs",
+                "pay run register",
+                "run payroll",
+                "payroll"
+            ]
+        },
+        {
+            "id": "nav.payroll_verification",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "payroll verification",
+                "open retained payroll calculation checks.",
+                "nav payroll verification",
+                "verify deductions",
+                "official calculator check",
+                "payroll"
+            ]
+        },
+        {
+            "id": "nav.payroll_remittance",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "cra payroll remittance",
+                "open payroll source-deduction remittances.",
+                "nav payroll remittance",
+                "cra remittance",
+                "source deductions",
+                "payroll tax payment",
+                "payroll"
+            ]
+        },
+        {
+            "id": "nav.payroll_history",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "payroll history",
+                "open completed, reversed and deleted pay-run history.",
+                "nav payroll history",
+                "payroll reports",
+                "completed pay runs",
+                "pay history",
+                "payroll"
+            ]
+        },
+        {
+            "id": "nav.settings",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "settings",
+                "open company & workspace settings.",
+                "nav settings",
+                "preferences",
+                "setup",
+                "configuration"
+            ]
+        },
+        {
+            "id": "nav.company_setup",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "company setup",
+                "open manual company accounting setup.",
+                "nav company setup",
+                "accounting setup",
+                "company configuration",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.company_details",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "company details",
+                "open company identity, calendar and tax details.",
+                "nav company details",
+                "business details",
+                "fiscal year",
+                "gst number",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.tax_settings",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "tax settings",
+                "open company gst/hst/pst settings.",
+                "nav tax settings",
+                "gst hst pst settings",
+                "sales tax setup",
+                "tax accounts",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.invoice_templates",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "invoice templates",
+                "open customer invoice layout and branding settings.",
+                "nav invoice templates",
+                "invoice design",
+                "logo template",
+                "invoice branding",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.users",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "users & permissions",
+                "open company users, roles and permissions.",
+                "nav users",
+                "user management",
+                "access roles",
+                "company admin editor viewer",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.audit_history",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "audit history",
+                "open company accounting and access history.",
+                "nav audit history",
+                "audit trail",
+                "integrity",
+                "history",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.data_import",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "data import",
+                "open the company data import centre.",
+                "nav data import",
+                "import centre",
+                "import center",
+                "spreadsheet imports"
+            ]
+        },
+        {
+            "id": "nav.bookkeeping_mode",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "bookkeeping mode",
+                "choose guided or full accounting presentation.",
+                "nav bookkeeping mode",
+                "guided mode",
+                "full accounting",
+                "experience mode",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.sales_purchase_defaults",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "sales & purchase defaults",
+                "open customer, vendor and payment-term defaults.",
+                "nav sales purchase defaults",
+                "sales defaults",
+                "purchase defaults",
+                "payment terms",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.tegh_preferences",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "tegh preferences",
+                "open interface and ask tegh preferences.",
+                "nav tegh preferences",
+                "interface preferences",
+                "notification badge",
+                "navigation density",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.tegh_learned_rules",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "tegh ai learned rules",
+                "review, disable or retire company-specific tegh ai learned suggestions.",
+                "nav tegh learned rules",
+                "ai learned rules",
+                "learning memory",
+                "category suggestions",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.tegh_improvement_lab",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "tegh ai improvement lab",
+                "review sanitized failure clusters, regression-gated behavior candidates and rollback history.",
+                "nav tegh improvement lab",
+                "ai improvement lab",
+                "self improvement",
+                "agent qa",
+                "agent performance",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.backup",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "backup & restore",
+                "open company backup and restore controls.",
+                "nav backup",
+                "download backup",
+                "restore tegh archive",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.currencies",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "currency exchange rates",
+                "open company currency and exchange-rate settings.",
+                "nav currencies",
+                "foreign currency",
+                "exchange rate",
+                "multi currency",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.period_locking",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "period locking",
+                "open accounting period controls.",
+                "nav period locking",
+                "close period",
+                "lock books",
+                "unlock period",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.recurring_transactions",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "recurring transactions",
+                "open recurring invoice, bill and journal profiles.",
+                "nav recurring transactions",
+                "scheduled entries",
+                "repeat invoices",
+                "recurring bills",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.company_create",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "add company or client file",
+                "open the normal new-company setup workflow.",
+                "nav company create",
+                "new company",
+                "add client file",
+                "create business",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.my_account",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "my account",
+                "open signed-in account and company access controls.",
+                "nav my account",
+                "profile",
+                "password",
+                "account access",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.bookkeeping_guide",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "bookkeeping guide",
+                "open tegh tutorials and bookkeeping workflow guidance.",
+                "nav bookkeeping guide",
+                "tutorial",
+                "help guide",
+                "guided work",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.faq",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "faq",
+                "open the tegh help centre.",
+                "nav faq",
+                "frequently asked questions",
+                "help centre",
+                "knowledge base",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.support",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "support",
+                "open support requests and temporary-access controls.",
+                "nav support",
+                "contact support",
+                "report problem",
+                "help",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.payroll_rates",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "payroll rates",
+                "open statutory payroll-rate maintenance.",
+                "nav payroll rates",
+                "statutory rates",
+                "cpp ei tax tables",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.platform_administration",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "platform administration",
+                "open tenant and platform controls.",
+                "nav platform administration",
+                "platform owner",
+                "tenant administration",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.system_incidents",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "system incident audit",
+                "open restricted technical incident history.",
+                "nav system incidents",
+                "platform incidents",
+                "technical audit",
+                "errors",
+                "settings"
+            ]
+        },
+        {
+            "id": "nav.import_customers",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "import customers",
+                "open the customer import card.",
+                "nav import customers",
+                "customer spreadsheet",
+                "customer csv",
+                "data import"
+            ]
+        },
+        {
+            "id": "nav.import_vendors",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "import vendors",
+                "open the vendor import card.",
+                "nav import vendors",
+                "supplier import",
+                "vendor spreadsheet",
+                "data import"
+            ]
+        },
+        {
+            "id": "nav.import_products",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "import products & services",
+                "open the products & services import card.",
+                "nav import products",
+                "item import",
+                "service import",
+                "product csv",
+                "data import"
+            ]
+        },
+        {
+            "id": "nav.import_customer_invoices",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "import customer invoices",
+                "open the customer invoice import card.",
+                "nav import customer invoices",
+                "sales invoice import",
+                "customer invoice spreadsheet",
+                "data import"
+            ]
+        },
+        {
+            "id": "nav.import_vendor_invoices",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "import vendor invoices",
+                "open the vendor invoice import card.",
+                "nav import vendor invoices",
+                "import vendor bills",
+                "supplier invoice import",
+                "purchase invoice spreadsheet",
+                "data import"
+            ]
+        },
+        {
+            "id": "nav.import_chart_of_accounts",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "import chart of accounts",
+                "open the chart of accounts import card.",
+                "nav import chart of accounts",
+                "import coa",
+                "gl account import",
+                "data import"
+            ]
+        },
+        {
+            "id": "nav.import_opening_balances",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "import opening balances",
+                "open the opening balances import card.",
+                "nav import opening balances",
+                "opening trial balance import",
+                "starting balances import",
+                "data import"
+            ]
+        },
+        {
+            "id": "nav.import_coa_opening_balances",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "import chart of accounts and opening balances",
+                "open the combined chart of accounts and opening balances import card.",
+                "nav import coa opening balances",
+                "combined coa opening import",
+                "chart and balances import",
+                "data import"
+            ]
+        },
+        {
+            "id": "nav.import_opening_customer_invoices",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "import opening customer invoices",
+                "open the cutover-only unpaid customer invoice import card.",
+                "nav import opening customer invoices",
+                "opening ar invoices",
+                "cutover customer invoices",
+                "historical receivables",
+                "data import"
+            ]
+        },
+        {
+            "id": "nav.import_opening_vendor_bills",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "import opening vendor bills",
+                "open the cutover-only unpaid vendor bill import card.",
+                "nav import opening vendor bills",
+                "opening ap bills",
+                "cutover vendor invoices",
+                "historical payables",
+                "data import"
+            ]
+        },
+        {
+            "id": "nav.budgets",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "budgets",
+                "open the budget and variance workspace.",
+                "nav budgets",
+                "planning",
+                "budget variance",
+                "advanced accounting"
+            ]
+        },
+        {
+            "id": "nav.fixed_assets",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "fixed assets",
+                "open the fixed-asset and depreciation workspace.",
+                "nav fixed assets",
+                "asset register",
+                "depreciation schedules",
+                "advanced accounting"
+            ]
+        },
+        {
+            "id": "nav.analytics",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "analytics",
+                "open management analytics.",
+                "nav analytics",
+                "management analysis",
+                "dimensions",
+                "advanced accounting"
+            ]
+        },
+        {
+            "id": "nav.collections",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "collections",
+                "open customer invoice follow-up.",
+                "nav collections",
+                "overdue follow up",
+                "customer collections",
+                "advanced accounting"
+            ]
+        },
+        {
+            "id": "nav.document_intake",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "document intake",
+                "review private vendor-bill and customer-invoice documents using fully local extraction.",
+                "nav document intake",
+                "scan invoice",
+                "scan bill",
+                "ocr document",
+                "upload document",
+                "document inbox",
+                "agent center"
+            ]
+        },
+        {
+            "id": "nav.collection_drafts",
+            "mode": "immediate",
+            "actionType": "navigation",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "collection drafts",
+                "review, edit, approve and explicitly send overdue-invoice follow-up drafts.",
+                "nav collection drafts",
+                "collection messages",
+                "overdue email drafts",
+                "customer follow up drafts",
+                "receivables"
+            ]
+        },
+        {
+            "id": "native_agent.run_all",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "period"
+            ],
+            "terms": [
+                "run native agent supervisor",
+                "run every enabled deterministic specialist scan.",
+                "native agent run all",
+                "agent center"
+            ]
+        },
+        {
+            "id": "native_agent.run_bookkeeping",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "run bookkeeping agent",
+                "scan current-company bookkeeping exceptions without posting.",
+                "native agent run bookkeeping",
+                "agent center"
+            ]
+        },
+        {
+            "id": "native_agent.run_reconciliation",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "run reconciliation agent",
+                "build read-only candidates using the existing reconciliation engine.",
+                "native agent run reconciliation",
+                "agent center"
+            ]
+        },
+        {
+            "id": "native_agent.run_month_end_close",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "period"
+            ],
+            "terms": [
+                "run month-end close agent",
+                "build a deterministic close-readiness checklist for a supported period.",
+                "native agent run month end close",
+                "agent center"
+            ]
+        },
+        {
+            "id": "native_agent.run_accounts_payable",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "run accounts payable agent",
+                "scan current-company bills, vendors and private document state without posting or paying.",
+                "native agent run accounts payable",
+                "agent center"
+            ]
+        },
+        {
+            "id": "native_agent.run_accounts_receivable",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "run accounts receivable agent",
+                "scan current-company invoices, customers and follow-up state without issuing or settling.",
+                "native agent run accounts receivable",
+                "agent center"
+            ]
+        },
+        {
+            "id": "native_agent.run_financial_analyst",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "run financial analyst",
+                "scan deterministic liquidity and budget-variance conditions without changing accounting records.",
+                "native agent run financial analyst",
+                "agent center"
+            ]
+        },
+        {
+            "id": "native_agent.run_payroll_tax",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [],
+            "optionalInputs": [],
+            "terms": [
+                "run payroll/tax agent",
+                "scan current-company payroll, source-deduction, rate, levy, sales-tax and period-lock evidence without filing, paying or posting.",
+                "native agent run payroll tax",
+                "agent center"
+            ]
+        },
+        {
+            "id": "native_agent.finding_snooze",
+            "mode": "immediate",
+            "actionType": "metadata",
+            "requiredInputs": [
+                "findingId"
+            ],
+            "optionalInputs": [
+                "days"
+            ],
+            "terms": [
+                "auto-snooze finding",
+                "apply an owner-approved bounded snooze to one current low-risk finding.",
+                "native agent finding snooze",
+                "agent center"
+            ]
+        },
+        {
+            "id": "native_agent.finding_assign",
+            "mode": "immediate",
+            "actionType": "metadata",
+            "requiredInputs": [
+                "findingId"
+            ],
+            "optionalInputs": [
+                "userId"
+            ],
+            "terms": [
+                "auto-assign finding",
+                "assign one current low-risk finding to the owner-approved active company member.",
+                "native agent finding assign",
+                "agent center"
+            ]
+        },
+        {
+            "id": "native_agent.finding_task",
+            "mode": "immediate",
+            "actionType": "metadata",
+            "requiredInputs": [
+                "findingId"
+            ],
+            "optionalInputs": [],
+            "terms": [
+                "auto-prepare finding task",
+                "prepare a normal user-scoped review task from one current low-risk finding without committing accounting.",
+                "native agent finding task",
+                "agent center"
+            ]
+        },
+        {
+            "id": "native_agent.scan_refresh",
+            "mode": "immediate",
+            "actionType": "metadata",
+            "requiredInputs": [
+                "findingId"
+            ],
+            "optionalInputs": [],
+            "terms": [
+                "auto-refresh specialist",
+                "rerun the finding specialist under current company policy without changing accounting records.",
+                "native agent scan refresh",
+                "agent center"
+            ]
+        },
+        {
+            "id": "native_agent.finding_resolved_dismiss",
+            "mode": "immediate",
+            "actionType": "metadata",
+            "requiredInputs": [
+                "findingId"
+            ],
+            "optionalInputs": [],
+            "terms": [
+                "auto-dismiss resolved notice",
+                "dismiss only the notification for a deterministically resolved informational finding.",
+                "native agent finding resolved dismiss",
+                "agent center"
+            ]
+        },
+        {
+            "id": "collections.prepare",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [
+                "invoice"
+            ],
+            "optionalInputs": [
+                "level"
+            ],
+            "terms": [
+                "prepare collection draft",
+                "prepare a deterministic customer follow-up draft from a current overdue invoice for human review.",
+                "collections prepare",
+                "receivables"
+            ]
+        },
+        {
+            "id": "customer.create",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [
+                "name"
+            ],
+            "optionalInputs": [
+                "email",
+                "phone",
+                "billingAddress",
+                "province"
+            ],
+            "terms": [
+                "create customer",
+                "prepare and create a customer using the existing customer service.",
+                "customer create",
+                "receivables"
+            ]
+        },
+        {
+            "id": "customer.find",
+            "mode": "immediate",
+            "actionType": "read",
+            "requiredInputs": [
+                "query"
+            ],
+            "optionalInputs": [],
+            "terms": [
+                "find customer",
+                "find an active customer in the current company.",
+                "customer find",
+                "receivables"
+            ]
+        },
+        {
+            "id": "customer.balance",
+            "mode": "immediate",
+            "actionType": "read",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "query"
+            ],
+            "terms": [
+                "customer balance",
+                "read current posted customer subledger balances.",
+                "receivables"
+            ]
+        },
+        {
+            "id": "customer.edit",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [
+                "customer"
+            ],
+            "optionalInputs": [],
+            "terms": [
+                "edit customer",
+                "open the existing protected customer edit workflow.",
+                "customer edit",
+                "receivables"
+            ]
+        },
+        {
+            "id": "vendor.create",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [
+                "name"
+            ],
+            "optionalInputs": [
+                "email",
+                "address",
+                "defaultTermsDays",
+                "defaultExpenseAccountId",
+                "currency"
+            ],
+            "terms": [
+                "create vendor",
+                "prepare and create a vendor using the existing vendor service.",
+                "vendor create",
+                "payables"
+            ]
+        },
+        {
+            "id": "vendor.find",
+            "mode": "immediate",
+            "actionType": "read",
+            "requiredInputs": [
+                "query"
+            ],
+            "optionalInputs": [],
+            "terms": [
+                "find vendor",
+                "find an active vendor in the current company.",
+                "vendor find",
+                "payables"
+            ]
+        },
+        {
+            "id": "vendor.balance",
+            "mode": "immediate",
+            "actionType": "read",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "query"
+            ],
+            "terms": [
+                "vendor balance",
+                "read current posted vendor subledger balances.",
+                "payables"
+            ]
+        },
+        {
+            "id": "vendor.edit",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [
+                "vendor"
+            ],
+            "optionalInputs": [],
+            "terms": [
+                "edit vendor",
+                "open the existing protected vendor edit workflow.",
+                "vendor edit",
+                "payables"
+            ]
+        },
+        {
+            "id": "invoice.create",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [
+                "customer",
+                "invoiceDetails"
+            ],
+            "optionalInputs": [
+                "lines",
+                "date",
+                "tax"
+            ],
+            "terms": [
+                "create customer invoice",
+                "open/prepare the existing customer invoice workflow.",
+                "invoice create",
+                "receivables"
+            ]
+        },
+        {
+            "id": "bill.create",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [
+                "vendor",
+                "billDetails"
+            ],
+            "optionalInputs": [
+                "amount",
+                "date",
+                "tax"
+            ],
+            "terms": [
+                "create vendor invoice",
+                "open/prepare the existing vendor invoice workflow.",
+                "bill create",
+                "payables"
+            ]
+        },
+        {
+            "id": "payment.customer",
+            "mode": "authorized",
+            "actionType": "financial_commit",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "customer",
+                "invoice",
+                "amount"
+            ],
+            "terms": [
+                "record customer payment",
+                "open/prepare the existing customer payment workflow.",
+                "payment customer",
+                "receivables"
+            ]
+        },
+        {
+            "id": "payment.vendor",
+            "mode": "authorized",
+            "actionType": "financial_commit",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "vendor",
+                "bill",
+                "amount"
+            ],
+            "terms": [
+                "record vendor payment",
+                "open/prepare the existing vendor payment workflow.",
+                "payment vendor",
+                "payables"
+            ]
+        },
+        {
+            "id": "journal.prepare",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [
+                "businessEvent"
+            ],
+            "optionalInputs": [
+                "date",
+                "memo"
+            ],
+            "terms": [
+                "prepare journal",
+                "use the tegh journal copilot to infer and preview a genuine gl adjustment.",
+                "journal prepare",
+                "general ledger"
+            ]
+        },
+        {
+            "id": "journal.post",
+            "mode": "authorized",
+            "actionType": "financial_commit",
+            "requiredInputs": [
+                "authorizationId"
+            ],
+            "optionalInputs": [],
+            "terms": [
+                "post journal",
+                "post an authorized journal using the existing journal posting service.",
+                "journal post",
+                "general ledger"
+            ]
+        },
+        {
+            "id": "bank.transactions.categorize",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [
+                "resultSetId",
+                "account"
+            ],
+            "optionalInputs": [
+                "taxTreatment"
+            ],
+            "terms": [
+                "categorize bank transactions",
+                "apply an account/tax category without posting.",
+                "bank transactions categorize",
+                "banking"
+            ]
+        },
+        {
+            "id": "bank.transactions.post",
+            "mode": "authorized",
+            "actionType": "financial_commit",
+            "requiredInputs": [
+                "resultSetId"
+            ],
+            "optionalInputs": [
+                "account",
+                "taxTreatment"
+            ],
+            "terms": [
+                "post bank transactions",
+                "post eligible result-set transactions through the existing bank posting engine.",
+                "bank transactions post",
+                "banking"
+            ]
+        },
+        {
+            "id": "bank.transactions.exclude",
+            "mode": "authorized",
+            "actionType": "destructive",
+            "requiredInputs": [
+                "resultSetId"
+            ],
+            "optionalInputs": [],
+            "terms": [
+                "exclude bank transactions",
+                "exclude eligible pending bank rows.",
+                "bank transactions exclude",
+                "banking"
+            ]
+        },
+        {
+            "id": "bank.transactions.delete",
+            "mode": "authorized",
+            "actionType": "destructive",
+            "requiredInputs": [
+                "resultSetId"
+            ],
+            "optionalInputs": [],
+            "terms": [
+                "delete imported bank transactions",
+                "delete eligible unposted imported rows.",
+                "bank transactions delete",
+                "banking"
+            ]
+        },
+        {
+            "id": "bank.reconcile",
+            "mode": "authorized",
+            "actionType": "financial_commit",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "bankAccount",
+                "period"
+            ],
+            "terms": [
+                "reconcile bank",
+                "use the existing reconciliation workflow.",
+                "bank reconcile",
+                "banking"
+            ]
+        },
+        {
+            "id": "payroll.calculate",
+            "mode": "prepared",
+            "actionType": "prepare",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "period",
+                "employees"
+            ],
+            "terms": [
+                "calculate payroll",
+                "open/use the existing payroll calculation workflow.",
+                "payroll calculate",
+                "payroll"
+            ]
+        },
+        {
+            "id": "payroll.finalize",
+            "mode": "authorized",
+            "actionType": "financial_commit",
+            "requiredInputs": [],
+            "optionalInputs": [
+                "runId"
+            ],
+            "terms": [
+                "finalize payroll",
+                "finalize through the existing payroll service.",
+                "payroll finalize",
+                "payroll"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,137 @@
+/* Tegh 4.1.4 / Build 4140 — Quiet Momentum motion system.
+   Motion communicates state, hierarchy, causality and progress. */
+:root{
+  --tm-instant:100ms;
+  --tm-micro:160ms;
+  --tm-component:220ms;
+  --tm-panel:280ms;
+  --tm-workspace:360ms;
+  --tm-story:680ms;
+  --tm-ease-enter:cubic-bezier(.22,1,.36,1);
+  --tm-ease-exit:cubic-bezier(.4,0,1,1);
+  --tm-ease-micro:cubic-bezier(.2,0,0,1);
+  --tm-distance-xs:3px;
+  --tm-distance-sm:6px;
+  --tm-distance-md:12px;
+}
+html{scroll-behavior:smooth}
+html[data-tegh-motion="4140"]{--dur-fast:var(--tm-micro);--dur-med:var(--tm-workspace);--ease-out:var(--tm-ease-enter)}
+
+/* Cross-document continuity where supported; browsers without it navigate normally. */
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:tmViewOut 110ms var(--tm-ease-exit) both}
+::view-transition-new(root){animation:tmViewIn 260ms var(--tm-ease-enter) both}
+@keyframes tmViewOut{to{opacity:.72;transform:translateY(-2px)}}
+@keyframes tmViewIn{from{opacity:.72;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* Public page reveal hierarchy. Elements remain revealed after the first entrance. */
+html.tegh-motion-js .reveal{opacity:0;transform:translateY(14px);transition:opacity var(--tm-workspace) var(--tm-ease-enter),transform var(--tm-workspace) var(--tm-ease-enter)}
+html.tegh-motion-js .reveal.visible{opacity:1;transform:none}
+html.tegh-motion-js .reveal[data-motion="soft"]{transform:translateY(8px)}
+html.tegh-motion-js .reveal[data-motion="mask"]{clip-path:inset(0 0 100% 0);transform:none;transition:clip-path 480ms var(--tm-ease-enter),opacity 240ms linear}
+html.tegh-motion-js .reveal[data-motion="mask"].visible{clip-path:inset(0 0 0 0)}
+.tegh-motion-sequence>*{--tm-delay:0ms;transition-delay:var(--tm-delay)!important}
+.tegh-motion-sequence>*:nth-child(2){--tm-delay:55ms}.tegh-motion-sequence>*:nth-child(3){--tm-delay:100ms}.tegh-motion-sequence>*:nth-child(4){--tm-delay:145ms}.tegh-motion-sequence>*:nth-child(n+5){--tm-delay:180ms}
+
+/* Header / navigation: quiet, anchored motion. */
+.site-header{transition:background var(--tm-component) var(--tm-ease-micro),border-color var(--tm-component) var(--tm-ease-micro),box-shadow var(--tm-component) var(--tm-ease-micro),top var(--tm-component) var(--tm-ease-enter)!important}
+.nav-link,.nav-trigger,.mega-link,.mobile-nav a,.text-link{transition:background var(--tm-micro) var(--tm-ease-micro),color var(--tm-micro) var(--tm-ease-micro),border-color var(--tm-micro) var(--tm-ease-micro),transform var(--tm-micro) var(--tm-ease-enter)!important}
+.nav-trigger svg{transition:transform var(--tm-micro) var(--tm-ease-enter)!important}
+.mega-menu{transition:opacity 190ms var(--tm-ease-enter),transform 190ms var(--tm-ease-enter),visibility 190ms step-end!important;will-change:opacity,transform}
+.nav-item.open .mega-menu{transition-timing-function:var(--tm-ease-enter),var(--tm-ease-enter),step-start!important}
+.mobile-nav{transition:opacity var(--tm-panel) var(--tm-ease-enter),transform var(--tm-panel) var(--tm-ease-enter),visibility var(--tm-panel) step-end!important}
+body.nav-open .mobile-nav,.mobile-nav.open{transition-timing-function:var(--tm-ease-enter),var(--tm-ease-enter),step-start!important}
+
+/* Tactile controls. No bounce or overshoot. */
+:is(.button,.srp-btn,.btn-primary,.btn-secondary,.sr-gate-primary,.nav-trigger,.solution-tab,.report-tab,.srt-primary,.srt-launcher,.sr-tegh-launcher,.sr-ai-launcher,.tegh-ai-launcher){transition:transform var(--tm-micro) var(--tm-ease-micro),box-shadow var(--tm-micro) var(--tm-ease-micro),background var(--tm-micro) var(--tm-ease-micro),border-color var(--tm-micro) var(--tm-ease-micro),color var(--tm-micro) var(--tm-ease-micro)!important;transform-origin:center}
+@media(hover:hover) and (pointer:fine){
+  :is(.button,.srp-btn,.btn-primary,.btn-secondary,.sr-gate-primary):not(:disabled):hover{transform:translateY(-1px)!important}
+  :is(.feature-card,.intro-card,.beta-plan,.question-card,.ai-card,.resource-card,.proof-card,.persona-card,.security-card,.principle-card):hover{transform:translateY(-2px);transition:transform var(--tm-component) var(--tm-ease-enter),box-shadow var(--tm-component) var(--tm-ease-enter),border-color var(--tm-component) var(--tm-ease-micro)}
+}
+:is(.button,.srp-btn,.btn-primary,.btn-secondary,.sr-gate-primary,.nav-trigger,.solution-tab,.report-tab,.srt-primary).tegh-pressed,
+:is(.button,.srp-btn,.btn-primary,.btn-secondary,.sr-gate-primary,.nav-trigger,.solution-tab,.report-tab,.srt-primary):active:not(:disabled){transform:translateY(0) scale(.985)!important;transition-duration:var(--tm-instant)!important}
+:is(button,a,[role="button"]):focus-visible{transition-duration:var(--tm-instant)!important}
+
+/* Forms acknowledge focus without shifting layout. */
+:is(.contact-form,.srp-page,.srp-modal,.sr-gate-panel,.srt-panel) :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){transition:border-color var(--tm-micro) var(--tm-ease-micro),box-shadow var(--tm-micro) var(--tm-ease-micro),background var(--tm-micro) var(--tm-ease-micro)!important}
+:is(.contact-form,.srp-page,.srp-modal,.sr-gate-panel,.srt-panel) :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea):focus{transform:none!important}
+.form-status:not([hidden]){animation:tmStatusIn var(--tm-component) var(--tm-ease-enter) both}
+@keyframes tmStatusIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* Tables remain stable; state changes are subtle. */
+.srp-table tbody tr{transition:background-color var(--tm-instant) var(--tm-ease-micro),box-shadow var(--tm-instant) var(--tm-ease-micro)!important}
+.srp-table tbody tr.tegh-row-confirm{animation:tmRowConfirm 520ms var(--tm-ease-enter) both}
+@keyframes tmRowConfirm{0%{background-color:rgba(36,115,98,.12)}100%{background-color:transparent}}
+.srp-status,.hold-pill,.status-live{transition:background-color var(--tm-micro) var(--tm-ease-micro),color var(--tm-micro) var(--tm-ease-micro),border-color var(--tm-micro) var(--tm-ease-micro)!important}
+
+/* Application workspace transitions; shell stays anchored. */
+.srp-page.tegh-motion-page-in{animation:tmWorkspaceIn var(--tm-workspace) var(--tm-ease-enter) both!important}
+@keyframes tmWorkspaceIn{from{opacity:.76;transform:translateY(6px)}to{opacity:1;transform:none}}
+.srp-page.tegh-motion-settled{animation:none!important}
+
+/* Panels and dialogs have weight, but never theatrical scaling. */
+.srp-modal-scrim{animation:tmScrimIn var(--tm-micro) linear both}
+.srp-modal.tegh-motion-modal-in,.srp-modal{animation:tmModalIn 250ms var(--tm-ease-enter) both!important;transform-origin:50% 42%}
+@keyframes tmScrimIn{from{opacity:0}to{opacity:1}}
+@keyframes tmModalIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+
+/* Toasts announce server-confirmed state without competing with the page. */
+.srp-toast{animation:tmToastIn var(--tm-component) var(--tm-ease-enter) both!important}
+@keyframes tmToastIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+/* Ask Tegh: a workspace, not a messenger gimmick. */
+:is(.srt-panel,.sr-tegh-panel,.tegh-ai-panel).tegh-motion-panel-in{animation:tmAskPanelIn var(--tm-panel) var(--tm-ease-enter) both}
+@keyframes tmAskPanelIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+.srt-chat-message{animation:tmMessageIn var(--tm-component) var(--tm-ease-enter) both}
+@keyframes tmMessageIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* Loading: a quiet ledger trace instead of decorative spinning where Tegh owns the placeholder. */
+.tegh-motion-loading{position:relative!important;overflow:hidden!important;min-height:42px}
+.tegh-motion-loading::after{content:"";position:absolute;left:12%;right:12%;bottom:8px;height:1px;background:linear-gradient(90deg,transparent,rgba(36,115,98,.2),#247362,rgba(201,133,84,.72),transparent);transform:translateX(-115%);animation:tmLoadingLedger 1.25s linear infinite}
+@keyframes tmLoadingLedger{to{transform:translateX(115%)}}
+
+/* Signature action: one Ledger Pulse after meaningful state changes. */
+.tegh-ledger-pulse{position:relative!important;overflow:hidden!important}
+.tegh-ledger-pulse::after{content:"";position:absolute!important;z-index:20;left:-32%!important;right:auto!important;top:0!important;width:30%!important;height:1px!important;background:linear-gradient(90deg,transparent,#70b6a0,#247362,#c98554,transparent)!important;animation:tmLedgerPulse 720ms var(--tm-ease-enter) 1 both!important;pointer-events:none!important}
+@keyframes tmLedgerPulse{0%{left:-32%;opacity:0}16%{opacity:1}100%{left:104%;opacity:0}}
+
+/* Hero 3.8 concept refined by Quiet Momentum: no endless signal or floating decoration. */
+.hero-loaded .ledger-line{animation:none!important}
+.hero-loaded .source-bank,.hero-loaded .source-invoice,.hero-loaded .source-report{animation:none!important}
+.financial-field.tegh-hero-ledger-pulse .ledger-line{animation:tmHeroLedger 720ms linear 1!important;opacity:.42}
+.financial-field.tegh-hero-ledger-pulse .ledger-line.line-deposit{opacity:.92;stroke-width:2}
+@keyframes tmHeroLedger{from{stroke-dashoffset:38}to{stroke-dashoffset:-34}}
+.source-chip{will-change:auto!important}
+.financial-field[data-active-flow] .metric,.financial-field[data-active-flow] .intelligence-row,.hero-bank-row{transition-duration:var(--tm-micro)!important;transition-timing-function:var(--tm-ease-micro)!important}
+
+/* Native number-change hook. Stable currency symbols and surrounding layout. */
+.tegh-number-change{animation:tmNumberSettle 280ms var(--tm-ease-enter) both}
+@keyframes tmNumberSettle{0%{opacity:.62;transform:translateY(3px)}100%{opacity:1;transform:none}}
+
+/* Public storytelling visuals transform as one system. */
+:is(.product-stage,.ai-showcase,.reports-frame,.migration-surface,.workflow-panel,.split-section){transition:transform var(--tm-workspace) var(--tm-ease-enter),opacity var(--tm-workspace) var(--tm-ease-enter),box-shadow var(--tm-component) var(--tm-ease-micro)}
+.solution-panel:not([hidden]),.report-sheet{animation:tmContentSwap var(--tm-panel) var(--tm-ease-enter) both}
+@keyframes tmContentSwap{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* Low-power mode keeps essential state transitions but removes depth/decorative motion. */
+html[data-tegh-motion-tier="essential"] .financial-field{transform:none!important}
+html[data-tegh-motion-tier="essential"] .source-chip,
+html[data-tegh-motion-tier="essential"] .field-aura{animation:none!important;transition:none!important}
+html[data-tegh-motion-tier="essential"] .reveal{transition-duration:220ms!important}
+
+/* Mobile is intentionally faster and flatter. */
+@media(max-width:760px){
+  :root{--tm-component:190ms;--tm-panel:240ms;--tm-workspace:300ms;--tm-story:520ms}
+  html.tegh-motion-js .reveal{transform:translateY(8px)}
+  .mega-menu{will-change:auto}
+  .financial-field{transform:none!important}
+}
+
+/* Motion is never required to understand or operate Tegh. */
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto!important}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  html.tegh-motion-js .reveal,.reveal{opacity:1!important;transform:none!important;clip-path:none!important}
+  .tegh-motion-loading::after,.tegh-ledger-pulse::after,.financial-field.tegh-hero-ledger-pulse .ledger-line{animation:none!important;display:none!important}
+  .financial-field,.financial-core,.core-plane,.source-chip{transform:none!important}
+}

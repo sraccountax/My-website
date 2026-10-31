@@ -1,0 +1,3 @@
+﻿Account Code,Account Name,Account Type,Description,Active Status,Opening Balance Date,Debit,Credit,Memo or Description
+1801,QA Clearing Asset,Asset,Fictional QA-only opening asset,Active,2026-01-01,1000.00,,Balanced QA opening
+3801,QA Opening Equity,Equity,Fictional QA-only opening equity,Active,2026-01-01,,1000.00,Balanced QA opening

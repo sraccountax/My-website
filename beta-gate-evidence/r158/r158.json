@@ -1,0 +1,37 @@
+[
+ {
+  "id": "DEL-01",
+  "area": "R158",
+  "title": "The test company is in full use: rows in the tables added since R133 (onboarding, tax codes, notes, vendor invoice lines, client viewing link, code and session)",
+  "status": "PASS",
+  "evidence": "credit note 201; 29 tables hold rows of the company; children {\"components\":\"1\",\"billLines\":\"2\",\"noteLines\":\"1\",\"viewCodes\":\"1\",\"viewSessions\":\"1\"}"
+ },
+ {
+  "id": "DEL-02",
+  "area": "R158",
+  "title": "Wrong company name, wrong password, no backup confirmation, and a non-owner are all refused; nothing is deleted",
+  "status": "PASS",
+  "evidence": "name 409 company_name_mismatch; password 403 password_incorrect; no backup 409 company_backup_required; Company Admin 403 permission_forbidden; company still there 1; rows unchanged true"
+ },
+ {
+  "id": "DEL-03",
+  "area": "R158",
+  "title": "The owner deletes the company: accepted, and no row of it is left in any table with a company_id (read from the live schema), nor its tax code components, vendor invoice lines, note lines, client sign-in codes or sessions",
+  "status": "PASS",
+  "evidence": "200 ; company rows 0; left behind {}; children {\"components\":\"0\",\"billLines\":\"0\",\"noteLines\":\"0\",\"viewCodes\":\"0\",\"viewSessions\":\"0\"}"
+ },
+ {
+  "id": "DEL-04",
+  "area": "R158",
+  "title": "The deletion is logged once with the record counts from before the deletion; other companies are untouched",
+  "status": "PASS",
+  "evidence": "log rows 1; logged onboarding 1, tax codes 1, client links 1; mismatches none; another company still has 2 journal entries"
+ },
+ {
+  "id": "DEL-05",
+  "area": "R158",
+  "title": "In the browser: Account & Access › the company’s Actions › Delete on a used company, type the name and password, confirm; the company is gone and Tegh moves to another company",
+  "status": "PASS",
+  "evidence": "response 200; company rows 0; left behind {}; selected company afterwards another; message \"\"; page errors none"
+ }
+]
