@@ -40,7 +40,7 @@
     // R141: invitation and password-reset tokens arrive after '#'.
     new URLSearchParams((location.hash || '').replace(/^#/, '')).forEach((value, key) => { if (['accountSetup','passwordReset'].includes(key) && !params.has(key)) params.set(key, value); });
     const version = '5990';
-    const assetRevision = '5990-r175-mobile';
+    const assetRevision = '5990-r176-settings';
     const signedOut = params.get('signed-out') === '1';
     if (signedOut) {
       document.documentElement.dataset.signedOut = '1';

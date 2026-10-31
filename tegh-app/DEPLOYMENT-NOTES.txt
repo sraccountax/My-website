@@ -12,10 +12,11 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R175 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R176 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R175 (R118–R175 change notes are
-included). R175 is the private beta package (it replaces R174): public-page layout and phone screenshots (see
+This package contains every release through R176 (R118–R176 change notes are
+included). R176 is the private beta package (it replaces R175): Site & Release Settings is also listed under
+Settings › Platform Admin (see R176-CHANGES.md); one browser file only. R175 (replaced R174): public-page layout and phone screenshots (see
 R175-CHANGES.md); style sheets, images and page markup only. R174 (replaced R173): Site & Release Settings for the platform owner
 (see R174-CHANGES.md). Three tables (site_settings, site_setting_history, site_policy_versions) are created on first
 use; no manual migration. CONFIG CHANGE: public sign-up is now decided by the platform owner on screen;
