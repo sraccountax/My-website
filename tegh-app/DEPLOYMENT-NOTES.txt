@@ -12,10 +12,11 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R177 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R178 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R177 (R118–R177 change notes are
-included). R177 is the private beta package (it replaces R176): a new dashboard and its read-only route
+This package contains every release through R178 (R118–R178 change notes are
+included). R178 is the private beta package (it replaces R177): Client Dashboard Demo for the platform owner
+(see R178-CHANGES.md); browser files only, no server or database change. R177 (replaced R176): a new dashboard and its read-only route
 dashboard/summary (see R177-CHANGES.md). AFTER INSTALLING, NOTHING CHANGES FOR USERS: the new dashboard is off until
 the platform owner chooses "Platform owner only" or "Everyone" under Site & Release Settings › Release › New
 dashboard. Try "Platform owner only" on staging first. No new tables. R176 (replaced R175): Site & Release Settings is also listed under

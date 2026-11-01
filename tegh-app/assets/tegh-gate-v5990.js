@@ -3,7 +3,7 @@
 
   const VERSION = '5.9.9';
   const BUILD = '5990';
-  const ASSET_REVISION = '5990-r177-dashboard';
+  const ASSET_REVISION = '5990-r178-demo';
   const AUTH_CACHE_MS = 60000;
   const POST_COMMIT_SESSION_GRACE_MS = 45000;
   const RECOVERY_MARKER_KEY = 'tegh-session-recovery-v5990';
@@ -43,6 +43,8 @@
     'charts-r177':'/assets/tegh-charts-r177.js',
     'skeleton-r177':'/assets/tegh-skeleton-r177.js',
     'dashboard-r177':'/assets/tegh-dashboard-r177.js',
+    // R178: sample figures for the Client Dashboard Demo (platform owner).
+    'dashboard-demo-r178':'/assets/tegh-dashboard-demo-r178.js',
   });
   // One promise per allowlisted feature prevents concurrent requests from
   // installing multiple observers or handlers. Failed loads remain retryable.
