@@ -1,0 +1,170 @@
+[
+ {
+  "id": "DS-01",
+  "area": "R177",
+  "title": "Switch off: nobody gets the summary (403), and auth/me says off",
+  "status": "PASS",
+  "evidence": "owner 403 dashboard_preview_not_enabled, editor 403, auth/me off"
+ },
+ {
+  "id": "DS-02",
+  "area": "R177",
+  "title": "Platform owner only: the platform owner gets it; a company editor does not",
+  "status": "PASS",
+  "evidence": "owner 200, editor 403"
+ },
+ {
+  "id": "DS-03",
+  "area": "R177",
+  "title": "Everyone: a company editor gets it too",
+  "status": "PASS",
+  "evidence": "editor 200"
+ },
+ {
+  "id": "DS-04",
+  "area": "R177",
+  "title": "The switch is validated, kept when another release setting is saved, and recorded in the change history",
+  "status": "FAIL",
+  "evidence": "invalid 422; after stage-only save everyone; history rows 2"
+ },
+ {
+  "id": "DS-05",
+  "area": "R177",
+  "title": "Company isolation: a company the person does not belong to is refused, and no other company's figures appear",
+  "status": "PASS",
+  "evidence": "editor is member of other firm: 0; other firm 403 company_forbidden; own company true"
+ },
+ {
+  "id": "DS-06",
+  "area": "R177",
+  "title": "Signed out: 401",
+  "status": "PASS",
+  "evidence": "401"
+ },
+ {
+  "id": "DS-10-BC",
+  "area": "R177",
+  "title": "Figures for BC match workspace/summary, the ageing report, profit and loss and the cash forecast",
+  "status": "PASS",
+  "evidence": "bank 1008300, owed 421776, profit 221406, 21 weeks, 2 months, 2 to-dos; unavailable []"
+ },
+ {
+  "id": "DS-10-QC",
+  "area": "R177",
+  "title": "Figures for QC match workspace/summary, the ageing report, profit and loss and the cash forecast",
+  "status": "PASS",
+  "evidence": "bank -7487, owed 114975, profit 50000, 21 weeks, 2 months, 1 to-dos; unavailable []"
+ },
+ {
+  "id": "DS-10-ON",
+  "area": "R177",
+  "title": "Figures for ON match workspace/summary, the ageing report, profit and loss and the cash forecast",
+  "status": "PASS",
+  "evidence": "bank 0, owed 22600, profit 10000, 21 weeks, 0 months, 0 to-dos; unavailable []"
+ },
+ {
+  "id": "DS-10-US",
+  "area": "R177",
+  "title": "Figures for US match workspace/summary, the ageing report, profit and loss and the cash forecast",
+  "status": "PASS",
+  "evidence": "bank 0, owed 314875, profit 300000, 21 weeks, 0 months, 1 to-dos; unavailable []"
+ },
+ {
+  "id": "DS-10-R172",
+  "area": "R177",
+  "title": "Figures for R172 match workspace/summary, the ageing report, profit and loss and the cash forecast",
+  "status": "PASS",
+  "evidence": "bank 0, owed 56000, profit 30000, 21 weeks, 0 months, 1 to-dos; unavailable []"
+ },
+ {
+  "id": "DS-11",
+  "area": "R177",
+  "title": "Read-only: 15 summaries change no row in any accounting table",
+  "status": "PASS",
+  "evidence": "184 tables unchanged"
+ },
+ {
+  "id": "DS-12",
+  "area": "R177",
+  "title": "Speed: every company answers in under 300 ms on the server",
+  "status": "PASS",
+  "evidence": "BC 42.08, QC 27.96, ON 42.18, US 47.85, R172 37.5"
+ },
+ {
+  "id": "DS-13",
+  "area": "R177",
+  "title": "A new company: setup steps, no forecast weeks without bank data, no expenses, nothing to do",
+  "status": "PASS",
+  "evidence": "isNew true, setup 1/4, months 0, to-dos 0"
+ },
+ {
+  "id": "DU-01",
+  "area": "R177",
+  "title": "Platform owner sees the new dashboard across the full width; every panel loads; the figures match the summary; no script errors",
+  "status": "PASS",
+  "evidence": "{\"states\":[\"ready\",\"ready\",\"ready\",\"ready\",\"ready\",\"ready\",\"ready\",\"ready\"],\"cash\":\"$10,083\",\"ar\":\"$4,218\",\"ap\":\"$2,270\",\"over\":0,\"chartH\":230,\"gapRight\":30}"
+ },
+ {
+  "id": "DU-02",
+  "area": "R177",
+  "title": "Switch to the classic dashboard, then back with \"Try the new dashboard\"",
+  "status": "PASS",
+  "evidence": "{\"classic\":true,\"tryNew\":true,\"choice\":\"classic\"} back to new: true"
+ },
+ {
+  "id": "DU-03",
+  "area": "R177",
+  "title": "While it is owner-only, a company editor keeps the classic dashboard and is not offered the new one",
+  "status": "PASS",
+  "evidence": "{\"newDash\":false,\"classic\":true,\"tryNew\":false}"
+ },
+ {
+  "id": "DU-04",
+  "area": "R177",
+  "title": "Phone (390 wide): panels stack, nothing scrolls sideways, every panel loads",
+  "status": "PASS",
+  "evidence": "{\"states\":[\"ready\",\"ready\",\"ready\",\"ready\",\"ready\",\"ready\",\"ready\",\"ready\"],\"over\":0,\"cols\":1}"
+ },
+ {
+  "id": "DU-05",
+  "area": "R177",
+  "title": "Dark theme: the dashboard uses the app's dark colours (dark cards, light text)",
+  "status": "PASS",
+  "evidence": "{\"card\":\"rgb(16, 33, 28)\",\"text\":\"rgb(167, 187, 179)\",\"cardLum\":0.11382274509803922,\"textLum\":0.7143937254901961}"
+ },
+ {
+  "id": "DU-06",
+  "area": "R177",
+  "title": "Keyboard: the money chart reads out each month with the arrow keys",
+  "status": "PASS",
+  "evidence": "OctMoney in$0Money out$0Net$0"
+ },
+ {
+  "id": "DU-07",
+  "area": "R177",
+  "title": "A new company sees the setup steps and empty states instead of zeros and empty charts",
+  "status": "PASS",
+  "evidence": "{\"steps\":4,\"next\":\"Import a bank statement\",\"cfEmpty\":\"Your Monthly Money In And Out Will Show Here\",\"charts\":0,\"todo\":\"Nothing Needs You Right Now\"}"
+ },
+ {
+  "id": "DU-08",
+  "area": "R177",
+  "title": "Site & Release Settings shows the New dashboard choice and saves it with a reason",
+  "status": "PASS",
+  "evidence": "card 1, saved everyone"
+ },
+ {
+  "id": "DU-09",
+  "area": "R177",
+  "title": "Everyone: the company editor now sees the new dashboard",
+  "status": "PASS",
+  "evidence": "{\"newDash\":true,\"states\":[\"ready\",\"ready\",\"ready\",\"ready\",\"ready\",\"ready\",\"ready\",\"ready\"]}"
+ },
+ {
+  "id": "DS-99",
+  "area": "R177",
+  "title": "The switch is put back to off",
+  "status": "PASS",
+  "evidence": "200"
+ }
+]

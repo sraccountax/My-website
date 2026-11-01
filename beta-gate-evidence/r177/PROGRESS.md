@@ -1,6 +1,6 @@
 # R177 progress
 
-Status: FULL GATE RUNNING on the R177 ZIP (restarted after the full-width fix; the first run was stopped at suite 29-r161).
+Status: COMPLETE — see RESULTS.md.
 
 **Package:** `/srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R177-PRIVATE-BETA.zip`
 
