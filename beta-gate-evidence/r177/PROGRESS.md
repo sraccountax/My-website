@@ -20,7 +20,7 @@ Status: FULL GATE RUNNING on the R177 ZIP (restarted after the full-width fix; t
 
 1. `git fetch` and fast-forward the branch.
 2. `bash /srv/gate/t/up.sh </dev/null` (or rebuild with `beta-gate-evidence/scripts/gate-host-setup.sh`).
-3. Rebuild the ZIP from commit `fb3990b` (`git archive 11043aa:tegh-app`, files 0644, sorted `zip -X`) and check the
+3. Rebuild the ZIP from commit `fb3990b` (`git archive fb3990b:tegh-app`, files 0644, sorted `zip -X`) and check the
    SHA-256 above. Copy `tests/51-r177.mjs`, `tests/run-all.sh` and `../r176/tests/50-r176.mjs` to `/srv/gate/t/`.
 4. `nohup setsid bash /srv/gate/t/gate-resume.sh <zip> r177` (it resumes from `/srv/gate/.gate-resume-state`).
 5. When `/srv/gate/ev/tail-run.log` shows GATE-RESUME-DONE, write `RESULTS.md` here, commit, push and send the ZIP.
