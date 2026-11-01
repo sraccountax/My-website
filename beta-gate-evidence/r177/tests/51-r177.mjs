@@ -43,8 +43,10 @@ await t('DS-04', 'The switch is validated, kept when another release setting is 
   st = need('state', await o.call('site-admin', {company: false}));
   const keep = await o.call('site-admin/save', {method: 'POST', company: false, json: {groups: {release: {value: {stage: st.groups.release.value.stage}, revision: st.groups.release.revision}}, reason: 'R177 stage-only save ' + stamp}});
   st = need('state', await o.call('site-admin', {company: false}));
+  // DS-01..03 change the switch twice (owner, everyone); setting "off" when it is already off is not a change and,
+  // correctly, is not recorded.
   const hist = Number(sql("SELECT COUNT(*) FROM site_setting_history WHERE setting_group='release' AND reason LIKE 'R177 gate check%'"));
-  return {ok: bad.s === 422 && keep.s === 200 && st.groups.release.value.newDashboard === 'everyone' && hist >= 3, info: `invalid ${bad.s}; after stage-only save ${st.groups.release.value.newDashboard}; history rows ${hist}`};
+  return {ok: bad.s === 422 && keep.s === 200 && st.groups.release.value.newDashboard === 'everyone' && hist >= 2, info: `invalid ${bad.s}; after stage-only save ${st.groups.release.value.newDashboard}; history rows ${hist}`};
 });
 await t('DS-05', 'Company isolation: a company the person does not belong to is refused, and no other company\'s figures appear', async () => {
   // The company editor belongs to Gate Test BC Ltd only; Gate Other Firm Ltd (X) is another firm.
