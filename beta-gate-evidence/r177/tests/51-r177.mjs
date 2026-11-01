@@ -151,14 +151,16 @@ const page = async (who, cid, w = 1440, h = 900, theme) => {
   return s;
 };
 await setMode('owner');
-await t('DU-01', 'Platform owner sees the new dashboard; every panel loads; the figures match the summary; no script errors', async () => {
+await t('DU-01', 'Platform owner sees the new dashboard across the full width; every panel loads; the figures match the summary; no script errors', async () => {
   const {b, p, errs} = await page('owner', ids.BC);
   const api = (await summary(o, ids.BC)).b;
-  const r = await p.evaluate(() => ({ states: [...document.querySelectorAll('.r177-dash .sk-region')].map(x => x.dataset.state), cash: document.querySelector('#r177-p-hero .tc-kpi-value')?.textContent, ar: document.querySelector('#r177-p-ar .tc-kpi-value')?.textContent, ap: document.querySelector('#r177-p-ap .tc-kpi-value')?.textContent, over: document.documentElement.scrollWidth - innerWidth, chartH: document.querySelector('#r177-p-hero .tc-svg')?.getBoundingClientRect().height }));
+  const r = await p.evaluate(() => ({ states: [...document.querySelectorAll('.r177-dash .sk-region')].map(x => x.dataset.state), cash: document.querySelector('#r177-p-hero .tc-kpi-value')?.textContent, ar: document.querySelector('#r177-p-ar .tc-kpi-value')?.textContent, ap: document.querySelector('#r177-p-ap .tc-kpi-value')?.textContent, over: document.documentElement.scrollWidth - innerWidth, chartH: document.querySelector('#r177-p-hero .tc-svg')?.getBoundingClientRect().height,
+    // The page frame must not keep an empty Shortcuts column beside the new dashboard.
+    gapRight: Math.round(document.querySelector('.r177-dash').parentElement.getBoundingClientRect().right - document.querySelector('.r177-dash').getBoundingClientRect().right) }));
   await p.screenshot({path: '/srv/gate/ev/shots/r177-desktop.png'});
   await b.close();
   const money = c => '$' + Math.round(c / 100).toLocaleString('en-CA');
-  return {ok: r.states.length === 8 && r.states.every(x => x === 'ready') && r.cash === money(api.headline.bankBalanceCents) && r.ar === money(api.headline.receivablesCents) && r.ap === money(api.headline.payablesCents) && r.over <= 0 && r.chartH >= 200 && !errs.length, info: JSON.stringify(r) + (errs.length ? ' | ' + errs.join(' | ') : '')};
+  return {ok: r.states.length === 8 && r.states.every(x => x === 'ready') && r.cash === money(api.headline.bankBalanceCents) && r.ar === money(api.headline.receivablesCents) && r.ap === money(api.headline.payablesCents) && r.over <= 0 && r.chartH >= 200 && r.gapRight <= 40 && !errs.length, info: JSON.stringify(r) + (errs.length ? ' | ' + errs.join(' | ') : '')};
 });
 await t('DU-02', 'Switch to the classic dashboard, then back with "Try the new dashboard"', async () => {
   const {b, p} = await page('owner', ids.BC);

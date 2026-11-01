@@ -174,6 +174,10 @@ html[data-tegh-theme="dark"] { --sk-base: #142f3d; --sk-shine: #1f4253; }
 }
 
 /* ---- R177 dashboard page (only inside .r177-dash) ---- */
+/* The R22 page frame lays the classic dashboard out as a main column plus a 320px Shortcuts column. The new dashboard
+   has no Shortcuts column, so it takes the whole width. */
+html[data-tegh-activity-shell="r22"] .r22-dashboard-flow > .r177-dash { grid-column: 1 / -1; grid-row: 1 / -1; margin-right: 14px; }  /* clear of the scroll bar */
+html[data-tegh-activity-shell="r22"] .r22-dashboard-flow:has(> .r177-dash) { display: block; }
 .r177-dash {
   --d-card: var(--tegh-surface, #ffffff); --d-line: var(--tegh-line, #e1e7ea); --d-ink: var(--tegh-ink, #0b2a3a);
   --d-ink-2: var(--tegh-muted, #455a66); --d-ink-3: #566a77; --d-chip: rgba(11, 42, 58, .06); --d-accent: #0b665d;

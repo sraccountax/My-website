@@ -34,6 +34,8 @@ dashboard** to switch back. That choice is remembered on the device.
   invoice) and helpful empty panels instead of zeros and empty charts.
 - **While loading,** each panel shows a placeholder in its own shape and fills in when the data arrives. A panel that
   cannot load says so and offers **Try again**; the others still show.
+- **Full width:** the new dashboard uses the whole page; the classic dashboard's Shortcuts column is not part of it
+  (shortcut keys still work on every page).
 - **Light and dark:** the page follows the app's theme (Settings › Appearance). It works on phones, and motion is
   switched off for people who turn it off on their device.
 
