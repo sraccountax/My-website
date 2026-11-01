@@ -132,7 +132,7 @@ function r177_dashboard_summary(array $user, array $company): array
 
     // Profit this year: the headline figure plus a month-by-month running total and the same point last year.
     $profit = null;
-    if ($s['netIncomeYtdCents'] !== null && ((int)$s['incomeYtdCents'] !== 0 || (int)$s['expensesYtdCents'] !== 0)) {
+    if ($canReports && $s['netIncomeYtdCents'] !== null && ((int)$s['incomeYtdCents'] !== 0 || (int)$s['expensesYtdCents'] !== 0)) {
         $profit = r177_part('profit', static function () use ($cid, $periodStart, $today, $s, $base): array {
             $mapped = in_array('profit', $base['summary']['customMappedCards'] ?? [], true);
             $trend = [];
@@ -163,11 +163,11 @@ function r177_dashboard_summary(array $user, array $company): array
     }
 
     // Who owes you, grouped with the company's own ageing cut-offs.
-    $receivables = r177_part('receivables', static function () use ($company, $cid, $today): array {
+    $receivables = !$canReports ? null : r177_part('receivables', static function () use ($company, $cid, $today): array {
         $aging = tegh_command_aging_data($company, 'receivable', $today);
         $profile = function_exists('portal_aging_profile') ? portal_aging_profile($cid) : ['ar_cutoff_1' => 30, 'ar_cutoff_2' => 60, 'ar_cutoff_3' => 90];
         [$c1, $c2, $c3] = [(int)$profile['ar_cutoff_1'], (int)$profile['ar_cutoff_2'], (int)$profile['ar_cutoff_3']];
-        $labels = ['Not yet due', '1–' . $c1 . ' days', ($c1 + 1) . '–' . $c2 . ' days', ($c2 + 1) . '–' . $c3 . ' days', 'Over ' . $c3 . ' days'];
+        $labels = ['Not overdue', '1–' . $c1 . ' days', ($c1 + 1) . '–' . $c2 . ' days', ($c2 + 1) . '–' . $c3 . ' days', 'Over ' . $c3 . ' days'];
         $cents = [0, 0, 0, 0, 0];
         $late = ['count' => 0, 'cents' => 0, 'parties' => []];
         foreach ($aging['rows'] as $row) {
@@ -189,7 +189,7 @@ function r177_dashboard_summary(array $user, array $company): array
     }, $missing);
 
     // Where the money goes: posted expense accounts this fiscal year, largest five plus everything else.
-    $expenses = r177_part('expenses', static function () use ($cid, $periodStart, $today): array {
+    $expenses = !$canReports ? null : r177_part('expenses', static function () use ($cid, $periodStart, $today): array {
         $rows = tegh_ins_rows("SELECT a.code,a.name,COALESCE(SUM(jl.debit_cents-jl.credit_cents),0) n FROM journal_lines jl
             JOIN journal_entries je ON je.id=jl.journal_entry_id JOIN accounts a ON a.id=jl.account_id
             WHERE je.company_id=? AND je.status='posted' AND je.entry_date BETWEEN ? AND ? AND a.account_type='expense'
@@ -208,6 +208,8 @@ function r177_dashboard_summary(array $user, array $company): array
         if ($credits !== 0) $items[] = ['label' => 'Refunds and credits', 'code' => '', 'cents' => $credits, 'other' => true, 'credit' => true];
         return ['periodStart' => $periodStart, 'periodEnd' => $today, 'totalCents' => array_sum(array_column($items, 'cents')), 'items' => $items];
     }, $missing);
+
+    if (!$canReports) { $missing['receivables'] = 'not_permitted'; $missing['expenses'] = 'not_permitted'; $missing['profit'] = 'not_permitted'; }
 
     // Needs you: the same signals as the classic To Do list.
     $todo = [];

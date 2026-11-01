@@ -12,7 +12,7 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R176 PRIVATE BETA CANDIDATE (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R177 PRIVATE BETA CANDIDATE (invitation-only, sample data only)
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -79,10 +79,11 @@ R173 (private beta package, replaces R172): the public pages and the sign-in scr
 R174 (private beta package, replaces R173): Site & Release Settings for the platform owner (Platform Owner Home › Site & release settings) — release stage Beta/Production, public sign-up, the top-bar notice, the version label and Beta labels, business details, versioned policy pages (Privacy, Terms, Security, Cookies, DPA, Subprocessors) and the beta wording on the public pages, all changeable without a new release; every change needs a reason and is kept in the change history. Three tables are created on first use. See R174-CHANGES.md.
 R175 (private beta package, replaces R174): public pages use more of the screen width, with larger section headings and a smaller top heading; on phones the product screenshots show Tegh's phone layout; the table Actions column is pinned only on screens wider than 700 pixels. No database or server change. See R175-CHANGES.md.
 R176 (private beta package, replaces R175): Site & Release Settings is also listed under Settings › Platform Admin and in the account menu (it was reachable only from a card on Platform Owner Home). One browser file; no database or server change. See R176-CHANGES.md.
+R177 (private beta package, replaces R176): a new dashboard (cash forecast line, animated figures, Needs you, who owes you, where the money goes, loading placeholders, empty states for a new company), fed by a new read-only route dashboard/summary. It is off until the platform owner turns it on under Site & Release Settings (off, platform owner only, everyone); everyone else keeps the classic dashboard. No new tables. See R177-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json
-and tegh-build.json all identify this package as R176; per-file hashes kept in
+and tegh-build.json all identify this package as R177; per-file hashes kept in
 their "history" sections record earlier releases and are not expected to match.
 
 Fresh installation (empty database): upload the package, put config.php outside
