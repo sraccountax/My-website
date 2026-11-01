@@ -29,7 +29,7 @@ production site.
 | Check | Why |
 |---|---|
 | BS-07, BS-09 | Policy pages are not published on the freshly reset test host. Publishing them in Site & Release Settings fixes these. |
-| PW-01, WR-09 | Old wording checks for the public pages that predate the R173 to R175 redesign. |
+| PW-01, WR-09 | Public-page wording checks that also failed on R175 and R176; R177 does not change the public pages. |
 | DI-I6, DI-SCAN, DD-01 | Fail the same way on R173 on this host (scanner and OCR environment, top-bar click timing). |
 
 ### DS-04 (fixed in the test, not the product)
