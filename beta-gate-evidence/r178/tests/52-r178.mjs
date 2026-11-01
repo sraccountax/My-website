@@ -40,7 +40,9 @@ await t('DM-02', 'The demo opens with sample figures, every panel loads, and no 
   const {b, p, errs} = await open(ids.BC);
   p.on('request', r => { const u = r.url(); if (/\/api\//.test(u)) calls.push(decodeURIComponent(u.replace(/^.*\/api\/(index\.php\?route=)?/, '').split('&')[0])); });
   calls = [];
-  await p.evaluate(() => TeghPortal.openClientDashboardDemo()); await demoReady(p); await p.waitForTimeout(1200);
+  await p.evaluate(() => TeghPortal.openClientDashboardDemo()); await demoReady(p);
+  // The headline figures count up when they appear; wait for the count to finish.
+  await p.waitForFunction(() => document.querySelector('.r178-demo #r177-p-hero .tc-kpi-value')?.textContent === '$48,210', null, {timeout: 8000}).catch(() => {});
   const r = await p.evaluate(() => ({ title: [...document.querySelectorAll('.srp-page')].pop()?.querySelector('h1')?.textContent, cash: document.querySelector('.r178-demo #r177-p-hero .tc-kpi-value')?.textContent, tag: document.querySelector('.r178-demo-tag')?.textContent, chartH: document.querySelector('.r178-demo .tc-svg')?.getBoundingClientRect().height, over: document.documentElement.scrollWidth - innerWidth }));
   await p.screenshot({path: '/srv/gate/ev/shots/r178-demo.png'});
   await b.close();
