@@ -39,6 +39,10 @@
     // R171: company feed on the Dashboard.
     feed:'/assets/tegh-feed-r171.js',
     forecast:'/assets/tegh-forecast-v5300.js',
+    // R177: the new dashboard (only for people it is turned on for).
+    'charts-r177':'/assets/tegh-charts-r177.js',
+    'skeleton-r177':'/assets/tegh-skeleton-r177.js',
+    'dashboard-r177':'/assets/tegh-dashboard-r177.js',
   });
   // One promise per allowlisted feature prevents concurrent requests from
   // installing multiple observers or handlers. Failed loads remain retryable.

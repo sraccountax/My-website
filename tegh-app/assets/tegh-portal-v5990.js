@@ -2309,7 +2309,37 @@ const TeghPortal = (() => {
   // R162: at sign-in several start-up paths open the home before the signed-in user is known. The Guided/Full choice
   // is stored per user and company, so it read as Full Accounting then and a Guided user sometimes landed on this
   // Dashboard instead of Guided Home. Until the user is known, wait for it and open the home for their mode.
-  function openDashboard(afterAuth=false){if(!authCache&&!afterAuth){auth().then(()=>experienceMode()==='owner'?openGuidedBookkeeping():openDashboard(true),()=>openDashboard(true));return}if(onboardingGate(()=>experienceMode()==='owner'&&!afterAuth?openGuidedBookkeeping():openDashboard(afterAuth)))return;setTimeout(()=>r157ShowBankStart(),1400);cancelCoreRouting();collapseOther(null);activeModule='';coreModule='';dashboardOpened=true;showPage('dashboard','Dashboard','',async body=>{mountCompanyFeed();
+  // R177: the new dashboard. The platform owner turns it on in Site & Release Settings (off, owner only or
+  // everyone); each person can still switch back to the classic dashboard on this device.
+  const R177_CHOICE_KEY='tegh.dashboard.choice';
+  function r177DashboardAllowed(){const mode=authCache?.site?.newDashboard;return !isConsolidated()&&(mode==='everyone'||(mode==='owner'&&authCache?.user?.platformRole==='platform_owner'))}
+  function r177DashboardChoice(){try{return localStorage.getItem(R177_CHOICE_KEY)||''}catch{return ''}}
+  function r177SetDashboardChoice(value){try{localStorage.setItem(R177_CHOICE_KEY,value)}catch{}}
+  function r177UseNewDashboard(){return r177DashboardAllowed()&&r177DashboardChoice()!=='classic'}
+  const R177_ROUTES={
+    banking:()=>openFinancialAccounts(),'bank-import':()=>openCurrentStatementImporter(),'bank-review':()=>openBankReview(),
+    reconcile:()=>openBankReconciliationCompletion(),forecast:()=>openFlexibleCashForecast({weeks:13}),
+    'aged-ar':()=>openAgeing('receivable','Dashboard'),'aged-ap':()=>openAgeing('payable','Dashboard'),bills:()=>openBills(),
+    pl:(opts={})=>openFinancialReport('profit-loss',opts.start?{start:opts.start,end:opts.end}:{}),tax:()=>openWorkspaceReport('tax-summary','Dashboard'),
+    'new-invoice':()=>openCustomerInvoice(),'new-bill':()=>invokeQuickAction('nav.vendor_invoice_create',{source:'dashboard'}),'new-expense':()=>invokeQuickAction('nav.expense_vouchers',{source:'dashboard'}),
+    'opening-balances':()=>openOpeningBalances()
+  };
+  function openDashboard177(){
+    setTimeout(()=>r157ShowBankStart(),1400);cancelCoreRouting();collapseOther(null);activeModule='';coreModule='';dashboardOpened=true;
+    showPage('dashboard','Dashboard','',async body=>{mountCompanyFeed();
+      const [a]=await Promise.all([auth(),window.TeghLoadFeature('charts-r177'),window.TeghLoadFeature('skeleton-r177')]);await window.TeghLoadFeature('dashboard-r177');
+      const page=body.closest('.srp-page'),firstName=String(a.user?.displayName||a.user?.name||'').trim().split(/\s+/)[0],hour=new Date().getHours();
+      $('.srp-page-head h1',page).textContent=`${hour<12?'Good morning':hour<18?'Good afternoon':'Good evening'}${firstName?', '+firstName:''}`;
+      $('.srp-page-head p',page).textContent='Here is what your books show today.';
+      body.classList.add('r177-dashboard-body');
+      window.TeghDashboard177.render(body,{
+        api:route=>api(route),
+        open:(route,opts)=>{const go=R177_ROUTES[route];if(go)go(opts);else toast('Not available yet','This shortcut is not connected yet.','warning')},
+        useClassic:()=>{r177SetDashboardChoice('classic');openDashboard(true)}
+      });
+    },{module:'Dashboard',route:'dashboard',cache:false});
+  }
+  function openDashboard(afterAuth=false){if(!authCache&&!afterAuth){auth().then(()=>experienceMode()==='owner'?openGuidedBookkeeping():openDashboard(true),()=>openDashboard(true));return}if(onboardingGate(()=>experienceMode()==='owner'&&!afterAuth?openGuidedBookkeeping():openDashboard(afterAuth)))return;if(r177UseNewDashboard())return openDashboard177();setTimeout(()=>r157ShowBankStart(),1400);cancelCoreRouting();collapseOther(null);activeModule='';coreModule='';dashboardOpened=true;showPage('dashboard','Dashboard','',async body=>{mountCompanyFeed();
     const [w,a]=await Promise.all([workspaceSummary(),auth()]);
     if(!w?.summary||['bankBalanceCents','unpaidInvoicesCents','payableSubledgerCents','taxPayableCents','transactionsToReview'].some(key=>!Number.isFinite(Number(w.summary[key]))||w.summary[key]===null))throw Error('Current balances are unavailable. Retry to load verified figures.');
     const currency=w.organization?.currency||'CAD',summary=w.summary,today=todayIso(),page=body.closest('.srp-page');
@@ -2331,7 +2361,7 @@ const TeghPortal = (() => {
     $('.srp-page-head h1',page).textContent=`${greeting}${firstName?', '+firstName:''}`;
     page.dataset.r19Greeting='1';
     const headingActions=$('.tegh-page-head-actions',page);
-    if(headingActions){const stamp=document.createElement('time');stamp.className='r19-dashboard-date';stamp.dateTime=new Date().toISOString();stamp.textContent=new Intl.DateTimeFormat('en-CA',{weekday:'short',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}).format(new Date());headingActions.prepend(stamp)}
+    if(headingActions&&r177DashboardAllowed()){const tryNew=document.createElement('button');tryNew.type='button';tryNew.className='srp-btn secondary';tryNew.dataset.r177TryNew='';tryNew.textContent='Try the new dashboard';tryNew.onclick=()=>{r177SetDashboardChoice('new');openDashboard(true)};headingActions.prepend(tryNew)}if(headingActions){const stamp=document.createElement('time');stamp.className='r19-dashboard-date';stamp.dateTime=new Date().toISOString();stamp.textContent=new Intl.DateTimeFormat('en-CA',{weekday:'short',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}).format(new Date());headingActions.prepend(stamp)}
     $('.srp-page-head p',page).textContent=`Here’s what’s happening with ${w.organization?.name||'your company'} today. All figures in ${currency}.`;
     body.innerHTML=`<section class="srp-sites-stat-grid" aria-label="Current balances"><div class="r125-dash-intro" role="region" aria-label="Summary"><p class="r125-dash-summary">${esc(plainSummary)}</p><form class="r125-dash-ask" data-dashboard-ask role="search"><label><span class="tegh-assist-sr">Ask Tegh</span><input name="question" placeholder="Ask Tegh anything, e.g. who owes me money?" autocomplete="off" enterkeyhint="go"></label><button type="submit" class="srp-btn">Ask</button></form></div>${kpis.map((item,index)=>`<article class="srp-sites-stat-card" data-dashboard-kpi="${index}" ${item.tone?`data-tone="${item.tone}"`:''}><div><span>${esc(item.label)}</span><button type="button" data-sites-kpi="${index}" aria-label="Open ${esc(item.label)}">↗</button></div><strong>${item.value===null?'—':esc(money(item.value,currency))}</strong><small>${esc(item.note)}</small><em class="r125-term">${esc(item.term)}</em></article>`).join('')}</section>
       <section class="r17-dashboard-charts"><article class="srp-sites-panel r15-dashboard-forecast"><header><div><small>Four-Week Planning Estimate</small><h2>Cash Forecast</h2></div><button type="button" data-sites-forecast>View Forecast →</button></header><strong aria-label="Expected closing cash">—</strong><div data-dashboard-cash-chart role="status">Loading forecast…</div><small data-dashboard-cash-note>Planning estimate</small></article><article class="srp-sites-panel r17-dashboard-profit"><header><div><small data-dashboard-profit-period>Loading posted period…</small><h2>Money In and Out</h2></div><button type="button" data-sites-profit>Full report →</button></header><label>Period<select data-dashboard-months disabled aria-busy="true" title="Loading posted results"><option value="6">Last 6 Months</option><option value="3">Last 3 Months</option><option value="1">This Month</option></select></label><div class="r17-profit-totals" aria-label="Selected period totals">${['Money in','Money out','Profit'].map((label,i)=>`<div><span>${label}</span><b data-dashboard-profit-total="${i}">—</b></div>`).join('')}</div><p class="r125-chart-plain" data-dashboard-profit-plain></p><div class="r17-chart-legend"><span><i class="income"></i>Money in</span><span><i class="expense"></i>Money out</span><span><i class="net"></i>Profit</span></div><div data-dashboard-profit-chart role="status">Loading posted results…</div></article></section>
@@ -6829,6 +6859,8 @@ const TeghPortal = (() => {
         <section class="srp-card" style="grid-column:span 6"><h2>Moving to production</h2><p>One step sets the stage to Production, turns off the top-bar notice, hides the version label and hides the Beta labels on features. Sign-up, policies and page wording are separate decisions below.</p>
           <form class="r174-form" data-r174-production>${reasonField()}<button class="srp-btn" type="submit">Apply production settings</button><p class="full" role="status" data-status></p></form>
           <p class="r174-small">To go back, choose Beta above and turn the notice and labels on again under <b>Notice &amp; labels</b>.</p></section>
+        <section class="srp-card" style="grid-column:span 6" data-r177-dashboard-card><h2>New dashboard</h2><p>Who sees the new dashboard with animated charts, a 13-week cash forecast and loading placeholders. The classic dashboard stays available to everyone, and each person can switch back to it.</p>
+          <form class="r174-form" data-r177-dashboard><fieldset class="full r174-choice"><legend class="sr-only">Who sees the new dashboard</legend>${[['off','Off','Everyone keeps the classic dashboard'],['owner','Platform owner only','Try it yourself first'],['everyone','Everyone','Every company user sees it']].map(([v,t,d])=>`<label><input type="radio" name="newDashboard" value="${v}" ${(g.release.value.newDashboard||'off')===v?'checked':''}> <span><b>${t}</b><small>${d}</small></span></label>`).join('')}</fieldset>${reasonField()}<button class="srp-btn" type="submit">Save dashboard choice</button><p class="full" role="status" data-status></p></form></section>
         <section class="srp-card" style="grid-column:1/-1"><h2>Where things stand</h2><ul class="r174-checklist">
           <li><b>Stage</b>: ${stage==='production'?'Production':'Beta'}</li>
           <li><b>Sign-up</b>: ${esc(reg.mode)}${reg.deploymentAllowsPublicSignup?'':' · <span class="r174-warn">emergency force-off is set in config.php</span>'}</li>
@@ -6839,7 +6871,7 @@ const TeghPortal = (() => {
           <li><b>Public wording</b>: ${text?`${text} change${text===1?'':'s'} from the built-in beta wording`:'<span class="r174-warn">built-in beta wording</span>'}</li>
           <li><b>Versions people accept at sign-up</b>: Terms ${esc(state.acceptedVersions.terms)} · Privacy ${esc(state.acceptedVersions.privacy)}</li>
           ${policyLines}</ul></section>
-        <section class="srp-card" style="grid-column:1/-1"><h2>Change history</h2>${state.history.length?`<ul class="r174-history">${state.history.map(h=>`<li><b>${esc({release:'Release stage',labels:'Notice & labels',operator:'Business details',site_text:'Public wording'}[h.group]||h.group)}</b> · ${esc(h.at)} UTC${h.by?` · ${esc(h.by)}`:''}<span>${esc(h.reason)}</span></li>`).join('')}</ul>`:'<p class="srp-muted">No changes yet. Policy publishing is listed under Policies; sign-up changes are kept with Invitations &amp; Access.</p>'}</section>
+        <section class="srp-card" style="grid-column:1/-1"><h2>Change history</h2>${state.history.length?`<ul class="r174-history">${state.history.map(h=>`<li><b>${esc({release:'Release stage and dashboard',labels:'Notice & labels',operator:'Business details',site_text:'Public wording'}[h.group]||h.group)}</b> · ${esc(h.at)} UTC${h.by?` · ${esc(h.by)}`:''}<span>${esc(h.reason)}</span></li>`).join('')}</ul>`:'<p class="srp-muted">No changes yet. Policy publishing is listed under Policies; sign-up changes are kept with Invitations &amp; Access.</p>'}</section>
       </div>`};
 
     const signupPanel=()=>{const r=state.registration;return `<div class="srp-grid"><section class="srp-card" style="grid-column:span 7"><h2>Who can create an account</h2>
@@ -6910,9 +6942,10 @@ const TeghPortal = (() => {
     const busy=async(form,work)=>{if(form.dataset.busy==='1'||!form.reportValidity())return;form.dataset.busy='1';const b=$('[type=submit]',form);if(b)b.disabled=true;try{await work()}finally{form.dataset.busy='0';if(b)b.disabled=false}};
 
     const bind=()=>{
-      const stageForm=$('[data-r174-stage]',body);if(stageForm)stageForm.onsubmit=e=>{e.preventDefault();busy(stageForm,async()=>{if(await saveGroups({release:{stage:stageForm.stage.value}},stageForm.reason.value,formStatus(stageForm)))render()})};
+      const dashForm=$('[data-r177-dashboard]',body);if(dashForm)dashForm.onsubmit=e=>{e.preventDefault();busy(dashForm,async()=>{if(await saveGroups({release:{...state.groups.release.value,newDashboard:dashForm.newDashboard.value}},dashForm.reason.value,formStatus(dashForm))){if(authCache?.site)authCache.site.newDashboard=dashForm.newDashboard.value;render()}})};
+      const stageForm=$('[data-r174-stage]',body);if(stageForm)stageForm.onsubmit=e=>{e.preventDefault();busy(stageForm,async()=>{if(await saveGroups({release:{...state.groups.release.value,stage:stageForm.stage.value}},stageForm.reason.value,formStatus(stageForm)))render()})};
       const prod=$('[data-r174-production]',body);if(prod)prod.onsubmit=e=>{e.preventDefault();busy(prod,async()=>{if(!await teghConfirm('Set the stage to Production, turn off the top-bar notice, and hide the version label and the Beta labels?',{title:'Apply production settings',confirmLabel:'Apply',danger:false}))return;
-        const l=state.groups.labels.value;if(await saveGroups({release:{stage:'production'},labels:{...l,noticeEnabled:false,showVersion:false,showBetaLabels:false}},prod.reason.value,formStatus(prod)))render()})};
+        const l=state.groups.labels.value;if(await saveGroups({release:{...state.groups.release.value,stage:'production'},labels:{...l,noticeEnabled:false,showVersion:false,showBetaLabels:false}},prod.reason.value,formStatus(prod)))render()})};
       const signup=$('[data-r174-signup]',body);if(signup)signup.onsubmit=e=>{e.preventDefault();busy(signup,async()=>{const st=formStatus(signup);st.textContent='Saving…';
         try{const r=await api('platform/registration',{method:'POST',json:{enabled:signup.enabled.value==='true',revision:state.registration.revision,confirmation:'CHANGE REGISTRATION',reason:signup.reason.value}});state.registration=r;st.textContent=`Saved — ${r.mode}`;toast('Sign-up saved',r.mode,'success');render()}catch(error){st.textContent=userFacingError(error)}})};
       $('[data-r174-invites]',body)?.addEventListener('click',()=>openReleaseAdministration({tab:'settings'}));

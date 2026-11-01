@@ -237,6 +237,7 @@
       this.svg.textContent = '';
       const W = this.w, H = this.o.height;
       setAttrs(this.svg, { viewBox: '0 0 ' + W + ' ' + H, height: H });
+      this.svg.style.height = H + 'px';   // host pages may size bare SVGs as icons
       const y = v => pad.t + (1 - (v - scale.min) / (scale.max - scale.min)) * (H - pad.t - pad.b);
       const grid = svgEl('g', null, this.svg);
       for (const v of scale.ticks) {
@@ -580,6 +581,7 @@
       this.num = htmlEl('div', 'tc-kpi-value', this.root);
       this.delta = htmlEl('div', 'tc-kpi-delta', this.root);
       this.spark = svgEl('svg', { class: 'tc-spark', viewBox: '0 0 200 40', preserveAspectRatio: 'none', 'aria-hidden': 'true' }, this.root);
+      this.spark.style.height = '40px';
       this.area = svgEl('path', { fill: 'var(--tc-1)', opacity: 0.1 }, this.spark);
       this.line = svgEl('path', { fill: 'none', stroke: 'var(--tc-1)', 'stroke-width': 2, 'vector-effect': 'non-scaling-stroke', 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, this.spark);
       this.end = svgEl('circle', { r: 3, fill: 'var(--tc-1)' }, this.spark);
@@ -597,6 +599,7 @@
         htmlEl('span', '', this.delta, o.compareLabel);
       } else this.delta.textContent = '';
       const s = o.spark || [];
+      this.spark.style.display = s.length > 1 ? '' : 'none';
       if (s.length > 1) {
         const mn = Math.min(...s), mx = Math.max(...s), pts = s.map((v, i) => [i * 200 / (s.length - 1), 36 - (v - mn) / ((mx - mn) || 1) * 32]);
         const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join('');

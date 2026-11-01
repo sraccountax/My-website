@@ -104,7 +104,7 @@ function r174_schema_ready(): bool
 
 function r174_defaults(string $group): array
 {
-    if ($group === 'release') return ['stage' => 'beta'];
+    if ($group === 'release') return ['stage' => 'beta', 'newDashboard' => 'off'];
     if ($group === 'labels') {
         $notice = mb_substr(trim((string)(config('app.beta_notice') ?? '')), 0, 300);
         return ['noticeEnabled' => $notice !== '', 'noticeLabel' => 'Private beta · sample data only', 'noticeText' => $notice,
@@ -152,7 +152,15 @@ function r174_app_flags(): array
         'notice' => ['enabled' => $enabled, 'label' => (string)$l['noticeLabel'], 'text' => $enabled ? (string)$l['noticeText'] : ''],
         'showVersion' => !empty($l['showVersion']),
         'showBetaLabels' => !empty($l['showBetaLabels']),
+        'newDashboard' => r177_new_dashboard_mode(),
     ];
+}
+
+/** R177: off, owner (platform owner only) or everyone. */
+function r177_new_dashboard_mode(): string
+{
+    $mode = (string)(r174_group('release')['value']['newDashboard'] ?? 'off');
+    return in_array($mode, ['off', 'owner', 'everyone'], true) ? $mode : 'off';
 }
 
 /** Owner values for operator fields; blank fields fall back to config.php (legal_r156). */
@@ -285,7 +293,10 @@ function r174_validate_group(string $group, mixed $value): array
     if ($group === 'release') {
         $stage = $value['stage'] ?? '';
         if (!in_array($stage, ['beta', 'production'], true)) fail('Choose Beta or Production.', 422, 'site_settings_invalid');
-        return ['stage' => $stage];
+        // R177: who sees the new dashboard. A save that leaves it out keeps the current choice.
+        $dash = $value['newDashboard'] ?? r177_new_dashboard_mode();
+        if (!in_array($dash, ['off', 'owner', 'everyone'], true)) fail('Choose who sees the new dashboard: off, platform owner only, or everyone.', 422, 'site_settings_invalid');
+        return ['stage' => $stage, 'newDashboard' => $dash];
     }
     if ($group === 'labels') {
         $out = [
