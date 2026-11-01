@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Tegh Sidebar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/tegh-sidebar.css">
+<style>
+/* Layout: navy sidebar beside a quiet working area; on phones the sidebar becomes a drawer behind a menu button. */
+:root {
+  --bg: #f4f6f7; --card: #ffffff; --line: #e1e7ea; --ink: #0b2a3a; --ink-2: #455a66; --accent: #0b665d; --chip: #eef3f4;
+  --code-bg: #0b2a3a; --code-ink: #e3eef1;
+  --sans: Manrope, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0a1c27; --card: #0f2533; --line: #21404f; --ink: #eef4f6; --ink-2: #bcced5; --accent: #6fd8c9; --chip: #173544; --code-bg: #06141c; --code-ink: #d6e6ec; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0a1c27; --card: #0f2533; --line: #21404f; --ink: #eef4f6; --ink-2: #bcced5; --accent: #6fd8c9; --chip: #173544; --code-bg: #06141c; --code-ink: #d6e6ec; color-scheme: dark; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; display: flex; align-items: center; gap: 12px; padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: var(--bg); border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.menu-btn { display: none; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; place-items: center; }
+@media (max-width: 900px) { .menu-btn { display: grid; } }
+.crumb { font-size: 13px; color: var(--ink-2); }
+.bar h1 { margin: 0; font-size: 20px; font-weight: 800; }
+.content { max-width: 1100px; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 20px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+h2 { margin: 0; font-size: 18px; font-weight: 800; text-wrap: balance; }
+h3 { margin: 0; font-size: 15px; font-weight: 800; }
+p { margin: 0; color: var(--ink-2); max-width: 70ch; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { font: inherit; font-size: 14px; font-weight: 700; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 10px; padding: 0 14px; min-height: 40px; cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn:focus-visible, .menu-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 20px; margin: 0; padding: 0; list-style: none; }
+.keys li { display: flex; gap: 10px; align-items: baseline; color: var(--ink-2); font-size: 14px; }
+kbd { font: 600 12px var(--mono); background: var(--chip); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; padding: 1px 7px; color: var(--ink); white-space: nowrap; }
+.log { margin: 0; padding: 0; list-style: none; font: 13px/1.6 var(--mono); color: var(--ink-2); min-height: 4.8em; }
+.log li:first-child { color: var(--ink); }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 16px 24px; }
+pre { margin: 0; background: var(--code-bg); color: var(--code-ink); border-radius: 12px; padding: 14px 16px; overflow-x: auto; font: 12.5px/1.6 var(--mono); }
+.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; color: var(--ink-2); font-size: 14px; }
+.steps code, p code { font-family: var(--mono); font-size: .9em; background: var(--chip); border-radius: 4px; padding: 1px 5px; color: var(--ink); }
+</style>
+
+<div class="ts-shell">
+  <aside id="sidebar"></aside>
+  <div class="ts-main" id="main">
+    <div class="bar">
+      <button type="button" class="menu-btn" id="menu" aria-label="Open menu" aria-controls="sidebar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      </button>
+      <div>
+        <div class="crumb" id="crumb">Cedar &amp; Co. (Sample)</div>
+        <h1 id="page-title">Dashboard</h1>
+      </div>
+    </div>
+
+    <div class="content">
+      <section class="card" aria-labelledby="try-h">
+        <h2 id="try-h">Try it</h2>
+        <p>Click the chevron at the top of the sidebar to switch between the full menu and the icon rail. In the rail, hover over an icon for its name, and click Receivables or Reports to open their menus beside the rail. Make the window narrower than 900 pixels (or open this on a phone) to get the slide-in drawer.</p>
+        <div class="row">
+          <button type="button" class="btn" id="toggle">Collapse sidebar</button>
+          <button type="button" class="btn" id="badge">Add 3 bank lines</button>
+          <button type="button" class="btn" id="go">Go to Aged receivables</button>
+          <button type="button" class="btn" id="theme">Dark mode</button>
+        </div>
+        <h3>What the sidebar reported</h3>
+        <ul class="log" id="log" aria-live="polite"></ul>
+      </section>
+
+      <section class="card" aria-labelledby="keys-h">
+        <h2 id="keys-h">Keyboard</h2>
+        <ul class="keys">
+          <li><kbd>[</kbd> Collapse or expand the sidebar</li>
+          <li><kbd>Ctrl K</kbd> Search</li>
+          <li><kbd>↑</kbd> <kbd>↓</kbd> Move through the menu</li>
+          <li><kbd>→</kbd> <kbd>←</kbd> Open or close a group</li>
+          <li><kbd>Home</kbd> <kbd>End</kbd> First or last item</li>
+          <li><kbd>Esc</kbd> Close the drawer or a menu</li>
+        </ul>
+      </section>
+
+      <section class="card" aria-labelledby="use-h">
+        <h2 id="use-h">How to add it to a page</h2>
+        <div class="cols">
+          <div style="display: flex; flex-direction: column; gap: 10px; min-width: 0">
+            <h3>1. The page frame</h3>
+            <pre>&lt;link rel="stylesheet" href="../assets/tegh-sidebar.css"&gt;
+
+&lt;div class="ts-shell"&gt;
+  &lt;aside id="sidebar"&gt;&lt;/aside&gt;
+  &lt;div class="ts-main" id="main"&gt;
+    &lt;button id="menu" aria-label="Open menu"&gt;☰&lt;/button&gt;
+    … your page …
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script src="../assets/tegh-sidebar.js"&gt;&lt;/script&gt;</pre>
+            <h3>2. Describe the menu</h3>
+            <pre>const sidebar = TeghSidebar.mount('#sidebar', {
+  main: '#main',             // locked while the drawer is open
+  active: 'dashboard',
+  company: { name: 'Cedar &amp; Co.' },
+  user: { name: 'Priya Sharma', role: 'Owner' },
+  sections: [{
+    label: 'Workspace',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+      { id: 'banking', label: 'Banking', icon: 'banking', badge: 14 },
+      { id: 'receivables', label: 'Receivables', icon: 'receivables',
+        children: [
+          { id: 'invoices', label: 'Invoices' },
+          { id: 'aged-ar', label: 'Aged receivables' }
+        ] }
+    ]
+  }],
+  onNavigate: (id) =&gt; openPage(id),
+  onCollapse: (collapsed) =&gt; savePreference(collapsed)
+});
+
+document.getElementById('menu')
+  .addEventListener('click', e =&gt; sidebar.openDrawer(e.currentTarget));</pre>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px; min-width: 0">
+            <h3>3. Control it from your code</h3>
+            <pre>sidebar.setActive('aged-ar');   // highlight a page
+sidebar.setBadge('banking', 17);  // update a count
+sidebar.collapse(true);           // icon rail
+sidebar.toggle();                 // rail on desktop, drawer on phones
+sidebar.openDrawer();  sidebar.closeDrawer();
+sidebar.destroy();</pre>
+            <h3>Options</h3>
+            <ol class="steps">
+              <li><code>breakpoint</code>: below this width (default 900 pixels) the sidebar becomes a drawer.</li>
+              <li><code>collapsed</code>: start as the rail. Without it, the last choice saved in the browser is used.</li>
+              <li><code>footerCard</code>: <code>{ eyebrow, title, progress }</code> for the gold panel at the bottom.</li>
+              <li><code>onSearch</code>, <code>onCompany</code>, <code>onUser</code>: what the search, company and account buttons do.</li>
+              <li><code>onNavigate</code> returning <code>false</code> leaves the highlight where it is, for example while a form has unsaved changes.</li>
+              <li>Icons: <code>dashboard</code>, <code>banking</code>, <code>receivables</code>, <code>payables</code>, <code>ledger</code>, <code>payroll</code>, <code>reports</code>, <code>tax</code>, <code>assist</code>, <code>documents</code>, <code>settings</code>, <code>help</code>, or any 24×24 SVG path.</li>
+              <li>Sizes and colours are CSS variables on <code>.ts</code>, such as <code>--ts-w</code>, <code>--ts-w-rail</code>, <code>--ts-teal</code> and <code>--ts-gold</code>.</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/tegh-sidebar.js"></script>
+<script>
+(function () {
+  const titles = {};
+  const sections = [
+    { label: 'Workspace', items: [
+      { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+      { id: 'banking', label: 'Banking', icon: 'banking', badge: 14 },
+      { id: 'receivables', label: 'Receivables', icon: 'receivables', children: [
+        { id: 'invoices', label: 'Invoices' }, { id: 'customers', label: 'Customers' },
+        { id: 'payments-in', label: 'Payments received' }, { id: 'aged-ar', label: 'Aged receivables', badge: 3 }
+      ] },
+      { id: 'payables', label: 'Payables', icon: 'payables', children: [
+        { id: 'bills', label: 'Bills' }, { id: 'vendors', label: 'Vendors' }, { id: 'expenses', label: 'Expenses' }
+      ] },
+      { id: 'ledger', label: 'General ledger', icon: 'ledger' },
+      { id: 'payroll', label: 'Payroll', icon: 'payroll' }
+    ] },
+    { label: 'Insights', items: [
+      { id: 'reports', label: 'Reports', icon: 'reports', children: [
+        { id: 'pl', label: 'Profit and loss' }, { id: 'bs', label: 'Balance sheet' }, { id: 'cash', label: 'Cash flow' }
+      ] },
+      { id: 'tax', label: 'Sales tax', icon: 'tax' },
+      { id: 'assist', label: 'Tegh Assist', icon: 'assist' }
+    ] },
+    { label: 'Admin', items: [
+      { id: 'settings', label: 'Settings', icon: 'settings' },
+      { id: 'help', label: 'Help', icon: 'help' }
+    ] }
+  ];
+  sections.forEach(s => s.items.forEach(i => { titles[i.id] = i.label; (i.children || []).forEach(c => { titles[c.id] = c.label; }); }));
+
+  const log = document.getElementById('log');
+  const say = text => {
+    const li = document.createElement('li');
+    li.textContent = new Date().toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + '  ' + text;
+    log.prepend(li);
+    while (log.children.length > 4) log.lastChild.remove();
+  };
+  const toggleBtn = document.getElementById('toggle');
+  const labelToggle = c => { toggleBtn.textContent = c ? 'Expand sidebar' : 'Collapse sidebar'; };
+
+  const sidebar = TeghSidebar.mount('#sidebar', {
+    main: '#main',
+    active: 'dashboard',
+    company: { name: 'Cedar & Co. (Sample)', initials: 'CC' },
+    user: { name: 'Priya Sharma', role: 'Owner' },
+    footerCard: { eyebrow: 'Books', title: 'Up to date to 31 October', progress: 67 },
+    sections,
+    onNavigate: (id, item, e) => { e && e.preventDefault(); document.getElementById('page-title').textContent = titles[id]; say('onNavigate("' + id + '")'); },
+    onCollapse: c => { labelToggle(c); say('onCollapse(' + c + '): save this choice'); },
+    onSearch: () => say('onSearch(): open your search box'),
+    onCompany: () => say('onCompany(): open the company switcher'),
+    onUser: () => say('onUser(): open the account menu'),
+    onDrawer: open => say('Drawer ' + (open ? 'opened' : 'closed'))
+  });
+  labelToggle(sidebar.collapsed);
+
+  document.getElementById('menu').addEventListener('click', e => sidebar.openDrawer(e.currentTarget));
+  toggleBtn.addEventListener('click', () => { if (sidebar.mobile) sidebar.openDrawer(toggleBtn); else sidebar.collapse(!sidebar.collapsed); });
+  let lines = 14;
+  document.getElementById('badge').addEventListener('click', () => { lines += 3; sidebar.setBadge('banking', lines); say('setBadge("banking", ' + lines + ')'); });
+  document.getElementById('go').addEventListener('click', () => { sidebar.setActive('aged-ar'); document.getElementById('page-title').textContent = 'Aged receivables'; say('setActive("aged-ar")'); });
+
+  const themeBtn = document.getElementById('theme'), root = document.documentElement;
+  const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  const label = () => { themeBtn.textContent = isDark() ? 'Light mode' : 'Dark mode'; };
+  themeBtn.addEventListener('click', () => { root.dataset.theme = isDark() ? 'light' : 'dark'; label(); });
+  label();
+  say('Sidebar ready');
+})();
+</script>
