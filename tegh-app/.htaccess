@@ -6,6 +6,7 @@ ErrorDocument 404 /404.html
   AddType text/javascript .mjs
   AddType application/wasm .wasm
   AddType application/octet-stream .traineddata
+  AddType application/octet-stream .onnx
 </IfModule>
 
 <IfModule mod_rewrite.c>
@@ -69,7 +70,7 @@ ErrorDocument 404 /404.html
   <FilesMatch "^(tegh-app-v[0-9]+\.css|tegh-motion-v[0-9]+\.(css|js)|tegh-marketing-v[0-9]+\.(css|js)|tegh-(preflight|release|premium|experience|gate|sites-shell|portal|workflow|ai|native-ocr|native-ap-ar|forecast)-v[0-9]+\.(css|js)|tegh-(mark|icons)-v[0-9]+\.svg|tegh-social-v[0-9]+\.png|tegh-icon-180(?:-v[0-9]+)?\.png|index-BsxPiq85-v2817\.js|pdfStatementImport-BTobSMtl-v211\.js|spreadsheetStatementImport-R-lkb343-v211\.js|pdf\.worker\.min-DEtVeC4l\.mjs|xlsx-Cl_0CZaL\.js|setupSpreadsheetImport-ziv42POg\.js|statementRowRules-mL-yEqfq\.js|favicon\.(ico|png))$">
     Header always set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
-  <FilesMatch "^(pdf(?:\.worker)?\.min\.mjs|tesseract\.min\.js|tesseract-core-lstm\.(?:js|wasm|wasm\.js)|worker\.min\.js|eng\.traineddata|tegh-ai-(?:core|runtime|worker)-v4\.js|model\.json|manifest\.json|tegh-vector-v1\.wasm)$">
+  <FilesMatch "^(pdf(?:\.worker)?\.min\.mjs|tesseract\.min\.js|tesseract-core-lstm\.(?:js|wasm|wasm\.js)|worker\.min\.js|eng\.traineddata|tegh-ai-(?:core|runtime|worker)-v4\.js|model\.json|manifest\.json|tegh-vector-v1\.wasm|ort\.wasm\.min\.js|ort-wasm-simd-threaded\.(?:mjs|wasm)|ppocrv5-mobile-[a-z-]+\.(?:onnx|json))$">
     Header always set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
 </IfModule>

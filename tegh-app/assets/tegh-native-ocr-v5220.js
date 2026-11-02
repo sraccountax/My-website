@@ -16,6 +16,8 @@
     worker: `${ROOT}/tesseract/worker.min.js?v=${BUILD}`,
     core: `${ROOT}/tesseract/tesseract-core-lstm.wasm.js?v=${BUILD}`,
     language: `${ROOT}/lang`,
+    // R179: PaddleOCR (PP-OCRv5 mobile) for Document Intake; Tesseract stays as the fallback.
+    paddle: '/assets/tegh-paddle-ocr-r179.js?v=5990-r179-paddle',
   });
   const MANIFEST_SHA256 = '5664b221e0a2dedbe77fc0d3c14fb6ec9591f5f05420d7d6ef0b48d75321f29d';
   const MAX_PAGES = 8;
@@ -135,6 +137,35 @@
       return module;
     }).catch(error => { pdfModulePromise = null; throw error; });
     return pdfModulePromise;
+  }
+
+  // R179: Document Intake reads photos and scanned pages with PaddleOCR first. If it cannot load or fails, the page is
+  // read with Tesseract exactly as before. A page PaddleOCR reads as (nearly) blank is accepted as blank. Both run in
+  // this browser only.
+  let paddlePromise = null;
+  async function paddleOcr() {
+    paddlePromise ||= loadScript(PATHS.paddle).then(() => {
+      if (!window.TeghPaddleOCR?.recognize) throw new Error('The bundled PaddleOCR reader is unavailable.');
+      return window.TeghPaddleOCR;
+    }).catch(error => { paddlePromise = null; throw error; });
+    return paddlePromise;
+  }
+  async function readCanvas(canvas, getTesseract, onProgress) {
+    try {
+      const reader = await paddleOcr();
+      const result = await reader.recognize(canvas, { onProgress });
+      return { text: normalizeText(result.text), engine: 'paddleocr' };
+    } catch (error) {
+      console.warn('Tegh PaddleOCR could not read this page; using Tesseract instead.', error?.code || error?.message || error);
+    }
+    const worker = await getTesseract();
+    return { text: await recognize(worker, enhanceCanvas(copyCanvas(canvas))), engine: 'tesseract' };
+  }
+  function copyCanvas(canvas) {
+    const copy = window.document.createElement('canvas');
+    copy.width = canvas.width; copy.height = canvas.height;
+    copy.getContext('2d', { willReadFrequently: true }).drawImage(canvas, 0, 0);
+    return copy;
   }
 
   async function tesseract() {
@@ -388,7 +419,7 @@
       const context = canvas.getContext('2d', { alpha: false, willReadFrequently: true });
       context.fillStyle = '#fff'; context.fillRect(0, 0, canvas.width, canvas.height);
       context.imageSmoothingQuality = 'high'; context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-      return enhanceCanvas(canvas);
+      return canvas;   // R179: colour; readCanvas() greys and stretches a copy for Tesseract only
     } finally { bitmap.close?.(); }
   }
 
@@ -558,6 +589,8 @@
     let worker = null;
     let text = '';
     let usedOcr = false;
+    const engines = new Set();
+    const getTesseract = async () => (worker ||= await createOcrWorker(onProgress));
     const pageRows = [];
     try {
       for (let index = 1; index <= pages; index += 1) {
@@ -567,14 +600,14 @@
         let pageText = layoutTextFromItems(content.items);
         const rows = positionedRows(content.items);
         if (pageText.replace(/\s/g, '').length < 55 && !/(?:invoice|bill|document)\s*(?:number|no\.?|#)|(?:amount|balance)\s+due/i.test(pageText)) {
-          worker ||= await createOcrWorker(onProgress);
           const viewport = page.getViewport({ scale: 2.5 });
           const canvas = window.document.createElement('canvas');
           canvas.width = Math.ceil(viewport.width);
           canvas.height = Math.ceil(viewport.height);
           const context = canvas.getContext('2d', { alpha: false });
           await page.render({ canvasContext: context, viewport }).promise;
-          pageText = await recognize(worker, enhanceCanvas(canvas));
+          const read = await readCanvas(canvas, getTesseract, onProgress);
+          pageText = read.text; engines.add(read.engine);
           canvas.width = 1;
           canvas.height = 1;
           usedOcr = true;
@@ -586,18 +619,20 @@
       await worker?.terminate().catch(() => {});
       await document.destroy().catch(() => {});
     }
-    return { text, method: usedOcr ? 'ocr' : 'pdf_text', pageCount: pages, truncatedPages: totalPages > pages, pageRows };
+    return { text, method: usedOcr ? 'ocr' : 'pdf_text', pageCount: pages, truncatedPages: totalPages > pages, pageRows, engine: [...engines].join('+') || null };
   }
 
   async function extractImage(file, onProgress) {
-    const worker = await createOcrWorker(onProgress);
+    let worker = null;
+    const getTesseract = async () => (worker ||= await createOcrWorker(onProgress));
     try {
       const source = await prepareImage(file);
-      const text = await recognize(worker, source);
-      if (source !== file) { source.width = 1; source.height = 1; }
-      return { text, method: 'ocr', pageCount: 1, truncatedPages: false };
+      let read;
+      if (source === file) read = { text: await recognize(await getTesseract(), source), engine: 'tesseract' };   // no canvas support
+      else { read = await readCanvas(source, getTesseract, onProgress); source.width = 1; source.height = 1; }
+      return { text: read.text, method: 'ocr', pageCount: 1, truncatedPages: false, engine: read.engine };
     }
-    finally { await worker.terminate().catch(() => {}); }
+    finally { await worker?.terminate().catch(() => {}); }
   }
 
   async function extract(file, options = {}) {
@@ -616,7 +651,7 @@
       candidate,
       extractionMethod: result.method,
       rawText,
-      diagnostics: Object.freeze({ pageCount: result.pageCount, textLength: rawText.length, truncatedPages: result.truncatedPages, localOnly: true, providerAttempts: 0 }),
+      diagnostics: Object.freeze({ pageCount: result.pageCount, textLength: rawText.length, truncatedPages: result.truncatedPages, localOnly: true, providerAttempts: 0, ocrEngine: result.engine || null }),
     });
   }
 
@@ -810,8 +845,9 @@
     if (type.startsWith('image/')) {
       const worker = await createOcrWorker(options.onProgress);
       try {
-        const source = await prepareImage(file);
-        if (!(source instanceof HTMLCanvasElement)) throw Object.assign(new TypeError('This image could not be opened.'), {code: 'unreadable'});
+        const prepared = await prepareImage(file);
+        if (!(prepared instanceof HTMLCanvasElement)) throw Object.assign(new TypeError('This image could not be opened.'), {code: 'unreadable'});
+        const source = enhanceCanvas(prepared);   // unchanged by R179: this word-position reader stays on Tesseract
         const read = await recognisePage(worker, source, adapters, check);
         const page = {page: 1, width: read.canvas.width, height: read.canvas.height, rotation: read.rotation, method: 'ocr', items: read.items, meanConf: read.quality.mean};
         page.text = layoutTextFromItems(page.items);
