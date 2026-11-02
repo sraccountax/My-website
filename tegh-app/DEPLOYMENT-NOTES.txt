@@ -12,10 +12,12 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R179 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R180 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R179 (R118–R179 change notes are
-included). R179 is the private beta package (it replaces R178): Document Intake reads photos and scanned pages
+This package contains every release through R180 (R118–R180 change notes are
+included). R180 is the private beta package (it replaces R179): R179 with 46 unused files removed (see
+R180-CHANGES.md); no code change. Copies of those files already on the host are harmless and may be deleted later.
+R179 (replaced R178): Document Intake reads photos and scanned pages
 with PaddleOCR, Tesseract as the fallback (see R179-CHANGES.md). Browser files and one .htaccess type/cache rule;
 no server code or database change. UPLOAD CHECK: assets/tegh-ocr/paddle-r179/ holds about 27 MB, including one
 14 MB file (ort-wasm-simd-threaded.wasm); confirm every file uploaded (FILE-MANIFEST.sha256). If they are missing,

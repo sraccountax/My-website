@@ -12,7 +12,7 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R179 PRIVATE BETA CANDIDATE (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R180 PRIVATE BETA CANDIDATE (invitation-only, sample data only)
 
 A complete flat-root web application package. Read DEPLOYMENT-NOTES.txt before
 uploading. Upload the ZIP contents at the web root, not the ZIP's containing
@@ -82,10 +82,11 @@ R176 (private beta package, replaces R175): Site & Release Settings is also list
 R177 (private beta package, replaces R176): a new dashboard (cash forecast line, animated figures, Needs you, who owes you, where the money goes, loading placeholders, empty states for a new company), fed by a new read-only route dashboard/summary. It is off until the platform owner turns it on under Site & Release Settings (off, platform owner only, everyone); everyone else keeps the classic dashboard. No new tables. See R177-CHANGES.md.
 R178 (private beta package, replaces R177): Client Dashboard Demo for the platform owner (Settings › Platform Admin): the new client dashboard with sample figures, an established or a brand-new business, full-screen presenting; nothing is read from or written to any company. Also fixes the colours of the R177 empty-panel illustrations. Browser files only. See R178-CHANGES.md.
 R179 (private beta package, replaces R178): Document Intake reads photos and scanned pages with PaddleOCR PP-OCRv5 (models converted to ONNX, run in the browser with ONNX Runtime Web; Apache 2.0 and MIT, notices in assets/tegh-ocr/paddle-r179/), with Tesseract as the fallback. Nothing is sent off the site. Adds about 27 MB of browser files, the largest about 14 MB. No server code or database change. See R179-CHANGES.md.
+R180 (private beta package, replaces R179): 46 files that nothing loads were removed (old social-preview images, old v4140 public-site files, unused screenshots and font files, an unused SQL copy, licences of fonts not included); about 3.2 MB. No code change. See R180-CHANGES.md.
 
 Integrity: FILE-MANIFEST.sha256 lists every file with its SHA-256. It is the
 only authoritative per-file hash list. RELEASE-MANIFEST.json, PACKAGE-MANIFEST.json
-and tegh-build.json all identify this package as R179; per-file hashes kept in
+and tegh-build.json all identify this package as R180; per-file hashes kept in
 their "history" sections record earlier releases and are not expected to match.
 
 Fresh installation (empty database): upload the package, put config.php outside
