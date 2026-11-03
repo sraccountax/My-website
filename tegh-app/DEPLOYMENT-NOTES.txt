@@ -12,10 +12,14 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R180 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R181 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R180 (R118–R180 change notes are
-included). R180 is the private beta package (it replaces R179): R179 with 46 unused files removed (see
+This package contains every release through R181 (R118–R181 change notes are
+included). R181 is the private beta package (it replaces R180): books in any currency and exchange rates
+recorded by date (see R181-CHANGES.md). AFTER INSTALLING, NOTHING CHANGES: Worldwide currencies is off until the
+platform owner chooses "Platform owner only" or "Everyone" in Site & Release Settings › Release. Try "Platform owner only"
+on staging first. With it on, the first use adds table company_exchange_rates and two companies columns (ALTER
+privilege, as R137/R141/R153 needed); no existing row changes. R180 (replaced R179): R179 with 46 unused files removed (see
 R180-CHANGES.md); no code change. Copies of those files already on the host are harmless and may be deleted later.
 R179 (replaced R178): Document Intake reads photos and scanned pages
 with PaddleOCR, Tesseract as the fallback (see R179-CHANGES.md). Browser files and one .htaccess type/cache rule;

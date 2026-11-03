@@ -7145,7 +7145,9 @@ const TeghPortal = (() => {
     const [field,note]=noteFor();
     if(r.found){field.value=(Number(r.rateToBaseMicros)/1000000).toFixed(6);field.dispatchEvent(new Event('input',{bubbles:true}));note.textContent=r.rateDate===day?`Rate recorded for ${date(day)}.`:`No rate for ${date(day)}; using the rate recorded for ${date(r.rateDate)}.`}
     else{field.value='';field.dispatchEvent(new Event('input',{bubbles:true}));note.textContent=`No ${cur} rate recorded for ${date(day)}${r.maxAgeDays?` (or ${r.maxAgeDays} days before)`:''}. Record one in Currency Exchange Rates.`}}
-  document.addEventListener('change',event=>{const t=event.target,form=t?.form;if(!form||!form.querySelector('input[name="exchangeRate"]'))return;if(t.name!=='currency'&&!R181_DATE_FIELDS.includes(t.name))return;if(!r181DatedCompany()&&!r181Allowed())return;r181PrefillRate(form)});
+  // Capture phase: some forms redraw the changed field itself, which detaches it from the form before a bubbling listener runs.
+  // The lookup waits until the form has finished redrawing.
+  document.addEventListener('change',event=>{const t=event.target,form=t?.form;if(!form||!form.querySelector('input[name="exchangeRate"]'))return;if(t.name!=='currency'&&!R181_DATE_FIELDS.includes(t.name))return;if(!r181DatedCompany()&&!r181Allowed())return;setTimeout(()=>{if(form.isConnected)r181PrefillRate(form)},0)},true);
 
   async function r181RenderCurrencies(body,a,w,canEdit,base){
     let cat={currencies:[]},hist={rates:[],settings:{}};

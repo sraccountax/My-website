@@ -203,6 +203,11 @@ function tegh_r181_document_rate(array $company, string $currency, string $date,
     }
     if ($typed < TEGH_R181_MIN_RATE_MICROS) fail(tegh_r181_precision_message($currency, $base), 422, 'fx_rate_precision', false);
     $GLOBALS['tegh_r181_last_rate'] = $recorded + ['used' => $typed, 'entered' => true];
+    // The person confirmed a rate other than the recorded one: keep both in the audit trail.
+    audit_event(require_user(), (string)$company['id'], 'currency.rate_override_confirmed', 'company', (string)$company['id'], [
+        'document' => $label, 'currency' => $currency, 'documentDate' => $date, 'recordedRateMicros' => $recorded['rateToBaseMicros'],
+        'recordedRateDate' => $recorded['rateDate'], 'usedRateMicros' => $typed, 'baseCurrency' => $base,
+    ]);
     return $typed;
 }
 
