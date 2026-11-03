@@ -31,7 +31,8 @@ for (const cid of companies) {
 fs.writeFileSync(OUT + '/api-status.json', JSON.stringify(index, null, 1));
 
 // Screens: the visible text of the main pages for three companies with different data.
-const pick = [ids.BC, ...companies.filter(c => c !== ids.BC).slice(0, 2)];
+// PICK (comma-separated ids) repeats the screens of an earlier capture after ids.json has changed.
+const pick = process.env.PICK ? process.env.PICK.split(',') : [ids.BC, ...companies.filter(c => c !== ids.BC).slice(0, 2)];
 const pages = [['Dashboard', null], ['Receivables', 'Customer Invoices'], ['Receivables', 'Customer Invoice & Note Register'], ['Receivables', 'Receivable Ageing'],
   ['Payables', 'Vendor Invoices'], ['Payables', 'Payable Ageing'], ['Banking', 'Manage Bank Accounts'], ['Banking', 'Bank Transaction Report'],
   ['General ledger', 'Journal Entries'], ['General ledger', 'Day Book'], ['General ledger', 'GIFI Report'],

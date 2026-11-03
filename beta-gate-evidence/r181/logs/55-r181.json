@@ -1,0 +1,79 @@
+[
+ {
+  "id": "FX-01",
+  "area": "R181",
+  "title": "Switch off (default): a company outside Canada is still kept in CAD, and auth/me reports the switch off",
+  "status": "PASS",
+  "evidence": "auth/me off; INR company 422 cad_gl_required"
+ },
+ {
+  "id": "FX-02",
+  "area": "R181",
+  "title": "Switch on for the owner: an India company defaults to INR, rates by date, Asia/Kolkata; Canada stays CAD; JPY, KWD and IDR are explained",
+  "status": "PASS",
+  "evidence": "India 201 INR|dated|Asia/Kolkata|7; Canada+INR 422 cad_gl_required; {\"JPY\":\"base_currency_unsupported\",\"KWD\":\"base_currency_unsupported\",\"IDR\":\"base_currency_unsupported\"}"
+ },
+ {
+  "id": "FX-03",
+  "area": "R181",
+  "title": "Rates: several saved at once; future dates, 3-decimal currencies and pairs below 0.005 are refused; lookups use the date, then an earlier rate up to 7 days",
+  "status": "PASS",
+  "evidence": "saved 4; future rate_date_future; KWD currency_unsupported; KRW fx_rate_precision; 29 Sep 88400000; 28 Sep → 2026-09-26; 10 Sep found false"
+ },
+ {
+  "id": "FX-04",
+  "area": "R181",
+  "title": "A USD invoice converts at the recorded rate for its date; with no rate within 7 days it is not saved; a typed rate needs confirmation and is audited",
+  "status": "PASS",
+  "evidence": "29 Sep 88400000|8840000; 28 Sep 88120000|8812000; 10 Sep 422 fx_rate_missing; typed 409 fx_rate_differs, confirmed 87000000|8700000; audit rows 1; expected 88400000|8840000 / 88120000|8812000 / 87000000|8700000"
+ },
+ {
+  "id": "FX-05",
+  "area": "R181",
+  "title": "INR books: the invoice posts in INR (debits = credits); payment on 30 Sep at its rate posts the exchange gain of ₹120.00 to 6850",
+  "status": "PASS",
+  "evidence": "payment 201; bank +8852000 (want 8852000); 6850 -12000 (want -12000); unbalanced entries 0"
+ },
+ {
+  "id": "FX-06",
+  "area": "R181",
+  "title": "A USD bank statement converts each transaction at the rate recorded for its own date",
+  "status": "PASS",
+  "evidence": "preview 201 ; rows [[\"2026-09-26\",50000,4406000,88120000],[\"2026-09-29\",50000,4420000,88400000],[\"2026-09-30\",-1000,-88520,88520000]]; want [[\"2026-09-26\",50000,4406000,88120000],[\"2026-09-29\",50000,4420000,88400000],[\"2026-09-30\",-1000,-88520,88520000]]"
+ },
+ {
+  "id": "FX-07",
+  "area": "R181",
+  "title": "The base currency cannot change after the first transaction",
+  "status": "PASS",
+  "evidence": "409 fundamental_setting_locked"
+ },
+ {
+  "id": "FX-08",
+  "area": "R181",
+  "title": "A Canadian company is unaffected with the switch on: its rule stays \"current\" and a typed USD rate is used as typed, as in R180",
+  "status": "PASS",
+  "evidence": "policy current; USD active true; draft invoice 201 rate 1234567"
+ },
+ {
+  "id": "FX-09",
+  "area": "R181",
+  "title": "Another company's user cannot read or record this company's rates",
+  "status": "PASS",
+  "evidence": "read 403; write 403; rows written 0"
+ },
+ {
+  "id": "FX-10",
+  "area": "R181",
+  "title": "Screens: India company form defaults to INR; rates screen shows the history; the invoice editor fills in the rate for its date; amounts show ₹",
+  "status": "PASS",
+  "evidence": "{\"form\":\"INR\",\"errs1\":0,\"rupee\":13,\"history\":4,\"rate28\":\"88.120000\",\"rate10\":[\"\",\"No USD rate recorded for Sep 1\"],\"errs2\":0}"
+ },
+ {
+  "id": "FX-11",
+  "area": "R181",
+  "title": "Switch off again: the India company keeps its INR books and its rates-by-date rule",
+  "status": "PASS",
+  "evidence": "policy dated 88400000; undated invoice 422 fx_rate_missing"
+ }
+]
