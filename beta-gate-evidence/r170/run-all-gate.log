@@ -1,0 +1,109 @@
+=== resume 11:13
+=== 01-install
+=== 02-setup
+{
+  BC: 'company_423184988f1ad771dd3ba205e7fa5ab4',
+  QC: 'company_c05d81b5ad1b7b00bfdeed87aac4a060',
+  ON: 'company_5cdd4e335c5c926a0759d70612ce1143',
+  X: 'company_00c7624934e7d8d1ee8364de37f61ce7'
+}
+=== 02b-invite
+=== 03-acct
+expense 6000 equity 3000 bank gl 1000
+=== 04-tax
+INFO     CB-02      Cash basis: invoice issue posting recorded for review | {}
+=== 05-fx
+=== 06-sec
+INFO     XS-01      XSS payload customer stored as text (rendering checked in UI run) | 201
+=== 06b
+=== 07-cv
+=== 08-pay
+INFO     PY-01      Employee with SIN fields submitted: refused or SIN discarded | 422 sin_not_accepted Tegh does not store Social Insurance Numbers (SINs). Remove the SIN and use the Employee ID instead.
+INFO     PY-07      Payroll rate tables: year/version reported for owner verification | "effectiveFrom":"2026-01-01" "effectiveTo":"2026-06-30" "effectiveFrom":"2026-07-01" "effectiveTo":"2026-12-31"
+=== 09-backup
+=== 09b
+=== 10-ops
+INFO     LG-03      PHP error log: warnings recorded (see evidence) | PHP Warning:  POST Content-Length of 11534510 bytes exceeds the limit of 8388608 bytes in Unknown on line 0'
+INFO     SP-02      Public contact page offers a working contact path (form posts to /api/marketing) | mailto:enquiry@sraccountax.ca,mailto:enquiry@sraccountax.ca
+=== 13-r141
+FAIL     PW-01      Product page says Payroll Support Tool, Canada excluding Quebec (R142 wording), no "payrol | 
+=== 14-r142
+FAIL     WR-09      Product and Subscriptions pages say Canada, excluding Quebec; no "Canada only" | 
+=== 15-r144
+=== 16-r145
+INFO     DI-CMP     Field accuracy across the six documents, R145 reader vs the R144 reader (for information) | R145 47/47 fields; R144 19/47 fields
+=== 18-r149
+=== 19-r151
+=== 20-r151ui
+=== 21-r152
+FAIL     IN-09      The next invoice from that supplier (05/06/2026) is read as June 5, 2026 from supplier mem | locator.waitFor: Timeout 30000ms exceeded. Call log: [2m - waiting for locator('[data-native-document="nadoc_1c05e26d0747e7a08c8d7a43fa95f1a3"]').first() to be visible[22m [2m 60 × locator resolved
+=== 22-r153
+=== 23-r154
+=== 24-beta
+FAIL     BS-07      Accepting an invitation records the terms and privacy versions shown on the published Term | pages: terms undefined, privacy undefined; recorded 2026-10-21-beta.1|2026-10-21-beta.1
+FAIL     BS-09      Terms and Privacy pages: the operator, contacts, hosting, beta conditions, deletion proced | terms missing: Gate Test Operator Inc., support@gate.test, Private beta, Invitation only, Free, Sample data only, Data may be reset, No guarantee of availability, Not for real filings or payroll, 2026
+=== 25-r157
+=== 26-r158
+=== 27-r159
+=== 28-r160
+=== 29-r161
+=== 30-guided
+=== 31-r163
+=== 32-r163-sec
+
+10/10 R163 security checks passed
+=== 33-sec
+
+13/13 auth/client-view/payroll security checks passed
+=== 34-mfa
+=== 35-session
+=== 36-monitor
+=== 37-audit
+=== 38-files
+victims {
+  stmt: [
+    'company_2a024e047fefecce02152b3be4f4df2b',
+    'import_28b7436b2871489acc291a9b7dab8c9b'
+  ],
+  att: [
+    'company_946efe1c62de306b4a468ff21a4cad27',
+    'invoice_538d5c0427179e7e584ea55ea1d7f3b3',
+    'invatt_229937116a3ee4300b956340ed36ee18'
+  ],
+  nd: [
+    'company_022981ad0bd6d42359a6730eea5cf0f5',
+    'nadoc_abad2cb0ee79409dfcc5dcd19dd6e40b'
+  ],
+  inv: [
+    'company_e41653c68b2513651c8adfc547edefa6',
+    'invoice_76e0fcb7efcfb0793dc040e86b957bf1'
+  ]
+}
+=== 39-restore
+=== 40-r165
+=== 41-r166
+=== 42-r167
+=== 43-r168
+=== 44-r169
+=== 45-r170
+INFO     II-ACC1    Measured header-field accuracy across the fixtures (number, dates, totals, tax, currency) | 141/147 (95.9%)
+INFO     II-ACC2    Measured line-item accuracy (amount and description found) | 73/75 (97.3%)
+INFO     II-ACC3    Measured supplier-matching accuracy (known suppliers) | 21/21 (100%)
+INFO     II-ACC4    Per file | F01.pdf pdf_text: all right | F01b.pdf no job | F02.pdf pdf_text: all right | F03.pdf pdf_text: all right | F04.pdf ocr: all right | F05.pdf ocr: all right | F06.pdf ocr: invoiceNumber=""≠"PJ-3306"; i
+INFO     II-ACC5    Processing time per file, upload to result (seconds; includes waiting in the queue) | F11.pdf pdf_text 48s, F03.pdf pdf_text 34s, F02.pdf pdf_text 7s, F18.pdf pdf_text 68s, F20.pdf ocr 74s, F01.pdf pdf_text 8s, F08.pdf pdf_text 45s, F13.pdf pdf_text 51s, F22.pdf pdf_text 76s, F05.pdf o
+INFO     II-ACC6    Exception rate: review classes after reading | {"blocked":3,"review":14,"ready":7}
+      Northgate Paper & Office Ltd. · NG-20418$549.08 · blockedLakeshore Courier Inc. · LC-88255$179.11 · review requiredLakeshore Courier Inc. · LC-88240$179
+FAIL     II-UI-GUIDED Guided mode: Money Out › Read Supplier Bills opens Invoice Intelligence | locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('.sidebar nav button:has-text("Money Out")').first()[22m
+[2m    - locator resolved to <button accesskey="4" title="Paya
+201 company_50f48fade173f0913098233ca373cfc6
+=== w1
+=== w2
+=== w3
+=== w4
+=== w5
+=== w6
+=== w7
+=== w8
+=== w9

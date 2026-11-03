@@ -1,0 +1,89 @@
+{
+ "I1": {
+  "kind": "pdf",
+  "want": {
+   "partyName": "Northwind Office Supply Ltd.",
+   "documentNumber": "INV-20418",
+   "documentDate": "2026-03-04",
+   "dueDate": "2026-04-03",
+   "subtotalCents": 35900,
+   "taxCents": 4667,
+   "totalCents": 40567,
+   "businessIdentifier": "812345678 RT0001",
+   "lineItems": 2
+  }
+ },
+ "I2": {
+  "kind": "pdf",
+  "want": {
+   "partyName": "Quincaillerie Laval Inc.",
+   "documentNumber": "F-7781",
+   "documentDate": "2026-03-15",
+   "subtotalCents": 16150,
+   "taxCents": 2419,
+   "totalCents": 18569,
+   "lineItems": 2
+  }
+ },
+ "I3": {
+  "kind": "png",
+  "want": {
+   "partyName": "GREENLEAF GROCERY #22",
+   "documentNumber": "0042-118",
+   "documentDate": "",
+   "alternatives": [
+    "2026-03-04",
+    "2026-04-03"
+   ],
+   "subtotalCents": 2198,
+   "taxCents": 143,
+   "totalCents": 2341
+  }
+ },
+ "I4": {
+  "kind": "scan",
+  "want": {
+   "partyName": "Harbour Freight Logistics",
+   "documentNumber": "HF-5520",
+   "documentDate": "2026-03-20",
+   "dueDate": "2026-04-04",
+   "subtotalCents": 120000,
+   "taxCents": 14400,
+   "totalCents": 134400
+  }
+ },
+ "I6": {
+  "kind": "png",
+  "want": {
+   "partyName": "MAPLE LEAF CAFE",
+   "documentNumber": "7781",
+   "documentDate": "2026-08-21",
+   "subtotalCents": 900,
+   "taxCents": 117,
+   "totalCents": 1017
+  }
+ },
+ "I7": {
+  "kind": "scan",
+  "want": {
+   "partyName": "Birchwood Courier Ltd.",
+   "documentNumber": "BC-311",
+   "documentDate": "2026-07-07",
+   "subtotalCents": 8000,
+   "taxCents": 1040,
+   "totalCents": 9040
+  }
+ },
+ "I5": {
+  "kind": "png",
+  "want": {
+   "partyName": {
+    "re": "^FIELDSTONE FUEL \\d{4}$"
+   },
+   "documentDate": "2026-09-14",
+   "subtotalCents": 7174,
+   "taxCents": 933,
+   "totalCents": 8107
+  }
+ }
+}

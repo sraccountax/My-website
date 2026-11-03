@@ -1,0 +1,12 @@
+1440x900 receivables:customer-invoices  layout {"oy":"auto","ob":"contain","sh":995,"ch":636,"h":636} stage/layout scrollTop after touch "r29-invoice-layout:359" after wheel "r29-invoice-layout:359" 
+1440x900 payables:vendor-invoices       layout {"oy":"visible","ob":"auto","sh":1053,"ch":1053,"h":1053} stage/layout scrollTop after touch "r22-workspace:585" after wheel "r22-workspace:585" 
+1024x768 receivables:customer-invoices  layout {"oy":"auto","ob":"contain","sh":1195,"ch":477,"h":477} stage/layout scrollTop after touch "r29-invoice-layout:543" after wheel "r29-invoice-layout:500" 
+1024x768 payables:vendor-invoices       layout {"oy":"visible","ob":"auto","sh":1118,"ch":1118,"h":1118} stage/layout scrollTop after touch "r22-workspace:540" after wheel "r22-workspace:750" 
+768x1024 receivables:customer-invoices  layout {"oy":"visible","ob":"auto","sh":1672,"ch":1672,"h":1672} stage/layout scrollTop after touch "stage:803" after wheel "stage:500" 
+768x1024 payables:vendor-invoices       layout {"oy":"visible","ob":"auto","sh":1592,"ch":1592,"h":1592} stage/layout scrollTop after touch "stage:854" after wheel "stage:500" 
+390x844 receivables:customer-invoices  layout {"oy":"visible","ob":"auto","sh":1956,"ch":1956,"h":1956} stage/layout scrollTop after touch "stage:608" after wheel "stage:500" 
+390x844 payables:vendor-invoices       layout {"oy":"visible","ob":"auto","sh":1642,"ch":1642,"h":1642} stage/layout scrollTop after touch "stage:606" after wheel "stage:500" 
+360x800 receivables:customer-invoices  layout {"oy":"visible","ob":"auto","sh":1956,"ch":1956,"h":1956} stage/layout scrollTop after touch "stage:730" after wheel "stage:500" 
+360x800 payables:vendor-invoices       layout {"oy":"visible","ob":"auto","sh":1679,"ch":1679,"h":1679} stage/layout scrollTop after touch "stage:559" after wheel "stage:500" 
+390x844 screens with swipe traps: 0
+360x800 screens with swipe traps: 0

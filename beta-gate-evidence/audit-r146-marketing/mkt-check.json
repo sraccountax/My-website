@@ -1,0 +1,296 @@
+{
+ "out": [
+  {
+   "pg": "index.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Your business finances, finally under control.",
+   "errs": []
+  },
+  {
+   "pg": "product.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "One financial workspace. One connected trail.",
+   "errs": []
+  },
+  {
+   "pg": "ask-tegh.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Your accounting workspace now takes instructions.",
+   "errs": []
+  },
+  {
+   "pg": "solutions.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Different roles. One accounting trail.",
+   "errs": []
+  },
+  {
+   "pg": "subscriptions.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Tegh Private Beta.",
+   "errs": []
+  },
+  {
+   "pg": "resources.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Accounting explained for better decisions.",
+   "errs": []
+  },
+  {
+   "pg": "company.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Accounting software should feel calm, clear and accountable.",
+   "errs": []
+  },
+  {
+   "pg": "security.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Financial software should make control visible.",
+   "errs": []
+  },
+  {
+   "pg": "contact.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "See how Tegh fits your financial workflow.",
+   "errs": []
+  },
+  {
+   "pg": "migration.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Bring your books with you. Bring the detail too.",
+   "errs": []
+  },
+  {
+   "pg": "privacy.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Privacy Notice",
+   "errs": []
+  },
+  {
+   "pg": "terms.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Terms of Use",
+   "errs": []
+  },
+  {
+   "pg": "404.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "This page is not in the ledger.",
+   "errs": []
+  },
+  {
+   "pg": "guides/ar-aging.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Understanding AR Aging",
+   "errs": []
+  },
+  {
+   "pg": "guides/balance-sheet.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "How to read a Balance Sheet",
+   "errs": []
+  },
+  {
+   "pg": "guides/bank-reconciliation.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "What is bank reconciliation?",
+   "errs": []
+  },
+  {
+   "pg": "guides/cash-vs-accrual.html",
+   "tag": "desk",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Cash vs accrual accounting",
+   "errs": []
+  },
+  {
+   "pg": "index.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Your business finances, finally under control.",
+   "errs": []
+  },
+  {
+   "pg": "product.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "One financial workspace. One connected trail.",
+   "errs": []
+  },
+  {
+   "pg": "ask-tegh.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Your accounting workspace now takes instructions.",
+   "errs": []
+  },
+  {
+   "pg": "solutions.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Different roles. One accounting trail.",
+   "errs": []
+  },
+  {
+   "pg": "subscriptions.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Tegh Private Beta.",
+   "errs": []
+  },
+  {
+   "pg": "resources.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Accounting explained for better decisions.",
+   "errs": []
+  },
+  {
+   "pg": "company.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Accounting software should feel calm, clear and accountable.",
+   "errs": []
+  },
+  {
+   "pg": "security.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Financial software should make control visible.",
+   "errs": []
+  },
+  {
+   "pg": "contact.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "See how Tegh fits your financial workflow.",
+   "errs": []
+  },
+  {
+   "pg": "migration.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Bring your books with you. Bring the detail too.",
+   "errs": []
+  },
+  {
+   "pg": "privacy.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Privacy Notice",
+   "errs": []
+  },
+  {
+   "pg": "terms.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Terms of Use",
+   "errs": []
+  },
+  {
+   "pg": "404.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "This page is not in the ledger.",
+   "errs": []
+  },
+  {
+   "pg": "guides/ar-aging.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Understanding AR Aging",
+   "errs": []
+  },
+  {
+   "pg": "guides/balance-sheet.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "How to read a Balance Sheet",
+   "errs": []
+  },
+  {
+   "pg": "guides/bank-reconciliation.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "What is bank reconciliation?",
+   "errs": []
+  },
+  {
+   "pg": "guides/cash-vs-accrual.html",
+   "tag": "phone",
+   "status": 200,
+   "overflow": 0,
+   "h1": "Cash vs accrual accounting",
+   "errs": []
+  }
+ ],
+ "links": [
+  "/",
+  "/product.html",
+  "/ask-tegh.html",
+  "/migration.html",
+  "/solutions.html",
+  "/subscriptions.html",
+  "/resources.html",
+  "/company.html",
+  "/app.html",
+  "/security.html",
+  "/contact.html",
+  "/privacy.html",
+  "/terms.html",
+  "/guides/balance-sheet.html",
+  "/guides/bank-reconciliation.html",
+  "/guides/ar-aging.html",
+  "/guides/cash-vs-accrual.html"
+ ],
+ "bad": []
+}

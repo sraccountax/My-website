@@ -1,0 +1,62 @@
+[
+ {
+  "n": "01-company-setup",
+  "ok": true,
+  "info": "Company Details | Tax Codes | Chart of Accounts & Opening Balances | Currency Exchange Rates | Tax Code Report | Dashboard Figures | Period Locking",
+  "errs": []
+ },
+ {
+  "n": "02-tax-code-report",
+  "ok": true,
+  "info": "15 rows; Tax Code Report",
+  "errs": []
+ },
+ {
+  "n": "03-tcr-edit-selected",
+  "ok": true,
+  "info": "Edit Tax Code AB · 1 more selected after this one",
+  "errs": []
+ },
+ {
+  "n": "04-tax-code-foreign-region",
+  "ok": true,
+  "info": "true state field; country=IN",
+  "errs": []
+ },
+ {
+  "n": "05-dashboard-figures",
+  "ok": true,
+  "info": "5 cards",
+  "errs": []
+ },
+ {
+  "n": "06-customer-form-foreign",
+  "ok": true,
+  "info": "INPUT e.g. NY, MH, ENG",
+  "errs": []
+ },
+ {
+  "n": "07-vendor-form",
+  "ok": true,
+  "info": "true country select",
+  "errs": []
+ },
+ {
+  "n": "08-company-details",
+  "ok": true,
+  "info": "Canada",
+  "errs": []
+ },
+ {
+  "n": "09-us-company-invoice",
+  "ok": true,
+  "info": "New Invoice",
+  "errs": []
+ },
+ {
+  "n": "10-create-company-foreign",
+  "ok": true,
+  "info": "Add Company Or Client File | tax title: Sales tax, VAT or GST | payroll opt disabled: true",
+  "errs": []
+ }
+]

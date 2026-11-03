@@ -1,0 +1,66 @@
+{
+ "A": {
+  "rows": 12,
+  "netCents": 11213,
+  "outCents": 347732,
+  "inCents": 358945,
+  "openingCents": 512345,
+  "closingCents": 523558,
+  "first": "2026-01-02",
+  "last": "2026-01-30",
+  "balanced": true,
+  "card": false,
+  "wrapped": 9
+ },
+ "D": {
+  "rows": 11,
+  "balanced": false,
+  "mismatchAtLeast": 1
+ },
+ "B": {
+  "rows": 10,
+  "netCents": 59867,
+  "outCents": 91232,
+  "inCents": 151099,
+  "openingCents": -245000,
+  "closingCents": -185133,
+  "first": "2025-12-08",
+  "last": "2026-01-06",
+  "balanced": true,
+  "card": true,
+  "yearChange": [
+   "2025-12-30",
+   "2026-01-03"
+  ]
+ },
+ "C": {
+  "rows": 9,
+  "netCents": 135352,
+  "outCents": 52103,
+  "inCents": 187455,
+  "openingCents": 800000,
+  "closingCents": 935352,
+  "first": "2025-09-02",
+  "last": "2025-09-15",
+  "balanced": true,
+  "card": false,
+  "pageChecks": 4
+ },
+ "E": {
+  "rows": 4,
+  "netCents": 235438,
+  "openingCents": 100000,
+  "closingCents": 335438,
+  "first": "2026-03-02",
+  "last": "2026-03-15",
+  "balanced": true,
+  "card": false
+ },
+ "F": {
+  "rows": 3,
+  "netCents": -77900,
+  "first": "2026-04-01",
+  "last": "2026-04-10",
+  "columnReader": false
+ }
+}

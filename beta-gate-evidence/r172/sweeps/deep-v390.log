@@ -1,0 +1,5 @@
+v390: 99 screens, 3 with findings; applied {"theme":"light","nav":"side","mode":"full-accounting"}
+  report:Pay Run Register                      js: open: page.evaluate: Error: Report not available: Pay Run Register
+    at Object.openReport (https://gate.test/assets/tegh-por
+  fn:openOpeningBalances                       http: 403 GET /api/index.php setup%2Fopening-balances
+  fn:openClientViewLinks                       http: 403 GET /api/index.php client-view%2Flinks ; 403 GET /api/index.php client-view%2Fcatalog

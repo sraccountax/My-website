@@ -1,0 +1,6 @@
+PASS     MK-01      Desktop 1920: content spans most of the screen (side margins at most 200px each), no sidew | {"left":180,"right":180,"over":0}
+PASS     MK-02      Desktop 1440: hero heading at most 50px; section headings at least 44px; card headings at  | {"h1":50,"h2":47.52,"card":23,"nav":15,"side":32}
+PASS     MK-03      Phone 390: every product capture on the home, product and features pages is the phone capt | [{"path":"/index.html","n":8,"phone":8,"over":0,"errs":0},{"path":"/product.html","n":7,"phone":7,"over":0,"errs":0},{"path":"/features.html","n":7,"phone":7,"over":0,"errs":0}]
+PASS     MK-04      Desktop 1440: the same captures are the desktop ones | overview.webp, matching.webp, invoicing.webp, expenses.webp, reports.webp, payroll.webp, client-dashboard.png
+PASS     MK-05      Phone: "Expand" opens the phone capture in the preview | https://gate.test/assets/marketing-r164/m-overview.webp
+PASS     MK-06      Register Actions column: pinned at 1440 wide (R172), not pinned on a phone where it hid th | 1440 sticky; 390 static

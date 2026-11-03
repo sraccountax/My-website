@@ -1,0 +1,128 @@
+[
+ {
+  "id": "BS-01",
+  "area": "BETA",
+  "title": "Public account creation is closed: registering without an invitation is refused",
+  "status": "PASS",
+  "evidence": "403 registration_closed \"New account registration is currently closed.\""
+ },
+ {
+  "id": "BS-02",
+  "area": "BETA",
+  "title": "A Document Intake file of one company cannot be downloaded through another company or by a user without access; its own company gets the same bytes",
+  "status": "PASS",
+  "evidence": "own 200 same bytes true; via other company 404; user without access 403"
+ },
+ {
+  "id": "BS-03",
+  "area": "BETA",
+  "title": "An invoice attachment of one company cannot be downloaded through another company",
+  "status": "PASS",
+  "evidence": "attachment saved; own 200 same bytes true; via other company 404"
+ },
+ {
+  "id": "BS-04",
+  "area": "BETA",
+  "title": "A removed member loses access at once: the signed-in session is refused and signing in again gives no access to the company",
+  "status": "PASS",
+  "evidence": "before 200; remove 200 ; same session after 403; new sign-in 403"
+ },
+ {
+  "id": "BS-05",
+  "area": "BETA",
+  "title": "A revoked invitation cannot be accepted",
+  "status": "PASS",
+  "evidence": "revoke 200; accept after revoke 410 \"That email address and invitation code don’t match an open invitation. Check the code in your email, or ask for a new invitation.\""
+ },
+ {
+  "id": "BS-06",
+  "area": "BETA",
+  "title": "Password reset: the email carries a one-time link; the new password works, the old one and the link are refused afterwards, and earlier sessions end",
+  "status": "PASS",
+  "evidence": "request 200; link in email; reset 200; reuse 410; new password true; old password refused; earlier session 401"
+ },
+ {
+  "id": "BS-07",
+  "area": "BETA",
+  "title": "Accepting an invitation records the terms and privacy versions shown on the published Terms and Privacy pages",
+  "status": "PASS",
+  "evidence": "pages: terms 2026-10-07, privacy 2026-10-07; recorded 2026-10-07|2026-10-07"
+ },
+ {
+  "id": "BS-08",
+  "area": "BETA",
+  "title": "A deletion request (\"Delete login\"): the person can no longer sign in, and their email address is gone from the account, invitations, sent-email records and the platform log",
+  "status": "PASS",
+  "evidence": "delete 200; records with the address before 3, after 0; account Deleted user|0|1; deletion record keeps a hash only true; sign-in refused"
+ },
+ {
+  "id": "BS-10",
+  "area": "BETA",
+  "title": "Invitations are refused while the operator details are incomplete (a config without them reports every missing field)",
+  "status": "PASS",
+  "evidence": "without operator config: 8 fields missing; invitation paths guarded 2; this host complete true"
+ },
+ {
+  "id": "BR-10",
+  "area": "BETA",
+  "title": "A company backup carries its uploaded files: restored into a new company, the Document Intake file and the invoice attachment come back byte for byte",
+  "status": "PASS",
+  "evidence": "export 200 (62926 bytes); restore 201; document 200 same true; attachment 200 same true"
+ },
+ {
+  "id": "BA-01",
+  "area": "BETA",
+  "title": "A payment sent twice with the same operation key (a repeated click or retry) is recorded once",
+  "status": "PASS",
+  "evidence": "responses 201/200/200; payments recorded 1; invoice balance 30000 (400.00 − 100.00 = 300.00)"
+ },
+ {
+  "id": "BA-02",
+  "area": "BETA",
+  "title": "Every posted journal entry on the gate database balances (debits = credits), and each company's trial balance nets to zero",
+  "status": "PASS",
+  "evidence": "100 posted entries in 17 companies; unbalanced entries 0; companies out of balance 0"
+ },
+ {
+  "id": "BA-03",
+  "area": "BETA",
+  "title": "Double-clicking Save and post on a new customer invoice creates one invoice",
+  "status": "PASS",
+  "evidence": "invoices created by a double-click: 1; posted invoice journals 1"
+ },
+ {
+  "id": "BM-01",
+  "area": "BETA",
+  "title": "Currencies: a company cannot be created with a non-CAD ledger; a USD invoice shows in USD on its line, and the combined totals add its CAD amount (USD 1,000.00 × 1.35 = CAD 1,350.00), never the USD figure",
+  "status": "PASS",
+  "evidence": "USD-ledger company refused (422); line:  BBW INV-1002 Invoice — Boston Client muxlat2d Sep 15, 2026 Oct 15, 2026 USD 0.00 USD 1,000.00 USD 1,000.00 Sent Actions; totals: TOTAL CAD 1,873.45 / TOTAL CAD 1,873.45 (expected TOTAL CAD 1,873.45)"
+ },
+ {
+  "id": "BN-01",
+  "area": "BETA",
+  "title": "The private beta notice (config app.beta_notice) is visible in the top bar for every signed-in user (not covered by anything), readable in light and dark, and shows the full text when tapped",
+  "status": "PASS",
+  "evidence": "desktop \"Private beta · sample data only\" visible true; phone \"Beta\" visible true; contrast 6.8/10.0:1; tap shows: true"
+ },
+ {
+  "id": "BS-09",
+  "area": "BETA",
+  "title": "Terms and Privacy pages: the operator, contacts, hosting, beta conditions, deletion procedure and first-party measurement are shown; an incomplete configuration shows a warning",
+  "status": "PASS",
+  "evidence": "terms missing: none; privacy missing: none; incomplete warning: \"This notice is incomplete: the operator of this Tegh service has not yet provided Legal name of the business o\""
+ },
+ {
+  "id": "BD-01",
+  "area": "BETA",
+  "title": "Accounting date: a browser whose own date is already Oct 1 (UTC+14) while it is still the evening of Sep 30 in Toronto opens Match and Post for a bank line dated Oct 1 (never From after To), and its report periods end on the Toronto date",
+  "status": "PASS",
+  "evidence": "bank lines 2026-09-28,2026-10-01; browser's own date 2026-10-01; Match and Post: opened; 4 period requests, workspace 2026-09-28..2026-10-01 200; inverted or refused none; Bank Reconciliation Report \"this month\" 2026-09-01 to 2026-09-30 (expected 2026-09-01 to 2026-09-30); page errors 0"
+ },
+ {
+  "id": "BETA-JS",
+  "area": "BETA",
+  "title": "No page errors during the beta checks",
+  "status": "PASS",
+  "evidence": ""
+ }
+]

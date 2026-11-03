@@ -1,0 +1,107 @@
+{
+ "release": "paddle-r179",
+ "execution": "browser-only",
+ "providerRequests": 0,
+ "rawTextPersistence": "none",
+ "engine": {
+  "name": "PaddleOCR PP-OCRv5 mobile (text detection + Latin text recognition)",
+  "license": "Apache-2.0",
+  "runtime": "onnxruntime-web 1.30.0 (wasm, single thread)",
+  "runtimeLicense": "MIT",
+  "conversion": "paddle2onnx 2.1.0 with PaddlePaddle 3.3.1, opset 14, ONNX checker on; outputs compared with Paddle Inference on the same input (largest difference 2.0e-05 detection, 1.3e-05 recognition)"
+ },
+ "runtimeAssets": [
+  {
+   "role": "ortLoader",
+   "path": "/assets/tegh-ocr/paddle-r179/ort.wasm.min.js",
+   "sizeBytes": 50196,
+   "sha256": "faece07e84faa9001f5104bbe4e5c70861d06cb2376a0dea1fa0ad33a67adc81"
+  },
+  {
+   "role": "ortGlue",
+   "path": "/assets/tegh-ocr/paddle-r179/ort-wasm-simd-threaded.mjs",
+   "sizeBytes": 24381,
+   "sha256": "e13f7f94fc51b4ca72b12faeb1ee95f4ace6dfbc8939bc718aabdc0a27c4299b"
+  },
+  {
+   "role": "ortWasm",
+   "path": "/assets/tegh-ocr/paddle-r179/ort-wasm-simd-threaded.wasm",
+   "sizeBytes": 14239897,
+   "sha256": "3398c10d07d229bd91b364548e130e0e51a8e5704b88c7c083ebbeb78842dee2"
+  },
+  {
+   "role": "detModel",
+   "path": "/assets/tegh-ocr/paddle-r179/ppocrv5-mobile-det.onnx",
+   "sizeBytes": 4819576,
+   "sha256": "d5de5df358366210d16419b9636a2fc1efa5d7a20688f38a7869ec7b1a4f4f7d"
+  },
+  {
+   "role": "recModel",
+   "path": "/assets/tegh-ocr/paddle-r179/ppocrv5-mobile-rec-latin.onnx",
+   "sizeBytes": 8064539,
+   "sha256": "995b0f5f28d2073896a78c03b5b863eae6af3744bafa0245b8522beea6994927"
+  },
+  {
+   "role": "recDict",
+   "path": "/assets/tegh-ocr/paddle-r179/ppocrv5-mobile-rec-latin-dict.json",
+   "sizeBytes": 4291,
+   "sha256": "705592cc40b955ac82cdfdb049ec75f0a9041824d524eeb946a913a34d285409"
+  }
+ ],
+ "legalAssets": [
+  {
+   "path": "/assets/tegh-ocr/paddle-r179/NOTICE.txt",
+   "sha256": "31119c63f92acffdd6b54a772a2b17392486e9c248b0864086aa25a98c68c602"
+  },
+  {
+   "path": "/assets/tegh-ocr/paddle-r179/LICENSE-PaddleOCR-Apache-2.0.txt",
+   "sha256": "3840c5c0c61c294264d2dd77b8777be6ddd90121ef4e0e64abcd22edea581d6e"
+  },
+  {
+   "path": "/assets/tegh-ocr/paddle-r179/LICENSE-onnxruntime-MIT.txt",
+   "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+  },
+  {
+   "path": "/assets/tegh-ocr/paddle-r179/ThirdPartyNotices-onnxruntime.txt",
+   "sha256": "143764b952fdb1a7c69ce653bfba74a7744d6a8a573bfb73e235fba356c83de3"
+  }
+ ],
+ "modelSources": [
+  {
+   "model": "PaddlePaddle/PP-OCRv5_mobile_det",
+   "revision": "0d63e78e2b680928f6b1747d76a08db6e645efb7",
+   "file": "inference.json",
+   "sha256": "05feef1acb00aa4cd7362b15f7f501fc4f99d7b1fa73c1c871e0c7b1504b0f5c"
+  },
+  {
+   "model": "PaddlePaddle/PP-OCRv5_mobile_det",
+   "revision": "0d63e78e2b680928f6b1747d76a08db6e645efb7",
+   "file": "inference.pdiparams",
+   "sha256": "afa1820cb16c1fd0dad589d0f8b389139061c1ef6d68019685fd07be997dda5b"
+  },
+  {
+   "model": "PaddlePaddle/PP-OCRv5_mobile_det",
+   "revision": "0d63e78e2b680928f6b1747d76a08db6e645efb7",
+   "file": "inference.yml",
+   "sha256": "98069072e1b6b37d727fd9d9f11725faa46d6ea0de012f2ed26caea011c37699"
+  },
+  {
+   "model": "PaddlePaddle/latin_PP-OCRv5_mobile_rec",
+   "revision": "ab2cd5cc5fa6309be2e5acdfe66eca2c2c127d57",
+   "file": "inference.json",
+   "sha256": "820b2ee8e5072de5156c3d55124c2b03c82ef278d59f453f857c0789bacb4da1"
+  },
+  {
+   "model": "PaddlePaddle/latin_PP-OCRv5_mobile_rec",
+   "revision": "ab2cd5cc5fa6309be2e5acdfe66eca2c2c127d57",
+   "file": "inference.pdiparams",
+   "sha256": "53cdc8b481a7394bb108f96d0fb3432b0a8f392e22c7d18f06dbb2d42b8b25f9"
+  },
+  {
+   "model": "PaddlePaddle/latin_PP-OCRv5_mobile_rec",
+   "revision": "ab2cd5cc5fa6309be2e5acdfe66eca2c2c127d57",
+   "file": "inference.yml",
+   "sha256": "0bbe984570f597af3638e50bdf2e8276f3ab26a61966096538b3b0d1849f5c84"
+  }
+ ]
+}

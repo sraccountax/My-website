@@ -1,0 +1,65 @@
+[
+ {
+  "id": "PY-00",
+  "area": "PAY",
+  "title": "Enable Payroll Support for the ON test company",
+  "status": "PASS",
+  "evidence": "201 {\"payroll\":{\"enabled\":true,\"calculationVersion\":\"CRA-T4127-2026.2-verified-tax\",\"supportedYear\":2026,\"postingMode\":\"draf"
+ },
+ {
+  "id": "PY-01",
+  "area": "PAY",
+  "title": "Employee with SIN fields submitted: refused or SIN discarded",
+  "status": "INFO",
+  "evidence": "422 sin_not_accepted Tegh does not store Social Insurance Numbers (SINs). Remove the SIN and use the Employee ID instead."
+ },
+ {
+  "id": "PY-02",
+  "area": "PAY",
+  "title": "Employee can be created without a SIN (Employee ID only)",
+  "status": "PASS",
+  "evidence": "201 {\"employee\":{\"id\":\"employee_137bea21a7db5334c81627f1c9d6c13d\"}}"
+ },
+ {
+  "id": "PY-03",
+  "area": "PAY",
+  "title": "No SIN (ciphertext or last four) stored in the database",
+  "status": "PASS",
+  "evidence": "\"0\""
+ },
+ {
+  "id": "PY-03b",
+  "area": "PAY",
+  "title": "No SIN stored for any company on the gate database",
+  "status": "PASS",
+  "evidence": "\"0\""
+ },
+ {
+  "id": "PY-04",
+  "area": "PAY",
+  "title": "Payroll workspace API returns no SIN fields/values",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "PY-05",
+  "area": "PAY",
+  "title": "Company backup contains no SIN value",
+  "status": "PASS",
+  "evidence": "200 size=16653"
+ },
+ {
+  "id": "PY-06",
+  "area": "PAY",
+  "title": "Payroll notice text present in app bundle (\"Payroll Support Tool\")",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "PY-07",
+  "area": "PAY",
+  "title": "Payroll rate tables: year/version reported for owner verification",
+  "status": "INFO",
+  "evidence": ""
+ }
+]

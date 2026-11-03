@@ -1,0 +1,50 @@
+/* R173: the sign-in, account-creation, invitation and email-code screens follow the design of sraccountax.ca
+   (Manrope text, Playfair Display headings, navy, teal and gold). Only the screens shown before sign-in. */
+@font-face{font-family:Manrope;font-style:normal;font-weight:200 800;font-display:swap;src:url('/assets/marketing-r164/fonts/manrope-latin-wght-normal.woff2') format('woff2')}
+@font-face{font-family:"Playfair Display";font-style:normal;font-weight:400 900;font-display:swap;src:url('/assets/marketing-r164/fonts/playfair-display-latin-wght-normal.woff2') format('woff2')}
+html[data-tegh-design] body .sr-gate{--sr-navy:#0b2a3a;--sr-navy-2:#123f53;--sr-teal:#18a999;--sr-teal-ink:#0b665d;--sr-gold:#d8b15b;--sr-ink:#14242d;--sr-muted:#63737b;--sr-soft:#52646d;--sr-line:#dfe5e3;--sr-shadow:0 20px 60px rgba(11,42,58,.12);color-scheme:light;font-family:Manrope,Arial,sans-serif!important;color:var(--sr-ink)!important;background:linear-gradient(135deg,#f8faf7 0%,#edf5f2 100%)!important}
+
+/* Left: the deep navy panel of the site's About section */
+html[data-tegh-design] body .sr-gate-story{position:relative;overflow:hidden;background:linear-gradient(145deg,var(--sr-navy) 0%,#123f53 58%,#1d596b 100%)!important;color:#fff!important}
+html[data-tegh-design] body .sr-gate-story::before{content:"";position:absolute;width:440px;height:440px;border-radius:50%;background:rgba(24,169,153,.12);right:-150px;top:-180px;pointer-events:none}
+html[data-tegh-design] body .sr-gate-story::after{border-color:rgba(255,255,255,.18)!important;box-shadow:none!important}
+html[data-tegh-design] body .sr-gate-brand>b{border-radius:15px!important;box-shadow:0 10px 24px rgba(0,0,0,.25)!important}
+html[data-tegh-design] body .sr-gate-brand strong{color:#fff!important;font-size:20px!important;font-weight:800;letter-spacing:.06em}
+html[data-tegh-design] body .sr-gate-brand small{color:#b9c9cf!important;opacity:1!important;font-size:10px!important;letter-spacing:1.15px;text-transform:uppercase}
+html[data-tegh-design] body .sr-gate-kicker{padding:0!important;border:0!important;background:none!important;color:#78d6cc!important;font-size:13px!important;font-weight:800;letter-spacing:1.8px!important;text-transform:uppercase}
+html[data-tegh-design] body .sr-gate-story h1{font-family:"Playfair Display",Georgia,serif!important;font-weight:700!important;color:#fff!important;font-size:clamp(38px,4.6vw,60px)!important;line-height:1.08!important;letter-spacing:-1.5px!important}
+html[data-tegh-design] body .sr-gate-story p{color:#b9c9cf!important;font-size:17px!important}
+html[data-tegh-design] body .sr-gate-story li{color:#fff!important;font-weight:600!important}
+html[data-tegh-design] body .sr-gate-story li::before{background:var(--sr-teal)!important;color:#fff!important;font-weight:900}
+html[data-tegh-design] body .sr-gate-story>small{color:#8fa2aa!important;opacity:1!important;letter-spacing:.7px;text-transform:uppercase;font-size:11px}
+html[data-tegh-design] body .sr-gate-story>small::before,html[data-tegh-design] body .sr-gate-story>small::after{background:linear-gradient(90deg,var(--sr-teal),var(--sr-gold))!important}
+
+/* Right: a white card like the site's contact form */
+html[data-tegh-design] body .sr-gate-panel{position:relative;background:linear-gradient(90deg,var(--sr-teal),var(--sr-gold)) top/100% 7px no-repeat,#fff!important;color:var(--sr-ink)!important;border:0!important;border-radius:22px!important;box-shadow:var(--sr-shadow)!important;backdrop-filter:none!important}
+html[data-tegh-design] body .sr-gate-choice{background:#f3f7f5!important;border:1px solid var(--sr-line)!important;border-radius:14px!important}
+html[data-tegh-design] body .sr-gate-choice button{color:var(--sr-soft)!important;font-family:inherit!important;font-weight:800!important;border-radius:10px!important}
+html[data-tegh-design] body .sr-gate-choice button[aria-selected="true"]{background:#fff!important;color:var(--sr-navy)!important;box-shadow:0 6px 16px rgba(11,42,58,.08),inset 0 -2px 0 var(--sr-teal)!important}
+html[data-tegh-design] body .sr-gate-form h2{font-family:"Playfair Display",Georgia,serif!important;font-weight:700!important;color:var(--sr-navy)!important;font-size:clamp(29px,3vw,38px)!important;letter-spacing:-.5px!important;line-height:1.1}
+html[data-tegh-design] body .sr-gate-form>p,html[data-tegh-design] body .sr-gate-panel .sr-invite-hint{color:var(--sr-muted)!important}
+html[data-tegh-design] body .sr-gate-form label{color:var(--sr-navy)!important;font-size:12px!important;font-weight:800!important}
+html[data-tegh-design] body .sr-gate-form .sr-gate-check,html[data-tegh-design] body .sr-gate-form .sr-mfa-trust{color:var(--sr-ink)!important;font-size:13px!important;font-weight:600!important}
+html[data-tegh-design] body .sr-gate-panel :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){background:#fff!important;color:var(--sr-ink)!important;border:1px solid #ced9d6!important;border-radius:11px!important;font-family:inherit!important;font-size:15px!important;font-weight:500}
+html[data-tegh-design] body .sr-gate-panel :is(input,select,textarea):focus{outline:2px solid rgba(24,169,153,.25)!important;border-color:var(--sr-teal)!important;box-shadow:none!important}
+html[data-tegh-design] body .sr-gate-panel input[type="checkbox"]{accent-color:var(--sr-teal-ink)!important}
+html[data-tegh-design] body .sr-gate-primary{min-height:48px;background:var(--sr-navy)!important;color:#fff!important;border-radius:12px!important;font-family:inherit!important;font-size:15px!important;font-weight:800!important;box-shadow:0 12px 30px rgba(11,42,58,.18)!important}
+html[data-tegh-design] body .sr-gate-primary:hover:not(:disabled){background:var(--sr-navy-2)!important}
+html[data-tegh-design] body .sr-gate-panel :is(.sr-gate-link,.sr-gate-collection a,.sr-gate-check a,.sr-invite-alt a){color:var(--sr-teal-ink)!important;font-weight:700}
+html[data-tegh-design] body .sr-gate-collection{color:var(--sr-muted)!important}
+html[data-tegh-design] body .sr-gate-panel :is(.sr-gate-progress,.sr-gate-error){background:#f7f9f8!important;color:var(--sr-ink)!important;border:1px solid var(--sr-line)!important;border-radius:13px!important}
+html[data-tegh-design] body .sr-gate-panel :is(.sr-gate-progress small,.sr-gate-error p,.sr-gate-note){color:var(--sr-muted)!important}
+html[data-tegh-design] body .sr-gate-panel .sr-gate-dot{background:var(--sr-teal)!important}
+html[data-tegh-design] body .sr-gate-panel .sr-gate-progress[data-state="error"] .sr-gate-dot{background:#a73b37!important}
+html[data-tegh-design] body .sr-gate-panel .sr-gate-actions :is(button,a){background:#fff!important;color:var(--sr-ink)!important;border:1px solid #bdcbc8!important;border-radius:10px!important;font-weight:800}
+html[data-tegh-design] body .sr-gate-panel .sr-gate-actions :is(button,a):hover{background:#edf6f3!important;color:var(--sr-navy)!important}
+html[data-tegh-design] body .sr-gate-panel :is(.sr-mfa-key,.sr-mfa-recovery,.srp-mfa-key,.srp-mfa-codes){background:#eef6f4!important;color:var(--sr-navy)!important}
+html[data-tegh-design] body .sr-gate-panel :is(button,a):focus-visible{outline:3px solid #087368!important;outline-offset:3px}
+
+/* While a saved session is being restored */
+html[data-tegh-design] body .sr-session-loader{background:linear-gradient(135deg,#f8faf7,#edf5f2)!important;color:#0b2a3a!important;font-family:Manrope,Arial,sans-serif!important}
+html[data-tegh-design] body .sr-session-loader h1{font-family:"Playfair Display",Georgia,serif!important;color:#0b2a3a!important}
+html[data-tegh-design] body .sr-session-loader p{color:#63737b!important}

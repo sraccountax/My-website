@@ -1,0 +1,17 @@
+PASS     E-01       Every sign-in asks for a second step: the password alone gives an unverified session, a 6- | login 200; methods ["email"]; hint r******@gate.test; code emailed true; app before code 403 mfa_verification_required
+PASS     E-02       The emailed code opens the session; it works once and only for the sign-in that asked for  | code in another sign-in 422; own sign-in 200; app after 200; reuse 422
+PASS     E-03       Wrong codes: five wrong entries withdraw the code (the right code then fails); a new code  | wrong 422,422,422,422,422; right code after 5 wrong 422; resend 200; new code 200
+PASS     E-04       An expired code (over 10 minutes) is refused | expired code 422
+PASS     E-05       Resending within 30 seconds in the same sign-in waits; a second sign-in gets its own code  | resend at once 429 mfa_email_wait; second sign-in code true; 11th code mfa_email_rate_limited
+PASS     E-06       The code is stored only as a keyed hash | stored 5ccd2ea985e3… (plain code present false)
+PASS     T-01       "Trust this device": after a code with the box ticked, that browser signs in without a cod | verify 200; flags HttpOnly,Secure,SameSite=Strict; max-age 2592000s; trusted browser asked false; other browser asked true
+PASS     T-02       A trust token does not work from another browser (user agent), for another account, after  | asked for a code: other browser true, other account true, tampered true, expired true
+PASS     T-03       Trust is withdrawn by a password change, an administrator MFA reset and "Forget trusted de | password change 200, asked after true; admin reset 200, asked true; forget without password 401, with 200, asked true
+PASS     A-01       The authenticator app is optional: setup needs the password and returns a QR-ready otpauth | before: enrolled false, methods ["email"]; setup without password 401; otpauth ok true; recovery codes 10
+PASS     A-02       With an authenticator, sign-in offers email, authenticator and recovery; the authenticator | methods ["email","totp","recovery"]; totp 200; replay 422
+PASS     A-03       A recovery code works once and ends the account's other sessions and trusted devices | recovery 200; other session 401; reuse 422; trusted device asked again true
+PASS     A-04       The person can remove the authenticator (password needed); sign-in then offers the emailed | without password 401; remove 200; methods after ["email"]
+PASS     A-05       The authenticator secret is stored encrypted (the base32 key is not in the database) | cipher 32 bytes; plain key present false
+PASS     G-01       Before the second step only sign-in routes answer; accounting, admin and settings routes a | companies 403, workspace 403, admin/users 403, auth/mfa/devices 403, platform/invitations 403; me 200 (verified false); status 200
+PASS     G-02       With only the password, adding an authenticator cannot replace the emailed code (setup, re | setup 403, confirm 403, remove 403, recovery codes 403, devices 403; app still blocked 403; authenticator rows 0
+PASS     U-01       Browser: the sign-in screen says "Check your email" with the masked address and the trust  | title "Check your email"; hint r******@gate.test; trust box true; trusted-device cookie set true; QR on screen 200x200px, decodes to the setup link with this key true; key NWCB 2NWL…; page errors 0 

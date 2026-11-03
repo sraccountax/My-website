@@ -1,0 +1,58 @@
+[
+ {
+  "id": "DM-01",
+  "area": "R178",
+  "title": "Platform owner: listed second under Settings › Platform Admin and as a card on Platform Owner Home",
+  "status": "PASS",
+  "evidence": "items: Site & Release Settings, Client Dashboard Demo, Registration & Invitations; home card true"
+ },
+ {
+  "id": "DM-02",
+  "area": "R178",
+  "title": "The demo opens with sample figures, every panel loads, and no company figures are requested from the server",
+  "status": "PASS",
+  "evidence": "{\"title\":\"Client Dashboard Demo\",\"cash\":\"$48,210\",\"tag\":\"Demo · sample figures\",\"chartH\":230,\"over\":0} | figure requests: none"
+ },
+ {
+  "id": "DM-03",
+  "area": "R178",
+  "title": "A brand-new business: the four setup steps, empty panels, and the illustration is drawn in colour",
+  "status": "PASS",
+  "evidence": "{\"steps\":4,\"cfEmpty\":true,\"stroke\":\"rgb(15, 143, 129)\",\"pressed\":\"true\"}"
+ },
+ {
+  "id": "DM-04",
+  "area": "R178",
+  "title": "Buttons in the demo explain what they open in a client's account and stay on the demo",
+  "status": "PASS",
+  "evidence": "{\"toast\":\"Demo onlyIn a client’s own account this opens the list of who owes them.\",\"still\":true}"
+ },
+ {
+  "id": "DM-05",
+  "area": "R178",
+  "title": "Phone (390 wide): every panel loads and nothing scrolls sideways",
+  "status": "PASS",
+  "evidence": "{\"states\":[\"ready\",\"ready\",\"ready\",\"ready\",\"ready\",\"ready\",\"ready\",\"ready\"],\"over\":0}"
+ },
+ {
+  "id": "DM-06",
+  "area": "R178",
+  "title": "A company editor: no Platform Admin entry, and opening the demo directly shows only a notice",
+  "status": "PASS",
+  "evidence": "listed false; {\"dash\":false,\"text\":\"Client Dashboard DemoThe client dashboard demo is for the platform owner.\"}"
+ },
+ {
+  "id": "DM-07",
+  "area": "R178",
+  "title": "Using the demo changes no row in any table",
+  "status": "PASS",
+  "evidence": "184 tables unchanged"
+ },
+ {
+  "id": "DM-08",
+  "area": "R178",
+  "title": "The demo does not depend on the New dashboard switch (it is off now)",
+  "status": "PASS",
+  "evidence": "switch off, demo ready true"
+ }
+]

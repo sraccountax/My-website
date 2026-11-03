@@ -1,0 +1,135 @@
+[
+ {
+  "id": "UI-01",
+  "area": "R151UI",
+  "title": "One form: Document type offers Invoice, Credit note and Debit note (customer and vendor)",
+  "status": "PASS",
+  "evidence": "Invoice/Credit note/Debit note | Vendor invoice/Supplier credit note/Supplier debit note"
+ },
+ {
+  "id": "UI-02",
+  "area": "R151UI",
+  "title": "Layout: details on top, line grid below with Product/Service, Description, Qty, Rate, Tax, Amount, Total and GL account; no side summary",
+  "status": "PASS",
+  "evidence": "#|product / service|description|qty|rate|tax|amount|total|gl account {\"above\":true,\"gridWidth\":100,\"aside\":false}"
+ },
+ {
+  "id": "UI-03",
+  "area": "R151UI",
+  "title": "Clicking “Add line” adds a row without the page jumping to the top",
+  "status": "PASS",
+  "evidence": "scroller .r22-workspace.r22-scroll-region.r22-primary-scroll.r22-task-flow before 148 after 148 rows 7"
+ },
+ {
+  "id": "UI-04",
+  "area": "R151UI",
+  "title": "Removing a line and changing a line also keep the scroll position",
+  "status": "PASS",
+  "evidence": "before 148 after 148"
+ },
+ {
+  "id": "UI-05",
+  "area": "R151UI",
+  "title": "Customer invoice with two lines (different tax and GL) saves and issues; totals and GL match the lines",
+  "status": "PASS",
+  "evidence": "Subtotal$380.00Tax$39.00Invoice total$419.00 [\"1200:41900/0\",\"2100:0/3900\",\"4000:0/30000\",\"4100:0/8000\"]"
+ },
+ {
+  "id": "UI-06",
+  "area": "R151UI",
+  "title": "Vendor invoice with two lines posts each line to its own GL account",
+  "status": "PASS",
+  "evidence": "[\"1100:2600/0\",\"2050:0/122600\",\"6400:20000/0\",\"6950:100000/0\"]"
+ },
+ {
+  "id": "UI-07",
+  "area": "R151UI",
+  "title": "Credit note: typing a number that is not in Tegh says so; saved against the customer with its own tax and GL",
+  "status": "PASS",
+  "evidence": "Not found in Tegh for this customer. Saved as a reference; tax and GL come from the lines  | posted|none|5650"
+ },
+ {
+  "id": "UI-08",
+  "area": "R151UI",
+  "title": "Credit note: typing an existing invoice number links it; tax follows the original; “Return items” fills its lines",
+  "status": "PASS",
+  "evidence": "Linked to INV-1002 · Oct 1, 2026 · $419.00 open. Tax follows rows 2 taxLocked true"
+ },
+ {
+  "id": "UI-09",
+  "area": "R151UI",
+  "title": "Switching the document type in the dropdown changes the form (vendor invoice number → original invoice number)",
+  "status": "PASS",
+  "evidence": "Vendor•Choose vendorR151 Supplies Co+ Add New Vendor… / Original Invoice Number• / Note Date• / ReasonChoose a reasonGoods returned to supplierShort shipmentPrice differenceDamaged or defective goodsO"
+ },
+ {
+  "id": "UI-10",
+  "area": "R151UI",
+  "title": "Invoice register: the row Actions menu has Edit, which opens the draft on the main screen (no pop-up); changes are saved",
+  "status": "PASS",
+  "evidence": "menu Edit invoice/View invoice details dialogs 0 total 2500"
+ },
+ {
+  "id": "UI-11",
+  "area": "R151UI",
+  "title": "Issued invoice: Edit opens on the main screen with amounts locked; the due date changes",
+  "status": "PASS",
+  "evidence": "locked true 2026-12-15/41900"
+ },
+ {
+  "id": "UI-12",
+  "area": "R151UI",
+  "title": "Invoice detail page: Edit opens the main-screen form, not a pop-up",
+  "status": "PASS",
+  "evidence": "open dialogs 0"
+ },
+ {
+  "id": "UI-13",
+  "area": "R151UI",
+  "title": "Vendor register: Edit on an issued vendor invoice changes the memo only",
+  "status": "PASS",
+  "evidence": "Paid by EFT/122600"
+ },
+ {
+  "id": "UI-14",
+  "area": "R151UI",
+  "title": "Note register: a draft note has Edit, which opens it on the main screen",
+  "status": "PASS",
+  "evidence": "DRAFT-REF-muvyiuvg 700"
+ },
+ {
+  "id": "UI-17",
+  "area": "R151UI",
+  "title": "Vendor invoice: “Make this a recurring vendor invoice” still creates the schedule",
+  "status": "PASS",
+  "evidence": "profile 90000/6950"
+ },
+ {
+  "id": "UI-18",
+  "area": "R151UI",
+  "title": "Customer and product dropdowns still offer “add new” without leaving the form",
+  "status": "PASS",
+  "evidence": "+ Add New Customer… | + Add Product or Service…"
+ },
+ {
+  "id": "UI-15",
+  "area": "R151UI",
+  "title": "Sidebar: right after choosing a menu item, the mouse wheel scrolls the menu by exactly the wheel amount (up and down)",
+  "status": "PASS",
+  "evidence": "max 521 start 0 → +60 → 60 (want 60) → −40 → 20 (want 20)"
+ },
+ {
+  "id": "UI-16",
+  "area": "R151UI",
+  "title": "Phone (390×844): the form fits; the line grid scrolls sideways inside its own box",
+  "status": "PASS",
+  "evidence": "{\"sw\":390,\"cw\":390,\"grid\":true,\"ox\":\"auto\"}"
+ },
+ {
+  "id": "UI-JS",
+  "area": "R151UI",
+  "title": "No JavaScript errors",
+  "status": "PASS",
+  "evidence": ""
+ }
+]

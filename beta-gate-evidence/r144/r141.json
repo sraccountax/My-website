@@ -1,0 +1,268 @@
+[
+ {
+  "id": "D8-01",
+  "area": "R141",
+  "title": "Quebec company: home code QC = GST 5% + QST 9.975%",
+  "status": "PASS",
+  "evidence": "\"GST 5000 + QST 9975\""
+ },
+ {
+  "id": "D8-02",
+  "area": "R141",
+  "title": "Quebec company: BC code = GST only (no BC PST unless registered there)",
+  "status": "PASS",
+  "evidence": "\"GST 5000\""
+ },
+ {
+  "id": "D8-03",
+  "area": "R141",
+  "title": "Quebec company: MB and SK codes = GST only",
+  "status": "PASS",
+  "evidence": "[\"GST 5000\",\"GST 5000\"]"
+ },
+ {
+  "id": "D8-04",
+  "area": "R141",
+  "title": "Quebec company: ON code still HST 13% (federal HST applies everywhere)",
+  "status": "PASS",
+  "evidence": "\"HST 13000\""
+ },
+ {
+  "id": "D8-05",
+  "area": "R141",
+  "title": "Non-home PST province codes explain how to add the provincial tax",
+  "status": "PASS",
+  "evidence": "GST only. Charge British Columbia PST only if you are registered with British Columbia. Businesses outside British Columbia may have to register if they sell to customers there. Check with the province. Once registered, edit this code and add PST 7%."
+ },
+ {
+  "id": "CO-01",
+  "area": "R141",
+  "title": "Company in United States / NY can be created",
+  "status": "PASS",
+  "evidence": "201 {\"company\":{\"id\":\"company_d25ecbb58ea69e5a3c6c6db0e939780c\",\"name\":\"R141 New York LLC\",\"legalName\":\"R141 New York LLC\",\"businessType\":\"corpo"
+ },
+ {
+  "id": "CO-02",
+  "area": "R141",
+  "title": "Stored country and state; no Canadian starter codes; accounting only (payroll is Canada only)",
+  "status": "PASS",
+  "evidence": "[\"United States|NY|accounting\",\"0\"]"
+ },
+ {
+  "id": "CO-03",
+  "area": "R141",
+  "title": "Canadian company with non-Canadian province refused",
+  "status": "PASS",
+  "evidence": "[422,\"province_invalid\"]"
+ },
+ {
+  "id": "CO-04",
+  "area": "R141",
+  "title": "Unknown country refused",
+  "status": "PASS",
+  "evidence": "[422,\"country_invalid\"]"
+ },
+ {
+  "id": "CO-05",
+  "area": "R141",
+  "title": "Payroll-only company outside Canada refused",
+  "status": "PASS",
+  "evidence": "[422,\"payroll_canada_only\"]"
+ },
+ {
+  "id": "CO-06",
+  "area": "R141",
+  "title": "Payroll Support setup refused for a company outside Canada",
+  "status": "PASS",
+  "evidence": "[422,\"payroll_canada_only\"]"
+ },
+ {
+  "id": "FC-01",
+  "area": "R141",
+  "title": "Tax codes for a country (US) and a state (US-NY) saved",
+  "status": "PASS",
+  "evidence": "US:US,NY:US-NY"
+ },
+ {
+  "id": "FC-02",
+  "area": "R141",
+  "title": "Foreign customers saved with country and optional state",
+  "status": "PASS",
+  "evidence": "Brooklyn Client|United States|NY; London Client|United Kingdom|-; Los Angeles Client|United States|CA"
+ },
+ {
+  "id": "FC-03",
+  "area": "R141",
+  "title": "Canadian customer without a province refused",
+  "status": "PASS",
+  "evidence": "[422,\"province_invalid\"]"
+ },
+ {
+  "id": "FC-04",
+  "area": "R141",
+  "title": "NY customer $1,000: state code US-NY 8.875% → $88.75",
+  "status": "PASS",
+  "evidence": "[201,8875]"
+ },
+ {
+  "id": "FC-05",
+  "area": "R141",
+  "title": "California customer (no US-CA code): falls back to country code US 6% → $60.00",
+  "status": "PASS",
+  "evidence": "[201,6000]"
+ },
+ {
+  "id": "FC-06",
+  "area": "R141",
+  "title": "UK customer with no UK code: no tax",
+  "status": "PASS",
+  "evidence": "[201,0]"
+ },
+ {
+  "id": "FC-07",
+  "area": "R141",
+  "title": "BC company selling to a US customer (no US code): no Canadian tax applied",
+  "status": "PASS",
+  "evidence": "[201,0]"
+ },
+ {
+  "id": "FC-08",
+  "area": "R141",
+  "title": "Vendor with country India / state MH saved",
+  "status": "PASS",
+  "evidence": "[201,\"India|MH\"]"
+ },
+ {
+  "id": "FC-09",
+  "area": "R141",
+  "title": "Company Details: state changed to NJ",
+  "status": "PASS",
+  "evidence": "[200,\"NJ\"]"
+ },
+ {
+  "id": "OB-01",
+  "area": "R141",
+  "title": "Invitation email link carries the token after # (not in the query string)",
+  "status": "PASS",
+  "evidence": "https://gate.test/app.html#accountSetup=<token>"
+ },
+ {
+  "id": "OB-02",
+  "area": "R141",
+  "title": "Invitation details looked up by POST body",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "OB-03",
+  "area": "R141",
+  "title": "Old-style lookup (?token=) still works for links already sent",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "OB-04",
+  "area": "R141",
+  "title": "POST lookup from a foreign origin refused",
+  "status": "PASS",
+  "evidence": "true"
+ },
+ {
+  "id": "OB-05",
+  "area": "R141",
+  "title": "POST lookups leave no token in the web access log (only the one old-style GET call does)",
+  "status": "PASS",
+  "evidence": "1 log line(s) contain the token"
+ },
+ {
+  "id": "OB-06",
+  "area": "R141",
+  "title": "Password reset email link carries the token after #",
+  "status": "PASS",
+  "evidence": "200 https://gate.test/app.html#passwordReset=<token>"
+ },
+ {
+  "id": "TR-01",
+  "area": "R141",
+  "title": "Tax Code report usage: BC code document count equals the saved tax detail (SQL)",
+  "status": "PASS",
+  "evidence": "4"
+ },
+ {
+  "id": "DM-01",
+  "area": "R141",
+  "title": "Map \"Money in the bank\" to GL 1000 only",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "DM-02",
+  "area": "R141",
+  "title": "Map \"Profit this year\" to 4000 minus 6000",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "DM-03",
+  "area": "R141",
+  "title": "Dashboard bank figure = GL 1000 balance (SQL)",
+  "status": "PASS",
+  "evidence": "861300"
+ },
+ {
+  "id": "DM-04",
+  "area": "R141",
+  "title": "Dashboard profit = −(4000) − 6000 (SQL), mapped cards listed",
+  "status": "PASS",
+  "evidence": "[216156,[\"bank\",\"profit\"]]"
+ },
+ {
+  "id": "DM-05",
+  "area": "R141",
+  "title": "Wrong account types for profit refused",
+  "status": "PASS",
+  "evidence": "[422,\"dashboard_account_type\"]"
+ },
+ {
+  "id": "DM-06",
+  "area": "R141",
+  "title": "Viewer cannot change dashboard figures",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "DM-07",
+  "area": "R141",
+  "title": "Another company's GL account refused",
+  "status": "PASS",
+  "evidence": "[422,\"dashboard_account_unavailable\"]"
+ },
+ {
+  "id": "DM-08",
+  "area": "R141",
+  "title": "Reset: dashboard figures back to the standard calculation",
+  "status": "PASS",
+  "evidence": "[1008300,221406,0]"
+ },
+ {
+  "id": "CL-01",
+  "area": "R141",
+  "title": "No Microsoft Clarity script or CSP allowance anywhere in the package",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "PW-01",
+  "area": "R141",
+  "title": "Product page says Payroll Support Tool, Canada excluding Quebec (R142 wording), no \"payroll engine\"",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "PW-02",
+  "area": "R141",
+  "title": "In-app Payroll Support notice says Canadian payroll outside Quebec (R142 wording)",
+  "status": "PASS",
+  "evidence": ""
+ }
+]

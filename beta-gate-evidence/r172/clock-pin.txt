@@ -1,0 +1,1 @@
+clock: pinned -2293773s → PHP 2026-10-28 (cli unshifted); DB 2026-10-01

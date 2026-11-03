@@ -1,0 +1,6 @@
+d1440: 115 screens, 5 with findings; applied {"theme":"light","nav":"side","mode":"full-accounting"}
+  payables:create-vendor                       http: 422 GET /api/index.php
+  payables:vendor-invoice-note-register        [form: New Vendor] http: 422 GET /api/index.php
+  fn:openCommandCentre                         narrow field: Your question 58px || [See everything I can help with] narrow field: Your question 58px || [Money in (customers) 24] narrow field: Your question 58px || [Money out (suppliers) 21] narrow field: Your question 58px || [Banking 23] narrow field: Your question 58px || [Reports 21] narrow field: Your question 58px || [Payroll Support 15] narrow field: Your question 58px || [Month-end 2] n
+  fn:openUsers                                 narrow field: Email Address• 106px || [Actions] narrow field: Email Address• 106px || [Actions] narrow field: Email Address• 106px || [Actions] narrow field: Email Address• 106px || [Setup details] narrow field: Email Address• 106px || [Setup details] narrow field: Email Address• 106px || [Actions] narrow field: Email Address• 106px || [Setup details] narrow field: Email Address• 106px || [Setup d
+  fn:openAccount                               narrow field: Display Name• 106px, Email Address 106px

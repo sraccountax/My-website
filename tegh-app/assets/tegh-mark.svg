@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">Tegh</title>
+  <rect width="128" height="128" rx="34" fill="#102f31"/>
+  <rect x="25" y="27" width="78" height="20" rx="10" fill="#e2f6df"/>
+  <rect x="54" y="27" width="20" height="69" rx="10" fill="#39bd91"/>
+  <circle cx="64" cy="101" r="9" fill="#f3ca68"/>
+</svg>

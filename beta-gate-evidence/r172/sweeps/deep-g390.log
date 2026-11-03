@@ -1,0 +1,3 @@
+g390: 79 screens, 2 with findings; applied {"theme":"light","nav":"side","mode":"guided"}
+  label:Read Supplier Bills                    narrow field: Search 95px
+  fn:openInvoiceIntelligence                   narrow field: Search 95px

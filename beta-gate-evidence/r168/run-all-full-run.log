@@ -1,0 +1,101 @@
+=== 01-install
+=== 02-setup
+{
+  BC: 'company_b87190b06fda648dd090e6f804f12e46',
+  QC: 'company_39ce1a82e5ac2524ac291d0497eb513a',
+  ON: 'company_2b21484e1e5110ca131ad444ad16e834',
+  X: 'company_03d29de94d2c213ad0488c3a6a1138d7'
+}
+=== 02b-invite
+=== 03-acct
+expense 6000 equity 3000 bank gl 1000
+=== 04-tax
+INFO     CB-02      Cash basis: invoice issue posting recorded for review | {}
+=== 05-fx
+=== 06-sec
+INFO     XS-01      XSS payload customer stored as text (rendering checked in UI run) | 201
+=== 06b
+=== 07-cv
+=== 08-pay
+INFO     PY-01      Employee with SIN fields submitted: refused or SIN discarded | 422 sin_not_accepted Tegh does not store Social Insurance Numbers (SINs). Remove the SIN and use the Employee ID instead.
+INFO     PY-07      Payroll rate tables: year/version reported for owner verification | "effectiveFrom":"2026-01-01" "effectiveTo":"2026-06-30" "effectiveFrom":"2026-07-01" "effectiveTo":"2026-12-31"
+=== 09-backup
+=== 09b
+=== 10-ops
+INFO     LG-03      PHP error log: warnings recorded (see evidence) | PHP Warning:  POST Content-Length of 11534510 bytes exceeds the limit of 8388608 bytes in Unknown on line 0'
+INFO     SP-02      Public contact page offers a working contact path (form posts to /api/marketing) | mailto:enquiry@sraccountax.ca,mailto:enquiry@sraccountax.ca
+=== 13-r141
+FAIL     PW-01      Product page says Payroll Support Tool, Canada excluding Quebec (R142 wording), no "payrol | 
+=== 14-r142
+FAIL     WR-09      Product and Subscriptions pages say Canada, excluding Quebec; no "Canada only" | 
+=== 15-r144
+=== 16-r145
+INFO     DI-CMP     Field accuracy across the six documents, R145 reader vs the R144 reader (for information) | R145 47/47 fields; R144 19/47 fields
+=== 18-r149
+=== 19-r151
+=== 20-r151ui
+=== 21-r152
+=== 22-r153
+=== 23-r154
+=== 24-beta
+FAIL     BS-07      Accepting an invitation records the terms and privacy versions shown on the published Term | pages: terms undefined, privacy undefined; recorded 2026-10-21-beta.1|2026-10-21-beta.1
+FAIL     BS-09      Terms and Privacy pages: the operator, contacts, hosting, beta conditions, deletion proced | terms missing: Gate Test Operator Inc., support@gate.test, Private beta, Invitation only, Free, Sample data only, Data may be reset, No guarantee of availability, Not for real filings or payroll, 2026
+=== 25-r157
+=== 26-r158
+=== 27-r159
+=== 28-r160
+=== 29-r161
+FAIL     B-03       Northwind: the customer invoice register opens with 5000 invoices in time, and the search  | 16120 ms; 5000 rows shown; after search "Client 0007": 13; scrolled to the last row true; errors none
+=== 30-guided
+FAIL     G-11       Undo a posting: the bank fee is voided from the bank transaction list with a reason; its j | error: locator.click: Timeout 30000ms exceeded. /   - waiting for locator('[data-bank-list-row]:has-text("MONTHLY ACCOUNT FEE")').first().locator('[data-restore-line]') /     2 × waiting for element t
+FAIL     G-11b      The old voided fee posting stays history: restoring it through the journal route is refuse | old voided posting missing; journal-route restore 400 Transaction is required.; 6800 = 0
+FAIL     G-14       Match: in "Match transactions" the eight posted lines are offered as exact source pairs an | error: page.waitForFunction: Timeout 60000ms exceeded.
+FAIL     G-15       General Ledger after the Guided session equals the hand-worked balances: Bank 183.60 Dr, G | got {"1000":20860,"1100":3640,"2100":-6500,"3100":4000,"4000":-50000,"6200":3000,"6300":15000,"6400":10000}; want {"1000":18360,"1100":3640,"2100":-6500,"3100":4000,"4000":-50000,"6200":3000,"6300":15
+FAIL     G-17       Owner reports agree with the hand-worked figures: Home shows money in the bank $183.60, GS | home bank false, tax true, profit false; P&L false
+=== 31-r163
+=== 32-r163-sec
+
+10/10 R163 security checks passed
+=== 33-sec
+
+13/13 auth/client-view/payroll security checks passed
+=== 34-mfa
+=== 35-session
+=== 36-monitor
+=== 37-audit
+=== 38-files
+victims {
+  stmt: [
+    'company_b566de1c560f04b75f5bd5b18b758197',
+    'import_289b9cd7b19d7a939915b3ecd6420ae3'
+  ],
+  att: [
+    'company_bfd2514b993ec984e03ed3040226d0b5',
+    'invoice_7b05da5d3eef074aeb547322da8dad65',
+    'invatt_d1fdfc5de6129e1ca30031bcf0ec79cf'
+  ],
+  nd: [
+    'company_9a554ae55f78ba7adeb09c4b388a0692',
+    'nadoc_3849cd0814667d35cdee398755fbce3f'
+  ],
+  inv: [
+    'company_76de0cf681ebe462ce327028f884e98d',
+    'invoice_0162dbb45d270fa5a1d118fe09dcfef5'
+  ]
+}
+=== 39-restore
+=== 40-r165
+=== 41-r166
+=== 42-r167
+=== 43-r168
+=== e2e
+201 company_4aed6562ef85544fa4b12287414d5cf2
+=== w1
+=== w2
+=== w3
+=== w4
+=== w5
+=== w6
+=== w7
+=== w8
+=== w9

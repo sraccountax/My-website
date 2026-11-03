@@ -1,0 +1,3 @@
+FAIL     IN-10      A supplier whose invoice number sits under an unusual label ("Our reference"): once the nu | locator.click: Timeout 30000ms exceeded. Call log:  - waiting for locator('[data-native-document-upload]').locator('button[type=submit]')  - locator resolved to <button type="submit" clas
+{'PASS': 534, 'INFO': 7, 'FAIL': 1}
+{'H-INST': {'PASS': 12}, 'H-MAIL': {'PASS': 19}, 'ACCT': {'PASS': 63}, 'TAX': {'PASS': 20, 'INFO': 1}, 'FX': {'PASS': 5}, 'SEC': {'PASS': 43, 'INFO': 1}, 'CVL': {'PASS': 20}, 'PAY': {'PASS': 7, 'INFO': 2}, 'REC': {'PASS': 9}, 'OPS': {'PASS': 5, 'INFO': 2}, 'R141': {'PASS': 38}, 'R142': {'PASS': 11}, 'R144': {'PASS': 35}, 'E2E': {'PASS': 51}, 'R144UI': {'PASS': 22}, 'R145': {'PASS': 45, 'INFO': 1},

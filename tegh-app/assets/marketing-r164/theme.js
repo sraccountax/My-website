@@ -1,0 +1,1 @@
+(()=>{'use strict';try{const saved=localStorage.getItem('tegh-public-theme');document.documentElement.dataset.theme=['light','dark'].includes(saved)?saved:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');}catch{document.documentElement.dataset.theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}})();

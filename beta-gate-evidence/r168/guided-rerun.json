@@ -1,0 +1,163 @@
+[
+ {
+  "id": "G-00",
+  "area": "GUIDED",
+  "title": "Guided test company created with 8 imported statement lines",
+  "status": "PASS",
+  "evidence": "{\"imported\":8,\"approve\":201}"
+ },
+ {
+  "id": "G-01",
+  "area": "GUIDED",
+  "title": "Guided Home after the import: mode is Guided, the to-do card says \"8 Transactions To Post\" and the Banking menu badge shows 8",
+  "status": "PASS",
+  "evidence": "mode guided; card true; badge 8"
+ },
+ {
+  "id": "G-01b",
+  "area": "GUIDED",
+  "title": "Signing in again in Guided mode always lands on Guided Home, never the Full Accounting Dashboard (5 reloads)",
+  "status": "PASS",
+  "evidence": "pages after each reload: guided-bookkeeping, guided-bookkeeping, guided-bookkeeping, guided-bookkeeping, guided-bookkeeping"
+ },
+ {
+  "id": "G-02",
+  "area": "GUIDED",
+  "title": "The Home to-do button opens Match and Post with all 8 lines unposted and the statement balance $183.60 (565.00 − 113.00 − 25.00 − 3×56.50 − 40.00 − 33.90)",
+  "status": "PASS",
+  "evidence": "8 rows; Unposted; balance $183.60"
+ },
+ {
+  "id": "G-03",
+  "area": "GUIDED",
+  "title": "Guided Match and Post: \"STAPLES OFFICE SUPPLIES 4411\" posts to 6400 Office Supplies with GST/HST included; the preview and the journal show 6400 Dr 100.00, 1100 Dr 13.00, 1000 Cr 113.00",
+  "status": "PASS",
+  "evidence": "preview: HST 13% recoverable · 1100 · GST/HST Recoverable | $13.00 | — / 6400 · Office Supplies | $100.00 | — / Business Chequing | — | $113.00 / Total | $113.00 | $113.00; journal: 1000:0:11300 1100:1300:0 6400:10000:0; want 1000:0:11300 1100:1300:0 6400:10000:0; errors none"
+ },
+ {
+  "id": "G-04",
+  "area": "GUIDED",
+  "title": "Guided Match and Post: \"CLIENT DEPOSIT HARBOUR DESIGN\" posts to 4000 Service Revenue with GST/HST included; the preview and the journal show 1000 Dr 565.00, 4000 Cr 500.00, 2100 Cr 65.00",
+  "status": "PASS",
+  "evidence": "preview: Business Chequing | $565.00 | — / HST 13% collected · 2100 · GST/HST Payable | — | $65.00 / 4000 · Service Revenue | — | $500.00 / Total | $565.00 | $565.00; journal: 1000:56500:0 2100:0:6500 4000:0:50000; want 1000:56500:0 2100:0:6500 4000:0:50000; errors none"
+ },
+ {
+  "id": "G-05",
+  "area": "GUIDED",
+  "title": "Guided Match and Post: \"MONTHLY ACCOUNT FEE\" posts to 6800 Bank Charges with no tax; the preview and the journal show 6800 Dr 25.00, 1000 Cr 25.00",
+  "status": "PASS",
+  "evidence": "preview: 6800 · Bank Charges and Interest | $25.00 | — / Business Chequing | — | $25.00 / Total | $25.00 | $25.00; journal: 1000:0:2500 6800:2500:0; want 1000:0:2500 6800:2500:0; errors none"
+ },
+ {
+  "id": "G-06",
+  "area": "GUIDED",
+  "title": "Bulk: the three Rogers lines selected together post to 6300 Telephone with GST/HST as three journals of Dr 6300 50.00 / Dr 1100 6.50 / Cr 1000 56.50; the preview totals 150.00, 19.50 and 169.50",
+  "status": "PASS",
+  "evidence": "panel \"3 Transactions Selected\"; button \"Post 3 Transactions\"; preview HST 13% recoverable · 1100 · GST/HST Recoverable | $19.50 | — / 6300 · Telephone and Internet | $150.00 | — / Business Chequing | — | $169.50 / Total | $169.50 | $169.50; journals 1000:0:5650 1100:650:0 6300:5000:0 || 1000:0:5650 1100:650:0 6300:5000:0 || 1000:0:5650 1100:650:0 6300:5000:0"
+ },
+ {
+  "id": "G-07",
+  "area": "GUIDED",
+  "title": "After five lines are posted, Home counts 2 left to post, the Banking badge shows 2, and the Banking menu still opens after its badge changed",
+  "status": "PASS",
+  "evidence": "card 2 Transactions To Post; badge 2; after the badge changed, clicking Banking opens the Banking menu and page"
+ },
+ {
+  "id": "G-08",
+  "area": "GUIDED",
+  "title": "Exclude: \"Owner Personal Purchase\" is excluded from the books from Match and Post; it leaves the list of lines to post, creates no journal, and Home counts 1",
+  "status": "PASS",
+  "evidence": "status excluded; journal lines 0; home 1 Transaction To Post"
+ },
+ {
+  "id": "G-09",
+  "area": "GUIDED",
+  "title": "Restore: \"Review excluded lines\" lists the excluded line, its Actions menu opens without ticking the row, and Restore returns it; Match and Post shows it unposted again and Home counts 2",
+  "status": "PASS",
+  "evidence": "opening the row's Actions menu left the row unticked; listed 1; status pending; match-and-post Unposted; home 2 Transactions To Post"
+ },
+ {
+  "id": "G-10",
+  "area": "GUIDED",
+  "title": "Guided Match and Post: \"OWNER PERSONAL PURCHASE\" posts to 3100 Owner Draws with no tax (the restored line); the preview and the journal show 3100 Dr 40.00, 1000 Cr 40.00",
+  "status": "PASS",
+  "evidence": "preview: 3100 · Owner Draws / Shareholder Advances | $40.00 | — / Business Chequing | — | $40.00 / Total | $40.00 | $40.00; journal: 1000:0:4000 3100:4000:0; want 1000:0:4000 3100:4000:0; errors none"
+ },
+ {
+  "id": "G-11",
+  "area": "GUIDED",
+  "title": "Undo a posting: the bank fee is voided from the bank transaction list with a reason; its journal leaves the books (1000 and 6800 back by 25.00) and the line can be restored and posted again to the same figures; the old voided entry can then not be brought back on top of the new one",
+  "status": "PASS",
+  "evidence": "restoring the old voided entry after the re-post: refused (409): This bank line went back to review after it was voided. Post it again from Match and Post instead of restoring the voided ent; 6800 stays 2500; 6800 before 2500, after void 0; status after void excluded, after restore pending; void preview \"ACCOUNT DEBIT CREDIT 1000 Business Chequing $25.00 6800 Bank Charges and Interest $25.00 \"; re-posted 1000:0:2500 6800:2500:0"
+ },
+ {
+  "id": "G-11b",
+  "area": "GUIDED",
+  "title": "The old voided fee posting stays history: restoring it through the journal route is refused and the books still show the fee once (6800 = 25.00)",
+  "status": "PASS",
+  "evidence": "old voided posting kept as bank_transaction_voided; journal-route restore 409 This voided bank posting belongs to a bank line that went back to review. Post the line again from Match and Post instea; 6800 = 2500"
+ },
+ {
+  "id": "G-12",
+  "area": "GUIDED",
+  "title": "Phone width (390 × 844): Guided Home and Match and Post have no sideways page scroll, status pills stay on one line, the Home to-do opens Match and Post, and \"Adobe Software Subscription\" posts to 6200 Software with GST/HST: Dr 6200 30.00 / Dr 1100 3.90 / Cr 1000 33.90",
+  "status": "PASS",
+  "evidence": "mode guided; sideways overflow: Home 0px, Match and Post 0px / after posting 0px; status pills wrapped: none; post button x 50–340; preview HST 13% recoverable · 1100 · GST/HST Recoverable | $3.90 | — / 6200 · Software Subscriptions | $30.00 | — / Business Chequing | — | $33.90 / Total | $33.90 | $33.90; journal 1000:0:3390 1100:390:0 6200:3000:0; errors none"
+ },
+ {
+  "id": "G-13",
+  "area": "GUIDED",
+  "title": "All eight lines dealt with: Home shows no lines to post, offers \"Bank Reconciliation\" next, and the Banking badge is gone",
+  "status": "PASS",
+  "evidence": "to post shown false; reconciliation task true; badge \"\""
+ },
+ {
+  "id": "G-14",
+  "area": "GUIDED",
+  "title": "Match: in \"Match transactions\" the eight posted lines are offered as exact source pairs and one click matches all of them",
+  "status": "PASS",
+  "evidence": "button \"Match 8 Exact Pairs\"; posted lines 8; all shown Matched"
+ },
+ {
+  "id": "G-15",
+  "area": "GUIDED",
+  "title": "General Ledger after the Guided session equals the hand-worked balances: Bank 183.60 Dr, GST/HST recoverable 36.40 Dr, GST/HST payable 65.00 Cr, revenue 500.00 Cr, expenses 305.00 Dr, owner draws 40.00 Dr; debits equal credits",
+  "status": "PASS",
+  "evidence": "got {\"1000\":18360,\"1100\":3640,\"2100\":-6500,\"3100\":4000,\"4000\":-50000,\"6200\":3000,\"6300\":15000,\"6400\":10000,\"6800\":2500}; want {\"1000\":18360,\"1100\":3640,\"2100\":-6500,\"3100\":4000,\"4000\":-50000,\"6200\":3000,\"6300\":15000,\"6400\":10000,\"6800\":2500}; net 0"
+ },
+ {
+  "id": "G-16",
+  "area": "GUIDED",
+  "title": "Month-end checklist from Guided Home (shortcut \"Month-End Checklist\"): statement transactions and trial balance are ticked, and the bank reconciliation is flagged as still to do",
+  "status": "PASS",
+  "evidence": "{\"Starting balances\":\"attention\",\"Statement transactions\":\"pass\",\"Duplicate statement lines\":\"pass\",\"Trial balance\":\"pass\",\"Customer control\":\"pass\",\"Vendor control\":\"pass\",\"Bank reconciliation\":\"attention\"}"
+ },
+ {
+  "id": "G-16b",
+  "area": "GUIDED",
+  "title": "Month-end checklist: an old completed reconciliation (to Aug 31) does not tick the bank reconciliation while September activity is unreconciled",
+  "status": "PASS",
+  "evidence": "{\"cls\":\"attention\",\"text\":\"Last completed reconciliation: August 31, 2026. Bank activity runs to September 9, 2026; reconcile to that date.\"}"
+ },
+ {
+  "id": "G-17",
+  "area": "GUIDED",
+  "title": "Owner reports agree with the hand-worked figures: Home shows money in the bank $183.60, GST/HST owed $28.60 (65.00 − 36.40) and profit $195.00 (500.00 − 305.00); Profit and Loss shows net income 195.00",
+  "status": "PASS",
+  "evidence": "home bank true, tax true, profit true; P&L true"
+ },
+ {
+  "id": "G-19",
+  "area": "GUIDED",
+  "title": "Switching the company to Full Accounting: signing in again lands on the Dashboard (3 reloads)",
+  "status": "PASS",
+  "evidence": "pages after each reload: dashboard, dashboard, dashboard"
+ },
+ {
+  "id": "G-18",
+  "area": "GUIDED",
+  "title": "No script errors on any Guided screen during the session",
+  "status": "PASS",
+  "evidence": "no page errors recorded in G-03…G-12"
+ }
+]

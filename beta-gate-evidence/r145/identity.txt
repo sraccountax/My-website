@@ -1,0 +1,4 @@
+zip: /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R145-Consolidated-IONOS-STAGING.zip
+4bde2d850051e3a71ae28b0382f8fe524cc5739df4d76f53dd2ac863ccccb181  /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R145-Consolidated-IONOS-STAGING.zip
+tag: r145
+FILE-MANIFEST: all 348 entries OK

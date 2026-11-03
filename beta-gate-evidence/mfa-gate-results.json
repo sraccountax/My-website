@@ -1,0 +1,86 @@
+[
+ {
+  "id": "M-01",
+  "area": "MFA",
+  "title": "A privileged login with a correct password returns an MFA challenge, not a usable session (enrolment required on first run)",
+  "status": "PASS",
+  "evidence": "status 200; mfaRequired true; enrollmentRequired true; companies present false"
+ },
+ {
+  "id": "M-02",
+  "area": "MFA",
+  "title": "An unverified session is blocked from protected routes with mfa_enrollment_required (403)",
+  "status": "PASS",
+  "evidence": "status 403; code mfa_enrollment_required"
+ },
+ {
+  "id": "M-03",
+  "area": "MFA",
+  "title": "Enrolment begins only with the current password (step-up) and returns an otpauth secret",
+  "status": "PASS",
+  "evidence": "wrong-pw 401; begin 200; secret len 32; uri otpauth://totp/Tegh%3Aowner%40gate.test?"
+ },
+ {
+  "id": "M-04",
+  "area": "MFA",
+  "title": "Enrolment rejects an incorrect code (422 mfa_code_invalid)",
+  "status": "PASS",
+  "evidence": "status 422; code mfa_code_invalid"
+ },
+ {
+  "id": "M-05",
+  "area": "MFA",
+  "title": "A correct code confirms enrolment, verifies the session and returns 10 one-time recovery codes + the full identity",
+  "status": "PASS",
+  "evidence": "confirm 200; enabled true; recovery 10; identity true; protected-after 200"
+ },
+ {
+  "id": "M-06",
+  "area": "MFA",
+  "title": "After enrolment, login is a two-step challenge for an *enrolled* account (mfaEnrolled true)",
+  "status": "PASS",
+  "evidence": "status 200; mfaRequired true; enrolled true"
+ },
+ {
+  "id": "M-07",
+  "area": "MFA",
+  "title": "The second step rejects a wrong TOTP (422) and blocks the app until a correct code (verification_required)",
+  "status": "PASS",
+  "evidence": "wrong-code 422/mfa_code_invalid; protected-while-unverified 403/mfa_verification_required"
+ },
+ {
+  "id": "M-08",
+  "area": "MFA",
+  "title": "A correct TOTP completes the second step and unlocks the app",
+  "status": "PASS",
+  "evidence": "verify 200; verified true; protected 200"
+ },
+ {
+  "id": "M-09",
+  "area": "MFA",
+  "title": "A recovery code works as the second factor and is single-use (reuse is refused)",
+  "status": "PASS",
+  "evidence": "first-use 200; reuse 422 (422 = single-use enforced)"
+ },
+ {
+  "id": "M-10",
+  "area": "MFA",
+  "title": "TOTP replay is refused: the same code cannot be used for a second verification in the same step",
+  "status": "PASS",
+  "evidence": "first 200; replay 422; same-step true (422 expected when same step)"
+ },
+ {
+  "id": "M-11",
+  "area": "MFA",
+  "title": "Secrets at rest: the TOTP secret is stored encrypted (not the plaintext base32) and recovery codes are hashed",
+  "status": "PASS",
+  "evidence": "plaintext secret in cipher column 0; plaintext recovery stored 0; cipher bytes 32 (0/0 = encrypted & hashed)"
+ },
+ {
+  "id": "M-12",
+  "area": "MFA",
+  "title": "An enrolled account cannot turn MFA off while its role still requires it (409)",
+  "status": "PASS",
+  "evidence": "disable 409/mfa_required_for_role (must stay on for privileged role)"
+ }
+]

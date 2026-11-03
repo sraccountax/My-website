@@ -1,0 +1,142 @@
+[
+ {
+  "id": "CO-01",
+  "area": "R153",
+  "title": "Creating a company with an address, phone, email and short name stores them; the company list returns them with the printed address",
+  "status": "PASS",
+  "evidence": "[\"ALP\",\"500 Front St W\",\"Suite 1200\",\"Toronto\",\"M5V 0A1\",\"416-555-0123\",\"office@alpine.example\",\"500 Front St W\\nSuite 1200\\nToronto, ON M5V 0A1\\nCanada\"]"
+ },
+ {
+  "id": "CO-02",
+  "area": "R153",
+  "title": "Without a short name, the initials of the company name are used (\"Bayview Trading Associates\" → BTA)",
+  "status": "PASS",
+  "evidence": "BTA (set by owner: false)"
+ },
+ {
+  "id": "CO-03",
+  "area": "R153",
+  "title": "Company Details saves a new address and short name; invalid values are refused with a plain message",
+  "status": "PASS",
+  "evidence": "200 BTA2|10 Water St|B3J 1A2|NS; bad email 422 \"Enter a valid business email.\"; long short name 422 \"Short name must be 12 characters or fewer.\""
+ },
+ {
+  "id": "CO-04",
+  "area": "R153",
+  "title": "A customer invoice prints the company address, phone and email (the seeded \"ON, Canada\" template address no longer stands in for it)",
+  "status": "PASS",
+  "evidence": "[\"500 Front St W\\nSuite 1200\\nToronto, ON M5V 0A1\\nCanada\",\"416-555-0123\",\"office@alpine.example\"]"
+ },
+ {
+  "id": "CO-05",
+  "area": "R153",
+  "title": "A template with its own address keeps it; an issued invoice keeps the address it was issued with after the company moves",
+  "status": "PASS",
+  "evidence": "template: PO Box 77, Toronto ON | issued invoice after move: 500 Front St W"
+ },
+ {
+  "id": "UI-01",
+  "area": "R153",
+  "title": "Company Details shows the address block and short name; saving from the screen updates the company",
+  "status": "PASS",
+  "evidence": "500 Front St W | Toronto | ALP; phone saved 416-555-0199"
+ },
+ {
+  "id": "MC-01",
+  "area": "R153",
+  "title": "Customer Invoice & Note Register with both companies: every line has a Co. label — ALP twice, BTA once",
+  "status": "PASS",
+  "evidence": "|Co.|Document|Document Type · {\"ALP\":2,\"BTA\":1}"
+ },
+ {
+  "id": "MC-02",
+  "area": "R153",
+  "title": "Profit and Loss with both companies: lines labelled ALP and BTA and total income $1,300.00 (ALP $1,050.00 + BTA $250.00), with no notice saying the figures were withheld",
+  "status": "PASS",
+  "evidence": "Total Income\tCAD 1,300.00\t | page says \"select one company\": false"
+ },
+ {
+  "id": "MC-03",
+  "area": "R153",
+  "title": "Receivable Ageing with both companies: the three open invoices are listed with their company",
+  "status": "PASS",
+  "evidence": "[\"\",\"ALP\",\"ALP\",\"BTA\",\"Total Current / Credits\"]"
+ },
+ {
+  "id": "MC-04",
+  "area": "R153",
+  "title": "Day Book with both companies: each voucher row shows its company; the two companies' entries are not merged",
+  "status": "PASS",
+  "evidence": "[\"ALP\",\"ALP\",\"BTA\"]"
+ },
+ {
+  "id": "MC-05",
+  "area": "R153",
+  "title": "Audit History, Tax Code Report and Trial Balance with both companies show the Co. column with both labels",
+  "status": "PASS",
+  "evidence": "[[\"Audit History\",true,true,true],[\"Tax Code Report\",true,true,true],[\"Trial Balance\",true,true,true]]"
+ },
+ {
+  "id": "MC-06",
+  "area": "R153",
+  "title": "Reports about one GL or bank account, and Budgets, never show only the first company's figures: each opens its combined screen (R154)",
+  "status": "PASS",
+  "evidence": "[[\"General Ledger Account Report\",true,0],[\"Bank General Ledger Report\",true,0],[\"Budget versus Actual\",true,0]]"
+ },
+ {
+  "id": "MC-07",
+  "area": "R153",
+  "title": "The Excel export of the combined register contains the Co. column and both companies",
+  "status": "PASS",
+  "evidence": "Tegh-Customer-Invoice-Note-Register.xlsx: Co. true, ALP true, BTA true"
+ },
+ {
+  "id": "MC-08",
+  "area": "R153",
+  "title": "With one company selected, reports are unchanged: no Co. column",
+  "status": "PASS",
+  "evidence": "|Document|Document Type · 2 rows"
+ },
+ {
+  "id": "NAV-01",
+  "area": "R153",
+  "title": "The arrow beside a module opens and closes its submenu without leaving the page, and two submenus can be open at once",
+  "status": "PASS",
+  "evidence": "after opening: Banking true, Receivables true; page stayed \"Vendors\"; after closing Banking: false; arrow 28×28"
+ },
+ {
+  "id": "NAV-02",
+  "area": "R153",
+  "title": "A submenu closed with its arrow stays closed while moving between pages of that module; clicking the module name opens it again",
+  "status": "PASS",
+  "evidence": "after navigating: false; after clicking the name: true"
+ },
+ {
+  "id": "TH-01",
+  "area": "R153",
+  "title": "The top bar has Light, Dark and System icon buttons; Dark switches the app to dark and is remembered after reload; System follows the device fully (dark page on a dark device, light when it turns light)",
+  "status": "PASS",
+  "evidence": "Light theme:icon,Dark theme:icon,System theme:icon · dark dark → after reload dark · System on a dark device: dark (page brightness 56), device turns light: light · Light light"
+ },
+ {
+  "id": "TH-02",
+  "area": "R153",
+  "title": "On a phone the switch shows only the current icon and a tap moves Light → Dark → System → Light",
+  "status": "PASS",
+  "evidence": "[\"dark:1\",\"auto:1\",\"light:1\"]"
+ },
+ {
+  "id": "TH-03",
+  "area": "R153",
+  "title": "The Appearance page shows the same Light, Dark and System icons",
+  "status": "PASS",
+  "evidence": "3 icons; Theme System Follow this device’s light or dark setting. Light Use the light acc"
+ },
+ {
+  "id": "R153-JS",
+  "area": "R153",
+  "title": "No page errors during the R153 journeys",
+  "status": "PASS",
+  "evidence": ""
+ }
+]

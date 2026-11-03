@@ -1,0 +1,23 @@
+[
+ {
+  "id": "CL-01",
+  "area": "R180",
+  "title": "The 46 removed files are listed in the release manifest and are not on the installed site",
+  "status": "PASS",
+  "evidence": "46 listed; none present"
+ },
+ {
+  "id": "CL-02",
+  "area": "R180",
+  "title": "Every page in the package (27) loads with no missing file and asks for none of the removed files",
+  "status": "PASS",
+  "evidence": "27 pages; no 404/403; no removed file requested"
+ },
+ {
+  "id": "CL-03",
+  "area": "R180",
+  "title": "Signed in: the dashboard, the Appearance previews and the import sample downloads still load with no missing file",
+  "status": "PASS",
+  "evidence": "appearance 16/16, samples 3/3; no 404/403"
+ }
+]

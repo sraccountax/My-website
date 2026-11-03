@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Tegh Loading States</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/tegh-skeleton.css">
+<style>
+/* Layout: the Tegh dashboard grid; card frames and titles render at once, only the figures wait for data. */
+:root {
+  --bg: #f4f6f7; --card: #ffffff; --line: #e1e7ea; --ink: #0b2a3a; --ink-2: #455a66; --ink-3: #566a77; --accent: #0b665d;
+  --teal: #0f8f81; --gold: #c38a1c; --good: #1d6b45; --good-bg: #e6f4ec; --warn: #8a5200; --warn-bg: #fdf3e1; --crit: #a8281e; --crit-bg: #fdecea;
+  --chip: #eef3f4; --code-bg: #0b2a3a; --code-ink: #e3eef1; --bar: #18a999;
+  --sans: Manrope, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #06131c; --card: #0d2230; --line: #1d3a49; --ink: #eaf3f5; --ink-2: #a9bec7; --ink-3: #8fa7b2; --accent: #6fd8c9;
+    --teal: #169a8b; --gold: #b7801f; --good: #7fd8a6; --good-bg: rgba(127,216,166,.1); --warn: #f2b866; --warn-bg: rgba(242,184,102,.1); --crit: #ff9b91; --crit-bg: rgba(255,155,145,.1);
+    --chip: #143041; --code-bg: #041018; --code-ink: #d6e6ec; --bar: #2fc2b0; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #06131c; --card: #0d2230; --line: #1d3a49; --ink: #eaf3f5; --ink-2: #a9bec7; --ink-3: #8fa7b2; --accent: #6fd8c9;
+  --teal: #169a8b; --gold: #b7801f; --good: #7fd8a6; --good-bg: rgba(127,216,166,.1); --warn: #f2b866; --warn-bg: rgba(242,184,102,.1); --crit: #ff9b91; --crit-bg: rgba(255,155,145,.1);
+  --chip: #143041; --code-bg: #041018; --code-ink: #d6e6ec; --bar: #2fc2b0; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); }
+.progress { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; height: 3px; z-index: 30; pointer-events: none; }
+.progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--bar), #e3c27a); border-radius: 0 3px 3px 0; transition: width .4s ease, opacity .4s ease .3s; }
+.wrap { max-width: 1280px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 20px; }
+header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 14px; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+h1 { margin: 2px 0 4px; font-size: clamp(26px, 3.4vw, 36px); line-height: 1.15; font-weight: 800; text-wrap: balance; }
+h2 { margin: 0; font-size: 17px; font-weight: 800; }
+h3 { margin: 0; font-size: 15px; font-weight: 800; }
+p { margin: 0; }
+.muted { color: var(--ink-2); }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: flex; gap: 3px; padding: 3px; border-radius: 11px; background: var(--chip); }
+.seg button, .btn { font: inherit; font-size: 14px; font-weight: 700; border-radius: 9px; padding: 0 12px; min-height: 40px; cursor: pointer; }
+.seg button { border: 0; background: transparent; color: var(--ink-2); }
+.seg button[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+.btn { border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+.btn.primary { border: 0; background: var(--teal); color: #fff; }
+.check { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--ink-2); min-height: 40px; }
+.check input { width: 18px; height: 18px; accent-color: var(--teal); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.row { display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.hero { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; gap: 24px; }
+.chart.hero-chart { height: 200px; }
+.hero-left { flex: 1 1 260px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.hero > .chart-region { flex: 999 1 380px; }
+.label { font-size: 13px; font-weight: 700; color: var(--ink-2); }
+.big { font-size: clamp(36px, 5vw, 52px); line-height: 1.05; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.num { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; border-radius: 999px; padding: 3px 10px; }
+.chip.good { color: var(--good); background: var(--good-bg); }
+.chip.plain { color: var(--ink-2); background: var(--chip); }
+.note { font-size: 13px; color: var(--ink-2); }
+.spark { display: block; width: 100%; height: 40px; }
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.item { display: flex; align-items: center; gap: 12px; min-height: 50px; }
+.item .text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.item .text small { color: var(--ink-2); font-size: 13px; }
+.dot { width: 36px; height: 36px; border-radius: 10px; flex: 0 0 auto; display: grid; place-items: center; }
+.pill { font-size: 12px; font-weight: 800; border-radius: 999px; padding: 2px 9px; flex: 0 0 auto; }
+.crit { color: var(--crit); background: var(--crit-bg); }
+.warn { color: var(--warn); background: var(--warn-bg); }
+.good { color: var(--good); background: var(--good-bg); }
+.calm { color: var(--ink-2); background: var(--chip); }
+.bars { display: flex; flex-direction: column; gap: 12px; }
+.barrow-top { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
+.barrow-top b { font-variant-numeric: tabular-nums; }
+.track { height: 8px; border-radius: 4px; background: var(--chip); }
+.track > span { display: block; height: 100%; border-radius: 4px; background: var(--teal); }
+.legend { display: flex; gap: 14px; font-size: 13px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.chart { width: 100%; height: auto; display: block; }
+.chart text { fill: var(--ink-3); font-size: 11px; }
+.error-box { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; padding: 12px; }
+.error-box p { color: var(--ink-2); font-size: 14px; max-width: 34ch; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.how { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 16px 24px; }
+pre { margin: 0; background: var(--code-bg); color: var(--code-ink); border-radius: 12px; padding: 14px 16px; overflow-x: auto; font: 12.5px/1.6 var(--mono); }
+.how ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; color: var(--ink-2); font-size: 14px; }
+.how code { font-family: var(--mono); font-size: .9em; background: var(--chip); border-radius: 4px; padding: 1px 5px; color: var(--ink); }
+</style>
+
+<div class="progress" aria-hidden="true"><span id="bar"></span></div>
+<div class="sr" aria-live="polite" id="announce"></div>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Cedar &amp; Co. (Sample) · made-up figures</div>
+      <h1>Good morning, Priya</h1>
+      <p class="muted">Each panel loads on its own. Press Reload to watch it again.</p>
+    </div>
+    <div class="controls">
+      <button type="button" class="btn primary" id="reload">Reload dashboard</button>
+      <div class="seg" role="group" aria-label="Network speed">
+        <button type="button" data-speed="fast" aria-pressed="false">Fast</button>
+        <button type="button" data-speed="normal" aria-pressed="true">Normal</button>
+        <button type="button" data-speed="slow" aria-pressed="false">Slow</button>
+      </div>
+      <label class="check"><input type="checkbox" id="fail"> Make one panel fail</label>
+      <button type="button" class="btn" id="theme">Dark mode</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- Cash at bank: number and forecast load together -->
+    <section class="card hero" aria-labelledby="h-cash">
+      <div class="hero-left">
+      <h2 class="label" id="h-cash">Cash at bank</h2>
+      <div class="sk-region" id="r-cash" data-state="idle" aria-busy="true">
+        <div class="sk-layer" aria-hidden="true" style="display: flex; flex-direction: column; gap: 12px">
+          <span class="sk sk-number" style="width: 72%; height: 52px"></span>
+          <div style="display: flex; gap: 8px"><span class="sk sk-pill" style="width: 46%"></span><span class="sk sk-pill" style="width: 36%"></span></div>
+          <div><span class="sk sk-line" style="width: 92%"></span><span class="sk sk-line" style="width: 64%"></span></div>
+        </div>
+        <div class="sk-content" style="display: flex; flex-direction: column; gap: 12px">
+          <span class="big sk-in">$48,210</span>
+          <div class="chips sk-in"><span class="chip good">▲ Up $6,980 since 30 Sep</span><span class="chip plain">Chequing $41,870 · Savings $6,340</span></div>
+          <p class="note sk-in">Forecast low of $42,300 in the week of 12 December, when payroll and the GST/HST payment fall together.</p>
+        </div>
+      </div>
+      </div>
+      <div class="sk-region chart-region" id="r-forecast" data-state="idle" aria-busy="true">
+        <div class="sk-layer" aria-hidden="true" style="display: flex; flex-direction: column; gap: 10px">
+          <span class="sk sk-line" style="width: 40%"></span>
+          <span class="sk sk-box sk-wave" style="height: 190px"></span>
+        </div>
+        <div class="sk-content" style="display: flex; flex-direction: column; gap: 6px">
+          <span class="note">Bank balance by week: 8 weeks actual, 13 weeks forecast</span>
+          <svg class="chart hero-chart sk-in" viewBox="0 0 460 200" preserveAspectRatio="none" role="img" aria-label="Bank balance rising to $48.2k today, forecast low $42.3k on 12 December, ending at $52.1k.">
+            <path d="M10 129 L31 109 L53 121 L74 97 L96 87 L117 94 L139 77 L160 67 L182 82 L203 96 L225 70 L246 54 L268 94 L289 119 L311 104 L332 79 L354 51 L375 40 L397 74 L418 60 L440 32 L440 190 L10 190Z" fill="var(--teal)" opacity=".12"></path>
+            <path d="M10 129 L31 109 L53 121 L74 97 L96 87 L117 94 L139 77 L160 67" fill="none" stroke="var(--teal)" stroke-width="2.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+            <path d="M160 67 L182 82 L203 96 L225 70 L246 54 L268 94 L289 119 L311 104 L332 79 L354 51 L375 40 L397 74 L418 60 L440 32" fill="none" stroke="var(--teal)" stroke-width="2.5" stroke-dasharray="6 6" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+            <path d="M289 119h0" stroke="var(--gold)" stroke-width="11" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- Three headline cards -->
+    <section class="card" aria-labelledby="h-ar">
+      <h2 class="label" id="h-ar">Customers owe you</h2>
+      <div class="sk-region" id="r-ar" data-state="idle" aria-busy="true">
+        <div class="sk-layer" aria-hidden="true" style="display: flex; flex-direction: column; gap: 10px"><span class="sk sk-number" style="width: 58%"></span><span class="sk sk-line" style="width: 86%"></span><span class="sk sk-box" style="height: 40px"></span></div>
+        <div class="sk-content" style="display: flex; flex-direction: column; gap: 10px">
+          <span class="num sk-in">$12,940</span>
+          <span class="note sk-in">3 invoices overdue, $1,400 past 60 days</span>
+          <svg class="spark sk-in" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30 L28 24 L57 18 L86 21 L114 9 L143 14 L171 11 L200 14" fill="none" stroke="var(--gold)" stroke-width="2" vector-effect="non-scaling-stroke"></path></svg>
+        </div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-ap">
+      <h2 class="label" id="h-ap">You owe suppliers</h2>
+      <div class="sk-region" id="r-ap" data-state="idle" aria-busy="true">
+        <div class="sk-layer" aria-hidden="true" style="display: flex; flex-direction: column; gap: 10px"><span class="sk sk-number" style="width: 50%"></span><span class="sk sk-line" style="width: 70%"></span><span class="sk sk-box" style="height: 40px"></span></div>
+        <div class="sk-content" style="display: flex; flex-direction: column; gap: 10px">
+          <span class="num sk-in">$7,320</span>
+          <span class="note sk-in">2 bills due this week, $2,613</span>
+          <svg class="spark sk-in" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 28 L28 8 L57 20 L86 12 L114 5 L143 19 L171 9 L200 14" fill="none" stroke="var(--ink-3)" stroke-width="2" vector-effect="non-scaling-stroke"></path></svg>
+        </div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-pl">
+      <h2 class="label" id="h-pl">Profit this year</h2>
+      <div class="sk-region" id="r-pl" data-state="idle" aria-busy="true">
+        <div class="sk-layer" aria-hidden="true" style="display: flex; flex-direction: column; gap: 10px"><span class="sk sk-number" style="width: 54%"></span><span class="sk sk-line" style="width: 80%"></span><span class="sk sk-box" style="height: 40px"></span></div>
+        <div class="sk-content" style="display: flex; flex-direction: column; gap: 10px">
+          <span class="num sk-in">$38,500</span>
+          <span class="note sk-in">22% of sales, up from 18% last year</span>
+          <svg class="spark sk-in" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 38 L18 35 L36 30 L55 27 L73 23 L91 19 L109 16 L127 12 L145 10 L164 8 L182 6 L200 4" fill="none" stroke="var(--teal)" stroke-width="2" vector-effect="non-scaling-stroke"></path></svg>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="row">
+    <!-- Money in and out chart -->
+    <section class="card" style="flex: 999 1 520px" aria-labelledby="h-cf">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px"><h2 id="h-cf">Money in and money out</h2><div class="legend"><span><i style="background: var(--teal)"></i>Money in</span><span><i style="background: var(--gold)"></i>Money out</span></div></div>
+      <div class="sk-region" id="r-cf" data-state="idle" aria-busy="true">
+        <div class="sk-layer" aria-hidden="true" style="display: flex; flex-direction: column; gap: 12px">
+          <span class="sk sk-line" style="width: 46%"></span>
+          <div class="sk-bars" style="height: 220px">
+            <div class="sk-group"><span class="sk" style="--h: 62%"></span><span class="sk" style="--h: 54%"></span></div>
+            <div class="sk-group"><span class="sk" style="--h: 56%"></span><span class="sk" style="--h: 52%"></span></div>
+            <div class="sk-group"><span class="sk" style="--h: 68%"></span><span class="sk" style="--h: 58%"></span></div>
+            <div class="sk-group"><span class="sk" style="--h: 52%"></span><span class="sk" style="--h: 55%"></span></div>
+            <div class="sk-group"><span class="sk" style="--h: 58%"></span><span class="sk" style="--h: 50%"></span></div>
+            <div class="sk-group"><span class="sk" style="--h: 66%"></span><span class="sk" style="--h: 57%"></span></div>
+            <div class="sk-group"><span class="sk" style="--h: 72%"></span><span class="sk" style="--h: 60%"></span></div>
+            <div class="sk-group"><span class="sk" style="--h: 70%"></span><span class="sk" style="--h: 62%"></span></div>
+            <div class="sk-group"><span class="sk" style="--h: 76%"></span><span class="sk" style="--h: 59%"></span></div>
+            <div class="sk-group"><span class="sk" style="--h: 69%"></span><span class="sk" style="--h: 60%"></span></div>
+            <div class="sk-group"><span class="sk" style="--h: 78%"></span><span class="sk" style="--h: 64%"></span></div>
+            <div class="sk-group"><span class="sk" style="--h: 84%"></span><span class="sk" style="--h: 66%"></span></div>
+          </div>
+        </div>
+        <div class="sk-content" style="display: flex; flex-direction: column; gap: 12px">
+          <span class="note">Last 12 months · in $408,000 · out $350,900 · net +$57,100</span>
+          <svg class="chart sk-in" viewBox="0 0 600 220" role="img" aria-label="Money in and money out by month for the last 12 months; money in was higher in 11 of 12 months.">
+            <g id="cf-bars"></g>
+            <path d="M0 219.5H600" stroke="var(--line)"></path>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- Needs you -->
+    <section class="card" style="flex: 1 1 300px" aria-labelledby="h-todo">
+      <h2 id="h-todo">Needs you</h2>
+      <div class="sk-region" id="r-todo" data-state="idle" aria-busy="true">
+        <div class="sk-layer" aria-hidden="true">
+          <ul class="list">
+            <li class="item"><span class="sk sk-square" style="width: 36px; height: 36px"></span><span class="text"><span class="sk sk-line" style="width: 70%"></span><span class="sk sk-line" style="width: 90%"></span></span><span class="sk sk-pill" style="width: 64px; height: 20px"></span></li>
+            <li class="item"><span class="sk sk-square" style="width: 36px; height: 36px"></span><span class="text"><span class="sk sk-line" style="width: 62%"></span><span class="sk sk-line" style="width: 76%"></span></span><span class="sk sk-pill" style="width: 52px; height: 20px"></span></li>
+            <li class="item"><span class="sk sk-square" style="width: 36px; height: 36px"></span><span class="text"><span class="sk sk-line" style="width: 48%"></span><span class="sk sk-line" style="width: 84%"></span></span><span class="sk sk-pill" style="width: 70px; height: 20px"></span></li>
+            <li class="item"><span class="sk sk-square" style="width: 36px; height: 36px"></span><span class="text"><span class="sk sk-line" style="width: 66%"></span><span class="sk sk-line" style="width: 58%"></span></span><span class="sk sk-pill" style="width: 56px; height: 20px"></span></li>
+            <li class="item"><span class="sk sk-square" style="width: 36px; height: 36px"></span><span class="text"><span class="sk sk-line" style="width: 54%"></span><span class="sk sk-line" style="width: 44%"></span></span><span class="sk sk-pill" style="width: 66px; height: 20px"></span></li>
+          </ul>
+        </div>
+        <div class="sk-content">
+          <ul class="list">
+            <li class="item sk-in"><span class="dot crit">!</span><span class="text"><b>3 invoices overdue</b><small>Northwind Physio and 2 others · $3,340</small></span><span class="pill crit">Overdue</span></li>
+            <li class="item sk-in"><span class="dot warn">≡</span><span class="text"><b>14 bank lines to sort</b><small>Chequing · imported 30 October</small></span><span class="pill warn">Today</span></li>
+            <li class="item sk-in"><span class="dot warn">$</span><span class="text"><b>2 bills due</b><small>Metro Hydro, Bayview Property</small></span><span class="pill warn">This week</span></li>
+            <li class="item sk-in"><span class="dot calm">%</span><span class="text"><b>GST/HST return, Q4</b><small>Estimated $4,180 owing</small></span><span class="pill calm">31 Dec</span></li>
+            <li class="item sk-in"><span class="dot good">✓</span><span class="text"><b>October month-end</b><small>6 of 9 steps done</small></span><span class="pill good">On track</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="row">
+    <!-- Who owes you (this one can be made to fail) -->
+    <section class="card" style="flex: 1 1 340px" aria-labelledby="h-aging">
+      <h2 id="h-aging">Who owes you</h2>
+      <div class="sk-region" id="r-aging" data-state="idle" aria-busy="true">
+        <div class="sk-layer" aria-hidden="true">
+          <div class="bars">
+            <div><div class="barrow-top"><span class="sk sk-line" style="width: 30%"></span><span class="sk sk-line" style="width: 16%"></span></div><span class="sk" style="height: 8px; margin-top: 8px; width: 100%"></span></div>
+            <div><div class="barrow-top"><span class="sk sk-line" style="width: 24%"></span><span class="sk sk-line" style="width: 14%"></span></div><span class="sk" style="height: 8px; margin-top: 8px; width: 60%"></span></div>
+            <div><div class="barrow-top"><span class="sk sk-line" style="width: 28%"></span><span class="sk sk-line" style="width: 14%"></span></div><span class="sk" style="height: 8px; margin-top: 8px; width: 38%"></span></div>
+            <div><div class="barrow-top"><span class="sk sk-line" style="width: 26%"></span><span class="sk sk-line" style="width: 12%"></span></div><span class="sk" style="height: 8px; margin-top: 8px; width: 20%"></span></div>
+            <div><div class="barrow-top"><span class="sk sk-line" style="width: 32%"></span><span class="sk sk-line" style="width: 12%"></span></div><span class="sk" style="height: 8px; margin-top: 8px; width: 14%"></span></div>
+          </div>
+        </div>
+        <div class="sk-content">
+          <div class="bars">
+            <div class="sk-in"><div class="barrow-top"><span>Not yet due</span><b>$6,420</b></div><div class="track"><span style="width: 100%"></span></div></div>
+            <div class="sk-in"><div class="barrow-top"><span>1–30 days</span><b>$3,180</b></div><div class="track"><span style="width: 49.5%"></span></div></div>
+            <div class="sk-in"><div class="barrow-top"><span>31–60 days</span><b>$1,940</b></div><div class="track"><span style="width: 30.2%"></span></div></div>
+            <div class="sk-in"><div class="barrow-top"><span>61–90 days <span class="pill warn">Follow up</span></span><b>$820</b></div><div class="track"><span style="width: 12.8%"></span></div></div>
+            <div class="sk-in"><div class="barrow-top"><span>Over 90 days <span class="pill warn">Follow up</span></span><b>$580</b></div><div class="track"><span style="width: 9%"></span></div></div>
+          </div>
+        </div>
+        <div class="sk-error" role="alert">
+          <div class="error-box">
+            <h3>Couldn't load who owes you</h3>
+            <p>Nothing was changed. The other panels are fine. Try this one again.</p>
+            <button type="button" class="btn" data-retry>Try again</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent activity -->
+    <section class="card" style="flex: 1 1 340px" aria-labelledby="h-feed">
+      <h2 id="h-feed">Recent activity</h2>
+      <div class="sk-region" id="r-feed" data-state="idle" aria-busy="true">
+        <div class="sk-layer" aria-hidden="true">
+          <ul class="list">
+            <li class="item"><span class="sk sk-circle" style="width: 34px; height: 34px"></span><span class="text"><span class="sk sk-line" style="width: 78%"></span><span class="sk sk-line" style="width: 30%"></span></span><span class="sk sk-line" style="width: 52px"></span></li>
+            <li class="item"><span class="sk sk-circle" style="width: 34px; height: 34px"></span><span class="text"><span class="sk sk-line" style="width: 60%"></span><span class="sk sk-line" style="width: 24%"></span></span></li>
+            <li class="item"><span class="sk sk-circle" style="width: 34px; height: 34px"></span><span class="text"><span class="sk sk-line" style="width: 84%"></span><span class="sk sk-line" style="width: 24%"></span></span><span class="sk sk-line" style="width: 44px"></span></li>
+            <li class="item"><span class="sk sk-circle" style="width: 34px; height: 34px"></span><span class="text"><span class="sk sk-line" style="width: 66%"></span><span class="sk sk-line" style="width: 20%"></span></span><span class="sk sk-line" style="width: 44px"></span></li>
+          </ul>
+        </div>
+        <div class="sk-content">
+          <ul class="list">
+            <li class="item sk-in"><span class="dot good">↑</span><span class="text"><span><b>Harbourfront Dental</b> paid INV-0142</span><small>2 hours ago</small></span><b>$1,610</b></li>
+            <li class="item sk-in"><span class="dot calm">≡</span><span class="text"><span><b>Priya</b> sorted 22 bank lines</span><small>Yesterday</small></span></li>
+            <li class="item sk-in"><span class="dot calm">→</span><span class="text"><span><b>INV-0148</b> sent to Maple Street Bakery</span><small>Yesterday</small></span><b>$961</b></li>
+            <li class="item sk-in"><span class="dot calm">↓</span><span class="text"><span><b>Northern Software</b> bill recorded</span><small>29 Oct</small></span><b>$564</b></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="h-how">
+    <h2 id="h-how">How to use it</h2>
+    <div class="how">
+      <div style="display: flex; flex-direction: column; gap: 10px; min-width: 0">
+        <h3>1. Give a panel three layers</h3>
+        <pre>&lt;div class="sk-region" id="r-ar"&gt;
+  &lt;div class="sk-layer" aria-hidden="true"&gt;
+    &lt;span class="sk sk-number" style="width:58%"&gt;&lt;/span&gt;
+    &lt;span class="sk sk-line" style="width:86%"&gt;&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="sk-content"&gt;… real content …&lt;/div&gt;
+  &lt;div class="sk-error" role="alert"&gt;… retry …&lt;/div&gt;
+&lt;/div&gt;</pre>
+        <h3>2. Load it</h3>
+        <pre>TeghSkeleton.load('#r-ar',
+  () =&gt; api('dashboard/summary'),
+  {
+    render: (data, region) =&gt; { /* fill .sk-content */ },
+    renderError: (err, region, retry) =&gt; {
+      region.querySelector('[data-retry]').onclick = retry;
+    }
+  });</pre>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; min-width: 0">
+        <h3>Building blocks</h3>
+        <ul>
+          <li><code>sk-line</code>, <code>sk-title</code>, <code>sk-number</code>: text and figures. Set a width so lines look like real text.</li>
+          <li><code>sk-pill</code>, <code>sk-circle</code>, <code>sk-square</code>, <code>sk-box</code>: chips, avatars, icons, panels.</li>
+          <li><code>sk-bars</code> with <code>sk-group</code> and <code>--h</code>: a bar chart. <code>sk-wave</code>: a line chart.</li>
+          <li><code>sk-in</code> on content pieces makes them rise in one after another.</li>
+        </ul>
+        <h3>Built in</h3>
+        <ul>
+          <li>No flash: the placeholder only appears if the data takes longer than 150 ms, and then stays at least 450 ms.</li>
+          <li>No jumping: placeholder and content share one space, so the page never shifts.</li>
+          <li>One shimmer sweeps across the whole screen, so all placeholders move together.</li>
+          <li>Screen readers hear that a panel is busy, not the placeholders. Motion is switched off for people who turn it off on their device.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="../assets/tegh-skeleton.js"></script>
+<script>
+(function () {
+  // Money in and money out bars (drawn once; the region decides when they show).
+  const inV = [31.2, 28.4, 34.1, 26.3, 29.0, 33.4, 36.2, 35.1, 38.4, 34.6, 39.2, 42.1];
+  const outV = [27.4, 26.1, 29.3, 27.8, 25.2, 28.6, 30.4, 31.2, 29.5, 30.1, 32.3, 33.0];
+  const g = document.getElementById('cf-bars'), NS = 'http://www.w3.org/2000/svg', gw = 600 / 12, bw = 14;
+  inV.forEach((v, i) => {
+    [[v, 'var(--teal)', -bw - 1], [outV[i], 'var(--gold)', 1]].forEach(([val, fill, off]) => {
+      const r = document.createElementNS(NS, 'rect'), h = val / 50 * 210;
+      r.setAttribute('x', gw * (i + .5) + off); r.setAttribute('y', 220 - h); r.setAttribute('width', bw); r.setAttribute('height', h); r.setAttribute('rx', 3); r.setAttribute('fill', fill);
+      g.appendChild(r);
+    });
+  });
+
+  const speeds = { fast: [60, 140], normal: [500, 1700], slow: [1800, 4200] };
+  let speed = 'normal';
+  const fakeApi = (name, fail) => new Promise((ok, bad) => {
+    const [a, b] = speeds[speed], ms = a + Math.random() * (b - a);
+    setTimeout(() => (fail ? bad(new Error(name + ' failed')) : ok({ name })), ms);
+  });
+
+  const bar = document.getElementById('bar'), announce = document.getElementById('announce');
+  const regions = ['r-cash', 'r-forecast', 'r-ar', 'r-ap', 'r-pl', 'r-cf', 'r-todo', 'r-aging', 'r-feed'];
+  const failBox = document.getElementById('fail');
+
+  function reload() {
+    bar.style.transition = 'none'; bar.style.width = '0'; bar.style.opacity = '1';
+    void bar.offsetWidth; bar.style.transition = '';
+    announce.textContent = 'Loading the dashboard';
+    const jobs = regions.map(id => ({
+      region: '#' + id,
+      task: () => fakeApi(id, id === 'r-aging' && failBox.checked),
+      renderError: (err, region, retry) => {
+        region.querySelector('[data-retry]').onclick = () => { failBox.checked = false; retry(); };
+      }
+    }));
+    TeghSkeleton.loadAll(jobs, (done, total) => {
+      bar.style.width = (done / total * 100) + '%';
+      if (done === total) {
+        bar.style.opacity = '0';
+        const failed = document.querySelectorAll('.sk-region[data-state="error"]').length;
+        announce.textContent = failed ? 'Dashboard loaded. One panel could not load.' : 'Dashboard loaded';
+      }
+    });
+  }
+
+  document.getElementById('reload').addEventListener('click', reload);
+  document.querySelectorAll('[data-speed]').forEach(b => b.addEventListener('click', () => {
+    speed = b.dataset.speed;
+    document.querySelectorAll('[data-speed]').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    reload();
+  }));
+  failBox.addEventListener('change', reload);
+
+  const themeBtn = document.getElementById('theme'), root = document.documentElement;
+  const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  const label = () => { themeBtn.textContent = isDark() ? 'Light mode' : 'Dark mode'; };
+  themeBtn.addEventListener('click', () => { root.dataset.theme = isDark() ? 'light' : 'dark'; label(); });
+  label();
+
+  reload();
+})();
+</script>

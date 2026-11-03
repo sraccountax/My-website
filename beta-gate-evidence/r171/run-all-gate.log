@@ -1,0 +1,106 @@
+=== resume 03:36
+=== 01-install
+=== 02-setup
+{
+  BC: 'company_74e99540dcf44158f605ae8f5dfec24c',
+  QC: 'company_73fa45a3b92e2591acc9c88b8cc26d35',
+  ON: 'company_c8bdf9b683fb02a1e03ab4376c6c4569',
+  X: 'company_85b77f2d4d60135d46d1448447d1bbba'
+}
+=== 02b-invite
+=== 03-acct
+expense 6000 equity 3000 bank gl 1000
+=== 04-tax
+INFO     CB-02      Cash basis: invoice issue posting recorded for review | {}
+=== 05-fx
+=== 06-sec
+INFO     XS-01      XSS payload customer stored as text (rendering checked in UI run) | 201
+=== 06b
+=== 07-cv
+=== 08-pay
+INFO     PY-01      Employee with SIN fields submitted: refused or SIN discarded | 422 sin_not_accepted Tegh does not store Social Insurance Numbers (SINs). Remove the SIN and use the Employee ID instead.
+INFO     PY-07      Payroll rate tables: year/version reported for owner verification | "effectiveFrom":"2026-01-01" "effectiveTo":"2026-06-30" "effectiveFrom":"2026-07-01" "effectiveTo":"2026-12-31"
+=== 09-backup
+=== 09b
+=== 10-ops
+INFO     LG-03      PHP error log: warnings recorded (see evidence) | PHP Warning:  POST Content-Length of 11534510 bytes exceeds the limit of 8388608 bytes in Unknown on line 0'
+INFO     SP-02      Public contact page offers a working contact path (form posts to /api/marketing) | mailto:enquiry@sraccountax.ca,mailto:enquiry@sraccountax.ca
+=== 13-r141
+FAIL     PW-01      Product page says Payroll Support Tool, Canada excluding Quebec (R142 wording), no "payrol | 
+=== 14-r142
+FAIL     WR-09      Product and Subscriptions pages say Canada, excluding Quebec; no "Canada only" | 
+=== 15-r144
+=== 16-r145
+INFO     DI-CMP     Field accuracy across the six documents, R145 reader vs the R144 reader (for information) | R145 47/47 fields; R144 19/47 fields
+=== 18-r149
+=== 19-r151
+=== 20-r151ui
+=== 21-r152
+=== 22-r153
+=== 23-r154
+=== 24-beta
+FAIL     BS-07      Accepting an invitation records the terms and privacy versions shown on the published Term | pages: terms undefined, privacy undefined; recorded 2026-10-21-beta.1|2026-10-21-beta.1
+FAIL     BS-09      Terms and Privacy pages: the operator, contacts, hosting, beta conditions, deletion proced | terms missing: Gate Test Operator Inc., support@gate.test, Private beta, Invitation only, Free, Sample data only, Data may be reset, No guarantee of availability, Not for real filings or payroll, 2026
+=== 25-r157
+=== 26-r158
+=== 27-r159
+=== 28-r160
+=== 29-r161
+=== 30-guided
+=== 31-r163
+=== 32-r163-sec
+
+10/10 R163 security checks passed
+=== 33-sec
+
+13/13 auth/client-view/payroll security checks passed
+=== 34-mfa
+=== 35-session
+=== 36-monitor
+=== 37-audit
+=== 38-files
+victims {
+  stmt: [
+    'company_f8ac6676c8772563efb6bffc2856c606',
+    'import_b5e02a44719323c50564d8d594826593'
+  ],
+  att: [
+    'company_66083818d97509810ab4b91887bbea6e',
+    'invoice_690739e7e83f865dd94cdaaf4f7290ba',
+    'invatt_0ac9413331a0b5f84dce3f63c92b21d5'
+  ],
+  nd: [
+    'company_1dc325d4c9254fcde5234269d3e1db14',
+    'nadoc_83d37a229b9554cf8a1ca1993b6cd5a0'
+  ],
+  inv: [
+    'company_c05d0c2873636066dedb7150cde45064',
+    'invoice_061685cb1d9dad3afb3f02d995dabd48'
+  ]
+}
+=== 39-restore
+=== 40-r165
+=== 41-r166
+=== 42-r167
+=== 43-r168
+=== 44-r169
+=== 45-r170
+INFO     II-ACC1    Measured header-field accuracy across the fixtures (number, dates, totals, tax, currency) | 141/147 (95.9%)
+INFO     II-ACC2    Measured line-item accuracy (amount and description found) | 73/75 (97.3%)
+INFO     II-ACC3    Measured supplier-matching accuracy (known suppliers) | 21/21 (100%)
+INFO     II-ACC4    Per file | F01.pdf pdf_text: all right | F01b.pdf no job | F02.pdf pdf_text: all right | F03.pdf pdf_text: all right | F04.pdf ocr: all right | F05.pdf ocr: all right | F06.pdf ocr: invoiceNumber=""≠"PJ-3306"; i
+INFO     II-ACC5    Processing time per file, upload to result (seconds; includes waiting in the queue) | F11.pdf pdf_text 45s, F03.pdf pdf_text 11s, F02.pdf pdf_text 8s, F18.pdf pdf_text 60s, F20.pdf ocr 69s, F01.pdf pdf_text 8s, F08.pdf pdf_text 42s, F13.pdf pdf_text 51s, F22.pdf pdf_text 82s, F05.pdf o
+INFO     II-ACC6    Exception rate: review classes after reading | {"blocked":3,"review":15,"ready":6}
+FAIL     II-12      Per-line tax rounding differing from the document by a cent is shown as a rounding differe | date_future,tegh_check_failed
+      Northgate Paper & Office Ltd. · NG-20418$549.08 · blockedLakeshore Courier Inc. · LC-88255$179.11 · review requiredLakeshore Courier Inc. · LC-88240$179
+=== 46-r171
+201 company_f1895d8a688589d476d3ef6a88f62c36
+=== w1
+=== w2
+=== w3
+=== w4
+=== w5
+=== w6
+=== w7
+=== w8
+=== w9

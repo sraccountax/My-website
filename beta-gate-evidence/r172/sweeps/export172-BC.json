@@ -1,0 +1,440 @@
+[
+ {
+  "report": "Tegh Intelligence",
+  "format": "-",
+  "ok": true,
+  "info": "no export on this screen"
+ },
+ {
+  "report": "Financial Analyst",
+  "format": "Export Current Visible Columns",
+  "ok": true,
+  "info": "tegh-financial-analyst-current-columns.csv 259 bytes text"
+ },
+ {
+  "report": "Financial Analyst",
+  "format": "Export All Report Columns",
+  "ok": true,
+  "info": "tegh-financial-analyst-all-columns.csv 259 bytes text"
+ },
+ {
+  "report": "Cash Forecast",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Cash-Forecast.xlsx 15266 bytes xlsx"
+ },
+ {
+  "report": "Cash Forecast",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Cash-Forecast.csv 507 bytes text"
+ },
+ {
+  "report": "Cash Forecast",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Cash-Forecast.pdf 5625 bytes pdf"
+ },
+ {
+  "report": "Profit and Loss",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Profit-and-Loss.xlsx 18455 bytes xlsx"
+ },
+ {
+  "report": "Profit and Loss",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Profit-and-Loss.csv 1031 bytes text"
+ },
+ {
+  "report": "Profit and Loss",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Profit-and-Loss.pdf 14384 bytes pdf"
+ },
+ {
+  "report": "Balance Sheet",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Balance-Sheet.xlsx 16818 bytes xlsx"
+ },
+ {
+  "report": "Balance Sheet",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Balance-Sheet.csv 647 bytes text"
+ },
+ {
+  "report": "Balance Sheet",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Balance-Sheet.pdf 6186 bytes pdf"
+ },
+ {
+  "report": "Trial Balance",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Trial-Balance.xlsx 19405 bytes xlsx"
+ },
+ {
+  "report": "Trial Balance",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Trial-Balance.csv 1259 bytes text"
+ },
+ {
+  "report": "Trial Balance",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Trial-Balance.pdf 6803 bytes pdf"
+ },
+ {
+  "report": "Cash Flow",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Cash-Flow-Statement.xlsx 18359 bytes xlsx"
+ },
+ {
+  "report": "Cash Flow",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Cash-Flow-Statement.csv 1628 bytes text"
+ },
+ {
+  "report": "Cash Flow",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Cash-Flow-Statement.pdf 6846 bytes pdf"
+ },
+ {
+  "report": "General Ledger Account Report",
+  "format": "-",
+  "ok": true,
+  "info": "no export on this screen"
+ },
+ {
+  "report": "General Ledger Detail",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-General-Ledger-Detail.xlsx 82045 bytes xlsx"
+ },
+ {
+  "report": "General Ledger Detail",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-General-Ledger-Detail.csv 14983 bytes text"
+ },
+ {
+  "report": "General Ledger Detail",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-General-Ledger-Detail.pdf 41904 bytes pdf"
+ },
+ {
+  "report": "Product Activity",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Product-Activity.xlsx 12762 bytes xlsx"
+ },
+ {
+  "report": "Product Activity",
+  "format": "csv",
+  "ok": false,
+  "info": "Tegh-Product-Activity.csv 107 bytes text"
+ },
+ {
+  "report": "Product Activity",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Product-Activity.pdf 5139 bytes pdf"
+ },
+ {
+  "report": "Day Book",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Day-Book.xlsx 63249 bytes xlsx"
+ },
+ {
+  "report": "Day Book",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Day-Book.csv 8698 bytes text"
+ },
+ {
+  "report": "Day Book",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Day-Book.pdf 22049 bytes pdf"
+ },
+ {
+  "report": "Audit History",
+  "format": "Export Current Visible Columns",
+  "ok": true,
+  "info": "tegh-audit-history-current-columns.csv 118244 bytes text"
+ },
+ {
+  "report": "Audit History",
+  "format": "Export All Report Columns",
+  "ok": true,
+  "info": "tegh-audit-history-all-columns.csv 118244 bytes text"
+ },
+ {
+  "report": "Receivable Ageing",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Accounts-Receivable-Ageing.xlsx 16360 bytes xlsx"
+ },
+ {
+  "report": "Receivable Ageing",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Accounts-Receivable-Ageing.csv 933 bytes text"
+ },
+ {
+  "report": "Receivable Ageing",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Accounts-Receivable-Ageing.pdf 6251 bytes pdf"
+ },
+ {
+  "report": "Customer Balances",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Customer-Balances.xlsx 14216 bytes xlsx"
+ },
+ {
+  "report": "Customer Balances",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Customer-Balances.csv 383 bytes text"
+ },
+ {
+  "report": "Customer Balances",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Customer-Balances.pdf 5745 bytes pdf"
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Customer-Invoice-Note-Register.xlsx 20820 bytes xlsx"
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Customer-Invoice-Note-Register.csv 1362 bytes text"
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Customer-Invoice-Note-Register.pdf 6810 bytes pdf"
+ },
+ {
+  "report": "Payable Ageing",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Accounts-Payable-Ageing.xlsx 14015 bytes xlsx"
+ },
+ {
+  "report": "Payable Ageing",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Accounts-Payable-Ageing.csv 419 bytes text"
+ },
+ {
+  "report": "Payable Ageing",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Accounts-Payable-Ageing.pdf 5747 bytes pdf"
+ },
+ {
+  "report": "Vendor Balances",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Vendor-Balances.xlsx 13428 bytes xlsx"
+ },
+ {
+  "report": "Vendor Balances",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Vendor-Balances.csv 232 bytes text"
+ },
+ {
+  "report": "Vendor Balances",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Vendor-Balances.pdf 5483 bytes pdf"
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Vendor-Invoice-Note-Register.xlsx 15973 bytes xlsx"
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Vendor-Invoice-Note-Register.csv 531 bytes text"
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Vendor-Invoice-Note-Register.pdf 5993 bytes pdf"
+ },
+ {
+  "report": "Expense Register",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Expense-Register.xlsx 13923 bytes xlsx"
+ },
+ {
+  "report": "Expense Register",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Expense-Register.csv 295 bytes text"
+ },
+ {
+  "report": "Expense Register",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Expense-Register.pdf 5552 bytes pdf"
+ },
+ {
+  "report": "Bank Reconciliation Summary",
+  "format": "Export Current Visible Columns",
+  "ok": false,
+  "info": "tegh-report-bank-reconciliation-current-columns.csv 135 bytes text"
+ },
+ {
+  "report": "Bank Reconciliation Summary",
+  "format": "Export All Report Columns",
+  "ok": false,
+  "info": "tegh-report-bank-reconciliation-all-columns.csv 135 bytes text"
+ },
+ {
+  "report": "Bank Transaction Report",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Bank-Transaction-Report.xlsx 15649 bytes xlsx"
+ },
+ {
+  "report": "Bank Transaction Report",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Bank-Transaction-Report.csv 650 bytes text"
+ },
+ {
+  "report": "Bank Transaction Report",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Bank-Transaction-Report.pdf 5977 bytes pdf"
+ },
+ {
+  "report": "Bank General Ledger Report",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Bank-General-Ledger-Report.xlsx 17514 bytes xlsx"
+ },
+ {
+  "report": "Bank General Ledger Report",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Bank-General-Ledger-Report.csv 1195 bytes text"
+ },
+ {
+  "report": "Bank General Ledger Report",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Bank-General-Ledger-Report.pdf 7021 bytes pdf"
+ },
+ {
+  "report": "Tax Code Report",
+  "format": "CSV",
+  "ok": true,
+  "info": "tegh-tax-code-report.csv 2749 bytes text"
+ },
+ {
+  "report": "Tax Code Report",
+  "format": "Excel",
+  "ok": true,
+  "info": "tegh-tax-code-report.xlsx 26160 bytes xlsx"
+ },
+ {
+  "report": "Tax Code Report",
+  "format": "PDF",
+  "ok": true,
+  "info": "tegh-tax-code-report.pdf 33135 bytes pdf"
+ },
+ {
+  "report": "GST/HST/PST Summary",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Tax-Control-Account-Summary.xlsx 14640 bytes xlsx"
+ },
+ {
+  "report": "GST/HST/PST Summary",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Tax-Control-Account-Summary.csv 510 bytes text"
+ },
+ {
+  "report": "GST/HST/PST Summary",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Tax-Control-Account-Summary.pdf 18154 bytes pdf"
+ },
+ {
+  "report": "Pay Run Register",
+  "format": "-",
+  "ok": true,
+  "info": "no export on this screen"
+ },
+ {
+  "report": "Currency Exposure",
+  "format": "xlsx",
+  "ok": true,
+  "info": "Tegh-Currency-Exposure.xlsx 13882 bytes xlsx"
+ },
+ {
+  "report": "Currency Exposure",
+  "format": "csv",
+  "ok": true,
+  "info": "Tegh-Currency-Exposure.csv 371 bytes text"
+ },
+ {
+  "report": "Currency Exposure",
+  "format": "pdf",
+  "ok": true,
+  "info": "Tegh-Currency-Exposure.pdf 5604 bytes pdf"
+ },
+ {
+  "report": "Budget versus Actual",
+  "format": "All Filtered Rows · PDF",
+  "ok": true,
+  "info": "Tegh-Budget-overview.pdf 5300 bytes pdf"
+ },
+ {
+  "report": "Budget versus Actual",
+  "format": "All Filtered Rows · Excel",
+  "ok": true,
+  "info": "Tegh-Budget-overview.xlsx 11730 bytes xlsx"
+ },
+ {
+  "report": "Fixed Asset Register",
+  "format": "All Filtered Rows · PDF",
+  "ok": true,
+  "info": "Tegh-Fixed-assets.pdf 5304 bytes pdf"
+ },
+ {
+  "report": "Fixed Asset Register",
+  "format": "All Filtered Rows · Excel",
+  "ok": true,
+  "info": "Tegh-Fixed-assets.xlsx 11629 bytes xlsx"
+ }
+]

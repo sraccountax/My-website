@@ -1,0 +1,111 @@
+{
+ "kind": "balance-sheet",
+ "end": "2026-09-30",
+ "currency": "CAD",
+ "rows": [
+  {
+   "id": "account_8329315ae47a61f492c4121a629e4cac",
+   "code": "1000",
+   "name": "Business Chequing",
+   "type": "asset",
+   "amountCents": 861300,
+   "presentationSection": "Current assets",
+   "bankAccountId": "bank_990c2e2ba243d2d5b91bbb889f696555",
+   "classificationSource": "bank_account_profile"
+  },
+  {
+   "id": "account_adaaecde3c122ce746c47716e79015c8",
+   "code": "1100",
+   "name": "GST/HST Recoverable",
+   "type": "asset",
+   "amountCents": 23800,
+   "presentationSection": "Other assets"
+  },
+  {
+   "id": "account_e17deda355af8b08b1835b9430df2171",
+   "code": "1115",
+   "name": "QST Recoverable",
+   "type": "asset",
+   "amountCents": 19950,
+   "presentationSection": "Other assets"
+  },
+  {
+   "id": "account_81879b2dae9936455b703c3228ce3247",
+   "code": "1200",
+   "name": "Accounts Receivable",
+   "type": "asset",
+   "amountCents": 321776,
+   "presentationSection": "Other assets"
+  },
+  {
+   "id": "account_ee20706a5a44cd1222efdf7332128322",
+   "code": "2050",
+   "name": "Accounts Payable",
+   "type": "liability",
+   "amountCents": 226975,
+   "presentationSection": "Other liabilities"
+  },
+  {
+   "id": "account_61efd7ed5b4f571702f3f88e11c50ee9",
+   "code": "2100",
+   "name": "GST/HST Payable",
+   "type": "liability",
+   "amountCents": 30100,
+   "presentationSection": "Other liabilities"
+  },
+  {
+   "id": "account_a33f9b3b74a554dd7b202f9a5098c904",
+   "code": "2110",
+   "name": "PST Payable",
+   "type": "liability",
+   "amountCents": 6300,
+   "presentationSection": "Other liabilities"
+  },
+  {
+   "id": "account_5e6e9f6c58874a0a646c2bdbba43088b",
+   "code": "2115",
+   "name": "QST Payable",
+   "type": "liability",
+   "amountCents": 19950,
+   "presentationSection": "Other liabilities"
+  },
+  {
+   "id": "current-earnings",
+   "code": "",
+   "name": "Current earnings through 2026-09-30",
+   "type": "equity",
+   "amountCents": -18844,
+   "calculated": true,
+   "presentationSection": "Equity"
+  },
+  {
+   "id": "account_eae543973ed28629584acb49c5cd9205",
+   "code": "3000",
+   "name": "Owner Capital / Share Capital",
+   "type": "equity",
+   "amountCents": 962345,
+   "presentationSection": "Equity"
+  }
+ ],
+ "totals": {
+  "assetsCents": 1226826,
+  "liabilitiesCents": 283325,
+  "equityCents": 943501,
+  "liabilitiesEquityCents": 1226826,
+  "differenceCents": 0
+ },
+ "asOf": "2026-09-30",
+ "period": {
+  "mode": "as_of",
+  "count": null,
+  "unit": null,
+  "start": "2026-09-30",
+  "end": "2026-09-30",
+  "asOf": "2026-09-30",
+  "preset": null,
+  "direction": "historical",
+  "inclusive": true,
+  "days": 1
+ },
+ "accountingWrites": 0
+}

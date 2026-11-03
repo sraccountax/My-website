@@ -1,0 +1,87 @@
+{
+ "tag": "g-side-dark-390",
+ "W": "390",
+ "H": "844",
+ "Z": "1",
+ "vw": 390,
+ "theme": "dark",
+ "nav": "side",
+ "mode": "guided",
+ "state": {
+  "mode": "guided",
+  "nav": "side",
+  "theme": "dark"
+ },
+ "screens": [
+  {
+   "id": "guided:Customers",
+   "label": "Customers",
+   "h1": "Customers",
+   "ms": 2633,
+   "issues": []
+  },
+  {
+   "id": "guided:Invoices",
+   "label": "Invoices",
+   "h1": "Customer Invoice & Note Register",
+   "ms": 7662,
+   "issues": []
+  },
+  {
+   "id": "guided:Payments Received",
+   "label": "Payments Received",
+   "h1": "New Customer Receipt",
+   "ms": 2154,
+   "issues": []
+  },
+  {
+   "id": "guided:Suppliers",
+   "label": "Suppliers",
+   "h1": "Vendors",
+   "ms": 1949,
+   "issues": []
+  },
+  {
+   "id": "guided:Bills",
+   "label": "Bills",
+   "h1": "Vendor Invoice & Note Register",
+   "ms": 4742,
+   "issues": []
+  },
+  {
+   "id": "guided:Payments",
+   "label": "Payments",
+   "h1": "New Vendor Payment",
+   "ms": 2100,
+   "issues": []
+  },
+  {
+   "id": "guided:Upload Statement",
+   "label": "Upload Statement",
+   "h1": "Upload StatementBeta",
+   "ms": 481,
+   "issues": []
+  },
+  {
+   "id": "guided:Match and Post",
+   "label": "Match and Post",
+   "h1": "Match And Post Transactions",
+   "ms": 2914,
+   "issues": []
+  },
+  {
+   "id": "guided:Bank Accounts",
+   "label": "Bank Accounts",
+   "h1": "Manage Bank Accounts",
+   "ms": 536,
+   "issues": []
+  },
+  {
+   "id": "guided:Bank General Ledger",
+   "label": "Bank General Ledger",
+   "h1": "Bank General Ledger Report",
+   "ms": 731,
+   "issues": []
+  }
+ ]
+}

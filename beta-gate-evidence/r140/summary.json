@@ -1,0 +1,89 @@
+{
+ "counts": {
+  "PASS": 200,
+  "INFO": 6
+ },
+ "byArea": {
+  "H-INST": {
+   "PASS": 12
+  },
+  "H-MAIL": {
+   "PASS": 19
+  },
+  "ACCT": {
+   "PASS": 60
+  },
+  "TAX": {
+   "PASS": 20,
+   "INFO": 1
+  },
+  "FX": {
+   "PASS": 5
+  },
+  "SEC": {
+   "PASS": 43,
+   "INFO": 1
+  },
+  "CVL": {
+   "PASS": 20
+  },
+  "PAY": {
+   "PASS": 7,
+   "INFO": 2
+  },
+  "REC": {
+   "PASS": 9
+  },
+  "OPS": {
+   "PASS": 5,
+   "INFO": 2
+  }
+ },
+ "paths": [
+  "PASS api/bootstrap.php -> 403 (expect 403 404)",
+  "PASS api/schema.sql -> 403 (expect 403 404)",
+  "PASS api/config.example.php -> 403 (expect 403 404)",
+  "PASS api/accounting.php -> 403 (expect 403 404)",
+  "PASS api/tax_codes_r137.php -> 403 (expect 403 404)",
+  "PASS api/native-agent-cron.php -> 403 (expect 403 404)",
+  "PASS api/php.ini -> 403 (expect 403 404)",
+  "PASS config.example.php -> 403 (expect 403 404)",
+  "PASS RELEASE-MANIFEST.json -> 403 (expect 403 404)",
+  "PASS PACKAGE-MANIFEST.json -> 403 (expect 403 404)",
+  "PASS tegh-build.json -> 403 (expect 403 404)",
+  "PASS FILE-MANIFEST.sha256 -> 403 (expect 403 404)",
+  "PASS DEPLOYMENT-NOTES.txt -> 403 (expect 403 404)",
+  "PASS README.txt -> 403 (expect 403 404)",
+  "PASS R139-CHANGES.md -> 403 (expect 403 404)",
+  "PASS UPGRADE-SCHEMA-46-R20.md -> 403 (expect 403 404)",
+  "PASS release/ -> 403 (expect 403 404)",
+  "PASS storage/ -> 403 (expect 403 404)",
+  "PASS .htaccess -> 403 (expect 403 404)",
+  "PASS api/.htaccess -> 403 (expect 403 404)",
+  "PASS assets/ -> 403 (expect 403 404)",
+  "PASS guides/ -> 403 (expect 403 404)",
+  "PASS knowledge/ -> 403 (expect 403 404)",
+  "PASS knowledge/README.md -> 403 (expect 403 404)",
+  "PASS sample-data/ -> 403 (expect 403 404)",
+  "PASS api/payroll-catalogue/ -> 403 (expect 403 404)",
+  "PASS ../sr-accountax-private/config.php -> 404 (expect 400 403 404)",
+  "PASS api/..%2f..%2fsr-accountax-private/config.php -> 404 (expect 400 403 404)",
+  "PASS nonexistent-xyz.html -> 404 (expect 400 403 404)",
+  "PASS app.html -> 200 (expect 200)",
+  "PASS client-view.html -> 200 (expect 200)",
+  "PASS index.html -> 200 (expect 200)",
+  "PASS api/health -> 200 (expect 200)",
+  "PASS http->https redirect: 301 https://books-test.sraccountax.ca/app.html?x=1",
+  "HDR app.html: Cache-Control: no-store, no-cache, must-revalidate, max-age=0",
+  "HDR client-view.html: Cache-Control: no-store, no-cache, must-revalidate, max-age=0",
+  "HDR assets/tegh-portal-v5990.js?v=5990-r140-tegh: Cache-Control: public, max-age=31536000, immutable",
+  "PASS header Strict-Transport-Security",
+  "PASS header Content-Security-Policy",
+  "PASS header X-Frame-Options",
+  "PASS header X-Content-Type-Options",
+  "PASS header Referrer-Policy",
+  "PASS app.html has no third-party session recording",
+  "DONE asset crawl"
+ ],
+ "ui": []
+}

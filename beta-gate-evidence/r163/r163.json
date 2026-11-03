@@ -1,0 +1,324 @@
+[
+ {
+  "id": "R-01",
+  "area": "R163",
+  "title": "Guided statements list the 12 months of the fiscal year (January to December 2026 for a December year end)",
+  "status": "PASS",
+  "evidence": "FY 2026-01-01..2026-12-31; months 2026-01,2026-02,2026-03,2026-04,2026-05,2026-06,2026-07,2026-08,2026-09,2026-10,2026-11,2026-12"
+ },
+ {
+  "id": "R-02",
+  "area": "R163",
+  "title": "A March 31 year end gives April to March; the current year (clock 2026-10-01) is April 2026 to March 2027",
+  "status": "PASS",
+  "evidence": "current 2026-04..2027-03; earlier 2025-04..2026-03; years 2027-03-31,2026-03-31"
+ },
+ {
+  "id": "R-03",
+  "area": "R163",
+  "title": "A statement whose last line is February 3 is refused for May and the problem names February; February and March (issued early March) are accepted",
+  "status": "PASS",
+  "evidence": "May ok=false \"This statement's last transaction is on February 3, 2026, so it was issued in February 2026 or early March 2026. Upload \"; Feb true; Mar true; Jan false"
+ },
+ {
+  "id": "R-04",
+  "area": "R163",
+  "title": "The check counts lines outside the fiscal year from the statement dates: 1 before January 1, 2026 and 0 after December 31, 2026",
+  "status": "PASS",
+  "evidence": "before 1 (want 1); after 0 (want 0); lines 6; 2025-12-30..2026-02-03"
+ },
+ {
+  "id": "R-05",
+  "area": "R163",
+  "title": "After import the statement is recorded as February: 6 lines, coverage Dec 30 to Feb 3, and the month shows \"uploaded\"",
+  "status": "PASS",
+  "evidence": "{\"month\":\"2026-02\",\"label\":\"February 2026\",\"status\":\"uploaded\",\"id\":\"gsm_3f0a88fa229d54a3dd31ba0ab1782360\",\"source\":\"guided\",\"coverageStart\":\"2025-12-30\",\"coverageEnd\":\"2026-02-03\",\"lineCount\":6,\"beforeFiscalYear\":1,\"afterFiscalYear\":0,\"pending\":6,\"posted\":0,\"matched\":0,\"excluded\":0,\"excludedCents\":0,\"done\":0,\"reconciled\":false,\"reconciledIn\":null,\"statementClosingCents\":null,\"balanceSource\":null,\"fiscalYearEnd\":\"2026-12-31\",\"bankAccountId\":\"bank_3bb3b7433034673140f64ab37463598b\"}"
+ },
+ {
+  "id": "R-06",
+  "area": "R163",
+  "title": "One statement per month: a second statement for February is refused at the check and at recording; the same import cannot be recorded twice",
+  "status": "PASS",
+  "evidence": "check \"A statement is already uploaded for February 2026. Remove it first to upload a different one.\"; re-attach 409 guided_month_taken"
+ },
+ {
+  "id": "R-07",
+  "area": "R163",
+  "title": "Mapping groups the lines by keyword and direction: ROGERS WIRELESS (2), STAPLES OFFICE, CLIENT DEPOSIT, MONTHLY ACCOUNT, UNKNOWN THING; 5 lines mapped, 1 not mapped",
+  "status": "PASS",
+  "evidence": "groups ROGERS WIRELESS|out:2:6300 · Telephone and Internet:CODE:taxcode_de58502ad617bb1935b7ddc0ee7422ff; CLIENT DEPOSIT|in:1:4000 · Service Revenue:; MONTHLY ACCOUNT|out:1:6800 · Bank Charges and Interest:NO_TAX; STAPLES OFFICE|out:1:6400 · Office Supplies:CODE:taxcode_de58502ad617bb1935b7ddc0ee7422ff; UNKNOWN THING|out:1:null:NO_TAX; totals {\"lines\":6,\"pending\":6,\"posted\":0,\"matched\":0,\"excluded\":0,\"mapped\":5,\"unmapped\":1,\"taxToChoose\":1}; bad none"
+ },
+ {
+  "id": "R-08",
+  "area": "R163",
+  "title": "Reconciling before every line is posted is refused and says how many lines are left",
+  "status": "PASS",
+  "evidence": "{\"reconciled\":false,\"matched\":0,\"remaining\":0,\"excluded\":0,\"excludedCents\":0,\"statementEnd\":\"2026-02-03\",\"reason\":\"6 lines are not posted yet. Post or exclude every line before reconciling.\"}"
+ },
+ {
+  "id": "R-09",
+  "area": "R163",
+  "title": "The group \"Lines\" view lists both Rogers lines with dates and amounts",
+  "status": "PASS",
+  "evidence": "[[\"2025-12-30\",\"ROGERS WIRELESS 8000\",-5650],[\"2026-01-12\",\"ROGERS WIRELESS 8001\",-5650]]"
+ },
+ {
+  "id": "R-10",
+  "area": "R163",
+  "title": "Posting the groups (the deposit changed to HST included, the unknown line posted on its own to 6999) gives the hand-worked ledger: bank 304.00, HST paid 26.00, HST collected 65.00, sales 500.00",
+  "status": "PASS",
+  "evidence": "GL {\"1000\":30400,\"1100\":2600,\"2100\":-6500,\"4000\":-50000,\"6300\":10000,\"6400\":10000,\"6800\":2500,\"6999\":1000}; want {\"1000\":30400,\"1100\":2600,\"2100\":-6500,\"4000\":-50000,\"6300\":10000,\"6400\":10000,\"6800\":2500,\"6999\":1000}; calls 4"
+ },
+ {
+  "id": "R-11",
+  "area": "R163",
+  "title": "Without a closing balance the month waits; with the statement's closing balance 304.00 (hand sum) Tegh completes the bank reconciliation for Dec 30, 2025 to Feb 3, 2026 with difference 0 and all 6 lines cleared; the month shows \"reconciled\"",
+  "status": "PASS",
+  "evidence": "recon complete 0 2025-12-30 2026-02-03 6; month reconciled; repeat true"
+ },
+ {
+  "id": "R-12",
+  "area": "R163",
+  "title": "The reconciliation report for that period agrees: adjusted balances equal, difference 0.00",
+  "status": "PASS",
+  "evidence": "{\"bankOpeningCents\":0,\"bankDepositsCents\":56500,\"bankWithdrawalsCents\":26100,\"unpostedBankCents\":0,\"bankTimingCents\":0,\"statementEndingCents\":30400,\"depositsInTransitCents\":0,\"outstandingPaymentsCents\":0,\"bankAdjustmentsCents\":0,\"adjustedBankCents\":30400,\"bookBalanceCents\":30400,\"bookAdjustmentsCent"
+ },
+ {
+  "id": "R-13",
+  "area": "R163",
+  "title": "An unposted statement can be removed (its lines are deleted and the month is free); a posted one cannot",
+  "status": "PASS",
+  "evidence": "removed 2; left 0; March empty; remove Feb 409 guided_month_has_postings"
+ },
+ {
+  "id": "R-14",
+  "area": "R163",
+  "title": "Company isolation: another company cannot read the mapping, post, reconcile or remove this company's statement month (404), nor record its import (refused)",
+  "status": "PASS",
+  "evidence": "404 guided_month_not_found, 404 guided_month_not_found, 404 guided_month_not_found, 404 guided_month_not_found, 404 guided_month_not_found, 422 guided_bank_required"
+ },
+ {
+  "id": "R-15",
+  "area": "R163",
+  "title": "A 5,000-line statement is grouped into 10 keyword groups (500 lines each) in under 10 s, with the suggested account for the 9 known merchants",
+  "status": "PASS",
+  "evidence": "import 58082 ms; mapping 2624 ms; ADOBE SYSTEMS:500:6200 CLIENT DEPOSIT:500:4000 ESSO STATION:500:6900 HYDRO ONE:500:- INTACT INS:500:6950 MONTHLY ACCOUNT:500:6800 ROGERS WIRELESS:500:6300 STAPLES OFFICE:500:6400 TIM HORTONS:500:6600 UBER TRIP:500:6500"
+ },
+ {
+  "id": "R-16",
+  "area": "R163",
+  "title": "The 10 group decisions post all 5,000 lines, 100 per request (each under 15 s); bank, HST and every expense account equal the hand sums",
+  "status": "PASS",
+  "evidence": "calls 50; slowest 3937 ms; total 177314 ms; GL {\"1000\":-355000,\"1100\":2080000,\"2100\":-3250000,\"4000\":-25000000,\"6200\":1500000,\"6300\":2500000,\"6400\":5000000,\"6500\":1150000,\"6600\":625000,\"6800\":1250000,\"6900\":3000000,\"6950\":7500000,\"6999\":4000000}; want {\"1000\":-355000,\"1100\":2080000,\"2100\":-3250000,\"4000\":-25000000,\"6200\":1500000,\"6300\":2500000,\"6400\":5000000,\"6500\":1150000,\"6600\":625000,\"6800\":1250000,\"6900\":3000000,\"6950\":7500000,\"6999\":4000000}"
+ },
+ {
+  "id": "R-17",
+  "area": "R163",
+  "title": "Reconciling the 5,000-line statement completes in one request in under 15 s with 5,000 cleared lines",
+  "status": "PASS",
+  "evidence": "1449 ms; {\"reconciled\":true,\"matched\":0,\"remaining\":0,\"reconciliationId\":\"recon_5a0fe2bd43395caae2dfbdccfbb375bc\",\"periodStart\":\"2026-04-01\",\"periodEnd\":\"2026-04-28\",\"statementClosingCents\":-355000}; items 5000"
+ },
+ {
+  "id": "R-18",
+  "area": "R163",
+  "title": "Accountant review: findings and one total in CAD; the response carries no minutes, hours or rate",
+  "status": "PASS",
+  "evidence": "{\"findings\":[{\"id\":\"unassigned\",\"title\":\"Postings to Unassigned Expense\",\"detail\":\"1 posting to 6999 Unassigned Expense needs a proper category.\",\"count\":1,\"severity\":\"mistake\"},{\"id\":\"missing-statements\",\"title\":\"Months without bank activity\",\"detail\":\"7 months of this fiscal year, across the bank accounts, have no bank transactions in Tegh. Their statements may still need importing.\",\"count\":7,\""
+ },
+ {
+  "id": "R-19",
+  "area": "R163",
+  "title": "Sending the request stores it, emails the breakdown to enquiry@sraccountax.ca, and returns an Outlook draft with the findings and total but no rate or hours",
+  "status": "PASS",
+  "evidence": "mail true; row sent 3000 16500 550; draft subject \"Accountant request for R163 Gate mv2whyew (ref. acctreq_d3a45237eddfe09aadec72e611cc672c)\"; draft ok true"
+ },
+ {
+  "id": "R-20",
+  "area": "R163",
+  "title": "Requests are limited to 5 per company per hour (the sixth is refused with 429)",
+  "status": "PASS",
+  "evidence": "201,201,201,201,429"
+ },
+ {
+  "id": "R-32",
+  "area": "R163",
+  "title": "Full Accounting first: a January–March statement imported from Banking, two lines posted there and one deposit matched to an invoice payment; Guided takes the import in as the March statement with 3 to post, 2 posted and 1 matched",
+  "status": "PASS",
+  "evidence": "{\"month\":\"2026-03\",\"label\":\"March 2026\",\"status\":\"uploaded\",\"id\":\"gsm_d41ed814ee91084c346aa61ec539249b\",\"source\":\"import\",\"coverageStart\":\"2026-01-05\",\"coverageEnd\":\"2026-03-28\",\"lineCount\":6,\"beforeFiscalYear\":0,\"afterFiscalYear\":0,\"pending\":3,\"posted\":2,\"matched\":1,\"excluded\":0,\"excludedCents\":0,\""
+ },
+ {
+  "id": "R-33",
+  "area": "R163",
+  "title": "February and April (whose usual periods are inside January 5 – March 28) show \"Included in the March 2026 statement\"; January and May are empty",
+  "status": "PASS",
+  "evidence": "empty,covered,covered,empty"
+ },
+ {
+  "id": "R-34",
+  "area": "R163",
+  "title": "Where to continue: post the 3 remaining lines of the March statement",
+  "status": "PASS",
+  "evidence": "{\"action\":\"post\",\"monthId\":\"gsm_d41ed814ee91084c346aa61ec539249b\",\"month\":\"2026-03\",\"label\":\"March 2026\",\"bankAccountId\":\"bank_1b27d453d461bd5c762b50ed36c3d38e\",\"bankName\":\"Business Chequing\",\"fiscalYearEnd\":\"2026-12-31\",\"pending\":3,\"uploaded\":1}"
+ },
+ {
+  "id": "R-35",
+  "area": "R163",
+  "title": "The March groups count the 2 posted and 1 matched lines as done; the deposit group of an HST registrant has no tax suggestion and must be chosen (posting without it is refused)",
+  "status": "PASS",
+  "evidence": "{\"lines\":6,\"pending\":3,\"posted\":2,\"matched\":1,\"excluded\":0,\"mapped\":3,\"unmapped\":0,\"taxToChoose\":1} refused 422"
+ },
+ {
+  "id": "R-36",
+  "area": "R163",
+  "title": "After posting the rest, a wrong closing balance (1,490.50) is refused with the difference (-10.00), Tegh's balance (1,500.50 = hand sum) and a hint that no opening balance is recorded",
+  "status": "PASS",
+  "evidence": "{\"reconciled\":false,\"matched\":0,\"remaining\":0,\"excluded\":0,\"excludedCents\":0,\"statementEnd\":\"2026-03-28\",\"needsBalance\":true,\"isCard\":false,\"statementClosingCents\":149050,\"teghClosingCents\":150050,\"differenceCents\":-1000,\"hints\":[\"This account has no opening balance in Tegh. If the first statement s"
+ },
+ {
+  "id": "R-37",
+  "area": "R163",
+  "title": "With the right closing balance (1,500.50) the March reconciliation completes; the matched line is cleared through its book entry (6 cleared lines)",
+  "status": "PASS",
+  "evidence": "{\"reconciled\":true,\"matched\":0,\"remaining\":0,\"reconciliationId\":\"recon_e3eed5c5363a1d0bd74d9287a7c7b8b9\",\"periodStart\":\"2026-01-05\",\"periodEnd\":\"2026-03-28\",\"st; cleared 6"
+ },
+ {
+  "id": "R-38",
+  "area": "R163",
+  "title": "Where to continue: upload May (January's period is before the books start; February and April are included in March)",
+  "status": "PASS",
+  "evidence": "{\"action\":\"upload\",\"month\":\"2026-05\",\"label\":\"May 2026\",\"bankAccountId\":\"bank_1b27d453d461bd5c762b50ed36c3d38e\",\"bankName\":\"Business Chequing\",\"fiscalYearEnd\":\"2026-12-31\",\"uploaded\":1}"
+ },
+ {
+  "id": "R-39",
+  "area": "R163",
+  "title": "Full Accounting again: an April–May statement imported, posted and reconciled in Bank Reconciliation (the match no longer blocks it); Guided shows May as reconciled there and records it",
+  "status": "PASS",
+  "evidence": "{\"month\":\"2026-05\",\"label\":\"May 2026\",\"status\":\"reconciled\",\"id\":\"gsm_681a8d062070a1ac9a0dbf8f54c80edf\",\"source\":\"import\",\"coverageStart\":\"2026-04-02\",\"coverageEnd\":\"2026-05-20\",\"lineCount\":3,\"beforeF next 2026-06"
+ },
+ {
+  "id": "R-40",
+  "area": "R163",
+  "title": "In Full Accounting, a reconciliation that includes the matched deposit has no unexplained difference (it is in the books through the invoice payment)",
+  "status": "PASS",
+  "evidence": "{\"bankOpeningCents\":0,\"bankDepositsCents\":169500,\"bankWithdrawalsCents\":19450,\"unpostedBankCents\":0,\"bankTimingCents\":0,\"statementEndingCents\":150050,\"depositsInTransitCents\":0,\"outstandingPaymentsCents\":0,\"bankAdjustmentsCents\":0,\"adjusted"
+ },
+ {
+  "id": "R-41",
+  "area": "R163",
+  "title": "A Guided upload that a look at the month list took in before it was recorded is still recorded against the month chosen (June)",
+  "status": "PASS",
+  "evidence": "200 2026-06 guided"
+ },
+ {
+  "id": "R-42",
+  "area": "R163",
+  "title": "A February 28 year end: the current year is March 2026 – February 2027 (12 months) and the year ending February 29, 2024 starts March 1, 2023",
+  "status": "PASS",
+  "evidence": "2026-03-01..2027-02-28; 2023-03-01..2024-02-29"
+ },
+ {
+  "id": "R-43",
+  "area": "R163",
+  "title": "A company not registered for sales tax gets no tax suggestion and no tax question",
+  "status": "PASS",
+  "evidence": "CLIENT DEPOSIT|in:NO_TAX, ROGERS WIRELESS|out:NO_TAX"
+ },
+ {
+  "id": "R-44",
+  "area": "R163",
+  "title": "A statement file with a balance column needs no typing: its closing balance (-81.50) is kept with the month and the month reconciles straight after posting",
+  "status": "PASS",
+  "evidence": "preview -8150; month -8150; {\"reconciled\":true,\"matched\":0,\"remaining\":0,\"reconciliationId\":\"recon_a6fcf739c1d9fba6dd27eeeb2d5b6f9a\",\"periodStart\":\"2026-03-02\",\"periodEnd\":\"2026-03-20\",\"statementClosingCents\":-8150}"
+ },
+ {
+  "id": "R-21",
+  "area": "R163",
+  "title": "Guided Home starts with the bank statement card; the top bar has \"Connect with an accountant\" right after Tegh Assist",
+  "status": "PASS",
+  "evidence": "card \"START HERE · BANK STATEMENTS Upload Your Bank Statements, Month By Month Tegh groups the transactions, suggests where ea\"; top bar Ctrl K | Create▾Import  | ASSIST | ACCOUNTANT | Notifications | My profileAcco"
+ },
+ {
+  "id": "R-22",
+  "area": "R163",
+  "title": "The statement page shows 12 month rows for January to December 2026, all \"Not uploaded\", and the PDF converter beside them",
+  "status": "PASS",
+  "evidence": "2026-01:Not uploaded, 2026-02:Not uploaded, 2026-03:Not uploaded, 2026-04:Not uploaded, 2026-05:Not uploaded, 2026-06:Not uploaded, 2026-07:Not uploaded, 2026-08:Not uploaded, 2026-09:Not uploaded, 2026-10:Not uploaded, 2026-11:Not uploaded, 2026-12:Not uploaded; converter 1"
+ },
+ {
+  "id": "R-23",
+  "area": "R163",
+  "title": "Uploading the February statement against May is stopped with \"Upload it to February 2026 instead\"; accepting moves it, and the fiscal-year note says 1 transaction falls before the year",
+  "status": "PASS",
+  "evidence": "problem \"Not imported This statement's last transaction is on February 3, 2026, so it was issued in February 2026 or early March 2026. Upload it agai\"; button \"Upload It to February 2026 Instead\"; note \"Review action Some transactions fall outside this fiscal year × Note: 1 transaction is dated before your fiscal year starts (January 1, 2026), net -$56.50. They\""
+ },
+ {
+  "id": "R-24",
+  "area": "R163",
+  "title": "After the verification step the mapping page shows 6 lines in 5 groups, 5 mapped and 1 to choose",
+  "status": "PASS",
+  "evidence": "groups 5; stats Lines 6 Mapped automatically 5 Need an account 1 Posted 0 Tax to choose 1"
+ },
+ {
+  "id": "R-25",
+  "area": "R163",
+  "title": "The deposit group waits for a GST/HST choice; after choosing it and an account for the unmapped group, \"Select all groups with an account\" and Post books all 6 lines; Tegh then asks for the closing balance, refuses 300.00 with the difference and reconciles at 304.00",
+  "status": "PASS",
+  "evidence": "before \"Select All Groups with an Account (3)\"; tax prompt 1; button \"Post 6 Lines in 5 Groups\"; refused \"Not reconciled yet The statement says 300.00 but Tegh's balance for this account on February 3, 2026 is 304.00. This account has no opening balance in Tegh. If \"; recon \"Reconciled The bank and the books agree for this statement: closing balance $304.00. Back to Bank Statements\"; complete 1; bank 30400; HST -6500"
+ },
+ {
+  "id": "R-26",
+  "area": "R163",
+  "title": "The month list then shows February as \"Uploaded · reconciled\"; Guided Home shows 1 of 12 months and \"Continue: upload the March 2026 statement\"",
+  "status": "PASS",
+  "evidence": "Feb \"Uploaded · reconciled\"; FY notes 1; home \"1 of 12 months uploaded for the fiscal year jan 2026 – dec 2026 · 1 reconciled. Next: the statement issued in March 2026 for Business Chequing.\"; button \"Continue: upload the March 2026 statement\""
+ },
+ {
+  "id": "R-27",
+  "area": "R163",
+  "title": "Next step \"No\" opens the financial statements page with Trial Balance, Profit and Loss and Balance Sheet",
+  "status": "PASS",
+  "evidence": "Your Financial Statements STEP 3 OF 3 · FINANCIAL STATEMENTS Your Books Are Ready To Review The trial balance, profit and loss and balance sheet are produced from the posted General Ledger. Trial Bala"
+ },
+ {
+  "id": "R-28",
+  "area": "R163",
+  "title": "Next step \"Yes\" asks what to record, switches to Full Accounting and opens Customer invoices",
+  "status": "PASS",
+  "evidence": "mode full-accounting; page invoices "
+ },
+ {
+  "id": "R-29",
+  "area": "R163",
+  "title": "Connect with an accountant: findings and a CAD quote, no hours or rate on the screen; sending opens the Outlook draft to enquiry@sraccountax.ca",
+  "status": "PASS",
+  "evidence": "quote \"Quote to complete this work $165.00 CAD An estimate for the bookkeeping work listed, plus applicable GST/HST. It does not include tax returns (GST/HST, T2 or personal) or payroll filings. A Tegh accountant confirms the scope and the price with you before starting. A Tegh accountant confirms the scope with you before starting.\"; draft outlook.office.com/mail/deeplink/compose subject \"Accountant request for R163 Screens mv2whyew (ref. acctreq_9e16426f0efbb963edf0bdc1cd2b7f15)\""
+ },
+ {
+  "id": "R-30",
+  "area": "R163",
+  "title": "At phone width (390 px) the statement months and the mapping page have no sideways scroll, on the page or inside a table or card",
+  "status": "PASS",
+  "evidence": "months true; mapping true"
+ },
+ {
+  "id": "R-47",
+  "area": "R163",
+  "title": "Back in Guided after Full Accounting: a \"Welcome back to Guided\" notice, and Guided Home offers \"Continue: post the March 2026 statement\", which opens that statement with the line posted in Full Accounting counted",
+  "status": "PASS",
+  "evidence": "notice \"Welcome back to Guided 3 lines are still to post in Business Chequing. Your work in Full Accounting is included. Use \"Continue: post the March 2026 statement\" o\"; button \"Continue: post the March 2026 statement\"; stats Lines 4 Mapped automatically 3 Need an account 0 Posted 1"
+ },
+ {
+  "id": "R-48",
+  "area": "R163",
+  "title": "The month list shows the Banking import as the March statement, February as included in it, and a \"Continue where you left off\" banner",
+  "status": "PASS",
+  "evidence": "March \"March 2026 Uploaded · 3 to post 4 lines · Jan 5, 2026 – Mar 28, 2026 · 1 posted · imported in Banking Review and Post\"; February \"Included in the March 2026 statement\"; banner 1"
+ },
+ {
+  "id": "R-31",
+  "area": "R163",
+  "title": "No script errors on the R163 screens",
+  "status": "PASS",
+  "evidence": "no page errors"
+ }
+]
