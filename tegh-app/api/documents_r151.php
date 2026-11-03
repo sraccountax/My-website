@@ -247,7 +247,7 @@ function r151_bill_input_values(array $company, array $input): array
     $currency = safe_currency_code($input['currency'] ?? $vendor['default_currency'] ?? $company['currency']);
     $currencyRow = company_currency($companyId, $currency);
     if (!$currencyRow) fail('Add that currency to the company before using it on a vendor invoice.');
-    $rate = safe_exchange_rate_micros($input['exchangeRateMicros'] ?? $currencyRow['rate_to_base_micros'], $currency, (string)$company['currency']);
+    $rate = tegh_r181_document_rate($company, $currency, $billDate, $input['exchangeRateMicros'] ?? null, $currencyRow, $input, 'vendor invoice');
     $mode = (string)($input['taxEntryMode'] ?? 'exclusive');
     if (!in_array($mode, ['exclusive', 'inclusive'], true)) fail('Choose whether the line amounts are before or including tax.', 422, 'bill_tax_entry_mode_invalid');
     $raw = $input['lines'];
@@ -498,7 +498,7 @@ function r151_note_prepare_unlinked(array $company, array $input): array
     $currency = safe_currency_code($input['currency'] ?? $company['currency']);
     $currencyRow = company_currency($companyId, $currency);
     if (!$currencyRow) fail('Add that currency to the company before using it on a note.', 422, 'note_currency_invalid');
-    $rate = safe_exchange_rate_micros($input['exchangeRateMicros'] ?? $currencyRow['rate_to_base_micros'], $currency, (string)$company['currency']);
+    $rate = tegh_r181_document_rate($company, $currency, $date, $input['exchangeRateMicros'] ?? null, $currencyRow, $input, 'note');
     $raw = $input['lines'] ?? null;
     if (!is_array($raw) || !array_is_list($raw) || count($raw) < 1 || count($raw) > 100) fail('Add between 1 and 100 note lines.', 422, 'note_lines_invalid');
     $accounts = r151_note_line_accounts($companyId, $customer, $raw, true);

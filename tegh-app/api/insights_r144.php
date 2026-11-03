@@ -23,10 +23,12 @@ function tegh_ins_add_days(string $date, int $days): string
     return (new DateTimeImmutable($date))->modify(($days >= 0 ? '+' : '') . $days . ' days')->format('Y-m-d');
 }
 
-function tegh_ins_money(int $cents, string $currency = 'CAD'): string
+function tegh_ins_money(int $cents, string $currency = ''): string
 {
     $sign = $cents < 0 ? '-' : '';
-    return $sign . '$' . number_format(abs($cents) / 100, 2);
+    // R181: amounts are in the company's base currency; CAD keeps the R180 "$" form.
+    if ($currency === '') $currency = (string)($GLOBALS['tegh_company_currency'] ?? 'CAD');
+    return $sign . ($currency === 'CAD' ? '$' : $currency . ' ') . number_format(abs($cents) / 100, 2);
 }
 
 function tegh_ins_col(string $sql, array $params = []): mixed

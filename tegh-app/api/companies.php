@@ -111,11 +111,25 @@ function handle_companies(): never
     $pstRateMpct = $pstRegistered ? pst_rate_mpct_from_input($input) : 0;
     $pstRateBps = (int)round($pstRateMpct / 10); // rounded copy for older readers
     $pstRecoverable = $pstRegistered && !empty($input['pstRecoverable']);
-    $requestedCurrency = safe_currency_code($input['currency'] ?? 'CAD', 'Base currency');
-    if ($requestedCurrency !== 'CAD') {
-        fail('Tegh General Ledger uses CAD as the company reporting currency. Create the company in CAD, then add USD or other transaction currencies under Currency Exchange Rates.', 422, 'cad_gl_required');
+    // R181: with Worldwide currencies available, a company outside Canada keeps its books in a currency of its choice
+    // (default: the country's currency). Canadian companies stay in CAD. Otherwise exactly as R180.
+    $r181 = function_exists('tegh_r181_available_for') && tegh_r181_available_for($user);
+    if ($r181 && !$isCanada) {
+        $requestedCurrency = strtoupper(trim((string)($input['currency'] ?? '')));
+        if ($requestedCurrency === '') $requestedCurrency = tegh_r181_country_currency($country) ?? '';
+        if ($requestedCurrency === '') fail('Choose the currency the books are kept in.', 422, 'base_currency_required');
+        if ($problem = tegh_r181_base_currency_problem($requestedCurrency)) fail($problem, 422, 'base_currency_unsupported');
+        $currency = $requestedCurrency;
+    } else {
+        $requestedCurrency = safe_currency_code($input['currency'] ?? 'CAD', 'Base currency');
+        if ($requestedCurrency !== 'CAD') {
+            fail($isCanada && $r181
+                ? 'Canadian companies keep their books in CAD, because GST/HST returns and Canadian payroll are in CAD. Add other currencies under Currency Exchange Rates.'
+                : 'Tegh General Ledger uses CAD as the company reporting currency. Create the company in CAD, then add USD or other transaction currencies under Currency Exchange Rates.', 422, 'cad_gl_required');
+        }
+        $currency = 'CAD';
     }
-    $currency = 'CAD';
+    if ($r181) tegh_r181_schema_ready();
     $accountingBasis = (string)($input['accountingBasis'] ?? 'accrual');
     if (!in_array($accountingBasis, ['accrual', 'cash'], true)) fail('Accounting basis is invalid.');
     $moduleMode = (string)($input['moduleMode'] ?? 'both');
@@ -156,6 +170,12 @@ function handle_companies(): never
         $stmt->execute([$companyId, $name, $legalName, $businessType, $province, $currency, $accountingBasis, $moduleMode, $payrollPostingMode, $taxReportingProfile, $reportingFramework, $fiscalYearEnd, $fiscalYearEndDate, $booksStartDate, $taxRegistered ? 1 : 0, $taxNumber, $isCanada ? province_rate_bps($province) : 0, $pstRegistered ? 1 : 0, $pstRateBps, $pstRecoverable ? 1 : 0, $testMode ? 1 : 0, $testExpiresAt, $testMode ? $user['id'] : null, $country]);
         db()->prepare('UPDATE companies SET pst_rate_mpct = ? WHERE id = ?')->execute([$pstRateMpct, $companyId]);
         if ($profile) r153_profile_save($companyId, $profile);
+        if ($r181 && schema_column_exists('companies', 'fx_rate_policy')) {
+            // R181: new companies convert foreign-currency documents at the rate recorded for each date.
+            db()->prepare("UPDATE companies SET fx_rate_policy = 'dated' WHERE id = ?")->execute([$companyId]);
+            $zones = $location['countryCode'] !== 'CA' ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, (string)$location['countryCode']) : [];
+            if (count($zones) === 1 && empty($profile['timezone']) && schema_column_exists('companies', 'timezone')) db()->prepare("UPDATE companies SET timezone = ? WHERE id = ? AND (timezone IS NULL OR timezone = '')")->execute([$zones[0], $companyId]);
+        }
         // R137: new companies charge nothing until the owner sets up tax codes.
         if (function_exists('schema_column_exists') && schema_column_exists('companies', 'tax_setup_mode')) db()->prepare("UPDATE companies SET tax_setup_mode = 'codes' WHERE id = ?")->execute([$companyId]);
         db()->prepare("INSERT INTO company_members (company_id, user_id, role) VALUES (?, ?, 'owner')")->execute([$companyId, $user['id']]);
@@ -278,9 +298,17 @@ function handle_settings(): never
     $pstRateMpct = $pstRegistered ? pst_rate_mpct_from_input($input, company_pst_rate_mpct($company)) : 0;
     $pstRateBps = (int)round($pstRateMpct / 10); // rounded copy for older readers
     $pstRecoverable = $pstRegistered && (array_key_exists('pstRecoverable',$input) ? !empty($input['pstRecoverable']) : (bool)($company['pst_recoverable'] ?? false));
-    $currency = safe_currency_code($input['currency'] ?? $company['currency'], 'Base currency');
-    if ((string)$company['currency'] === 'CAD' && $currency !== 'CAD') {
-        fail('The Tegh General Ledger reporting currency is CAD. Add foreign transaction currencies under Currency Exchange Rates instead of changing the GL currency.', 422, 'cad_gl_required');
+    $r181 = function_exists('tegh_r181_available_for') && tegh_r181_available_for($user);
+    if ($r181 && !$isCanada) {
+        // R181: outside Canada the base currency may change while the company has no transactions (checked below).
+        $currency = strtoupper(trim((string)($input['currency'] ?? $company['currency'])));
+        if ($currency !== (string)$company['currency'] && ($problem = tegh_r181_base_currency_problem($currency))) fail($problem, 422, 'base_currency_unsupported');
+    } else {
+        $currency = safe_currency_code($input['currency'] ?? $company['currency'], 'Base currency');
+        if ((string)$company['currency'] === 'CAD' && $currency !== 'CAD') {
+            fail('The Tegh General Ledger reporting currency is CAD. Add foreign transaction currencies under Currency Exchange Rates instead of changing the GL currency.', 422, 'cad_gl_required');
+        }
+        if ($r181 && $isCanada && $currency !== 'CAD') fail('Canadian companies keep their books in CAD, because GST/HST returns and Canadian payroll are in CAD.', 422, 'cad_gl_required');
     }
     $accountingBasis = (string)($input['accountingBasis'] ?? $company['accounting_basis']);
     if (!in_array($accountingBasis, ['accrual', 'cash'], true)) fail('Accounting basis is invalid.');
@@ -307,6 +335,12 @@ function handle_settings(): never
                 ->execute([$currency, $company['id'], $previousCurrency]);
             db()->prepare('DELETE FROM company_currencies WHERE company_id = ? AND currency_code = ?')
                 ->execute([$company['id'], $previousCurrency]);
+            if ($r181) {
+                // R181: rates were stated against the old base currency, so they no longer apply. (Only possible while
+                // the company has no transactions.)
+                db()->prepare('UPDATE company_currencies SET active = 0 WHERE company_id = ? AND currency_code <> ?')->execute([$company['id'], $currency]);
+                if (schema_table_exists('company_exchange_rates')) db()->prepare('DELETE FROM company_exchange_rates WHERE company_id = ?')->execute([$company['id']]);
+            }
         }
         db()->prepare("INSERT INTO company_currencies (company_id, currency_code, rate_to_base_micros, rate_date, active)
             VALUES (?, ?, 1000000, CURRENT_DATE, 1)

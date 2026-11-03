@@ -221,6 +221,7 @@ require_once __DIR__ . '/report_comparison_r20.php';
     require_once __DIR__ . '/tax_presets.php';
     require_once __DIR__ . '/tax_codes_r137.php';
     require_once __DIR__ . '/regions_r141.php';
+    require_once __DIR__ . '/currencies_r181.php';
     require_once __DIR__ . '/qa_guardian_v5820.php';
 
     // Password reset uses the shared Tegh mailer, so it is dispatched after
@@ -269,6 +270,7 @@ require_once __DIR__ . '/report_comparison_r20.php';
     if ($route === 'bills') handle_bills();
     if ($route === 'payments') handle_party_payments();
     if ($route === 'currencies') handle_currencies();
+    if (str_starts_with($route, 'currencies/')) handle_currencies_r181(substr($route, strlen('currencies/')));
     if ($route === 'journals') handle_manual_journals();
     if ($route === 'journals/bulk') handle_bulk_manual_journals();
     if ($route === 'setup/opening-balances') handle_opening_balances();

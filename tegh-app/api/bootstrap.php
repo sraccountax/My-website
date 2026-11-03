@@ -1066,6 +1066,7 @@ function require_company(array $user): array
     if (!$company) fail('The selected company is unavailable.',403,'company_forbidden');
     // R157: the company's accounting date follows its time zone (Toronto when none is set).
     tegh_set_accounting_timezone((string)($company['timezone'] ?? ''));
+    $GLOBALS['tegh_company_currency'] = (string)($company['currency'] ?? 'CAD'); // R181: base currency for server-written text
     if ((string)($_SERVER['HTTP_X_SR_TEST_RUN'] ?? '') === '1') {
         $isCurrentTest = !empty($company['test_mode'])
             && ($company['test_expires_at'] === null || strtotime((string)$company['test_expires_at'].' UTC') > time());

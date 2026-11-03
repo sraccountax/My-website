@@ -710,6 +710,7 @@ function workspace_data(array $user, array $company): array
             'taxRateBps' => (int)$company['tax_rate_bps'], 'pstRegistered'=>(bool)($company['pst_registered']??false), 'pstRateBps'=>(int)round(company_pst_rate_mpct($company)/10), 'pstRateMpct'=>company_pst_rate_mpct($company), 'pstRecoverable'=>(bool)($company['pst_recoverable']??false), 'taxSetupMode'=>function_exists('tax_setup_mode')?tax_setup_mode($company):'legacy', 'onboardingComplete' => true,
             'isTestMode' => (bool)($company['test_mode'] ?? false),
             'testExpiresAt' => $company['test_expires_at'] !== null ? (string)$company['test_expires_at'] . 'Z' : null,
+            ...(function_exists('tegh_r181_workspace_fields') ? tegh_r181_workspace_fields($company) : []),
         ],
         'taxCodes' => function_exists('tax_codes_list') ? tax_codes_list((string)$company['id']) : [],
         'accounts' => $accounts, 'systemAccounts'=>$systemAccounts, 'customers' => $customers, 'productsServices' => $productsServices, 'invoices' => $invoices, 'invoiceTemplates' => $invoiceTemplates, 'expenses' => $expenses,
@@ -962,7 +963,7 @@ if ($issue) {
 $currency = safe_currency_code($input['currency'] ?? $company['currency'], 'Invoice currency');
 $currencyRow = company_currency($companyId, $currency);
 if (!$currencyRow) fail('Add that currency to the company before using it on an invoice.');
-$exchangeRateMicros = safe_exchange_rate_micros($input['exchangeRateMicros'] ?? $currencyRow['rate_to_base_micros'], $currency, (string)$company['currency']);
+$exchangeRateMicros = tegh_r181_document_rate($company, $currency, $issueDate, $input['exchangeRateMicros'] ?? null, $currencyRow, $input, 'invoice');
 $supplyProvince = (string)($customer['province'] ?: $company['province']);
 // R135: PST/QST is charged on taxable lines when the company is registered for
 // it and the sale is in the company's own province. A line may switch it off
@@ -1299,7 +1300,7 @@ function handle_expenses(): never
     if ($currency !== $baseCurrency) {
         $configured = company_currency($companyId, $currency);
         if (!$configured) fail('Set an exchange rate for '.$currency.' under Settings → Currency Exchange Rates before posting this expense.', 422, 'exchange_rate_required');
-        $rate = safe_exchange_rate_micros($configured['rate_to_base_micros'] ?? null, $currency, $baseCurrency);
+        $rate = tegh_r181_document_rate($company, $currency, $date, null, $configured, $input, 'expense');
     }
 
     $mode = (string)($input['taxEntryMode'] ?? (!empty($input['taxable']) ? 'exclusive' : 'none'));

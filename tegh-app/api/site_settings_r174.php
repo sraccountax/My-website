@@ -104,7 +104,7 @@ function r174_schema_ready(): bool
 
 function r174_defaults(string $group): array
 {
-    if ($group === 'release') return ['stage' => 'beta', 'newDashboard' => 'off'];
+    if ($group === 'release') return ['stage' => 'beta', 'newDashboard' => 'off', 'worldCurrencies' => 'off'];
     if ($group === 'labels') {
         $notice = mb_substr(trim((string)(config('app.beta_notice') ?? '')), 0, 300);
         return ['noticeEnabled' => $notice !== '', 'noticeLabel' => 'Private beta · sample data only', 'noticeText' => $notice,
@@ -153,6 +153,7 @@ function r174_app_flags(): array
         'showVersion' => !empty($l['showVersion']),
         'showBetaLabels' => !empty($l['showBetaLabels']),
         'newDashboard' => r177_new_dashboard_mode(),
+        'worldCurrencies' => function_exists('tegh_r181_mode') ? tegh_r181_mode() : 'off',
     ];
 }
 
@@ -296,7 +297,10 @@ function r174_validate_group(string $group, mixed $value): array
         // R177: who sees the new dashboard. A save that leaves it out keeps the current choice.
         $dash = $value['newDashboard'] ?? r177_new_dashboard_mode();
         if (!in_array($dash, ['off', 'owner', 'everyone'], true)) fail('Choose who sees the new dashboard: off, platform owner only, or everyone.', 422, 'site_settings_invalid');
-        return ['stage' => $stage, 'newDashboard' => $dash];
+        // R181: who can choose a base currency other than CAD and record rates by date. Left out: keep the current choice.
+        $world = $value['worldCurrencies'] ?? (string)(r174_group('release')['value']['worldCurrencies'] ?? 'off');
+        if (!in_array($world, ['off', 'owner', 'everyone'], true)) fail('Choose who can use worldwide currencies: off, platform owner only, or everyone.', 422, 'site_settings_invalid');
+        return ['stage' => $stage, 'newDashboard' => $dash, 'worldCurrencies' => $world];
     }
     if ($group === 'labels') {
         $out = [

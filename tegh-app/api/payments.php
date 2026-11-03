@@ -314,7 +314,7 @@ function post_party_refund(array $user,array $company,array $input,string $flow)
         $company=tegh_bank_reauthorize_mutation($user,$company,'');$operation=payment_application_operation_begin($user,$companyId,$operationKey,$hash);if($operation['replay']){db()->commit();json_response(['payment'=>$operation['result']],200);}
         $partyTable=$type==='customer'?'customers':'vendors';$partySql=$type==='customer'?'SELECT id,name,NULL default_currency FROM customers WHERE id=? AND company_id=? AND active=1 FOR UPDATE':'SELECT id,name,default_currency FROM vendors WHERE id=? AND company_id=? AND active=1 FOR UPDATE';$q=db()->prepare($partySql);$q->execute([$partyId,$companyId]);$party=$q->fetch();if(!$party)fail($type==='customer'?'Choose an active customer.':'Choose an active vendor.',422,'partner_unavailable');
         $account=tegh_account_capability_resolve($companyId,$accountId,true);if((string)$account['kind']!=='financial_account'||empty($account['postingAllowed']))fail('Choose an active bank or credit account for the refund.',422,'refund_financial_account_required');
-        $currency=safe_currency_code($input['currency']??($party['default_currency']?:$company['currency']),'Refund currency');if((string)$account['financialAccount']['currency']!==$currency)fail('The refund currency must match the selected financial account.',409,'refund_currency_mismatch');$currencyRow=company_currency($companyId,$currency);if(!$currencyRow)fail('The refund currency is not active for this company.');$rate=safe_exchange_rate_micros($input['exchangeRateMicros']??$currencyRow['rate_to_base_micros'],$currency,(string)$company['currency']);$amount=convert_to_base_cents($foreign,$rate);
+        $currency=safe_currency_code($input['currency']??($party['default_currency']?:$company['currency']),'Refund currency');if((string)$account['financialAccount']['currency']!==$currency)fail('The refund currency must match the selected financial account.',409,'refund_currency_mismatch');$currencyRow=company_currency($companyId,$currency);if(!$currencyRow)fail('The refund currency is not active for this company.');$rate=tegh_r181_document_rate($company,$currency,$date,$input['exchangeRateMicros']??null,$currencyRow,$input,'refund');$amount=convert_to_base_cents($foreign,$rate);
         $linkedNote=null;
         if($noteId!==null){
             tegh_notes_r67_require();
@@ -410,7 +410,7 @@ function post_party_payment(array $user, array $company, array $input): never
         }
         $currencyRow = company_currency($companyId,$currency);
         if (!$currencyRow) fail('The payment currency is not active for this company.');
-        $rate = safe_exchange_rate_micros($input['exchangeRateMicros'] ?? $currencyRow['rate_to_base_micros'], $currency, (string)$company['currency']);
+        $rate = tegh_r181_document_rate($company, $currency, $paymentDate, $input['exchangeRateMicros'] ?? null, $currencyRow, $input, 'payment');
         $actualAmount = convert_to_base_cents($foreignAmount,$rate);
         $carryingReduction = $unapplied ? $actualAmount : ($foreignAmount === (int)$document['foreign_balance_cents']
             ? (int)$document['balance_cents']

@@ -1345,7 +1345,7 @@ function handle_advanced_recurring_invoice_run(): never
         if (!$customer) fail('The recurring invoice customer is unavailable.');
         $currencyRow = company_currency($companyId, (string)$profile['currency']);
         if (!$currencyRow) fail('The recurring invoice currency is unavailable.');
-        $exchangeRate = safe_exchange_rate_micros($currencyRow['rate_to_base_micros'], (string)$profile['currency'], (string)$company['currency']);
+        $exchangeRate = tegh_r181_document_rate($company, (string)$profile['currency'], $issueDate, null, $currencyRow, [], 'recurring invoice');
         $template = invoice_template_row($companyId, $profile['template_id'] !== null ? (string)$profile['template_id'] : null);
         $lineStmt = db()->prepare('SELECT * FROM recurring_invoice_lines WHERE profile_id = ? ORDER BY sort_order, id');
         $lineStmt->execute([$profileId]);

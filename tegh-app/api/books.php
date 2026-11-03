@@ -4,7 +4,14 @@ declare(strict_types=1);
 /** @return array<int,string> */
 function supported_currency_codes(): array
 {
-    return ['CAD', 'USD', 'EUR', 'GBP', 'AUD', 'NZD', 'INR'];
+    // R181: every current ISO 4217 currency with 0 or 2 decimal places, once Worldwide currencies is available.
+    // Off: the seven R180 currencies.
+    static $wide = null;
+    if ($wide === null) $wide = function_exists('tegh_r181_mode') && tegh_r181_mode() !== 'off';
+    if (!$wide) return ['CAD', 'USD', 'EUR', 'GBP', 'AUD', 'NZD', 'INR'];
+    $out = [];
+    foreach (tegh_r181_currency_table() as $code => [, $minor]) if ($minor !== 3) $out[] = $code;
+    return $out;
 }
 
 function safe_currency_code(mixed $value, string $label = 'Currency'): string
@@ -31,7 +38,12 @@ function safe_exchange_rate_micros(mixed $value, string $currency, string $baseC
 
 function convert_to_base_cents(int $foreignCents, int $rateMicros): int
 {
-    $converted = (int)round(($foreignCents * $rateMicros) / 1_000_000);
+    // R181: amount × rate can exceed the largest PHP integer for large amounts at large rates (for example KWD into
+    // INR); PHP would then silently use an approximate float. Those cases use exact integer arithmetic. Every
+    // product that fits keeps the R180 calculation, so existing results are unchanged.
+    $converted = ($foreignCents !== 0 && abs($rateMicros) > intdiv(PHP_INT_MAX, abs($foreignCents)))
+        ? tegh_r181_convert_exact($foreignCents, $rateMicros)
+        : (int)round(($foreignCents * $rateMicros) / 1_000_000);
     if ($foreignCents !== 0 && $converted === 0) {
         fail('The exchange rate converts this amount to zero in the base currency.');
     }
@@ -150,6 +162,14 @@ function handle_currencies(): never
     $companyId = (string)$company['id'];
     $baseCurrency = (string)$company['currency'];
     $input = request_json();
+    // R181: a company on the dated rule records the rate in its history (any supported currency); others as R180.
+    if (function_exists('tegh_r181_policy') && tegh_r181_schema_ready()) $company = require_company($user);
+    if (function_exists('tegh_r181_policy') && tegh_r181_policy($company) === 'dated') {
+        $row = tegh_r181_rate_input($company, $input['currency'] ?? '', $input['rateDate'] ?? tegh_r181_company_today($company), $input['rateToBaseMicros'] ?? null);
+        if (!tegh_r181_available_for($user) && !in_array($row[0], TEGH_R181_LEGACY_CURRENCIES, true)) fail($row[0] . ' is not available yet.', 403, 'currency_not_available');
+        db_transaction_retry(static fn(): array => tegh_r181_save_rates($user, $company, [$row]));
+        json_response(['currency' => ['code' => $row[0], 'rateToBaseMicros' => $row[2], 'rateDate' => $row[1]]], 201);
+    }
     $currency = safe_currency_code($input['currency'] ?? '');
     $rate = safe_exchange_rate_micros($input['rateToBaseMicros'] ?? null, $currency, $baseCurrency);
     $rateDate = safe_date($input['rateDate'] ?? canadian_today(), 'Rate date');
@@ -335,7 +355,7 @@ function bill_input_values(array $company, array $input): array
     if(!$category||!in_array((string)$category['account_type'],['expense','asset'],true)||(bool)$category['is_control'])fail('Choose a valid non-control expense or asset account.');
     $currency=safe_currency_code($input['currency']??$vendor['default_currency']??$company['currency']);
     $currencyRow=company_currency($companyId,$currency);if(!$currencyRow)fail('Add that currency to the company before using it on a vendor invoice.');
-    $rate=safe_exchange_rate_micros($input['exchangeRateMicros']??$currencyRow['rate_to_base_micros'],$currency,(string)$company['currency']);
+    $rate=tegh_r181_document_rate($company,$currency,$billDate,$input['exchangeRateMicros']??null,$currencyRow,$input,'vendor invoice');
 
     if(function_exists('tax_setup_mode')&&tax_setup_mode($company)==='codes'){
         // R137: the vendor invoice's tax code decides each tax, whether it is

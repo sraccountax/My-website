@@ -666,7 +666,7 @@ function import_upload_metadata(string $companyId, string $uploadId): array
     return [$data, $part, $meta];
 }
 
-function statement_import_context(array $company, string $bankAccountId, mixed $exchangeRateInput): array
+function statement_import_context(array $company, string $bankAccountId, mixed $exchangeRateInput, array $input = []): array
 {
     $companyId = (string)$company['id'];
     $bankAccountId = clean_text($bankAccountId, 'Bank account', 64);
@@ -682,6 +682,7 @@ function statement_import_context(array $company, string $bankAccountId, mixed $
         $currency,
         (string)$company['currency']
     );
+    $exchangeRateMicros = tegh_r181_statement_begin($company, $currency, $exchangeRateInput, $currencyRow, $input, $exchangeRateMicros) ?? $exchangeRateMicros;
     return compact('bankAccountId','bankAccount','currency','exchangeRateMicros');
 }
 
@@ -757,7 +758,8 @@ function process_statement_upload(array $user, array $company, array $context, a
         foreach ($rows as $row) {
             if(!empty($row['duplicate'])){$duplicates++;continue;}
             $foreignAmount = (int)$row['amountCents'];
-            $baseAmount = convert_to_base_cents($foreignAmount, $exchangeRateMicros);
+            $rowRate = tegh_r181_statement_row_rate((string)$row['date'], $exchangeRateMicros);
+            $baseAmount = convert_to_base_cents($foreignAmount, $rowRate);
             $fingerprint=(string)$row['sourceFingerprint'];$legacyFingerprint=(string)$row['legacySourceFingerprint'];
             $duplicateStmt->execute([$companyId, $fingerprint, $legacyFingerprint]);
             if ($duplicateStmt->fetchColumn() !== false) { $duplicates++; continue; }
@@ -765,7 +767,7 @@ function process_statement_upload(array $user, array $company, array $context, a
             $transactionId = new_id('btx');
             $insertStmt->execute([
                 $transactionId, $companyId, $bankAccountId, $batchId, $row['date'], $row['description'], $row['reference']??null, $suggestion['merchant'],
-                $baseAmount, $currency, $foreignAmount, $exchangeRateMicros,
+                $baseAmount, $currency, $foreignAmount, $rowRate,
                 $suggestion['accountId'], $suggestion['taxCode'], $suggestion['confidence'], $suggestion['source'], $fingerprint,
             ]);
             if (function_exists('voucher_register_saved')) {
@@ -781,7 +783,7 @@ function process_statement_upload(array $user, array $company, array $context, a
             // Legacy auto-import keeps its batch response while preserving the
             // reviewed full wording in the same transaction as pending rows.
             $retainedPreviewId=new_id('preview');$running=0;$retainedRows=[];$dates=[];
-            foreach($rows as $index=>$row){$running+=(int)$row['foreignAmountCents'];$dates[]=(string)$row['date'];$retainedRows[]=array_replace($row,['sequence'=>$index+1,'amountCents'=>convert_to_base_cents((int)$row['foreignAmountCents'],$exchangeRateMicros),'runningBalanceCents'=>$running]);}
+            foreach($rows as $index=>$row){$running+=(int)$row['foreignAmountCents'];$dates[]=(string)$row['date'];$retainedRows[]=array_replace($row,['sequence'=>$index+1,'amountCents'=>convert_to_base_cents((int)$row['foreignAmountCents'],tegh_r181_statement_row_rate((string)$row['date'],$exchangeRateMicros)),'runningBalanceCents'=>$running]+tegh_r181_statement_row_fields((string)$row['date'],$exchangeRateMicros));}
             $sourceHash=hash_file('sha256',$upload['absolutePath']);if($sourceHash===false)throw new RuntimeException('The retained statement source could not be verified.');
             db()->prepare("INSERT INTO statement_previews (id,company_id,bank_account_id,filename,file_type,source_path,source_sha256,currency,exchange_rate_micros,opening_balance_cents,closing_balance_cents,first_transaction_date,last_transaction_date,row_count,excluded_count,rows_json,status,approved_batch_id,created_by) VALUES (?,?,?,?,?,?,?,?,?,NULL,NULL,?,?,?,?,?,'approved',?,?)")
                 ->execute([$retainedPreviewId,$companyId,$bankAccountId,$upload['originalName'],$upload['mime'],$upload['relativePath'],hash('sha256',$sourceHash.'|approved|'.$retainedPreviewId),$currency,$exchangeRateMicros,min($dates),max($dates),count($rows),$excludedCount,json_encode($retainedRows,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR),$batchId,$user['id']]);
@@ -875,7 +877,7 @@ function handle_import_upload_finish(): never
     $companyId = (string)$company['id'];
     $input = import_json_request(8_000_000);
     $uploadId = clean_text($input['uploadId'] ?? '', 'Upload reference', 64);
-    $context = statement_import_context($company, (string)($input['bankAccountId'] ?? ''), $input['exchangeRateMicros'] ?? null);
+    $context = statement_import_context($company, (string)($input['bankAccountId'] ?? ''), $input['exchangeRateMicros'] ?? null, $input);
     $upload = adopt_staged_statement_upload($companyId, $uploadId);
     if ((string)($input['mode'] ?? '') === 'preview') {
         $openingRaw=trim((string)($input['openingBalanceCents']??''));$closingRaw=trim((string)($input['closingBalanceCents']??''));
@@ -910,7 +912,7 @@ function handle_imports(): never
     if (str_contains($contentType, 'multipart/form-data') && $contentLength > 0 && !isset($_FILES['file']) && $_POST === []) {
         fail('The multipart upload was rejected before Tegh could read it. Refresh to the current Tegh build and retry; the current importer uses protected chunked uploads.',413,'legacy_multipart_rejected');
     }
-    $context = statement_import_context($company, (string)($_POST['bankAccountId'] ?? ''), $_POST['exchangeRateMicros'] ?? null);
+    $context = statement_import_context($company, (string)($_POST['bankAccountId'] ?? ''), $_POST['exchangeRateMicros'] ?? null, $_POST);
     $upload = save_private_upload($companyId, 'statements', statement_allowed_extensions(), statement_allowed_mimes());
     if ((string)($_POST['mode'] ?? '') === 'preview') {
         $openingRaw=trim((string)($_POST['openingBalanceCents']??''));$closingRaw=trim((string)($_POST['closingBalanceCents']??''));
