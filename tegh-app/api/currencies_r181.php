@@ -296,13 +296,14 @@ function tegh_r181_company_settings(array $company, ?array $user): array
 function handle_currencies_r181(string $sub): never
 {
     $user = require_user();
+    $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    if ($sub === 'catalog' && $method === 'GET') {
+        // Needed before a company exists (creating the first company), so no company is required.
+        json_response(['currencies' => tegh_r181_catalog(), 'available' => tegh_r181_available_for($user), 'countryCurrency' => tegh_r181_country_currency_table(), 'legacy' => TEGH_R181_LEGACY_CURRENCIES]);
+    }
     $company = require_company($user);
     if (!tegh_r181_schema_ready()) fail('Exchange rate history is not available on this server yet (the database could not be updated).', 503, 'fx_schema_unavailable');
     $company = require_company($user); // re-read with the R181 columns
-    $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-    if ($sub === 'catalog' && $method === 'GET') {
-        json_response(['currencies' => tegh_r181_catalog(), 'available' => tegh_r181_available_for($user), 'countryCurrency' => tegh_r181_country_currency_table(), 'legacy' => TEGH_R181_LEGACY_CURRENCIES]);
-    }
     if ($sub === 'rate' && $method === 'GET') {
         $currency = strtoupper(trim((string)($_GET['currency'] ?? '')));
         $date = safe_date($_GET['date'] ?? '', 'Date');

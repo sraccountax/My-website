@@ -267,7 +267,7 @@
       while (charts.length) { try { charts.pop().destroy(); } catch (e) { /* gone */ } }
       cashflow = null;
       const request = Promise.resolve().then(() => ctx.api('dashboard/summary')).then(d => {
-        summary = d; money = fmt(d.company.currency);
+        summary = d; money = fmt(d.company.currency); if (C()?.setCurrency) C().setCurrency(d.company.currency);
         asOf.textContent = 'Figures to ' + longDate(d.company.asOf) + ' · ' + d.company.currency + (d.company.accountingBasis === 'cash' ? ' · cash basis' : '');
         foot.textContent = '';
         el('span', '', foot, 'Worked out from your posted books. Nothing on this page changes your records.');

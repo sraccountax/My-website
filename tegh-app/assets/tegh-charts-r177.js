@@ -20,13 +20,25 @@
   const clamp01 = t => (t < 0 ? 0 : t > 1 ? 1 : t);
 
   // ---- Formatting (Canadian dollars by default) ----
-  const cad = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
-  const money = v => (v < 0 ? '−' : '') + cad.format(Math.abs(v)).replace('CA', '').replace('-', '');
+  let cad = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
+  // R181: charts can show another base currency (TeghCharts.setCurrency). CAD keeps the R177 output exactly.
+  let chartCurrency = 'CAD', sym = '$';
+  const money = v => (v < 0 ? '−' : '') + (chartCurrency === 'CAD' ? cad.format(Math.abs(v)).replace('CA', '').replace('-', '') : cad.format(Math.abs(v)));
   const moneyShort = v => {
     const a = Math.abs(v), s = v < 0 ? '−' : '';
-    if (a >= 1e6) return s + '$' + (a / 1e6).toFixed(a >= 1e7 ? 0 : 1).replace(/\.0$/, '') + 'M';
-    if (a >= 1e3) return s + '$' + (a / 1e3).toFixed(a >= 1e4 ? 0 : 1).replace(/\.0$/, '') + 'k';
-    return s + '$' + Math.round(a);
+    if (a >= 1e6) return s + sym + (a / 1e6).toFixed(a >= 1e7 ? 0 : 1).replace(/\.0$/, '') + 'M';
+    if (a >= 1e3) return s + sym + (a / 1e3).toFixed(a >= 1e4 ? 0 : 1).replace(/\.0$/, '') + 'k';
+    return s + sym + Math.round(a);
+  };
+  const setCurrency = code => {
+    const c = String(code || 'CAD').toUpperCase();
+    if (c === chartCurrency) return;
+    try {
+      const f = new Intl.NumberFormat('en-CA', { style: 'currency', currency: c, currencyDisplay: 'narrowSymbol', maximumFractionDigits: 0 });
+      cad = c === 'CAD' ? new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }) : f;
+      sym = c === 'CAD' ? '$' : (f.formatToParts(0).find(p => p.type === 'currency') || {}).value || (c + ' ');
+      chartCurrency = c;
+    } catch (e) { /* unknown code: keep the current currency */ }
   };
   const percent = v => Math.round(v) + '%';
 
@@ -632,6 +644,6 @@
   const make = Cls => (target, opts) => new Cls(target, opts || {});
   global.TeghCharts = {
     bar: make(BarChart), line: make(LineChart), waterfall: make(WaterfallChart), hbar: make(HBarChart), kpi: make(Kpi),
-    format: { money, moneyShort, percent }
+    format: { money, moneyShort, percent }, setCurrency
   };
 })(window);

@@ -331,7 +331,7 @@
     const termsText = text.match(/\b(?:payment\s+terms|terms|conditions(?:\s+de\s+paiement)?)\s*[:：]\s*([^\n]{1,80})/i)?.[1] || (text.match(/\b(net\s*\d{1,3}(?:\s*days)?|due\s+on\s+receipt|payable\s+[aà]\s+r[eé]ception)\b/i)?.[1] || '');
     const candidate = {partyName: partyLine, partyEmail: text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)?.[0] || '', businessIdentifier: identifier, documentNumber: number,
       documentDate: docDate?.iso || '', dueDate: dueDate?.iso || '',
-      currency: /\bUSD\b|US\$/i.test(text) ? 'USD' : /\bEUR\b|€/.test(text) ? 'EUR' : /\bGBP\b|£/.test(text) ? 'GBP' : 'CAD', paymentTerms: termsText.trim(), confidenceBps: 0, alternatives: [], lineItems: []};
+      currency: /\bUSD\b|US\$/i.test(text) ? 'USD' : /\bEUR\b|€/.test(text) ? 'EUR' : /\bGBP\b|£/.test(text) ? 'GBP' : /₹|\bINR\b|\bRs\.?\s?\d/.test(text) ? 'INR' : ((window.TeghPortal && typeof window.TeghPortal.baseCurrency === 'function' && window.TeghPortal.baseCurrency()) || 'CAD'), paymentTerms: termsText.trim(), confidenceBps: 0, alternatives: [], lineItems: []};
     if (docDate && !docDate.iso) candidate.alternatives = docDate.alternatives.map((documentDate, index) => ({documentDate, dateOrder: index === 0 ? 'mdy' : 'dmy'}));
     // "Net 30" with a known date gives the due date by plain day arithmetic; the reviewer still confirms it.
     const net = /\bnet\s*(\d{1,3})\b/i.exec(candidate.paymentTerms);

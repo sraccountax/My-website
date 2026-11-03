@@ -153,7 +153,8 @@ function r174_app_flags(): array
         'showVersion' => !empty($l['showVersion']),
         'showBetaLabels' => !empty($l['showBetaLabels']),
         'newDashboard' => r177_new_dashboard_mode(),
-        'worldCurrencies' => function_exists('tegh_r181_mode') ? tegh_r181_mode() : 'off',
+        // R181: read here directly; auth/me is answered before currencies_r181.php is loaded.
+        'worldCurrencies' => in_array($w = (string)(r174_group('release')['value']['worldCurrencies'] ?? 'off'), ['off', 'owner', 'everyone'], true) ? $w : 'off',
     ];
 }
 
