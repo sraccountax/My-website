@@ -119,3 +119,41 @@ html:has(body.srp-modal-open), html:has(.tegh-converter-scrim), html:has(.tegh-i
 .r182-co-actions { position: sticky; bottom: 0; z-index: 2; display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; padding: 12px 0; background: var(--surface, #fff); border-top: 1px solid var(--line, #e3e8ec); }
 @media (max-width: 1000px) { .r182-co-layout { grid-template-columns: minmax(0, 1fr); } .r182-co-summary { position: static; order: -1; } .r182-co-summary .r182-co-next, .r182-co-summary h4, .r182-co-isolation { display: none; } }
 @media (max-width: 640px) { .r182-co-grid, .r182-co-choice { grid-template-columns: minmax(0, 1fr); } .r182-co-sec { padding: 14px; } .r182-co-actions { padding: 10px 0; } .r182-co-actions .srp-btn { flex: 1; } }
+
+/* ---- Correcting an issued invoice ---- */
+.r182-correct-bar { display: flex; justify-content: space-between; gap: 14px; align-items: center; margin: 0 0 14px; padding: 12px 14px; border: 1px solid #f0d9a6; border-left: 4px solid #c98a00; border-radius: 10px; background: #fffaf0; }
+.r182-correct-bar p { margin: 2px 0 0; font-size: 13px; color: var(--muted, #5b6770); }
+.r182-correct-actions, .r182-detail-actions { display: inline-flex; gap: 8px; flex-wrap: wrap; }
+.r182-corrected-tag { display: inline-block; padding: 1px 8px; border-radius: 999px; background: #e8eefc; color: #23408e; font-size: 12px; font-weight: 600; vertical-align: middle; }
+.r182-modal.r182-review { width: min(760px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); display: flex; flex-direction: column; padding: 0; }
+.r182-review-body { overflow: auto; padding: 14px 22px; display: grid; gap: 12px; overscroll-behavior: contain; }
+.r182-review-foot { padding: 12px 22px 16px; border-top: 1px solid var(--line, #e3e8ec); }
+.r182-compare, .r182-entry { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.r182-compare th, .r182-compare td, .r182-entry th, .r182-entry td { padding: 6px 8px; border-bottom: 1px solid var(--line, #e3e8ec); text-align: left; vertical-align: top; }
+.r182-compare .num, .r182-entry .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.r182-compare .r182-strong td { font-weight: 700; }
+.r182-compare small { color: var(--muted, #5b6770); font-weight: 400; }
+.r182-entry tfoot td { font-weight: 700; border-bottom: 0; }
+.r182-entries h4 { margin: 10px 0 4px; font-size: 13px; }
+.r182-entries > summary { cursor: pointer; font-weight: 600; }
+.r182-credit { margin: 0; padding: 10px 12px; border-radius: 10px; background: #e9f6ef; color: #0b5132; font-size: 13.5px; }
+.r182-blockers { padding: 10px 12px; border-radius: 10px; background: #fdecea; color: #7a1d12; }
+.r182-blockers ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 6px; }
+.r182-blockers small { display: block; color: #5b2b25; }
+.r182-reason { display: grid; gap: 6px; font-weight: 600; }
+.r182-reason small { font-weight: 400; color: var(--muted, #5b6770); }
+.r182-reason textarea { font: inherit; padding: 8px 10px; border: 1px solid var(--line, #d7dee5); border-radius: 8px; }
+.r182-history { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.r182-history > li { border: 1px solid var(--line, #e3e8ec); border-radius: 10px; padding: 10px 12px; }
+.r182-history header { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 13px; }
+.r182-history header span { color: var(--muted, #5b6770); }
+.r182-history-reason { margin: 4px 0 8px; font-style: italic; }
+@media (max-width: 640px) { .r182-correct-bar { flex-direction: column; align-items: stretch; } .r182-review-body { padding: 12px 14px; } }
+.r182-review-body { grid-template-columns: minmax(0, 1fr); }
+.r182-review-body > * { min-width: 0; }
+.r182-compare .num { white-space: normal; }
+.r182-compare td:first-child { width: 28%; }
+.r182-review-body table { width: 100% !important; min-width: 0 !important; table-layout: fixed; }
+.r182-entry th:first-child, .r182-entry td:first-child { width: 50%; overflow-wrap: anywhere; }
+.r182-entry th:not(:first-child), .r182-entry td:not(:first-child) { width: 25%; }
+@media (max-width: 640px) { .r182-entry th:first-child, .r182-entry td:first-child { width: 44%; } .r182-entry th:not(:first-child), .r182-entry td:not(:first-child) { width: 28%; } .r182-review-body table { font-size: 12.5px; } }

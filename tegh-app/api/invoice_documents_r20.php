@@ -92,6 +92,7 @@ function tegh_invoice_detail_r20(array $user,array $company,string $id): array
             'attachments'=>$attachView?tegh_invoice_attachment_rows_r20($company['id'],$id):[],'delivery'=>$history,'deliveryLimit'=>100,
             'limits'=>['fileBytes'=>10485760,'totalBytes'=>104857600,'files'=>20,'emailAttachmentBytes'=>2097152],
             'editPolicy'=>$draft?'Draft lines and totals are recalculated on the server.':'Issued financial values are locked. Edit due date, purchase order and message only; use the existing correction workflow for accounting changes.'];
+        if(function_exists('tegh_r182_detail_extra'))$out=tegh_r182_detail_extra($user,$company,$i,$out);
         $pdo->commit();return $out;
     }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
 }
