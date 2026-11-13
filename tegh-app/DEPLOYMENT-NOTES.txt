@@ -12,10 +12,16 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R181 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R182 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R181 (R118–R181 change notes are
-included). R181 is the private beta package (it replaces R180): books in any currency and exchange rates
+This package contains every release through R182 (R118–R182 change notes are
+included). R182 is the private beta package (it replaces R181): correcting issued customer invoices, bank lines
+entered by hand, description edits, one scroll area in statement windows, a review after switching Guided/Full
+Accounting, and a redesigned new-company page (see R182-CHANGES.md). AFTER INSTALLING, invoice correction is off until
+the platform owner chooses "Platform owner only" or "Everyone" in Site & Release Settings › Release › Edit issued
+invoices; try "Platform owner only" on staging first. The first correction creates table invoice_revisions (CREATE
+privilege, as R174 needed); no existing row changes. The other R182 changes are on for everyone and change no
+existing record. R181 (replaced R180): books in any currency and exchange rates
 recorded by date (see R181-CHANGES.md). AFTER INSTALLING, NOTHING CHANGES: Worldwide currencies is off until the
 platform owner chooses "Platform owner only" or "Everyone" in Site & Release Settings › Release. Try "Platform owner only"
 on staging first. With it on, the first use adds table company_exchange_rates and two companies columns (ALTER

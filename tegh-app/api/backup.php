@@ -153,6 +153,7 @@ function backup_record_queries(): array
     if(schema_table_exists('tax_codes'))$queries['taxCodes']='SELECT id,company_id,code,name,region,description,status,created_by,updated_by,created_at,updated_at FROM tax_codes WHERE company_id = ? ORDER BY code,id';
     if(schema_table_exists('tax_code_components'))$queries['taxCodeComponents']='SELECT * FROM tax_code_components WHERE company_id = ? ORDER BY tax_code_id,sort_order,id';
     if(schema_table_exists('document_tax_lines'))$queries['documentTaxLines']='SELECT * FROM document_tax_lines WHERE company_id = ? ORDER BY document_type,document_id,sort_order,id';
+    if(schema_table_exists('invoice_revisions'))$queries['invoiceRevisions']='SELECT * FROM invoice_revisions WHERE company_id = ? ORDER BY invoice_id,revision_number,id';
     // R151: itemized vendor invoice lines and credit/debit note lines.
     if(schema_table_exists('bill_lines'))$queries['billLines']='SELECT * FROM bill_lines WHERE company_id = ? ORDER BY bill_id,sort_order,id';
     if(schema_table_exists('accounting_note_lines'))$queries['accountingNoteLines']='SELECT * FROM accounting_note_lines WHERE company_id = ? ORDER BY note_id,sort_order,id';
@@ -260,6 +261,7 @@ function backup_restore_map(): array
     if(schema_table_exists('tax_codes'))$map['taxCodes']='tax_codes';
     if(schema_table_exists('tax_code_components'))$map['taxCodeComponents']='tax_code_components';
     if(schema_table_exists('document_tax_lines'))$map['documentTaxLines']='document_tax_lines';
+    if(schema_table_exists('invoice_revisions'))$map['invoiceRevisions']='invoice_revisions';
     if(schema_table_exists('bill_lines'))$map['billLines']='bill_lines';
     if(schema_table_exists('accounting_note_lines'))$map['accountingNoteLines']='accounting_note_lines';
     if(schema_table_exists('vendor_document_memory'))$map['vendorDocumentMemory']='vendor_document_memory';
