@@ -126,14 +126,17 @@ Every field, name and rule is the same as before, so the company created is iden
 
 ## Also fixed
 
-On Company Details, the note under Base currency named CAD for every company. It now names the company's currency.
-Canadian companies see the same words as before.
+- **Company restore:** a backup could fail to restore when a payment application and its reversal had the same date
+  and second, because the reversal was inserted first. Rows are now inserted in the order their references need.
+  Company backups also include the invoice correction history.
+- **Company Details:** the note under Base currency named CAD for every company. It now names the company's
+  currency; Canadian companies see the same words as before.
 
 ## Files
 
 | Area | Files |
 |---|---|
-| Server | New: `api/invoice_correction_r182.php`, `api/banking_entries_r182.php`. Changed: `api/index.php`, `api/invoice_documents_r20.php`, `api/operations.php`, `api/site_settings_r174.php`, `api/portal.php` (both correction entry types are classed as receivables in the Day Book) |
+| Server | New: `api/invoice_correction_r182.php`, `api/banking_entries_r182.php`. Changed: `api/index.php`, `api/backup.php`, `api/invoice_documents_r20.php`, `api/operations.php`, `api/site_settings_r174.php`, `api/portal.php` (both correction entry types are classed as receivables in the Day Book) |
 | Browser | New: `assets/tegh-r182.css`. Changed: `assets/tegh-portal-v5990.js`, `assets/tegh-gate-v5990.js`, `assets/tegh-preflight-v5990.js`, `app.html` |
 | Database | Table `invoice_revisions` is created the first time an invoice is corrected (CREATE privilege, as R174 needed). Nothing is created while the switch is off. No existing table or row changes. Rollback: drop the table. |
 | Journal entries | A correction posts two entries: `invoice_correction_reversal` and `invoice_correction`. Both use the correction's own id as source, and their memos name the invoice and the customer. The invoice's voucher points to the corrected entry |
