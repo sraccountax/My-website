@@ -472,6 +472,25 @@ function backup_fk_values(array $row,array $reference): ?array
     $values=[];foreach($reference['columns'] as $column=>$target){if(!array_key_exists($column,$row)||$row[$column]===null)return null;$values[$target]=(string)$row[$column];}return $values;
 }
 
+/**
+ * R182: a table that refers to itself (party_payment_applications.reversal_of_id) must insert each referenced row
+ * before the rows that point to it. The export order (date, time, id) does not guarantee that when both rows share a
+ * date and second. Stable: rows keep their order unless they must wait. Tables without a self-reference are unchanged.
+ */
+function backup_rows_self_ordered(string $table,array $rows,array $foreignKeys): array
+{
+    $self=[];foreach($foreignKeys[$table]??[] as $ref)if($ref['table']===$table&&count($ref['columns'])===1)$self[]=$ref['columns'];
+    if(!$self||count($rows)<2)return $rows;
+    $present=[];foreach($rows as $row)foreach($self as $cols)foreach($cols as $target)if(isset($row[$target]))$present[$target][(string)$row[$target]]=true;
+    $done=[];$out=[];$pending=$rows;
+    while($pending){$next=[];
+        foreach($pending as $row){$ready=true;foreach($self as $cols)foreach($cols as $col=>$target){$v=$row[$col]??null;if($v!==null&&isset($present[$target][(string)$v])&&!isset($done[$target][(string)$v])){$ready=false;break 2;}}
+            if($ready){$out[]=$row;foreach($self as $cols)foreach($cols as $target)if(isset($row[$target]))$done[$target][(string)$row[$target]]=true;}else $next[]=$row;}
+        if(count($next)===count($pending))throw new RuntimeException('Restore found a circular record dependency. No company was created; ask support to inspect the backup.');
+        $pending=$next;}
+    return $out;
+}
+
 /** Topological ordering preserves foreign keys; never disable foreign_key_checks. */
 function backup_restore_order(array $records,array $foreignKeys): array
 {
@@ -524,7 +543,7 @@ function backup_restore_verified_payload(array $payload,array $user,ZipArchive $
     $companyId=new_id('company');$clone=backup_clone_payload($payload,$companyId);$writtenFiles=[];$createdDirectories=[];$order=backup_restore_order($clone['records'],$foreignKeys);$pdo=db();if($pdo->inTransaction())throw new RuntimeException('Restore cannot start inside another operation.');
     $pdo->beginTransaction();try{
         backup_insert_row('companies',$clone['company'],$companyId,(string)$user['id']);$pdo->prepare("INSERT INTO company_members (company_id,user_id,role) VALUES (?,?,'owner')")->execute([$companyId,$user['id']]);
-        foreach($order as $key=>$table)foreach($clone['records'][$key] as $row)backup_insert_row($table,$row,$companyId,(string)$user['id']);
+        foreach($order as $key=>$table)foreach(backup_rows_self_ordered($table,$clone['records'][$key],$foreignKeys) as $row)backup_insert_row($table,$row,$companyId,(string)$user['id']);
         backup_rehash_journal_entries($companyId);backup_rehash_payroll_items($companyId);backup_rehash_audit_company($companyId);
         foreach($clone['evidenceManifest'] as $item){$contents=$zip->getFromName((string)$item['archivePath']);if(!is_string($contents)||!hash_equals((string)$item['sha256'],hash('sha256',$contents)))throw new RuntimeException('Stored evidence verification failed.');$root=private_storage_root();$dest=$root.'/'.$item['relativePath'];$dir=dirname($dest);if(file_exists($dest))throw new RuntimeException('A restored supporting file already exists.');if(!is_dir($dir)){if(!is_dir($root.'/'.$companyId))$createdDirectories[]=$root.'/'.$companyId;if(!@mkdir($dir,0700,true)&&!is_dir($dir))throw new RuntimeException('Stored evidence directory could not be created.');$createdDirectories[]=$dir;}$handle=@fopen($dest,'xb');if($handle===false)throw new RuntimeException('A supporting file could not be created.');$writtenFiles[]=$dest;try{$offset=0;$length=strlen($contents);while($offset<$length){$written=fwrite($handle,substr($contents,$offset));if($written===false||$written===0)throw new RuntimeException('A supporting file could not be written completely.');$offset+=$written;}if(!fflush($handle)||(function_exists('fsync')&&!fsync($handle)))throw new RuntimeException('A supporting file could not be safely flushed.');}finally{fclose($handle);}if(!chmod($dest,0600))throw new RuntimeException('A supporting file could not be protected.');}
         if(function_exists('tegh_company_entitlements_initialize'))tegh_company_entitlements_initialize($user,$companyId,(string)$clone['company']['name'],false);
