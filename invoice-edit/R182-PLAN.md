@@ -1,155 +1,194 @@
-# R182 plan — Edit issued customer invoices (QuickBooks-style), with a full audit trail
+# R182 plan — invoice corrections, mode switch review, new company page, banking entries and statement screens
 
-**Goal:** an issued customer invoice can be corrected in one step: lines, amounts, tax, customer, invoice date, and
-(when unpaid) currency and rate. It keeps its number. If the corrected total is less than what the customer already
-paid, the difference becomes a **customer credit** (your decision).
+R182 combines six changes. Each is described with what was found in the current code or screens (R181, examined on
+the gate host) and what will change. Section A is the invoice-editing plan already reviewed, with your two answers.
 
-Nothing is built yet. This is the plan for your review.
-
-## 1. What Tegh does today (from the code)
-
-| | Today |
-|---|---|
-| Draft invoice | Fully editable (`tegh_invoice_edit_r20`, `invoice_documents_r20.php`) |
-| Issued invoice | Only due date, PO number and message. Everything else is refused: *"Issued amounts, customer, currency and invoice date cannot be changed here. Use the accounting correction workflow."* |
-| Correction route | Void and reissue (`voids.php`), which is refused while a payment is applied. Or a credit or debit note (`accounting_notes.php`) |
-| Accrual company | Issuing posts one entry: receivables (1200) debit; revenue per line; tax per component (R137 tax codes) |
-| Cash-basis company | Issuing posts nothing. Revenue and tax are recognised when each payment is received |
-| Customer credit | Already exists: an unapplied customer payment ("Customer advance") sits as a credit in receivables (1200) and can later be applied to an invoice (`payment_apply_service`, `apply_advance_to_document`) |
-| Safety features already there | Period locks; revision check (`expectedRevision`); repeat-safe operation keys; "not while sending by email"; audit log with a hash chain; voucher register |
-
-## 2. How the edit will work
-
-### 2.1 What the user sees
-
-1. On an issued invoice, a new **Edit invoice** button (next to Void) opens the normal invoice editor with all
-   fields.
-2. Before saving, Tegh shows **what will change**: the old and new totals, tax and receivables, the accounting
-   entries it will post, and any customer credit.
-3. A **reason** is required (for example "Wrong quantity on line 2").
-4. **Save correction.** The invoice keeps its number and shows a "Corrected" label with a link to its history.
-5. If the invoice was already emailed, Tegh says so and offers **Send corrected copy**. It never re-sends without
-   being asked.
-
-### 2.2 What happens in the books (accrual company)
-
-All in one database transaction, so either everything happens or nothing does:
-
-1. **Reverse** the invoice's current entry on its original date (the existing `add_reversing_journal_entry`).
-2. **Post** the corrected entry on the invoice's (possibly new) date, with the same posting rules as issuing:
-   revenue per line account, and tax per component.
-3. Update the invoice, its lines, its tax rows and its voucher; recalculate the open balance.
-4. Save the old version in a new **invoice history** table, with who, when, the reason, before and after, and both
-   entry numbers.
-5. Write `invoice.corrected` to the audit log, with the totals before and after.
-
-Both entries stay visible in the ledger, linked to the invoice. The original entry is never altered or deleted.
-
-| Example | Entries |
-|---|---|
-| Invoice 1,130 (1,000 + 130 HST) corrected to 904 (800 + 104 HST), unpaid | Reversal: Dr Revenue 1,000, Dr HST 130, Cr AR 1,130. New: Dr AR 904, Cr Revenue 800, Cr HST 104. AR balance 904 |
-
-### 2.3 Paid and partly paid invoices
-
-The payment itself is **never changed**: it stays as received, in the bank and in any reconciliation. Only the
-invoice and how much of the payment it absorbs change.
-
-| Case | Result |
-|---|---|
-| New total **above** what is paid | Invoice re-opens with the remaining balance (status from Paid to Sent) |
-| New total **equal to** what is paid | Invoice stays Paid |
-| New total **below** what is paid (**your decision**) | Invoice becomes Paid at the new total, and **the difference becomes a customer credit** |
-
-How the customer credit works:
-- **In the books:** after the reversal and re-post, the overpaid amount is already a credit in receivables (1200).
-  That is exactly where Tegh keeps customer advances today, so no extra account entry is needed.
-- **In the customer's records:** the overpaid part of the payment is marked **unapplied**, so the customer's ledger
-  shows a credit. It can be applied to another invoice with the existing Apply Payment, or refunded with the existing
-  customer refund.
-
-Example: invoice 1,130 fully paid, corrected to 904. Invoice paid at 904; payment of 1,130 shows 904 applied and
-**226 available as customer credit**; AR shows −226 for that customer.
-
-*Build step 1 checks this against the payment code before anything else.* The question is whether a payment that was
-received against an invoice can carry an unapplied part that `payment_apply_service` and the refund accept. If it
-cannot, the fallback is to record the 226 as a separate "customer credit from correction" row, with no bank effect,
-that the same Apply and Refund screens use. Either way, the books are identical.
-
-### 2.4 When an edit is refused (with the reason and what to do instead)
-
-| Situation | Why | What the user can do |
+| # | Change | Switch |
 |---|---|---|
-| The original date or the new date is in a **locked period** | Closed periods must not change | Reopen the period, or issue a credit/debit note in the open period |
-| A **credit or debit note** is linked to the invoice | The note's amounts depend on the old lines | Void the note first, or use another note |
-| **Currency or exchange rate** change on a paid invoice | The payment and its realised exchange gain/loss were posted at the old rate | Lines and amounts can still be corrected; the rate cannot |
-| **Customer** change on a paid invoice | The payment belongs to the original customer | Correct other fields, or unapply the payment first |
-| **Cash-basis company**, invoice already paid | Revenue and tax were recognised at each payment, so a correction would have to restate those receipts | Unpaid cash-basis invoices can be edited (nothing has been posted yet); for paid ones, use a credit/debit note. *Full support can follow in a later release* |
-| **Opening-balance** invoice, **void** invoice, email **being sent** | Existing rules | Unchanged |
-| Someone else changed the invoice meanwhile | Revision check | Reload and edit again |
+| A | Edit issued customer invoices (reverse and re-post, history, customer credit) | Site & Release Settings › **Edit issued invoices** (off by default) |
+| B | Switching Guided ↔ Full Accounting goes to that mode's home and shows a review | none (always on) |
+| C | New company page redesigned | none |
+| D | Add bank transactions by hand (Match and Post, Bank Transaction Report), optionally every month | none |
+| E | Edit descriptions in Match and Post and in the statement import review | none |
+| F | PDF statement converter and import preview: one scroll area, next step in view | none |
 
-### 2.5 Tax returns
+B to F change screens only, plus one new server route for D. They do not change how anything is posted.
 
-A correction can change tax for a past period, as in QuickBooks. If the original date is earlier than the company's
-last recorded GST/HST remittance, Tegh shows a warning before saving: *"This changes GST/HST for a period you have
-already remitted. Lock filed periods to prevent this."* Locked periods are refused outright.
+---
 
-### 2.6 Who can do it
+## A. Edit issued customer invoices
 
-- **Permissions:** *create invoices* (`invoices.write`) **and** *reverse transactions* (`invoices.reverse`, the same
-  permission voiding needs). Viewers and editors without the reverse permission see the button disabled, with the
-  reason.
-- **Switch:** Site & Release Settings › Release › **Edit issued invoices**: off, platform owner only, or everyone.
-  **Off by default**, so installing R182 changes nothing until it is turned on.
+The approved plan is in the previous version of this file (git history). Decisions:
 
-## 3. Changes, file by file
+- **Customer credit** when a paid invoice's new total is lower (your choice).
+- **Entry dates like QuickBooks:** the reversal goes on the original date and the corrected entry on the invoice date.
+  This is allowed only while both periods are unlocked.
+- **Cash-basis companies:** unpaid invoices only in R182. Paid ones keep using credit/debit notes.
 
-| File | Change |
-|---|---|
-| `api/invoice_correction_r182.php` (new) | The correction service: checks, preview, reversal and re-post, payment re-allocation and customer credit, history, audit; routes `invoices/correction/preview` and `invoices/correction` |
-| `api/invoice_documents_r20.php` | `tegh_invoice_edit_policy_r20`: issued invoices are sent to the correction service when the switch allows it; otherwise unchanged |
-| `api/accounting.php` | Reuse `prepare_invoice_record_r20` and `invoice_posting_lines` (no change in behaviour for issuing) |
-| `api/payments.php` | Only if build step 1 shows it is needed: let the unapplied part of a payment be applied and refunded |
-| `api/site_settings_r174.php` | Switch `editIssuedInvoices` |
-| `api/index.php` | Routes |
-| `assets/tegh-portal-v5990.js` | Edit invoice button, editor in correction mode, "what will change" preview, reason field, Corrected label, history view, send corrected copy |
-| Database | New table `invoice_revisions` (company, invoice, revision number, before/after snapshot, reason, reversal and new entry IDs, credit created, user, time), added on first use. No existing table changes |
+In short:
+- An **Edit invoice** button opens the editor with all fields. A preview shows the old and new totals, the entries
+  and any credit. A reason is required. The invoice keeps its number and gets a "Corrected" label and a history.
+- In the books, the original entry is reversed and the corrected one is posted. The payment is never changed.
+- A lower total on a paid invoice leaves the difference as an unapplied **customer credit**, usable with the existing
+  Apply Payment and Refund screens.
+- Refused, each with a reason, when:
+  - a period is locked;
+  - a note is linked to the invoice;
+  - the currency, rate or customer changes on a paid invoice;
+  - the company is on cash basis and the invoice is paid;
+  - the invoice is an opening invoice, void, or being sent.
+- Permissions: `invoices.write` and `invoices.reverse`.
 
-## 4. How it will be tested
+## B. Switching between Guided and Full Accounting
 
-1. **Canadian before/after comparison:** the same method as R181 (609 captured reports and screens of 62 companies).
-   With the switch off, everything must be identical to R181.
-2. **New suite `56-r182`.** Every expected amount is calculated in the test, not taken from Tegh:
-   - unpaid accrual invoice: lines and tax changed; reversal and new entry; same number; history; audit;
-   - paid → higher total: re-opens with the right balance;
-   - paid → lower total: invoice Paid; customer credit of the exact difference; credit applied to another invoice;
-     credit refunded;
-   - partly paid, each direction;
-   - date moved into a different month: entries on the right dates; GST/HST report moves accordingly;
-   - refused cases: locked original date, locked new date, linked note, currency change on a paid invoice, customer
-     change on a paid invoice, cash-basis paid invoice, opening invoice;
-   - foreign-currency unpaid invoice corrected at the R181 recorded rate;
-   - two people editing at once (revision check); the same request sent twice creates one correction;
-   - permissions: viewer refused; editor without the reverse permission refused; another company's user refused;
-   - integrity after every case: debits = credits, AR control = customer subledger, trial balance balances;
-   - screens: button, preview, reason required, Corrected label, history, emailed-invoice warning.
+**Found:** `switchBookkeepingMode` changes the menus and shows a toast, but leaves you on the screen you were on. A
+Full Accounting screen stays open after switching to Guided, and the other way round. Guided shows a "Welcome back"
+toast only.
+
+**Change:**
+
+1. After switching, Tegh opens that mode's home: **Guided Home** for Guided, the **Dashboard** for Full Accounting.
+   If the current form has unsaved changes, it asks first (the existing `canLeaveClientScope` check).
+2. A **mode review** panel at the top of that home lists what is done and what is left, read from the company's
+   actual records (no new data is stored). It can be dismissed.
+
+   **Guided:**
+   - next month to upload or post (from `guided/resume`, which already counts Full Accounting work);
+   - transactions waiting for review;
+   - months reconciled;
+   - opening balances;
+   - work done in Full Accounting since the last visit.
+
+   **Full Accounting:**
+   - unposted bank transactions and possible duplicates;
+   - last reconciliation and difference;
+   - AR and AP control vs subledger differences;
+   - overdue invoices and bills due soon;
+   - GST/HST payable;
+   - opening balances;
+   - ledger debits = credits;
+   - work started in Guided (statement months uploaded but not posted).
+
+   Each line has a status (done / needs attention / not started), a one-line note in plain words, and a button to
+   the right screen.
+
+## C. New company page (Settings › Add Company or Client File)
+
+**Found:**
+1. An 8-step tutorial opens over the form every time.
+2. 21 fields sit in one undivided three-column grid. Required and optional fields are mixed (Short Name, Reporting
+   Framework and Payroll GL Posting sit beside Company Name).
+3. Time Zone, Short Name and Base Currency are placed inside the address block.
+4. The time zone defaults to **UTC** for an Ontario company.
+5. Two notes contradict each other: "Onboarding follows… you set up this company's chart" and "The Default chart is
+   ready immediately".
+6. A long Ontario tax explanation is always open, pushing the button far down.
+7. The test-company checkbox is squeezed into a narrow column.
+8. Headings are in Title Case, and the button is named "Create Separate Company File".
+
+**Change:** a redesign by a designer who keeps books. Every field name and `data-` hook stays the same, so the tax,
+location, currency (R181), onboarding and test-company logic keep working.
+
+- **Layout:** a two-column page. On the left, numbered sections:
+  1. **Business**: name, legal name (filled from the name), business type.
+  2. **Where it operates**: country, province/state, and time zone (filled in from the province; Ontario →
+     Toronto).
+  3. **Books**:
+     - currency (the R181 list when available);
+     - fiscal year-end and start of books, with a one-line explanation of how they relate;
+     - accounting basis as two choice cards (Accrual / Cash), each with one plain sentence.
+  4. **Sales tax**: registered yes/no, then the number. The province explanation becomes a closed "What applies in
+     Ontario" panel.
+  5. **Modules**: Accounting / Accounting and Payroll as choice cards; payroll posting only when payroll is chosen.
+  6. **Address and contact** and **More options** (short name, reporting framework) as collapsed, optional panels.
+
+  On the right, a sticky **summary card**: what will be created, and what happens next (onboarding: chart of
+  accounts, tax codes, opening balances).
+- **Actions:** a sticky footer with Cancel and **Create company**. The test-company option is a clearly separate
+  owner-only panel.
+- **Tutorial:** no longer opens automatically on this page. A "How company setup works" link opens it.
+- **Wording:** sentence-case headings, one consistent explanation of onboarding, required fields marked once, and
+  errors shown next to the field.
+- **Phone width:** one column, with the summary moved below the form.
+
+## D. Add bank transactions by hand
+
+**Found:** no route creates a bank transaction except importing a statement. The edit route
+(`bank-transactions/edit`) and an "Edit transaction" action already exist in the Bank Transaction Report, but not in
+Match and Post. Duplicates are found only by the statement's exact line fingerprint.
+
+**Change:**
+- New route **`bank-transactions/add`**. It records an unposted bank transaction with:
+  - bank or card account, date, description, reference;
+  - money in or money out;
+  - optionally **repeat monthly** for 1–24 months, on the same day of the month (the last day where a month is
+    shorter).
+
+  Each line is marked **Entered by hand** and goes through the same review, matching, posting and reconciliation as
+  imported lines. It respects period locks and the R181 dated-rate rule for foreign-currency accounts.
+- **Add transaction** button in **Match and Post** and in the **Bank Transaction Report**, opening the same form.
+- **Later statement imports:** a statement line on the same account with the same amount within 5 days of a
+  hand-entered line is flagged **"May duplicate a transaction entered by hand on <date>"**. It is left unselected
+  until reviewed, so nothing is counted twice.
+- Audit: `bank_transaction.added_manually`, with the repeat schedule.
+
+## E. Edit descriptions
+
+**Found:** Match and Post has no edit. The statement import review ("Bank Statement Import Preview") shows
+descriptions as plain text, although the server already accepts edited preview rows (`operations/statement-preview`,
+PUT).
+
+**Change:**
+- **Match and Post:** an **Edit** action on unposted, unmatched lines. Description, reference and remarks are edited
+  in place. Date and amount stay in the existing full edit, which keeps its rules: posted and matched lines cannot
+  change, and locked periods are refused.
+- **Statement import review:** each description is editable in place before import. Changes are saved to the server
+  preview, the row selection is kept, and duplicate checks run again.
+
+## F. PDF statement converter and import preview
+
+**Found** (walked through on the gate host with a synthetic PDF):
+1. The converter's review window scrolls inside itself (874 of up to 2,760 pixels visible) while the page behind can
+   scroll too. The "Bank Statement Import Preview" also has its own scroll **plus the page scrollbar visible behind
+   it**: two scroll areas.
+2. You must scroll through the whole list before the "I checked the rows" box can be ticked.
+3. After the converter closes, its result ("Conversion review complete…" with **Use in Upload Statement**) is added at
+   the **bottom of the page, below the fold**. The empty spreadsheet-import card stays on top, so you have to scroll
+   down even though the screen has room.
+
+**Change:**
+- **One scroll area per window:** the page behind is locked while the converter or preview is open. Each window fills
+  the screen height, with a fixed header and footer, and only the transaction list scrolls.
+- **Result in view:** after conversion, the result card moves to the top of the Upload Statement page and is scrolled
+  into view and focused. The spreadsheet-import card collapses to a single line ("Import a CSV or Excel file
+  instead") while a converted statement is waiting.
+- **Upload Statement layout:** at desktop width, spreadsheet import and the PDF converter sit side by side, so both are
+  visible without scrolling.
+- The "I checked the rows" box stays required. The footer always shows it with the count of selected rows, and
+  **Jump to end** reaches it in one click.
+
+---
+
+## Testing
+
+1. **Canadian before-and-after comparison** (the R181 method: 609 captured reports and screens). With the switches
+   off, figures and reports must be identical. The comparison covers data and the 17 captured screens. The new
+   company page, mode review and banking buttons are new screens, checked by the suite below.
+2. **New suite `56-r182`:**
+   - A: the invoice-correction cases from the approved plan;
+   - B: switching each way lands on the right home with a review whose lines match the records;
+   - C: the new company page creates Canadian, US and (switch on) Indian companies as before. The time zone default
+     is checked. No page errors at 1440, 768 and 390 wide;
+   - D: adding one transaction and a 3-month series; a locked period is refused; an imported statement flags the
+     manual line as a possible duplicate; posting and reconciliation work;
+   - E: description edits in Match and Post and in the import review, then the import uses the edited text;
+   - F: one scroll area while each window is open; the result card is in view after conversion.
 3. **Full gate** on the exact ZIP.
 
-## 5. Order of work
+## Order of work
 
-1. Confirm in the payment code how the customer credit will be held (section 2.3). If it needs a change in payments,
-   say so before building further.
-2. Correction service and history table (unpaid accrual first, then paid and partly paid, then the customer credit).
-3. Screens.
-4. Tests, comparison, full gate, package, results.
-
-## 6. Two points to confirm
-
-1. **Dates of the entries:** reverse on the original date and post on the invoice date, like QuickBooks. This changes
-   the original period's figures, and is allowed only while that period is unlocked. The alternative is to post both
-   on the day of the correction, which leaves past periods untouched but splits the invoice's history across two
-   dates. **Recommended: like QuickBooks.**
-2. **Cash-basis companies:** in R182, unpaid invoices only. Paid cash-basis invoices keep using credit/debit notes
-   until a later release. **Recommended**, because a correction there has to restate revenue recognised at each
-   payment.
-
-Vendor invoices (bills) could get the same feature afterwards. They are not part of R182.
+1. Banking: D (route and form), E, F.
+2. B (mode switch and review).
+3. C (company page).
+4. A (invoice corrections).
+5. Tests, comparison, full gate, results.
