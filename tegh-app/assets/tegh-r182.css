@@ -52,3 +52,21 @@ html:has(body.srp-modal-open), html:has(.tegh-converter-scrim), html:has(.tegh-i
 .r182-repeat .srp-check input { width: auto; margin: 0; }
 .r182-add-form .srp-note { font-size: 12.5px; padding: 8px 10px; margin: 0; }
 .r182-add-form { gap: 10px 14px; }
+
+/* ---- Mode review after switching Guided / Full Accounting ---- */
+.r182-mode-review { margin-bottom: 14px; border-left: 4px solid var(--brand, #0d6b57); }
+.r182-mode-review > header { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.r182-mode-review h2 { margin: 2px 0 4px; font-size: 18px; }
+.r182-mode-review header p { margin: 0; color: var(--muted, #5b6770); font-size: 13px; max-width: 70ch; }
+.r182-mode-review ul { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; }
+.r182-mode-review li { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--line, #e3e8ec); border-radius: 10px; }
+.r182-mode-review li p { margin: 2px 0 0; font-size: 13px; color: var(--muted, #5b6770); }
+.r182-review-icon { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+.r182-review-done .r182-review-icon { background: #def3e8; color: #0b6b3a; }
+.r182-review-todo .r182-review-icon { background: #fff1d6; color: #8a5300; }
+.r182-review-none .r182-review-icon, .r182-review-info .r182-review-icon { background: #eef1f4; color: #4b5a66; }
+.r182-review-state { margin-left: 8px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--muted, #5b6770); }
+.r182-review-todo .r182-review-state { color: #8a5300; }
+.r182-mode-review li .srp-btn { white-space: nowrap; }
+@media (max-width: 640px) { .r182-mode-review li { grid-template-columns: 26px minmax(0, 1fr); } .r182-mode-review li .srp-btn { grid-column: 2; justify-self: start; } }
+.r182-review-state { display: block; margin: 1px 0 0; }

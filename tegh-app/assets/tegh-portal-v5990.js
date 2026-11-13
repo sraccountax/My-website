@@ -7738,9 +7738,50 @@ const TeghPortal = (() => {
     try{
       setExperienceMode(mode);invalidateClientReads();quickActionCatalogueCache={key:'',items:[],raw:[]};knownClientScope=clientScopeKey();
       installBookkeepingTopButton();installNavigation();applyNavigationLayout(teghPreferences().navigationLayout);window.TeghSitesShell?.schedule?.();window.dispatchEvent(new CustomEvent('tegh:bookkeeping-mode-changed',{detail:{mode,previous,companyId:companyId()}}));
-      refreshNavigationHeader();setActiveNavigation(activeModule);toast('Bookkeeping mode changed',`${meta.label} mode is now active. Your current work, accounting data and General Ledger are unchanged.`,'success');return true;
+      refreshNavigationHeader();setActiveNavigation(activeModule);toast('Bookkeeping mode changed',`${meta.label} mode is now active. Your accounting data and General Ledger are unchanged.`,'success');/* R182: go to that mode's home and review what is done and what is left. */setTimeout(()=>{try{mode==='owner'?openGuidedBookkeeping():openDashboard()}catch(error){console.error('Mode home did not open',error)}r182ShowModeReview(mode)},0);return true;
     }catch(error){if(previous){try{setExperienceMode(previous)}catch{document.documentElement.dataset.bookkeepingMode=previous==='owner'?'guided':'full-accounting'}}installBookkeepingTopButton();toast('Mode not changed',userFacingError(error),'error');return false}
     finally{bookkeepingModeSaving=false;status.remove();controls.forEach(button=>{button.disabled=false;button.removeAttribute('aria-busy')})}
+  }
+  // R182: after switching mode, a review of what has and has not been done, read from the company's records.
+  async function r182ModeReviewItems(mode){
+    const [w,resume]=await Promise.all([api('workspace/summary',{noCache:true}),api('guided/resume',{noCache:true}).catch(()=>null)]);
+    const s=w.summary||{},cur=w.organization?.currency||baseCur(),m=c=>money(Number(c||0),cur),items=[];
+    const add=(state,title,note,action,label)=>items.push({state,title,note,action,label});
+    const recon=w.lastCompletedReconciliation,bankCount=Number(w.workflowEvidence?.bankTransactions||0),opening=w.openingBalanceStatus||{};
+    const resumeText=resume&&typeof guidedResumeText==='function'?guidedResumeText(resume):null;
+    if(mode==='owner'){
+      if(resume?.action&&resume.action!=='done'&&resumeText)add('todo','Next step',resumeText.detail,()=>guidedResumeOpen(resume),resumeText.button||'Continue');
+      else add('done','Statements','Every month up to date is uploaded and posted.',null,'');
+      if(Number(s.transactionsToReview||0)>0)add('todo','Transactions to review',`${s.transactionsToReview} bank line${Number(s.transactionsToReview)===1?' is':'s are'} waiting to be categorised and posted.`,()=>invokeMenuAction('Banking','Match And Post Transactions'),'Review');
+      add(recon?'done':(bankCount?'todo':'none'),'Bank reconciliation',recon?`Last reconciled ${recon.statementDate?date(recon.statementDate):''}`.trim()+'.':(bankCount?'No bank account has been reconciled yet.':'Nothing to reconcile yet.'),recon||!bankCount?null:()=>invokeMenuAction('Banking','Reconcile Bank Account'),'Reconcile');
+      add(opening.posted?'done':'todo','Opening balances',opening.posted?'Posted.':'Not entered yet. Guided uses them to start your books correctly.',opening.posted?null:()=>openOpeningBalances(),'Enter');
+      add('info','Work from Full Accounting','Anything posted or reconciled in Full Accounting counts here; Guided continues from it.',null,'');
+    }else{
+      const review=Number(s.transactionsToReview||0),dupes=Number(s.duplicateTransactions||0);
+      add(review?'todo':'done','Bank transactions',review?`${review} unposted line${review===1?'':'s'} in Match and Post${dupes?`, ${dupes} possible duplicate${dupes===1?'':'s'}`:''}.`:'No unposted bank lines.',review?()=>invokeMenuAction('Banking','Match And Post Transactions'):null,'Match and post');
+      add(recon?'done':(bankCount?'todo':'none'),'Bank reconciliation',recon?`Last reconciled ${recon.statementDate?date(recon.statementDate):''}${recon.differenceCents?`, difference ${m(recon.differenceCents)}`:''}.`:(bankCount?'No bank account has been reconciled yet.':'Nothing to reconcile yet.'),recon||!bankCount?null:()=>invokeMenuAction('Banking','Reconcile Bank Account'),'Reconcile');
+      const arDiff=Number(s.receivableDifferenceCents||0),apDiff=Number(s.payableDifferenceCents||0);
+      add(arDiff||apDiff?'todo':'done','Receivables and payables',arDiff||apDiff?`Control accounts differ from the customer and vendor ledgers (AR ${m(arDiff)}, AP ${m(apDiff)}).`:'Control accounts agree with the customer and vendor ledgers.',arDiff||apDiff?()=>invokeMenuAction('Reports','Trial Balance'):null,'Open trial balance');
+      if(Number(s.overdueInvoicesCents||0)>0)add('todo','Overdue invoices',`${m(s.overdueInvoicesCents)} is overdue from customers.`,()=>openAgeing('receivable'),'Open ageing');
+      if(Number(s.dueSoonBillCount||0)>0)add('info','Bills due soon',`${s.dueSoonBillCount} vendor bill${Number(s.dueSoonBillCount)===1?'':'s'} due soon.`,()=>openAgeing('payable'),'Open');
+      if(Number(s.taxPayableCents||0)!==0)add('info','Sales tax',`${m(s.taxPayableCents)} ${Number(s.taxPayableCents)>0?'owing':'refundable'} on the books.`,null,'');
+      add(opening.posted?'done':'todo','Opening balances',opening.posted?'Posted.':'Not entered yet.',opening.posted?null:()=>openOpeningBalances(),'Enter');
+      add(Number(s.ledgerDifferenceCents||0)===0?'done':'todo','General ledger',Number(s.ledgerDifferenceCents||0)===0?'Debits equal credits.':`Out of balance by ${m(s.ledgerDifferenceCents)}.`,null,'');
+      if(resume?.action==='post'&&resume.uploaded)add('todo','Started in Guided',`${resume.label||'A statement month'} was uploaded in Guided and is not posted yet.`,()=>invokeMenuAction('Banking','Match And Post Transactions'),'Post');
+    }
+    return items;
+  }
+  async function r182ShowModeReview(mode){
+    const started=Date.now();let page=null;
+    while(Date.now()-started<20000){page=[...document.querySelectorAll('.srp-page')].pop();const ready=page&&(!page.dataset.teghRenderState||page.dataset.teghRenderState==='ready')&&!page.querySelector('.sk-region[data-state="loading"],.srp-skeleton');if(ready&&Date.now()-started>600)break;await new Promise(r=>setTimeout(r,250))}
+    if(!page)return;let items;try{items=await r182ModeReviewItems(mode)}catch(error){items=null}
+    if(!page.isConnected)page=[...document.querySelectorAll('.srp-page')].pop();const host=page?.querySelector('.r22-workspace,.r22-primary-scroll')||page?.querySelector('.srp-page-body')||page;if(!host)return;page.querySelectorAll('[data-r182-mode-review]').forEach(x=>x.remove());
+    const label=mode==='owner'?'Guided':'Full Accounting',icon={done:'✓',todo:'!',none:'–',info:'i'},stateText={done:'Done',todo:'Needs attention',none:'Not started',info:'Note'};
+    const card=document.createElement('section');card.className='srp-card r182-mode-review';card.dataset.r182ModeReview='1';card.setAttribute('aria-label',`${label} review`);
+    card.innerHTML=`<header><div><small>You switched to ${esc(label)}</small><h2>Where your books stand</h2><p>${mode==='owner'?'Guided shows one step at a time. This is what has and has not been done so far, including work done in Full Accounting.':'Full Accounting shows every workspace. This is what needs attention, including work started in Guided.'}</p></div><button type="button" class="srp-btn secondary" data-r182-review-close>Dismiss</button></header>
+      ${items?`<ul>${items.map((x,i)=>`<li class="r182-review-${x.state}"><span class="r182-review-icon" aria-hidden="true">${icon[x.state]}</span><div><b>${esc(x.title)}</b><span class="r182-review-state">${stateText[x.state]}</span><p>${esc(x.note)}</p></div>${x.action?`<button type="button" class="srp-btn secondary" data-r182-review-go="${i}">${esc(x.label)}</button>`:''}</li>`).join('')}</ul>`:'<p class="srp-note">The review could not be loaded. Your books are unchanged; open the reports to check them.</p>'}`;
+    host.prepend(card);card.querySelector('[data-r182-review-close]').onclick=()=>card.remove();
+    $$('[data-r182-review-go]',card).forEach(b=>b.onclick=()=>{const it=items[Number(b.dataset.r182ReviewGo)];if(it?.action)it.action()});
   }
   function wireBookkeepingModeMenu(trigger,menu,choiceAttribute){
     if(!trigger||!menu)return;
