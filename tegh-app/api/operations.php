@@ -110,6 +110,8 @@ function operations_statement_mark_duplicates(string $companyId,array $rows): ar
         $row['eligible']=!$duplicate&&empty($row['userExcluded']);
         $row['validationReason']=$duplicate?'Already imported for this financial account; this source line cannot be selected again.':(!empty($row['userExcluded'])?'Excluded during statement review.':($ambiguous!==[]?'Possible duplicate: an older imported record has the same date, amount and first 500 description characters. Compare the source statements before confirming this is a separate transaction.':'Ready for selection.'));
     }unset($row);
+    // R182: a line may also be a transaction entered by hand.
+    if(function_exists('r182_flag_manual_duplicates'))$rows=r182_flag_manual_duplicates($companyId,$rows);
     return $rows;
 }
 

@@ -1,0 +1,54 @@
+/* R182: banking entries by hand, description edits, one scroll area in statement windows, mode review, company page. */
+
+/* ---- One scroll area while a window is open: the page behind does not scroll ---- */
+body.srp-modal-open .r22-primary-scroll,
+body.srp-modal-open .r22-scroll-region,
+body:has(.tegh-converter-scrim) .r22-primary-scroll,
+body:has(.tegh-converter-scrim) .r22-scroll-region,
+body:has(.tegh-import-verification-scrim) .r22-primary-scroll,
+body:has(.tegh-import-verification-scrim) .r22-scroll-region { overflow: hidden !important; }
+html:has(body.srp-modal-open), html:has(.tegh-converter-scrim), html:has(.tegh-import-verification-scrim) { overflow: hidden; }
+
+/* PDF converter review: header and footer stay in place; only the content scrolls. */
+.tegh-converter-panel > header { position: sticky; top: 0; z-index: 3; background: var(--surface, #fff); }
+.tegh-converter-panel > footer { position: sticky; bottom: 0; z-index: 3; background: var(--surface, #fff); box-shadow: 0 -8px 16px -12px rgba(15, 23, 42, .35); }
+.tegh-converter-scrim .tegh-converter-panel { max-height: calc(100dvh - 24px); overscroll-behavior: contain; }
+.tegh-bank-verification-panel { overscroll-behavior: contain; }
+
+/* Upload Statement: the spreadsheet import collapses to one line while a converted statement waits. */
+.r182-import-collapsed > section { display: none !important; }
+.r182-import-collapsed { display: flex; }
+.r182-import-expand { width: 100%; justify-content: center; }
+
+/* ---- Import preview: editable description ---- */
+.r182-desc { width: 100%; min-width: 180px; padding: 6px 8px; border: 1px solid var(--line, #d7dee5); border-radius: 8px; font: inherit; background: var(--surface, #fff); color: inherit; }
+.r182-desc:focus { outline: 2px solid var(--brand, #0d6b57); outline-offset: 1px; }
+.r182-desc:disabled { opacity: .7; }
+
+/* ---- Match and Post: edit pencil, entered-by-hand tag ---- */
+.r182-edit-desc { margin-left: 6px; padding: 2px 7px; border: 1px solid var(--line, #d7dee5); border-radius: 6px; background: transparent; color: inherit; cursor: pointer; font-size: 13px; line-height: 1.4; }
+.r182-edit-desc:hover, .r182-edit-desc:focus-visible { background: var(--surface-2, #eef3f1); }
+.r182-manual-tag { display: inline-block; margin-top: 2px; padding: 0 6px; border-radius: 999px; background: #fff4d6; color: #7a5200; font-size: 11px; font-weight: 600; }
+
+/* ---- Add / edit bank transaction window ---- */
+.r182-add-tx { width: min(640px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); overflow: auto; padding: 0; }
+.r182-modal-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; padding: 20px 22px 12px; border-bottom: 1px solid var(--line, #e3e8ec); position: sticky; top: 0; background: var(--surface, #fff); z-index: 1; }
+.r182-modal-head h2 { margin: 2px 0 4px; font-size: 20px; }
+.r182-modal-head p { margin: 0; color: var(--muted, #5b6770); font-size: 13px; }
+.r182-add-form { padding: 16px 22px 0; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.r182-direction { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border: 0; padding: 0; margin: 0; }
+.r182-direction legend { font-weight: 600; margin-bottom: 6px; }
+.r182-direction label { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line, #d7dee5); border-radius: 10px; cursor: pointer; }
+.r182-direction label:has(input:checked) { border-color: var(--brand, #0d6b57); background: color-mix(in srgb, var(--brand, #0d6b57) 7%, transparent); }
+.r182-direction span { display: grid; }
+.r182-direction small { color: var(--muted, #5b6770); }
+.r182-repeat { display: grid; gap: 6px; }
+.r182-repeat small { color: var(--muted, #5b6770); }
+.r182-error { color: #a12a1d; font-weight: 600; margin: 0; }
+.r182-modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 0 18px; position: sticky; bottom: 0; background: var(--surface, #fff); }
+@media (max-width: 640px) { .r182-add-form, .r182-direction { grid-template-columns: minmax(0, 1fr); } }
+.r182-add-form label > small { display: inline; font-weight: 400; color: var(--muted, #5b6770); }
+.r182-repeat .srp-check { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.r182-repeat .srp-check input { width: auto; margin: 0; }
+.r182-add-form .srp-note { font-size: 12.5px; padding: 8px 10px; margin: 0; }
+.r182-add-form { gap: 10px 14px; }
