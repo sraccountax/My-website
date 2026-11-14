@@ -81,7 +81,7 @@ await t('BT-05', 'Match and Post: date order by default; header click sorts (amo
     await p.click('th[data-r183-sort=amount] button'); await p.waitForTimeout(300); got.down = (await col(3)).map(x => Number(x.replace(/[^0-9.-]/g, '')));
     await p.click('th[data-r183-sort=date] button'); await p.waitForTimeout(300); got.back = await col(1);
     got.add = await p.evaluate(() => !!document.querySelector('.r28-mode-question [data-r182-add-tx]') && !document.querySelector('[data-r28-filter] [data-r182-add-tx]'));
-    got.pencil = await p.evaluate(() => [...document.querySelectorAll('[data-r28-bank-row]')].filter(r => r.querySelector('[data-r182-edit-desc]')).map(r => { const t = r.querySelector('.r183-desc-line > span').getBoundingClientRect(), b = r.querySelector('[data-r182-edit-desc]').getBoundingClientRect(); return Math.abs((t.top + t.height / 2) - (b.top + b.height / 2)) < 6; }));
+    got.pencil = await p.evaluate(() => [...document.querySelectorAll('[data-r28-bank-row]')].filter(r => r.querySelector('[data-r182-edit-desc]')).map(r => { const t = r.querySelector('.r27-recon-description > span').getBoundingClientRect(), b = r.querySelector('[data-r182-edit-desc]').getBoundingClientRect(); return Math.abs((t.top + t.height / 2) - (b.top + b.height / 2)) < 6; }));
   } finally { got.errs = errs; await b.close(); }
   const asc = a => a.every((v, i) => !i || a[i - 1] <= v), desc = a => a.every((v, i) => !i || a[i - 1] >= v);
   const wantDates = ['Sep 3, 2026', 'Sep 5, 2026', 'Sep 10, 2026', 'Sep 15, 2026', 'Sep 20, 2026'];

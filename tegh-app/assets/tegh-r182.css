@@ -160,9 +160,12 @@ html:has(body.srp-modal-open), html:has(.tegh-converter-scrim), html:has(.tegh-i
 
 /* ---- R183: Match and Post and Bank Transaction Report ---- */
 /* The edit pencil sits on the description's first line. */
-.r27-recon-description .r183-desc-line { display: flex !important; align-items: center; gap: 6px; min-width: 0; }
-.r27-recon-description .r183-desc-line > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.r27-recon-description .r183-desc-line .r182-edit-desc { flex: none; margin-left: 0; padding: 0 6px; line-height: 1.5; }
+/* R183: the edit pencil sits on the description's first line; reference and tag go below, full width.
+   The description stays the first span in the cell. */
+html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .r27-recon-description.r183-desc { display: grid !important; grid-template-columns: minmax(0,1fr) auto; column-gap: 6px; align-items: center; }
+html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .r27-recon-description.r183-desc > span { grid-column: 1; min-width: 0; }
+html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .r27-recon-description.r183-desc > .r182-edit-desc { grid-column: 2; grid-row: 1; margin-left: 0; padding: 0 6px; line-height: 1.5; }
+html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .r27-recon-description.r183-desc > :not(span):not(.r182-edit-desc) { grid-column: 1 / -1; justify-self: start; }
 /* "+ Add transaction" beside Post transactions / Match transactions. */
 .r28-mode-question .r183-add-tx { margin-left: 8px; }
 /* Sortable column headers. */
