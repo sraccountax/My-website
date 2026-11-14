@@ -43,7 +43,7 @@
     return rows;
   }
   function defaults(m){const keys=m.columns.filter(c=>c?.key).map(c=>c.key);if(['invoice-register','bill-register'].includes(m.definitionKey))return ['number','documentKind','originalNumber','party','date','dueDate','foreignTaxCents','foreignTotalCents','foreignBalanceCents','displayStatus','status'].filter(k=>keys.includes(k)).concat(!keys.includes('foreignTotalCents')?['totalCents','balanceCents'].filter(k=>keys.includes(k)):[]);
-    if(m.definitionKey==='bank-transactions')return ['date','bankAccount','description','reference','moneyOutCents','moneyInCents','accountName','status'].filter(k=>keys.includes(k));
+    if(m.definitionKey==='bank-transactions')return ['date','bankAccount','description','reference','moneyOutCents','moneyInCents','balanceCents','accountName','status'].filter(k=>keys.includes(k));
     if(m.definitionKey==='bank-general-ledger')return ['date','voucher','reference','description','debitCents','creditCents','balanceCents'].filter(k=>keys.includes(k));
     if(m.definitionKey==='profit-loss')return keys.filter(k=>k!==m.groupBy);return keys.filter(k=>k!==m.groupBy);
   }
@@ -271,9 +271,11 @@
     const savedVisible=Array.isArray(pref?.columns)?pref.columns.filter((k,i,a)=>validKeys.has(k)&&a.indexOf(k)===i):null;
     const oldBankDefault=['date','bankAccount','description','moneyOutCents','moneyInCents','status'];
     const interimBankDefault=['date','bankAccount','description','reference','moneyOutCents','moneyInCents','status'];
+    const r182BankDefault=['date','bankAccount','description','reference','moneyOutCents','moneyInCents','accountName','status'];/* R183: Balance joins the default */
     const migrateBankDefault=m.definitionKey==='bank-transactions'&&savedVisible&&(
       same(savedVisible,oldBankDefault.filter(k=>validKeys.has(k)))||
-      same(savedVisible,interimBankDefault.filter(k=>validKeys.has(k)))
+      same(savedVisible,interimBankDefault.filter(k=>validKeys.has(k)))||
+      same(savedVisible,r182BankDefault.filter(k=>validKeys.has(k)))
     );
     const visible=savedVisible&&!migrateBankDefault?savedVisible:[...base];if(!visible.includes(required))visible.unshift(required);if(validKeys.has('__company')&&!visible.includes('__company'))visible.unshift('__company');/* R153: several companies selected — the company column always shows */if(['invoice-register','bill-register'].includes(m.definitionKey)&&validKeys.has('displayStatus')&&!visible.includes('displayStatus'))visible.push('displayStatus');if(['invoice-register','bill-register'].includes(m.definitionKey)&&validKeys.has('documentKind')&&!visible.includes('documentKind'))visible.splice(Math.min(1,visible.length),0,'documentKind');const actions=actionNodes&&typeof actionNodes.has==='function'&&typeof actionNodes.get==='function'?actionNodes:new Map();
     const s={page,host,body,m,route,user,key:prefKey(m),columns:cols,required,visible,defaults:base.length?base:[required],filters:[],selected:new Set(),expanded:new Set(),number:Math.max(1,Number(page.dataset.r19ReturnPage)||1),size:fixedPageSize(m)||([25,50,100,250].includes(pref?.size)?pref.size:(m.definitionKey==='day-book'?50:25)),actions,stale:false,dirty:false,sort:null,layers:new Set(),collapsedGroups:new Set(m.definitionKey==='day-book'?(m.groupOrder||m.rows.map(row=>String(row[m.groupBy]??'Other'))):[]),entries:m.rows.map((row,index)=>({row,index,id:rowID(row,index)}))};

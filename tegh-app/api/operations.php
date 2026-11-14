@@ -441,7 +441,7 @@ function operations_bank_ledger(array $company): never
         FROM bank_transactions bt
         LEFT JOIN journal_entries lje ON lje.id=bt.journal_entry_id AND lje.company_id=bt.company_id
         LEFT JOIN vouchers lv ON lv.company_id=lje.company_id AND lv.source_type=lje.source_type AND lv.source_id=lje.source_id
-        WHERE bt.company_id=? AND bt.bank_account_id=? AND bt.transaction_date BETWEEN ? AND ? AND bt.status NOT IN ('duplicate','excluded') ORDER BY bt.transaction_date,bt.created_at");$q->execute([$companyId,$bankId,$start,$end]);
+        WHERE bt.company_id=? AND bt.bank_account_id=? AND bt.transaction_date BETWEEN ? AND ? AND bt.status NOT IN ('duplicate','excluded') ORDER BY bt.transaction_date,bt.created_at,COALESCE(bt.source_sequence,bt.source_row_number,0),bt.id");$q->execute([$companyId,$bankId,$start,$end]);
     $bankRows=array_map(static fn(array $r):array=>['id'=>(string)$r['id'],'date'=>(string)$r['transaction_date'],'description'=>(string)$r['description'],'reference'=>$r['reference'],'amountCents'=>(int)$r['amount_cents'],'status'=>(string)$r['status'],'matched'=>(bool)$r['matched'],'reconciled'=>(bool)$r['reconciled'],'indicator'=>$r['import_batch_id']!==null?'imported':'manual','linkedTransactionNumber'=>$r['linked_transaction_number']],$q->fetchAll());
     json_response(['account'=>['id'=>$bankId,'name'=>(string)$bank['name'],'accountType'=>(string)$bank['account_type'],'currency'=>(string)$bank['currency'],'openingBalanceCents'=>$opening],'start'=>$start,'end'=>$end,'ledgerEntries'=>$entries,'bankTransactions'=>$bankRows]);
 }
@@ -507,7 +507,7 @@ function operations_reconciliation_workspace_data(array $company, string $bankId
       (SELECT g.id FROM bank_match_bank_items bi JOIN bank_match_groups g ON g.id=bi.match_group_id WHERE bi.bank_transaction_id=bt.id AND g.status='matched' ORDER BY g.matched_at DESC LIMIT 1) active_match_group_id,
       CASE WHEN bt.status='posted' AND bt.journal_entry_id IS NOT NULL THEN 1 ELSE 0 END direct_accounting_link,
       CASE WHEN EXISTS(SELECT 1 FROM reconciliation_items ri JOIN reconciliations r ON r.id=ri.reconciliation_id WHERE ri.bank_transaction_id=bt.id AND r.status='complete') THEN 1 ELSE 0 END reconciled
-      FROM bank_transactions bt WHERE bt.company_id=? AND bt.bank_account_id=? AND bt.transaction_date BETWEEN ? AND ? AND bt.status NOT IN ('duplicate','excluded') ORDER BY bt.transaction_date,bt.created_at");
+      FROM bank_transactions bt WHERE bt.company_id=? AND bt.bank_account_id=? AND bt.transaction_date BETWEEN ? AND ? AND bt.status NOT IN ('duplicate','excluded') ORDER BY bt.transaction_date,bt.created_at,COALESCE(bt.source_sequence,bt.source_row_number,0),bt.id");
     $q->execute([$companyId,$bankId,$start,$end]);
     $bankSide=array_map(static fn(array $r):array=>[
         'id'=>(string)$r['id'],'date'=>(string)$r['transaction_date'],'description'=>(string)$r['description'],'normalizedMerchant'=>(string)($r['normalized_merchant']??''),'reference'=>$r['reference'],
