@@ -18,7 +18,56 @@ declare(strict_types=1);
  *
  * The same checks as Void apply first: closed period, saved reconciliation, Bank Reconciliation match, interbank
  * transfer, payroll. A material amount needs a second Company Owner, as Void does.
+ *
+ * Company rule (R186, at the owner's request): a line linked to a customer invoice or vendor bill is never edited,
+ * deleted or unposted. That covers a line posted as an invoice receipt or bill payment ('document'), and a line
+ * whose payment (on account or matched) is applied to an invoice or bill. r186_bank_line_document_link() decides
+ * it; Unpost, Edit, Delete, Void and the Match and Post menu all use it. The 'document' path below is therefore
+ * refused before it runs; it is kept so the rule can be relaxed without rewriting the reversal.
  */
+
+/**
+ * The customer invoice or vendor bill a bank line is linked to, through the posted receipt or payment recorded from
+ * it or matched to it: the payment's own document, or any invoice or bill the payment is applied to. Null when the
+ * line is linked to none.
+ */
+function r186_bank_line_document_link(string $companyId, string $transactionId): ?array
+{
+    if (!schema_table_exists('party_payments')) return null;
+    $q = db()->prepare("SELECT id,payment_type,document_id FROM party_payments WHERE company_id=? AND bank_transaction_id=? AND status='posted'");
+    $q->execute([$companyId, $transactionId]);
+    foreach ($q->fetchAll(PDO::FETCH_ASSOC) as $p) {
+        $customer = (string)$p['payment_type'] === 'customer';
+        $docId = $p['document_id'] !== null ? (string)$p['document_id'] : null;
+        if ($docId === null && schema_table_exists('party_payment_applications')) {
+            $a = db()->prepare("SELECT document_id FROM party_payment_applications WHERE company_id=? AND payment_id=? AND status='posted' ORDER BY application_date,id LIMIT 1");
+            $a->execute([$companyId, (string)$p['id']]);
+            $docId = ($v = $a->fetchColumn()) === false ? null : (string)$v;
+        }
+        if ($docId === null) continue;
+        $table = $customer ? 'invoices' : 'bills';
+        $d = db()->prepare("SELECT number FROM `$table` WHERE company_id=? AND id=? LIMIT 1");
+        $d->execute([$companyId, $docId]);
+        $number = $d->fetchColumn();
+        return ['type' => $customer ? 'invoice' : 'bill', 'id' => $docId, 'number' => $number === false ? '' : (string)$number];
+    }
+    return null;
+}
+
+/** The refusal shown for a line linked to an invoice or bill. */
+function r186_document_link_message(array $link, string $action): string
+{
+    $what = $link['type'] === 'invoice' ? 'customer invoice' : 'vendor bill';
+    $ref = $link['number'] !== '' ? ' ' . $link['number'] : '';
+    return "This line is linked to $what$ref, so it cannot be $action. Lines linked to a customer invoice or vendor bill cannot be edited, deleted or unposted.";
+}
+
+/** SQL (for a bank_transactions alias) that is true when the line is linked to an invoice or bill. */
+function r186_document_link_sql(string $bt): string
+{
+    return "EXISTS(SELECT 1 FROM party_payments pp WHERE pp.company_id=$bt.company_id AND pp.bank_transaction_id=$bt.id AND pp.status='posted'
+      AND (pp.document_id IS NOT NULL OR EXISTS(SELECT 1 FROM party_payment_applications pa WHERE pa.company_id=pp.company_id AND pa.payment_id=pp.id AND pa.status='posted')))";
+}
 
 function r186_unpost_lookup(string $companyId, string $transactionId, bool $lock): array
 {
@@ -64,6 +113,7 @@ function r186_unpost_lookup(string $companyId, string $transactionId, bool $lock
     elseif ($out['kind'] === 'matched_payment') $out['entries'] = (string)$journal['source_type'] === 'bank_payment_match' ? void_journal_entries_by_id($companyId, (string)$journal['id']) : [];
     else $out['entries'] = void_journal_entries_by_id($companyId, (string)$journal['id']);
     $out['blockers'] = void_blockers($companyId, 'bank_transaction', $tx, $out['entries'], true);
+    if (($link = r186_bank_line_document_link($companyId, (string)$tx['id'])) !== null) array_unshift($out['blockers'], r186_document_link_message($link, 'unposted'));
     if ($out['kind'] === 'matched_payment' && $out['entries'] === [] && function_exists('period_lock_for_date') && period_lock_for_date($companyId, (string)$tx['transaction_date']) !== null)
         $out['blockers'][] = 'This transaction falls in a closed period (' . (string)$tx['transaction_date'] . '). Reopen the period first.';
 

@@ -2268,6 +2268,8 @@ function bank_transaction_delete_service(array $user, array $company, array $ids
         if(count($rows)!==count($ids)) fail('One or more selected transactions are unavailable.',409,'transaction_unavailable');
         foreach($rows as $row) if(!in_array((string)$row['status'],['pending','excluded'],true) || $row['journal_entry_id']!==null)
             fail('Only unposted pending or excluded transactions can be permanently deleted. Posted entries must retain their audit trail.',409,'transaction_delete_blocked');
+        // R186: a line linked to a customer invoice or vendor bill is never deleted.
+        if(function_exists('r186_bank_line_document_link')) foreach($rows as $row) if(($link=r186_bank_line_document_link($companyId,(string)$row['id']))!==null) fail(r186_document_link_message($link,'deleted'),409,'bank_transaction_linked_document');
         $delete=db()->prepare("DELETE FROM bank_transactions WHERE company_id = ? AND journal_entry_id IS NULL AND status IN ('pending','excluded') AND id IN ($placeholders)");
         $delete->execute(array_merge([$companyId],$ids));
         if($delete->rowCount()!==count($ids)) throw new RuntimeException('A transaction changed while the selected transactions were being deleted.');
@@ -2313,6 +2315,7 @@ function handle_bank_transaction_edit(): never
         if((string)$row['status']!=='pending' || $row['journal_entry_id']!==null) fail('Only unposted transactions can be edited. Posted lines keep their audit trail.',409,'bank_transaction_edit_blocked');
         $m=db()->prepare("SELECT COUNT(*) FROM bank_match_bank_items bi JOIN bank_match_groups g ON g.id=bi.match_group_id WHERE bi.bank_transaction_id=? AND g.status='matched'"); $m->execute([$id]);
         if((int)$m->fetchColumn()>0) fail('This transaction is matched. Unmatch it before editing.',409,'bank_transaction_edit_matched');
+        if(function_exists('r186_bank_line_document_link')&&($link=r186_bank_line_document_link($companyId,$id))!==null) fail(r186_document_link_message($link,'edited'),409,'bank_transaction_linked_document');
         if(schema_table_exists('reconciliation_items')){$r=db()->prepare("SELECT COUNT(*) FROM reconciliation_items ri JOIN reconciliations rc ON rc.id=ri.reconciliation_id WHERE ri.bank_transaction_id=? AND rc.company_id=? AND rc.status='complete'");$r->execute([$id,$companyId]);if((int)$r->fetchColumn()>0) fail('This transaction is part of a completed reconciliation.',409,'bank_transaction_edit_reconciled');}
         if(period_lock_for_date($companyId,(string)$row['transaction_date'])!==null) fail('The original date is in a locked period.',409,'period_locked');
         $full=null;if(schema_table_exists('bank_transaction_source_text')){$t=db()->prepare('SELECT full_description FROM bank_transaction_source_text WHERE company_id=? AND transaction_id=?');$t->execute([$companyId,$id]);$full=$t->fetchColumn();$full=$full===false?null:(string)$full;}

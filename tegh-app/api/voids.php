@@ -128,12 +128,15 @@ function void_blockers(string $companyId, string $entityType, array $row, array 
 
     // R186: a statement row posted as a customer receipt or vendor payment carries that payment. Voiding only the
     // row would take the journal out of the books but leave the invoice or bill marked paid, so the receivable or
-    // payable list would no longer agree with the ledger. Unpost in Match and Post undoes both together.
+    // payable list would no longer agree with the ledger. A line linked to an invoice or bill cannot be voided at all;
+    // an on-account receipt or payment is undone with Unpost in Match and Post.
     if ($entityType === 'bank_transaction' && !$forUnpost && schema_table_exists('party_payments')) {
         $stmt = db()->prepare("SELECT COUNT(*) FROM party_payments WHERE company_id = ? AND bank_transaction_id = ? AND status = 'posted'");
         $stmt->execute([$companyId, (string)$row['id']]);
         if ((int)$stmt->fetchColumn() > 0) {
-            $blockers[] = 'This line was posted as a customer receipt or vendor payment. Use Unpost in Match and Post, which also reopens the invoice or bill.';
+            $link = function_exists('r186_bank_line_document_link') ? r186_bank_line_document_link($companyId, (string)$row['id']) : null;
+            $blockers[] = $link !== null ? r186_document_link_message($link, 'voided')
+                : 'This line was posted as a customer receipt or vendor payment. Use Unpost in Match and Post, which also reverses the receipt or payment.';
         }
     }
 
