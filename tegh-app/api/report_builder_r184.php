@@ -15,7 +15,8 @@ declare(strict_types=1);
 const TEGH_RB_VERSION = '5990.r184';
 const TEGH_RB_MAX_ROW_FIELDS = 3;
 const TEGH_RB_MAX_VALUES = 4;
-const TEGH_RB_MAX_FILTERS = 12;
+const TEGH_RB_MAX_FILTERS = 16;      // 12 on the form, plus up to 4 added when drilling into a figure
+const TEGH_RB_FORM_FILTERS = 12;
 const TEGH_RB_MAX_LIST_FIELDS = 20;
 const TEGH_RB_MAX_BUCKETS = 60;
 const TEGH_RB_MAX_GROUPS = 5000;
@@ -360,7 +361,7 @@ function tegh_rb_catalogue_public(array $company, array $user): array
     }
     return ['version' => TEGH_RB_VERSION, 'sources' => $sources,
         'periodColumns' => [['key' => 'period:month', 'label' => 'Month'], ['key' => 'period:quarter', 'label' => 'Quarter'], ['key' => 'period:year', 'label' => 'Calendar year'], ['key' => 'period:fy', 'label' => 'Financial year']],
-        'limits' => ['rowFields' => TEGH_RB_MAX_ROW_FIELDS, 'values' => TEGH_RB_MAX_VALUES, 'filters' => TEGH_RB_MAX_FILTERS, 'listFields' => TEGH_RB_MAX_LIST_FIELDS, 'columns' => TEGH_RB_MAX_BUCKETS, 'groups' => TEGH_RB_MAX_GROUPS, 'listRows' => TEGH_REPORT_LIMIT_5980]];
+        'limits' => ['rowFields' => TEGH_RB_MAX_ROW_FIELDS, 'values' => TEGH_RB_MAX_VALUES, 'filters' => TEGH_RB_FORM_FILTERS, 'drillFilters' => TEGH_RB_MAX_FILTERS, 'listFields' => TEGH_RB_MAX_LIST_FIELDS, 'columns' => TEGH_RB_MAX_BUCKETS, 'groups' => TEGH_RB_MAX_GROUPS, 'listRows' => TEGH_REPORT_LIMIT_5980]];
 }
 
 /** Validates a report definition against the catalogue for THIS user. Unknown keys are refused, never ignored. */
@@ -595,6 +596,7 @@ function tegh_rb_build(array $company, array $spec): array
     foreach ($spec['values'] as $j => $k) $select[] = $k === 'count' ? "COUNT(*) AS m$j" : 'COALESCE(SUM(' . $s['fields'][$k][1] . "),0) AS m$j";
     $sql = 'SELECT ' . implode(',', $select) . ' FROM ' . $s['from'] . $where . ($group ? ' GROUP BY ' . implode(',', $group) : '') . ' LIMIT ' . (TEGH_RB_MAX_GROUPS * TEGH_RB_MAX_BUCKETS + 1);
     $q = db()->prepare($sql); $q->execute($params); $raw = $q->fetchAll(PDO::FETCH_ASSOC);
+    if (count($raw) > TEGH_RB_MAX_GROUPS * TEGH_RB_MAX_BUCKETS) fail('This report is too large to prepare in full. Group by a broader field, shorten the period or add a filter; no shortened report was produced.', 413, 'report_incomplete_over_limit', false);
 
     $valueMeta = [];
     foreach ($spec['values'] as $j => $k) $valueMeta[$j] = $k === 'count' ? ['Number of lines', 'integer'] : [$s['fields'][$k][0], $s['fields'][$k][2]];

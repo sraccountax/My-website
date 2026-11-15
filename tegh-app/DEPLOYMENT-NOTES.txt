@@ -12,10 +12,15 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R183 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R184 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R183 (R118–R183 change notes are
-included). R183 is the private beta package (it replaces R182): Bank Transaction Report gets a Download button and
+This package contains every release through R184 (R118–R184 change notes are
+included). R184 is the private beta package (it replaces R183): the Report Builder under Reports, where users build
+their own reports (rows, columns side by side, values, filters, saved and shared reports; see R184-CHANGES.md).
+AFTER INSTALLING, the Report Builder is off until the platform owner chooses "Platform owner only" or "Everyone" in
+Site & Release Settings › Release › Report Builder; try "Platform owner only" on staging first. The first saved
+report creates table report_builder_reports (CREATE privilege, as R174 and R182 needed); nothing is created while
+the switch is off, and no existing table or row changes. R183 (replaced R182): Bank Transaction Report gets a Download button and
 a running Balance column; Match and Post lines sort by clicking the column headers, + Add transaction sits beside
 Post/Match, and the edit pencil is on the description's first line (see R183-CHANGES.md). No switch and no database
 change. R182 (replaced R181): correcting issued customer invoices, bank lines

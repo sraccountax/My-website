@@ -203,7 +203,7 @@ export function mount(body, ctx) {
     }
     const m = /^[cx](\d+)_m\d+$/.exec(colKey);
     if (m && spec.columns) { const b = layout.buckets[Number(m[1])]; if (String(spec.columns).startsWith('period:')) period = {start: b.start, end: b.end}; else filters.push({field: spec.columns, op: 'eq', value: b.key}); }
-    const def = {source: spec.source, mode: 'list', fields: src.listDefault, filters: filters.slice(0, S.catalogue.limits.filters + 4), sort: null}; if (src.hasDate) def.period = period;
+    const def = {source: spec.source, mode: 'list', fields: src.listDefault, filters, sort: null}; if (src.hasDate) def.period = period;
     const scrim = document.createElement('div'); scrim.className = 'srp-modal-scrim';
     scrim.innerHTML = `<section class="srp-modal rb-drill" role="dialog" aria-modal="true" aria-labelledby="rb-drill-title"><header class="rb-drill-head"><h2 id="rb-drill-title">Lines behind this figure</h2><button type="button" class="rb-x" data-rb-close aria-label="Close">×</button></header><div class="rb-drill-body" role="status">Loading the lines…</div></section>`;
     document.body.append(scrim); document.body.classList.add('srp-modal-open');
@@ -212,7 +212,7 @@ export function mount(body, ctx) {
     scrim.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
     $('[data-rb-close]', scrim).focus();
     try {
-      if (def.filters.length > S.catalogue.limits.filters) throw Object.assign(Error('This figure has too many conditions to list. Open it as a list and remove a filter.'), {});
+      if (def.filters.length > (S.catalogue.limits.drillFilters || 16)) throw Object.assign(Error('This figure has too many conditions to list. Open it as a list and remove a filter.'), {});
       const r = (await api('report-builder/run', {method: 'POST', json: {definition: def}})).output;
       const shown = r.rows.slice(0, 500);
       $('.rb-drill-body', scrim).innerHTML = `<p class="rb-meta">${esc(String(r.rowCount))} line${r.rowCount === 1 ? '' : 's'} · ${esc(r.parameters?.filtersApplied || '')}${r.period?.mode === 'range' ? ` · ${esc(r.period.start)} to ${esc(r.period.end)}` : ''}</p>
