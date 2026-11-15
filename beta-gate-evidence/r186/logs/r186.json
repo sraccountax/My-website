@@ -1,0 +1,121 @@
+[
+ {
+  "id": "UP-01",
+  "area": "R186",
+  "title": "Posted to an account: Unpost takes the entry out of every figure, keeps it in the Day Book and returns the line to Unposted",
+  "status": "PASS",
+  "evidence": "{\"kind\":\"account\",\"s\":200,\"before\":{\"bank\":-120000,\"exp\":120000,\"j\":1},\"after\":{\"bank\":0,\"exp\":0,\"j\":1,\"st\":\"pending|-\",\"tb\":0,\"jstatus\":\"reversed\",\"audit\":\"Posted to the wrong place in this test\"}}"
+ },
+ {
+  "id": "UP-02",
+  "area": "R186",
+  "title": "An unposted line posts again; a retried request with the same key changes nothing more; a pending line cannot be unposted",
+  "status": "PASS",
+  "evidence": "{\"u1\":200,\"reposted\":true,\"a\":200,\"b\":{\"unposted\":true,\"transactionId\":\"btx_6eac128edd90ea59e937f995ac8fbdd1\",\"kind\":\"account\",\"replay\":true,\"journalEntriesVoided\":0,\"reversalEntries\":0,\"message\":\"The line is back in Unposted. The original entry is kept in the Day Book and the audit history.\"},\"again\":409}"
+ },
+ {
+  "id": "UP-03",
+  "area": "R186",
+  "title": "Receipt of an invoice paid in full: Unpost reverses the receipt on the statement date and the invoice is open for its full amount again",
+  "status": "PASS",
+  "evidence": "{\"posted\":\"paid|0\",\"voidBlocked\":[\"This line was posted as a customer receipt or vendor payment. Use Unpost in Match and Post, which also reopens the invoice or bill.\"],\"kind\":\"document\",\"effects\":[\"The customer receipt recorded from this line is reversed on 2026-09-12.\",\"Invoice INV-1001 (R186 Customer mwhwd1hm) is open again for $500.00 more.\",\"The line returns to Unposted in Match and Post, so you can post it again.\"],\"s\":200,\"inv\":\"paid|0\",\"ar\":[50000,0],\"bank\":[0,50000],\"pay\":\"reversed|-\",\"revDate\":\"2026-09-12\",\"repost\":\"paid|0\"}"
+ },
+ {
+  "id": "UP-04",
+  "area": "R186",
+  "title": "Receipt of an invoice paid in part: Unpost reverses the receipt on the statement date and the invoice is open for its full amount again",
+  "status": "PASS",
+  "evidence": "{\"posted\":\"sent|50000\",\"voidBlocked\":[\"This line was posted as a customer receipt or vendor payment. Use Unpost in Match and Post, which also reopens the invoice or bill.\"],\"kind\":\"document\",\"effects\":[\"The customer receipt recorded from this line is reversed on 2026-09-12.\",\"Invoice INV-1002 (R186 Customer mwhwd1hm) is open again for $300.00 more.\",\"The line returns to Unposted in Match and Post, so you can post it again.\"],\"s\":200,\"inv\":\"sent|50000\",\"ar\":[80000,50000],\"bank\":[50000,80000],\"pay\":\"reversed|-\",\"revDate\":\"2026-09-12\",\"repost\":\"sent|50000\"}"
+ },
+ {
+  "id": "UP-05",
+  "area": "R186",
+  "title": "Payment of a bill: Unpost reopens the bill and Accounts Payable",
+  "status": "PASS",
+  "evidence": "{\"paid\":\"paid|0\",\"s\":200,\"bill\":\"open|20000\",\"ap\":[-20000,-20000]}"
+ },
+ {
+  "id": "UP-06",
+  "area": "R186",
+  "title": "On-account customer receipt: Unpost reverses it; once that receipt is applied to an invoice, Unpost is refused until the allocation is undone",
+  "status": "PASS",
+  "evidence": "{\"k1\":\"on_account\",\"s\":200,\"back\":true,\"apply\":200,\"blockers\":[\"After this line was posted, its receipt was applied to another invoice or bill. Unapply that allocation first (Payments), then unpost.\"],\"refused\":409,\"inv\":\"paid|0\"}"
+ },
+ {
+  "id": "UP-07",
+  "area": "R186",
+  "title": "Matched to a payment posted earlier: Unpost removes only the link; the payment and the paid invoice stay as they are",
+  "status": "PASS",
+  "evidence": "{\"kind\":\"matched_payment\",\"s\":200,\"pay\":\"posted|-\",\"inv\":\"paid|0\",\"bank\":[135000,135000],\"journals\":[20,20],\"again\":true}"
+ },
+ {
+  "id": "UP-08",
+  "area": "R186",
+  "title": "After all of the above, the receivable ageing total equals the Accounts Receivable balance and the trial balance balances",
+  "status": "PASS",
+  "evidence": "{\"ageing\":50000,\"gl1200\":50000,\"tb\":0}"
+ },
+ {
+  "id": "UP-09",
+  "area": "R186",
+  "title": "Above the approval limit (10,000.00): the request waits; its maker cannot approve it; a second Company Owner approves and the line is unposted",
+  "status": "PASS",
+  "evidence": "{\"r1\":202,\"waiting\":true,\"self\":409,\"canApprove\":true,\"ok2\":[200,null],\"appr\":\"posted\"}"
+ },
+ {
+  "id": "UP-10",
+  "area": "R186",
+  "title": "A line in a closed period cannot be unposted; it stays posted and the books do not change",
+  "status": "PASS",
+  "evidence": "{\"blockers\":[\"This transaction falls in a closed period (2026-08-20). Reopen the period first, or post a correcting entry in the current period instead.\"],\"s\":409,\"reopen\":200}"
+ },
+ {
+  "id": "UP-11",
+  "area": "R186",
+  "title": "An Editor and a Viewer cannot unpost (as with Void); the line is unchanged",
+  "status": "PASS",
+  "evidence": "{\"editor\":403,\"viewer\":403,\"viewerPreview\":200}"
+ },
+ {
+  "id": "UP-12",
+  "area": "R186",
+  "title": "Preview changes nothing",
+  "status": "PASS",
+  "evidence": "24,0,122500,posted|journal_4dc12c89fd0aa86fab54cebb45aa4169,71 / 24,0,122500,posted|journal_4dc12c89fd0aa86fab54cebb45aa4169,71"
+ },
+ {
+  "id": "UI-01",
+  "area": "R186",
+  "title": "Match and Post (1440 px): each line has one Actions dropdown, hidden until the line is selected; it offers Unpost on posted lines and Edit/Delete on unposted ones; Unpost returns the line to Unposted",
+  "status": "PASS",
+  "evidence": "{\"buttons\":[[\"posted\",true,false,false],[\"pending\",false,true,true],[\"pending\",false,true,true],[\"posted\",true,false,false],[\"posted\",true,false,false],[\"pending\",false,true,true],[\"posted\",true,false,false],[\"posted\",true,false,false],[\"pending\",false,true,true],[\"posted\",true,false,false],[\"posted\",true,false,false],[\"posted\",true,false,false],[\"pending\",false,true,true],[\"pending\",false,true,true]],\"hiddenBefore\":\"0\",\"shownAfter\":\"1\",\"menu\":[\"Unpost\"],\"effects\":[\"The General Ledger entry for this line is voided and leaves every report: the trial balance, statements, ledgers and tax figures."
+ },
+ {
+  "id": "UI-02",
+  "area": "R186",
+  "title": "Match and Post: Actions › Edit changes the date, direction and amount of an unposted line; the audit history keeps the old values",
+  "status": "PASS",
+  "evidence": "{\"menu\":[\"Edit\",\"Delete\"],\"row\":\"2026-09-24|1234|1234|UI edited line x|checked against receipt|pending\",\"audit\":\"-1000\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-03",
+  "area": "R186",
+  "title": "Match and Post: ticking a line shows its Actions; Delete removes the unposted line after confirmation; nothing in the ledger changes",
+  "status": "PASS",
+  "evidence": "{\"shownWhenTicked\":\"1\",\"left\":\"0\",\"journals\":[25,25],\"errs\":[]}"
+ },
+ {
+  "id": "UI-04",
+  "area": "R186",
+  "title": "Match and Post at 390 px: Actions stays inside its row, its menu opens on screen, and the page has no sideways scroll",
+  "status": "PASS",
+  "evidence": "{\"inside\":[true,true,true,true,true,true,true,true,true,true,true,true,true],\"menuOnScreen\":true,\"overflow\":0,\"errs\":[]}"
+ },
+ {
+  "id": "UI-05",
+  "area": "R186",
+  "title": "Bank review queue: an unposted line shows Edit and Delete beside Post & Next; a posted line shows Unpost, which opens the same preview dialog",
+  "status": "PASS",
+  "evidence": "{\"pending\":{\"edit\":true,\"del\":true,\"post\":true},\"unpost\":1,\"dialog\":\"Unpost this line?\",\"errs\":[]}"
+ }
+]
