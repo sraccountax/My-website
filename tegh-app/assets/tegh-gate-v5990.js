@@ -3,7 +3,7 @@
 
   const VERSION = '5.9.9';
   const BUILD = '5990';
-  const ASSET_REVISION = '5990-r183-bank';
+  const ASSET_REVISION = '5990-r184-builder';
   const AUTH_CACHE_MS = 60000;
   const POST_COMMIT_SESSION_GRACE_MS = 45000;
   const RECOVERY_MARKER_KEY = 'tegh-session-recovery-v5990';
@@ -45,6 +45,8 @@
     'dashboard-r177':'/assets/tegh-dashboard-r177.js',
     // R178: sample figures for the Client Dashboard Demo (platform owner).
     'dashboard-demo-r178':'/assets/tegh-dashboard-demo-r178.js',
+    // R184: Report Builder (only for people it is switched on for).
+    'report-builder-r184':'/assets/tegh-report-builder-r184.js',
   });
   // One promise per allowlisted feature prevents concurrent requests from
   // installing multiple observers or handlers. Failed loads remain retryable.

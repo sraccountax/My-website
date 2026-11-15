@@ -154,6 +154,8 @@ function backup_record_queries(): array
     if(schema_table_exists('tax_code_components'))$queries['taxCodeComponents']='SELECT * FROM tax_code_components WHERE company_id = ? ORDER BY tax_code_id,sort_order,id';
     if(schema_table_exists('document_tax_lines'))$queries['documentTaxLines']='SELECT * FROM document_tax_lines WHERE company_id = ? ORDER BY document_type,document_id,sort_order,id';
     if(schema_table_exists('invoice_revisions'))$queries['invoiceRevisions']='SELECT * FROM invoice_revisions WHERE company_id = ? ORDER BY invoice_id,revision_number,id';
+    // R184: saved Report Builder layouts (no accounting data).
+    if(schema_table_exists('report_builder_reports'))$queries['reportBuilderReports']='SELECT * FROM report_builder_reports WHERE company_id = ? ORDER BY created_at,id';
     // R151: itemized vendor invoice lines and credit/debit note lines.
     if(schema_table_exists('bill_lines'))$queries['billLines']='SELECT * FROM bill_lines WHERE company_id = ? ORDER BY bill_id,sort_order,id';
     if(schema_table_exists('accounting_note_lines'))$queries['accountingNoteLines']='SELECT * FROM accounting_note_lines WHERE company_id = ? ORDER BY note_id,sort_order,id';
@@ -262,6 +264,7 @@ function backup_restore_map(): array
     if(schema_table_exists('tax_code_components'))$map['taxCodeComponents']='tax_code_components';
     if(schema_table_exists('document_tax_lines'))$map['documentTaxLines']='document_tax_lines';
     if(schema_table_exists('invoice_revisions'))$map['invoiceRevisions']='invoice_revisions';
+    if(schema_table_exists('report_builder_reports'))$map['reportBuilderReports']='report_builder_reports';
     if(schema_table_exists('bill_lines'))$map['billLines']='bill_lines';
     if(schema_table_exists('accounting_note_lines'))$map['accountingNoteLines']='accounting_note_lines';
     if(schema_table_exists('vendor_document_memory'))$map['vendorDocumentMemory']='vendor_document_memory';
@@ -540,6 +543,8 @@ function backup_rehash_audit_company(string $companyId): void
 function backup_restore_verified_payload(array $payload,array $user,ZipArchive $zip): array
 {
     $foreignKeys=backup_restore_foreign_keys();backup_validate_restore_records($payload,$foreignKeys);
+    // R184: a backup with saved reports restores into an installation where the Report Builder was never used.
+    if(!empty($payload['records']['reportBuilderReports'])){require_once __DIR__.'/report_builder_r184.php';tegh_rb_table_require();}
     $companyId=new_id('company');$clone=backup_clone_payload($payload,$companyId);$writtenFiles=[];$createdDirectories=[];$order=backup_restore_order($clone['records'],$foreignKeys);$pdo=db();if($pdo->inTransaction())throw new RuntimeException('Restore cannot start inside another operation.');
     $pdo->beginTransaction();try{
         backup_insert_row('companies',$clone['company'],$companyId,(string)$user['id']);$pdo->prepare("INSERT INTO company_members (company_id,user_id,role) VALUES (?,?,'owner')")->execute([$companyId,$user['id']]);

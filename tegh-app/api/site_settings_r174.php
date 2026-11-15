@@ -104,7 +104,7 @@ function r174_schema_ready(): bool
 
 function r174_defaults(string $group): array
 {
-    if ($group === 'release') return ['stage' => 'beta', 'newDashboard' => 'off', 'worldCurrencies' => 'off', 'editIssuedInvoices' => 'off'];
+    if ($group === 'release') return ['stage' => 'beta', 'newDashboard' => 'off', 'worldCurrencies' => 'off', 'editIssuedInvoices' => 'off', 'reportBuilder' => 'off'];
     if ($group === 'labels') {
         $notice = mb_substr(trim((string)(config('app.beta_notice') ?? '')), 0, 300);
         return ['noticeEnabled' => $notice !== '', 'noticeLabel' => 'Private beta · sample data only', 'noticeText' => $notice,
@@ -157,6 +157,8 @@ function r174_app_flags(): array
         'worldCurrencies' => in_array($w = (string)(r174_group('release')['value']['worldCurrencies'] ?? 'off'), ['off', 'owner', 'everyone'], true) ? $w : 'off',
         // R182: who can correct issued customer invoices.
         'editIssuedInvoices' => in_array($e = (string)(r174_group('release')['value']['editIssuedInvoices'] ?? 'off'), ['off', 'owner', 'everyone'], true) ? $e : 'off',
+        // R184: who can use the Report Builder.
+        'reportBuilder' => in_array($rb = (string)(r174_group('release')['value']['reportBuilder'] ?? 'off'), ['off', 'owner', 'everyone'], true) ? $rb : 'off',
     ];
 }
 
@@ -306,7 +308,10 @@ function r174_validate_group(string $group, mixed $value): array
         // R182: who can correct issued customer invoices. Left out: keep the current choice.
         $edit = $value['editIssuedInvoices'] ?? (string)(r174_group('release')['value']['editIssuedInvoices'] ?? 'off');
         if (!in_array($edit, ['off', 'owner', 'everyone'], true)) fail('Choose who can edit issued invoices: off, platform owner only, or everyone.', 422, 'site_settings_invalid');
-        return ['stage' => $stage, 'newDashboard' => $dash, 'worldCurrencies' => $world, 'editIssuedInvoices' => $edit];
+        // R184: who can use the Report Builder. Left out: keep the current choice.
+        $builder = $value['reportBuilder'] ?? (string)(r174_group('release')['value']['reportBuilder'] ?? 'off');
+        if (!in_array($builder, ['off', 'owner', 'everyone'], true)) fail('Choose who can use the Report Builder: off, platform owner only, or everyone.', 422, 'site_settings_invalid');
+        return ['stage' => $stage, 'newDashboard' => $dash, 'worldCurrencies' => $world, 'editIssuedInvoices' => $edit, 'reportBuilder' => $builder];
     }
     if ($group === 'labels') {
         $out = [

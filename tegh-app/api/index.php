@@ -224,6 +224,7 @@ require_once __DIR__ . '/report_comparison_r20.php';
     require_once __DIR__ . '/currencies_r181.php';
     require_once __DIR__ . '/banking_entries_r182.php';
     require_once __DIR__ . '/invoice_correction_r182.php';
+    require_once __DIR__ . '/report_builder_r184.php';
     require_once __DIR__ . '/qa_guardian_v5820.php';
 
     // Password reset uses the shared Tegh mailer, so it is dispatched after
@@ -296,6 +297,7 @@ require_once __DIR__ . '/report_comparison_r20.php';
     if ($route === 'bank-transactions/delete') handle_bank_transaction_delete();
     if ($route === 'bank-transactions/edit') handle_bank_transaction_edit();
     if ($route === 'bank-transactions/add') handle_bank_transaction_add();
+    if (str_starts_with($route, 'report-builder/')) handle_report_builder_r184(substr($route, strlen('report-builder/')));
     if ($route === 'reconciliations') handle_reconciliations();
     if ($route === 'settings') handle_settings();
     if ($route === 'accounts') handle_accounts();
