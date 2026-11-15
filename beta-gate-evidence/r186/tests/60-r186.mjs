@@ -190,7 +190,7 @@ await t('UP-12', 'Preview changes nothing', async () => {
 
 // ---- Browser: Match and Post ----
 let UI_LINES = {};
-await t('UI-01', 'Match and Post (1440 px): each line has one Actions dropdown, hidden until the line is selected; it offers Unpost on posted lines and Edit/Delete on unposted ones; Unpost returns the line to Unposted', async () => {
+await t('UI-01', 'Match and Post (1440 px): each line has one Actions dropdown, visible on every row without selecting it; it offers Unpost on posted lines and Edit/Delete on unposted ones; Unpost returns the line to Unposted', async () => {
   UI_LINES.posted = await line(-6600, '2026-09-21', 'UI phone bill'); await toAccount(UI_LINES.posted, '6300');
   UI_LINES.edit = await line(-1000, '2026-09-22', 'UI edit me'); UI_LINES.del = await line(-2000, '2026-09-23', 'UI delete me');
   const bank0 = bankGl();
@@ -198,7 +198,7 @@ await t('UI-01', 'Match and Post (1440 px): each line has one Actions dropdown, 
   try {
     await p.evaluate(() => TeghPortal.invokeMenuAction('Banking', 'Match And Post Transactions'));
     await p.waitForSelector('[data-r28-bank-row]', {timeout: 60000}); await p.waitForTimeout(1200);
-    got.buttons = await p.evaluate(() => [...document.querySelectorAll('[data-r28-bank-row]')].map(r => [r.dataset.status, !!r.querySelector('[data-r186-unpost-line]'), !!r.querySelector('[data-r182-edit-desc]'), !!r.querySelector('[data-r186-delete-line]'), !!r.querySelector('[data-r186-linked-note]')]));
+    got.buttons = await p.evaluate(() => [...document.querySelectorAll('[data-r28-bank-row]')].map(r => [r.dataset.status, !!r.querySelector('[data-r186-unpost-line]'), !!r.querySelector('[data-r182-edit-desc]'), !!r.querySelector('[data-r186-delete-line]'), !!r.querySelector('[data-r186-linked-note]'), !!r.querySelector('[data-r186-unmatch-line],[data-r186-matched-note],[data-r186-reconciled-note]')]));
     const vis = sel => p.evaluate(sel => { const e = document.querySelector(sel); return e ? getComputedStyle(e).opacity : 'none'; }, sel);
     const row = p.locator('[data-r28-bank-row]', {hasText: 'UI phone bill'});
     got.hiddenBefore = await row.locator('.r186-row-actions').evaluate(e => getComputedStyle(e).opacity);
@@ -218,8 +218,8 @@ await t('UI-01', 'Match and Post (1440 px): each line has one Actions dropdown, 
     await p.screenshot({path: '/srv/gate/ev/shots/r186-match-post-1440.png'});
   } finally { got.errs = errs; await b.close(); }
   // A line linked to an invoice or bill shows only the note; other posted lines offer Unpost; unposted lines Edit and Delete.
-  const okButtons = got.buttons.some(r => r[4]) && got.buttons.every(([s, un, ed, del, note]) => note ? !un && !ed && !del : s === 'posted' ? un && !ed && !del : s === 'pending' ? !un && ed && del : true);
-  return {ok: okButtons && got.hiddenBefore === '0' && got.shownAfter === '1' && JSON.stringify(got.menu) === '["Unpost"]' && got.effects.length >= 2 && got.rowStatus === 'pending' && st(UI_LINES.posted) === 'pending|-' && bankGl() === bank0 + 6600 && !got.errs.length, info: JSON.stringify(got)};
+  const okButtons = got.buttons.some(r => r[4]) && got.buttons.every(([s, un, ed, del, note, um]) => um ? !un && !ed && !del : note ? !un && !ed && !del : s === 'posted' ? un && !ed && !del : s === 'pending' ? !un && ed && del : true);
+  return {ok: okButtons && got.hiddenBefore === '1' && got.shownAfter === '1' && JSON.stringify(got.menu) === '["Unpost"]' && got.effects.length >= 2 && got.rowStatus === 'pending' && st(UI_LINES.posted) === 'pending|-' && bankGl() === bank0 + 6600 && !got.errs.length, info: JSON.stringify(got)};
 });
 
 await t('UI-02', 'Match and Post: Actions › Edit changes the date, direction and amount of an unposted line; the audit history keeps the old values', async () => {
@@ -243,7 +243,7 @@ await t('UI-02', 'Match and Post: Actions › Edit changes the date, direction a
   return {ok: JSON.stringify(got.menu) === '["Edit","Delete"]' && row === '2026-09-24|1234|1234|UI edited line x|checked against receipt|pending' && audit === '-1000' && !got.errs.length, info: JSON.stringify({menu: got.menu, row, audit, errs: got.errs})};
 });
 
-await t('UI-03', 'Match and Post: ticking a line shows its Actions; Delete removes the unposted line after confirmation; nothing in the ledger changes', async () => {
+await t('UI-03', 'Match and Post: a ticked line keeps its Actions; Delete removes the unposted line after confirmation; nothing in the ledger changes', async () => {
   const j0 = journals(); const {b, p, errs} = await open(CO, {w: 1440, h: 900}); let shown;
   try {
     await p.evaluate(() => TeghPortal.invokeMenuAction('Banking', 'Match And Post Transactions'));
@@ -299,6 +299,77 @@ await t('UI-06', 'Match and Post: a line linked to an invoice offers no Edit, De
     && got.title === 'Correct with a journal entry?' && got.submit === 'Record correction' && got.effects[0].includes('Company Owner correction')
     && got.after[0] === 'pending|-' && got.after[1] === `sent|${L.invCents}` && tb() === 0 && !got.errs.length, info: JSON.stringify(got)};
 });
+await t('UI-07', 'Match and Post: a matched line offers Unmatch in its Actions menu (Owner and Admin); an Editor sees a note instead; Unmatch removes the match and the line then offers Edit and Delete; the books do not change', async () => {
+  // A book entry that touches the bank account, and a bank line of the same amount, matched through the normal service.
+  const je = need('journal', await o.call('journals', {method: 'POST', json: {date: '2026-09-25', memo: 'R186b cheque ' + tag, lines: [{accountId: acct('6300'), debitCents: 4321, creditCents: 0}, {accountId: BANKGL, debitCents: 0, creditCents: 4321}]}}));
+  const JE = je.journalEntry?.id || je.id || je.journalEntryId;
+  const id = await line(-4321, '2026-09-25', 'UI matched cheque');
+  need('match', await o.call('operations/reconciliation-match', {method: 'POST', json: {bankAccountId: BANK, bankTransactionIds: [id], journalEntryIds: [JE]}}), [201]);
+  const grp = () => sql(`SELECT IFNULL(GROUP_CONCAT(g.status),'-') FROM bank_match_bank_items bi JOIN bank_match_groups g ON g.id=bi.match_group_id WHERE bi.bank_transaction_id='${id}'`);
+  const before = grp(), j0 = journals(), t0 = tb(), b0 = bankGl();
+  const got = {};
+  // Editor: the server refuses the unmatch (UI-08 checks the Editor's screen).
+  const ed = new S(); await ed.login('editor@gate.test', PW); ed.cid = CO;
+  const edRow = ((await ed.call(`operations/reconciliation-workspace&bankAccountId=${BANK}&start=2026-08-01&end=2026-09-30&includeMatched=1`)).b.bankSide || []).find(r => r.id === id);
+  const edUnmatch = await ed.call('operations/reconciliation-unmatch', {method: 'POST', json: {matchGroupId: String(edRow?.matchGroupId || ''), reason: 'Editor tries to unmatch this line', unreconcileDate: '2026-09-25'}});
+  got.editorApi = edUnmatch.s;
+  // Owner in the browser.
+  const {b, p, errs} = await open(CO, {w: 1440, h: 900});
+  try {
+    await p.evaluate(() => TeghPortal.invokeMenuAction('Banking', 'Match And Post Transactions'));
+    await p.waitForSelector('[data-r28-bank-row]', {timeout: 60000}); await p.waitForTimeout(1200);
+    const row = p.locator(`[data-r28-bank-row][data-key="${BANK}:${id}"]`);
+    got.found = await row.count();
+    got.visibleUnselected = await row.locator('.r186-row-actions').evaluate(e => getComputedStyle(e).opacity);
+    // Scroll first: the page closes an open Actions menu when its list scrolls, as a person's scrolling would.
+    await row.scrollIntoViewIfNeeded(); await p.waitForTimeout(300);
+    await row.locator('[data-r186-actions]').click(); await p.waitForTimeout(300);
+    got.items = await row.locator('.r186-actions-menu button').allTextContents();
+    await p.screenshot({path: '/srv/gate/ev/shots/r186-unmatch-menu-1440.png'});
+    await row.locator('[data-r186-unmatch-line]').click();
+    await p.waitForSelector('.r186-unmatch [data-r186-form]', {timeout: 20000});
+    got.title = await p.locator('#r186-unmatch-title').textContent();
+    await p.screenshot({path: '/srv/gate/ev/shots/r186-unmatch-dialog-1440.png'});
+    await p.fill('.r186-unmatch textarea[name=reason]', 'Matched to the wrong cheque in this test');
+    await p.check('.r186-unmatch input[name=confirmed]'); await p.click('.r186-unmatch [data-r186-submit]');
+    await p.waitForFunction(() => !document.querySelector('.r186-unmatch'), null, {timeout: 20000}); await p.waitForTimeout(2500);
+    const row2 = p.locator(`[data-r28-bank-row][data-key="${BANK}:${id}"]`); await row2.scrollIntoViewIfNeeded(); await p.waitForTimeout(300);
+    await row2.locator('[data-r186-actions]').click(); await p.waitForTimeout(300);
+    got.after = await row2.locator('.r186-actions-menu button').allTextContents();
+  } finally { got.errs = errs; await b.close(); }
+  const audit = sql(`SELECT COUNT(*) FROM audit_log WHERE company_id='${CO}' AND action='reconciliation.match_unreconciled'`);
+  return {ok: before === 'matched' && got.editorApi === 403 && got.found === 1 && got.visibleUnselected === '1' && JSON.stringify(got.items) === '["Unmatch"]' && got.title === 'Unmatch this line?'
+    && grp() === 'unreconciled' && st(id) === 'pending|-' && JSON.stringify(got.after) === '["Edit","Delete"]' && journals() === j0 && tb() === t0 && bankGl() === b0 && Number(audit) >= 1 && !got.errs.length,
+    info: JSON.stringify({before, after: grp(), st: st(id), audit, ...got})};
+});
+
+await t('UI-08', 'Match and Post: an Editor sees a matched line with a note that only the Owner or an Admin can unmatch it, and no Unmatch button', async () => {
+  const je = need('journal', await o.call('journals', {method: 'POST', json: {date: '2026-09-26', memo: 'R186b deposit ' + tag, lines: [{accountId: BANKGL, debitCents: 7777, creditCents: 0}, {accountId: acct('4000'), debitCents: 0, creditCents: 7777}]}}));
+  const JE = je.journalEntry?.id || je.id || je.journalEntryId;
+  const id = await line(7777, '2026-09-26', 'UI matched deposit');
+  need('match', await o.call('operations/reconciliation-match', {method: 'POST', json: {bankAccountId: BANK, bankTransactionIds: [id], journalEntryIds: [JE]}}), [201]);
+  const {chromium} = await import('/opt/node22/lib/node_modules/playwright/index.mjs');
+  const b = await chromium.launch({executablePath: '/opt/pw-browsers/chromium', args: ['--no-proxy-server', '--host-resolver-rules=MAP gate.test 127.0.0.1']});
+  const got = {};
+  try {
+    const ctx = await b.newContext({viewport: {width: 1440, height: 900}, ignoreHTTPSErrors: true}); const p = await ctx.newPage();
+    const errs = []; p.on('pageerror', e => errs.push(e.message.slice(0, 200)));
+    await p.goto('https://gate.test/app.html'); await p.fill('#sr-login-form input[name=email]', 'editor@gate.test'); await p.fill('#sr-login-form input[name=password]', PW); await p.click('#sr-login-form button[type=submit]');
+    await p.waitForFunction(() => window.TeghPortal && document.querySelector('.sidebar,.topbar'), null, {timeout: 40000});
+    await p.evaluate(id => { localStorage.setItem('sr-accountax-company', id); localStorage.setItem('sr-accountax-companies', JSON.stringify([id])); }, CO);
+    await p.goto('https://gate.test/app.html'); await p.waitForFunction(() => window.TeghPortal && document.querySelector('.sidebar,.topbar'), null, {timeout: 40000}); await p.waitForTimeout(1200);
+    await p.evaluate(() => TeghPortal.invokeMenuAction('Banking', 'Match And Post Transactions'));
+    await p.waitForSelector('[data-r28-bank-row]', {timeout: 60000}); await p.waitForTimeout(1200);
+    const row = p.locator(`[data-r28-bank-row][data-key="${BANK}:${id}"]`);
+    got.found = await row.count();
+    await row.locator('[data-r186-actions]').click(); await p.waitForTimeout(300);
+    got.items = await row.locator('.r186-actions-menu button').allTextContents();
+    got.note = await row.locator('[data-r186-matched-note]').textContent();
+    got.errs = errs;
+  } finally { await b.close(); }
+  return {ok: got.found === 1 && got.items.length === 0 && /Only the Company Owner or an Admin can unmatch it/.test(got.note || '') && !got.errs.length, info: JSON.stringify(got)};
+});
+
 await t('UI-05', 'Bank review queue: an unposted line shows Edit and Delete beside Post & Next; a posted line shows Unpost, which opens the same preview dialog', async () => {
   await line(-1500, '2026-09-25', 'Review queue line');
   const {b, p, errs} = await open(CO, {w: 1440, h: 900}); const got = {};

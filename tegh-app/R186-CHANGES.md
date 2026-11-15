@@ -4,12 +4,24 @@ R186 = R185 plus three actions in **Banking › Match and Post**. There is no sw
 
 ## What you see
 
-Each line in the Bank Transactions list has one **Actions ▾** menu, at the right of its description. It appears on the selected line: a line you tick, or a line you click. Other lines stay uncluttered. Keyboard users reach it with Tab, and Escape closes it.
+Each line in the Bank Transactions list has one **Actions ▾** button, at the right of its description, on every row. You do not need to select the line first. Keyboard users reach it with Tab, and Escape closes it.
 
 | Line | Actions ▾ offers |
 |---|---|
 | Unposted | **Edit**, **Delete** |
 | Posted | **Unpost** |
+| Matched to an entry in the books | **Unmatch** (Company Owner or Admin) |
+| Included in a completed bank reconciliation | A note: reopen that reconciliation in Bank Reconciliation first |
+
+### Unmatch a matched line
+
+**Unmatch** removes the match between the bank line and its entry in the books. The dialog says what happens and asks for a reason of at least 12 characters and a confirmation tick.
+- Nothing is deleted. The bank line goes back to Unposted (or Posted, if it was posted), and the book entry is unmatched again.
+- If the match created a reconciliation adjustment entry, a reversing journal entry is recorded on the day of the unmatch.
+- The audit record keeps the reason.
+- It uses the same server action as Unmatch in Bank Reconciliation, so the same rules apply: Company Owner or Admin only, and a match inside a completed reconciliation is refused until that reconciliation is reopened.
+
+After unmatching, the line's Actions ▾ menu offers Edit and Delete (or Unpost) straight away. Editors and Viewers see "Matched to an entry in the books. Only the Company Owner or an Admin can unmatch it."
 
 People who may not change banking do not see the menu. The server checks permissions again in any case.
 
@@ -124,6 +136,6 @@ R186 refuses that Void: a line linked to an invoice or bill cannot be voided, ed
 
 | What | Where |
 |---|---|
-| Suite `60-r186` (19 checks), the Canadian before/after comparison and the full gate | `beta-gate-evidence/r186/RESULTS.md` |
+| Suite `60-r186` (21 checks), the Canadian before/after comparison and the full gate | `beta-gate-evidence/r186/RESULTS.md` |
 
 This release has not been tested on the IONOS server.

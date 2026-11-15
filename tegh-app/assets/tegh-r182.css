@@ -188,8 +188,8 @@ html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .r27-recon-descrip
 html[data-tegh-shell] .r28-banking-top .r28-mode-question button.r183-add-tx { box-shadow: inset 0 0 0 1px var(--tegh-border, #c9d3da) !important; border-radius: 10px !important; padding: 7px 14px !important; }
 /* R186: one Actions menu per line in Match and Post, shown on the ticked or clicked line (and on keyboard focus). */
 html[data-tegh-shell] .r28-banking-workspace .r15-recon-table .r27-recon-description.r183-desc > span.r186-row-actions { grid-column: 2; grid-row: 1; position: relative; min-width: auto; }
-.r186-row-actions { opacity: 0; pointer-events: none; transition: opacity .12s ease; }
-tr.r186-selected .r186-row-actions, tr.r186-active .r186-row-actions, .r186-row-actions:focus-within { opacity: 1; pointer-events: auto; }
+/* R186b: Actions ▾ shows on every row, so it is easy to find. */
+.r186-row-actions { opacity: 1; pointer-events: auto; }
 tr.r186-active > td { background: var(--surface-2, #eef3f1); }
 .r186-actions-btn { padding: 1px 8px; border: 1px solid var(--line, #d7dee5); border-radius: 6px; background: var(--surface, #fff); color: inherit; cursor: pointer; font-size: 12px; line-height: 1.5; white-space: nowrap; }
 .r186-actions-btn:hover, .r186-actions-btn:focus-visible { background: var(--surface-2, #eef3f1); }
