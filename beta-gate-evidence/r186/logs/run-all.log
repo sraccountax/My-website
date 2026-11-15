@@ -1,11 +1,11 @@
-=== resume 13:16
+=== resume 16:07
 === 01-install
 === 02-setup
 {
-  BC: 'company_483f37fe2fbf0645476a26c20f2e3a0b',
-  QC: 'company_eecef8f29f2cda48987064480d090835',
-  ON: 'company_9f2c63bbdb7fb9a9aa3d49c1eb0c794a',
-  X: 'company_dcfb431e5ddc66c2c6b568eaf8819ccc'
+  BC: 'company_e1b81c8f2e74b317f72c802fd4f19051',
+  QC: 'company_482da46e6cc711c1066a72bea4f34547',
+  ON: 'company_952fdb4882b4d0a82e12821376335be5',
+  X: 'company_4bf1c888bca8dbfaba268c5bf9c280fa'
 }
 === 02b-invite
 === 03-acct
@@ -102,21 +102,21 @@ Node.js v22.22.0
 === 38-files
 victims {
   stmt: [
-    'company_aac6e9b72e640bc64caa28c392b56cc9',
-    'import_af3ad4258123077c01bb2531bce2b1d6'
+    'company_6e79d1e6d23054baf7113d9b848684bb',
+    'import_979373621f54964c7e97f6067e49eb49'
   ],
   att: [
-    'company_cea7535a7afc8f9e868f44bb1d043116',
-    'invoice_73eeda5e97070e55afacede189041b77',
-    'invatt_bb325d27fb13979d34db5d95c7b2d33d'
+    'company_bb7c49ad10f4f04569edb44aadaadb01',
+    'invoice_8e9cbcd86343302b72677ad955bd7876',
+    'invatt_08ccc3bd7d28e76d72502758ca9e89f9'
   ],
   nd: [
-    'company_46ad135dba7265a95c8a715a8aa68880',
-    'nadoc_8317d4ec8dfb0027ae5cdb350913ee0f'
+    'company_607afc96291a9192ced8cb6285d46f58',
+    'nadoc_a956d5940f225ff4cabe15f6b1cff309'
   ],
   inv: [
-    'company_1e97087253632246f21874fd2ebaaa05',
-    'invoice_01244498b0aa5e60852f5ff85fdee6d0'
+    'company_9fb752d5914dd17c76c73abc79d65a14',
+    'invoice_0709a549f05e1cecdb1d611e317a154c'
   ]
 }
 === 39-restore
@@ -134,7 +134,7 @@ INFO     II-ACC1    Measured header-field accuracy across the fixtures (number, 
 INFO     II-ACC2    Measured line-item accuracy (amount and description found) | 69/75 (92%)
 INFO     II-ACC3    Measured supplier-matching accuracy (known suppliers) | 21/21 (100%)
 INFO     II-ACC4    Per file | F01.pdf pdf_text: all right | F01b.pdf no job | F02.pdf pdf_text: all right | F03.pdf pdf_text: all right | F04.pdf ocr: all right | F05.pdf ocr: all right | F06.pdf ocr: invoiceNumber=""≠"PJ-3306"; i
-INFO     II-ACC5    Processing time per file, upload to result (seconds; includes waiting in the queue) | F11.pdf pdf_text 36s, F03.pdf pdf_text 5s, F02.pdf pdf_text 5s, F18.pdf pdf_text 52s, F01.pdf pdf_text 8s, F08.pdf pdf_text 28s, F21.pdf ocr 63s, F13.pdf pdf_text 32s, F22.pdf pdf_text 64s, F04.pdf oc
+INFO     II-ACC5    Processing time per file, upload to result (seconds; includes waiting in the queue) | F11.pdf pdf_text 36s, F03.pdf pdf_text 4s, F02.pdf pdf_text 9s, F18.pdf pdf_text 43s, F01.pdf pdf_text 4s, F08.pdf pdf_text 29s, F21.pdf ocr 54s, F13.pdf pdf_text 32s, F22.pdf pdf_text 56s, F04.pdf oc
 INFO     II-ACC6    Exception rate: review classes after reading | {"blocked":3,"review":15,"ready":6}
       Northgate Paper & Office Ltd. · NG-20418$549.08 · blockedLakeshore Courier Inc. · LC-88255$179.11 · review requiredLakeshore Courier Inc. · LC-88240$179
 === 46-r171
@@ -152,7 +152,7 @@ INFO     II-ACC6    Exception rate: review classes after reading | {"blocked":3,
 === 58-r184
 === 59-r185
 === 60-r186
-201 company_c43e7afb6c2453b06f743fb6c27bd65f
+201 company_3620e63d79d77e909add2fbc3cb450eb
 === w1
 === w2
 === w3
