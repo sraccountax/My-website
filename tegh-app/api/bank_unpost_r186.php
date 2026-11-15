@@ -20,10 +20,15 @@ declare(strict_types=1);
  * transfer, payroll. A material amount needs a second Company Owner, as Void does.
  *
  * Company rule (R186, at the owner's request): a line linked to a customer invoice or vendor bill is never edited,
- * deleted or unposted. That covers a line posted as an invoice receipt or bill payment ('document'), and a line
- * whose payment (on account or matched) is applied to an invoice or bill. r186_bank_line_document_link() decides
- * it; Unpost, Edit, Delete, Void and the Match and Post menu all use it. The 'document' path below is therefore
- * refused before it runs; it is kept so the rule can be relaxed without rewriting the reversal.
+ * deleted, voided or unposted. That covers a line posted as an invoice receipt or bill payment ('document'), and a
+ * line whose payment (on account or matched) is applied to an invoice or bill. r186_bank_line_document_link()
+ * decides it; Unpost, Edit, Delete, Void and the Match and Post menu all use it.
+ *
+ * The one exception is the Company Owner's correction ("Correct with journal entry"): only a member whose company
+ * role is exactly 'owner' (not Admin) may undo a linked line. It runs the same reversal as Unpost: the receipt or
+ * payment is reversed by a journal entry dated on the statement date, the invoice or bill reopens, and the line
+ * returns to Unposted. The audit record marks it as an owner correction. Dual control above the approval limit
+ * still applies, and the approver is a second Company Owner.
  */
 
 /**
@@ -59,7 +64,7 @@ function r186_document_link_message(array $link, string $action): string
 {
     $what = $link['type'] === 'invoice' ? 'customer invoice' : 'vendor bill';
     $ref = $link['number'] !== '' ? ' ' . $link['number'] : '';
-    return "This line is linked to $what$ref, so it cannot be $action. Lines linked to a customer invoice or vendor bill cannot be edited, deleted or unposted.";
+    return "This line is linked to $what$ref, so it cannot be $action. Lines linked to a customer invoice or vendor bill cannot be edited, deleted or unposted. The Company Owner can correct it with a journal entry (Match and Post, Actions › Correct with journal entry).";
 }
 
 /** SQL (for a bank_transactions alias) that is true when the line is linked to an invoice or bill. */
@@ -69,14 +74,14 @@ function r186_document_link_sql(string $bt): string
       AND (pp.document_id IS NOT NULL OR EXISTS(SELECT 1 FROM party_payment_applications pa WHERE pa.company_id=pp.company_id AND pa.payment_id=pp.id AND pa.status='posted')))";
 }
 
-function r186_unpost_lookup(string $companyId, string $transactionId, bool $lock): array
+function r186_unpost_lookup(string $companyId, string $transactionId, bool $lock, bool $ownerCorrection = false): array
 {
     $sfx = $lock ? ' FOR UPDATE' : '';
     $q = db()->prepare('SELECT * FROM bank_transactions WHERE company_id=? AND id=? LIMIT 1' . $sfx);
     $q->execute([$companyId, $transactionId]);
     $tx = $q->fetch(PDO::FETCH_ASSOC);
     if (!$tx) fail('That bank transaction is no longer available.', 404, 'bank_transaction_not_found');
-    $out = ['tx' => $tx, 'kind' => 'none', 'journal' => null, 'payment' => null, 'entries' => [], 'blockers' => [], 'initialApplication' => null, 'document' => null];
+    $out = ['tx' => $tx, 'kind' => 'none', 'journal' => null, 'payment' => null, 'entries' => [], 'blockers' => [], 'initialApplication' => null, 'document' => null, 'linked' => null, 'ownerCorrection' => false];
     if ((string)$tx['status'] !== 'posted' || $tx['journal_entry_id'] === null) {
         $out['blockers'][] = (string)$tx['status'] === 'posted' ? 'This line has no accounting entry to undo.' : 'Only a posted line can be unposted.';
         return $out;
@@ -113,7 +118,12 @@ function r186_unpost_lookup(string $companyId, string $transactionId, bool $lock
     elseif ($out['kind'] === 'matched_payment') $out['entries'] = (string)$journal['source_type'] === 'bank_payment_match' ? void_journal_entries_by_id($companyId, (string)$journal['id']) : [];
     else $out['entries'] = void_journal_entries_by_id($companyId, (string)$journal['id']);
     $out['blockers'] = void_blockers($companyId, 'bank_transaction', $tx, $out['entries'], true);
-    if (($link = r186_bank_line_document_link($companyId, (string)$tx['id'])) !== null) array_unshift($out['blockers'], r186_document_link_message($link, 'unposted'));
+    if (($link = r186_bank_line_document_link($companyId, (string)$tx['id'])) !== null) {
+        $out['linked'] = $link;
+        // Only the Company Owner may correct a linked line; everyone else is refused.
+        if ($ownerCorrection) $out['ownerCorrection'] = true;
+        else array_unshift($out['blockers'], r186_document_link_message($link, 'unposted'));
+    }
     if ($out['kind'] === 'matched_payment' && $out['entries'] === [] && function_exists('period_lock_for_date') && period_lock_for_date($companyId, (string)$tx['transaction_date']) !== null)
         $out['blockers'][] = 'This transaction falls in a closed period (' . (string)$tx['transaction_date'] . '). Reopen the period first.';
 
@@ -144,6 +154,12 @@ function r186_unpost_effects(array $info): array
     $tx = $info['tx']; $p = $info['payment']; $customer = $p !== null && (string)$p['payment_type'] === 'customer';
     $money = static fn(int $c): string => '$' . number_format($c / 100, 2);
     $back = 'The line returns to Unposted in Match and Post, so you can post it again.';
+    if (!empty($info['ownerCorrection'])) {
+        $l = $info['linked'];
+        $head = 'Company Owner correction of a line linked to ' . ($l['type'] === 'invoice' ? 'customer invoice ' : 'vendor bill ') . ($l['number'] !== '' ? $l['number'] : '') . '. A reversing journal entry is recorded; nothing is deleted.';
+        $info['ownerCorrection'] = false;
+        return [$head, ...r186_unpost_effects($info)];
+    }
     return match ($info['kind']) {
         'account' => ['The General Ledger entry for this line is voided and leaves every report: the trial balance, statements, ledgers and tax figures.', $back],
         'document' => [
@@ -187,15 +203,17 @@ function r186_unpost_preview(array $user, array $company): never
     require_method('GET');
     $companyId = (string)$company['id'];
     $id = clean_text($_GET['transactionId'] ?? '', 'Bank transaction', 64);
-    $info = r186_unpost_lookup($companyId, $id, false);
+    $role = (string)($company['role'] ?? '');
+    $info = r186_unpost_lookup($companyId, $id, false, $role === 'owner');
     $amount = abs((int)$info['tx']['amount_cents']); $threshold = company_materiality_threshold_cents($companyId);
     $pending = r186_unpost_pending_approval($companyId, $id);
-    $role = (string)($company['role'] ?? '');
     json_response([
         'transactionId' => $id,
         'kind' => $info['kind'],
         'blockers' => $info['blockers'],
         'effects' => r186_unpost_effects($info),
+        'linkedDocument' => $info['linked'],
+        'ownerCorrection' => $info['ownerCorrection'],
         'accountsAffected' => r186_unpost_accounts($companyId, $info),
         'amountCents' => $amount,
         'dualControlRequired' => $amount > $threshold,
@@ -205,7 +223,8 @@ function r186_unpost_preview(array $user, array $company): never
             'preparedByMe' => hash_equals((string)$pending['prepared_by'], (string)$user['id']),
             'preparedByName' => (string)($pending['display_name'] ?? ''),
             'reason' => (string)($pending['review_note'] ?? ''),
-            'canApprove' => in_array($role, ['owner', 'admin'], true) && !hash_equals((string)$pending['prepared_by'], (string)$user['id']),
+            // A linked line's correction is approved by a second Company Owner only.
+            'canApprove' => in_array($role, $info['linked'] !== null ? ['owner'] : ['owner', 'admin'], true) && !hash_equals((string)$pending['prepared_by'], (string)$user['id']),
         ] : null,
     ]);
 }
@@ -235,7 +254,7 @@ function r186_unpost_apply(array $user, array $company): never
         $prior = $q->fetchColumn();
         if ($prior !== false) { $m = json_decode((string)$prior, true) ?: []; return ['replay' => true, 'kind' => (string)($m['kind'] ?? ''), 'pendingApproval' => false]; }
 
-        $info = r186_unpost_lookup($companyId, $id, true);
+        $info = r186_unpost_lookup($companyId, $id, true, (string)($company['role'] ?? '') === 'owner');
         if ($info['blockers'] !== []) fail(implode(' ', $info['blockers']), 409, 'bank_unpost_blocked');
         $tx = $info['tx']; $kind = $info['kind']; $journal = $info['journal']; $payment = $info['payment'];
         $date = (string)$tx['transaction_date'];
@@ -310,6 +329,7 @@ function r186_unpost_apply(array $user, array $company): never
             'originalJournalEntryId' => (string)$journal['id'], 'journalEntriesVoided' => $voided, 'reversalJournalEntryIds' => $created,
             'paymentId' => $payment ? (string)$payment['id'] : null, 'documentId' => $payment ? $payment['document_id'] : null,
             'approvalId' => $approvalRow ? $approvalId : null, 'recordRetained' => true, 'initiatedVia' => 'Manual UI',
+            'ownerCorrection' => $info['ownerCorrection'], 'linkedDocument' => $info['linked'],
         ]);
         if ($approvalRow) db()->prepare("UPDATE journal_approvals SET status='posted',posted_at=UTC_TIMESTAMP() WHERE id=? AND company_id=? AND status='approved'")->execute([$approvalId, $companyId]);
         return ['pendingApproval' => false, 'kind' => $kind, 'journalEntriesVoided' => count($voided), 'reversalEntries' => count($created)];

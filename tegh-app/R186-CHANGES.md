@@ -15,7 +15,16 @@ People who may not change banking do not see the menu. The server checks permiss
 
 ### Lines linked to an invoice or bill
 
-A line linked to a customer invoice or vendor bill **cannot be edited, deleted, unposted or voided**. Its Actions ▾ menu offers nothing and says: "Linked to a customer invoice or vendor bill. It cannot be edited, deleted or unposted." The server refuses these actions too, whatever screen or tool asks.
+A line linked to a customer invoice or vendor bill **cannot be edited, deleted, unposted or voided**. Its Actions ▾ menu says: "Linked to a customer invoice or vendor bill. It cannot be edited, deleted or unposted." The server refuses these actions too, whatever screen or tool asks.
+
+**The Company Owner's correction.** Only the Company Owner (not a Company Admin) sees **Correct with journal entry** in that menu. It:
+- reverses the receipt or payment with a journal entry dated on the statement date (nothing is deleted);
+- reopens the invoice or bill for the amount it had before;
+- returns the line to Unposted, so it can be posted to the right invoice, bill or account.
+
+The dialog shows these effects and the entry that leaves the reports, and asks for a reason of at least 12 characters. The audit record marks it as an owner correction and names the invoice or bill. Above the approval limit a second Company Owner approves it. A line matched to a receipt or payment entered in Payments only loses its link: that receipt or payment stays posted and the invoice or bill stays paid.
+
+Everyone else sees "Only the Company Owner can correct it." Edit and Delete stay refused for everyone, the Owner included.
 
 A line counts as linked when the receipt or payment recorded from it, or matched to it, belongs to an invoice or bill. That covers a line:
 - posted as the receipt of an invoice or the payment of a bill;
@@ -61,10 +70,10 @@ You give a reason of at least 12 characters, which is kept in the audit history,
 | Straight to an account (expense, income, transfer to a non-bank account…) | Voids the entry, exactly as Void does. It leaves the trial balance, statements, ledgers and tax figures, and stays in the Day Book. |
 | As an on-account receipt or payment, not applied to any invoice or bill | Reverses it, dated on the statement date. |
 | As a match to a payment entered earlier in Payments that is not for an invoice or bill | Removes only the link. The payment stays posted. If the match had moved the money out of Undeposited Funds, that transfer is voided. |
-| As the receipt of an invoice or payment of a bill, or matched to one | Refused: the line is linked to an invoice or bill. |
+| As the receipt of an invoice or payment of a bill, or matched to one | Refused: the line is linked to an invoice or bill. Only the Company Owner can undo it, with **Correct with journal entry** (see above). |
 
 **Unpost refuses, with the reason, when:**
-- the line is **linked to a customer invoice or vendor bill** (see above);
+- the line is **linked to a customer invoice or vendor bill**, unless the Company Owner corrects it (see above);
 - the line is in a **closed period**;
 - it is part of a **saved reconciliation**;
 - it is matched in **Bank Reconciliation**;
@@ -80,7 +89,7 @@ You give a reason of at least 12 characters, which is kept in the audit history,
 
 Before R186, **Void** on the Bank Transactions list could be used on a line that had been posted as the receipt of an invoice or the payment of a bill. Voiding it took the entry out of the ledger but left the invoice or bill marked **paid**. The receivable or payable list then no longer agreed with the General Ledger.
 
-R186 refuses that Void: a line linked to an invoice or bill cannot be voided, edited, deleted or unposted.
+R186 refuses that Void: a line linked to an invoice or bill cannot be voided, edited, deleted or unposted. Only the Company Owner can correct it, with Correct with journal entry, which reverses the receipt or payment and reopens the invoice or bill together.
 
 **Check after deploying:** look for any line voided this way before R186. In the Bank Transactions list, filter **Excluded**, and look for lines whose invoice or bill still shows as paid. To correct one, open the invoice or bill and reverse its payment.
 
@@ -94,12 +103,13 @@ R186 refuses that Void: a line linked to an invoice or bill cannot be voided, ed
 **The linked rule**
 - `r186_bank_line_document_link()` in `api/bank_unpost_r186.php` decides whether a line is linked to an invoice or bill.
 - Unpost, Edit (`bank-transactions/edit`), Delete (`bank-transactions/delete`, also used by Ask Tegh) and Void all refuse a linked line with code `bank_transaction_linked_document` (Void and Unpost list it as a blocker).
+- The Owner's correction is the Unpost route (`bank-transactions/unpost`) when the caller's company role is exactly `owner`. The preview returns `ownerCorrection: true` and `linkedDocument`, and the audit record `bank_transaction.unposted` carries `ownerCorrection: true`.
 - The Match and Post workspace returns `linkedDocument` for each line, which the Actions menu uses.
 
 **Shared payment reversal**
 - The accounting steps of reversing a payment now live in `party_payment_reverse_core()` in `payments.php`.
 - The Payments screen uses it and behaves as before.
-- Unpost's invoice-and-bill path also uses it, but the linked rule refuses those lines before that path runs. It is kept so the rule could be relaxed later without rewriting the reversal.
+- The Owner's correction of an invoice receipt or bill payment uses it too.
 
 **Keeping the line postable again**
 - An unposted line's old journal keeps its content and hash.

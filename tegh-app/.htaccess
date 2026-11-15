@@ -40,7 +40,7 @@ ErrorDocument 404 /404.html
   # every release changes the token (here, in app.html, tegh-gate-v5990.js and tegh-preflight-v5990.js). Browsers
   # keep such files instead of re-checking each one on every page load (see the Cache-Control rule below). Files
   # requested with an older, fixed token keep the previous behaviour.
-  RewriteCond %{QUERY_STRING} (^|&)v=5990-r186-linked(&|$)
+  RewriteCond %{QUERY_STRING} (^|&)v=5990-r186-correct(&|$)
   RewriteRule ^assets/ - [E=TEGH_RELEASE_ASSET:1]
 
   # Existing files/directories are served normally. Unknown paths fall through to a real 404.

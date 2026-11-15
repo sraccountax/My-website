@@ -61,64 +61,77 @@ await t('UP-02', 'An unposted line posts again; a retried request with the same 
 });
 
 // Company rule (owner's request): a bank line linked to a customer invoice or vendor bill cannot be edited, deleted,
-// unposted or voided. Each check below confirms the refusal and that nothing in the books or the document changed.
+// unposted or voided. The one exception: the Company Owner (not an Admin) may correct it with a journal entry, which
+// reverses the receipt or payment, reopens the invoice or bill and returns the line to Unposted.
 const LINKED = 'cannot be edited, deleted or unposted';
 const wsRow = async id => ((await o.call(`operations/reconciliation-workspace&bankAccountId=${BANK}&start=2026-08-01&end=2026-09-30&includeMatched=1`)).b.bankSide || []).find(r => r.id === id);
+sql(`INSERT IGNORE INTO company_members(company_id,user_id,role,status) VALUES('${CO}','${uid('admin@gate.test')}','admin','active')`);
+const ad = new S(); await ad.login('admin@gate.test', PW); ad.cid = CO;
 const LINKED_LINES = {};
 for (const [id_, label, invCents, lineCents] of [['UP-03', 'paid in full', 50000, 50000], ['UP-04', 'paid in part', 80000, 30000]]) {
-  await t(id_, `Receipt of an invoice ${label}: the line is linked to the invoice, so Unpost and Void are refused and nothing changes`, async () => {
+  await t(id_, `Receipt of an invoice ${label}: an Admin cannot unpost or void the linked line; the Company Owner corrects it with a reversing journal entry on the statement date and the invoice is open for its full amount again`, async () => {
     const I = await invoice(invCents);
     const id = await line(lineCents, '2026-09-12', 'Deposit ' + label);
+    const ar0 = gl('1200'), bank0 = bankGl();
     await post({id, invoiceId: I}); const posted = inv(I);
     const snap = () => [inv(I), gl('1200'), bankGl(), journals(), st(id), tb()].join(',');
     const s0 = snap();
-    const p = (await preview(o, id)).b; const u = await unpost(o, id);
+    const ap = (await preview(ad, id)).b; const au = await unpost(ad, id);
     const vb = (await o.call(`voids/preview&entityType=bank_transaction&entityId=${id}`)).b;
-    const row = await wsRow(id);
-    if (id_ === 'UP-03') { LINKED_LINES.invoice = id; LINKED_LINES.invoiceNumber = sql(`SELECT number FROM invoices WHERE id='${I}'`); }
-    const ok = posted.endsWith('|' + (invCents - lineCents)) && p.kind === 'document' && p.blockers[0].includes(LINKED) && p.blockers[0].includes('customer invoice')
-      && u.s === 409 && (vb.blockers || []).some(b => b.includes(LINKED)) && row?.linkedDocument === true && snap() === s0;
-    return {ok, info: JSON.stringify({posted, kind: p.kind, blockers: p.blockers, s: u.s, voidBlockers: vb.blockers, linkedDocument: row?.linkedDocument, same: snap() === s0})};
+    const linkedBefore = (await wsRow(id))?.linkedDocument;
+    const adminRefused = ap.blockers[0]?.includes(LINKED) && ap.blockers[0].includes('customer invoice') && ap.ownerCorrection === false && au.s === 409 && snap() === s0;
+    const p = (await preview(o, id)).b;
+    const u = await unpost(o, id, {reason: 'Deposit belongs to a different invoice'});
+    const pay = sql(`SELECT GROUP_CONCAT(CONCAT(status,'|',IFNULL(bank_transaction_id,'-'))) FROM party_payments WHERE company_id='${CO}' AND document_id='${I}'`);
+    const revDate = sql(`SELECT GROUP_CONCAT(entry_date) FROM journal_entries WHERE company_id='${CO}' AND source_type='customer_payment_reversal' AND source_id IN (SELECT id FROM party_payments WHERE document_id='${I}')`);
+    const audit = sql(`SELECT CONCAT(JSON_EXTRACT(metadata_json,'$.ownerCorrection'),'|',JSON_UNQUOTE(JSON_EXTRACT(metadata_json,'$.linkedDocument.type'))) FROM audit_log WHERE company_id='${CO}' AND action='bank_transaction.unposted' AND entity_id='${id}' ORDER BY created_at DESC LIMIT 1`);
+    const corrected = p.ownerCorrection === true && p.blockers.length === 0 && p.effects[0].includes('Company Owner correction') && u.s === 200
+      && inv(I) === `sent|${invCents}` && gl('1200') === ar0 && bankGl() === bank0 && st(id) === 'pending|-' && pay === 'reversed|-' && revDate === '2026-09-12' && tb() === 0 && audit === 'true|invoice';
+    await post({id, invoiceId: I}); const repost = inv(I);
+    if (id_ === 'UP-03') LINKED_LINES.invoice = {id, I, invCents};
+    const ok = posted.endsWith('|' + (invCents - lineCents)) && adminRefused && (vb.blockers || []).some(b => b.includes(LINKED)) && linkedBefore === true && corrected && repost.endsWith('|' + (invCents - lineCents));
+    return {ok, info: JSON.stringify({posted, adminBlockers: ap.blockers, adminStatus: au.s, voidBlockers: vb.blockers, linkedBefore, ownerCorrection: p.ownerCorrection, effects: p.effects, s: u.s, inv: inv(I), pay, revDate, audit, repost})};
   });
 }
 
-await t('UP-05', 'Payment of a bill: the line is linked to the bill, so Unpost is refused; the bill stays paid and Accounts Payable is unchanged', async () => {
+await t('UP-05', 'Payment of a bill: an Admin cannot unpost the linked line; the Company Owner corrects it, reopening the bill and Accounts Payable', async () => {
   const B = need('bill', await o.call('bills', {method: 'POST', json: {vendorId: VEND, number: 'B-' + tag, billDate: '2026-09-02', dueDate: '2026-10-02', categoryAccountId: acct('6300'), currency: 'CAD', taxEntryMode: 'exclusive', taxCodeId: '', foreignAmountCents: 20000, issue: true}}));
-  const BID = B.bill?.id || B.id; const id = await line(-20000, '2026-09-14', 'Pay vendor');
+  const BID = B.bill?.id || B.id; const id = await line(-20000, '2026-09-14', 'Pay vendor'); const ap0 = gl('2050'), bank0 = bankGl();
   await post({id, billId: BID}); const bill = () => sql(`SELECT CONCAT(status,'|',balance_cents) FROM bills WHERE id='${BID}'`);
-  const s0 = [bill(), gl('2050'), bankGl(), st(id)].join(',');
-  const p = (await preview(o, id)).b; const u = await unpost(o, id); const row = await wsRow(id);
-  const s1 = [bill(), gl('2050'), bankGl(), st(id)].join(',');
-  return {ok: bill().endsWith('|0') && p.blockers[0].includes('vendor bill') && u.s === 409 && row?.linkedDocument === true && s0 === s1, info: JSON.stringify({bill: bill(), blockers: p.blockers, s: u.s, linkedDocument: row?.linkedDocument, s0, s1})};
+  const paid = bill(); const ad1 = await unpost(ad, id); const stillPaid = bill();
+  const p = (await preview(o, id)).b; const u = await unpost(o, id, {reason: 'Paid the wrong bill from this line'});
+  return {ok: paid.endsWith('|0') && ad1.s === 409 && String(ad1.b.error).includes('vendor bill') && stillPaid === paid && p.ownerCorrection === true && u.s === 200 && bill() === 'open|20000' && gl('2050') === ap0 && bankGl() === bank0 && tb() === 0,
+    info: JSON.stringify({paid, admin: [ad1.s, ad1.b.error], ownerCorrection: p.ownerCorrection, s: u.s, bill: bill(), ap: [ap0, gl('2050')]})};
 });
 
-await t('UP-06', 'On-account customer receipt (no invoice): Unpost reverses it; once that receipt is applied to an invoice, the line is linked and Unpost is refused', async () => {
+await t('UP-06', 'On-account customer receipt (no invoice): anyone allowed may unpost it; once applied to an invoice it is linked, an Admin is refused, and the Owner must first unapply the allocation', async () => {
   const id = await line(15000, '2026-09-15', 'Advance'); const ar0 = gl('1200');
   await post({id, accountId: acct('1200'), partyId: CUST, flowKind: 'customer_receipt', taxCode: 'NO_TAX', applyGstHst: false, applyPst: false});
   const free = (await wsRow(id))?.linkedDocument;
-  const k1 = (await preview(o, id)).b.kind; const u = await unpost(o, id); const back = gl('1200') === ar0 && st(id) === 'pending|-';
+  const k1 = (await preview(ad, id)).b.kind; const u = await unpost(ad, id); const back = gl('1200') === ar0 && st(id) === 'pending|-';
   await post({id, accountId: acct('1200'), partyId: CUST, flowKind: 'customer_receipt', taxCode: 'NO_TAX', applyGstHst: false, applyPst: false});
   const PID = sql(`SELECT id FROM party_payments WHERE company_id='${CO}' AND bank_transaction_id='${id}' AND status='posted'`);
   const I = await invoice(15000);
   const ap = await o.call('payments', {method: 'PATCH', json: {action: 'apply', applicationDate: '2026-09-20', operationKey: key('apply'), allocations: [{paymentId: PID, documentId: I, foreignAmountCents: 15000}]}});
-  const p = (await preview(o, id)).b; const refused = await unpost(o, id); const linked = (await wsRow(id))?.linkedDocument;
-  return {ok: free === false && k1 === 'on_account' && u.s === 200 && back && ap.s === 200 && p.blockers.some(b => b.includes(LINKED)) && refused.s === 409 && linked === true && st(id).startsWith('posted|') && inv(I) === 'paid|0',
-    info: JSON.stringify({free, k1, s: u.s, back, apply: ap.s, blockers: p.blockers, refused: refused.s, linked, inv: inv(I)})};
+  const pa = (await preview(ad, id)).b; const po = (await preview(o, id)).b; const refused = await unpost(o, id); const linked = (await wsRow(id))?.linkedDocument;
+  return {ok: free === false && k1 === 'on_account' && u.s === 200 && back && ap.s === 200 && pa.blockers.some(b => b.includes(LINKED)) && po.ownerCorrection === true && po.blockers.some(b => b.includes('Unapply')) && refused.s === 409 && linked === true && st(id).startsWith('posted|') && inv(I) === 'paid|0',
+    info: JSON.stringify({free, k1, s: u.s, back, apply: ap.s, adminBlockers: pa.blockers, ownerBlockers: po.blockers, refused: refused.s, linked, inv: inv(I)})};
 });
 
-await t('UP-07', 'Matched to an invoice receipt entered earlier in Payments: the line is linked, so Unpost is refused; the receipt and the paid invoice stay as they are', async () => {
+await t('UP-07', 'Matched to an invoice receipt entered earlier in Payments: an Admin is refused; the Owner\'s correction removes only the link, and the receipt and the paid invoice stay as they are', async () => {
   const I = await invoice(40000);
   need('payment', await o.call('payments', {method: 'POST', json: {type: 'customer', documentId: I, paymentDate: '2026-09-16', reference: 'EFT ' + tag, foreignAmountCents: 40000, paymentAccountId: BANKGL, operationKey: key('pay')}}));
   const PID = sql(`SELECT id FROM party_payments WHERE company_id='${CO}' AND document_id='${I}' AND status='posted'`);
   const id = await line(40000, '2026-09-16', 'EFT deposit');
   await post({id, paymentId: PID}); const bank0 = bankGl(), j0 = journals();
-  const p = (await preview(o, id)).b; const u = await unpost(o, id);
+  const a = await unpost(ad, id); const linkKept = sql(`SELECT IFNULL(bank_transaction_id,'-') FROM party_payments WHERE id='${PID}'`) === id;
+  const p = (await preview(o, id)).b; const u = await unpost(o, id, {reason: 'Matched to the wrong receipt'});
   const pay = sql(`SELECT CONCAT(status,'|',IFNULL(bank_transaction_id,'-')) FROM party_payments WHERE id='${PID}'`);
-  return {ok: p.kind === 'matched_payment' && p.blockers[0].includes(LINKED) && u.s === 409 && pay === `posted|${id}` && inv(I) === 'paid|0' && bankGl() === bank0 && journals() === j0 && st(id).startsWith('posted|'),
-    info: JSON.stringify({kind: p.kind, blockers: p.blockers, s: u.s, pay, inv: inv(I)})};
+  return {ok: a.s === 409 && linkKept && p.kind === 'matched_payment' && p.ownerCorrection === true && u.s === 200 && pay === 'posted|-' && inv(I) === 'paid|0' && bankGl() === bank0 && journals() === j0 && st(id) === 'pending|-',
+    info: JSON.stringify({admin: a.s, linkKept, kind: p.kind, ownerCorrection: p.ownerCorrection, s: u.s, pay, inv: inv(I)})};
 });
 
-await t('UP-13', 'Edit and Delete are refused for an unposted line that is linked to an invoice (link made directly in the test database), and the line is unchanged', async () => {
+await t('UP-13', 'Edit and Delete are refused, even for the Owner, for an unposted line that is linked to an invoice (link made directly in the test database); the line is unchanged', async () => {
   // Tegh's own screens never leave an unposted line linked to a receipt, so the link is made in the test database to
   // prove the server refuses it anyway. The receipt is entered in Payments, then pointed at a new unposted line.
   const I = await invoice(9900);
@@ -258,21 +271,33 @@ await t('UI-04', 'Match and Post at 390 px: Actions stays inside its row, its me
   } finally { got.errs = errs; await b.close(); }
   return {ok: got.inside.length > 0 && got.inside.every(Boolean) && got.menuOnScreen && got.overflow <= 0 && !got.errs.length, info: JSON.stringify(got)};
 });
-await t('UI-06', 'Match and Post: the Actions menu of a line linked to an invoice offers no Edit, Delete or Unpost, and says why', async () => {
-  const {b, p, errs} = await open(CO, {w: 1440, h: 900}); const got = {};
+await t('UI-06', 'Match and Post: a line linked to an invoice offers no Edit, Delete or Unpost and says why; the Company Owner is offered Correct with journal entry, which reopens the invoice and returns the line to Unposted', async () => {
+  const L = LINKED_LINES.invoice; const {b, p, errs} = await open(CO, {w: 1440, h: 900}); const got = {};
   try {
     await p.evaluate(() => TeghPortal.invokeMenuAction('Banking', 'Match And Post Transactions'));
     await p.waitForSelector('[data-r28-bank-row]', {timeout: 60000}); await p.waitForTimeout(1200);
-    const row = p.locator(`[data-r28-bank-row][data-key="${BANK}:${LINKED_LINES.invoice}"]`);
+    const row = p.locator(`[data-r28-bank-row][data-key="${BANK}:${L.id}"]`);
     got.found = await row.count();
     await row.locator('td').nth(1).click(); await p.waitForTimeout(300);
     await row.locator('[data-r186-actions]').click(); await p.waitForTimeout(300);
-    got.items = await row.locator('.r186-actions-menu button').count();
+    got.items = await row.locator('.r186-actions-menu button').allTextContents();
     got.note = await row.locator('[data-r186-linked-note]').textContent();
     got.noteVisible = await row.locator('[data-r186-linked-note]').isVisible();
     await p.screenshot({path: '/srv/gate/ev/shots/r186-linked-note-1440.png'});
+    await row.locator('[data-r186-correct-line]').click();
+    await p.waitForSelector('.r186-unpost [data-r186-form]', {timeout: 20000});
+    got.title = await p.locator('#r186-unpost-title').textContent();
+    got.submit = await p.locator('.r186-unpost [data-r186-submit]').textContent();
+    got.effects = await p.evaluate(() => [...document.querySelectorAll('.r186-effects li')].map(x => x.textContent));
+    await p.screenshot({path: '/srv/gate/ev/shots/r186-correct-dialog-1440.png'});
+    await p.fill('.r186-unpost textarea[name=reason]', 'Deposit was applied to the wrong invoice');
+    await p.check('.r186-unpost input[name=confirmed]'); await p.click('.r186-unpost [data-r186-submit]');
+    await p.waitForFunction(() => !document.querySelector('.r186-unpost'), null, {timeout: 20000}); await p.waitForTimeout(2000);
   } finally { got.errs = errs; await b.close(); }
-  return {ok: got.found === 1 && got.items === 0 && got.noteVisible && got.note.includes(LINKED) && !got.errs.length, info: JSON.stringify(got)};
+  got.after = [st(L.id), inv(L.I)];
+  return {ok: got.found === 1 && JSON.stringify(got.items).toLowerCase() === '["correct with journal entry"]' && got.noteVisible && got.note.includes(LINKED) && !got.note.includes('Only the Company Owner')
+    && got.title === 'Correct with a journal entry?' && got.submit === 'Record correction' && got.effects[0].includes('Company Owner correction')
+    && got.after[0] === 'pending|-' && got.after[1] === `sent|${L.invCents}` && tb() === 0 && !got.errs.length, info: JSON.stringify(got)};
 });
 await t('UI-05', 'Bank review queue: an unposted line shows Edit and Delete beside Post & Next; a posted line shows Unpost, which opens the same preview dialog', async () => {
   await line(-1500, '2026-09-25', 'Review queue line');
