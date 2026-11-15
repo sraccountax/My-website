@@ -1,0 +1,1278 @@
+{
+ "label": "before-r184-2",
+ "company": "company_4f68d666707078567f02b1bd50b370c3",
+ "phases": {
+  "1 sign-in page (cold)": {
+   "ms": 838,
+   "cpu": {
+    "script": 17,
+    "layout": 26,
+    "style": 26,
+    "task": 211
+   },
+   "apiT": [
+    [
+     "auth%2Fsecurity",
+     65,
+     1554
+    ],
+    [
+     "auth%2Fme",
+     62,
+     1471
+    ]
+   ],
+   "requests": 29,
+   "bytes": 476877,
+   "by": {
+    "Document": {
+     "n": 1,
+     "bytes": 5714
+    },
+    "Script": {
+     "n": 4,
+     "bytes": 43249
+    },
+    "Stylesheet": {
+     "n": 18,
+     "bytes": 333980
+    },
+    "api": {
+     "n": 2,
+     "bytes": 3025
+    },
+    "Font": {
+     "n": 2,
+     "bytes": 65808
+    },
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    },
+    "Image": {
+     "n": 1,
+     "bytes": 1577
+    }
+   },
+   "top": [
+    [
+     "/assets/tegh-foundation-r22.css?v=5990-r184-builder",
+     193514,
+     ""
+    ],
+    [
+     "/assets/marketing-r164/fonts/playfair-display-latin-wght-normal.woff2",
+     39688,
+     ""
+    ],
+    [
+     "/assets/tegh-gate-v5990.js?v=5990-r184-builder",
+     33372,
+     ""
+    ],
+    [
+     "/assets/marketing-r164/fonts/manrope-latin-wght-normal.woff2",
+     26120,
+     ""
+    ],
+    [
+     "/assets/tegh-r120.css?v=5990-r184-builder",
+     23640,
+     ""
+    ],
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ],
+    [
+     "/assets/tegh-r27.css?v=5990-r184-builder",
+     20757,
+     ""
+    ],
+    [
+     "/assets/tegh-activity-r22.css?v=5990-r85-invoice-detail-contrast",
+     16407,
+     ""
+    ],
+    [
+     "/assets/tegh-r157.css?v=5990-r184-builder",
+     11586,
+     ""
+    ],
+    [
+     "/assets/tegh-mobile-r30.css?v=5990-r184-builder",
+     9134,
+     ""
+    ],
+    [
+     "/assets/tegh-polish-r32.css?v=5990-r164-tegh",
+     7586,
+     ""
+    ],
+    [
+     "/assets/tegh-dashboard-r177.css?v=5990-r184-builder",
+     6648,
+     ""
+    ]
+   ],
+   "api": [
+    "GET auth%2Fsecurity&v=5990",
+    "GET auth%2Fme&v=5990"
+   ]
+  },
+  "2 sign-in to dashboard": {
+   "ms": 3365,
+   "cpu": {
+    "script": 193,
+    "layout": 224,
+    "style": 626,
+    "task": 1414
+   },
+   "apiT": [
+    [
+     "auth%2Flogin",
+     416,
+     1944
+    ],
+    [
+     "auth%2Fme",
+     61,
+     2656
+    ],
+    [
+     "auth%2Fmfa%2Fverify",
+     62,
+     2669
+    ],
+    [
+     "auth%2Fme",
+     62,
+     2657
+    ],
+    [
+     "startup%2Fprepare",
+     423,
+     1709
+    ],
+    [
+     "workspace",
+     281,
+     6744
+    ],
+    [
+     "agent%2Finterface-preferences",
+     87,
+     1818
+    ],
+    [
+     "onboarding",
+     91,
+     1536
+    ],
+    [
+     "platform%2Fnotifications",
+     104,
+     1451
+    ],
+    [
+     "agent%2Faction-registry",
+     121,
+     22600
+    ],
+    [
+     "workspace%2Fsummary",
+     62,
+     2329
+    ],
+    [
+     "insights%2Fbrief",
+     62,
+     1652
+    ],
+    [
+     "agent%2Finterface-preferences",
+     63,
+     1818
+    ],
+    [
+     "reports%2Fv5600%2Fforecast&start=2026-11-15&end=2026-12-12&b",
+     67,
+     2346
+    ],
+    [
+     "activity-feed&limit=30",
+     62,
+     1634
+    ],
+    [
+     "agent%2Finterface-preferences",
+     61,
+     1818
+    ],
+    [
+     "financial-analysis%2Fdashboard",
+     62,
+     2875
+    ],
+    [
+     "agent%2Finterface-preferences",
+     62,
+     1818
+    ]
+   ],
+   "requests": 40,
+   "bytes": 938166,
+   "by": {
+    "api": {
+     "n": 18,
+     "bytes": 62074
+    },
+    "Script": {
+     "n": 19,
+     "bytes": 849281
+    },
+    "Image": {
+     "n": 2,
+     "bytes": 3287
+    },
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    }
+   },
+   "top": [
+    [
+     "/assets/tegh-portal-v5990.js?v=5990-r184-builder",
+     531014,
+     ""
+    ],
+    [
+     "/assets/index-BsxPiq85-v2817.js?v=5990-r184-builder",
+     105105,
+     ""
+    ],
+    [
+     "/assets/tegh-professional-output-v5990.js?v=5990-r184-builder",
+     28031,
+     ""
+    ],
+    [
+     "/assets/tegh-activity-r22.js?v=5990-r184-builder",
+     27785,
+     ""
+    ],
+    [
+     "/assets/tegh-registers-r23.js?v=5990-r184-builder",
+     27505,
+     ""
+    ],
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ],
+    [
+     "/api/index.php?route=agent%2Faction-registry&v=5990",
+     22600,
+     ""
+    ],
+    [
+     "/assets/tegh-premium-v5700.js?v=5990-r184-builder",
+     19763,
+     ""
+    ],
+    [
+     "/assets/tegh-forecast-v5300.js?v=5990-r184-builder",
+     15025,
+     ""
+    ],
+    [
+     "/assets/tegh-invoice-reports-r20.js?v=5990-r184-builder",
+     13506,
+     ""
+    ],
+    [
+     "/assets/tegh-advanced-v5800.js?v=5990-r184-builder",
+     13070,
+     ""
+    ],
+    [
+     "/assets/tegh-reference-r19.js?v=5990-r184-builder",
+     12547,
+     ""
+    ]
+   ],
+   "api": [
+    "GET agent%2Faction-registry&v=5990",
+    "GET workspace&v=5990",
+    "GET financial-analysis%2Fdashboard",
+    "POST auth%2Fmfa%2Fverify&v=5990",
+    "GET auth%2Fme&v=5990",
+    "GET auth%2Fme&v=5990",
+    "GET reports%2Fv5600%2Fforecast&v=5990&start=2026-11-15&end=2026-",
+    "GET workspace%2Fsummary&v=5990",
+    "POST auth%2Flogin&v=5990",
+    "GET agent%2Finterface-preferences&v=5990",
+    "GET agent%2Finterface-preferences&v=5990",
+    "GET agent%2Finterface-preferences",
+    "GET agent%2Finterface-preferences&v=5700",
+    "POST startup%2Fprepare&v=5990",
+    "GET insights%2Fbrief&v=5990",
+    "GET activity-feed&v=5990&limit=30",
+    "GET onboarding&v=5990",
+    "GET platform%2Fnotifications&v=5990"
+   ]
+  },
+  "3 reload (warm cache)": {
+   "ms": 2890,
+   "cpu": {
+    "script": -49,
+    "layout": -142,
+    "style": 59,
+    "task": -180
+   },
+   "apiT": [
+    [
+     "auth%2Fsecurity",
+     62,
+     1554
+    ],
+    [
+     "auth%2Fme",
+     62,
+     2657
+    ],
+    [
+     "startup%2Fprepare",
+     416,
+     1709
+    ],
+    [
+     "workspace",
+     363,
+     190610
+    ],
+    [
+     "agent%2Finterface-preferences",
+     71,
+     1818
+    ],
+    [
+     "platform%2Fnotifications",
+     62,
+     1759
+    ],
+    [
+     "onboarding",
+     62,
+     1536
+    ],
+    [
+     "agent%2Faction-registry",
+     112,
+     22600
+    ],
+    [
+     "workspace%2Fsummary",
+     61,
+     2660
+    ],
+    [
+     "agent%2Finterface-preferences",
+     62,
+     1818
+    ],
+    [
+     "reports%2Fv5600%2Fforecast&start=2026-11-15&end=2026-12-12&b",
+     67,
+     18243
+    ],
+    [
+     "insights%2Fbrief",
+     174,
+     1950
+    ],
+    [
+     "agent%2Finterface-preferences",
+     62,
+     1818
+    ],
+    [
+     "activity-feed&limit=30",
+     65,
+     2678
+    ],
+    [
+     "financial-analysis%2Fdashboard",
+     186,
+     25823
+    ],
+    [
+     "agent%2Finterface-preferences",
+     62,
+     1818
+    ]
+   ],
+   "requests": 64,
+   "bytes": 840604,
+   "by": {
+    "Script": {
+     "n": 23,
+     "bytes": 167040
+    },
+    "Document": {
+     "n": 1,
+     "bytes": 5713
+    },
+    "Stylesheet": {
+     "n": 18,
+     "bytes": 333975
+    },
+    "api": {
+     "n": 16,
+     "bytes": 281051
+    },
+    "Font": {
+     "n": 2,
+     "bytes": 2490
+    },
+    "Other": {
+     "n": 2,
+     "bytes": 47048
+    },
+    "Image": {
+     "n": 2,
+     "bytes": 3287
+    }
+   },
+   "top": [
+    [
+     "/assets/tegh-foundation-r22.css?v=5990-r184-builder",
+     193514,
+     ""
+    ],
+    [
+     "/api/index.php?route=workspace&v=5990",
+     190610,
+     ""
+    ],
+    [
+     "/assets/tegh-professional-output-v5990.js?v=5990-r184-builder",
+     28031,
+     ""
+    ],
+    [
+     "/assets/tegh-activity-r22.js?v=5990-r184-builder",
+     27785,
+     ""
+    ],
+    [
+     "/assets/tegh-registers-r23.js?v=5990-r184-builder",
+     27505,
+     ""
+    ],
+    [
+     "/api/index.php?route=financial-analysis%2Fdashboard",
+     25823,
+     ""
+    ],
+    [
+     "/assets/tegh-r120.css?v=5990-r184-builder",
+     23640,
+     ""
+    ],
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ],
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ],
+    [
+     "/api/index.php?route=agent%2Faction-registry&v=5990",
+     22600,
+     ""
+    ],
+    [
+     "/assets/tegh-r27.css?v=5990-r184-builder",
+     20756,
+     ""
+    ],
+    [
+     "/api/index.php?route=reports%2Fv5600%2Fforecast&v=5990&start=2026-11-15&end=2026-12-12&buc",
+     18243,
+     ""
+    ]
+   ],
+   "api": [
+    "GET workspace&v=5990",
+    "GET financial-analysis%2Fdashboard",
+    "GET agent%2Faction-registry&v=5990",
+    "GET reports%2Fv5600%2Fforecast&v=5990&start=2026-11-15&end=2026-",
+    "GET activity-feed&v=5990&limit=30",
+    "GET workspace%2Fsummary&v=5990",
+    "GET auth%2Fme&v=5990",
+    "GET insights%2Fbrief&v=5990",
+    "GET agent%2Finterface-preferences&v=5990",
+    "GET agent%2Finterface-preferences&v=5990",
+    "GET agent%2Finterface-preferences",
+    "GET agent%2Finterface-preferences&v=5700",
+    "GET platform%2Fnotifications&v=5990",
+    "POST startup%2Fprepare&v=5990",
+    "GET auth%2Fsecurity&v=5990",
+    "GET onboarding&v=5990"
+   ]
+  },
+  "nav Customer Invoice & Note Regist [Your books, at a glance.]": {
+   "ms": 2578,
+   "cpu": {
+    "script": 425,
+    "layout": 291,
+    "style": 1456,
+    "task": 2531
+   },
+   "apiT": [
+    [
+     "workspace",
+     118,
+     190611
+    ],
+    [
+     "professional-output%2Fv5990%2Finvoice-register&status=all",
+     314,
+     50947
+    ]
+   ],
+   "requests": 3,
+   "bytes": 265082,
+   "by": {
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    },
+    "api": {
+     "n": 2,
+     "bytes": 241558
+    }
+   },
+   "top": [
+    [
+     "/api/index.php?route=workspace&v=5990",
+     190611,
+     ""
+    ],
+    [
+     "/api/index.php?route=professional-output%2Fv5990%2Finvoice-register&v=5990&status=all",
+     50947,
+     ""
+    ],
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ]
+   ],
+   "api": [
+    "GET workspace&v=5990",
+    "GET professional-output%2Fv5990%2Finvoice-register&v=5990&status"
+   ]
+  },
+  "nav Customers [Your books, at a glance.]": {
+   "ms": 783,
+   "cpu": {
+    "script": 58,
+    "layout": 60,
+    "style": 397,
+    "task": 599
+   },
+   "apiT": [
+    [
+     "professional-output%2Fv5990%2Fcustomer-directory",
+     310,
+     3919
+    ]
+   ],
+   "requests": 2,
+   "bytes": 27443,
+   "by": {
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    },
+    "api": {
+     "n": 1,
+     "bytes": 3919
+    }
+   },
+   "top": [
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ],
+    [
+     "/api/index.php?route=professional-output%2Fv5990%2Fcustomer-directory&v=5990",
+     3919,
+     ""
+    ]
+   ],
+   "api": [
+    "GET professional-output%2Fv5990%2Fcustomer-directory&v=5990"
+   ]
+  },
+  "nav Customer Invoices [Your books, at a glance.]": {
+   "ms": 317,
+   "cpu": {
+    "script": 24,
+    "layout": 19,
+    "style": 132,
+    "task": 245
+   },
+   "apiT": [
+    [
+     "portal%2Fproducts",
+     62,
+     1427
+    ],
+    [
+     "accounting-notes",
+     62,
+     1461
+    ]
+   ],
+   "requests": 3,
+   "bytes": 26412,
+   "by": {
+    "api": {
+     "n": 2,
+     "bytes": 2888
+    },
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    }
+   },
+   "top": [
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ],
+    [
+     "/api/index.php?route=accounting-notes&v=5990",
+     1461,
+     ""
+    ],
+    [
+     "/api/index.php?route=portal%2Fproducts&v=5990",
+     1427,
+     ""
+    ]
+   ],
+   "api": [
+    "GET accounting-notes&v=5990",
+    "GET portal%2Fproducts&v=5990"
+   ]
+  },
+  "nav Receivable Ageing [Your books, at a glance.]": {
+   "ms": 529,
+   "cpu": {
+    "script": 73,
+    "layout": 56,
+    "style": 258,
+    "task": 579
+   },
+   "apiT": [
+    [
+     "portal%2Faging&type=receivable&asOf=2026-11-15&partyId=",
+     62,
+     15974
+    ],
+    [
+     "professional-output%2Fv5990%2Far-ageing&asOf=2026-11-15&c1=3",
+     95,
+     20561
+    ],
+    [
+     "native-agent%2Fopportunistic",
+     62,
+     1479
+    ]
+   ],
+   "requests": 4,
+   "bytes": 61538,
+   "by": {
+    "api": {
+     "n": 3,
+     "bytes": 38014
+    },
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    }
+   },
+   "top": [
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ],
+    [
+     "/api/index.php?route=professional-output%2Fv5990%2Far-ageing&v=5990&asOf=2026-11-15&c1=30&",
+     20561,
+     ""
+    ],
+    [
+     "/api/index.php?route=portal%2Faging&v=5990&type=receivable&asOf=2026-11-15&partyId=",
+     15974,
+     ""
+    ],
+    [
+     "/api/index.php?route=native-agent%2Fopportunistic&v=5990",
+     1479,
+     ""
+    ]
+   ],
+   "api": [
+    "GET professional-output%2Fv5990%2Far-ageing&v=5990&asOf=2026-11-",
+    "GET portal%2Faging&v=5990&type=receivable&asOf=2026-11-15&partyI",
+    "POST native-agent%2Fopportunistic&v=5990"
+   ]
+  },
+  "nav Vendor Invoice & Note Register [Your books, at a glance.]": {
+   "ms": 1466,
+   "cpu": {
+    "script": 145,
+    "layout": 150,
+    "style": 938,
+    "task": 1404
+   },
+   "apiT": [
+    [
+     "professional-output%2Fv5990%2Fbill-register&status=all",
+     380,
+     17088
+    ]
+   ],
+   "requests": 2,
+   "bytes": 40612,
+   "by": {
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    },
+    "api": {
+     "n": 1,
+     "bytes": 17088
+    }
+   },
+   "top": [
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ],
+    [
+     "/api/index.php?route=professional-output%2Fv5990%2Fbill-register&v=5990&status=all",
+     17088,
+     ""
+    ]
+   ],
+   "api": [
+    "GET professional-output%2Fv5990%2Fbill-register&v=5990&status=al"
+   ]
+  },
+  "nav Vendors [Your books, at a glance.]": {
+   "ms": 426,
+   "cpu": {
+    "script": 51,
+    "layout": 35,
+    "style": 278,
+    "task": 517
+   },
+   "apiT": [
+    [
+     "professional-output%2Fv5990%2Fvendor-directory",
+     60,
+     3129
+    ]
+   ],
+   "requests": 2,
+   "bytes": 26653,
+   "by": {
+    "api": {
+     "n": 1,
+     "bytes": 3129
+    },
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    }
+   },
+   "top": [
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ],
+    [
+     "/api/index.php?route=professional-output%2Fv5990%2Fvendor-directory&v=5990",
+     3129,
+     ""
+    ]
+   ],
+   "api": [
+    "GET professional-output%2Fv5990%2Fvendor-directory&v=5990"
+   ]
+  },
+  "nav Match And Post Transactions [Your books, at a glance.]": {
+   "ms": 529,
+   "cpu": {
+    "script": 33,
+    "layout": 26,
+    "style": 294,
+    "task": 462
+   },
+   "apiT": [
+    [
+     "operations%2Freconciliation-workspace&bankAccountId=bank_7b6",
+     95,
+     41667
+    ],
+    [
+     "operations%2Freconciliation-position&bankAccountId=bank_7b67",
+     61,
+     41047
+    ]
+   ],
+   "requests": 3,
+   "bytes": 106238,
+   "by": {
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    },
+    "api": {
+     "n": 2,
+     "bytes": 82714
+    }
+   },
+   "top": [
+    [
+     "/api/index.php?route=operations%2Freconciliation-workspace&v=5990&bankAccountId=bank_7b670",
+     41667,
+     ""
+    ],
+    [
+     "/api/index.php?route=operations%2Freconciliation-position&v=5990&bankAccountId=bank_7b6703",
+     41047,
+     ""
+    ],
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ]
+   ],
+   "api": [
+    "GET operations%2Freconciliation-workspace&v=5990&bankAccountId=b",
+    "GET operations%2Freconciliation-position&v=5990&bankAccountId=ba"
+   ]
+  },
+  "nav Bank Transaction Report [Your books, at a glance.]": {
+   "ms": 827,
+   "cpu": {
+    "script": 93,
+    "layout": 48,
+    "style": 330,
+    "task": 668
+   },
+   "apiT": [
+    [
+     "professional-output%2Fv5990%2Fbank-transactions&start=2026-0",
+     355,
+     28925
+    ]
+   ],
+   "requests": 2,
+   "bytes": 52449,
+   "by": {
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    },
+    "api": {
+     "n": 1,
+     "bytes": 28925
+    }
+   },
+   "top": [
+    [
+     "/api/index.php?route=professional-output%2Fv5990%2Fbank-transactions&v=5990&start=2026-01-",
+     28925,
+     ""
+    ],
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ]
+   ],
+   "api": [
+    "GET professional-output%2Fv5990%2Fbank-transactions&v=5990&start"
+   ]
+  },
+  "nav Journal Entries [Your books, at a glance.]": {
+   "ms": 288,
+   "cpu": {
+    "script": 37,
+    "layout": 21,
+    "style": 161,
+    "task": 288
+   },
+   "apiT": [
+    [
+     "portal%2Fvoucher-drafts&type=manual_journal",
+     62,
+     1428
+    ]
+   ],
+   "requests": 2,
+   "bytes": 24952,
+   "by": {
+    "api": {
+     "n": 1,
+     "bytes": 1428
+    },
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    }
+   },
+   "top": [
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ],
+    [
+     "/api/index.php?route=portal%2Fvoucher-drafts&v=5990&type=manual_journal",
+     1428,
+     ""
+    ]
+   ],
+   "api": [
+    "GET portal%2Fvoucher-drafts&v=5990&type=manual_journal"
+   ]
+  },
+  "nav Day Book [Your books, at a glance.]": {
+   "ms": 1129,
+   "cpu": {
+    "script": 61,
+    "layout": 79,
+    "style": 336,
+    "task": 792
+   },
+   "apiT": [
+    [
+     "portal%2Fday-book&start=2000-01-01&end=2026-11-15&module=&st",
+     82,
+     110164
+    ],
+    [
+     "professional-output%2Fv5990%2Fday-book&start=2000-01-01&end=",
+     252,
+     306625
+    ]
+   ],
+   "requests": 3,
+   "bytes": 440313,
+   "by": {
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    },
+    "api": {
+     "n": 2,
+     "bytes": 416789
+    }
+   },
+   "top": [
+    [
+     "/api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=20",
+     306625,
+     ""
+    ],
+    [
+     "/api/index.php?route=portal%2Fday-book&v=5990&start=2000-01-01&end=2026-11-15&module=&stat",
+     110164,
+     ""
+    ],
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ]
+   ],
+   "api": [
+    "GET professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-",
+    "GET portal%2Fday-book&v=5990&start=2000-01-01&end=2026-11-15&mod"
+   ]
+  },
+  "nav Trial Balance [Your books, at a glance.]": {
+   "ms": 689,
+   "cpu": {
+    "script": 48,
+    "layout": 26,
+    "style": 256,
+    "task": 417
+   },
+   "apiT": [
+    [
+     "portal%2Ftrial-balance&scope=general-ledger&start=2026-11-01",
+     407,
+     2057
+    ],
+    [
+     "professional-output%2Fv5990%2Ftrial-balance&start=2026-11-01",
+     62,
+     3069
+    ]
+   ],
+   "requests": 3,
+   "bytes": 28650,
+   "by": {
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    },
+    "api": {
+     "n": 2,
+     "bytes": 5126
+    }
+   },
+   "top": [
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ],
+    [
+     "/api/index.php?route=professional-output%2Fv5990%2Ftrial-balance&v=5990&start=2026-11-01&e",
+     3069,
+     ""
+    ],
+    [
+     "/api/index.php?route=portal%2Ftrial-balance&v=5990&scope=general-ledger&start=2026-11-01&e",
+     2057,
+     ""
+    ]
+   ],
+   "api": [
+    "GET professional-output%2Fv5990%2Ftrial-balance&v=5990&start=202",
+    "GET portal%2Ftrial-balance&v=5990&scope=general-ledger&start=202"
+   ]
+  },
+  "nav Profit and Loss [Your books, at a glance.]": {
+   "ms": 407,
+   "cpu": {
+    "script": 33,
+    "layout": 36,
+    "style": 246,
+    "task": 370
+   },
+   "apiT": [
+    [
+     "reports%2Fv5600%2Fresolve&version=1&mode=preset&preset=fisca",
+     62,
+     1583
+    ],
+    [
+     "professional-output%2Fv5990%2Fprofit-loss&start=2026-01-01&e",
+     62,
+     4069
+    ]
+   ],
+   "requests": 3,
+   "bytes": 29176,
+   "by": {
+    "api": {
+     "n": 2,
+     "bytes": 5652
+    },
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    }
+   },
+   "top": [
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ],
+    [
+     "/api/index.php?route=professional-output%2Fv5990%2Fprofit-loss&v=5990&start=2026-01-01&end",
+     4069,
+     ""
+    ],
+    [
+     "/api/index.php?route=reports%2Fv5600%2Fresolve&v=5990&version=1&mode=preset&preset=fiscal_",
+     1583,
+     ""
+    ]
+   ],
+   "api": [
+    "GET professional-output%2Fv5990%2Fprofit-loss&v=5990&start=2026-",
+    "GET reports%2Fv5600%2Fresolve&v=5990&version=1&mode=preset&prese"
+   ]
+  },
+  "nav Balance Sheet [Your books, at a glance.]": {
+   "ms": 366,
+   "cpu": {
+    "script": 48,
+    "layout": 22,
+    "style": 248,
+    "task": 375
+   },
+   "apiT": [
+    [
+     "reports%2Fv5600%2Ffinancial&version=1&mode=as_of&asOf=2026-1",
+     63,
+     2053
+    ],
+    [
+     "professional-output%2Fv5990%2Fbalance-sheet&start=2026-11-15",
+     62,
+     2982
+    ]
+   ],
+   "requests": 3,
+   "bytes": 28559,
+   "by": {
+    "api": {
+     "n": 2,
+     "bytes": 5035
+    },
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    }
+   },
+   "top": [
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ],
+    [
+     "/api/index.php?route=professional-output%2Fv5990%2Fbalance-sheet&v=5990&start=2026-11-15&e",
+     2982,
+     ""
+    ],
+    [
+     "/api/index.php?route=reports%2Fv5600%2Ffinancial&v=5990&version=1&mode=as_of&asOf=2026-11-",
+     2053,
+     ""
+    ]
+   ],
+   "api": [
+    "GET professional-output%2Fv5990%2Fbalance-sheet&v=5990&start=202",
+    "GET reports%2Fv5600%2Ffinancial&v=5990&version=1&mode=as_of&asOf"
+   ]
+  },
+  "nav General Ledger Detail [Your books, at a glance.]": {
+   "ms": 679,
+   "cpu": {
+    "script": 65,
+    "layout": 34,
+    "style": 265,
+    "task": 721
+   },
+   "apiT": [
+    [
+     "professional-output%2Fv5990%2Fgeneral-ledger&start=2026-01-0",
+     143,
+     199517
+    ]
+   ],
+   "requests": 2,
+   "bytes": 223041,
+   "by": {
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    },
+    "api": {
+     "n": 1,
+     "bytes": 199517
+    }
+   },
+   "top": [
+    [
+     "/api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-01-01&",
+     199517,
+     ""
+    ],
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ]
+   ],
+   "api": [
+    "GET professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=20"
+   ]
+  },
+  "nav Report Builder [Your books, at a glance.]": {
+   "ms": 51,
+   "cpu": {
+    "script": 0,
+    "layout": 1,
+    "style": 8,
+    "task": 22
+   },
+   "apiT": [],
+   "requests": 0,
+   "bytes": 0,
+   "by": {},
+   "top": [],
+   "api": []
+  },
+  "nav Company Details [Your books, at a glance.]": {
+   "ms": 193,
+   "cpu": {
+    "script": 19,
+    "layout": 9,
+    "style": 91,
+    "task": 170
+   },
+   "apiT": [],
+   "requests": 1,
+   "bytes": 23524,
+   "by": {
+    "Other": {
+     "n": 1,
+     "bytes": 23524
+    }
+   },
+   "top": [
+    [
+     "/favicon.ico?v=4600",
+     23524,
+     ""
+    ]
+   ],
+   "api": []
+  }
+ },
+ "perf": {
+  "heapMB": 36,
+  "dom": 1532
+ },
+ "errs": []
+}
