@@ -3,7 +3,7 @@
 
   const VERSION = '5.9.9';
   const BUILD = '5990';
-  const ASSET_REVISION = '5990-r184-builder';
+  const ASSET_REVISION = '5990-r185-speed';
   const AUTH_CACHE_MS = 60000;
   const POST_COMMIT_SESSION_GRACE_MS = 45000;
   const RECOVERY_MARKER_KEY = 'tegh-session-recovery-v5990';
@@ -1260,6 +1260,24 @@
     ]).finally(() => window.clearTimeout(timer));
   }
 
+  // R185: start downloading the interface modules while the person signs in and while the server prepares the
+  // session (startup/prepare and the workspace read), instead of only afterwards. A module preload only fetches
+  // and compiles; nothing runs until importApplication() imports the same addresses in the same order as before.
+  let interfacePreloadStarted = false;
+  function preloadInterface() {
+    if (interfacePreloadStarted || safeMode) return;
+    interfacePreloadStarted = true;
+    try {
+      for (const moduleUrl of [BASE_MODULE, '/assets/tegh-reference-r19.js', ...REQUIRED_INTERFACE_MODULES]) {
+        const link = document.createElement('link');
+        link.rel = 'modulepreload';
+        link.href = `${moduleUrl}?v=${ASSET_REVISION}`;
+        document.head.append(link);
+      }
+    } catch (_) { /* A preload is only a head start; importApplication() still loads every module. */ }
+  }
+  loginForm?.addEventListener('focusin', preloadInterface, {once: true});
+
   async function loadExtension(moduleUrl, required = false) {
     let lastError = null;
     for (let attempt = 1; attempt <= 2; attempt++) {
@@ -1503,6 +1521,7 @@
     }
     if (opening) return;
     opening = true;
+    preloadInterface();
     clearError();
     // A manual sign-in starts after the initial saved-session probe has already
     // revealed the gate. Re-arm the neutral startup cover before importing the
@@ -1522,6 +1541,13 @@
       setProgress('Sign-in accepted.', 'Preparing the database safely. This screen will remain usable…', true);
       let preparation = null;
       let preparationError = null;
+      // R185: the company workspace read starts together with the read-only startup check instead of after it.
+      // Its result is used only when that check succeeds with nothing to upgrade and no warning; otherwise it is
+      // discarded and the workspace is read again afterwards, exactly as before. The read always finishes before
+      // any upgrade step can start.
+      const earlyWorkspace = lastCompanyId
+        ? request('workspace', {method: 'GET', headers: {'X-Company-Id': lastCompanyId}}, 38000).then(value => ({value}), error => ({error}))
+        : null;
       try {
         preparation = await request('startup/prepare', {
           method: 'POST',
@@ -1545,6 +1571,8 @@
           preparationRequestId: String(error?.requestId || ''),
         };
       }
+      const early = earlyWorkspace ? await earlyWorkspace : null;
+      const earlyUsable = !!early?.value && !preparationError && !preparation?.degraded && !schemaUpgradePending(preparation);
       preparation = await resolveSchemaUpgrade(auth, preparation);
       window.__TEGH_STARTUP_PREPARATION__ = preparation || {};
       if (preparation?.degraded) {
@@ -1557,7 +1585,7 @@
         setProgress(preparation?.degraded ? 'Accounting workspace is being verified.' : 'Database is ready.', preparation?.degraded ? 'Database maintenance needs review; verifying that your existing company data is safely readable…' : 'Loading the selected company…', true);
         // This read is the final safety proof for degraded startup. If the established
         // accounting workspace cannot be read, Tegh still fails closed.
-        lastWorkspace = await request('workspace', {
+        lastWorkspace = earlyUsable ? early.value : await request('workspace', {
           method: 'GET',
           headers: {'X-Company-Id': lastCompanyId},
         }, 38000);
@@ -2093,6 +2121,8 @@
     showLogin();
     setProgress('Sign-in is ready.', 'Saved-session opening was skipped by request.', false);
   } else {
+    // R185: with a saved sign-in, the interface modules start downloading while auth/me confirms the session.
+    try { if (window.localStorage.getItem('tegh-session-hint') === '1') preloadInterface(); } catch (_) {}
     window.setTimeout(checkSavedSession, 150);
   }
 })();

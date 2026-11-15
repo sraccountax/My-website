@@ -12,10 +12,15 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R184 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R185 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R184 (R118–R184 change notes are
-included). R184 is the private beta package (it replaces R183): the Report Builder under Reports, where users build
+This package contains every release through R185 (R118–R185 change notes are
+included). R185 is the private beta package (it replaces R184): speed. Registers and reports open faster, sign-in and
+reload wait less on the server, and the browser keeps this release's files instead of re-checking each one on every
+load (see R185-CHANGES.md). No switch, no database change and no accounting change. The .htaccess file is part of
+this release: upload it with the other files. Three unused stylesheets are no longer in the package
+(tegh-app-v5990.css, tegh-app-v5700.css, tegh-marketing-v5900.css); copies already on the host are harmless and
+may stay. R184 (replaced R183): the Report Builder under Reports, where users build
 their own reports (rows, columns side by side, values, filters, saved and shared reports; see R184-CHANGES.md).
 AFTER INSTALLING, the Report Builder is off until the platform owner chooses "Platform owner only" or "Everyone" in
 Site & Release Settings › Release › Report Builder; try "Platform owner only" on staging first. The first saved

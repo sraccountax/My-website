@@ -394,6 +394,22 @@
   function ownerPage(node){return node.closest('.srp-page')||(node.closest('.tegh-overlay-layer')?window.TeghOverlayManager?.active?.closest?.('.srp-page'):null)||null}
   async function handleReportAction(button,kind){if(button.disabled)return;const overlayOwner=button.closest('.tegh-overlay-layer')?window.TeghOverlayManager?.active:null;const page=ownerPage(button);if(overlayOwner)window.TeghOverlayManager.close(overlayOwner,false);button.closest('.r17-export-menu,.r16-export-menu')?.removeAttribute('open');const original=button.textContent;button.disabled=true;button.setAttribute('aria-busy','true');button.textContent=kind==='print'?'Preparing print…':kind==='pdf'?'Building PDF…':'Building Excel…';let popup=null;if(kind==='print')popup=window.open('','_blank');try{const model=await reportOutput(page),base=`Tegh-${safeName(model.title)}`;if(kind==='print')await openReportPrint(model,popup);else if(kind==='pdf')download(await pdfReport(model),`${base}.pdf`);else download(reportXlsx(model),`${base}.xlsx`);notify('Report ready',model.title)}catch(error){popup?.close();notify('Report unavailable',error.message,'error')}finally{button.disabled=false;button.removeAttribute('aria-busy');button.textContent=original}}
   const interactiveReportPages=new Set(['payroll-runs','payroll-verification']);
+  // R185: true when enhanceReportOutput() is about to replace this page's legacy tables with the sealed report
+  // (the same conditions that lead setReportContext() to hide them). The portal calls prepareSurface() just before
+  // its layout pass, so a register's full legacy table (every row, often thousands of cells) is hidden before the
+  // layout code measures it, instead of a moment later. The tables, their buttons and the report are unchanged.
+  function replacesLegacyTables(page){
+    if(!page||page.dataset.teghOutputSuspended==='1'||reportContexts.get(page)||interactiveReportPages.has(page.dataset.srpPage))return false;
+    const context=page.teghReportContext||{route:reportRoutes[page.dataset.srpPage],params:{}},route=outputDefinition(page,context);
+    if(!route)return false;
+    if(['customer-ledger','vendor-ledger'].includes(route)){const params=authoritativeParams(page,context,route);if(!params.partyId&&!params.customerId&&!params.vendorId)return false;}
+    return !(context.preserveInteractive===true||['payroll-runs','payroll-history','payroll-verification','payroll-quick-calculator'].includes(page.dataset.srpPage));
+  }
+  function prepareSurface(page){
+    if(!replacesLegacyTables(page))return false;
+    qa('.srp-table-wrap,.sra-table-wrap',q('.srp-page-body',page)||page).forEach(el=>{if(!el.closest('[data-tegh-authoritative-report]')){el.hidden=true;el.dataset.teghStaleReport='1'}});
+    return true;
+  }
   function enhanceReportOutput(page){if(!page||page.dataset.teghOutputSuspended==='1')return;let c=reportContexts.get(page);if(!c){if(interactiveReportPages.has(page.dataset.srpPage))return;const context=page.teghReportContext||{route:reportRoutes[page.dataset.srpPage],params:{}};if(outputDefinition(page,context)){setReportContext(page,context);return}}if(c)renderOutputToolbar(page,c)}
   function clearOutputScope(){outputControllers.forEach(c=>c.abort());outputControllers.clear();reportContexts=new WeakMap();directoryActionCache=new WeakMap();authPromise=null;invoiceRegisterPromise=null;qa('.srp-page').forEach(p=>{delete p.teghSealedReport;delete p.teghReportContext});qa('[data-tegh-authoritative-report]').forEach(x=>x.replaceChildren());qa('[data-tegh-output-toolbar] button').forEach(b=>b.disabled=true)}
   window.addEventListener('tegh:invalidate-scope',clearOutputScope);window.addEventListener('tegh:scope-invalidated',clearOutputScope);window.addEventListener('tegh:company-scope-invalidated',clearOutputScope);
@@ -468,6 +484,6 @@
   },true);
   window.addEventListener('tegh:page-rendered',event=>enhancePage(event.detail?.page));
   const current=q('.srp-page');if(current)enhancePage(current);
-  window.TeghProfessionalOutput={version:VERSION,invoiceOutput,invoicePrintHtml,pdfInvoice,reportPrintHtml,pdfReport,reportXlsx,categoryWorkbookXlsx,reportOutput,setReportContext,exportTableView,
+  window.TeghProfessionalOutput={version:VERSION,prepareSurface,invoiceOutput,invoicePrintHtml,pdfInvoice,reportPrintHtml,pdfReport,reportXlsx,categoryWorkbookXlsx,reportOutput,setReportContext,exportTableView,
     openInvoicePrint:async id=>openPrint(await invoiceOutput(id)),downloadInvoicePdf:async id=>{const model=await invoiceOutput(id);download(await pdfInvoice(model),`Tegh-Invoice-${safeName(model.document?.number)}.pdf`)}};
 })();

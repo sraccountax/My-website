@@ -36,6 +36,13 @@ ErrorDocument 404 /404.html
   # R147: the site root shows the public home page (index.html, via DirectoryIndex). Sign In links and every emailed
   # link point at /app.html directly; old links that carry sign-in parameters on the root are redirected above.
 
+  # R185: an application asset requested with THIS release's cache token never changes under that address, because
+  # every release changes the token (here, in app.html, tegh-gate-v5990.js and tegh-preflight-v5990.js). Browsers
+  # keep such files instead of re-checking each one on every page load (see the Cache-Control rule below). Files
+  # requested with an older, fixed token keep the previous behaviour.
+  RewriteCond %{QUERY_STRING} (^|&)v=5990-r185-speed(&|$)
+  RewriteRule ^assets/ - [E=TEGH_RELEASE_ASSET:1]
+
   # Existing files/directories are served normally. Unknown paths fall through to a real 404.
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
@@ -69,6 +76,11 @@ ErrorDocument 404 /404.html
 
   <FilesMatch "^(tegh-app-v[0-9]+\.css|tegh-motion-v[0-9]+\.(css|js)|tegh-marketing-v[0-9]+\.(css|js)|tegh-(preflight|release|premium|experience|gate|sites-shell|portal|workflow|ai|native-ocr|native-ap-ar|forecast)-v[0-9]+\.(css|js)|tegh-(mark|icons)-v[0-9]+\.svg|tegh-social-v[0-9]+\.png|tegh-icon-180(?:-v[0-9]+)?\.png|index-BsxPiq85-v2817\.js|pdfStatementImport-BTobSMtl-v211\.js|spreadsheetStatementImport-R-lkb343-v211\.js|pdf\.worker\.min-DEtVeC4l\.mjs|xlsx-Cl_0CZaL\.js|setupSpreadsheetImport-ziv42POg\.js|statementRowRules-mL-yEqfq\.js|favicon\.(ico|png))$">
     Header always set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  # R185: release-token assets (set by the rewrite rule above) and the bundled web fonts.
+  Header always set Cache-Control "public, max-age=31536000, immutable" env=TEGH_RELEASE_ASSET
+  <FilesMatch "\.woff2$">
+    Header always set Cache-Control "public, max-age=2592000"
   </FilesMatch>
   <FilesMatch "^(pdf(?:\.worker)?\.min\.mjs|tesseract\.min\.js|tesseract-core-lstm\.(?:js|wasm|wasm\.js)|worker\.min\.js|eng\.traineddata|tegh-ai-(?:core|runtime|worker)-v4\.js|model\.json|manifest\.json|tegh-vector-v1\.wasm|ort\.wasm\.min\.js|ort-wasm-simd-threaded\.(?:mjs|wasm)|ppocrv5-mobile-[a-z-]+\.(?:onnx|json))$">
     Header always set Cache-Control "public, max-age=31536000, immutable"

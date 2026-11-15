@@ -24,6 +24,18 @@ function schema_startup_contract_rows(string $kind, string $table): ?array
         ];
         if(!isset($queries[$kind]))throw new InvalidArgumentException('Unknown startup contract kind.');
         $snapshots[$kind]=[];
+        if($kind==='foreignKeys'){
+            // R185: the same rows as the KEY_COLUMN_USAGE/REFERENTIAL_CONSTRAINTS join above, read as two plain
+            // catalogue queries and joined here. MariaDB evaluates the joined form by opening every table twice
+            // (about 300 ms per sign-in on the test server); the two separate reads take about 30 ms.
+            $rules=[];
+            foreach(db()->query('SELECT TABLE_NAME,CONSTRAINT_NAME,UPDATE_RULE,DELETE_RULE FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE()')->fetchAll(PDO::FETCH_ASSOC) as $rule){$rule=array_change_key_case($rule,CASE_UPPER);$rules[$rule['TABLE_NAME']."\0".$rule['CONSTRAINT_NAME']]=$rule;}
+            foreach(db()->query('SELECT TABLE_NAME,CONSTRAINT_NAME,COLUMN_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE CONSTRAINT_SCHEMA=DATABASE() AND REFERENCED_TABLE_NAME IS NOT NULL ORDER BY TABLE_NAME,CONSTRAINT_NAME,ORDINAL_POSITION')->fetchAll(PDO::FETCH_ASSOC) as $row){
+                $row=array_change_key_case($row,CASE_UPPER);$rule=$rules[$row['TABLE_NAME']."\0".$row['CONSTRAINT_NAME']]??null;if($rule===null)continue;
+                $row['UPDATE_RULE']=$rule['UPDATE_RULE'];$row['DELETE_RULE']=$rule['DELETE_RULE'];$snapshots[$kind][$row['TABLE_NAME']][]=$row;
+            }
+            return $snapshots[$kind][$table]??[];
+        }
         foreach(db()->query($queries[$kind])->fetchAll(PDO::FETCH_ASSOC) as $row){$row=array_change_key_case($row,CASE_UPPER);$snapshots[$kind][$row['TABLE_NAME']][]=$row;}
     }
     return $snapshots[$kind][$table]??[];

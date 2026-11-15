@@ -50,7 +50,7 @@ html[data-tegh-design="living-ledger"].sr-reset-only .sr-gate { display:grid!imp
 html[data-tegh-design="living-ledger"].sr-reset-only .sr-gate-panel { width:min(100%,620px);min-height:0!important;margin:0!important;padding:20px!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important; }
 html[data-tegh-design="living-ledger"].sr-reset-only #sr-password-reset-panel { width:100%;max-width:none;padding:clamp(22px,3vw,34px);border:1px solid var(--tegh-line);background:var(--tegh-surface-elevated);color:var(--tegh-text); }
 /* Menus are ported to a top-level overlay; parent-dependent selectors do not apply there. */
-html[data-tegh-shell] #tegh-overlay-root .r17-menu-panel:has(.r31-profile-preferences) { width:min(400px,calc(100vw - 20px))!important;box-sizing:border-box;overflow-y:auto!important;overscroll-behavior:contain; }
+html[data-tegh-shell] #tegh-overlay-root .r17-menu-panel.r31-has-profile-preferences { width:min(400px,calc(100vw - 20px))!important;box-sizing:border-box;overflow-y:auto!important;overscroll-behavior:contain; }
 html[data-tegh-shell] #tegh-overlay-root .tegh-overlay-layer { pointer-events:auto; }
 html[data-tegh-shell] .srp-page[data-r29-reference="invoice"] :is(select[name="customerId"],select[name="templateId"],select[name="productServiceId"]) { position:relative;z-index:1;min-height:40px;pointer-events:auto; }
 @media(max-width:850px) { html[data-tegh-shell] .r32-report-groups { grid-template-columns:1fr; } }
@@ -77,9 +77,9 @@ html[data-tegh-shell] .r32-report-group .r32-report-list>button>span:first-child
 
 /* The preferences panel is moved to the body when opened, outside the
    legacy menu's theme variables and parent-dependent typography rules. */
-html[data-tegh-shell] #tegh-overlay-root .r17-menu-panel:has(.r31-profile-preferences)>button { display:grid;justify-items:start;align-content:center;gap:2px; }
-html[data-tegh-theme="dark"] #tegh-overlay-root .r17-menu-panel:has(.r31-profile-preferences) { --r22-surface:var(--tegh-surface-elevated);--r22-text:var(--tegh-text);--r22-muted:var(--tegh-muted);--r22-border:var(--tegh-line);--r22-accent:var(--tegh-accent);--r22-danger:#ffa7a0; }
-@media(prefers-color-scheme:dark) { html[data-tegh-theme="auto"] #tegh-overlay-root .r17-menu-panel:has(.r31-profile-preferences) { --r22-surface:var(--tegh-surface-elevated);--r22-text:var(--tegh-text);--r22-muted:var(--tegh-muted);--r22-border:var(--tegh-line);--r22-accent:var(--tegh-accent);--r22-danger:#ffa7a0; } }
+html[data-tegh-shell] #tegh-overlay-root .r17-menu-panel.r31-has-profile-preferences>button { display:grid;justify-items:start;align-content:center;gap:2px; }
+html[data-tegh-theme="dark"] #tegh-overlay-root .r17-menu-panel.r31-has-profile-preferences { --r22-surface:var(--tegh-surface-elevated);--r22-text:var(--tegh-text);--r22-muted:var(--tegh-muted);--r22-border:var(--tegh-line);--r22-accent:var(--tegh-accent);--r22-danger:#ffa7a0; }
+@media(prefers-color-scheme:dark) { html[data-tegh-theme="auto"] #tegh-overlay-root .r17-menu-panel.r31-has-profile-preferences { --r22-surface:var(--tegh-surface-elevated);--r22-text:var(--tegh-text);--r22-muted:var(--tegh-muted);--r22-border:var(--tegh-line);--r22-accent:var(--tegh-accent);--r22-danger:#ffa7a0; } }
 html[data-tegh-theme="dark"] .srp-ci-totals .total b { color:var(--tegh-accent)!important; }
 html[data-tegh-theme="dark"] .r23-table .r23-summary-row>th { background:var(--tegh-surface-elevated)!important;color:var(--tegh-text)!important; }
 html[data-tegh-shell][data-tegh-theme="dark"] .srp-report-period label { color:var(--tegh-muted)!important; }
