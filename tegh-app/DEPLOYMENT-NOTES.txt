@@ -17,7 +17,8 @@ TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R186 PRIVATE BETA DEPLOYMENT (invitation
 This package contains every release through R186 (R118–R186 change notes are
 included). R186 is the private beta package (it replaces R185): in Match and Post, a posted line can be unposted
 (the posting is undone, including a receipt or payment of an invoice or bill, and the line returns to Unposted), and
-an unposted line can be edited (date, amount, description, reference, remarks) or deleted from its row. Void on the
+an unposted line can be edited (date, amount, description, reference, remarks) or deleted, all from the line's
+Actions menu, shown on the selected line. Void on the
 Bank Transactions list now refuses a line posted as an invoice or bill payment and points to Unpost, because voiding
 only the line left the invoice or bill marked paid (see R186-CHANGES.md). No switch and no database change. Upload
 .htaccess with the other files (it carries the new cache token). R185 (replaced R184): speed. Registers and reports open faster, sign-in and

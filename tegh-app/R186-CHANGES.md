@@ -4,16 +4,16 @@ R186 = R185 plus three actions in **Banking › Match and Post**. There is no sw
 
 ## What you see
 
-Each line in the Bank Transactions list gets buttons on the right of its description:
+Each line in the Bank Transactions list has one **Actions ▾** menu, at the right of its description. It appears on the selected line: a line you tick, or a line you click. Other lines stay uncluttered. Keyboard users reach it with Tab, and Escape closes it.
 
-| Line | Buttons |
+| Line | Actions ▾ offers |
 |---|---|
-| Unposted | **✎** edit, **🗑** delete |
+| Unposted | **Edit**, **Delete** |
 | Posted | **Unpost** |
 
-People who may not change banking do not see these buttons. The server checks permissions again in any case.
+People who may not change banking do not see the menu. The server checks permissions again in any case.
 
-### ✎ Edit an unposted line
+### Edit an unposted line
 
 The edit dialog changes:
 - money in or out;
@@ -21,13 +21,13 @@ The edit dialog changes:
 - date;
 - description, reference and remarks.
 
-This replaces R182's pencil, which could change only the description, reference and remarks.
+This replaces R182's ✎ pencil, which could change only the description, reference and remarks.
 
 Rules:
 - The audit history keeps the old and new values.
 - A line that is matched, in a completed reconciliation, or dated in a closed period cannot change. These rules were already in R129.
 
-### 🗑 Delete an unposted line
+### Delete an unposted line
 
 - Tegh asks for confirmation, then deletes the line.
 - No ledger entry is involved, because the line was never posted.
