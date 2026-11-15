@@ -1,6 +1,6 @@
 # R186 Unpost, edit and delete in Match and Post: results
 
-Package: `Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R186-PRIVATE-BETA.zip` (SHA-256 below, in section 6).
+Package: `Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R186-PRIVATE-BETA.zip` (SHA-256 in section 6).
 
 Everything here was run on the test server (gate.test) with synthetic companies. **Nothing was run on the IONOS server.**
 
@@ -95,5 +95,6 @@ Files: `comparison/`.
 
 ## 6. Package
 
-- SHA-256 and file count are given in the delivery message for this release.
+- SHA-256 `df6a9eda827edb2813ea2e241bfb7e5b7a0414a0ca88e69cad2a125ffbd35d92`; 435 files; FILE-MANIFEST: all entries OK.
+- It differs from the gate-tested package (SHA-256 `daf946184af3afffbf804be6fd1819a1b1f72c40c2b2c7c2e806db83ce84d6f6`) only in `R186-CHANGES.md` (16 → 17 checks) and that file's line in `FILE-MANIFEST.sha256`.
 - FILE-MANIFEST is checked with `sha256sum -c` before packing.
