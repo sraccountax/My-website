@@ -616,6 +616,75 @@ function apply_advance_to_document(array $user, array $company, array $input): n
     json_response(['payment'=>['id'=>$paymentId,'documentId'=>$documentId,'unapplied'=>false],'applicationJournalEntryId'=>$applicationJournalId]);
 }
 
+/**
+ * The accounting steps of reversing a posted partner payment. The caller owns the transaction and has locked the
+ * payment row. R186: shared by the Payments screen and Match and Post unposting ($bankUnpost), so both reverse a
+ * payment the same way. With $bankUnpost the statement row's own reconciliation checks are made by the caller.
+ */
+function party_payment_reverse_core(array $user,string $companyId,string $paymentId,array $payment,string $date,bool $bankUnpost=false): string
+{
+    $linkedNoteRefund=null;
+    if(schema_table_exists('accounting_note_settlements')){
+        $linked=db()->prepare("SELECT s.* FROM accounting_note_settlements s JOIN accounting_notes n ON n.id=s.note_id AND n.company_id=s.company_id WHERE s.company_id=? AND s.payment_id=? AND s.settlement_kind='refund' AND s.status='posted' FOR UPDATE");
+        $linked->execute([$companyId,$paymentId]);$linkedNoteRefund=$linked->fetch();
+        if($linkedNoteRefund && $date<(string)$linkedNoteRefund['settlement_date'])fail('Reversal date cannot precede the linked note refund.',409,'note_refund_reversal_date_invalid');
+        if($linkedNoteRefund)note_assert_settlement_date_order($companyId,(string)$linkedNoteRefund['note_id'],$date);
+    }
+    // R186: Match and Post unposting reverses the payment it created from the statement row itself.
+    if ($payment['bank_transaction_id'] !== null && !$bankUnpost) {
+        fail('This payment is matched to a bank statement. Undo the bank match before reversing the payment.',409,'payment_is_bank_matched');
+    }
+    $activeApplications=db()->prepare("SELECT COUNT(*) FROM party_payment_applications WHERE company_id=? AND payment_id=? AND status='posted' FOR UPDATE");
+    $activeApplications->execute([$companyId,$paymentId]);
+    if((int)$activeApplications->fetchColumn()>0)fail('Unapply every active invoice or bill allocation before reversing this payment.',409,'payment_has_active_applications');
+    if ($date < (string)$payment['payment_date']) fail('Reversal date cannot precede the payment date.');
+    if ($payment['journal_entry_id'] === null) throw new RuntimeException('The payment journal is missing.');
+    if (!$bankUnpost) require_journal_unmatched_before_reversal($companyId, (string)$payment['journal_entry_id'], (string)$payment['payment_type'].' payment');
+    $applicationStmt = db()->prepare("SELECT id FROM journal_entries WHERE company_id=? AND source_type=? AND source_id=? AND status='posted' ORDER BY created_at DESC LIMIT 1 FOR UPDATE");
+    $applicationStmt->execute([$companyId,(string)$payment['payment_type'].'_advance_application',$paymentId]);
+    $applicationJournalId = $applicationStmt->fetchColumn();
+    $applicationReversalId = $applicationJournalId
+        ? add_reversing_journal_entry($user,$companyId,(string)$applicationJournalId,$date,(string)$payment['payment_type'].'_advance_application_reversal',$paymentId,'Reverse advance application '.$payment['reference'])
+        : null;
+    $reversalId = add_reversing_journal_entry($user,$companyId,(string)$payment['journal_entry_id'],$date,
+        (string)$payment['payment_type'].'_payment_reversal',$paymentId,'Reverse payment '.$payment['reference']);
+    // An initial direct allocation can have a separate recognition correction
+    // after unapply. Reverse it together with the original payment, leaving
+    // the restored invoice/bill and all historical journal hashes intact.
+    $initialCorrections=db()->prepare("SELECT je.id,je.entry_date FROM journal_entries je JOIN party_payment_applications pa ON pa.id=je.source_id AND pa.company_id=je.company_id WHERE je.company_id=? AND pa.payment_id=? AND je.source_type=? AND je.status='posted' FOR UPDATE");
+    $initialCorrections->execute([$companyId,$paymentId,(string)$payment['payment_type'].'_payment_initial_unapply']);
+    foreach($initialCorrections->fetchAll(PDO::FETCH_ASSOC) as $correction){
+        if($date<(string)$correction['entry_date'])fail('Reversal date cannot precede the payment unapply date.',422,'payment_reversal_date_invalid');
+        add_reversing_journal_entry($user,$companyId,(string)$correction['id'],$date,(string)$payment['payment_type'].'_initial_unapply_reversal',$paymentId,'Reverse direct payment unapply recognition');
+    }
+    // Modern allocations were restored by explicit unapply. Only legacy
+    // directly-applied payments still have an amount to restore here.
+    if ($payment['document_id'] !== null && (int)$payment['applied_cents'] > 0 && (string)$payment['payment_type'] === 'customer') {
+        db()->prepare("UPDATE invoices SET balance_cents=LEAST(total_cents,balance_cents+?),
+          foreign_balance_cents=LEAST(foreign_total_cents,foreign_balance_cents+?),
+          status='sent' WHERE id=? AND company_id=?")
+            ->execute([(int)$payment['applied_cents'],(int)$payment['foreign_amount_cents'],$payment['document_id'],$companyId]);
+    } elseif ($payment['document_id'] !== null && (int)$payment['applied_cents'] > 0) {
+        db()->prepare("UPDATE bills SET balance_cents=LEAST(total_cents,balance_cents+?),
+          foreign_balance_cents=LEAST(foreign_total_cents,foreign_balance_cents+?),
+          status='open' WHERE id=? AND company_id=?")
+            ->execute([(int)$payment['applied_cents'],(int)$payment['foreign_amount_cents'],$payment['document_id'],$companyId]);
+    }
+    db()->prepare("UPDATE party_payments SET status='reversed',reversal_journal_entry_id=?,reversed_by=?,reversed_at=UTC_TIMESTAMP()
+      WHERE id=? AND company_id=? AND status='posted'")->execute([$reversalId,$user['id'],$paymentId,$companyId]);
+    if($linkedNoteRefund){
+        db()->prepare("UPDATE accounting_note_settlements SET status='reversed',reversal_date=? WHERE company_id=? AND id=? AND status='posted'")
+            ->execute([$date,$companyId,$linkedNoteRefund['id']]);
+        audit_event($user,$companyId,'accounting_note.refund_reversed','accounting_note',(string)$linkedNoteRefund['note_id'],['settlementId'=>$linkedNoteRefund['id'],'paymentId'=>$paymentId,'reversalDate'=>$date,'reversalJournalEntryId'=>$reversalId]);
+    }
+    if (function_exists('voucher_mark_void')) {
+        voucher_mark_void($user,$companyId,(string)$payment['payment_type'].'_payment',$paymentId);
+    }
+    audit_event($user,$companyId,(string)$payment['payment_type'].'.payment_reversed',
+        (string)$payment['payment_type'].'_payment',$paymentId,['reversalJournalEntryId'=>$reversalId,'applicationReversalJournalEntryId'=>$applicationReversalId,'reversalDate'=>$date]);
+    return $reversalId;
+}
+
 function reverse_party_payment(array $user, array $company, array $input): never
 {
     $companyId = (string)$company['id'];
@@ -628,64 +697,7 @@ function reverse_party_payment(array $user, array $company, array $input): never
         $stmt->execute([$paymentId,$companyId]);
         $payment = $stmt->fetch();
         if (!$payment) fail('Choose an available posted payment.',409,'payment_unavailable');
-        $linkedNoteRefund=null;
-        if(schema_table_exists('accounting_note_settlements')){
-            $linked=db()->prepare("SELECT s.* FROM accounting_note_settlements s JOIN accounting_notes n ON n.id=s.note_id AND n.company_id=s.company_id WHERE s.company_id=? AND s.payment_id=? AND s.settlement_kind='refund' AND s.status='posted' FOR UPDATE");
-            $linked->execute([$companyId,$paymentId]);$linkedNoteRefund=$linked->fetch();
-            if($linkedNoteRefund && $date<(string)$linkedNoteRefund['settlement_date'])fail('Reversal date cannot precede the linked note refund.',409,'note_refund_reversal_date_invalid');
-            if($linkedNoteRefund)note_assert_settlement_date_order($companyId,(string)$linkedNoteRefund['note_id'],$date);
-        }
-        if ($payment['bank_transaction_id'] !== null) {
-            fail('This payment is matched to a bank statement. Undo the bank match before reversing the payment.',409,'payment_is_bank_matched');
-        }
-        $activeApplications=db()->prepare("SELECT COUNT(*) FROM party_payment_applications WHERE company_id=? AND payment_id=? AND status='posted' FOR UPDATE");
-        $activeApplications->execute([$companyId,$paymentId]);
-        if((int)$activeApplications->fetchColumn()>0)fail('Unapply every active invoice or bill allocation before reversing this payment.',409,'payment_has_active_applications');
-        if ($date < (string)$payment['payment_date']) fail('Reversal date cannot precede the payment date.');
-        if ($payment['journal_entry_id'] === null) throw new RuntimeException('The payment journal is missing.');
-        require_journal_unmatched_before_reversal($companyId, (string)$payment['journal_entry_id'], (string)$payment['payment_type'].' payment');
-        $applicationStmt = db()->prepare("SELECT id FROM journal_entries WHERE company_id=? AND source_type=? AND source_id=? AND status='posted' ORDER BY created_at DESC LIMIT 1 FOR UPDATE");
-        $applicationStmt->execute([$companyId,(string)$payment['payment_type'].'_advance_application',$paymentId]);
-        $applicationJournalId = $applicationStmt->fetchColumn();
-        $applicationReversalId = $applicationJournalId
-            ? add_reversing_journal_entry($user,$companyId,(string)$applicationJournalId,$date,(string)$payment['payment_type'].'_advance_application_reversal',$paymentId,'Reverse advance application '.$payment['reference'])
-            : null;
-        $reversalId = add_reversing_journal_entry($user,$companyId,(string)$payment['journal_entry_id'],$date,
-            (string)$payment['payment_type'].'_payment_reversal',$paymentId,'Reverse payment '.$payment['reference']);
-        // An initial direct allocation can have a separate recognition correction
-        // after unapply. Reverse it together with the original payment, leaving
-        // the restored invoice/bill and all historical journal hashes intact.
-        $initialCorrections=db()->prepare("SELECT je.id,je.entry_date FROM journal_entries je JOIN party_payment_applications pa ON pa.id=je.source_id AND pa.company_id=je.company_id WHERE je.company_id=? AND pa.payment_id=? AND je.source_type=? AND je.status='posted' FOR UPDATE");
-        $initialCorrections->execute([$companyId,$paymentId,(string)$payment['payment_type'].'_payment_initial_unapply']);
-        foreach($initialCorrections->fetchAll(PDO::FETCH_ASSOC) as $correction){
-            if($date<(string)$correction['entry_date'])fail('Reversal date cannot precede the payment unapply date.',422,'payment_reversal_date_invalid');
-            add_reversing_journal_entry($user,$companyId,(string)$correction['id'],$date,(string)$payment['payment_type'].'_initial_unapply_reversal',$paymentId,'Reverse direct payment unapply recognition');
-        }
-        // Modern allocations were restored by explicit unapply. Only legacy
-        // directly-applied payments still have an amount to restore here.
-        if ($payment['document_id'] !== null && (int)$payment['applied_cents'] > 0 && (string)$payment['payment_type'] === 'customer') {
-            db()->prepare("UPDATE invoices SET balance_cents=LEAST(total_cents,balance_cents+?),
-              foreign_balance_cents=LEAST(foreign_total_cents,foreign_balance_cents+?),
-              status='sent' WHERE id=? AND company_id=?")
-                ->execute([(int)$payment['applied_cents'],(int)$payment['foreign_amount_cents'],$payment['document_id'],$companyId]);
-        } elseif ($payment['document_id'] !== null && (int)$payment['applied_cents'] > 0) {
-            db()->prepare("UPDATE bills SET balance_cents=LEAST(total_cents,balance_cents+?),
-              foreign_balance_cents=LEAST(foreign_total_cents,foreign_balance_cents+?),
-              status='open' WHERE id=? AND company_id=?")
-                ->execute([(int)$payment['applied_cents'],(int)$payment['foreign_amount_cents'],$payment['document_id'],$companyId]);
-        }
-        db()->prepare("UPDATE party_payments SET status='reversed',reversal_journal_entry_id=?,reversed_by=?,reversed_at=UTC_TIMESTAMP()
-          WHERE id=? AND company_id=? AND status='posted'")->execute([$reversalId,$user['id'],$paymentId,$companyId]);
-        if($linkedNoteRefund){
-            db()->prepare("UPDATE accounting_note_settlements SET status='reversed',reversal_date=? WHERE company_id=? AND id=? AND status='posted'")
-                ->execute([$date,$companyId,$linkedNoteRefund['id']]);
-            audit_event($user,$companyId,'accounting_note.refund_reversed','accounting_note',(string)$linkedNoteRefund['note_id'],['settlementId'=>$linkedNoteRefund['id'],'paymentId'=>$paymentId,'reversalDate'=>$date,'reversalJournalEntryId'=>$reversalId]);
-        }
-        if (function_exists('voucher_mark_void')) {
-            voucher_mark_void($user,$companyId,(string)$payment['payment_type'].'_payment',$paymentId);
-        }
-        audit_event($user,$companyId,(string)$payment['payment_type'].'.payment_reversed',
-            (string)$payment['payment_type'].'_payment',$paymentId,['reversalJournalEntryId'=>$reversalId,'applicationReversalJournalEntryId'=>$applicationReversalId,'reversalDate'=>$date]);
+        party_payment_reverse_core($user,$companyId,$paymentId,$payment,$date);
         db()->commit();
     } catch (Throwable $error) {
         if (db()->inTransaction()) db()->rollBack();

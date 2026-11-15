@@ -122,9 +122,20 @@ function void_opening_adjustment(string $companyId,string $entityType,string $en
  *
  * @return array<int,string>
  */
-function void_blockers(string $companyId, string $entityType, array $row, array $entries): array
+function void_blockers(string $companyId, string $entityType, array $row, array $entries, bool $forUnpost = false): array
 {
     $blockers = [];
+
+    // R186: a statement row posted as a customer receipt or vendor payment carries that payment. Voiding only the
+    // row would take the journal out of the books but leave the invoice or bill marked paid, so the receivable or
+    // payable list would no longer agree with the ledger. Unpost in Match and Post undoes both together.
+    if ($entityType === 'bank_transaction' && !$forUnpost && schema_table_exists('party_payments')) {
+        $stmt = db()->prepare("SELECT COUNT(*) FROM party_payments WHERE company_id = ? AND bank_transaction_id = ? AND status = 'posted'");
+        $stmt->execute([$companyId, (string)$row['id']]);
+        if ((int)$stmt->fetchColumn() > 0) {
+            $blockers[] = 'This line was posted as a customer receipt or vendor payment. Use Unpost in Match and Post, which also reopens the invoice or bill.';
+        }
+    }
 
     // A closed period must not change. The figures behind it may already have
     // been reported or filed.

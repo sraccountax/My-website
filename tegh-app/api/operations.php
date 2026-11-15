@@ -503,7 +503,7 @@ function operations_reconciliation_workspace_data(array $company, string $bankId
     $q=db()->prepare("SELECT * FROM bank_accounts WHERE id=? AND company_id=? AND account_type IN ('bank','credit_card') AND active=1");
     $q->execute([$bankId,$companyId]);$bank=$q->fetch();if(!$bank)fail('Choose a valid financial account.');
 
-    $q=db()->prepare("SELECT bt.id,bt.transaction_date,bt.description,bt.normalized_merchant,bt.reference,bt.amount_cents,bt.status,bt.import_batch_id,bt.journal_entry_id,
+    $q=db()->prepare("SELECT bt.id,bt.transaction_date,bt.description,bt.normalized_merchant,bt.reference,bt.amount_cents,bt.status,bt.import_batch_id,bt.journal_entry_id,bt.foreign_amount_cents,bt.currency,bt.remarks,
       (SELECT g.id FROM bank_match_bank_items bi JOIN bank_match_groups g ON g.id=bi.match_group_id WHERE bi.bank_transaction_id=bt.id AND g.status='matched' ORDER BY g.matched_at DESC LIMIT 1) active_match_group_id,
       CASE WHEN bt.status='posted' AND bt.journal_entry_id IS NOT NULL THEN 1 ELSE 0 END direct_accounting_link,
       CASE WHEN EXISTS(SELECT 1 FROM reconciliation_items ri JOIN reconciliations r ON r.id=ri.reconciliation_id WHERE ri.bank_transaction_id=bt.id AND r.status='complete') THEN 1 ELSE 0 END reconciled
@@ -511,7 +511,7 @@ function operations_reconciliation_workspace_data(array $company, string $bankId
     $q->execute([$companyId,$bankId,$start,$end]);
     $bankSide=array_map(static fn(array $r):array=>[
         'id'=>(string)$r['id'],'date'=>(string)$r['transaction_date'],'description'=>(string)$r['description'],'normalizedMerchant'=>(string)($r['normalized_merchant']??''),'reference'=>$r['reference'],
-        'amountCents'=>(int)$r['amount_cents'],'status'=>(string)$r['status'],'matched'=>$r['active_match_group_id']!==null,
+        'amountCents'=>(int)$r['amount_cents'],'foreignAmountCents'=>(int)$r['foreign_amount_cents'],'currency'=>(string)$r['currency'],'remarks'=>(string)($r['remarks']??''),'status'=>(string)$r['status'],'matched'=>$r['active_match_group_id']!==null,
         'matchGroupId'=>$r['active_match_group_id'],'directAccountingLink'=>(bool)$r['direct_accounting_link'],
         'linkedJournalEntryId'=>$r['journal_entry_id']!==null?(string)$r['journal_entry_id']:null,'reconciled'=>(bool)$r['reconciled'],
         'indicator'=>$r['import_batch_id']!==null?'imported':'manual'

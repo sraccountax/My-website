@@ -322,3 +322,7 @@ html[data-tegh-theme="dark"] .srp-page[data-srp-page="payroll-remittance"] [data
 .tegh-doc-tabs button:focus-visible{outline:2px solid var(--tegh-heritage-green);outline-offset:2px}
 .tegh-doc-tabs button[aria-selected="true"]{border-color:var(--tegh-border-strong);background:var(--tegh-porcelain);color:var(--tegh-heritage-green);box-shadow:var(--tegh-shadow-xs);cursor:default}
 @media (max-width:560px){.tegh-doc-tabs button{min-height:42px;padding:8px;font-size:.9rem}}
+/* R186: Unpost dialog effects list (Match and Post). */
+.r186-unpost .r186-effects-wrap{margin:0 22px}
+.r186-unpost .r186-effects{margin:.4rem 0 1rem;padding-left:1.15rem;line-height:1.45}
+.r186-unpost .r186-effects li{margin:.2rem 0}
