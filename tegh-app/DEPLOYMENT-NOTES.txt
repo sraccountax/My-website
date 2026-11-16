@@ -12,10 +12,15 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R188 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R189 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R188 (R118–R188 change notes are
-included). R188 is the private beta package (it replaces R187): the India edition foundation and India master data,
+This package contains every release through R189 (R118–R189 change notes are
+included). R189 is the private beta package (it replaces R188): amount-based approval limits are removed for
+Canadian and India companies. Journals, vendor invoices, voids, credit/debit notes, bank unposts and interbank
+reversals no longer wait for a second owner because of their amount. Requests already waiting stay approvable;
+approve or reject them before deploying. Limits return only if the host config.php sets
+'accounting' => ['approval_limits_enabled' => true, ...]. No schema change. See R189-CHANGES.md.
+R188 (replaced R187): the India edition foundation and India master data,
 behind a new Site & Release Settings switch, India edition, which is Off by default. With it Off nothing changes for
 anyone. With it on, the sign-in screen offers Edition: Canada / India (Platform owner only: only on app.html?edition=in
 and only for the platform owner). India and Canada companies never mix. An India company has INR books, an April-March
