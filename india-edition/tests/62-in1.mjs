@@ -71,11 +71,12 @@ await t('IN-05', 'Editions never mix: India sign-in cannot open a Canadian compa
   return {ok: a.s === 403 && a.b.code === 'edition_mismatch' && b.s === 403 && b.b.code === 'edition_mismatch' && !listed && inList.every(c => c.edition === 'IN') && inList.some(c => c.id === INCO),
     info: JSON.stringify({indiaOpensCanada: [a.s, a.b.code], canadaOpensIndia: [b.s, b.b.code], canadaListsIndia: listed, indiaList: inList.length})};
 });
-await t('IN-06', 'The accounting core works in the India company: a journal entry posts and the trial balance balances', async () => {
+await t('IN-06', 'The accounting core works in the India company: a ₹2,500 journal posts at once, a ₹25,000 journal waits for approval above the 10,000.00 control limit (the same rule as Canada), and the trial balance balances', async () => {
   const acct = c => sql(`SELECT id FROM accounts WHERE company_id='${INCO}' AND code='${c}'`);
-  const j = need('journal', await IN.call('journals', {method: 'POST', json: {date: '2026-04-10', memo: 'Office rent April', lines: [{accountId: acct('6100'), debitCents: 2500000, creditCents: 0}, {accountId: acct('1000'), debitCents: 0, creditCents: 2500000}]}}));
-  const tb = sql(`SELECT IFNULL(SUM(jl.debit_cents-jl.credit_cents),0) FROM journal_lines jl JOIN journal_entries je ON je.id=jl.journal_entry_id WHERE je.company_id='${INCO}'`);
-  return {ok: !!j.journalEntry?.id && tb === '0', info: JSON.stringify({je: j.journalEntry, tb})};
+  const small = await IN.call('journals', {method: 'POST', json: {date: '2026-04-10', memo: 'Office rent April', lines: [{accountId: acct('6100'), debitCents: 250000, creditCents: 0}, {accountId: acct('1000'), debitCents: 0, creditCents: 250000}]}});
+  const large = await IN.call('journals', {method: 'POST', json: {date: '2026-04-11', memo: 'Equipment', lines: [{accountId: acct('1500'), debitCents: 2500000, creditCents: 0}, {accountId: acct('1000'), debitCents: 0, creditCents: 2500000}]}});
+  const tb = sql(`SELECT IFNULL(SUM(jl.debit_cents-jl.credit_cents),0) FROM journal_lines jl JOIN journal_entries je ON je.id=jl.journal_entry_id WHERE je.company_id='${INCO}' AND je.status='posted'`);
+  return {ok: small.s === 201 && small.b.journalEntry?.status === 'posted' && large.s === 202 && large.b.approvalRequired === true && tb === '0', info: JSON.stringify({small: [small.s, small.b.journalEntry?.status], large: [large.s, large.b.journalEntry?.status], tb})};
 });
 
 // ---------------- Browser ----------------
@@ -105,7 +106,7 @@ await t('UI-01', 'Sign-in screen: with the switch on "Platform owner only" the E
 await t('UI-02', 'India menus have no Payroll, GIFI, Tax Code Report, GST/HST/PST Summary or CRA items; Bank Transfers and the guided mode are not offered', async () => {
   const {ctx, p, errs} = await indiaPage();
   try {
-    const nav = await p.evaluate(() => [...document.querySelectorAll('.sidebar button, .sidebar a, nav button, nav a')].map(x => x.textContent.trim()).filter(Boolean));
+    const nav = await p.evaluate(() => [...document.querySelectorAll('.sidebar button, .sidebar a, nav button, nav a')].filter(x => x.getClientRects().length).map(x => x.textContent.trim()).filter(Boolean));
     await p.evaluate(() => TeghPortal.openReportsDashboard()); await p.waitForTimeout(2500);
     const reports = await p.evaluate(() => document.querySelector('.srp-page:last-of-type')?.innerText || '');
     const bad = [...nav, reports].join('\n').match(/Payroll|GIFI|Tax Code Report|GST\/HST|CRA|Bank Transfers/g) || [];
@@ -118,7 +119,7 @@ await t('UI-03', 'Money and dates in the India edition: ₹ with Indian digit gr
     await p.evaluate(() => TeghPortal.invokeMenuAction('General ledger', 'Day Book')); await p.waitForTimeout(3500);
     const text = await p.evaluate(() => document.querySelector('.srp-page:last-of-type')?.innerText || '');
     await p.screenshot({path: '/srv/gate/ev/shots/in1-daybook-1440.png'});
-    return {ok: /₹\s?25,000\.00/.test(text) && /10-04-2026/.test(text) && !/\$\s?25,000/.test(text) && !errs.length, info: JSON.stringify({sample: (text.match(/.{0,40}25,000.{0,10}/) || [''])[0], date: /10-04-2026/.test(text), errs})};
+    return {ok: /₹\s?2,500\.00/.test(text) && /10-04-2026/.test(text) && !/\$\s?2,500/.test(text) && !errs.length, info: JSON.stringify({sample: (text.match(/.{0,40}2,500.{0,10}/) || [''])[0], date: /10-04-2026/.test(text), errs})};
   } finally { await ctx.close(); }
 });
 // The "no Canadian text" sweep: each India screen is opened and searched for Canadian terms, $ amounts and CAD.
@@ -134,7 +135,10 @@ await t('UI-04', 'No Canadian wording, $ amounts or CAD on the India screens (Da
   try {
     for (const [name, go] of SCREENS) {
       try { await go(p); await p.waitForTimeout(3000); } catch (e) { found[name] = 'ERR ' + e.message.slice(0, 80); continue; }
-      const text = await p.evaluate(() => { const pg = [...document.querySelectorAll('.srp-page')].pop(); return (pg?.innerText || '') + '\n' + [...(pg?.querySelectorAll('select option') || [])].map(o => o.textContent).join('\n'); });
+      // A country list legitimately includes Canada among its 249 countries: it is left out of the scan, but the country it has selected is checked.
+      const text = await p.evaluate(() => { const pg = [...document.querySelectorAll('.srp-page')].pop(); if (!pg) return ''; const countries = [...pg.querySelectorAll('select[name=country]')]; countries.forEach(x => { x.dataset.in1Display = x.style.display; x.style.display = 'none'; });
+        const out = (pg.innerText || '') + '\n' + [...pg.querySelectorAll('select option')].filter(o => o.closest('select').name !== 'country').map(o => o.textContent).join('\n') + '\n' + countries.map(x => x.selectedOptions[0]?.textContent || '').join('\n');
+        countries.forEach(x => { x.style.display = x.dataset.in1Display; }); return out; });
       const hits = [...new Set((text.match(new RegExp(CANADIAN.source, 'g')) || []))];
       if (hits.length) { found[name] = hits.slice(0, 8); await p.screenshot({path: `/srv/gate/ev/shots/in1-canadian-${name.replace(/\W+/g, '-').toLowerCase()}.png`}); }
     }

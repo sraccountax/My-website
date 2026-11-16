@@ -211,3 +211,13 @@ tr.r186-active > td { background: var(--surface-2, #eef3f1); }
 /* R187: quick-add dialog for a new customer, vendor or GL account from any drop-down. */
 .r187-quick-add { max-width: 520px; }
 .r187-quick-add .srp-form { margin-top: 8px; }
+/* IN-2 India masters */
+.in2-tabs{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.in2-card h3{margin:1.25rem 0 .5rem}
+.in2-pick{margin-bottom:1rem}
+.in2-form{margin-top:1rem;border-top:1px solid var(--line,#d9dee7);padding-top:1rem}
+.in2-check{display:flex;align-items:center;gap:.5rem;align-self:end;min-height:2.5rem}
+.in2-records td,.in2-rules td,.in2-history td{vertical-align:top}
+.in2-rules{font-size:.92em}
+/* R187: a Download menu panel is anchored to its button; the button's press animation would drag the panel 1px. */
+details.r17-export-menu>summary.srp-btn,details.r17-export-menu>summary.srp-btn:active{transform:none!important;transition:background .14s ease,box-shadow .14s ease!important}

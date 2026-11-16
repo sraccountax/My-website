@@ -146,6 +146,9 @@ function backup_record_queries(): array
     ];
     foreach(['invoiceDocumentOperations'=>'invoice_document_operations','invoiceAttachments'=>'invoice_attachments'] as $key=>$table)
         if(current_database_schema_version()>=46||schema_table_exists($table))$queries[$key]='SELECT * FROM '.$table.' WHERE company_id = ? ORDER BY created_at,id';
+    // IN-1/IN-2: India edition masters (first-use tables; absent on Canadian-only installations).
+    foreach(['companyIndiaProfile'=>['company_india_profile','company_id'],'indiaEntityProfiles'=>['india_entity_profiles','entity_type,entity_id,effective_from,id'],'indiaMasterRecords'=>['india_master_records','record_type,effective_from,id']] as $key=>[$table,$order])
+        if(schema_table_exists($table))$queries[$key]='SELECT * FROM '.$table.' WHERE company_id = ? ORDER BY '.$order;
     if(schema_table_exists('accounting_notes'))$queries['accountingNotes']='SELECT * FROM accounting_notes WHERE company_id = ? ORDER BY created_at,id';
     if(schema_table_exists('accounting_note_settlements'))$queries['accountingNoteSettlements']='SELECT * FROM accounting_note_settlements WHERE company_id = ? ORDER BY settlement_date,id';
     if(schema_table_exists('company_invoice_tax_presets'))$queries['companyInvoiceTaxPresets']='SELECT * FROM company_invoice_tax_presets WHERE company_id = ? ORDER BY province,effective_from,id';
@@ -257,6 +260,8 @@ function backup_restore_map(): array
     $map['bankImportControlReceipts']='bank_import_control_receipts';
     foreach(['invoiceDocumentOperations'=>'invoice_document_operations','invoiceAttachments'=>'invoice_attachments'] as $key=>$table)
         if(current_database_schema_version()>=46||schema_table_exists($table))$map[$key]=$table;
+    foreach(['companyIndiaProfile'=>'company_india_profile','indiaEntityProfiles'=>'india_entity_profiles','indiaMasterRecords'=>'india_master_records'] as $key=>$table)
+        if(schema_table_exists($table))$map[$key]=$table;
     if(schema_table_exists('accounting_notes'))$map['accountingNotes']='accounting_notes';
     if(schema_table_exists('accounting_note_settlements'))$map['accountingNoteSettlements']='accounting_note_settlements';
     if(schema_table_exists('company_invoice_tax_presets'))$map['companyInvoiceTaxPresets']='company_invoice_tax_presets';
@@ -451,6 +456,8 @@ function backup_verify_archive(ZipArchive $zip): array
     $company=$payload['company']??[];$sourceId=(string)($company['id']??'');if(!preg_match('/^[A-Za-z0-9_-]{1,64}$/D',$sourceId)||empty($company['name']))throw new RuntimeException('The company identity is invalid.');
     if((string)($manifest['companyId']??'')!==$sourceId||($manifest['backupId']??null)!==($payload['backupId']??null)||(int)($manifest['schemaVersion']??0)!==(int)($payload['schemaVersion']??0))throw new RuntimeException('The backup manifest does not agree with its signed payload.');
     if(!is_array($payload['records']??null)||!is_array($payload['recordCounts']??null)||!is_array($payload['evidenceManifest']??null))throw new RuntimeException('The backup records or file manifest are invalid.');
+    // A backup of an India-edition company carries its India masters; create those first-use tables before checking collections.
+    if(array_intersect(['companyIndiaProfile','indiaEntityProfiles','indiaMasterRecords'],array_keys($payload['records']))){require_once __DIR__.'/india_masters_in2.php';in2_schema_ready();}
     $map=backup_restore_map();foreach($payload['records'] as $key=>$rows){if(!isset($map[$key])||!is_array($rows)||!array_is_list($rows))throw new RuntimeException('The backup contains an unsupported collection: '.(string)$key);if(!array_key_exists($key,$payload['recordCounts'])||(int)$payload['recordCounts'][$key]!==count($rows))throw new RuntimeException('Record count verification failed for '.$key);foreach($rows as $row){if(!is_array($row))throw new RuntimeException('A record is invalid in '.$key);if(array_key_exists('company_id',$row)&&(string)$row['company_id']!==$sourceId)throw new RuntimeException('The backup includes a record belonging to another company.');}}
     foreach($payload['recordCounts'] as $key=>$count)if(!array_key_exists($key,$payload['records'])||!is_int($count)||$count<0)throw new RuntimeException('The backup count manifest is inconsistent.');
     $files=[];foreach($payload['evidenceManifest'] as $item){if(!is_array($item)||($item['status']??'')!=='present')throw new RuntimeException('The backup records a missing required supporting file.');$relative=(string)($item['relativePath']??'');$archive=(string)($item['archivePath']??'');if(!backup_safe_evidence_path($relative,$sourceId)||!str_starts_with($archive,'evidence/')||str_contains($archive,'..')||str_contains($archive,'\\')||isset($files[$relative]))throw new RuntimeException('The supporting file manifest contains an unsafe or duplicate path.');$contents=$zip->getFromName($archive);if(!is_string($contents)||strlen($contents)!==(int)($item['sizeBytes']??-1)||!hash_equals((string)($item['sha256']??''),hash('sha256',$contents)))throw new RuntimeException('A supporting file is missing, truncated or corrupted.');$files[$relative]=true;}
