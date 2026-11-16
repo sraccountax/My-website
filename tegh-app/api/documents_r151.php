@@ -254,6 +254,7 @@ function r151_bill_input_values(array $company, array $input): array
     if (!is_array($raw) || !array_is_list($raw) || count($raw) < 1 || count($raw) > 100) fail('Send between 1 and 100 vendor invoice lines.', 422, 'bill_lines_invalid');
     $codesMode = function_exists('tax_setup_mode') && tax_setup_mode($company) === 'codes';
     $defaultCode = $codesMode ? tax_code_home($company) : null;
+    $indiaGst = $codesMode && function_exists('in3_purchase_context') ? in3_purchase_context($company, $input, $vendor, $billDate) : null; // IN-3
     $prepared = [];
     $productStmt = db()->prepare('SELECT id,kind,name FROM products_services WHERE id=? AND company_id=? AND active=1');
     foreach ($raw as $line) {
@@ -274,6 +275,7 @@ function r151_bill_input_values(array $company, array $input): array
         if (!$account || !in_array((string)$account['account_type'], ['expense', 'asset'], true) || (bool)$account['is_control']) fail('Each line needs a valid non-control expense or asset GL account.', 422, 'document_line_account');
         $prepared[] = ['description' => $description, 'quantityMilli' => $qty, 'foreignUnitPriceCents' => $unit, 'amount' => $amount, 'productServiceId' => $productId, 'accountId' => $accountId, 'accountName' => (string)$account['name'],
             'tax' => r151_line_tax($company, $line, 'purchase', $defaultCode)];
+        if ($indiaGst !== null) { $k = array_key_last($prepared); $picked = in3_line_code($company, $indiaGst, $prepared[$k]['tax']['code'] ?? null, ($line['taxCodeId'] ?? null) !== null, (string)$productId); $prepared[$k]['tax']['code'] = tax_code_for_purchases($company, $picked); }
     }
     if (array_sum(array_column($prepared, 'amount')) <= 0) fail('Vendor invoice lines must add up to more than zero.', 422, 'bill_amount_invalid');
     $v = r151_compute_lines($company, $prepared, $mode, $rate, 'purchase');
@@ -291,7 +293,7 @@ function r151_bill_input_values(array $company, array $input): array
         'subtotal' => $v['subtotal'], 'gst' => $v['gst'], 'pst' => $v['pst'], 'taxTotal' => $v['taxTotal'], 'total' => $v['total'], 'fxRounding' => 0,
         'taxRows' => $v['taxRows'], 'codesMode' => $codesMode, 'taxCodeId' => $codesMode ? ($first['tax']['code']['id'] ?? null) : null,
         'memo' => optional_text($input['memo'] ?? null, 500) ?? '',
-        'r151Lines' => $v['lines'],
+        'r151Lines' => $v['lines'], 'indiaGst' => $indiaGst,
     ];
 }
 

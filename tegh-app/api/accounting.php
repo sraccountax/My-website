@@ -1048,6 +1048,7 @@ $taxOverrides = [];
 $taxRows = [];
 $codesMode = function_exists('tax_setup_mode') && tax_setup_mode($company) === 'codes';
 $regionCode = $codesMode ? tax_code_auto_region($company, $companyId, $supplyProvince, $customer) : null;
+$indiaGst = $codesMode && function_exists('in3_sales_context') ? in3_sales_context($company, $input, $customer, $issueDate, $excludeInvoiceId) : null; // IN-3
 $foreignSubtotal = 0;
 $foreignTax = 0;
 $foreignPst = 0;
@@ -1086,6 +1087,7 @@ foreach (array_values($sourceLines) as $index => $line) {
             $wanted = trim((string)$line['taxCodeId']);
             if ($wanted !== '') { $lineCode = tax_code_get($companyId, $wanted); if (!$lineCode) fail('A selected tax code is no longer active. Choose another under Tax code.', 422, 'tax_code_unavailable'); }
         } elseif (!empty($line['taxable'])) $lineCode = $regionCode;
+        if ($indiaGst !== null) $lineCode = in3_line_code($company, $indiaGst, $lineCode, ($line['taxCodeId'] ?? null) !== null, $productServiceId); // IN-3
         if ($lineCode) foreach ($lineCode['components'] as $comp) if ((int)$comp['rateMpct'] > 0 && empty($comp['salesAccountId'])) fail('Tax code ' . $lineCode['code'] . ' has no sales GL account for ' . $comp['name'] . '. Set it under Settings → Tax Codes.', 409, 'tax_code_sales_account_missing');
         $calc = $lineCode ? tax_code_compute($lineCode, $foreignAmount, 'exclusive') : ['tax' => 0, 'parts' => []];
         $foreignLineTax = (int)$calc['tax'];
@@ -1167,7 +1169,7 @@ if($importReference!==null){
     $dup=db()->prepare('SELECT 1 FROM invoices WHERE company_id=? AND import_reference=? AND id<>? LIMIT 1');$dup->execute([$companyId,$importReference,$excludeInvoiceId??'']);
     if($dup->fetchColumn())fail('That customer invoice import reference has already been used.',409,'duplicate_invoice_import_reference');
 }
-return compact('companyId','customerId','customer','issueDate','dueDate','issue','currency','exchangeRateMicros','calculatedLines','taxOverrides','taxRows','codesMode','foreignSubtotal','foreignTax','foreignPst','subtotal','tax','pst','foreignTotal','total','templateId','template','templateSnapshot','customerSnapshot','purchaseOrder','importReference');
+return compact('companyId','customerId','customer','issueDate','indiaGst','dueDate','issue','currency','exchangeRateMicros','calculatedLines','taxOverrides','taxRows','codesMode','foreignSubtotal','foreignTax','foreignPst','subtotal','tax','pst','foreignTotal','total','templateId','template','templateSnapshot','customerSnapshot','purchaseOrder','importReference');
 }
 
 function create_invoice_record(array $user,array $company,array $input,string $source='manual'): array
@@ -1225,6 +1227,7 @@ db_transaction_retry(function () use (
     }
     if ($codesMode) {
         document_tax_rows_save($companyId, 'invoice', $id, $taxRows);
+        if (function_exists('in3_document_save')) in3_document_save($companyId, 'invoice', $id, $indiaGst ?? null); // IN-3
         $codeStmt = db()->prepare('UPDATE invoice_lines SET tax_code_id=? WHERE invoice_id=? AND sort_order=?');
         foreach ($calculatedLines as $line) if (!empty($line['taxCodeId'])) $codeStmt->execute([$line['taxCodeId'], $id, $line['sortOrder']]);
     }
@@ -1393,6 +1396,7 @@ function handle_expenses(): never
         $code = null;
         if (array_key_exists('taxCodeId', $input) && $input['taxCodeId'] !== null) { $wanted = trim((string)$input['taxCodeId']); if ($wanted !== '') { $code = tax_code_get($companyId, $wanted); if (!$code) fail('The selected tax code is no longer active.', 422, 'tax_code_unavailable'); } }
         elseif ($applyGstHst || $applyPst) $code = tax_code_home($company);
+        if (function_exists('in3_refuse_code_here')) in3_refuse_code_here($company, $code, 'expense'); // IN-3
         $emode = in_array((string)($input['taxEntryMode'] ?? 'inclusive'), ['exclusive', 'inclusive'], true) ? (string)($input['taxEntryMode'] ?? 'inclusive') : 'inclusive';
         $calc = $code ? tax_code_compute($code, $foreignAmount, $emode) : ['net' => $foreignAmount, 'gross' => $foreignAmount, 'tax' => 0, 'parts' => []];
         $mode = $code ? $emode : 'none';

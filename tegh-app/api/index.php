@@ -27,6 +27,7 @@ try {
     require_once __DIR__ . '/migrations.php';
     require_once __DIR__ . '/captcha.php';
     require_once __DIR__ . '/edition_in1.php'; // IN-1: Canada / India edition
+    require_once __DIR__ . '/india_gst_in3.php'; // IN-3: GST for India companies (inert for Canadian companies)
     require_once __DIR__ . '/auth.php';
     require_once __DIR__ . '/mfa_r164.php';
     require_once __DIR__ . '/monitoring_r164.php';
@@ -278,6 +279,7 @@ require_once __DIR__ . '/report_comparison_r20.php';
     if ($route === 'payments') handle_party_payments();
     if ($route === 'currencies') handle_currencies();
     if (str_starts_with($route, 'currencies/')) handle_currencies_r181(substr($route, strlen('currencies/')));
+    if (str_starts_with($route, 'india/gst/')) handle_india_gst(substr($route, strlen('india/gst/'))); // IN-3
     if (str_starts_with($route, 'india/masters/')) { require_once __DIR__ . '/india_masters_in2.php'; handle_india_masters(substr($route, strlen('india/masters/'))); } // IN-2
     if ($route === 'journals') handle_manual_journals();
     if ($route === 'journals/bulk') handle_bulk_manual_journals();

@@ -216,6 +216,7 @@ function tegh_r182_correct(array $user, array $company, array $input, bool $dryR
                 json_encode($v['templateSnapshot'], JSON_THROW_ON_ERROR), json_encode($v['customerSnapshot'], JSON_THROW_ON_ERROR), $newEntryId, $companyId, $i['id']]);
         if (function_exists('invoice_record_tax_split')) invoice_record_tax_split($companyId, (string)$i['id'], (int)$v['tax'], (int)($v['pst'] ?? 0));
         if (function_exists('document_tax_rows_save')) document_tax_rows_save($companyId, 'invoice', (string)$i['id'], !empty($v['codesMode']) ? $v['taxRows'] : []);
+        if (function_exists('in3_document_save')) in3_document_save($companyId, 'invoice', (string)$i['id'], $v['indiaGst'] ?? null); // IN-3
         $pdo->prepare('DELETE FROM invoice_lines WHERE invoice_id=?')->execute([$i['id']]);
         $s = $pdo->prepare('INSERT INTO invoice_lines(id,invoice_id,product_service_id,income_account_id,description,quantity_milli,unit_price_cents,tax_rate_bps,amount_cents,tax_cents,foreign_unit_price_cents,foreign_amount_cents,foreign_tax_cents,sort_order) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
         foreach ($v['calculatedLines'] as $l) $s->execute([new_id('iline'), $i['id'], $l['productServiceId'], $l['incomeAccountId'], $l['description'], $l['quantityMilli'], $l['unitPriceCents'], $l['taxRateBps'], $l['amountCents'], $l['taxCents'], $l['foreignUnitPriceCents'], $l['foreignAmountCents'], $l['foreignTaxCents'], $l['sortOrder']]);

@@ -276,6 +276,8 @@ function tax_rows_buckets(string $companyId, array $rows): array
 {
     static $codes = [];
     $gst = 0; $pst = 0;
+    // IN-3: an India company has no provincial tax; all GST heads are kept in the GST bucket.
+    if (function_exists('in3_company_is_india') && in3_company_is_india($companyId)) { foreach ($rows as $r) $gst += (int)$r['taxCents']; return [$gst, 0]; }
     foreach ($rows as $r) {
         $id = (string)($r['accountId'] ?? '');
         if ($id !== '' && !isset($codes[$id])) { $q = db()->prepare('SELECT code FROM accounts WHERE id=? AND company_id=?'); $q->execute([$id, $companyId]); $codes[$id] = (string)($q->fetchColumn() ?: ''); }
@@ -433,6 +435,7 @@ function bank_decision_tax_code(array $company, array $decision): ?array
         if ($wanted === '') return null;
         $code = tax_code_get($companyId, $wanted);
         if (!$code) fail('The selected tax code is no longer active.', 422, 'tax_code_unavailable');
+        if (function_exists('in3_refuse_code_here')) in3_refuse_code_here($company, $code, 'bank line'); // IN-3
         return $code;
     }
     if (!empty($decision['applyGstHst']) || !empty($decision['applyPst']) || in_array((string)($decision['taxCode'] ?? ''), ['GST_HST', 'HST13', 'GST_HST_PST', 'PST'], true)) return tax_code_home($company);
