@@ -12,10 +12,19 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R187 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R188 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R187 (R118–R187 change notes are
-included). R187 is the private beta package (it replaces R186): General Ledger lines of invoices, vendor invoices,
+This package contains every release through R188 (R118–R188 change notes are
+included). R188 is the private beta package (it replaces R187): the India edition foundation and India master data,
+behind a new Site & Release Settings switch, India edition, which is Off by default. With it Off nothing changes for
+anyone. With it on, the sign-in screen offers Edition: Canada / India (Platform owner only: only on app.html?edition=in
+and only for the platform owner). India and Canada companies never mix. An India company has INR books, an April-March
+year, an Indian starter chart, Indian number and date formats, no Canadian tax, payroll or GIFI, and Settings > India
+Masters (registrations, HSN/SAC, TDS/TCS, account mappings, employees and statutory rules entered by the user with
+source and effective date; Tegh supplies no rates). First use of the India edition adds sessions.edition,
+companies.edition and three India tables (Schema stays 46); an installation that never uses India gets none of them.
+Also: the Download menu panel no longer moves 1 px after opening (R187 DD-04). See R188-CHANGES.md.
+R187 (replaced R186): General Ledger lines of invoices, vendor invoices,
 notes and payments name the document and the party; one Journal Entry menu (journal, expense voucher, interbank
 transfer); interbank transfers posted from Match and Post or Journal Entry, so the Bank Transfers menu is removed;
 Reconcile Account finds book entries that match bank lines; one Download menu on reports, now on the Day Book too;
