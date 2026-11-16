@@ -81,7 +81,7 @@ try {
   await t('IN2-05', 'Vendor profile and company isolation: PAN validated; a record of another company is not found; an India vendor gets PAN, MSME and TDS section', async () => {
     VENDOR = need('vendor', await IN.call('vendors', {method: 'POST', json: {name: 'IN2 Supplier ' + tag, email: '', address: '', defaultTermsDays: 30, currency: 'INR', country: 'India', province: 'MH'}}), [200, 201]);
     VENDOR = VENDOR.vendor?.id || VENDOR.id;
-    const caVendor = sql(`SELECT id FROM vendors WHERE company_id='${CACO}' LIMIT 1`);
+    const caVendor = sql(`SELECT v.id FROM vendors v JOIN companies c ON c.id=v.company_id WHERE (c.edition IS NULL OR c.edition<>'IN') LIMIT 1`);
     const cross = await P(IN, 'profile', {entity: 'vendor', entityId: caVendor, effectiveFrom: '2026-04-01', data: {}});
     const badPan = await P(IN, 'profile', {entity: 'vendor', entityId: VENDOR, effectiveFrom: '2026-04-01', data: {pan: 'ABCDE1234'}});
     const ok = await P(IN, 'profile', {entity: 'vendor', entityId: VENDOR, effectiveFrom: '2026-04-01', data: {pan: OTHER_PAN, msme: true, udyamNumber: 'UDYAM-KA-02-0000002', msmeCategory: 'micro', agreedPaymentDays: '30', tdsSection: 'GATE-SEC-' + tag}});

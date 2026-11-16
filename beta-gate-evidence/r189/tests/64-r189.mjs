@@ -3,7 +3,7 @@
 // This suite switches that setting on in the TEST server's config to create real waiting requests,
 // then switches it off again and checks those requests can still be approved. The config is always restored.
 import {readFileSync, writeFileSync} from 'node:fs';
-import {S, sql, rec, need} from './lib.mjs';
+import {S, sql, rec, need, save} from './lib.mjs';
 
 const A = 'R189';
 const t = async (id, title, fn) => { try { const r = await fn(); rec(id, A, title, r.ok ? 'PASS' : 'FAIL', r.info); return r.ok; } catch (e) { rec(id, A, title, 'FAIL', String(e.message || e).slice(0, 400)); return false; } };
@@ -125,4 +125,5 @@ await t('RL-10', 'The setting is off again: a new 30,000.00 journal posts at onc
 });
 } finally {
   writeFileSync(CFG, ORIGINAL);
+  save('r189.json');
 }
