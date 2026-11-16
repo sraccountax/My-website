@@ -116,11 +116,16 @@ function in4_documents(string $companyId, string $from, string $to): array
     $taxQ = db()->prepare('SELECT tax_code_id, component_name, recoverable, tax_cents FROM document_tax_lines WHERE company_id=? AND document_type=? AND document_id=?');
     $gstQ = db()->prepare('SELECT * FROM india_document_gst WHERE company_id=? AND document_type=? AND document_id=?');
     $docs = [];
-    $build = static function (array $head, string $taxType, string $gstType, string $gstId, array $lines, int $sign) use ($companyId, $codes, $taxQ, $gstQ): array {
+    $build = static function (array $head, string $taxType, string $gstType, string $gstId, array $lines, int $sign, ?array $taxOverride = null) use ($companyId, $codes, $taxQ, $gstQ): array {
         $gstQ->execute([$companyId, $gstType, $gstId]); $g = $gstQ->fetch(PDO::FETCH_ASSOC) ?: [];
-        $byCode = []; $untaxed = []; $items = [];
+        $byCode = []; $untaxed = []; $items = []; $pool = [];
+        $isNote = $taxType === 'accounting_note';
+        $taxQ->execute([$companyId, $taxType, (string)$head['id']]); $taxRows = $taxQ->fetchAll(PDO::FETCH_ASSOC);
+        if (!$taxRows && $taxOverride) $taxRows = $taxOverride;
         foreach ($lines as $l) {
             $codeId = (string)($l['tax_code_id'] ?? '');
+            // A note line without its own code takes the GST codes of the note's tax rows (the invoice's proportions).
+            if ($isNote && $codeId === '' && $taxRows) { $pool[] = $l; continue; }
             $amount = (int)$l['amount'];
             $profile = in4_item_profile($companyId, $l['item'] ?? null, (string)$head['date']);
             if ($codeId !== '' && isset($codes[$codeId])) {
@@ -135,8 +140,7 @@ function in4_documents(string $companyId, string $from, string $to): array
             $items[] = ['codeId' => $codeId, 'hsn' => (string)($profile['hsnSac'] ?? ''), 'uqc' => strtoupper((string)($profile['uqc'] ?? '')) ?: 'OTH',
                 'qtyMilli' => $sign * (int)($l['qty'] ?? 0), 'taxableCents' => $sign * $amount];
         }
-        $taxQ->execute([$companyId, $taxType, (string)$head['id']]);
-        foreach ($taxQ->fetchAll(PDO::FETCH_ASSOC) as $t) {
+        foreach ($taxRows as $t) {
             $cid = (string)$t['tax_code_id'];
             if (!isset($byCode[$cid])) {
                 if (!isset($codes[$cid])) continue;
@@ -146,6 +150,17 @@ function in4_documents(string $companyId, string $from, string $to): array
             if ($head['side'] === 'purchase' && (int)$t['recoverable'] !== 1) $byCode[$cid]['notClaimed'][$h] += $sign * (int)$t['tax_cents'];
             else $byCode[$cid]['tax'][$h] += $sign * (int)$t['tax_cents'];
         }
+        if ($pool && $byCode) {
+            $cids = array_keys($byCode);
+            $weights = array_map(static fn($c) => abs(array_sum($byCode[$c]['tax']) + array_sum($byCode[$c]['notClaimed'])), $cids);
+            foreach ($pool as $l) {
+                $alloc = tax_allocate((int)$l['amount'], $weights);
+                foreach ($cids as $n => $cid) $byCode[$cid]['taxableCents'] += $sign * $alloc[$n];
+                $profile = in4_item_profile($companyId, $l['item'] ?? null, (string)$head['date']);
+                $main = $cids[array_search(max($weights), $weights, true)];
+                $items[] = ['codeId' => $main, 'hsn' => (string)($profile['hsnSac'] ?? ''), 'uqc' => strtoupper((string)($profile['uqc'] ?? '')) ?: 'OTH', 'qtyMilli' => $sign * (int)($l['qty'] ?? 0), 'taxableCents' => $sign * (int)$l['amount']];
+            }
+        } elseif ($pool) foreach ($pool as $l) $untaxed[] = ['taxableCents' => $sign * (int)$l['amount'], 'treatment' => ''];
         // Item lines take their share of each code's tax (for the HSN summary).
         foreach ($byCode as $cid => $c) {
             $idx = array_keys(array_filter($items, static fn($i) => $i['codeId'] === $cid));
@@ -195,10 +210,17 @@ function in4_documents(string $companyId, string $from, string $to): array
         $rate = max(1, (int)$n['exchange_rate_micros']);
         $lines = array_map(static fn($l) => ['tax_code_id' => $l['tax_code_id'], 'amount' => (int)round((int)$l['foreign_amount_cents'] * $rate / 1000000), 'qty' => (int)$l['qty'], 'item' => $l['item']], $nl->fetchAll(PDO::FETCH_ASSOC));
         if (!$lines) $lines = [['tax_code_id' => null, 'amount' => (int)$n['subtotal_cents'], 'qty' => 0, 'item' => null]];
+        // A note's tax is not stored per component: posting splits it across the GST components of its invoice
+        // (tax_rows_portion), so the report splits it the same way and agrees with the GST accounts.
+        $override = null;
+        if ((int)$n['tax_cents'] !== 0 && function_exists('document_tax_rows_get')) {
+            $src = document_tax_rows_get($companyId, $sales ? 'invoice' : 'bill', (string)$n['source_id']);
+            if ($src) $override = array_map(static fn($r) => ['tax_code_id' => $r['taxCodeId'], 'component_name' => $r['componentName'], 'recoverable' => $r['recoverable'] ? 1 : 0, 'tax_cents' => $r['taxCents']], tax_rows_portion($src, (int)$n['tax_cents']));
+        }
         $docs[] = $build(['kind' => (string)$n['note_kind'], 'side' => $sales ? 'sales' : 'purchase', 'id' => (string)$n['id'], 'number' => (string)$n['number'], 'date' => (string)$n['note_date'],
             'partyId' => (string)$n['party_id'], 'partyName' => (string)$n['party'], 'valueCents' => ($credit ? -1 : 1) * (int)$n['total_cents'],
             'source' => ['number' => $sales ? $n['src_number'] : ($n['reference_number'] ?: $n['bsrc_number']), 'date' => $sales ? $n['src_date'] : $n['bsrc_date'], 'valueCents' => $sales ? (int)$n['src_value'] : null]],
-            'accounting_note', $sales ? 'invoice' : 'bill', (string)$n['source_id'], $lines, $credit ? -1 : 1);
+            'accounting_note', $sales ? 'invoice' : 'bill', (string)$n['source_id'], $lines, $credit ? -1 : 1, $override);
     }
     return $docs;
 }
