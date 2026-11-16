@@ -132,6 +132,20 @@ try {
       info: JSON.stringify({done, tds: h.balances.tdsPayableCents, n: `${h.checklist.done}/${h.checklist.total}`})};
   });
 
+
+  await t('IN6-10', 'Backup and restore of the India company: the copy has the same trial balance, the TDS entries keep their documents (register ₹8,200, tying to TDS Payable), and the GST and TDS tables come across', async () => {
+    const res = await IN.call('backup/export', {method: 'POST', json: {}, raw: true}); const buf = Buffer.from(await res.arrayBuffer());
+    const fd = new FormData(); fd.append('backup', new Blob([buf]), 'in6.tegh'); for (const [k, v] of [['companyName', 'IN6 Restored ' + tag], ['confirm', 'RESTORE'], ['confirmation', 'RESTORE'], ['mode', 'new']]) fd.append(k, v);
+    const r = await IN.call('backup/restore', {method: 'POST', body: fd});
+    const nid = r.b?.companyId;
+    if (!nid) return {ok: false, info: JSON.stringify({export: res.status, restore: [r.s, r.b?.code, String(r.b?.error || '').slice(0, 160)]})};
+    const tbRows = co => sql(`SELECT GROUP_CONCAT(CONCAT(a.code,':',x.v) ORDER BY a.code) FROM (SELECT jl.account_id, SUM(jl.debit_cents-jl.credit_cents) v FROM journal_lines jl JOIN journal_entries je ON je.id=jl.journal_entry_id WHERE je.company_id='${co}' AND je.status='posted' GROUP BY jl.account_id HAVING v<>0) x JOIN accounts a ON a.id=x.account_id`);
+    const R2 = new S(); await R2.login('owner@gate.test', PW, {edition: 'IN'}); R2.cid = nid;
+    const reg = await T(R2, 'register&from=2026-09-01&to=2026-09-30');
+    const docsOk = sql(`SELECT COUNT(*) FROM india_tds_entries e JOIN bills b ON b.id=e.document_id AND b.company_id=e.company_id WHERE e.company_id='${nid}' AND e.kind='tds'`);
+    return {ok: tbRows(nid) === tbRows(INCO) && reg.s === 200 && reg.b.totalCents === R(8200) && reg.b.ties && docsOk === sql(`SELECT COUNT(*) FROM india_tds_entries WHERE company_id='${INCO}' AND kind='tds'`),
+      info: JSON.stringify({restore: r.s, tb: tbRows(nid) === tbRows(INCO), reg: [reg.s, reg.b?.totalCents, reg.b?.ties], docsOk})};
+  });
   // ---------------- Browser ----------------
   const browser = await chromium.launch({executablePath: '/opt/pw-browsers/chromium', args: ['--no-proxy-server', '--host-resolver-rules=MAP gate.test 127.0.0.1']});
   try {
