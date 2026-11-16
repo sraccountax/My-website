@@ -370,19 +370,26 @@ await t('UI-08', 'Match and Post: an Editor sees a matched line with a note that
   return {ok: got.found === 1 && got.items.length === 0 && /Only the Company Owner or an Admin can unmatch it/.test(got.note || '') && !got.errs.length, info: JSON.stringify(got)};
 });
 
-await t('UI-05', 'Bank review queue: an unposted line shows Edit and Delete beside Post & Next; a posted line shows Unpost, which opens the same preview dialog', async () => {
-  await line(-1500, '2026-09-25', 'Review queue line');
+await t('UI-05', 'The old Review Transactions page is retired: the dashboard To Do link and every review link open Match and Post; a link to one line opens Match and Post with that line selected', async () => {
+  const id = await line(-1500, '2026-09-25', 'Review queue line');
   const {b, p, errs} = await open(CO, {w: 1440, h: 900}); const got = {};
+  const title = () => p.evaluate(() => [...document.querySelectorAll('.srp-page')].pop()?.querySelector('h1')?.textContent?.trim());
   try {
-    await p.evaluate(() => TeghPortal.openBankReview()); await p.waitForSelector('[data-review-row]', {timeout: 60000}); await p.waitForTimeout(1500);
-    await p.locator('[data-review-row]').first().click(); await p.waitForTimeout(1200);
-    got.pending = await p.evaluate(() => ({edit: !!document.querySelector('[data-review-detail-footer] [data-r186-edit]'), del: !!document.querySelector('[data-review-detail-footer] [data-r186-delete]'), post: !!document.querySelector('[data-review-detail-footer] [data-review-post-next]')}));
-    await p.click('[data-review-tab="posted"]'); await p.waitForTimeout(2000);
-    await p.locator('[data-review-row]').first().click(); await p.waitForTimeout(1500);
-    got.unpost = await p.locator('[data-review-detail-footer] [data-r186-unpost]').count();
-    if (got.unpost) { await p.click('[data-review-detail-footer] [data-r186-unpost]'); await p.waitForSelector('.r186-unpost', {timeout: 20000}); got.dialog = await p.evaluate(() => document.querySelector('.r186-unpost h2')?.textContent); await p.screenshot({path: '/srv/gate/ev/shots/r186-review-unpost-1440.png'}); }
+    // Dashboard To Do: "transactions to review".
+    await p.evaluate(() => TeghPortal.invokeMenuAction('Dashboard', 'Dashboard')).catch(() => {}); await p.waitForTimeout(2500);
+    const todo = p.locator('[data-sites-bank-review]');
+    got.todoShown = await todo.count() ? await todo.isVisible() : false;
+    if (got.todoShown) { await todo.click(); await p.waitForSelector('[data-r28-bank-row]', {timeout: 60000}); await p.waitForTimeout(800); got.todoTitle = await title(); }
+    // The function every review link calls, with no line and with one line.
+    await p.evaluate(() => TeghPortal.openBankReview()); await p.waitForSelector('[data-r28-bank-row]', {timeout: 60000}); await p.waitForTimeout(800);
+    got.plainTitle = await title(); got.oldRows = await p.locator('[data-review-row], .tegh-review-row').count();
+    await p.evaluate(id => TeghPortal.openBankReview({targetIds: [id]}), id); await p.waitForSelector('[data-r28-bank-row]', {timeout: 60000}); await p.waitForTimeout(1500);
+    got.focusTitle = await title();
+    got.focused = await p.locator(`[data-r28-bank-row][data-key$=":${id}"] [data-r28-bank-select]`).isChecked().catch(() => 'missing');
+    await p.screenshot({path: '/srv/gate/ev/shots/r186-review-link-1440.png'});
   } finally { got.errs = errs; await b.close(); }
-  return {ok: got.pending.edit && got.pending.del && got.pending.post && got.unpost === 1 && got.dialog === 'Unpost this line?' && !got.errs.length, info: JSON.stringify(got)};
+  const mp = 'Match And Post Transactions';
+  return {ok: (!got.todoShown || got.todoTitle === mp) && got.plainTitle === mp && got.oldRows === 0 && got.focusTitle === mp && got.focused === true && !got.errs.length, info: JSON.stringify(got)};
 });
 } finally {
   save('r186.json');

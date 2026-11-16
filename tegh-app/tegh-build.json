@@ -31,7 +31,7 @@
   "sourceCommitNote": "The package commit is the child of sourceParentCommit that adds these manifests; see git log.",
   "databaseMigrationRequired": false,
   "databaseMigrationNote": "No manual migration since R118. R164 adds tables user_email_otp, user_trusted_devices, user_mfa and user_mfa_recovery_codes and column sessions.mfa_verified on first use (CREATE and ALTER privileges, as for earlier releases). No manual migration since R118. R163 adds the tables guided_statement_months, guided_statement_batches and accountant_requests on first use. R162, R161 and R160 change no tables. R159 adds the nullable columns companies.archived_at and companies.archived_by and the table company_deletion_requests on first use. R158 changes no tables. R157 adds the company_onboarding table and the nullable companies.timezone column on first use. R153 adds nullable company profile columns (short_name, address_line1, address_line2, city, postal_code, phone, contact_email) on first use. R144 creates company_insight_dismissals on the first dismissal. R141 adds companies.country, widens province to VARCHAR(10) on companies/customers/vendors and creates company_dashboard_mappings on the first request. Created automatically on first use: tables accounting_note_lines (R120) and client_view_* (R133); column companies.pst_rate_mpct (R136, on first company create or settings save, backfilled from pst_rate_bps x 10); tables tax_codes, tax_code_components, document_tax_lines and columns invoice_lines/bills/expenses.tax_code_id, companies.tax_setup_mode (R137, on the first API request). Needs CREATE and ALTER privilege.",
-  "cacheToken": "5990-r186-unmatch",
+  "cacheToken": "5990-r186-review",
   "clientViewCacheToken": "5990-r135 (output script 5990-r145-tegh)",
   "doNotRepost": [
     "DN-1001"
@@ -269,7 +269,7 @@
     "assets/tegh-r182.css",
     "tegh-build.json"
   ],
-  "r186CacheToken": "5990-r186-unmatch",
+  "r186CacheToken": "5990-r186-review",
   "r186RemovedFiles": [],
   "r186Migration": "None. No table, column or row changes. New PHP file api/bank_unpost_r186.php; unposting writes journal_approvals rows (source_type unpost:bank_transaction) only above the approval limit.",
   "r185Files": [

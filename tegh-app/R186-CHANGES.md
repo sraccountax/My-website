@@ -97,6 +97,16 @@ You give a reason of at least 12 characters, which is kept in the audit history,
 - Editors and Viewers cannot.
 - Above the company's approval limit (10,000.00 by default), the request is saved, and a different Company Owner approves it before the books change, as with Void.
 
+## The old Review Transactions page is removed
+
+Before this package, Banking had two places to post bank lines: **Match and Post** and an older split page called **Review Transactions** (list on the left, posting form on the right). The older page is gone. Every link that opened it now opens Match and Post instead:
+- the dashboard To Do item for transactions waiting to be reviewed;
+- Tegh Assist ("bank review") and saved links to the old page;
+- links from a record to its bank line, which open Match and Post with that line already selected;
+- the "Open Match and Post" button in the Bank Reconciliation post-and-match dialog (it used to say "Full review").
+
+Nothing in the books changes. Bank lines, postings and matches are the same records; only the screen is different.
+
 ## A correction to Void
 
 Before R186, **Void** on the Bank Transactions list could be used on a line that had been posted as the receipt of an invoice or the payment of a bill. Voiding it took the entry out of the ledger but left the invoice or bill marked **paid**. The receivable or payable list then no longer agreed with the General Ledger.

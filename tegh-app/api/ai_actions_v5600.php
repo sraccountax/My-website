@@ -189,7 +189,7 @@ function tegh_action_registry(): array
             'icon'=>'⇩','keywords'=>['import bank statement','statement upload','csv','xlsx','pdf'],'sort_order'=>110,
             'mode_labels'=>['guided'=>'Upload Statement','full'=>'Upload Bank Statement'],
         ],['guided','full'],'prepare'),
-        $nav('nav.bank_review','Review Transactions','Open the bank transaction review workflow.','Banking','bank-review','banking.view',['icon'=>'BR','keywords'=>['bank review','categorize transactions','match transactions','review bank'],'sort_order'=>120]),
+        $nav('nav.bank_review','Match and Post','Open Match and Post to post or match bank transactions.','Banking','bank-review','banking.view',['icon'=>'BR','keywords'=>['bank review','categorize transactions','match transactions','review bank'],'sort_order'=>120]),
         $nav('nav.bank_transactions','Bank Transactions','Open imported bank transactions.','Banking','bank-transactions','banking.view',['icon'=>'BT','keywords'=>['imported transactions','statement lines','bank register'],'sort_order'=>130]),
         $nav('nav.reconciliation','Reconciliation','Open Bank Reconciliation.','Banking','bank-reconciliation','banking.reconcile',['icon'=>'✓','keywords'=>['reconcile bank','bank reconciliation','matching'],'sort_order'=>140]),
         $nav('nav.bank_accounts','Bank Accounts','Open financial bank and credit-card accounts.','Banking','bank-accounts','banking.view',['icon'=>'BA','keywords'=>['financial accounts','credit card accounts','cash accounts'],'sort_order'=>150]),
