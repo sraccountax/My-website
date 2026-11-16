@@ -138,6 +138,34 @@ function tegh_recon_position_r122(string $companyId, array $bank, string $start,
         }
     }
 
+    // R187: entries in the books that are the same money as an imported bank line still waiting to be posted (a manual
+    // journal entry posted to the bank GL, for example). Same amount and direction, dated within 7 days of each other;
+    // each line and each entry is suggested once, closest date first. Matching one posts nothing new.
+    $suggested = [];
+    if (function_exists('active_bank_match_for_bank_transaction')) {
+        $pairs = [];
+        foreach ($groups['unposted']['items'] as $bankItem) {
+            if (($bankItem['reason'] ?? '') !== 'Not posted') continue;
+            foreach ($groups['bookOnly']['items'] as $bookItem) {
+                if ((int)$bookItem['amountCents'] !== (int)$bankItem['amountCents']) continue;
+                $days = abs((int)((strtotime((string)$bookItem['date']) - strtotime((string)$bankItem['date'])) / 86400));
+                if ($days > 7) continue;
+                $pairs[] = [$days, (string)$bankItem['id'], (string)$bookItem['journalEntryId'], $bankItem, $bookItem];
+            }
+        }
+        usort($pairs, static fn($a, $b) => $a[0] <=> $b[0] ?: strcmp($a[1], $b[1]) ?: strcmp($a[2], $b[2]));
+        $usedBank = []; $usedBook = [];
+        foreach ($pairs as [$days, $bid, $jid, $bankItem, $bookItem]) {
+            if (isset($usedBank[$bid]) || isset($usedBook[$jid])) continue;
+            if (active_bank_match_for_bank_transaction($companyId, $bid) !== null) continue;
+            $usedBank[$bid] = true; $usedBook[$jid] = true;
+            $suggested[] = ['bankTransactionId' => $bid, 'journalEntryId' => $jid, 'amountCents' => (int)$bankItem['amountCents'], 'daysApart' => $days,
+                'bank' => ['date' => $bankItem['date'], 'description' => $bankItem['description'], 'reference' => $bankItem['reference']],
+                'book' => ['date' => $bookItem['date'], 'description' => $bookItem['description'], 'reference' => $bookItem['reference'], 'sourceType' => $bookItem['sourceType']]];
+            if (count($suggested) >= 100) break;
+        }
+    }
+
     $difference = $atEnd['bank'] - $atEnd['book'];
     $explained = $groups['unposted']['totalCents'] + $groups['bankTiming']['totalCents'] - $groups['bookOnly']['totalCents'] - $groups['bookTiming']['totalCents'];
     return [
@@ -150,6 +178,7 @@ function tegh_recon_position_r122(string $companyId, array $bank, string $start,
         'explainedCents' => $explained,
         'unexplainedCents' => $difference - $explained,
         'reconcilingItems' => $groups,
+        'suggestedMatches' => $suggested,
         'transactions' => $lines,
     ];
 }

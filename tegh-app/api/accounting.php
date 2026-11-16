@@ -151,6 +151,37 @@ function journal_entry_integrity_scan(string $companyId,int $limit=5000,bool $re
 }
 
 /** @param array<int,array{accountId:string,debitCents:int,creditCents:int,memo?:string,fxRoundingCents?:int}> $lines */
+/**
+ * R187: the document a journal entry posts, as "Invoice INV-1001 · Customer name" (or vendor invoice, credit or debit
+ * note, receipt or payment). Null for any other source. The number is read from the document record; for sources whose
+ * id is not the document (an invoice correction, a receipt or payment), from the entry memo Tegh itself wrote.
+ */
+function journal_line_document_reference(string $companyId,string $sourceType,string $sourceId,string $entryMemo): ?array
+{
+    try{
+        if($sourceType==='invoice'){
+            $q=db()->prepare('SELECT i.number,c.name FROM invoices i LEFT JOIN customers c ON c.id=i.customer_id AND c.company_id=i.company_id WHERE i.id=? AND i.company_id=?');$q->execute([$sourceId,$companyId]);$r=$q->fetch();
+            if($r&&trim((string)$r['number'])!=='')return ['number'=>(string)$r['number'],'text'=>'Invoice '.$r['number'].(trim((string)$r['name'])!==''?' · '.$r['name']:'')];
+        }elseif($sourceType==='bill'){
+            $q=db()->prepare('SELECT b.number,v.name FROM bills b LEFT JOIN vendors v ON v.id=b.vendor_id AND v.company_id=b.company_id WHERE b.id=? AND b.company_id=?');$q->execute([$sourceId,$companyId]);$r=$q->fetch();
+            if($r&&trim((string)$r['number'])!=='')return ['number'=>(string)$r['number'],'text'=>'Vendor invoice '.$r['number'].(trim((string)$r['name'])!==''?' · '.$r['name']:'')];
+        }elseif($sourceType==='accounting_note'&&schema_table_exists('accounting_notes')){
+            $q=db()->prepare('SELECT number,note_kind,party_id FROM accounting_notes WHERE id=? AND company_id=?');$q->execute([$sourceId,$companyId]);$r=$q->fetch();
+            if($r&&trim((string)$r['number'])!==''){
+                $kind=(string)$r['note_kind'];$customer=str_starts_with($kind,'customer');
+                $label=['customer_credit'=>'Credit note','customer_debit'=>'Debit note','vendor_credit'=>'Supplier credit note','vendor_debit'=>'Supplier debit note'][$kind]??'Note';
+                $p=db()->prepare('SELECT name FROM '.($customer?'customers':'vendors').' WHERE id=? AND company_id=?');$p->execute([(string)$r['party_id'],$companyId]);$name=trim((string)$p->fetchColumn());
+                return ['number'=>(string)$r['number'],'text'=>$label.' '.$r['number'].($name!==''?' · '.$name:'')];
+            }
+        }elseif($sourceType==='invoice_correction'&&preg_match('/^Customer (.+?) · Invoice (\S+)/u',$entryMemo,$m)){
+            return ['number'=>$m[2],'text'=>'Invoice '.$m[2].' · '.$m[1]];
+        }elseif(in_array($sourceType,['customer_payment','vendor_payment'],true)&&preg_match('/^(?:Customer receipt|Vendor payment) · (.+?) · (Customer|Vendor) Invoice (\S+)/u',$entryMemo,$m)){
+            return ['number'=>$m[3],'text'=>($m[2]==='Customer'?'Invoice ':'Vendor invoice ').$m[3].' · '.$m[1]];
+        }
+    }catch(Throwable){return null;}
+    return null;
+}
+
 function add_journal_entry(array $user, string $companyId, string $date, string $sourceType, string $sourceId, string $memo, array $lines, ?string $reversalOfId = null, bool $approvalEligible = false): string
 {
     if (count($lines) < 2 || count($lines) > 500) {
@@ -191,6 +222,15 @@ function add_journal_entry(array $user, string $companyId, string $date, string 
         }
     }
     assert_period_open($companyId, $date, $lines);
+    // R187: lines of a customer or vendor document name the document and the party, so a General Ledger line read on
+    // its own (Day Book, GL reports, exports) says which invoice or note it belongs to.
+    $documentReference=journal_line_document_reference($companyId,$sourceType,$sourceId,$memo);
+    if($documentReference!==null){
+        foreach($lines as $index=>$line){
+            $lineMemo=trim((string)($line['memo']??''));
+            if(!str_contains($lineMemo,$documentReference['number']))$lines[$index]['memo']=mb_substr($lineMemo===''?$documentReference['text']:$lineMemo.' · '.$documentReference['text'],0,500);
+        }
+    }
     $entryId = new_id('journal');
     $entryMemo=mb_substr($memo,0,500);
     $contentHash=journal_entry_content_hash($date,$entryMemo,$lines);

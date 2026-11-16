@@ -565,6 +565,22 @@ function manual_journal_post_service(array $user,array $company,array $input,str
         ];
     }
     journal_assert_no_subledger_control($companyId, array_column($lines, 'accountId'));
+    // R187: an interbank transfer entered as a journal entry moves money between two of the company's own bank or
+    // credit-card accounts: exactly one debit and one credit of the same amount, on the GL accounts of two different
+    // active financial accounts in the company's own currency. Its memo says so, and the statement row in each bank
+    // is then matched to this one entry in Match and Post (nothing is posted twice).
+    $interbank=!empty($input['interbankTransfer']);
+    if($interbank){
+        if(count($lines)!==2)fail('An interbank transfer has exactly two lines: the bank account the money goes to (debit) and the one it comes from (credit).',422,'interbank_journal_lines');
+        $debitLine=null;$creditLine=null;foreach($lines as $line){if((int)$line['debitCents']>0&&(int)$line['creditCents']===0)$debitLine=$line;elseif((int)$line['creditCents']>0&&(int)$line['debitCents']===0)$creditLine=$line;}
+        if(!$debitLine||!$creditLine||(int)$debitLine['debitCents']!==(int)$creditLine['creditCents'])fail('An interbank transfer needs one debit and one credit of the same amount.',422,'interbank_journal_lines');
+        if((string)$debitLine['accountId']===(string)$creditLine['accountId'])fail('Choose two different bank or credit-card accounts.',422,'interbank_journal_same_account');
+        $bankQ=db()->prepare("SELECT ba.ledger_account_id,ba.currency,ba.name FROM bank_accounts ba WHERE ba.company_id=? AND ba.active=1 AND ba.account_type IN ('bank','credit_card') AND ba.ledger_account_id IN (?,?)");
+        $bankQ->execute([$companyId,(string)$debitLine['accountId'],(string)$creditLine['accountId']]);$banks=$bankQ->fetchAll();
+        if(count($banks)!==2)fail('Both lines of an interbank transfer must be on the GL account of one of your active bank or credit-card accounts.',422,'interbank_journal_accounts');
+        $base=(string)($company['currency']??'CAD');foreach($banks as $bank)if((string)$bank['currency']!==$base)fail('Transfers between accounts in different currencies need the foreign-currency workflow; this entry supports accounts in '.$base.' only.',422,'interbank_journal_currency');
+        if(!str_starts_with($memo,'Interbank transfer'))$memo=mb_substr('Interbank transfer · '.$memo,0,500);
+    }
     $sourceId=$idempotencyKey!==''?'ask_'.substr(hash('sha256',$idempotencyKey),0,48):trim((string)($input['draftSourceId'] ?? ''));
     if($idempotencyKey!==''){
         $prior=db()->prepare("SELECT id,status FROM journal_entries WHERE company_id=? AND source_type='manual_journal' AND source_id=? LIMIT 1");$prior->execute([$companyId,$sourceId]);$existing=$prior->fetch();if($existing)return ['journalEntry'=>['id'=>(string)$existing['id'],'status'=>(string)$existing['status']],'idempotent'=>true];
@@ -585,7 +601,7 @@ function manual_journal_post_service(array $user,array $company,array $input,str
         if($entryStatus==='posted'&&function_exists('voucher_mark_posted'))voucher_mark_posted($user,$companyId,'manual_journal',$sourceId,$entryId);
         db()->prepare("DELETE FROM voucher_draft_payloads WHERE company_id=? AND source_type='manual_journal' AND source_id=?")->execute([$companyId,$sourceId]);
         audit_event($user, $companyId, $entryStatus==='posted'?'journal.manual_posted':'journal.manual_submitted_for_approval', 'journal_entry', $entryId, [
-            'date' => $date, 'memo' => $memo, 'lineCount' => count($lines),'initiatedVia'=>$initiatedVia==='ask_tegh'?'Ask Tegh':'Manual UI','status'=>$entryStatus,'materialityThresholdCents'=>company_materiality_threshold_cents($companyId),
+            'date' => $date, 'memo' => $memo, 'lineCount' => count($lines),'interbankTransfer'=>$interbank,'initiatedVia'=>$initiatedVia==='ask_tegh'?'Ask Tegh':'Manual UI','status'=>$entryStatus,'materialityThresholdCents'=>company_materiality_threshold_cents($companyId),
         ]);
         db()->commit();
     } catch (Throwable $error) {

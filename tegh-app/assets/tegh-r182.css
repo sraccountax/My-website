@@ -201,3 +201,10 @@ tr.r186-active > td { background: var(--surface-2, #eef3f1); }
 
 /* R186: note shown in the Actions menu of a line linked to an invoice or bill. */
 .r186-actions-menu .r186-actions-note { display: block; max-width: 240px; padding: 8px 12px; font-size: 13px; line-height: 1.4; color: var(--muted, #5b6470); white-space: normal; }
+/* R187: Post as (General ledger account | Interbank transfer) and the transfer box in Match and Post. */
+.r187-postas { display: flex; flex-wrap: wrap; gap: 16px; padding: 4px 0; }
+.r187-postas label { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.r187-transfer-found { border: 1px solid var(--line, #d7dee5); border-radius: 8px; padding: 10px 12px; background: var(--surface-2, #eef3f1); }
+.r187-transfer-found p { margin: 4px 0 8px; }
+.r187-transfer-found .srp-check { display: flex; gap: 8px; align-items: flex-start; margin: 4px 0; }
+.r187-je-tabs { margin-bottom: 12px; flex-wrap: wrap; }
