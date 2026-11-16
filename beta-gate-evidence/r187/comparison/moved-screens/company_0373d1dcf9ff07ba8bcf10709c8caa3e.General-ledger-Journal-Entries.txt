@@ -1,0 +1,86 @@
+Journal Entry
+Records
+Journal
+Expense Voucher
+Interbank Transfer
+Import
+Recurring
+New Manual Journal
+
+Debits and credits must balance before posting.
+
+Journal Date•
+Memo•
+ACCOUNT
+LINE MEMO
+DEBIT
+CREDIT
+Select Account
+1070 · Interbank Transfer Clearing
+1300 · Prepaid Expenses
+1500 · Equipment
+1590 · Accumulated Depreciation
+2200 · Loans Payable
+3000 · Owner Capital / Share Capital
+3100 · Owner Draws / Shareholder Advances
+4000 · Service Revenue
+4100 · Other Revenue
+6000 · Cost of Sales
+6100 · Advertising and Promotion
+6200 · Software Subscriptions
+6300 · Telephone and Internet
+6400 · Office Supplies
+6500 · Travel
+6600 · Meals and Entertainment
+6700 · Professional Fees
+6800 · Bank Charges and Interest
+6810 · Depreciation Expense
+6850 · Foreign Exchange Gain / Loss
+6900 · Vehicle Expenses
+6950 · Insurance
+6999 · Unassigned Expense
+7000 · Wages and Salaries
+7010 · Employer Payroll Contributions
+7020 · Employer Payroll Levy Expense
++ Create New Account…
+×
+Select Account
+1070 · Interbank Transfer Clearing
+1300 · Prepaid Expenses
+1500 · Equipment
+1590 · Accumulated Depreciation
+2200 · Loans Payable
+3000 · Owner Capital / Share Capital
+3100 · Owner Draws / Shareholder Advances
+4000 · Service Revenue
+4100 · Other Revenue
+6000 · Cost of Sales
+6100 · Advertising and Promotion
+6200 · Software Subscriptions
+6300 · Telephone and Internet
+6400 · Office Supplies
+6500 · Travel
+6600 · Meals and Entertainment
+6700 · Professional Fees
+6800 · Bank Charges and Interest
+6810 · Depreciation Expense
+6850 · Foreign Exchange Gain / Loss
+6900 · Vehicle Expenses
+6950 · Insurance
+6999 · Unassigned Expense
+7000 · Wages and Salaries
+7010 · Employer Payroll Contributions
+7020 · Employer Payroll Levy Expense
++ Create New Account…
+×
+Debits
+$0.00
+Credits
+$0.00
+Difference $0.00
+Recurring Schedule
+Make This a Recurring Manual Journal
+Add Line
+Save as Draft
+Record and Post
+Cancel
