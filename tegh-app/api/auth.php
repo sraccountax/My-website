@@ -102,7 +102,7 @@ function companies_for_user(string $userId): array
     $sql='SELECT '.implode(', ',$select).',cm.role AS role,0 AS platform_master_access
         FROM companies c
         JOIN company_members cm ON cm.company_id=c.id
-        WHERE cm.user_id=? AND c.active=1'.(schema_column_exists('company_members','status')?" AND cm.status='active'":'');
+        WHERE cm.user_id=? AND c.active=1'.(schema_column_exists('company_members','status')?" AND cm.status='active'":'').(function_exists('tegh_edition_company_filter')?tegh_edition_company_filter('c'):'');
     $params=[$userId];
     $sql.=' ORDER BY name';
     $stmt=db()->prepare($sql);$stmt->execute($params);
@@ -121,7 +121,8 @@ function companies_for_user(string $userId): array
         'roleLabel'=>company_role_label((string)$row['role']),
         'permissions'=>company_role_permissions((string)$row['role']),
         'platformMasterAccess'=>!empty($row['platform_master_access']),
-    ]+(function_exists('r153_profile_public')?r153_profile_public($row):[]),$stmt->fetchAll());
+        'edition'=>function_exists('tegh_session_edition')?tegh_session_edition():'CA',
+    ]+(function_exists('r153_profile_public')?r153_profile_public($row):[])+((function_exists('tegh_session_edition')&&tegh_session_edition()==='IN')?['india'=>tegh_india_profile_public((string)$row['id'])]:[]),$stmt->fetchAll());
 }
 
 function auth_payload(array $user, ?array $session = null): array
@@ -151,6 +152,9 @@ function auth_payload(array $user, ?array $session = null): array
         // R164: two-step verification state so the client can show enrol/verify screens and the
         // "manage two-step verification" controls without a second round trip.
         'mfa' => function_exists('mfa_status_payload') ? mfa_status_payload($user, $session) : null,
+        // IN-1: the edition of this sign-in and, for India, the reference lists the forms need.
+        'edition' => function_exists('tegh_session_edition') ? tegh_session_edition() : 'CA',
+        'indiaReference' => (function_exists('tegh_session_edition') && tegh_session_edition() === 'IN') ? tegh_india_reference_public() : null,
     ];
 }
 
@@ -280,6 +284,8 @@ function handle_login(): never
         fail('Email or password is incorrect.', 401, 'invalid_credentials');
     }
     clear_login_failures_after_success($email);
+    // IN-1: the edition chosen on the sign-in screen (Canada unless India was chosen and is available).
+    if (function_exists('tegh_login_edition')) tegh_login_edition($input, (string)$row['id']);
     if (password_needs_rehash((string)$row['password_hash'], password_algorithm())) {
         $newHash = password_hash($password, password_algorithm());
         if (is_string($newHash)) {

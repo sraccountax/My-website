@@ -104,7 +104,7 @@ function r174_schema_ready(): bool
 
 function r174_defaults(string $group): array
 {
-    if ($group === 'release') return ['stage' => 'beta', 'newDashboard' => 'off', 'worldCurrencies' => 'off', 'editIssuedInvoices' => 'off', 'reportBuilder' => 'off'];
+    if ($group === 'release') return ['stage' => 'beta', 'newDashboard' => 'off', 'worldCurrencies' => 'off', 'editIssuedInvoices' => 'off', 'reportBuilder' => 'off', 'indiaEdition' => 'off'];
     if ($group === 'labels') {
         $notice = mb_substr(trim((string)(config('app.beta_notice') ?? '')), 0, 300);
         return ['noticeEnabled' => $notice !== '', 'noticeLabel' => 'Private beta · sample data only', 'noticeText' => $notice,
@@ -159,6 +159,8 @@ function r174_app_flags(): array
         'editIssuedInvoices' => in_array($e = (string)(r174_group('release')['value']['editIssuedInvoices'] ?? 'off'), ['off', 'owner', 'everyone'], true) ? $e : 'off',
         // R184: who can use the Report Builder.
         'reportBuilder' => in_array($rb = (string)(r174_group('release')['value']['reportBuilder'] ?? 'off'), ['off', 'owner', 'everyone'], true) ? $rb : 'off',
+        // IN-1: who can choose the India edition at sign-in.
+        'indiaEdition' => in_array($ie = (string)(r174_group('release')['value']['indiaEdition'] ?? 'off'), ['off', 'owner', 'everyone'], true) ? $ie : 'off',
     ];
 }
 
@@ -266,7 +268,9 @@ function handle_site_public(): never
         $p = r174_published_policy($key);
         if ($p) $policies[$key] = ['version' => (string)$p['version'], 'effectiveDate' => (string)$p['effective_date']];
     }
-    json_response(['stage' => r174_release_stage(), 'siteText' => r174_site_text(), 'policies' => $policies]);
+    // IN-1: whether the sign-in screen offers the edition choice (owner-only: shown only on the ?edition=in sign-in link).
+    $india = (string)(r174_group('release')['value']['indiaEdition'] ?? 'off');
+    json_response(['stage' => r174_release_stage(), 'siteText' => r174_site_text(), 'policies' => $policies, 'indiaEdition' => in_array($india, ['off', 'owner', 'everyone'], true) ? $india : 'off']);
 }
 
 function handle_site_policy_public(): never
@@ -311,7 +315,10 @@ function r174_validate_group(string $group, mixed $value): array
         // R184: who can use the Report Builder. Left out: keep the current choice.
         $builder = $value['reportBuilder'] ?? (string)(r174_group('release')['value']['reportBuilder'] ?? 'off');
         if (!in_array($builder, ['off', 'owner', 'everyone'], true)) fail('Choose who can use the Report Builder: off, platform owner only, or everyone.', 422, 'site_settings_invalid');
-        return ['stage' => $stage, 'newDashboard' => $dash, 'worldCurrencies' => $world, 'editIssuedInvoices' => $edit, 'reportBuilder' => $builder];
+        // IN-1: who can choose the India edition at sign-in. Left out: keep the current choice.
+        $india = $value['indiaEdition'] ?? (string)(r174_group('release')['value']['indiaEdition'] ?? 'off');
+        if (!in_array($india, ['off', 'owner', 'everyone'], true)) fail('Choose who can use the India edition: off, platform owner only, or everyone.', 422, 'site_settings_invalid');
+        return ['stage' => $stage, 'newDashboard' => $dash, 'worldCurrencies' => $world, 'editIssuedInvoices' => $edit, 'reportBuilder' => $builder, 'indiaEdition' => $india];
     }
     if ($group === 'labels') {
         $out = [

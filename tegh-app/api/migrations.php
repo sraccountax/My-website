@@ -500,7 +500,7 @@ function ensure_v27_controls_currency_ai_schema(): void
 function ensure_advanced_accounts(): void
 {
     if (!schema_table_exists('companies') || !schema_table_exists('accounts')) return;
-    $companies = db()->query('SELECT id FROM companies')->fetchAll();
+    $companies = db()->query('SELECT id FROM companies'.(function_exists('tegh_canadian_companies_where')?tegh_canadian_companies_where():''))->fetchAll();
     $specs = [
         ['6810', 'Depreciation Expense', 'expense', 'debit', 0],
         ['2350', 'Employer Payroll Levy Payable', 'liability', 'credit', 1],
@@ -588,7 +588,7 @@ function ensure_v6_seed_data(?string $onlyCompanyId = null): void
             }
             db()->exec('UPDATE accounting_controls SET closed_through_date = NULL WHERE closed_through_date IS NOT NULL');
         }
-        $companies = db()->query('SELECT id, province, business_type FROM companies')->fetchAll();
+        $companies = db()->query('SELECT id, province, business_type FROM companies'.(function_exists('tegh_canadian_companies_where')?tegh_canadian_companies_where():''))->fetchAll();
     } else {
         // New-company path: do not rescan/reseed every tenant while the company
         // creation transaction is open. The default chart already contains the
@@ -741,7 +741,7 @@ function ensure_v19_accounting_integrity_schema(): void
     if (schema_table_exists('accounts')) {
         $exists=db()->prepare('SELECT COUNT(*) FROM accounts WHERE company_id=? AND code=?');
         $insert=db()->prepare('INSERT INTO accounts (id,company_id,code,name,account_type,normal_balance,is_control) VALUES (?,?,?,?,?,?,?)');
-        foreach(db()->query('SELECT id FROM companies')->fetchAll() as $co){
+        foreach(db()->query('SELECT id FROM companies'.(function_exists('tegh_canadian_companies_where')?tegh_canadian_companies_where():''))->fetchAll() as $co){
             foreach([['1110','PST Recoverable','asset','debit',1],['2110','PST Payable','liability','credit',1]] as $spec){
                 [$code,$name,$type,$normal,$control]=$spec;$exists->execute([(string)$co['id'],$code]);
                 if((int)$exists->fetchColumn()===0)$insert->execute([new_id('account'),(string)$co['id'],$code,$name,$type,$normal,$control]);

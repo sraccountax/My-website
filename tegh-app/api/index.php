@@ -26,6 +26,7 @@ try {
 
     require_once __DIR__ . '/migrations.php';
     require_once __DIR__ . '/captcha.php';
+    require_once __DIR__ . '/edition_in1.php'; // IN-1: Canada / India edition
     require_once __DIR__ . '/auth.php';
     require_once __DIR__ . '/mfa_r164.php';
     require_once __DIR__ . '/monitoring_r164.php';

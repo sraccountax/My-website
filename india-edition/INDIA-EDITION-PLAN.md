@@ -1,6 +1,6 @@
 # Tegh India Edition: plan
 
-Status: **plan for review. No code has been written for it.** It replaces the release sequence in `PHASE-0-AUDIT.md`
+Status: **plan agreed; IN-1 in progress** (decisions in section 13). It replaces the release sequence in `PHASE-0-AUDIT.md`
 (that audit's facts about the code are still used here, re-counted on the R187 code).
 
 ## 1. What you asked for
@@ -280,7 +280,11 @@ Each release:
 
 Nothing goes to IONOS without your separate approval.
 
-## 13. Decisions needed from you
+## 13. Decisions (agreed)
+
+All seven recommendations below were accepted. The provider account for e-invoice, e-way bill and filing (Q5) will be supplied later; IN-7 waits for it.
+
+### The questions as asked
 
 | # | Question | Recommendation |
 |---|---|---|

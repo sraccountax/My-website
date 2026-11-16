@@ -87,6 +87,7 @@ function handle_companies(): never
     require_method('POST');
     require_csrf();
     $input = request_json();
+    if (function_exists('tegh_session_edition') && tegh_session_edition() === 'IN') tegh_india_company_create($user, $input); // IN-1
     $name = clean_text($input['name'] ?? '', 'Company name', 160);
     $legalName = clean_text($input['legalName'] ?? $name, 'Legal name', 200);
     $businessType = (string)($input['businessType'] ?? 'corporation');

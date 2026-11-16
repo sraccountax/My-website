@@ -1929,7 +1929,7 @@
       const auth = await request('auth/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({email: form.email.value.trim(), password: form.password.value, captchaToken: captchaState.login.token || ''}),
+        body: JSON.stringify({email: form.email.value.trim(), password: form.password.value, captchaToken: captchaState.login.token || '', edition: form.querySelector('[name="edition"]')?.value || 'CA'}),
       }, 16000);
       loginFailuresThisPage = 0;
       setProgress('Sign-in accepted.', 'Confirming your secure session…', true);
@@ -1955,6 +1955,24 @@
     }
   });
 
+  // IN-1: the edition (Canada or India) is chosen at the top of the sign-in form. It is offered only when the India
+  // edition switch allows it: "everyone", or "platform owner only" on the ?edition=in sign-in link. The choice is
+  // remembered in this browser; the server checks it again after the password.
+  (async () => {
+    if (!loginForm || loginForm.querySelector('[data-edition-choice]')) return;
+    let mode = 'off';
+    try { mode = String((await request('site/public', {method: 'GET'}, 8000))?.indiaEdition || 'off'); } catch { return; }
+    const linkEdition = String(new URLSearchParams(location.search).get('edition') || '').toLowerCase();
+    if (!(mode === 'everyone' || (mode === 'owner' && linkEdition === 'in'))) return;
+    let remembered = 'CA'; try { remembered = localStorage.getItem('tegh-edition') === 'IN' ? 'IN' : 'CA'; } catch {}
+    const chosen = linkEdition === 'in' ? 'IN' : linkEdition === 'ca' ? 'CA' : remembered;
+    const label = document.createElement('label');
+    label.className = 'sr-edition-choice'; label.dataset.editionChoice = '';
+    label.innerHTML = 'Edition<select name="edition" aria-describedby="sr-edition-help"><option value="CA">Canada</option><option value="IN">India</option></select><small id="sr-edition-help">Companies, tax, reports and payroll follow the edition you choose.</small>';
+    const select = label.querySelector('select'); select.value = chosen;
+    select.addEventListener('change', () => { try { localStorage.setItem('tegh-edition', select.value); } catch {} });
+    loginForm.insertBefore(label, loginForm.firstElementChild);
+  })();
   forgotPasswordLink?.addEventListener('click',(event)=>{event.preventDefault();showPasswordResetRequest();});
   showRegisterButton?.addEventListener('click',()=>openCreateAccount());
   // R148: what the Create account tab shows. An invitation (from the email link or pasted) wins; otherwise open

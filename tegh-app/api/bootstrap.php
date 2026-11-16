@@ -841,6 +841,7 @@ function create_session(string $userId, bool $mfaVerified = true): array
     set_csrf_cookie($csrf, $expiresAt->getTimestamp());
     // R164: mfa_verified lets auth_payload() tell the client at once whether two-step verification is still needed.
     // sessionId is for server use only (for example binding an emailed sign-in code to this session); never send it out.
+    if (function_exists('tegh_session_store_edition')) tegh_session_store_edition($sessionId); // IN-1
     return ['csrfToken' => $csrf, 'expiresAt' => $expiresAt->format(DateTimeInterface::ATOM), 'mfa_verified' => $mfaVerified ? 1 : 0, 'sessionId' => $sessionId];
 }
 
@@ -862,6 +863,7 @@ function session_record(): ?array
         return null;
     }
     $mfaCol = schema_column_exists('sessions', 'mfa_verified') ? 's.mfa_verified,' : '1 AS mfa_verified,';
+    $mfaCol .= schema_column_exists('sessions', 'edition') ? ' s.edition,' : " 'CA' AS edition,"; // IN-1
     $stmt = db()->prepare("SELECT s.id AS session_id, s.user_id, s.csrf_hash, s.ip_hash, s.user_agent_hash, s.expires_at, s.created_at AS authenticated_at, $mfaCol u.email, u.display_name
         FROM sessions s JOIN users u ON u.id = s.user_id
         WHERE s.token_hash = ? AND s.expires_at > UTC_TIMESTAMP() AND u.active = 1 LIMIT 1");
@@ -1064,6 +1066,8 @@ function require_company(array $user): array
         $company=$support->fetch();
     }
     if (!$company) fail('The selected company is unavailable.',403,'company_forbidden');
+    // IN-1: a company opens only in the edition (Canada or India) chosen at sign-in.
+    if (function_exists('tegh_assert_company_edition')) tegh_assert_company_edition($company);
     // R157: the company's accounting date follows its time zone (Toronto when none is set).
     tegh_set_accounting_timezone((string)($company['timezone'] ?? ''));
     $GLOBALS['tegh_company_currency'] = (string)($company['currency'] ?? 'CAD'); // R181: base currency for server-written text
