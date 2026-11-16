@@ -203,6 +203,14 @@ function void_blockers(string $companyId, string $entityType, array $row, array 
         }
     }
 
+    // IN-6 (India): TDS recorded on a vendor invoice, or a TCS document raised on a customer invoice, is undone first.
+    if (in_array($entityType, ['invoice', 'bill'], true) && schema_table_exists('india_tds_entries')) {
+        $stmt = db()->prepare("SELECT e.kind FROM india_tds_entries e LEFT JOIN invoices t ON t.id=e.tcs_invoice_id WHERE e.company_id=? AND e.document_id=? AND e.status='active' AND (e.tcs_invoice_id IS NULL OR t.status<>'void') LIMIT 1");
+        $stmt->execute([$companyId, (string)$row['id']]);
+        $tdsKind = $stmt->fetchColumn();
+        if ($tdsKind) $blockers[] = $tdsKind === 'tds' ? 'TDS is recorded on this vendor invoice. Reverse the TDS (TDS and TCS page) first, then void this.' : 'A TCS document was raised on this customer invoice. Void the TCS document first, then void this.';
+    }
+
     // Payroll postings are voided through Payroll History so the run, its items
     // and its remittances stay consistent with each other.
     foreach ($entries as $entry) {

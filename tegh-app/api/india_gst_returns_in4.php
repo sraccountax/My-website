@@ -86,6 +86,12 @@ function in4_number_key(string $number): string
     return mb_substr($k === '' ? '0' : $k, 0, 40);
 }
 
+/** IN-6: a TCS document (receivable for tax collected at source) is not a supply, so GST reports leave it out. */
+function in4_not_tcs(string $alias): string
+{
+    return schema_table_exists('india_tds_entries') ? " AND NOT EXISTS (SELECT 1 FROM india_tds_entries x WHERE x.tcs_invoice_id=$alias.id)" : '';
+}
+
 /* ---------- the document set (one builder used by every report) ---------- */
 
 /** Item profile (HSN/SAC, UQC, GST treatment) in force on a date. */
@@ -177,7 +183,7 @@ function in4_documents(string $companyId, string $from, string $to): array
     };
     // Customer invoices (issued, not void).
     $inv = db()->prepare("SELECT i.id, i.number, i.issue_date, i.total_cents, i.status, i.customer_id, c.name FROM invoices i JOIN customers c ON c.id=i.customer_id
-        WHERE i.company_id=? AND i.status IN ('sent','paid') AND i.issue_date BETWEEN ? AND ? ORDER BY i.issue_date, i.number");
+        WHERE i.company_id=? AND i.status IN ('sent','paid') AND i.issue_date BETWEEN ? AND ?" . in4_not_tcs('i') . " ORDER BY i.issue_date, i.number");
     $inv->execute([$companyId, $from, $to]);
     $lq = db()->prepare('SELECT tax_code_id, amount_cents amount, quantity_milli qty, product_service_id item FROM invoice_lines WHERE invoice_id=? ORDER BY sort_order, id');
     foreach ($inv->fetchAll(PDO::FETCH_ASSOC) as $r) {
@@ -303,7 +309,7 @@ function in4_gstr1(array $company, string $from, string $to, ?array $docs = null
     if ($limit === null) $warnings[] = ['number' => null, 'message' => 'No approved GSTR-1 B2C (large) limit rule is in force (India Masters › Statutory rules, category "GST return limit", code B2CL). All invoices to unregistered persons are shown in B2C (small).'];
     // Documents issued (table 13): invoices and notes numbered in the period, including cancelled (void) ones.
     $series = [];
-    foreach ([['Invoices for outward supply', "SELECT number, status FROM invoices WHERE company_id=? AND status<>'draft' AND issue_date BETWEEN ? AND ?"],
+    foreach ([['Invoices for outward supply', "SELECT number, status FROM invoices i WHERE company_id=? AND status<>'draft' AND issue_date BETWEEN ? AND ?" . in4_not_tcs('i')],
               ['Credit notes', "SELECT number, status FROM accounting_notes WHERE company_id=? AND note_kind='customer_credit' AND status<>'draft' AND note_date BETWEEN ? AND ?"],
               ['Debit notes', "SELECT number, status FROM accounting_notes WHERE company_id=? AND note_kind='customer_debit' AND status<>'draft' AND note_date BETWEEN ? AND ?"]] as [$label, $sql]) {
         $q = db()->prepare($sql); $q->execute([$companyId, $from, $to]); $rows = $q->fetchAll(PDO::FETCH_ASSOC);
