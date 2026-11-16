@@ -274,6 +274,8 @@ A setup checklist on the India dashboard shows what is left (for example "No tax
 | IN-6 | Vendor TDS/TCS (user-defined sections), India dashboard and setup checklist, India help, Assist and guided text |
 | IN-7 | Optional: e-invoice and e-way bill through an authorised provider (needs your provider account) |
 
+**Status (R190):** IN-1 and IN-2 shipped in R188. IN-3 (GST codes, place of supply and the GST checks), IN-4, IN-5 and IN-6 ship in R190; see `tegh-app/R190-CHANGES.md` for what each covers and what is not in it yet (reverse charge, printed GST invoice fields, portal upload files). IN-7 waits for the provider account.
+
 Each release:
 - runs the full Canadian gate and the India suites on the test server;
 - has a RESULTS.md and a package.

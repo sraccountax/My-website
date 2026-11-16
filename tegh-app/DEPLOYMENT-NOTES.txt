@@ -12,10 +12,17 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R189 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R190 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R189 (R118–R189 change notes are
-included). R189 is the private beta package (it replaces R188): amount-based approval limits are removed for
+This package contains every release through R190 (R118–R190 change notes are
+included). R190 is the private beta package (it replaces R189): the India edition gains GST on invoices (codes
+from approved rate rules, place of supply, CGST/SGST/UTGST or IGST checks), GST returns (GSTR-1 and GSTR-3B working
+reports, registers, GST ledger check, return periods with ARN, GSTR-2B import and reconciliation), user-defined
+payroll (salary structures, pay runs, payslips, registers), TDS on vendor invoices and TCS on customer invoices
+(sections, limits, certificates, registers), India Home (set-up checklist) and India Help. All of it is inside the
+India edition, which stays Off by default; Canadian companies are unchanged. Nothing is filed and no government
+service is called; Tegh ships no Indian rates. First use adds nine India tables (Schema stays 46). See R190-CHANGES.md.
+R189 (replaced R188): amount-based approval limits are removed for
 Canadian and India companies. Journals, vendor invoices, voids, credit/debit notes, bank unposts and interbank
 reversals no longer wait for a second owner because of their amount. Requests already waiting stay approvable;
 approve or reject them before deploying. Limits return only if the host config.php sets
