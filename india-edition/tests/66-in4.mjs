@@ -3,6 +3,7 @@
 // this suite creates; none is read back from Tegh. Synthetic data only: rule codes, rates and limits are invented test values.
 import {S, sql, rec, save, need} from './lib.mjs';
 import {execFileSync} from 'node:child_process';
+import {chromium} from '/opt/node22/lib/node_modules/playwright/index.mjs';
 
 const A = 'IN4';
 const t = async (id, title, fn) => { try { const r = await fn(); rec(id, A, title, r.ok ? 'PASS' : 'FAIL', r.info); return r.ok; } catch (e) { rec(id, A, title, 'FAIL', String(e.message || e).slice(0, 400)); return false; } };
@@ -208,6 +209,71 @@ try {
     return {ok: imp.documents === 3 && rc.counts.matched === 1 && rc.counts.mismatch === 1 && rc.counts.only2b === 1 && rc.counts.onlyBooks === 0 && mm?.differences?.cgstCents === 5000 && /active/.test(replaced) && /replaced/.test(replaced),
       info: JSON.stringify({imp, counts: rc.counts, mm: mm?.differences, replaced})};
   });
+
+  // ---------------- Browser ----------------
+  const browser = await chromium.launch({executablePath: '/opt/pw-browsers/chromium', args: ['--no-proxy-server', '--host-resolver-rules=MAP gate.test 127.0.0.1']});
+  try {
+    const login = async (p, edition) => {
+      await p.goto('https://gate.test/app.html' + (edition ? '?edition=in' : '')); await p.waitForSelector('#sr-login-form', {timeout: 30000});
+      if (edition) await p.selectOption('#sr-login-form [name=edition]', 'IN');
+      await p.fill('#sr-login-form input[name=email]', 'owner@gate.test'); await p.fill('#sr-login-form input[name=password]', PW); await p.click('#sr-login-form button[type=submit]');
+      await p.waitForFunction(() => window.TeghPortal && document.querySelector('.sidebar,.topbar'), null, {timeout: 40000});
+      if (edition) { await p.evaluate(id => { localStorage.setItem('sr-accountax-company', id); localStorage.setItem('sr-accountax-companies', JSON.stringify([id])); }, INCO); await p.goto('https://gate.test/app.html'); await p.waitForFunction(() => window.TeghPortal && document.querySelector('.sidebar,.topbar'), null, {timeout: 40000}); }
+      await p.waitForTimeout(1500);
+    };
+    const canadianTerms = text => text.match(/GST\/HST|\bHST\b|\bPST\b|\bCRA\b|GIFI|Canada|Canadian|\bCAD\b|\$/g) || [];
+    await t('UI-01', 'GST Returns page (India): GSTR-1 tables show the B2B, B2C and export rows; GSTR-3B shows the payment table; the ledger check says the accounts agree; no Canadian wording', async () => {
+      const ctx = await browser.newContext({viewport: {width: 1440, height: 900}, ignoreHTTPSErrors: true}); const p = await ctx.newPage(); const errs = [];
+      p.on('pageerror', e => errs.push(e.message.slice(0, 200)));
+      try {
+        await login(p, true);
+        await p.evaluate(() => TeghPortal.openGstReturns('gstr1')); await p.waitForSelector('[data-in4-period]', {timeout: 20000});
+        await p.fill('[data-in4-period] [name=period]', '2026-09'); await p.click('[data-in4-period] button[type=submit]');
+        await p.waitForSelector('[data-in4-table="b2b"] tbody tr', {timeout: 20000});
+        const b2b = await p.locator('[data-in4-table="b2b"] tbody tr').count(), b2cs = await p.locator('[data-in4-table="b2cs"] tbody tr').count(), exp = await p.locator('[data-in4-table="exp"] tbody tr').count();
+        const t1 = await p.evaluate(() => document.querySelector('.in4-returns')?.innerText || '');
+        await p.screenshot({path: '/srv/gate/ev/shots/in4-gstr1-1440.png'});
+        const dl = p.waitForEvent('download', {timeout: 10000}); await p.click('[data-in4-csv="b2b"]'); const file = await (await dl).path(); const csv = (await import('node:fs')).readFileSync(file, 'utf8');
+        await p.click('[data-in4-tab="gstr3b"]'); await p.waitForSelector('[data-in4-table="pay"] tbody tr', {timeout: 20000});
+        const pay = await p.locator('[data-in4-table="pay"] tbody tr').first().innerText();
+        await p.screenshot({path: '/srv/gate/ev/shots/in4-gstr3b-1440.png', fullPage: true});
+        await p.click('[data-in4-tab="ledger"]'); await p.waitForSelector('[data-in4-ties]', {timeout: 20000});
+        const ties = await p.getAttribute('[data-in4-ties]', 'data-in4-ties');
+        await p.click('[data-in4-tab="periods"]'); await p.waitForSelector('[data-in4-table="periods"] tbody tr', {timeout: 20000});
+        const months = await p.locator('[data-in4-table="periods"] tbody tr').count();
+        const sep = await p.locator('[data-in4-status="GSTR3B|2026-09"]').innerText();
+        await p.screenshot({path: '/srv/gate/ev/shots/in4-periods-1440.png'});
+        const all = t1 + pay + sep;
+        // B2B: i1 and i2, plus the late invoice added in IN4-09.
+        return {ok: b2b === 3 && b2cs === 2 && exp === 1 && /₹/.test(t1) && /Invoice,Date,Party,GSTIN/.test(csv.replace(/^\uFEFF/, '').replace(/"/g, '')) && /IGST/.test(pay) && /44,100\.00/.test(pay) && ties === '1' && months === 12 && /Prepared/.test(sep) && !canadianTerms(all).length && !errs.length,
+          info: JSON.stringify({b2b, b2cs, exp, csv: csv.slice(0, 80), pay: pay.replace(/\s+/g, ' '), ties, months, sep: sep.replace(/\s+/g, ' ').slice(0, 80), canadian: canadianTerms(all), errs})};
+      } finally { await ctx.close(); }
+    });
+    await t('UI-02', 'GSTR-2B tab: the reconciliation lists matched, differing and missing documents with counts', async () => {
+      const ctx = await browser.newContext({viewport: {width: 1440, height: 900}, ignoreHTTPSErrors: true}); const p = await ctx.newPage(); const errs = [];
+      p.on('pageerror', e => errs.push(e.message.slice(0, 200)));
+      try {
+        await login(p, true);
+        await p.evaluate(() => TeghPortal.openGstReturns('gstr2b')); await p.waitForSelector('[data-in4-period]', {timeout: 20000});
+        await p.fill('[data-in4-period] [name=period]', '2026-09'); await p.click('[data-in4-period] button[type=submit]');
+        await p.waitForSelector('[data-in4-counts]', {timeout: 20000});
+        const counts = await p.innerText('[data-in4-counts]'); const rows = await p.locator('[data-in4-table="gstr2b"] tbody tr').count();
+        await p.screenshot({path: '/srv/gate/ev/shots/in4-gstr2b-1440.png', fullPage: true});
+        return {ok: /Matched 1/.test(counts) && /Amounts differ 1/.test(counts) && /Only in GSTR-2B 1/.test(counts) && rows === 3 && !errs.length, info: JSON.stringify({counts, rows, errs})};
+      } finally { await ctx.close(); }
+    });
+    await t('UI-03', 'Canadian company: no GST Returns in the menus, and opening the page is refused', async () => {
+      const ctx = await browser.newContext({viewport: {width: 1440, height: 900}, ignoreHTTPSErrors: true}); const p = await ctx.newPage();
+      try {
+        await login(p, false);
+        await p.evaluate(id => { localStorage.setItem('sr-accountax-company', id); }, CACO); await p.goto('https://gate.test/app.html'); await p.waitForFunction(() => window.TeghPortal && document.querySelector('.sidebar,.topbar'), null, {timeout: 40000}); await p.waitForTimeout(1200);
+        const menu = await p.evaluate(() => [...document.querySelectorAll('nav a, nav button, .sidebar a, .sidebar button')].some(n => /GST Returns/.test(n.textContent || '')));
+        await p.evaluate(() => TeghPortal.openGstReturns()); await p.waitForTimeout(800);
+        const toast = await p.locator('.srp-toast').first().textContent().catch(() => '');
+        return {ok: !menu && /only in India companies/.test(toast || ''), info: JSON.stringify({menu, toast})};
+      } finally { await ctx.close(); }
+    });
+  } finally { await browser.close(); }
 } finally {
   await setMode(startMode).catch(() => {});
   save('in4.json');
