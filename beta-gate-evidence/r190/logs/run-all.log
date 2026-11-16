@@ -1,0 +1,254 @@
+=== resume 21:25
+=== 01-install
+=== 02-setup
+{
+  BC: 'company_4bf22001ffeabbb8011425425bc2d8a2',
+  QC: 'company_e632081f413a9af6e70a1a6d0168275b',
+  ON: 'company_3ecfdbc2f3901d8b49027e4933fcf4e1',
+  X: 'company_ec273312745ab7f79840a78708d1a1e9'
+}
+=== 02b-invite
+=== 03-acct
+expense 6000 equity 3000 bank gl 1000
+=== 04-tax
+INFO     CB-02      Cash basis: invoice issue posting recorded for review | {}
+=== 05-fx
+=== 06-sec
+INFO     XS-01      XSS payload customer stored as text (rendering checked in UI run) | 201
+=== 06b
+=== 07-cv
+=== 08-pay
+INFO     PY-01      Employee with SIN fields submitted: refused or SIN discarded | 422 sin_not_accepted Tegh does not store Social Insurance Numbers (SINs). Remove the SIN and use the Employee ID instead.
+INFO     PY-07      Payroll rate tables: year/version reported for owner verification | "effectiveFrom":"2026-01-01" "effectiveTo":"2026-06-30" "effectiveFrom":"2026-07-01" "effectiveTo":"2026-12-31"
+=== 09-backup
+=== 09b
+=== 10-ops
+INFO     LG-03      PHP error log: warnings recorded (see evidence) | PHP Warning:  POST Content-Length of 11534510 bytes exceeds the limit of 8388608 bytes in Unknown on line 0'
+INFO     SP-02      Public contact page offers a working contact path (form posts to /api/marketing) | mailto:enquiry@sraccountax.ca,mailto:enquiry@sraccountax.ca
+=== 13-r141
+FAIL     PW-01      Product page says Payroll Support Tool, Canada excluding Quebec (R142 wording), no "payrol | 
+=== 14-r142
+FAIL     WR-09      Product and Subscriptions pages say Canada, excluding Quebec; no "Canada only" | 
+=== 15-r144
+=== 16-r145
+INFO     DI-CMP     Field accuracy across the six documents, R145 reader vs the R144 reader (for information) | R145 47/47 fields; R144 31/47 fields
+FAIL     DI-SCAN    Scanned PDFs are read by OCR in this browser (the bundled PDF reader no longer needs Map.g | got ["ocr",false] want ["ocr",true]
+=== 18-r149
+=== 19-r151
+=== 20-r151ui
+=== 21-r152
+=== 22-r153
+=== 23-r154
+=== 24-beta
+FAIL     BS-07      Accepting an invitation records the terms and privacy versions shown on the published Term | pages: terms undefined, privacy undefined; recorded 2026-10-21-beta.1|2026-10-21-beta.1
+FAIL     BS-09      Terms and Privacy pages: the operator, contacts, hosting, beta conditions, deletion proced | terms missing: Gate Test Operator Inc., support@gate.test, Private beta, Invitation only, Free, Sample data only, Data may be reset, No guarantee of availability, Not for real filings or payroll, 2026
+=== 25-r157
+=== 26-r158
+node:internal/modules/esm/resolve:274
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/srv/gate/t/26-r158.mjs' imported from /srv/gate/t/
+    at finalizeResolution (node:internal/modules/esm/resolve:274:11)
+    at moduleResolve (node:internal/modules/esm/resolve:859:10)
+    at defaultResolve (node:internal/modules/esm/resolve:983:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:731:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:708:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:664:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:663:21)
+    at node:internal/modules/run_main:179:35 {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///srv/gate/t/26-r158.mjs'
+}
+
+Node.js v22.22.0
+=== 27-r159
+node:internal/modules/esm/resolve:274
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/srv/gate/t/27-r159.mjs' imported from /srv/gate/t/
+    at finalizeResolution (node:internal/modules/esm/resolve:274:11)
+    at moduleResolve (node:internal/modules/esm/resolve:859:10)
+    at defaultResolve (node:internal/modules/esm/resolve:983:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:731:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:708:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:664:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:663:21)
+    at node:internal/modules/run_main:179:35 {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///srv/gate/t/27-r159.mjs'
+}
+
+Node.js v22.22.0
+=== 28-r160
+=== 29-r161
+=== 30-guided
+=== 31-r163
+=== 32-r163-sec
+
+10/10 R163 security checks passed
+=== 33-sec
+
+13/13 auth/client-view/payroll security checks passed
+=== 34-mfa
+=== 35-session
+=== 36-monitor
+=== 37-audit
+=== 38-files
+victims {
+  stmt: [
+    'company_436125f09ccb7bd270525fcb8a662aeb',
+    'import_e1eeb9becb153d85b8a066f0fd9c80f8'
+  ],
+  att: [
+    'company_d9017a85a5e626c7b04cda604d74490b',
+    'invoice_d728927ea86f75a4b07a043818e9d1fb',
+    'invatt_01607717b384220c5e7a88bbeede7a7e'
+  ],
+  nd: [
+    'company_4e96c92f20e9891d00e1e52bc55a4fff',
+    'nadoc_81d0d5e0a34d13ead3a2ff71ec6737ab'
+  ],
+  inv: [
+    'company_c8250edcf3680a879ac2e156ac9d836d',
+    'invoice_cc0f41eeb41be4e9ccb77894dc165692'
+  ]
+}
+=== 39-restore
+=== 40-r165
+=== 41-r166
+FAIL     DD-01      Top bar menu (Banking) is painted in one place | locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('.tegh-top-menubar button').filter({ hasText: 'Banking' }).first()[22m
+[2m    - locator resolved to <button type="butto
+=== 42-r167
+=== 43-r168
+=== 44-r169
+=== 45-r170
+INFO     II-ACC1    Measured header-field accuracy across the fixtures (number, dates, totals, tax, currency) | 141/147 (95.9%)
+INFO     II-ACC2    Measured line-item accuracy (amount and description found) | 69/75 (92%)
+INFO     II-ACC3    Measured supplier-matching accuracy (known suppliers) | 21/21 (100%)
+INFO     II-ACC4    Per file | F01.pdf pdf_text: all right | F01b.pdf no job | F02.pdf pdf_text: all right | F03.pdf pdf_text: all right | F04.pdf ocr: all right | F05.pdf ocr: all right | F06.pdf ocr: invoiceNumber=""≠"PJ-3306"; i
+INFO     II-ACC5    Processing time per file, upload to result (seconds; includes waiting in the queue) | F11.pdf pdf_text 36s, F03.pdf pdf_text 13s, F02.pdf pdf_text 12s, F18.pdf pdf_text 53s, F01.pdf pdf_text 8s, F08.pdf pdf_text 15s, F21.pdf ocr 74s, F13.pdf pdf_text 40s, F22.pdf pdf_text 56s, F04.pdf 
+INFO     II-ACC6    Exception rate: review classes after reading | {"blocked":3,"review":15,"ready":6}
+      Northgate Paper & Office Ltd. · NG-20418$549.08 · blockedLakeshore Courier Inc. · LC-88255$179.11 · review requiredLakeshore Courier Inc. · LC-88240$179
+=== 46-r171
+=== 47-r172
+=== 48-r174
+=== 49-r175
+=== 50-r176
+=== 51-r177
+=== 52-r178
+=== 53-r179
+=== 54-r180
+=== 55-r181
+=== 56-r182
+=== 57-r183
+=== 58-r184
+=== 59-r185
+=== 60-r186
+=== 61-r187
+=== 62-in1
+=== 63-in2
+=== 64-r189
+=== 65-in3
+=== 66-in4
+=== 67-in5
+FAIL     IN5-01     Canada is unaffected: every payroll route answers 404 for a Canadian company and no India  | login 429 {"error":"Too many sign-in attempts. Wait 15 minutes and try again.","code":"login_rate_limited"}
+FAIL     UI-01      India payroll screens: the Payroll menu offers Pay Runs, Salary Structures and Payroll Reg | page.waitForFunction: Timeout 40000ms exceeded.
+=== 68-in6
+201 company_c0df1880289daf3e7a9370906da7d806
+=== w1
+  name: 'TimeoutError'
+=== w2
+FAIL     W3-01      Credit note from the register: return 1 × $500 posts Dr 4000 $500, Dr 2100 $65, Cr 1200 $5 | locator.check: Timeout 30000ms exceeded.
+FAIL     W4-01      Record Payment from the register settles the invoice | locator.check: Timeout 30000ms exceeded.
+=== w3
+=== w4
+=== w5
+FAIL     W11-01     Link a bank line to a recorded payment | locator.waitFor: Timeout 8000ms exceeded.
+=== w6
+FAIL     W12-01     Reconciliation: bank $282.50 = books $282.50, difference $0.00, ready to complete | 
+FAIL     W13-01     Profit and Loss: income $500, expenses $350 (6300 $50, 6400 $200, 6810 $100), net $150 | Total ExpensesCAD 0.00CAD 0.00CAD 0.00CAD 0.00CAD 0.00CAD 0.00CAD 0.00CAD 0.00CAD 0.00CAD 350.00CAD 350.00CAD 0.00CAD 350.00N/ANet Profit / (Loss)Net profit / (
+FAIL     W13-02     Balance Sheet: bank $282.50, assets $215.00 = liabilities $65.00 + equity $150.00, differe | 
+FAIL     W13-03     Trial Balance: closing debits = closing credits = $665.00 (1000 282.50 + 1100 32.50 + 6300 | 382.50 / 382.50 / 0.00
+FAIL     W14-01     Dashboard: money in the bank $282.50, customers owe $0.00, you owe suppliers $0.00, profit | Money in the bank↗-$282.50Below zero in your books: check | 
+=== w7
+=== w8
+=== w9
+FAIL     W18-01     Invoice PDF | locator.check: Timeout 30000ms exceeded.
+FAIL     W18-02     Profit and Loss export downloads and contains Service Revenue 500.00 and Wages and Salarie | Tegh-Profit-and-Loss.csv
+=== resume 22:36
+skip 01-install
+skip 02-setup
+skip 02b-invite
+skip 03-acct
+skip 04-tax
+skip 05-fx
+skip 06-sec
+skip 06b
+skip 07-cv
+skip 08-pay
+skip 09-backup
+skip 09b
+skip 10-ops
+skip 13-r141
+skip 14-r142
+skip 15-r144
+skip 16-r145
+skip 18-r149
+skip 19-r151
+skip 20-r151ui
+skip 21-r152
+skip 22-r153
+skip 23-r154
+skip 24-beta
+skip 25-r157
+skip 26-r158
+skip 27-r159
+skip 28-r160
+skip 29-r161
+skip 30-guided
+skip 31-r163
+skip 32-r163-sec
+skip 33-sec
+skip 34-mfa
+skip 35-session
+skip 36-monitor
+skip 37-audit
+skip 38-files
+skip 39-restore
+skip 40-r165
+skip 41-r166
+skip 42-r167
+skip 43-r168
+skip 44-r169
+skip 45-r170
+skip 46-r171
+skip 47-r172
+skip 48-r174
+skip 49-r175
+skip 50-r176
+skip 51-r177
+skip 52-r178
+skip 53-r179
+skip 54-r180
+skip 55-r181
+skip 56-r182
+skip 57-r183
+skip 58-r184
+skip 59-r185
+skip 60-r186
+skip 61-r187
+skip 62-in1
+skip 63-in2
+skip 64-r189
+skip 65-in3
+skip 66-in4
+skip 67-in5
+skip 68-in6

@@ -1,0 +1,79 @@
+[
+ {
+  "id": "IN2-01",
+  "area": "IN2",
+  "title": "Canada is unaffected: a Canadian company gets 404 on every India master route and gains no India rows",
+  "status": "PASS",
+  "evidence": "{\"codes\":[[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"]],\"before\":\"14|45\",\"after\":\"14|45\",\"rows\":\"0\"}"
+ },
+ {
+  "id": "IN2-02",
+  "area": "IN2",
+  "title": "Spec covers the matrix (7 profile types, 14 record types, 30 rule categories: 29 from IN-2 and the GST return limit from IN-4); a new India company has no statutory rules seeded",
+  "status": "PASS",
+  "evidence": "{\"profiles\":[\"company\",\"customer\",\"vendor\",\"item\",\"account\",\"asset\",\"bank_account\"],\"records\":14,\"rules\":30,\"seeded\":\"0\"}"
+ },
+ {
+  "id": "IN2-03",
+  "area": "IN2",
+  "title": "Statutory rule: bad rate, bad link and missing source are refused; draft until approved; a later version ends the earlier one the day before; same date twice is refused",
+  "status": "PASS",
+  "evidence": "{\"bad\":[\"india_rule_rate\",\"india_rule_url\",\"india_field_required\",\"india_rule_category\"],\"dupe\":\"india_rule_version_exists\",\"draftRef\":\"india_reference_missing\",\"again\":\"india_rule_not_draft\",\"v\":\"2026-04-01:2026-09-30:active:1.5:IN:tds_section:approved,2026-10-01:-:active:2:IN:tds_section:approved\"}"
+ },
+ {
+  "id": "IN2-04",
+  "area": "IN2",
+  "title": "Company profile: invalid IEC / Udyam and unknown fields are refused; a rule reference must exist; a later effective date adds a version and keeps the earlier one",
+  "status": "PASS",
+  "evidence": "{\"bad\":[\"india_field_invalid\",\"india_field_invalid\",\"india_field_unknown\",\"india_reference_missing\"],\"current\":{\"effectiveFrom\":\"2026-10-01\",\"data\":{\"iec\":\"AB12345678\",\"msmeCategory\":\"medium\",\"incomeTaxRegime\":\"GATE-REGIME\",\"taxAuditApplicable\":false}},\"versions\":2,\"v1\":{\"iec\":\"AB12345678\",\"udyamNumber\":\"UDYAM-MH-01-0000001\",\"msmeCategory\":\"small\",\"incomeTaxRegime\":\"GATE-REGIME\",\"taxAuditApplicable\":true}}"
+ },
+ {
+  "id": "IN2-05",
+  "area": "IN2",
+  "title": "Vendor profile and company isolation: PAN validated; a record of another company is not found; an India vendor gets PAN, MSME and TDS section",
+  "status": "PASS",
+  "evidence": "{\"cross\":[404,\"india_entity_missing\"],\"badPan\":\"india_field_invalid\",\"ok\":201,\"data\":{\"pan\":\"AAAPZ4893Q\",\"msme\":true,\"udyamNumber\":\"UDYAM-KA-02-0000002\",\"msmeCategory\":\"micro\",\"agreedPaymentDays\":30,\"relatedParty\":false,\"tdsSection\":\"GATE-SEC-mwjtl3w5\",\"jobWorker\":false,\"transporter\":false}}"
+ },
+ {
+  "id": "IN2-06",
+  "area": "IN2",
+  "title": "GST registrations: another PAN is refused for the company; a second state is added; a change with a later date supersedes the old row (end date the day before) and keeps it",
+  "status": "PASS",
+  "evidence": "{\"foreign\":\"india_gstin_pan\",\"badCheck\":\"india_field_invalid\",\"noDate\":\"india_field_required\",\"old\":\"superseded|2026-10-31\",\"nw\":\"active|inrec_5bbfb93f8d52bf58b29f25e08739f9d7\",\"stale\":\"india_record_stale\",\"active\":1,\"all\":2}"
+ },
+ {
+  "id": "IN2-07",
+  "area": "IN2",
+  "title": "Roles: an Editor sets item HSN/SAC and records but cannot change company or account mappings or add/approve rules; HSN and UQC formats are checked",
+  "status": "PASS",
+  "evidence": "{\"badHsn\":\"422 india_field_invalid\",\"badUqc\":\"422 india_field_invalid\",\"item\":\"201 \",\"account\":\"403 india_write_forbidden\",\"company\":\"403 india_write_forbidden\",\"rule\":\"403 india_write_forbidden\",\"approve\":\"403 india_write_forbidden\",\"wh\":\"201 \"} owner-account 201"
+ },
+ {
+  "id": "IN2-08",
+  "area": "IN2",
+  "title": "Records refer to records: a storage location needs an active warehouse; after the warehouse is made inactive it can no longer be chosen; history keeps it",
+  "status": "PASS",
+  "evidence": "{\"loc\":201,\"off\":200,\"loc2\":\"india_reference_missing\",\"list\":0,\"hist\":[[\"inactive\",\"2026-12-31\"]]}"
+ },
+ {
+  "id": "IN2-09",
+  "area": "IN2",
+  "title": "Employee, pay component, bank (IFSC) and payment-method records validate their formats; every change is in the audit log",
+  "status": "PASS",
+  "evidence": "{\"badPan\":422,\"badUan\":422,\"emp\":201,\"comp\":201,\"pm\":201,\"badIfsc\":422,\"ifsc\":201,\"audit\":19}"
+ },
+ {
+  "id": "UI-01",
+  "area": "IN2",
+  "title": "India Masters page: in Settings for the India company only; profile, records and rules tabs render from the spec; a rule is added as a draft and approved in the browser",
+  "status": "PASS",
+  "evidence": "{\"profileFields\":7,\"msme\":\"medium\",\"gstRows\":1,\"db\":\"active|3\",\"canadian\":[],\"errs\":[]}"
+ },
+ {
+  "id": "UI-02",
+  "area": "IN2",
+  "title": "Canadian company: no India Masters item in the menus",
+  "status": "PASS",
+  "evidence": "{\"menu\":false,\"page\":\"Not availableIndia masters are available only in India companies.\"}"
+ }
+]
