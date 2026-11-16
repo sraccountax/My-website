@@ -280,6 +280,7 @@ require_once __DIR__ . '/report_comparison_r20.php';
     if ($route === 'currencies') handle_currencies();
     if (str_starts_with($route, 'currencies/')) handle_currencies_r181(substr($route, strlen('currencies/')));
     if (str_starts_with($route, 'india/gst/')) handle_india_gst(substr($route, strlen('india/gst/'))); // IN-3
+    if (str_starts_with($route, 'india/payroll/')) { require_once __DIR__ . '/india_payroll_in5.php'; handle_india_payroll(substr($route, strlen('india/payroll/'))); } // IN-5
     if (str_starts_with($route, 'india/masters/')) { require_once __DIR__ . '/india_masters_in2.php'; handle_india_masters(substr($route, strlen('india/masters/'))); } // IN-2
     if ($route === 'journals') handle_manual_journals();
     if ($route === 'journals/bulk') handle_bulk_manual_journals();

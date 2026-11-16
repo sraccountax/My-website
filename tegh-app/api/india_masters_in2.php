@@ -147,7 +147,8 @@ function in2_specs(): array
                 'percent' => ['Percent', 'percent', []], 'baseComponent' => ['Percent of component', 'ref', ['ref' => 'record:pay_component']],
                 'rule' => ['Statutory rule', 'ref', ['ref' => 'rule:pt_slab|epf_rate|esic_rate|lwf_rate']],
                 'taxable' => ['Taxable', 'bool', []], 'exemption' => ['Exemption rule', 'ref', ['ref' => 'rule:it_exemption']],
-                'glAccount' => ['GL account', 'ref', ['ref' => 'entity:account']],
+                'glAccount' => ['GL account (expense for earnings and employer contributions)', 'ref', ['ref' => 'entity:account']],
+                'payableAccount' => ['Payable account (liability for deductions and employer contributions)', 'ref', ['ref' => 'entity:account']],
             ]],
             'chapter_via_declaration' => ['label' => 'Chapter VI-A declaration', 'entities' => [], 'fields' => [
                 'employee' => ['Employee', 'ref', ['ref' => 'record:employee', 'required' => true]],

@@ -41,10 +41,10 @@ try {
     return {ok: r.every(x => x.s === 404 && x.b.code === 'india_only') && before === after && rows === '0', info: JSON.stringify({codes: r.map(x => [x.s, x.b.code]), before, after, rows})};
   });
 
-  await t('IN2-02', 'Spec covers the matrix (7 profile types, 14 record types, 29 rule categories); a new India company has no statutory rules seeded', async () => {
+  await t('IN2-02', 'Spec covers the matrix (7 profile types, 14 record types, 30 rule categories: 29 from IN-2 and the GST return limit from IN-4); a new India company has no statutory rules seeded', async () => {
     const s = need('spec', await G(IN, 'spec'));
     const n = sql(`SELECT COUNT(*) FROM statutory_rates WHERE company_id='${INCO}'`);
-    return {ok: Object.keys(s.profiles).length === 7 && Object.keys(s.records).length === 14 && Object.keys(s.ruleCategories).length === 29 && n === '0' && s.canWrite && s.canApprove && (s.states || []).length === 36,
+    return {ok: Object.keys(s.profiles).length === 7 && Object.keys(s.records).length === 14 && Object.keys(s.ruleCategories).length === 30 && n === '0' && s.canWrite && s.canApprove && (s.states || []).length === 36,
       info: JSON.stringify({profiles: Object.keys(s.profiles), records: Object.keys(s.records).length, rules: Object.keys(s.ruleCategories).length, seeded: n})};
   });
 
