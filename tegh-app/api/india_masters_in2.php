@@ -25,6 +25,7 @@ const IN2_RULE_CATEGORIES = [
     'due_date' => 'Statutory due date (compliance calendar)', 'accounting_standard' => 'Accounting standard', 'pt_slab' => 'Professional Tax slab',
     'lwf_rate' => 'Labour Welfare Fund rate', 'epf_rate' => 'EPF rate', 'esic_rate' => 'ESIC rate', 'related_party_relationship' => 'Related-party relationship',
     'income_classification' => 'Income classification', 'loan_deposit_class' => 'Loan / deposit classification',
+    'gst_return_limit' => 'GST return limit (e.g. B2CL: B2C large invoice value)',
 ];
 
 const IN2_GST_REG_TYPES = ['regular' => 'Regular', 'composition' => 'Composition', 'casual' => 'Casual taxable person', 'sez_unit' => 'SEZ unit', 'sez_developer' => 'SEZ developer',

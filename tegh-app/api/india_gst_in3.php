@@ -386,55 +386,36 @@ function in3_codes_list(string $companyId): array
 
 function in3_summary(array $company, string $from, string $to): array
 {
+    // IN-4: one document builder serves the summary and the return reports, so they always agree.
+    // Vendor invoices are read line by line, and credit and debit notes are included (credit notes reduce the figures).
+    require_once __DIR__ . '/india_gst_returns_in4.php';
     $companyId = (string)$company['id'];
-    $empty = ['from' => $from, 'to' => $to, 'outward' => [], 'inward' => [], 'heads' => [], 'documents' => []];
-    if (!schema_table_exists('india_gst_codes')) return $empty;
     $heads = array_fill_keys(IN3_HEADS, ['output' => 0, 'credit' => 0, 'notClaimed' => 0]);
-    $headOf = static fn(string $name): string => strtoupper($name) === 'CESS' ? 'CESS' : (in_array(strtoupper($name), IN3_HEADS, true) ? strtoupper($name) : 'CESS');
-    // Outward: issued customer invoices (not drafts, not void) dated in the period.
-    $sales = db()->prepare("SELECT i.id, i.number, i.issue_date, c.name party, d.place_of_supply, d.supply, d.party_gstin, il.tax_code_id, t.code, g.rate_mpct, g.cess_mpct, SUM(il.amount_cents) taxable
-        FROM invoices i JOIN customers c ON c.id=i.customer_id JOIN invoice_lines il ON il.invoice_id=i.id JOIN india_gst_codes g ON g.tax_code_id=il.tax_code_id AND g.company_id=i.company_id JOIN tax_codes t ON t.id=g.tax_code_id
-        LEFT JOIN india_document_gst d ON d.company_id=i.company_id AND d.document_type='invoice' AND d.document_id=i.id
-        WHERE i.company_id=? AND i.status NOT IN ('draft','void') AND i.issue_date BETWEEN ? AND ? GROUP BY i.id, il.tax_code_id ORDER BY i.issue_date, i.number");
-    $sales->execute([$companyId, $from, $to]);
-    $tax = static function (string $type, string $id) use ($companyId): array {
-        $q = db()->prepare('SELECT tax_code_id, component_name, recoverable, tax_cents FROM document_tax_lines WHERE company_id=? AND document_type=? AND document_id=?');
-        $q->execute([$companyId, $type, $id]); return $q->fetchAll(PDO::FETCH_ASSOC);
-    };
-    $outward = []; $inward = []; $docs = []; $taxCache = [];
-    foreach ($sales->fetchAll(PDO::FETCH_ASSOC) as $r) {
-        $taxCache['invoice|' . $r['id']] ??= $tax('invoice', (string)$r['id']);
-        $byHead = array_fill_keys(IN3_HEADS, 0);
-        foreach ($taxCache['invoice|' . $r['id']] as $t) if ($t['tax_code_id'] === $r['tax_code_id']) $byHead[$headOf((string)$t['component_name'])] += (int)$t['tax_cents'];
-        $k = $r['supply'] . '|' . $r['rate_mpct'] . '|' . $r['cess_mpct'];
-        $outward[$k] ??= ['supply' => $r['supply'], 'rateMpct' => (int)$r['rate_mpct'], 'cessMpct' => (int)$r['cess_mpct'], 'taxableCents' => 0] + array_fill_keys(IN3_HEADS, 0);
-        $outward[$k]['taxableCents'] += (int)$r['taxable'];
-        foreach ($byHead as $h => $v) { $outward[$k][$h] += $v; $heads[$h]['output'] += $v; }
-        $docs[] = ['type' => 'invoice', 'id' => $r['id'], 'number' => $r['number'], 'date' => $r['issue_date'], 'party' => $r['party'], 'partyGstin' => $r['party_gstin'], 'placeOfSupply' => $r['place_of_supply'], 'supply' => $r['supply'], 'code' => $r['code'], 'taxableCents' => (int)$r['taxable']] + $byHead;
-    }
-    // Inward: posted vendor invoices dated in the period.
-    $bills = db()->prepare("SELECT b.id, b.number, b.bill_date, v.name party, d.place_of_supply, d.supply, d.party_gstin, b.tax_code_id, t.code, g.rate_mpct, g.cess_mpct, b.subtotal_cents taxable
-        FROM bills b JOIN vendors v ON v.id=b.vendor_id JOIN india_gst_codes g ON g.tax_code_id=b.tax_code_id AND g.company_id=b.company_id JOIN tax_codes t ON t.id=g.tax_code_id
-        LEFT JOIN india_document_gst d ON d.company_id=b.company_id AND d.document_type='bill' AND d.document_id=b.id
-        WHERE b.company_id=? AND b.status IN ('open','paid') AND b.bill_date BETWEEN ? AND ? ORDER BY b.bill_date, b.number");
-    $bills->execute([$companyId, $from, $to]);
-    foreach ($bills->fetchAll(PDO::FETCH_ASSOC) as $r) {
-        $credit = array_fill_keys(IN3_HEADS, 0); $notClaimed = 0;
-        foreach ($tax('bill', (string)$r['id']) as $t) {
-            $h = $headOf((string)$t['component_name']);
-            if ((int)$t['recoverable'] === 1) { $credit[$h] += (int)$t['tax_cents']; $heads[$h]['credit'] += (int)$t['tax_cents']; }
-            else { $notClaimed += (int)$t['tax_cents']; $heads[$h]['notClaimed'] += (int)$t['tax_cents']; }
+    $outward = []; $inward = []; $docs = [];
+    foreach (in4_documents($companyId, $from, $to) as $d) {
+        $sales = $d['side'] === 'sales';
+        foreach ($d['codes'] as $c) {
+            $supply = (string)($d['supply'] ?? 'intra');
+            $k = $supply . '|' . $c['rateMpct'] . '|' . $c['cessMpct'];
+            $notClaimed = array_sum($c['notClaimed']);
+            if ($sales) {
+                $outward[$k] ??= ['supply' => $supply, 'rateMpct' => $c['rateMpct'], 'cessMpct' => $c['cessMpct'], 'taxableCents' => 0] + array_fill_keys(IN3_HEADS, 0);
+                $outward[$k]['taxableCents'] += $c['taxableCents'];
+                foreach ($c['tax'] as $h => $v) { $outward[$k][$h] += $v; $heads[$h]['output'] += $v; }
+            } else {
+                $inward[$k] ??= ['supply' => $supply, 'rateMpct' => $c['rateMpct'], 'cessMpct' => $c['cessMpct'], 'taxableCents' => 0, 'notClaimedCents' => 0] + array_fill_keys(IN3_HEADS, 0);
+                $inward[$k]['taxableCents'] += $c['taxableCents']; $inward[$k]['notClaimedCents'] += $notClaimed;
+                foreach ($c['tax'] as $h => $v) { $inward[$k][$h] += $v; $heads[$h]['credit'] += $v; }
+                foreach ($c['notClaimed'] as $h => $v) $heads[$h]['notClaimed'] += $v;
+            }
+            $docs[] = ['type' => $d['kind'] === 'invoice' || $d['kind'] === 'bill' ? $d['kind'] : 'note', 'kind' => $d['kind'], 'id' => $d['id'], 'number' => $d['number'], 'date' => $d['date'], 'party' => $d['partyName'], 'partyGstin' => $d['partyGstin'],
+                'placeOfSupply' => $d['pos'], 'supply' => $d['supply'], 'code' => $c['code'], 'taxableCents' => $c['taxableCents']] + ($sales ? [] : ['notClaimedCents' => $notClaimed]) + $c['tax'];
         }
-        $k = $r['supply'] . '|' . $r['rate_mpct'] . '|' . $r['cess_mpct'];
-        $inward[$k] ??= ['supply' => $r['supply'], 'rateMpct' => (int)$r['rate_mpct'], 'cessMpct' => (int)$r['cess_mpct'], 'taxableCents' => 0, 'notClaimedCents' => 0] + array_fill_keys(IN3_HEADS, 0);
-        $inward[$k]['taxableCents'] += (int)$r['taxable']; $inward[$k]['notClaimedCents'] += $notClaimed;
-        foreach ($credit as $h => $v) $inward[$k][$h] += $v;
-        $docs[] = ['type' => 'bill', 'id' => $r['id'], 'number' => $r['number'], 'date' => $r['bill_date'], 'party' => $r['party'], 'partyGstin' => $r['party_gstin'], 'placeOfSupply' => $r['place_of_supply'], 'supply' => $r['supply'], 'code' => $r['code'], 'taxableCents' => (int)$r['taxable'], 'notClaimedCents' => $notClaimed] + $credit;
     }
     $headRows = [];
     foreach ($heads as $h => $v) $headRows[] = ['head' => $h, 'outputCents' => $v['output'], 'creditCents' => $v['credit'], 'netCents' => $v['output'] - $v['credit'], 'notClaimedCents' => $v['notClaimed']];
     return ['from' => $from, 'to' => $to, 'outward' => array_values($outward), 'inward' => array_values($inward), 'heads' => $headRows, 'documents' => $docs,
-        'note' => 'Computed from issued customer invoices and posted vendor invoices that use GST codes. Credit and debit notes, reverse charge and ITC reversals are not included yet. Nothing is filed.'];
+        'note' => 'Computed from issued customer invoices, posted vendor invoices and posted credit and debit notes that use GST codes (credit notes reduce the figures). Reverse charge and ITC reversals are not included yet. Nothing is filed.'];
 }
 
 /* ---------- routes: india/gst/... ---------- */
@@ -483,5 +464,7 @@ function handle_india_gst(string $action): never
         require_csrf();
         json_response(in3_codes_create($user, $company, request_json()), 201);
     }
+    require_once __DIR__ . '/india_gst_returns_in4.php'; // IN-4: return working reports, periods, GSTR-2B
+    in4_route($user, $company, $method, $action);
     fail('Not found.', 404, 'route_not_found');
 }
