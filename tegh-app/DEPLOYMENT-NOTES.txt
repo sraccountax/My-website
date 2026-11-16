@@ -12,10 +12,15 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R186 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R187 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R186 (R118–R186 change notes are
-included). R186 is the private beta package (it replaces R185): in Match and Post, a posted line can be unposted
+This package contains every release through R187 (R118–R187 change notes are
+included). R187 is the private beta package (it replaces R186): General Ledger lines of invoices, vendor invoices,
+notes and payments name the document and the party; one Journal Entry menu (journal, expense voucher, interbank
+transfer); interbank transfers posted from Match and Post or Journal Entry, so the Bank Transfers menu is removed;
+Reconcile Account finds book entries that match bank lines; one Download menu on reports, now on the Day Book too;
+GIFI under Reports > Tax Reports; + Add new in every customer, vendor and GL account drop-down. No switch and no
+database change. See R187-CHANGES.md. R186 (replaced R185): in Match and Post, a posted line can be unposted
 (the posting is undone and the line returns to Unposted), and an unposted line can be edited (date, amount,
 description, reference, remarks) or deleted, all from the Actions menu shown on every line. A matched line offers
 Unmatch there (Company Owner or Admin), after which it can be edited, deleted or unposted. The old Review

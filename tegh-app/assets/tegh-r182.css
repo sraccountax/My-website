@@ -208,3 +208,6 @@ tr.r186-active > td { background: var(--surface-2, #eef3f1); }
 .r187-transfer-found p { margin: 4px 0 8px; }
 .r187-transfer-found .srp-check { display: flex; gap: 8px; align-items: flex-start; margin: 4px 0; }
 .r187-je-tabs { margin-bottom: 12px; flex-wrap: wrap; }
+/* R187: quick-add dialog for a new customer, vendor or GL account from any drop-down. */
+.r187-quick-add { max-width: 520px; }
+.r187-quick-add .srp-form { margin-top: 8px; }

@@ -173,8 +173,13 @@ function journal_line_document_reference(string $companyId,string $sourceType,st
                 $p=db()->prepare('SELECT name FROM '.($customer?'customers':'vendors').' WHERE id=? AND company_id=?');$p->execute([(string)$r['party_id'],$companyId]);$name=trim((string)$p->fetchColumn());
                 return ['number'=>(string)$r['number'],'text'=>$label.' '.$r['number'].($name!==''?' · '.$name:'')];
             }
-        }elseif($sourceType==='invoice_correction'&&preg_match('/^Customer (.+?) · Invoice (\S+)/u',$entryMemo,$m)){
+        }
+        // The document row may be saved after its journal entry (issuing an invoice or a vendor invoice); Tegh's own entry
+        // memo ("Customer X · Invoice N · …", "Vendor X · Invoice N · …") then names it.
+        if(in_array($sourceType,['invoice','invoice_correction'],true)&&preg_match('/^Customer (.+?) · Invoice (\S+)/u',$entryMemo,$m)){
             return ['number'=>$m[2],'text'=>'Invoice '.$m[2].' · '.$m[1]];
+        }elseif($sourceType==='bill'&&preg_match('/^Vendor (.+?) · Invoice (\S+)/u',$entryMemo,$m)){
+            return ['number'=>$m[2],'text'=>'Vendor invoice '.$m[2].' · '.$m[1]];
         }elseif(in_array($sourceType,['customer_payment','vendor_payment'],true)&&preg_match('/^(?:Customer receipt|Vendor payment) · (.+?) · (Customer|Vendor) Invoice (\S+)/u',$entryMemo,$m)){
             return ['number'=>$m[3],'text'=>($m[2]==='Customer'?'Invoice ':'Vendor invoice ').$m[3].' · '.$m[1]];
         }
