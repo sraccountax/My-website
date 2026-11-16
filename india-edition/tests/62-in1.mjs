@@ -71,12 +71,12 @@ await t('IN-05', 'Editions never mix: India sign-in cannot open a Canadian compa
   return {ok: a.s === 403 && a.b.code === 'edition_mismatch' && b.s === 403 && b.b.code === 'edition_mismatch' && !listed && inList.every(c => c.edition === 'IN') && inList.some(c => c.id === INCO),
     info: JSON.stringify({indiaOpensCanada: [a.s, a.b.code], canadaOpensIndia: [b.s, b.b.code], canadaListsIndia: listed, indiaList: inList.length})};
 });
-await t('IN-06', 'The accounting core works in the India company: a ₹2,500 journal posts at once, a ₹25,000 journal waits for approval above the 10,000.00 control limit (the same rule as Canada), and the trial balance balances', async () => {
+await t('IN-06', 'The accounting core works in the India company: a ₹2,500 journal posts at once, a ₹25,000 journal also posts at once (no approval limit, the same as Canada), and the trial balance balances', async () => {
   const acct = c => sql(`SELECT id FROM accounts WHERE company_id='${INCO}' AND code='${c}'`);
   const small = await IN.call('journals', {method: 'POST', json: {date: '2026-04-10', memo: 'Office rent April', lines: [{accountId: acct('6100'), debitCents: 250000, creditCents: 0}, {accountId: acct('1000'), debitCents: 0, creditCents: 250000}]}});
   const large = await IN.call('journals', {method: 'POST', json: {date: '2026-04-11', memo: 'Equipment', lines: [{accountId: acct('1500'), debitCents: 2500000, creditCents: 0}, {accountId: acct('1000'), debitCents: 0, creditCents: 2500000}]}});
   const tb = sql(`SELECT IFNULL(SUM(jl.debit_cents-jl.credit_cents),0) FROM journal_lines jl JOIN journal_entries je ON je.id=jl.journal_entry_id WHERE je.company_id='${INCO}' AND je.status='posted'`);
-  return {ok: small.s === 201 && small.b.journalEntry?.status === 'posted' && large.s === 202 && large.b.approvalRequired === true && tb === '0', info: JSON.stringify({small: [small.s, small.b.journalEntry?.status], large: [large.s, large.b.journalEntry?.status], tb})};
+  return {ok: small.s === 201 && small.b.journalEntry?.status === 'posted' && large.s === 201 && large.b.journalEntry?.status === 'posted' && large.b.approvalRequired === false && tb === '0', info: JSON.stringify({small: [small.s, small.b.journalEntry?.status], large: [large.s, large.b.journalEntry?.status], tb})};
 });
 
 // ---------------- Browser ----------------

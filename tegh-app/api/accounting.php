@@ -117,8 +117,27 @@ function journal_entry_content_hash(string $date, string $memo, array $lines): s
     ],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR));
 }
 
+/**
+ * R189: amount-based approval limits are off unless the server config sets
+ * accounting.approval_limits_enabled = true. With them off, no journal, vendor
+ * invoice, void, credit/debit note, bank unpost or interbank reversal waits for a
+ * second approver because of its amount. Requests already waiting stay approvable.
+ * The stored per-company threshold is kept unchanged.
+ */
+function company_approval_limits_enabled(): bool
+{
+    return config('accounting.approval_limits_enabled') === true;
+}
+
+/** The threshold shown to users, or null when approval limits are off. */
+function company_approval_limit_display_cents(string $companyId): ?int
+{
+    return company_approval_limits_enabled() ? company_materiality_threshold_cents($companyId) : null;
+}
+
 function company_materiality_threshold_cents(string $companyId): int
 {
+    if(!company_approval_limits_enabled())return PHP_INT_MAX;
     $configured=(int)(config('accounting.materiality_threshold_cents') ?? 1_000_000);
     $threshold=$configured>0?$configured:1_000_000;
     if(function_exists('schema_column_exists')&&schema_column_exists('accounting_controls','materiality_threshold_cents')){

@@ -205,7 +205,7 @@ function r186_unpost_preview(array $user, array $company): never
     $id = clean_text($_GET['transactionId'] ?? '', 'Bank transaction', 64);
     $role = (string)($company['role'] ?? '');
     $info = r186_unpost_lookup($companyId, $id, false, $role === 'owner');
-    $amount = abs((int)$info['tx']['amount_cents']); $threshold = company_materiality_threshold_cents($companyId);
+    $amount = abs((int)$info['tx']['amount_cents']); $threshold = company_approval_limit_display_cents($companyId);
     $pending = r186_unpost_pending_approval($companyId, $id);
     json_response([
         'transactionId' => $id,
@@ -216,7 +216,7 @@ function r186_unpost_preview(array $user, array $company): never
         'ownerCorrection' => $info['ownerCorrection'],
         'accountsAffected' => r186_unpost_accounts($companyId, $info),
         'amountCents' => $amount,
-        'dualControlRequired' => $amount > $threshold,
+        'dualControlRequired' => $amount > company_materiality_threshold_cents($companyId),
         'materialityThresholdCents' => $threshold,
         'pendingApproval' => $pending ? [
             'approvalId' => (string)$pending['id'],
@@ -260,14 +260,14 @@ function r186_unpost_apply(array $user, array $company): never
         $date = (string)$tx['transaction_date'];
         $amount = abs((int)$tx['amount_cents']); $approvalRow = null;
 
-        if ($amount > company_materiality_threshold_cents($companyId)) {
+        if ($amount > company_materiality_threshold_cents($companyId) || $approvalId !== '') {
             if ($approvalId === '') {
                 $hash = hash('sha256', json_encode(['transactionId' => $id, 'amountCents' => $amount, 'kind' => $kind, 'reason' => $reason], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
                 $existing = r186_unpost_pending_approval($companyId, $id);
                 $requestId = $existing ? (string)$existing['id'] : new_id('uapproval');
                 if (!$existing) db()->prepare("INSERT INTO journal_approvals (id,company_id,journal_entry_id,source_type,source_id,amount_cents,status,payload_hash,prepared_by,submitted_at,review_note) VALUES (?,?,?,?,?,?,'submitted',?,?,UTC_TIMESTAMP(),?)")
                     ->execute([$requestId, $companyId, (string)$journal['id'], 'unpost:bank_transaction', $id, $amount, $hash, $user['id'], $reason]);
-                audit_event($user, $companyId, 'bank_transaction.unpost_submitted_for_approval', 'bank_transaction', $id, ['approvalId' => $requestId, 'amountCents' => $amount, 'reason' => $reason, 'kind' => $kind, 'materialityThresholdCents' => company_materiality_threshold_cents($companyId)]);
+                audit_event($user, $companyId, 'bank_transaction.unpost_submitted_for_approval', 'bank_transaction', $id, ['approvalId' => $requestId, 'amountCents' => $amount, 'reason' => $reason, 'kind' => $kind, 'materialityThresholdCents' => company_approval_limit_display_cents($companyId)]);
                 return ['pendingApproval' => true, 'approvalId' => $requestId, 'amountCents' => $amount, 'kind' => $kind];
             }
             $q = db()->prepare("SELECT * FROM journal_approvals WHERE id=? AND company_id=? AND source_type='unpost:bank_transaction' AND source_id=? FOR UPDATE");

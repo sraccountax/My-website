@@ -380,7 +380,7 @@ function r170_options(array $company): array
         'taxMode' => $codesMode ? 'codes' : 'legacy', 'taxCodes' => $codes, 'homeTaxCodeId' => $home['id'] ?? null,
         'legacyTax' => ['gstHst' => (bool)$company['tax_registered'], 'pst' => (bool)($company['pst_registered'] ?? false)],
         'currencies' => $currencies, 'companyCurrency' => (string)$company['currency'], 'booksStartDate' => $company['books_start_date'] ?? null,
-        'materialityCents' => company_materiality_threshold_cents($companyId),
+        'materialityCents' => company_approval_limit_display_cents($companyId),
         'canWrite' => company_role_can((string)$company['role'], 'bills.write'), 'canOverride' => company_role_can((string)$company['role'], 'bills.reverse'),
         'canCreditNote' => company_role_can((string)$company['role'], 'ap.credit_note.write'),
         'limits' => ['maxPages' => R170_MAX_PAGES, 'maxFileBytes' => 10 * 1024 * 1024, 'maxAttempts' => R170_MAX_ATTEMPTS],

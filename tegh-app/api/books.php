@@ -429,7 +429,7 @@ try{
     $approvalId=null;
     if($requiresApproval){$billRow=['id'=>$id,'company_id'=>$companyId,'vendor_id'=>$v['vendorId'],'number'=>$v['number'],'bill_date'=>$v['billDate'],'due_date'=>$v['dueDate'],'category_account_id'=>$v['categoryId'],'subtotal_cents'=>$v['subtotal'],'gst_hst_cents'=>$v['gst'],'pst_cents'=>$v['pst'],'tax_cents'=>$v['taxTotal'],'total_cents'=>$v['total'],'currency'=>$v['currency'],'exchange_rate_micros'=>$v['rate'],'foreign_total_cents'=>$v['foreignTotal'],'memo'=>$v['memo']];$approvalId=bill_submit_for_approval($user,$companyId,$billRow);}
     if($issue&&!$requiresApproval&&function_exists('voucher_mark_posted'))voucher_mark_posted($user,$companyId,'bill',$id,$entryId);
-    audit_event($user,$companyId,$requiresApproval?'bill.submitted_for_approval':($issue?'bill.issued':'bill.draft_created'),'bill',$id,['number'=>$v['number'],'totalCents'=>$v['total'],'gstHstCents'=>$v['gst'],'pstCents'=>$v['pst'],'taxEntryMode'=>$v['mode'],'journalEntryId'=>$entryId,'approvalId'=>$approvalId,'approvalRequired'=>$requiresApproval,'materialityThresholdCents'=>company_materiality_threshold_cents($companyId),'isRecurring'=>$isRecurring,'initiatedVia'=>$source]);if($ownsTransaction)db()->commit();
+    audit_event($user,$companyId,$requiresApproval?'bill.submitted_for_approval':($issue?'bill.issued':'bill.draft_created'),'bill',$id,['number'=>$v['number'],'totalCents'=>$v['total'],'gstHstCents'=>$v['gst'],'pstCents'=>$v['pst'],'taxEntryMode'=>$v['mode'],'journalEntryId'=>$entryId,'approvalId'=>$approvalId,'approvalRequired'=>$requiresApproval,'materialityThresholdCents'=>company_approval_limit_display_cents($companyId),'isRecurring'=>$isRecurring,'initiatedVia'=>$source]);if($ownsTransaction)db()->commit();
 }catch(Throwable $e){if($ownsTransaction&&db()->inTransaction())db()->rollBack();if($e instanceof PDOException&&(string)$e->getCode()==='23000')fail('That vendor invoice number already exists.',409,'duplicate_bill_number');throw $e;}
 return ['id'=>$id,'number'=>$v['number'],'status'=>$requiresApproval?'submitted_for_approval':($issue?'open':'draft'),'totalCents'=>$v['total'],'gstHstCents'=>$v['gst'],'pstCents'=>$v['pst'],'journalEntryId'=>$entryId,'approvalId'=>$approvalId,'approvalRequired'=>$requiresApproval,'isRecurring'=>$isRecurring,'importReference'=>$importReference];
 }
@@ -508,7 +508,7 @@ function handle_bills(): never
             $stmt=db()->prepare("SELECT b.*,v.name vendor_name,a.name category_name FROM bills b JOIN vendors v ON v.id=b.vendor_id JOIN accounts a ON a.id=b.category_account_id WHERE b.id=? AND b.company_id=? AND b.status='draft' FOR UPDATE");$stmt->execute([$billId,$companyId]);$bill=$stmt->fetch();if(!$bill)fail('Choose an available draft vendor invoice.',409,'bill_unavailable');assert_not_future_date((string)$bill['bill_date'],'Vendor invoice date');assert_vendor_invoice_on_or_after_books_start($company,(string)$bill['bill_date']);assert_period_open($companyId,(string)$bill['bill_date']);
             if((int)$bill['total_cents']>company_materiality_threshold_cents($companyId)){
                 $approvalId=bill_submit_for_approval($user,$companyId,$bill);
-                audit_event($user,$companyId,'bill.submitted_for_approval','bill',$billId,['number'=>(string)$bill['number'],'totalCents'=>(int)$bill['total_cents'],'approvalId'=>$approvalId,'materialityThresholdCents'=>company_materiality_threshold_cents($companyId)]);
+                audit_event($user,$companyId,'bill.submitted_for_approval','bill',$billId,['number'=>(string)$bill['number'],'totalCents'=>(int)$bill['total_cents'],'approvalId'=>$approvalId,'materialityThresholdCents'=>company_approval_limit_display_cents($companyId)]);
                 db()->commit();json_response(['bill'=>['id'=>$billId,'status'=>'submitted_for_approval','approvalId'=>$approvalId,'approvalRequired'=>true]],202);
             }
             $fxRounding=bill_fx_rounding_cents((int)$bill['foreign_subtotal_cents'],(int)$bill['foreign_gst_hst_cents'],(int)$bill['foreign_pst_cents'],(int)$bill['exchange_rate_micros'],(int)$bill['total_cents']);
@@ -601,7 +601,7 @@ function manual_journal_post_service(array $user,array $company,array $input,str
         if($entryStatus==='posted'&&function_exists('voucher_mark_posted'))voucher_mark_posted($user,$companyId,'manual_journal',$sourceId,$entryId);
         db()->prepare("DELETE FROM voucher_draft_payloads WHERE company_id=? AND source_type='manual_journal' AND source_id=?")->execute([$companyId,$sourceId]);
         audit_event($user, $companyId, $entryStatus==='posted'?'journal.manual_posted':'journal.manual_submitted_for_approval', 'journal_entry', $entryId, [
-            'date' => $date, 'memo' => $memo, 'lineCount' => count($lines),'interbankTransfer'=>$interbank,'initiatedVia'=>$initiatedVia==='ask_tegh'?'Ask Tegh':'Manual UI','status'=>$entryStatus,'materialityThresholdCents'=>company_materiality_threshold_cents($companyId),
+            'date' => $date, 'memo' => $memo, 'lineCount' => count($lines),'interbankTransfer'=>$interbank,'initiatedVia'=>$initiatedVia==='ask_tegh'?'Ask Tegh':'Manual UI','status'=>$entryStatus,'materialityThresholdCents'=>company_approval_limit_display_cents($companyId),
         ]);
         db()->commit();
     } catch (Throwable $error) {

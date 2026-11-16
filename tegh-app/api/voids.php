@@ -286,7 +286,7 @@ function void_preview(array $user, array $company): never
         'blockers' => void_blockers($companyId, $entityType, $target['row'], $entries),
         'amountCents'=>void_transaction_amount($target['row'],$entries),
         'dualControlRequired'=>void_transaction_amount($target['row'],$entries)>company_materiality_threshold_cents($companyId),
-        'materialityThresholdCents'=>company_materiality_threshold_cents($companyId),
+        'materialityThresholdCents'=>company_approval_limit_display_cents($companyId),
         'explanation' => 'Voiding removes this transaction from the trial balance, the financial statements, the ledgers and the tax figures. The record itself is kept: it stays visible in the Day Book marked as voided, and the audit history keeps who posted it, who voided it and why.',
     ]);
 }
@@ -332,13 +332,13 @@ function void_apply(array $user, array $company): never
         }
 
         $amount=void_transaction_amount($row,$entries);$approvalRow=null;
-        if($amount>company_materiality_threshold_cents($companyId)){
+        if($amount>company_materiality_threshold_cents($companyId)||$approvalId!==''){
             $payloadHash=hash('sha256',json_encode(['entityType'=>$entityType,'entityId'=>$entityId,'amountCents'=>$amount,'reason'=>$reason],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR));
             if($approvalId===''){
                 $existing=db()->prepare("SELECT id FROM journal_approvals WHERE company_id=? AND source_type=? AND source_id=? AND status='submitted' AND payload_hash=? LIMIT 1 FOR UPDATE");$existing->execute([$companyId,'void:'.$entityType,$entityId,$payloadHash]);$requestId=$existing->fetchColumn();
                 if($requestId===false){$requestId=new_id('vapproval');db()->prepare("INSERT INTO journal_approvals (id,company_id,journal_entry_id,source_type,source_id,amount_cents,status,payload_hash,prepared_by,submitted_at,review_note) VALUES (?,?,?,?,?,?,'submitted',?,?,UTC_TIMESTAMP(),?)")
                     ->execute([$requestId,$companyId,$live[0]['id']??null,'void:'.$entityType,$entityId,$amount,$payloadHash,$user['id'],$reason]);}
-                audit_event($user,$companyId,'transaction.void_submitted_for_approval',$entityType,$entityId,['approvalId'=>$requestId,'amountCents'=>$amount,'reason'=>$reason,'materialityThresholdCents'=>company_materiality_threshold_cents($companyId)]);
+                audit_event($user,$companyId,'transaction.void_submitted_for_approval',$entityType,$entityId,['approvalId'=>$requestId,'amountCents'=>$amount,'reason'=>$reason,'materialityThresholdCents'=>company_approval_limit_display_cents($companyId)]);
                 return ['pendingApproval'=>true,'approvalId'=>(string)$requestId,'amountCents'=>$amount,'label'=>$spec['label'],'voidedEntryIds'=>[]];
             }
             $approval=db()->prepare("SELECT * FROM journal_approvals WHERE id=? AND company_id=? AND source_type=? AND source_id=? FOR UPDATE");$approval->execute([$approvalId,$companyId,'void:'.$entityType,$entityId]);$approvalRow=$approval->fetch();
