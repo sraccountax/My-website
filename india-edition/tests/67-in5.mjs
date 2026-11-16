@@ -2,6 +2,7 @@
 // Every expected figure is worked out by hand below from synthetic structures and synthetic rules; none is read back from Tegh.
 // The rates, ceilings and slabs are invented test values, not Indian law.
 import {S, sql, rec, save, need} from './lib.mjs';
+import {chromium} from '/opt/node22/lib/node_modules/playwright/index.mjs';
 
 const A = 'IN5';
 const t = async (id, title, fn) => { try { const r = await fn(); rec(id, A, title, r.ok ? 'PASS' : 'FAIL', r.info); return r.ok; } catch (e) { rec(id, A, title, 'FAIL', String(e.message || e).slice(0, 400)); return false; } };
@@ -142,6 +143,54 @@ try {
     return {ok: noReason.s === 422 && ed.s === 403 && r.run.status === 'reversed' && b.every(x => x === 0) && again.s === 201 && again.b.run.id !== run.run.id && again.b.run.netCents === R(29500 + 11941) && /calculated/.test(audit) && /posted/.test(audit) && /reversed/.test(audit),
       info: JSON.stringify({noReason: noReason.s, ed: ed.s, status: r.run.status, b, again: [again.s, again.b.run?.netCents], audit})};
   });
+
+  // ---------------- Browser ----------------
+  const browser = await chromium.launch({executablePath: '/opt/pw-browsers/chromium', args: ['--no-proxy-server', '--host-resolver-rules=MAP gate.test 127.0.0.1']});
+  try {
+    const login = async (p, company, edition) => {
+      await p.goto('https://gate.test/app.html' + (edition ? '?edition=in' : '')); await p.waitForSelector('#sr-login-form', {timeout: 30000});
+      if (edition) await p.selectOption('#sr-login-form [name=edition]', 'IN');
+      await p.fill('#sr-login-form input[name=email]', 'owner@gate.test'); await p.fill('#sr-login-form input[name=password]', PW); await p.click('#sr-login-form button[type=submit]');
+      await p.waitForFunction(() => window.TeghPortal && document.querySelector('.sidebar,.topbar'), null, {timeout: 40000});
+      await p.evaluate(id => { localStorage.setItem('sr-accountax-company', id); localStorage.setItem('sr-accountax-companies', JSON.stringify([id])); }, company); await p.goto('https://gate.test/app.html'); await p.waitForFunction(() => window.TeghPortal && document.querySelector('.sidebar,.topbar'), null, {timeout: 40000});
+      await p.waitForTimeout(1500);
+    };
+    const navText = p => p.evaluate(() => [...document.querySelectorAll('.sidebar button, .sidebar a, nav button, nav a')].map(x => x.textContent.trim()).filter(Boolean).join('|'));
+    await t('UI-01', 'India payroll screens: the Payroll menu offers Pay Runs, Salary Structures and Payroll Registers (no Canadian payroll items); the September run lists both employees; a payslip shows earnings, deductions and net pay; the register agrees with the liabilities', async () => {
+      const ctx = await browser.newContext({viewport: {width: 1440, height: 900}, ignoreHTTPSErrors: true}); const p = await ctx.newPage(); const errs = [];
+      p.on('pageerror', e => errs.push(e.message.slice(0, 200)));
+      try {
+        await login(p, INCO, true);
+        const nav = await navText(p);
+        await p.evaluate(() => TeghPortal.openIndiaPayroll('runs')); await p.waitForSelector('[data-in5-runs]', {timeout: 20000});
+        await p.locator('[data-in5-runs] tr', {hasText: '2026-09'}).filter({hasText: 'Draft'}).locator('[data-in5-open]').first().click();
+        await p.waitForSelector('[data-in5-lines] tbody tr', {timeout: 20000});
+        const rows = await p.locator('[data-in5-lines] tbody tr').count();
+        await p.locator('[data-in5-slip]').first().click(); await p.waitForSelector('[data-in5-payslip]', {timeout: 10000});
+        const slip = await p.innerText('[data-in5-payslip]');
+        await p.screenshot({path: '/srv/gate/ev/shots/in5-payslip-1440.png', fullPage: true});
+        await p.evaluate(() => TeghPortal.openIndiaPayroll('structures')); await p.waitForSelector('[data-in5-components] tbody tr', {timeout: 20000});
+        const comps = await p.locator('[data-in5-components] tbody tr').count();
+        await p.screenshot({path: '/srv/gate/ev/shots/in5-structure-1440.png'});
+        await p.evaluate(() => TeghPortal.openIndiaPayroll('registers')); await p.waitForSelector('[data-in5-ties]', {timeout: 20000});
+        const ties = await p.getAttribute('[data-in5-ties]', 'data-in5-ties');
+        const text = slip + await p.innerText('.in5-payroll');
+        const canadian = text.match(/\bCPP\b|\bEI\b|\bCRA\b|T4|TD1|Canada|Canadian|\bCAD\b|\$/g) || [];
+        return {ok: /Pay Runs/.test(nav) && /Salary Structures/.test(nav) && !/Payroll & Tax Center|Pay Run Register|CRA Remittance/.test(nav) && rows === 2 && /Earnings/.test(slip) && /Deductions/.test(slip) && /Net pay ₹/.test(slip) && comps === 9 && ties === '1' && !canadian.length && !errs.length,
+          info: JSON.stringify({nav: nav.slice(0, 300), rows, slip: slip.replace(/\s+/g, ' ').slice(0, 160), comps, ties, canadian, errs})};
+      } finally { await ctx.close(); }
+    });
+    await t('UI-02', 'Canadian company: the India payroll items are not in the menus and the page is refused; the Canadian payroll items are still there', async () => {
+      const ctx = await browser.newContext({viewport: {width: 1440, height: 900}, ignoreHTTPSErrors: true}); const p = await ctx.newPage();
+      try {
+        await login(p, CACO, false);
+        const nav = await navText(p);
+        await p.evaluate(() => TeghPortal.openIndiaPayroll()); await p.waitForTimeout(800);
+        const toast = await p.locator('.srp-toast').first().textContent().catch(() => '');
+        return {ok: !/Salary Structures|Payroll Registers|\|Pay Runs\|/.test('|' + nav + '|') && /only in India companies/.test(toast || ''), info: JSON.stringify({nav: nav.slice(0, 300), toast})};
+      } finally { await ctx.close(); }
+    });
+  } finally { await browser.close(); }
 } finally {
   await setMode(startMode).catch(() => {});
   save('in5.json');

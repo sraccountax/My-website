@@ -103,13 +103,13 @@ await t('UI-01', 'Sign-in screen: with the switch on "Platform owner only" the E
     return {ok: plain === 0 && /IN1 Traders/.test(got.company || '') && !errs.length, info: JSON.stringify({...got, errs})};
   } finally { await c2.close(); }
 });
-await t('UI-02', 'India menus have no Payroll, GIFI, Tax Code Report, GST/HST/PST Summary or CRA items; Bank Transfers and the guided mode are not offered', async () => {
+await t('UI-02', 'India menus have no Canadian payroll items (IN-5 adds India payroll), GIFI, Tax Code Report, GST/HST/PST Summary or CRA items; Bank Transfers and the guided mode are not offered', async () => {
   const {ctx, p, errs} = await indiaPage();
   try {
     const nav = await p.evaluate(() => [...document.querySelectorAll('.sidebar button, .sidebar a, nav button, nav a')].filter(x => x.getClientRects().length).map(x => x.textContent.trim()).filter(Boolean));
     await p.evaluate(() => TeghPortal.openReportsDashboard()); await p.waitForTimeout(2500);
     const reports = await p.evaluate(() => document.querySelector('.srp-page:last-of-type')?.innerText || '');
-    const bad = [...nav, reports].join('\n').match(/Payroll|GIFI|Tax Code Report|GST\/HST|CRA|Bank Transfers/g) || [];
+    const bad = [...nav, reports].join('\n').match(/Payroll & Tax Center|Quick Calculation|Pay Run Register|Payroll Verification|Payroll History|Payroll Rates|Remittance|GIFI|Tax Code Report|GST\/HST|CRA|Bank Transfers/g) || [];
     return {ok: !bad.length && !errs.length, info: JSON.stringify({bad: [...new Set(bad)], navCount: nav.length, errs})};
   } finally { await ctx.close(); }
 });
