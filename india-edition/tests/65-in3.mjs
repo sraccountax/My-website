@@ -158,7 +158,7 @@ try {
   });
 
   // ---------------- Browser ----------------
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({executablePath: '/opt/pw-browsers/chromium', args: ['--no-proxy-server', '--host-resolver-rules=MAP gate.test 127.0.0.1']});
   try {
     const login = async (p, edition) => {
       await p.goto('https://gate.test/app.html' + (edition ? '?edition=in' : '')); await p.waitForSelector('#sr-login-form', {timeout: 30000});
@@ -195,20 +195,23 @@ try {
         await login(p, true);
         await p.evaluate(() => TeghPortal.openDocumentEditor('customer', {kind: 'invoice'})); await p.waitForSelector('[data-r151-form] [name=partyId]', {timeout: 20000});
         await p.selectOption('[data-r151-form] [name=partyId]', ids.cKA); await p.waitForTimeout(400);
+        for (const [n, v] of [['date', '2026-08-20'], ['dueDate', '2026-09-19']]) { const f = p.locator(`[data-r151-form] [name=${n}]`); if (await f.count()) await f.fill(v); }
         const place = await p.locator('[data-r151-form] [name=placeOfSupply]').inputValue();
         const supply = await p.locator('[data-in3-supply]').innerText();
         await p.fill('[data-r151-form] tr[data-r151-line] [name=description]', 'UI GST line'); await p.fill('[data-r151-form] tr[data-r151-line] [name=qty]', '1'); await p.fill('[data-r151-form] tr[data-r151-line] [name=rate]', '1000');
         const options = await p.locator('[data-r151-form] tr[data-r151-line] [name=taxKey] option').evaluateAll(os => os.map(o => o.textContent.trim()));
         await p.selectOption('[data-r151-form] tr[data-r151-line] [name=taxKey]', {label: options.find(o => /^IGST18/.test(o))});
-        const acctSel = p.locator('[data-r151-form] tr[data-r151-line] [name=accountId]'); if (await acctSel.count()) await acctSel.selectOption({index: 1}).catch(() => {});
+        const acctSel = p.locator('[data-r151-form] tr[data-r151-line] [name=accountId]'); if (await acctSel.count()) { const v = await acctSel.locator('option').evaluateAll(os => (os.find(o => /^4100/.test(o.textContent.trim())) || os.find(o => /^account_/.test(o.value)))?.value); if (v) await acctSel.selectOption(v); }
         const totals = await p.locator('[data-r151-totals]').innerText();
         await p.screenshot({path: '/srv/gate/ev/shots/in3-invoice-1440.png'});
         await p.click('[data-r151-form] button[data-r151-save="post"]').catch(() => {}); await p.waitForTimeout(400);
         const dlg = p.locator('.tegh-action-dialog button[type=submit]'); if (await dlg.count()) await dlg.first().click();
-        await p.waitForFunction(() => /issued|saved/i.test(document.querySelector('.srp-toast')?.textContent || ''), null, {timeout: 20000});
-        const saved = sql(`SELECT CONCAT(d.place_of_supply,'|',d.supply,'|',(SELECT GROUP_CONCAT(component_name) FROM document_tax_lines x WHERE x.document_id=i.id AND x.document_type='invoice')) FROM invoices i JOIN india_document_gst d ON d.document_id=i.id AND d.document_type='invoice' WHERE i.company_id='${INCO}' AND i.customer_id='${ids.cKA}' ORDER BY i.created_at DESC LIMIT 1`);
+        await p.waitForFunction(() => /issued|saved|refused|error|choose|cannot|invalid/i.test(document.querySelector('.srp-toast')?.textContent || ''), null, {timeout: 20000}).catch(() => {});
+        const toast = (await p.locator('.srp-toast').first().textContent().catch(() => '')) || '';
+        await p.screenshot({path: '/srv/gate/ev/shots/in3-invoice-saved-1440.png'});
+        const saved = sql(`SELECT CONCAT(d.place_of_supply,'|',d.supply,'|',(SELECT GROUP_CONCAT(component_name) FROM document_tax_lines x WHERE x.document_id=i.id AND x.document_type='invoice')) FROM invoices i JOIN india_document_gst d ON d.document_id=i.id AND d.document_type='invoice' WHERE i.company_id='${INCO}' AND i.customer_id='${ids.cKA}' AND EXISTS(SELECT 1 FROM invoice_lines l WHERE l.invoice_id=i.id AND l.description='UI GST line') ORDER BY i.created_at DESC LIMIT 1`);
         return {ok: place === '29' && /Inter-state/.test(supply) && !options.some(o => /^GST18|^GST12/.test(o)) && options.some(o => /^IGST18/.test(o)) && /₹1,180\.00|1,180\.00/.test(totals) && saved === '29|inter|IGST' && !errs.length,
-          info: JSON.stringify({place, supply, options, totals: totals.replace(/\s+/g, ' ').slice(0, 120), saved, errs})};
+          info: JSON.stringify({place, supply, options, totals: totals.replace(/\s+/g, ' ').slice(0, 120), saved, toast: toast.slice(0, 200), errs})};
       } finally { await ctx.close(); }
     });
     await t('UI-03', 'Canadian company: no GST Summary in the menus and the page is refused', async () => {

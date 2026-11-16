@@ -1192,7 +1192,7 @@ db_transaction_retry(function () use (
     $subtotal, $tax, $total, $customerId, $dueDate, $status, $input,
     $currency, $exchangeRateMicros, $foreignSubtotal, $foreignTax,
     $foreignTotal, $purchaseOrder, $template, $templateSnapshot,
-    $customerSnapshot, $calculatedLines, $customer, $isRecurring, $importReference, $source, $taxOverrides, $pst, $taxRows, $codesMode
+    $customerSnapshot, $calculatedLines, $customer, $isRecurring, $importReference, $source, $taxOverrides, $pst, $taxRows, $codesMode, $indiaGst
 ): void {
     if(function_exists('voucher_register_saved'))voucher_register_saved($user,$companyId,'CI','AR','invoice',$id,$issueDate,'Customer invoice '.$number,$total,null,false);
     $lineDescriptions = array_map(static fn(array $line): string => (string)$line['description'], $calculatedLines);
