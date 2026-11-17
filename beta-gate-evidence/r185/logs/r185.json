@@ -1,0 +1,86 @@
+[
+ {
+  "id": "PF-01",
+  "area": "R185",
+  "title": "One release token: every /assets stylesheet and script in app.html, the gate module list and the preflight carry the same token, and .htaccess names it",
+  "status": "PASS",
+  "evidence": "gate 5990-r185-speed; app.html 5990-r185-speed; preflight 5990-r185-speed; .htaccess names it: true"
+ },
+ {
+  "id": "PF-02",
+  "area": "R185",
+  "title": "Caching: this release's files are kept for a year; files with an older token, app.html and the API are not; fonts are kept 30 days",
+  "status": "PASS",
+  "evidence": "current: public, max-age=31536000, immutable; r120: public, max-age=31536000, immutable; older token: ''; app.html: no-store, no-cache, must-revalidate, max-age=0; font: public, max-age=2592000; api: 'private, no-store, max-age=0'"
+ },
+ {
+  "id": "PF-03",
+  "area": "R185",
+  "title": "Sign-in database check: the faster foreign-key reading returns exactly the rows of the original joined query, for every table",
+  "status": "PASS",
+  "evidence": "tables 191, rows 436, tables differing 0, new snapshot 12 ms"
+ },
+ {
+  "id": "PF-04",
+  "area": "R185",
+  "title": "startup/prepare and startup/status still report the same readiness (all ready, not degraded) through the API",
+  "status": "PASS",
+  "evidence": "all 14 ready; degraded false/false"
+ },
+ {
+  "id": "PF-05",
+  "area": "R185",
+  "title": "Interface files start downloading when the person starts signing in (module preloads with this release's token)",
+  "status": "PASS",
+  "evidence": "15 preloads; e.g. /assets/index-BsxPiq85-v2817.js?v=5990-r185-speed /assets/tegh-reference-r19.js?v=5990-r185-speed /assets/tegh-advanced-v5800.js?v=5990-r185-speed"
+ },
+ {
+  "id": "PF-06",
+  "area": "R185",
+  "title": "Sign-in reads the company workspace once, started together with the startup check, and the dashboard opens with no page errors",
+  "status": "PASS",
+  "evidence": "workspace reads 1; started 0 ms from startup/prepare; errors []; opened in 3840 ms"
+ },
+ {
+  "id": "PF-07",
+  "area": "R185",
+  "title": "Invoice register: the 40-row legacy table is already hidden when the layout code runs, and the sealed register shows 25 of 40 records",
+  "status": "PASS",
+  "evidence": "at layout: {\"wraps\":1,\"visible\":0,\"rows\":40}; register rows 25; '40 of 40 records · CAD'; legacy visible after 0; 2048 ms"
+ },
+ {
+  "id": "PF-08",
+  "area": "R185",
+  "title": "Invoice register row actions still work: a row's Actions menu offers the invoice actions taken from the (hidden) legacy row",
+  "status": "PASS",
+  "evidence": "Edit invoice | View invoice details | Invoice PDF | Print invoice | Invoice Excel | View Day Book Entry | Apply Open Payment | Void"
+ },
+ {
+  "id": "PF-09",
+  "area": "R185",
+  "title": "Invoice register total: the sealed register's total equals the 40 invoices worked out by hand",
+  "status": "PASS",
+  "evidence": "rows 40; total 1067511 vs 1067511"
+ },
+ {
+  "id": "PF-10",
+  "area": "R185",
+  "title": "Profile menu: the panel holding Workspace preferences carries the class that replaced the :has() test, and keeps its width",
+  "status": "PASS",
+  "evidence": "{\"cls\":true,\"inOverlay\":true,\"width\":400,\"overflowY\":\"auto\"}"
+ },
+ {
+  "id": "PF-11",
+  "area": "R185",
+  "title": "No page errors while opening the register and the profile menu",
+  "status": "PASS",
+  "evidence": "[]"
+ },
+ {
+  "id": "PF-12",
+  "area": "R185",
+  "title": "Unused stylesheets are not in the package and nothing in it refers to them",
+  "status": "PASS",
+  "evidence": "listed []; referenced by: ''"
+ }
+]

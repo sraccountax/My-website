@@ -1,0 +1,16 @@
+import {S, sql} from '../lib.mjs';
+const o = new S(); await o.login('owner@gate.test', 'Gate!Owner#2026pw');
+o.cid = process.argv[2];
+const off = await o.call('report-builder/catalogue'); console.log('off:', off.s, off.b.code);
+sql(`UPDATE site_settings SET value_json=JSON_SET(value_json,'$.reportBuilder','everyone') WHERE setting_group='release'`);
+const cat = await o.call('report-builder/catalogue'); console.log('catalogue', cat.s, cat.b.sources?.map(x => x.key).join(','));
+const spec = {source: 'gl', mode: 'summary', rows: ['accountType', 'account'], columns: 'period:quarter', values: ['debit', 'credit'], period: {start: '2025-01-01', end: '2025-12-31'}, compare: 'change'};
+const t0 = Date.now(); const r = await o.call('report-builder/run', {method: 'POST', json: {definition: spec}});
+console.log('run', r.s, Date.now() - t0, 'ms', r.b.error || '', r.b.output?.rowCount, r.b.output?.columns?.map(c => c.label).join(' | '));
+console.log(JSON.stringify(r.b.output?.rows?.slice(0, 3)), JSON.stringify(r.b.output?.totals));
+const tb = await o.call('professional-output/v5990/trial-balance?start=2025-01-01&end=2025-12-31');
+console.log('TB period debit/credit', tb.b.output?.totals?.periodDebitCents, tb.b.output?.totals?.periodCreditCents);
+const l = await o.call('report-builder/run', {method: 'POST', json: {definition: {source: 'invoices', mode: 'list', fields: ['number', 'date', 'customer', 'status', 'total'], filters: [{field: 'total', op: 'gt', value: 100000}], period: {start: '2025-01-01', end: '2025-12-31'}, sort: {key: 'total', dir: 'desc'}}}});
+console.log('list', l.s, l.b.error || '', l.b.output?.rowCount, JSON.stringify(l.b.output?.rows?.slice(0, 2)), JSON.stringify(l.b.output?.totals));
+const v = await o.call('report-builder/values?source=invoices&field=status'); console.log('values', v.s, JSON.stringify(v.b.values));
+const bad = await o.call('report-builder/run', {method: 'POST', json: {definition: {source: 'gl', mode: 'summary', rows: ['a.code; DROP'], values: ['debit'], period: {start: '2025-01-01', end: '2025-12-31'}}}}); console.log('bad field', bad.s, bad.b.code);

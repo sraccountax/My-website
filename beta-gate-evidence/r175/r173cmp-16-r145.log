@@ -1,0 +1,46 @@
+PASS     CV-A1      Statement A: every row read with an amount and a date (12 rows, none needing manual entry) | [12,0]
+PASS     CV-A2      Statement A: net, money out and money in match the statement | [11213,347732,358945]
+PASS     CV-A3      Statement A: opening and closing balances read and the rows balance to them | [512345,523558,true,false]
+PASS     CV-A4      Statement A: first and last dates (years from the statement period) and the reviewed hand- | ["2026-01-02","2026-01-30",null,12,512345,523558]
+PASS     CV-A5      Statement A: the review screen says the balances agree | Opening balance $… with these rows, comes to the closing balance of $… printed on the statement ✓ All 6 running balances agree.
+PASS     CV-A6      Statement A: wrapped description lines are joined to their transaction, and the side panel | [9,false]
+PASS     CV-B1      Statement B: every row read with an amount and a date (10 rows, none needing manual entry) | [10,0]
+PASS     CV-B2      Statement B: net, money out and money in match the statement | [59867,91232,151099]
+PASS     CV-B3      Statement B: opening and closing balances read and the rows balance to them | [-245000,-185133,true,true]
+PASS     CV-B4      Statement B: first and last dates (years from the statement period) and the reviewed hand- | ["2025-12-08","2026-01-06",null,10,-245000,-185133]
+PASS     CV-B5      Statement B: the review screen says the balances agree | Balance owed $… with these rows, comes to the new balance owed of $… printed on the statement ✓
+PASS     CV-B6      Card statement: December rows get 2025 and January rows 2026; payments are money in, charg | ["2025-12-30",[true,true,true],false]
+PASS     CV-C1      Statement C: every row read with an amount and a date (9 rows, none needing manual entry) | [9,0]
+PASS     CV-C2      Statement C: net, money out and money in match the statement | [135352,52103,187455]
+PASS     CV-C3      Statement C: opening and closing balances read and the rows balance to them | [800000,935352,true,false]
+PASS     CV-C4      Statement C: first and last dates (years from the statement period) and the reviewed hand- | ["2025-09-02","2025-09-15",null,9,800000,935352]
+PASS     CV-C5      Statement C: the review screen says the balances agree | Opening balance $… with these rows, comes to the closing balance of $… printed on the statement ✓ All 5 running balances agree. All 4 page totals agree.
+PASS     CV-C6      Chequing statement: all page totals (Debits/Credits count and amount) agree; balance-forwa | [4,true,false]
+PASS     CV-E1      Statement E: every row read with an amount and a date (4 rows, none needing manual entry) | [4,0]
+PASS     CV-E2      Statement E: net, money out and money in match the statement | [235438,14562,250000]
+PASS     CV-E3      Statement E: opening and closing balances read and the rows balance to them | [100000,335438,true,false]
+PASS     CV-E4      Statement E: first and last dates (years from the statement period) and the reviewed hand- | ["2026-03-02","2026-03-15",null,4,100000,335438]
+PASS     CV-E5      Statement E: the review screen says the balances agree | Opening balance $… with these rows, comes to the closing balance of $… printed on the statement ✓ All 4 running balances agree.
+PASS     CV-D1      Statement with a missing line: still read, but flagged as not balancing, with the running- | [11,false,true,true,true]
+PASS     CV-F1      Statement with no column headings: the column reader steps aside and the general reader st | [3,null,-77900,"2026-04-01"]
+PASS     CV-B7      Card statement read into a bank account: the review warns that a credit card account may b | This looks like a credit card statement, but a bank account is selected. Choose the credit card account if that is the r
+PASS     CV-UI1     Converter screen: statement A shows a green "balances agree" check, 12 rows and nothing ne | 12 dated rows · Nothing imported or posted.
+PASS     CV-UI2     Confirming the review hands the rows and the statement balances to the server preview, whi | 12 reviewed rows · Jan 2, 2026 to Jan 30, 2026 · CAD. | preview 12 rows, opening 512345, closing 523558
+PASS     CV-UI3     Converter screen: the card statement into the credit card account balances (owed amounts s | Balance owed $2,450.00, with these rows, comes to the new balance owed of $1,851.33 printed on the statement ✓
+PASS     CV-UI4     Converter screen: the statement with a missing line shows an amber "do not add up" check a | These rows do not add up: Opening balance $5,123.45, with these rows, comes to $3,735.58, not the closing balance of $5,235.58. Check for a missing or misread l
+PASS     DI-I1      Document Intake reads the text PDF invoice (two-column header, line items, HST, Net 30): e | pdf_text; partyName, documentNumber, documentDate, dueDate, subtotalCents, taxCents, totalCents, businessIdentifier, lineItems | R144 reader: 8/9
+PASS     DI-I2      Document Intake reads the French (Québec) invoice: TPS + TVQ, "185,69 $" amounts, "15 mars | pdf_text; partyName, documentNumber, documentDate, subtotalCents, taxCents, totalCents, lineItems | R144 reader: 1/7
+PASS     DI-I3      Document Intake reads the phone-style receipt photo with a date that reads both ways (03/0 | ocr; partyName, documentNumber, documentDate, alternatives, subtotalCents, taxCents, totalCents | R144 reader: 5/7
+PASS     DI-I4      Document Intake reads the scanned (image-only) PDF invoice: GST + PST, "Mar 20, 2026", Net | ocr; partyName, documentNumber, documentDate, dueDate, subtotalCents, taxCents, totalCents | R144 reader: 6/7
+FAIL     DI-I6      Document Intake reads the tiny low-contrast café receipt photo: every field right | ocr; misses subtotalCents="", totalCents=1617 | R144 reader: 1/6
+PASS     DI-I7      Document Intake reads the scanned bill that is mostly blank page (little text): every fiel | ocr; partyName, documentNumber, documentDate, subtotalCents, taxCents, totalCents | R144 reader: 6/6
+PASS     DI-I5      Document Intake reads the fuel receipt photo with tax "included" in the total: every field | ocr; partyName, documentDate, subtotalCents, taxCents, totalCents | R144 reader: 4/5
+INFO     DI-CMP     Field accuracy across the six documents, R145 reader vs the R144 reader (for information) | R145 45/47 fields; R144 31/47 fields
+PASS     DI-AMB     An ambiguous numeric date is never guessed: the date stays empty and both readings are off | ["",2,true]
+FAIL     DI-SCAN    Scanned PDFs are read by OCR in this browser (the bundled PDF reader no longer needs Map.g | got ["ocr",false] want ["ocr",true]
+PASS     DI-UI0     DEF-14: the Upload document panel shows a full-width "Upload and Extract Locally" button i | button 372×40 at x 891, form right edge 1263
+PASS     DI-UI1     Document Intake screen: the uploaded invoice shows the read fields and "Subtotal + tax = t | INV-20418 | 2026-03-04 | 2026-04-03 | 359.00 | 46.67 | 405.67 | Subtotal + tax = total ✓
+PASS     DI-UI2     Changing the tax so the amounts no longer add up shows the difference straight away | Subtotal + tax is more than the total by 3.33. Check the amounts against the source.
+PASS     DI-UI3     A receipt photo with 03/04/2026 offers "March 4, 2026" and "April 3, 2026"; choosing one f | March 4, 2026 / April 3, 2026 → 2026-03-04; state ready
+PASS     CV-JS      No JavaScript errors | 
+PASS     CV-NOPOST  Nothing was imported, drafted or posted: no bank transactions, vendor invoices or journal  | ["0","0","0"]

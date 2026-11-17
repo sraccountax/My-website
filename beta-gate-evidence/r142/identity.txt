@@ -1,0 +1,4 @@
+zip: Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R142-Consolidated-IONOS-STAGING.zip
+29e9898004c7aaaf4e842581a1bb159053166d8f2ed8e7a51812aeca85534da4  Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R142-Consolidated-IONOS-STAGING.zip
+tag: R142
+FILE-MANIFEST: all 341 entries OK

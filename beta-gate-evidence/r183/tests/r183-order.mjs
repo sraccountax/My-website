@@ -1,0 +1,20 @@
+import {S, sql} from '../lib.mjs';
+import {open} from '../e2e/base.mjs';
+const o = new S(); await o.login('owner@gate.test', 'Gate!Owner#2026pw');
+const cid = sql("SELECT id FROM companies WHERE name='Volume Northwind Ltd' LIMIT 1"); o.cid = cid;
+const bank = sql(`SELECT bank_account_id FROM bank_transactions WHERE company_id='${cid}' GROUP BY bank_account_id ORDER BY COUNT(*) DESC LIMIT 1`);
+const range = sql(`SELECT CONCAT(MIN(transaction_date),' ',MAX(transaction_date),' ',COUNT(*)) FROM bank_transactions WHERE company_id='${cid}' AND bank_account_id='${bank}'`);
+console.log('range', range);
+const mid = sql(`SELECT transaction_date FROM bank_transactions WHERE company_id='${cid}' AND bank_account_id='${bank}' ORDER BY transaction_date LIMIT 1 OFFSET 20`);
+const desc = 'ORDER CHECK ' + Date.now();
+const r = await o.call('bank-transactions/add', {method: 'POST', json: {bankAccountId: bank, date: mid, description: desc, amountCents: -1234, operationKey: 'r183-order-' + Date.now()}});
+console.log('add', r.s, mid, r.b.error || '');
+const {b, p, errs} = await open(cid, {w: 1440, h: 900});
+await p.evaluate(() => TeghPortal.invokeMenuAction('Banking', 'Match And Post Transactions'));
+await p.waitForSelector('[data-r28-bank-row]', {timeout: 90000}); await p.waitForTimeout(2000);
+const info = await p.evaluate(d => { const rows = [...document.querySelectorAll('[data-r28-bank-row]')]; const i = rows.findIndex(r => r.textContent.includes(d)); return {visible: rows.length, index: i, firstDates: rows.slice(0, 3).map(r => r.children[1]?.textContent), around: i >= 0 ? rows.slice(Math.max(0, i - 2), i + 3).map(r => r.children[1]?.textContent + ' ' + r.children[2]?.textContent.slice(0, 30)) : null, range: document.querySelector('[data-r28-bank-range]')?.textContent, filter: [...document.querySelectorAll('[data-r28-filter] input')].map(x => x.value)}; }, desc);
+console.log(JSON.stringify(info, null, 1));
+// Bank Transaction Report too
+await p.evaluate(() => TeghPortal.invokeMenuAction('Banking', 'Bank Transaction Report')); await p.waitForTimeout(8000);
+console.log('report', JSON.stringify(await p.evaluate(d => { const rows = [...document.querySelectorAll('tbody tr')]; const i = rows.findIndex(r => r.textContent.includes(d)); return {rows: rows.length, index: i, first: rows.slice(0, 3).map(r => r.textContent.replace(/\s+/g, ' ').slice(0, 40)), pager: document.body.innerText.match(/Page \d+ of \d+/)?.[0]}; }, desc)));
+console.log('errs', errs); await b.close();

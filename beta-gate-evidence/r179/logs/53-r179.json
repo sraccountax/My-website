@@ -1,0 +1,93 @@
+[
+ {
+  "id": "PO-01",
+  "area": "R179",
+  "title": "The bundled runtime and models match their manifest, the manifest matches the hash pinned in the code, and the licence notices are installed",
+  "status": "PASS",
+  "evidence": "pinned manifest true; 6 runtime files verified; 4 notices; paddle2onnx 2.1.0 with PaddlePaddle 3.3.1, opset 14, ONNX checker on; outputs compared with Paddle Inference on the same input (largest difference 2.0e-05 detection, 1.3e-05 recognition)"
+ },
+ {
+  "id": "PO-I1",
+  "area": "R179",
+  "title": "Document Intake reads I1 (pdf) with every field right",
+  "status": "PASS",
+  "evidence": "pdf_text, engine none (PDF text), 363 ms; 9 fields right"
+ },
+ {
+  "id": "PO-I2",
+  "area": "R179",
+  "title": "Document Intake reads I2 (pdf) with every field right",
+  "status": "PASS",
+  "evidence": "pdf_text, engine none (PDF text), 183 ms; 7 fields right"
+ },
+ {
+  "id": "PO-I3",
+  "area": "R179",
+  "title": "Document Intake reads I3 (png) with every field right, using PaddleOCR",
+  "status": "PASS",
+  "evidence": "ocr, engine paddleocr, 4891 ms; 7 fields right"
+ },
+ {
+  "id": "PO-I4",
+  "area": "R179",
+  "title": "Document Intake reads I4 (scan) with every field right, using PaddleOCR",
+  "status": "PASS",
+  "evidence": "ocr, engine paddleocr, 8778 ms; 7 fields right"
+ },
+ {
+  "id": "PO-I6",
+  "area": "R179",
+  "title": "Document Intake reads I6 (png) with every field right, using PaddleOCR",
+  "status": "PASS",
+  "evidence": "ocr, engine paddleocr, 2181 ms; 6 fields right"
+ },
+ {
+  "id": "PO-I7",
+  "area": "R179",
+  "title": "Document Intake reads I7 (scan) with every field right, using PaddleOCR",
+  "status": "PASS",
+  "evidence": "ocr, engine paddleocr, 7452 ms; 6 fields right"
+ },
+ {
+  "id": "PO-I5",
+  "area": "R179",
+  "title": "Document Intake reads I5 (png) with every field right, using PaddleOCR",
+  "status": "PASS",
+  "evidence": "ocr, engine paddleocr, 2951 ms; 5 fields right"
+ },
+ {
+  "id": "PO-LOCAL",
+  "area": "R179",
+  "title": "Reading the seven documents sends nothing off the site (every request is to gate.test)",
+  "status": "PASS",
+  "evidence": "40 requests, 0 elsewhere"
+ },
+ {
+  "id": "PO-FALLBACK",
+  "area": "R179",
+  "title": "Without the PaddleOCR files, Document Intake still reads photos with Tesseract (receipts I3 and I5 fully right)",
+  "status": "PASS",
+  "evidence": "I3 tesseract right; I5 tesseract right; 2 fallback notes"
+ },
+ {
+  "id": "PO-TAMPER",
+  "area": "R179",
+  "title": "A changed model file is refused: PaddleOCR does not use it and Tesseract reads the page instead",
+  "status": "PASS",
+  "evidence": "engine tesseract; note: Tegh PaddleOCR could not read this page; using Tesseract instead. paddle_integrity_failed"
+ },
+ {
+  "id": "PO-UI",
+  "area": "R179",
+  "title": "Document Intake screen: the low-contrast café receipt photo fills in Maple Leaf Cafe, 9.00 + 1.17 = 10.17",
+  "status": "PASS",
+  "evidence": "MAPLE LEAF CAFE | 7781 | 2026-08-21 | 9.00 | 1.17 | 10.17 | Subtotal + tax = total ✓"
+ },
+ {
+  "id": "PO-LIC",
+  "area": "R179",
+  "title": "Help › Open Source / AI Licences lists PaddleOCR, ONNX Runtime, Tesseract and PDF.js, and every licence link opens",
+  "status": "PASS",
+  "evidence": "7 licence links open; old wording false"
+ }
+]

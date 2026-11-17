@@ -1,0 +1,4 @@
+{'PASS': 253, 'INFO': 6}
+{'H-INST': {'PASS': 12}, 'H-MAIL': {'PASS': 19}, 'ACCT': {'PASS': 63}, 'TAX': {'PASS': 20, 'INFO': 1}, 'FX': {'PASS': 5}, 'SEC': {'PASS': 43, 'INFO': 1}, 'CVL': {'PASS': 20}, 'PAY': {'PASS': 7, 'INFO': 2}, 'REC': {'PASS': 9}, 'OPS': {'PASS': 5, 'INFO': 2}, 'UPG': {'PASS': 12}, 'R141': {'PASS': 38}}
+40 path/header PASS; 0 FAIL
+20 UI runs; 0 screens with issues

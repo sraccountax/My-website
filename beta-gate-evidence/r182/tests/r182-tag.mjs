@@ -1,0 +1,10 @@
+import {sql} from '../lib.mjs';
+import {open} from '../e2e/base.mjs';
+const cid = sql("SELECT id FROM companies WHERE name LIKE 'R182 Ontario%' ORDER BY created_at DESC LIMIT 1");
+const {b, p, errs} = await open(cid, {w: 1440, h: 900});
+const reqs = []; p.on('request', r => { if (r.url().includes('/api/')) reqs.push(r.url().replace(/^.*\/api\//, '').slice(0, 80)); });
+await p.evaluate(() => TeghPortal.invokeMenuAction('Banking', 'Match And Post Transactions'));
+await p.waitForSelector('[data-r182-add-tx]', {timeout: 60000}); await p.waitForTimeout(1500);
+console.log(reqs.join('\n'));
+console.log(await p.evaluate(() => [...document.querySelectorAll('[data-r182-edit-desc]')].map(b => b.closest('tr')?.textContent.replace(/\s+/g, ' ').slice(0, 90))));
+await b.close();

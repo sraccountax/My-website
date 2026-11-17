@@ -1,0 +1,27 @@
+switch: {"stage": "beta", "newDashboard": "off", "worldCurrencies": "everyone"}
+restored: 68 companies; r181 table: 0
+clock: pinned -2857106s → PHP 2026-11-03 (cli unshifted); DB 2026-10-01
+captured 62 companies 609 files
+after capture, r181 table: 1
+compared 609 files: 65 different, 0 missing, 0 status changes
+  DIFF api/company_0235935639bea04e3f545a581815fb8f.workspace.json
+  DIFF api/company_0373d1dcf9ff07ba8bcf10709c8caa3e.workspace.json
+  DIFF api/company_037c5d421575f3dbfe37896d8bfa161a.workspace.json
+  DIFF api/company_041e456ee41b0c53ed17132a7f1f2a49.workspace.json
+  DIFF api/company_04733e0dbe583573621679fe2bc3a1ff.workspace.json
+  DIFF api/company_0d3a4fc21128bb961f5b22f811f0fc47.workspace.json
+  DIFF api/company_0e03ed4c637b62cce0d06165cb5e7740.workspace.json
+  DIFF api/company_17d8123f339282808330ebecafa7c2b3.workspace.json
+  DIFF api/company_21815bfb128f01074f9a92df358c4c7d.workspace.json
+  DIFF api/company_22698cd6c51005132d2f3ed58a1c6546.workspace.json
+  DIFF api/company_276f7ca491e27c92f4ca42fd7aa18f51.workspace.json
+  DIFF api/company_2a6414cad10e6cc0d56a090340071e81.workspace.json
+  DIFF api/company_2d441746f06bc1f67d601dc450eab9f9.workspace.json
+  DIFF api/company_393e023bc1f99ec5ae1dbea62b2e4c9f.workspace.json
+  DIFF api/company_428a3f72ec207042bdc4ddd33dca2cbe.workspace.json
+  DIFF api/company_44e76e1d7e90e4b340ac93f53f3c437a.workspace.json
+  DIFF api/company_5012394fd58d9cca866026dde404860b.workspace.json
+  DIFF api/company_523881fcad48a797f4754c8e945ee991.workspace.json
+  DIFF api/company_5247c275fba203437cd786290e8f7e77.workspace.json
+  DIFF api/company_52d0181693fc9a47c9e387c3da863711.workspace.json
+COMPARE-DONE

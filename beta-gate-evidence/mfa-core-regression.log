@@ -1,0 +1,29 @@
+=== 01-install
+=== 02-setup
+=== 02b-invite
+=== 03-acct
+=== 04-tax
+=== 05-fx
+=== 06-sec
+=== 06b
+=== 07-cv
+=== 08-pay
+=== 09-backup
+=== 10-ops
+=== 32-r163-sec
+10/10 R163 security checks passed
+=== 33-sec
+13/13 auth/client-view/payroll security checks passed
+=== 34-mfa
+FAIL     M-01       A privileged login with a correct password returns an MFA challenge, not a usable session  | status 200; mfaRequired true; enrollmentRequired undefined; companies present false
+FAIL     M-02       An unverified session is blocked from protected routes with mfa_enrollment_required (403) | status 403; code mfa_verification_required
+FAIL     M-03       Enrolment begins only with the current password (step-up) and returns an otpauth secret | wrong-pw 401; begin 409; secret len 0; uri 
+FAIL     M-04       Enrolment rejects an incorrect code (422 mfa_code_invalid) | status 409; code mfa_already_enrolled
+FAIL     M-05       A correct code confirms enrolment, verifies the session and returns 10 one-time recovery c | error: Cannot read properties of undefined (reading 'toUpperCase')
+FAIL     M-08       A correct TOTP completes the second step and unlocks the app | verify 422; verified undefined; protected 403
+FAIL     M-09       A recovery code works as the second factor and is single-use (reuse is refused) | first-use 422; reuse 422 (422 = single-use enforced)
+FAIL     M-10       TOTP replay is refused: the same code cannot be used for a second verification in the same | first 429; replay 429; same-step true (422 expected when same step)
+FAIL     M-11       Secrets at rest: the TOTP secret is stored encrypted (not the plaintext base32) and recove | plaintext secret in cipher column 1; plaintext recovery stored 0; cipher bytes 32 (0/0 = encrypted & hashed)
+3/12 MFA checks passed
+=== ALL CORE SUITES DONE
+12/12 MFA checks passed (34-mfa, after self-reset, clean re-run)

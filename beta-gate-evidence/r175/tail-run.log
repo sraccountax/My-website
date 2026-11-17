@@ -1,0 +1,19 @@
+=== e2e 21:56
+=== journeys 22:01
+=== matrix1 22:02
+=== matrix2 22:13
+=== trapscan 22:17
+=== upgrade 22:19
+--------------
+select a.code,sum(jl.debit_cents)-sum(jl.credit_cents) from journal_lines jl join accounts a on a.id=jl.account_id group by a.code order by 1
+--------------
+
+ERROR 1146 (42S02) at line 1: Table 'tegh_upg.journal_lines' doesn't exist
+MANIFEST-OK
+{'PASS': 722, 'INFO': 6, 'FAIL': 7}
+{'H-INST': {'PASS': 12}, 'H-MAIL': {'PASS': 19}, 'ACCT': {'PASS': 63}, 'TAX': {'PASS': 20, 'INFO': 1}, 'FX': {'PASS': 5}, 'SEC': {'PASS': 43, 'INFO': 1}, 'CVL': {'PASS': 20}, 'PAY': {'PASS': 7, 'INFO': 2}, 'REC': {'PASS': 9}, 'OPS': {'PASS': 5, 'INFO': 2}, 'R141': {'PASS': 37, 'FAIL': 1}, 'R142': {'PASS': 10, 'FAIL': 1}, 'R144': {'PASS': 35}, 'E2E': {'PASS': 53}, 'R144UI': {'PASS': 22}, 'R149': {'PASS': 20}, 'R151': {'PASS': 40}, 'R151UI': {'PASS': 19}, 'R152': {'PASS': 31}, 'R153': {'PASS': 20}, 'R154': {'PASS': 11}, 'BETA': {'PASS': 16, 'FAIL': 2}, 'R157': {'PASS': 21}, 'R160': {'PASS': 9}, 'R161': {'PASS': 20}, 'GUIDED': {'PASS': 23}, 'R163': {'PASS': 44, 'FAIL': 2}, 'R163SEC': {'PASS': 10}, 'SEC2': {'PASS': 13}, 'MFA': {'PASS': 16, 'FAIL': 1}, 'SESSION': {'PASS': 14}, 'MONITOR': {'PASS': 10}, 'AUDIT': {'PASS': 7}, 'FILES': {'PASS': 11}, 'RESTORE': {'PASS': 7}}
+45 path/header PASS; 0 FAIL
+20 UI runs; 0 screens with issues
+390x844 screens with swipe traps: 0
+TAIL-DONE
+GATE-RESUME-DONE

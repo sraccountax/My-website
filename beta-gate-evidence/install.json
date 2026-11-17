@@ -1,0 +1,219 @@
+[
+ {
+  "id": "H-01",
+  "area": "H-INST",
+  "title": "GET /api/health over HTTPS before install",
+  "status": "PASS",
+  "evidence": "200 {\"ok\":true,\"service\":\"Tegh\",\"version\":\"5.9.9\",\"build\":5990,\"schemaVersion\":46}"
+ },
+ {
+  "id": "H-02",
+  "area": "H-INST",
+  "title": "auth/me on empty DB reports setup required",
+  "status": "PASS",
+  "evidence": "428 {\"error\":\"Initial owner setup is required.\",\"code\":\"setup_required\"}"
+ },
+ {
+  "id": "H-03",
+  "area": "H-INST",
+  "title": "Setup with wrong key refused 403",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "H-04",
+  "area": "H-INST",
+  "title": "Setup from foreign Origin refused",
+  "status": "PASS",
+  "evidence": "true"
+ },
+ {
+  "id": "H-05",
+  "area": "H-INST",
+  "title": "Fresh install: owner setup succeeds (201) and schema created",
+  "status": "PASS",
+  "evidence": "201"
+ },
+ {
+  "id": "H-06",
+  "area": "H-INST",
+  "title": "Schema tables created on fresh DB",
+  "status": "PASS",
+  "evidence": "156 tables"
+ },
+ {
+  "id": "H-07",
+  "area": "H-INST",
+  "title": "Second setup locked (409)",
+  "status": "PASS",
+  "evidence": "409"
+ },
+ {
+  "id": "H-08",
+  "area": "H-INST",
+  "title": "Login over HTTPS; version/build/schema",
+  "status": "PASS",
+  "evidence": "[\"5.9.9\",\"5990\",\"46\"]"
+ },
+ {
+  "id": "H-09",
+  "area": "H-INST",
+  "title": "Session cookie flags Secure, HttpOnly, SameSite",
+  "status": "PASS",
+  "evidence": "tegh_session=<redacted>; expires=<redacted>; Max-Age=43200; path=/; secure; HttpOnly; SameSite=Strict | tegh_session_csrf=<redacted>; expires=<redacted>; Max-Age=43200; path=/; secure; SameSite=Strict"
+ },
+ {
+  "id": "H-10",
+  "area": "H-INST",
+  "title": "startup/status after install",
+  "status": "PASS",
+  "evidence": "200 {\"ok\":true,\"version\":\"5.9.9\",\"build\":5990,\"schemaVersion\":43,\"expectedSchemaVersion\":46,\"userId\":\"user_80d9167590471b2a8e7ed0356303dfab\",\"coreReady\":true,\"aiReady\":true,\"nativeAgentReady\":true,\"deliveryReviewReady\":true,\"financialAnalysisReady\":true,\"payrollTaxAgentReady\":true,\"entitlementReady\":tru"
+ },
+ {
+  "id": "H-11",
+  "area": "H-INST",
+  "title": "Fresh install: protected database upgrade (Schema 43 → 46) completes from the owner session",
+  "status": "PASS",
+  "evidence": "200 steps schema46.5990.accounting_notes_r67:completed,schema46.5990.invoice_note_tax_columns_r69:completed,schema46.5990.accounting_note_settlements_r70:completed,schema46.5990.company_invoice_tax_presets_r71:completed"
+ },
+ {
+  "id": "H-12",
+  "area": "H-INST",
+  "title": "After upgrade: startup status Schema 46, not degraded",
+  "status": "PASS",
+  "evidence": "{\"s\":46,\"d\":false,\"w\":null}"
+ },
+ {
+  "id": "H-M01",
+  "area": "H-MAIL",
+  "title": "SMTP delivery test (STARTTLS + AUTH) reaches sandbox",
+  "status": "PASS",
+  "evidence": "200 sent=true outcome=accepted mailfile=1790770710.417628.eml X-Sandbox-Tls: True / X-Sandbox-Auth: True / X-Rcpt: owner@gate.test"
+ },
+ {
+  "id": "H-M02",
+  "area": "H-MAIL",
+  "title": "Test email to non-owner address refused",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "H-M-editor",
+  "area": "H-MAIL",
+  "title": "Invitation email for editor delivered over STARTTLS+AUTH with single-use link",
+  "status": "PASS",
+  "evidence": "200 delivery=sent link=present msg=The mail server accepted the message for delivery."
+ },
+ {
+  "id": "H-A-editor",
+  "area": "H-MAIL",
+  "title": "Invitee (editor) accepts and sets password",
+  "status": "PASS",
+  "evidence": "200 {\"accepted\":true,\"auth\":{\"user\":{\"id\":\"user_40b8dd5e119efe82b353d5cfea55dbe8\",\"email\":\"editor@gate.test\",\"displayName\":\""
+ },
+ {
+  "id": "H-R-editor",
+  "area": "H-MAIL",
+  "title": "Invitation link cannot be reused",
+  "status": "PASS",
+  "evidence": "410"
+ },
+ {
+  "id": "H-L-editor",
+  "area": "H-MAIL",
+  "title": "editor can sign in",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "H-M-viewer",
+  "area": "H-MAIL",
+  "title": "Invitation email for viewer delivered over STARTTLS+AUTH with single-use link",
+  "status": "PASS",
+  "evidence": "200 delivery=sent link=present msg=The mail server accepted the message for delivery."
+ },
+ {
+  "id": "H-A-viewer",
+  "area": "H-MAIL",
+  "title": "Invitee (viewer) accepts and sets password",
+  "status": "PASS",
+  "evidence": "200 {\"accepted\":true,\"auth\":{\"user\":{\"id\":\"user_c047ddd7f9026ef6b28c51fe36f663c8\",\"email\":\"viewer@gate.test\",\"displayName\":\""
+ },
+ {
+  "id": "H-R-viewer",
+  "area": "H-MAIL",
+  "title": "Invitation link cannot be reused",
+  "status": "PASS",
+  "evidence": "410"
+ },
+ {
+  "id": "H-L-viewer",
+  "area": "H-MAIL",
+  "title": "viewer can sign in",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "H-M-admin",
+  "area": "H-MAIL",
+  "title": "Invitation email for admin delivered over STARTTLS+AUTH with single-use link",
+  "status": "PASS",
+  "evidence": "200 delivery=sent link=present msg=The mail server accepted the message for delivery."
+ },
+ {
+  "id": "H-A-admin",
+  "area": "H-MAIL",
+  "title": "Invitee (admin) accepts and sets password",
+  "status": "PASS",
+  "evidence": "200 {\"accepted\":true,\"auth\":{\"user\":{\"id\":\"user_9ac8c8098e608bba60d2351ae2ab0832\",\"email\":\"admin@gate.test\",\"displayName\":\"A"
+ },
+ {
+  "id": "H-R-admin",
+  "area": "H-MAIL",
+  "title": "Invitation link cannot be reused",
+  "status": "PASS",
+  "evidence": "410"
+ },
+ {
+  "id": "H-L-admin",
+  "area": "H-MAIL",
+  "title": "admin can sign in",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "H-M-other",
+  "area": "H-MAIL",
+  "title": "Invitation email for admin delivered over STARTTLS+AUTH with single-use link",
+  "status": "PASS",
+  "evidence": "200 delivery=sent link=present msg=The mail server accepted the message for delivery."
+ },
+ {
+  "id": "H-A-other",
+  "area": "H-MAIL",
+  "title": "Invitee (admin) accepts and sets password",
+  "status": "PASS",
+  "evidence": "200 {\"accepted\":true,\"auth\":{\"user\":{\"id\":\"user_e15edca61e3c8cd0d93a2a088dd06c20\",\"email\":\"otherowner@gate.test\",\"displayNam"
+ },
+ {
+  "id": "H-R-other",
+  "area": "H-MAIL",
+  "title": "Invitation link cannot be reused",
+  "status": "PASS",
+  "evidence": "410"
+ },
+ {
+  "id": "H-L-other",
+  "area": "H-MAIL",
+  "title": "admin can sign in",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "D-MAILMSG",
+  "area": "H-MAIL",
+  "title": "Successful invitation send shows a success diagnostic (not \"rejected\")",
+  "status": "PASS",
+  "evidence": "{\"message\":\"The mail server accepted the message for delivery.\",\"nextAction\":\"Recipient can use the new link.\",\"reference\":\"08bf923331c1ec09\",\"smtpCode\":250,\"stage\":\"final_data_acceptance\"}"
+ }
+]

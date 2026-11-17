@@ -1,0 +1,4 @@
+zip: /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R157-PRIVATE-BETA.zip
+a35d2b6cb0ea19ded656d5701a7df43cf8476dfac2ea5ac35d521447265e6743  /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R157-PRIVATE-BETA.zip
+tag: r157
+FILE-MANIFEST: all 367 entries OK

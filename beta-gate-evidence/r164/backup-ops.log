@@ -1,0 +1,28 @@
+PASS  A1 backup taken while writes were attempted is consistent (figures identical before and after)
+PASS  A2 writes during the pause were refused with 'Tegh is making a backup' (503) and writes before/after succeeded
+PASS  A3 maintenance flag removed after the backup
+PASS  A4 restore verified with every table's row count equal (no tolerance for tables written during the backup)
+PASS  B1 database name without 'restore': REFUSED  RESTORE_DB 'tegh_gate' does not contain 'restore'; use a dedicated restore-test database
+PASS  B2 restore database equal to the live database: REFUSED  RESTORE_DB is the LIVE database (tegh_restore_test)
+PASS  B3 restore storage = live storage (even with a marker placed next to it): REFUSED  RESTORE_STORAGE is the live storage folder or inside it (/srv/gate/sr-accountax-private/storage)
+PASS  B4 restore storage containing the live storage: REFUSED  RESTORE_STORAGE contains the live storage folder (/srv/gate/sr-accountax-private/storage)
+PASS  B5 folder not designated (no .tegh-restore-target): REFUSED  /srv/rst-unmarked/.tegh-restore-target not found: designate this folder for restore tests first (see the top of this script)
+PASS  B6 live database (54760 journal lines) and live storage (168 files) unchanged after the refused attempts
+PASS  D1 a failing ledger-total query stops the backup: exit 1, the database error is shown, no backup folder is kept, changes are resumed
+CONTROL REPRODUCED  D1 the R157 script, same database: exit 0, "consistent snapshot: db 36K, files 1, tables 174, companies with postings 0" — the failed query was recorded as 'no postings'
+PASS  D2 a request running 14s after the pause (longer than five seconds; 32 writes) was waited for; the backup holds its final state ('R158 Probe d2new #32') and the before/after content check passed
+CONTROL NOT-REPRODUCED  D2 R157 script exit 1, writes during it 32
+PASS  D3 an update that changes neither row counts nor ledger totals is detected by the content fingerprint (table customers named); the backup is removed and changes are resumed
+CONTROL REPRODUCED  D3 the R157 script accepted the backup while the name changed throughout it (row counts and ledger totals were equal)
+PASS  E1 a marker older than TEGH_STALE_AFTER (a crashed request) is reported and does not block the backup
+PASS  E2 a request still running at TEGH_WAIT_MAX stops the backup (none kept) and changes are resumed
+PASS  E3 the restore check finds a changed value that row counts and totals miss
+CONTROL REPRODUCED  E3 the R157 restore check reported RESTORE VERIFIED for the same changed backup
+PASS  E4 a database error in the restore's ledger and balance checks is a failure
+CONTROLS: 3 of 4 R157 runs showed the defect the R158 test guards against
+PASS  C1 backup of an installation with no records and no uploads
+PASS  C2 restore of the empty installation verified
+PASS  F1 an encrypted copy tegh-*.tar.age is written next to the backup, nothing else in that folder, and it is not readable as an archive
+PASS  F2 the private key opens it: the decrypted backup passes its SHA256SUMS and is identical to the plain backup
+PASS  F3 a different private key cannot open it
+RESULT: 22 PASS / 0 FAIL

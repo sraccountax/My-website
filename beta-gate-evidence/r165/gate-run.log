@@ -1,0 +1,18 @@
+ZIP-PERMS: 0 file entries not 0644
+zip: /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R165-PRIVATE-BETA.zip
+ab1f4e5832aa41ee8546784c065d6592614a048a061c698811a10476d3edc591  /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R165-PRIVATE-BETA.zip
+tag: R165
+FILE-MANIFEST: all 414 entries OK
+PASS /?invite= goes to the app: 302 https://gate.test/app.html?invite=x
+FAIL     PW-01      Product page says Payroll Support Tool, Canada excluding Quebec (R142 wording), no "payrol | 
+FAIL     WR-09      Product and Subscriptions pages say Canada, excluding Quebec; no "Canada only" | 
+FAIL     BS-07      Accepting an invitation records the terms and privacy versions shown on the published Term | pages: terms undefined, privacy undefined; recorded 2026-10-21-beta.1|2026-10-21-beta.1
+FAIL     BS-09      Terms and Privacy pages: the operator, contacts, hosting, beta conditions, deletion proced | terms missing: Gate Test Operator Inc., support@gate.test, Private beta, Invitation only, Free, Sample data only, Data may be reset, No guarantee of availability, Not for real filings or payroll, 2026
+{'PASS': 771, 'INFO': 7, 'FAIL': 4}
+{'H-INST': {'PASS': 12}, 'H-MAIL': {'PASS': 19}, 'ACCT': {'PASS': 63}, 'TAX': {'PASS': 20, 'INFO': 1}, 'FX': {'PASS': 5}, 'SEC': {'PASS': 43, 'INFO': 1}, 'CVL': {'PASS': 20}, 'PAY': {'PASS': 7, 'INFO': 2}, 'REC': {'PASS': 9}, 'OPS': {'PASS': 5, 'INFO': 2}, 'R141': {'PASS': 37, 'FAIL': 1}, 'R142': {'PASS': 10, 'FAIL': 1}, 'R144': {'PASS': 35}, 'E2E': {'PASS': 53}, 'R145': {'PASS': 45, 'INFO': 1}, 'R149': {'PASS': 20}, 'R151': {'PASS': 40}, 'R151UI': {'PASS': 19}, 'R152': {'PASS': 31}, 'R153': {'PASS': 20}, 'R154': {'PASS': 11}, 'BETA': {'PASS': 16, 'FAIL': 2}, 'R157': {'PASS': 21}, 'R158': {'PASS': 5}, 'R159': {'PASS': 18}, 'R160': {'PASS': 9}, 'R161': {'PASS': 20}, 'GUIDED': {'PASS': 23}, 'R163': {'PASS': 46}, 'R163SEC': {'PASS': 10}, 'SEC2': {'PASS': 13}, 'MFA': {'PASS': 17}, 'SESSION': {'PASS': 14}, 'MONITOR': {'PASS': 10}, 'AUDIT': {'PASS': 7}, 'FILES': {'PASS': 11}, 'RESTORE': {'PASS': 7}}
+Traceback (most recent call last):
+  File "/srv/gate/t/aggregate.py", line 25, in <module>
+    print(dict(cnt));print({k:dict(v) for k,v in by.items()});print(sum(1 for p in paths if p.startswith('PASS')),'path/header PASS;',sum(1 for p in paths if p.startswith('FAIL')),'FAIL');print(len(ui),'UI runs;',sum(u[8] for u in ui),'screens with issues')
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BrokenPipeError: [Errno 32] Broken pipe
+GATE-RUN-DONE

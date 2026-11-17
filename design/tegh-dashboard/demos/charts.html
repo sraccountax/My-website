@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Tegh Charts</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/tegh-charts.css">
+<style>
+/* Layout: one column of cards on a quiet ground; two columns from 900px. Navy, teal and gold from the Tegh brand. */
+:root {
+  --bg: #f4f6f7; --card: #ffffff; --line: #e1e7ea; --ink: #0b2a3a; --ink-2: #455a66; --accent: #0b665d;
+  --chip: #eef3f4; --code-bg: #0b2a3a; --code-ink: #e3eef1; --notice-bg: #fdf3e1; --notice-ink: #6e4300;
+  --sans: Manrope, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a1c27; --card: #0f2533; --line: #21404f; --ink: #eef4f6; --ink-2: #bcced5; --accent: #6fd8c9;
+    --chip: #173544; --code-bg: #06141c; --code-ink: #d6e6ec; --notice-bg: #3a2a10; --notice-ink: #f2c98a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a1c27; --card: #0f2533; --line: #21404f; --ink: #eef4f6; --ink-2: #bcced5; --accent: #6fd8c9;
+  --chip: #173544; --code-bg: #06141c; --code-ink: #d6e6ec; --notice-bg: #3a2a10; --notice-ink: #f2c98a; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 24px; }
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+h1 { margin: 4px 0 6px; font-size: clamp(28px, 4vw, 40px); line-height: 1.1; font-weight: 800; text-wrap: balance; }
+h2 { margin: 0; font-size: 19px; font-weight: 800; text-wrap: balance; }
+h3 { margin: 0; font-size: 16px; font-weight: 800; }
+p { margin: 0; }
+.lede { color: var(--ink-2); max-width: 62ch; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--chip); }
+.seg button, .btn { font: inherit; font-size: 14px; font-weight: 700; border: 0; border-radius: 9px; padding: 0 14px; min-height: 40px; cursor: pointer; background: transparent; color: var(--ink-2); }
+.seg button[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(11, 42, 58, .18); }
+.btn { border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.notice { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; background: var(--notice-bg); color: var(--notice-ink); border-radius: 999px; padding: 4px 12px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.card-head { display: flex; flex-direction: column; gap: 2px; }
+.card-head span { color: var(--ink-2); font-size: 14px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 24px; }
+.usage { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px 24px; }
+.usage p, .usage li { color: var(--ink-2); font-size: 14px; }
+.usage ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+pre { margin: 0; background: var(--code-bg); color: var(--code-ink); border-radius: 12px; padding: 14px 16px; overflow-x: auto; font: 12.5px/1.6 var(--mono); }
+code { font-family: var(--mono); font-size: .92em; }
+.usage code { background: var(--chip); border-radius: 4px; padding: 1px 5px; color: var(--ink); }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Tegh Charts</div>
+      <h1>Accounting charts that move with the numbers</h1>
+      <p class="lede">Five animated, interactive charts for the books. Hover over a chart, or click it and use the arrow keys. Every chart has a Table button with the exact figures.</p>
+    </div>
+    <div class="controls">
+      <span class="notice">Sample company · made-up figures</span>
+      <div class="seg" role="group" aria-label="Period">
+        <button type="button" id="p6" aria-pressed="false">6 months</button>
+        <button type="button" id="p12" aria-pressed="true">12 months</button>
+      </div>
+      <button type="button" class="btn" id="replay">Replay animations</button>
+      <button type="button" class="btn" id="theme">Dark mode</button>
+    </div>
+  </header>
+
+  <section class="kpis" aria-label="Headline figures">
+    <div class="card" id="k-cash"></div>
+    <div class="card" id="k-rev"></div>
+    <div class="card" id="k-exp"></div>
+    <div class="card" id="k-np"></div>
+  </section>
+
+  <section class="card" aria-labelledby="cf-h">
+    <div class="card-head"><h2 id="cf-h">Money in and money out</h2><span id="cf-sub">By month, Canadian dollars</span></div>
+    <div id="cashflow"></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card" aria-labelledby="wf-h">
+      <div class="card-head"><h2 id="wf-h">From revenue to net profit</h2><span>This fiscal year to 31 October 2026</span></div>
+      <div id="waterfall"></div>
+    </section>
+    <section class="card" aria-labelledby="fc-h">
+      <div class="card-head"><h2 id="fc-h">Cash forecast</h2><span>Bank balance by week: 8 weeks actual, 13 weeks forecast</span></div>
+      <div id="forecast"></div>
+    </section>
+    <section class="card" aria-labelledby="ex-h">
+      <div class="card-head"><h2 id="ex-h">Where the money goes</h2><span>Expenses this year</span></div>
+      <div id="expenses"></div>
+    </section>
+    <section class="card" aria-labelledby="ar-h">
+      <div class="card-head"><h2 id="ar-h">Who owes you</h2><span>Unpaid invoices by days overdue</span></div>
+      <div id="aging"></div>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="use-h">
+    <h2 id="use-h">How to use it</h2>
+    <div class="usage">
+      <div style="display: flex; flex-direction: column; gap: 10px; min-width: 0">
+        <h3>1. Add the two files</h3>
+        <pre>&lt;link rel="stylesheet" href="../assets/tegh-charts.css"&gt;
+&lt;script src="../assets/tegh-charts.js"&gt;&lt;/script&gt;</pre>
+        <h3>2. Give each chart an empty box</h3>
+        <pre>&lt;div id="cashflow"&gt;&lt;/div&gt;</pre>
+        <h3>3. Draw it with your numbers</h3>
+        <pre>const chart = TeghCharts.bar('#cashflow', {
+  labels: ['Aug', 'Sep', 'Oct'],
+  series: [
+    { name: 'Money in',  values: [34600, 39200, 42100] },
+    { name: 'Money out', values: [30100, 32300, 33000] }
+  ]
+});
+
+// New figures animate from the old ones:
+chart.update({ labels, series });</pre>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; min-width: 0">
+        <h3>The other charts</h3>
+        <pre>TeghCharts.line('#forecast', {
+  labels, series: [{ name: 'Bank balance', values }],
+  forecastFrom: 7,   // dashed after this point
+  markMin: true      // label the lowest point
+});
+
+TeghCharts.waterfall('#profit', { steps: [
+  { label: 'Revenue', value: 412600, total: true },
+  { label: 'Cost of sales', value: -96300 },
+  { label: 'Gross profit', value: 316300, total: true }
+]});
+
+TeghCharts.hbar('#expenses', { items: [
+  { label: 'Rent', value: 34560 },
+  { label: 'Everything else', value: 14410, muted: true }
+]});
+
+TeghCharts.kpi('#cash', { label: 'Cash at bank',
+  value: 48210, previous: 41230, spark: [...] });</pre>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; min-width: 0">
+        <h3>Options</h3>
+        <ul>
+          <li><code>format</code> and <code>tipFormat</code>: how values print on the axis and in the tooltip. Built in: <code>TeghCharts.format.money</code>, <code>moneyShort</code>, <code>percent</code>.</li>
+          <li><code>height</code> in pixels; the width always follows the box.</li>
+          <li><code>animate: false</code> to switch animation off; <code>duration</code> and <code>stagger</code> in milliseconds.</li>
+          <li><code>table: false</code> hides the Table button.</li>
+          <li>KPI: <code>goodWhen: 'down'</code> for figures where lower is better, such as expenses.</li>
+          <li>Every chart returns <code>update()</code>, <code>replay()</code> and <code>destroy()</code>.</li>
+        </ul>
+        <h3>Built in</h3>
+        <ul>
+          <li>Redraws when the box changes size, so it works on phones.</li>
+          <li>Follows light and dark mode, using colours tested for colour blindness.</li>
+          <li>No animation for people who turn motion off on their device.</li>
+          <li>Keyboard: click or Tab into a chart, then use the arrow keys, Home, End and Esc.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="../assets/tegh-charts.js"></script>
+<script>
+(function () {
+  const C = TeghCharts, F = C.format;
+  const months = ['Nov 2025', 'Dec 2025', 'Jan 2026', 'Feb 2026', 'Mar 2026', 'Apr 2026', 'May 2026', 'Jun 2026', 'Jul 2026', 'Aug 2026', 'Sep 2026', 'Oct 2026'];
+  const moneyIn = [31200, 28400, 34100, 26300, 29000, 33400, 36200, 35100, 38400, 34600, 39200, 42100];
+  const moneyOut = [27400, 26100, 29300, 27800, 25200, 28600, 30400, 31200, 29500, 30100, 32300, 33000];
+  const short = m => m.slice(0, 3);
+  const cashData = n => ({
+    labels: months.slice(12 - n).map(short),
+    series: [{ name: 'Money in', values: moneyIn.slice(12 - n) }, { name: 'Money out', values: moneyOut.slice(12 - n) }]
+  });
+
+  const charts = [];
+  charts.push(C.kpi('#k-cash', { label: 'Cash at bank', value: 48210, previous: 41230, compareLabel: 'since 30 September', spark: [41230, 43500, 42100, 44800, 46000, 45200, 47100, 48210] }));
+  charts.push(C.kpi('#k-rev', { label: 'Revenue this year', value: 412600, previous: 356900, compareLabel: 'vs last year', spark: [21000, 52000, 88000, 119000, 151000, 186000, 222000, 259000, 297000, 333000, 371000, 412600] }));
+  charts.push(C.kpi('#k-exp', { label: 'Expenses this year', value: 315800, previous: 298400, compareLabel: 'vs last year', goodWhen: 'down', spark: [24000, 49000, 77000, 103000, 128000, 155000, 183000, 211000, 238000, 264000, 290000, 315800] }));
+  charts.push(C.kpi('#k-np', { label: 'Net profit this year', value: 96800, previous: 58500, compareLabel: 'vs last year', spark: [-3000, 3000, 11000, 16000, 23000, 31000, 39000, 48000, 59000, 69000, 81000, 96800] }));
+
+  const cashflow = C.bar('#cashflow', cashData(12));
+  charts.push(cashflow);
+
+  charts.push(C.waterfall('#waterfall', { steps: [
+    { label: 'Revenue', value: 412600, total: true },
+    { label: 'Cost of sales', value: -96300 },
+    { label: 'Gross profit', value: 316300, total: true },
+    { label: 'Wages', value: -148200 },
+    { label: 'Rent', value: -34560 },
+    { label: 'Software', value: -12480 },
+    { label: 'Marketing', value: -9850 },
+    { label: 'Other', value: -14410 },
+    { label: 'Net profit', value: 96800, total: true }
+  ] }));
+
+  const weeks = [];
+  for (let i = 0; i < 21; i++) { const d = new Date(2026, 8, 12 + i * 7); weeks.push(d.toLocaleDateString('en-CA', { day: 'numeric', month: 'short' })); }
+  charts.push(C.line('#forecast', {
+    labels: weeks,
+    series: [{ name: 'Bank balance', values: [41200, 43500, 42100, 44800, 46000, 45200, 47100, 48210, 46500, 44900, 47800, 49600, 45100, 42300, 44000, 46800, 49900, 51200, 47400, 48900, 52100] }],
+    forecastFrom: 7, markMin: true, minLabel: 'Lowest'
+  }));
+
+  charts.push(C.hbar('#expenses', { items: [
+    { label: 'Wages', value: 148200 }, { label: 'Cost of sales', value: 96300 }, { label: 'Rent', value: 34560 },
+    { label: 'Software', value: 12480 }, { label: 'Marketing', value: 9850 }, { label: 'Everything else', value: 14410, muted: true }
+  ] }));
+  charts.push(C.hbar('#aging', { sort: false, color: 'var(--tc-1)', items: [
+    { label: 'Not yet due', value: 6420 }, { label: '1–30 days', value: 3180 }, { label: '31–60 days', value: 1940 },
+    { label: '61–90 days', value: 820, flag: 'Follow up' }, { label: 'Over 90 days', value: 580, flag: 'Follow up' }
+  ] }));
+
+  const p6 = document.getElementById('p6'), p12 = document.getElementById('p12'), sub = document.getElementById('cf-sub');
+  const setPeriod = n => {
+    p6.setAttribute('aria-pressed', n === 6 ? 'true' : 'false');
+    p12.setAttribute('aria-pressed', n === 12 ? 'true' : 'false');
+    sub.textContent = 'By month, last ' + n + ' months, Canadian dollars';
+    cashflow.update(cashData(n));
+  };
+  p6.addEventListener('click', () => setPeriod(6));
+  p12.addEventListener('click', () => setPeriod(12));
+  document.getElementById('replay').addEventListener('click', () => charts.forEach(c => c.replay()));
+
+  const themeBtn = document.getElementById('theme'), root = document.documentElement;
+  const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  const label = () => { themeBtn.textContent = isDark() ? 'Light mode' : 'Dark mode'; };
+  themeBtn.addEventListener('click', () => { root.dataset.theme = isDark() ? 'light' : 'dark'; label(); });
+  label();
+})();
+</script>

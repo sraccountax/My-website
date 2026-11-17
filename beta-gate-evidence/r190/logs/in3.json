@@ -1,0 +1,93 @@
+[
+ {
+  "id": "IN3-01",
+  "area": "IN3",
+  "title": "Canada is unaffected: a Canadian company gets 404 on every GST route and gains no GST codes or accounts",
+  "status": "PASS",
+  "evidence": "{\"codes\":[[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"]],\"before\":\"14|45\",\"after\":\"14|45\",\"rows\":\"0\"}"
+ },
+ {
+  "id": "IN3-02",
+  "area": "IN3",
+  "title": "GST codes come only from an approved rule: a draft rule and an Editor are refused; the approved 18% rule makes GST18 (CGST 9 + SGST 9) and IGST18 with their GL accounts; repeating changes nothing",
+  "status": "PASS",
+  "evidence": "{\"draft\":[409,\"india_gst_rule_not_approved\"],\"editor\":403,\"made\":[{\"id\":\"taxcode_74f2a187d685682e0b05e2348d4981b7\",\"code\":\"GST18\",\"supply\":\"intra\",\"created\":true},{\"id\":\"taxcode_d71e5246a48f538c0cec8fbbcf81e4cd\",\"code\":\"IGST18\",\"supply\":\"inter\",\"created\":true}],\"again\":[false,false],\"g\":\"CGST:9000,SGST:9000\",\"i\":\"IGST:18000\",\"accts\":\"1451/asset,1452/asset,1454/asset,2401/liability,2402/liability,2404/liability\"}"
+ },
+ {
+  "id": "IN3-03",
+  "area": "IN3",
+  "title": "Intra-state sale (customer in Maharashtra): CGST 9% + SGST 9% credited to 2401 and 2402; place of supply 27 saved; an IGST code is refused",
+  "status": "PASS",
+  "evidence": "{\"wrong\":[422,\"india_gst_supply_mismatch\"],\"tax\":\"CGST:90000,SGST:90000\",\"pos\":\"27|intra\",\"b2401\":90000,\"b2402\":90000,\"tb\":\"0\"}"
+ },
+ {
+  "id": "IN3-04",
+  "area": "IN3",
+  "title": "Inter-state sale (customer in Karnataka): IGST 18% to 2404, place of supply 29; the CGST/SGST code is refused; an explicit place of supply in Maharashtra makes it intra-state; an export is inter-state (96)",
+  "status": "PASS",
+  "evidence": "{\"wrong\":[422,\"india_gst_supply_mismatch\"],\"tax\":\"IGST:90000\",\"pos\":\"29|inter\",\"over\":\"27|intra\",\"exp\":\"96|inter\",\"b2404\":144000}"
+ },
+ {
+  "id": "IN3-05",
+  "area": "IN3",
+  "title": "A line with no tax code takes the item's GST rate rule (India Masters) for the supply type; an explicit \"no tax\" stays without GST",
+  "status": "PASS",
+  "evidence": "{\"intra\":\"CGST:9000,SGST:9000\",\"inter\":\"IGST:18000\",\"none\":\"\"}"
+ },
+ {
+  "id": "IN3-06",
+  "area": "IN3",
+  "title": "The rule in force on the document date decides: after a later approved version changes the rate, the old code is refused for that date (and still accepted before it); codes made from the new version work",
+  "status": "PASS",
+  "evidence": "{\"after\":[422,\"india_gst_rate_changed\"],\"before\":201,\"g12\":\"GST12\",\"ok12\":201,\"tax12\":\"CGST:6000,SGST:6000\"}"
+ },
+ {
+  "id": "IN3-07",
+  "area": "IN3",
+  "title": "Purchases: a supplier in Maharashtra is intra-state (input CGST/SGST to 1451/1452); a supplier registered in Gujarat is inter-state (input IGST to 1454); the wrong supply type is refused",
+  "status": "PASS",
+  "evidence": "{\"b1\":\"CGST:36000,SGST:36000\",\"p1\":\"27|intra\",\"b2\":\"IGST:54000\",\"p2\":\"27|inter\",\"wrong\":[422,\"india_gst_supply_mismatch\"],\"i1451\":36000,\"i1452\":36000,\"i1454\":54000}"
+ },
+ {
+  "id": "IN3-08",
+  "area": "IN3",
+  "title": "Only GST codes in an India company: a plain tax code is refused on an invoice; a bank line or expense cannot take a GST code (no place of supply there)",
+  "status": "PASS",
+  "evidence": "{\"inv\":[422,\"india_gst_code_required\"],\"exp\":[422,\"india_gst_use_documents\",\"In an India company GST is recorded on customer invoices and vendor invoices, wh\"]}"
+ },
+ {
+  "id": "IN3-09",
+  "area": "IN3",
+  "title": "A company without a GSTIN cannot charge GST (its codes may still be created for purchases)",
+  "status": "PASS",
+  "evidence": "{\"r\":[422,\"india_gst_not_registered\"],\"codes\":[\"GST18\",\"IGST18\"]}"
+ },
+ {
+  "id": "IN3-10",
+  "area": "IN3",
+  "title": "GST summary equals the books: output CGST/SGST/IGST equal the 2401/2402/2404 credits, input credit equals the 1451/1452/1454 debits, net = output − credit, and every GST document is listed",
+  "status": "PASS",
+  "evidence": "{\"out\":[132000,132000,162000],\"gl\":[132000,132000,162000],\"itc\":[36000,36000,54000],\"glIn\":[36000,36000,54000],\"net\":true,\"docs\":10,\"invoices\":8,\"bills\":2}"
+ },
+ {
+  "id": "UI-01",
+  "area": "IN3",
+  "title": "India Masters › GST codes lists the codes made from rules; the GST Summary page shows the heads and the documents",
+  "status": "PASS",
+  "evidence": "{\"codes\":[\"IGST12\",\"GST12\",\"IGST18\",\"GST18\"],\"heads\":[\"CGST\",\"SGST\",\"IGST\"],\"docs\":10,\"canadian\":[],\"errs\":[]}"
+ },
+ {
+  "id": "UI-02",
+  "area": "IN3",
+  "title": "Invoice form: the place of supply follows the customer; an out-of-state customer lists only IGST codes and the line shows IGST; saving records the place of supply",
+  "status": "PASS",
+  "evidence": "{\"place\":\"29\",\"supply\":\"Inter-state: IGST\",\"options\":[\"Auto · from the item (no GST rate set)\",\"IGST12 · IGST 12% inter-state\",\"IGST18 · IGST 18% inter-state\",\"No tax\"],\"totals\":\"Subtotal ₹1,000.00 Tax ₹180.00 Invoice total ₹1,180.00\",\"saved\":\"29|inter|IGST\",\"toast\":\"Invoice issuedINV-1010 was issued.\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-03",
+  "area": "IN3",
+  "title": "Canadian company: no GST Summary in the menus and the page is refused",
+  "status": "PASS",
+  "evidence": "{\"menu\":false,\"toast\":\"Not availableThe GST summary is available only in India companies.\"}"
+ }
+]

@@ -1,0 +1,432 @@
+[
+ {
+  "report": "Profit and Loss",
+  "row": "4000 Service Revenue CAD 0.00 CAD 0.00 CAD 0.00 CAD 0.00 CAD 0.00 CAD 0.00 CAD 0.00 CAD 0.",
+  "label": "Open Account Ledger",
+  "verdict": "OK",
+  "effect": [
+   "page:report-gl-account-ledger"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Balance Sheet",
+  "row": "1100 GST/HST Recoverable CAD 91.49",
+  "label": "Open Account Ledger",
+  "verdict": "OK",
+  "effect": [
+   "page:report-gl-account-ledger"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Trial Balance",
+  "row": "1100 GST/HST Recoverable CAD 65.49 CAD 0.00 CAD 26.00 CAD 0.00 CAD 91.49 CAD 0.00",
+  "label": "Open Account Ledger",
+  "verdict": "OK",
+  "effect": [
+   "page:report-gl-account-ledger"
+  ],
+  "errors": []
+ },
+ {
+  "report": "General Ledger Account Report",
+  "row": "Sep 23, 2026 SCN-001 SCN-001 Vendor Credit SCN-1001 · Ref SUP-CR-9 2050 Accounts Payable A",
+  "label": "View Journal Entry",
+  "verdict": "OK",
+  "effect": [
+   "page:day-book"
+  ],
+  "errors": []
+ },
+ {
+  "report": "General Ledger Detail",
+  "row": "Sep 23, 2026 SCN-001 SCN-001 Vendor Credit SCN-1001 · Ref SUP-CR-9 1100 GST/HST Recoverabl",
+  "label": "View Journal Entry",
+  "verdict": "OK",
+  "effect": [
+   "page:day-book"
+  ],
+  "errors": []
+ },
+ {
+  "report": "General Ledger Detail",
+  "row": "Sep 23, 2026 SCN-001 SCN-001 Vendor Credit SCN-1001 · Ref SUP-CR-9 1100 GST/HST Recoverabl",
+  "label": "Open Account Ledger",
+  "verdict": "OK",
+  "effect": [
+   "page:report-gl-account-ledger"
+  ],
+  "errors": []
+ },
+ {
+  "report": "General Ledger Detail",
+  "row": "Sep 20, 2026 CN-001 CN-001 Customer Credit CN-1001 · Original INV-1001 1200 Accounts Recei",
+  "label": "View Journal Entry",
+  "verdict": "OK",
+  "effect": [
+   "page:day-book"
+  ],
+  "errors": []
+ },
+ {
+  "report": "General Ledger Detail",
+  "row": "Sep 20, 2026 CN-001 CN-001 Customer Credit CN-1001 · Original INV-1001 1200 Accounts Recei",
+  "label": "Open Account Ledger",
+  "verdict": "OK",
+  "effect": [
+   "page:report-gl-account-ledger"
+  ],
+  "errors": []
+ },
+ {
+  "report": "General Ledger Detail",
+  "row": "Sep 22, 2026 DN-001 DN-001 Customer Debit DN-1001 · Ref OLD-779 1200 Accounts Receivable A",
+  "label": "View Journal Entry",
+  "verdict": "OK",
+  "effect": [
+   "page:day-book"
+  ],
+  "errors": []
+ },
+ {
+  "report": "General Ledger Detail",
+  "row": "Sep 22, 2026 DN-001 DN-001 Customer Debit DN-1001 · Ref OLD-779 1200 Accounts Receivable A",
+  "label": "Open Account Ledger",
+  "verdict": "OK",
+  "effect": [
+   "page:report-gl-account-ledger"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Receivable Ageing",
+  "row": "R151 Client Ltd CN-1002 Open credit / debit note Sep 21, 2026 Sep 21, 2026 Sep 21, 2026 10",
+  "label": "Customer Ledger",
+  "verdict": "OK",
+  "effect": [
+   "page:ledger-customer"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Receivable Ageing",
+  "row": "R151 Client Ltd DN-1001 Issued document Sep 22, 2026 Sep 22, 2026 Sep 22, 2026 9 CAD 90.40",
+  "label": "View Invoice",
+  "verdict": "OK",
+  "effect": [
+   "page:invoice-detail"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Receivable Ageing",
+  "row": "R151 Client Ltd DN-1001 Issued document Sep 22, 2026 Sep 22, 2026 Sep 22, 2026 9 CAD 90.40",
+  "label": "Record Payment",
+  "verdict": "OK",
+  "effect": [
+   "page:customer-payments"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Receivable Ageing",
+  "row": "R151 Client Ltd DN-1001 Issued document Sep 22, 2026 Sep 22, 2026 Sep 22, 2026 9 CAD 90.40",
+  "label": "Customer Ledger",
+  "verdict": "OK",
+  "effect": [
+   "page:ledger-customer"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Balances",
+  "row": "R151 Client Ltd 3 CAD 1,878.40 -CAD 345.50 CAD 1,532.90",
+  "label": "Customer Ledger",
+  "verdict": "OK",
+  "effect": [
+   "page:ledger-customer"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Balances",
+  "row": "R151 Client Ltd 3 CAD 1,878.40 -CAD 345.50 CAD 1,532.90",
+  "label": "Record Payment",
+  "verdict": "OK",
+  "effect": [
+   "page:customer-payments"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Balances",
+  "row": "R151 Client Ltd 3 CAD 1,878.40 -CAD 345.50 CAD 1,532.90",
+  "label": "Edit Customer",
+  "verdict": "OK",
+  "effect": [
+   "page:customers"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "INV-1001 Invoice — R151 Client Ltd Sep 10, 2026 Oct 10, 2026 CAD 195.00 CAD 1,695.00 CAD 1",
+  "label": "View Invoice",
+  "verdict": "OK",
+  "effect": [
+   "page:invoice-detail"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "INV-1001 Invoice — R151 Client Ltd Sep 10, 2026 Oct 10, 2026 CAD 195.00 CAD 1,695.00 CAD 1",
+  "label": "Record Payment",
+  "verdict": "OK",
+  "effect": [
+   "page:customer-payments"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "INV-1001 Invoice — R151 Client Ltd Sep 10, 2026 Oct 10, 2026 CAD 195.00 CAD 1,695.00 CAD 1",
+  "label": "Credit Note",
+  "verdict": "OK",
+  "effect": [
+   "page:customer-document"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "INV-1001 Invoice — R151 Client Ltd Sep 10, 2026 Oct 10, 2026 CAD 195.00 CAD 1,695.00 CAD 1",
+  "label": "Debit Note",
+  "verdict": "OK",
+  "effect": [
+   "page:customer-document"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "INV-1001 Invoice — R151 Client Ltd Sep 10, 2026 Oct 10, 2026 CAD 195.00 CAD 1,695.00 CAD 1",
+  "label": "View Journal Entry",
+  "verdict": "OK",
+  "effect": [
+   "page:day-book"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "CN-1001 Credit Note INV-1001 R151 Client Ltd Sep 20, 2026 — -CAD 26.00 -CAD 226.00 CAD 0.0",
+  "label": "View Note",
+  "verdict": "OK",
+  "effect": [
+   "page:document-view"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "CN-1001 Credit Note INV-1001 R151 Client Ltd Sep 20, 2026 — -CAD 26.00 -CAD 226.00 CAD 0.0",
+  "label": "View Journal Entry",
+  "verdict": "OK",
+  "effect": [
+   "page:day-book"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "DN-1001 Debit Note OLD-779 R151 Client Ltd Sep 22, 2026 Sep 22, 2026 CAD 10.40 CAD 90.40 C",
+  "label": "View Invoice",
+  "verdict": "OK",
+  "effect": [
+   "page:invoice-detail"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "DN-1001 Debit Note OLD-779 R151 Client Ltd Sep 22, 2026 Sep 22, 2026 CAD 10.40 CAD 90.40 C",
+  "label": "Record Payment",
+  "verdict": "OK",
+  "effect": [
+   "page:customer-payments"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "DN-1001 Debit Note OLD-779 R151 Client Ltd Sep 22, 2026 Sep 22, 2026 CAD 10.40 CAD 90.40 C",
+  "label": "Credit Note",
+  "verdict": "OK",
+  "effect": [
+   "page:customer-document"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "DN-1001 Debit Note OLD-779 R151 Client Ltd Sep 22, 2026 Sep 22, 2026 CAD 10.40 CAD 90.40 C",
+  "label": "Debit Note",
+  "verdict": "OK",
+  "effect": [
+   "page:customer-document"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "DN-1001 Debit Note OLD-779 R151 Client Ltd Sep 22, 2026 Sep 22, 2026 CAD 10.40 CAD 90.40 C",
+  "label": "View Journal Entry",
+  "verdict": "OK",
+  "effect": [
+   "page:day-book"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Payable Ageing",
+  "row": "R151 Supplies Co VI-2-mvj1lrjf Issued document Sep 16, 2026 Sep 16, 2026 Oct 16, 2026 0 CA",
+  "label": "View Vendor Invoice",
+  "verdict": "OK",
+  "effect": [
+   "page:document-view"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Payable Ageing",
+  "row": "R151 Supplies Co VI-2-mvj1lrjf Issued document Sep 16, 2026 Sep 16, 2026 Oct 16, 2026 0 CA",
+  "label": "Record Payment",
+  "verdict": "OK",
+  "effect": [
+   "page:vendor-payments"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Payable Ageing",
+  "row": "R151 Supplies Co VI-2-mvj1lrjf Issued document Sep 16, 2026 Sep 16, 2026 Oct 16, 2026 0 CA",
+  "label": "Vendor Ledger",
+  "verdict": "OK",
+  "effect": [
+   "page:ledger-vendor"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Balances",
+  "row": "R151 Supplies Co 5 CAD 2,659.53 CAD 0.00 CAD 2,659.53",
+  "label": "Vendor Ledger",
+  "verdict": "OK",
+  "effect": [
+   "page:ledger-vendor"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Balances",
+  "row": "R151 Supplies Co 5 CAD 2,659.53 CAD 0.00 CAD 2,659.53",
+  "label": "Record Payment",
+  "verdict": "OK",
+  "effect": [
+   "page:vendor-payments"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Balances",
+  "row": "R151 Supplies Co 5 CAD 2,659.53 CAD 0.00 CAD 2,659.53",
+  "label": "Edit Vendor",
+  "verdict": "OK",
+  "effect": [
+   "page:vendors"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "VI-1-mvj1lrjf Invoice — R151 Supplies Co Sep 15, 2026 Nov 30, 2026 CAD 16.24 CAD 943.99 CA",
+  "label": "View Vendor Invoice",
+  "verdict": "OK",
+  "effect": [
+   "page:document-view"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "VI-1-mvj1lrjf Invoice — R151 Supplies Co Sep 15, 2026 Nov 30, 2026 CAD 16.24 CAD 943.99 CA",
+  "label": "Record Payment",
+  "verdict": "OK",
+  "effect": [
+   "page:vendor-payments"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "VI-1-mvj1lrjf Invoice — R151 Supplies Co Sep 15, 2026 Nov 30, 2026 CAD 16.24 CAD 943.99 CA",
+  "label": "Supplier Credit Note",
+  "verdict": "OK",
+  "effect": [
+   "page:vendor-document"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "VI-1-mvj1lrjf Invoice — R151 Supplies Co Sep 15, 2026 Nov 30, 2026 CAD 16.24 CAD 943.99 CA",
+  "label": "Supplier Debit Note",
+  "verdict": "OK",
+  "effect": [
+   "page:vendor-document"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "VI-1-mvj1lrjf Invoice — R151 Supplies Co Sep 15, 2026 Nov 30, 2026 CAD 16.24 CAD 943.99 CA",
+  "label": "View Journal Entry",
+  "verdict": "OK",
+  "effect": [
+   "page:day-book"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "SCN-1001 Supplier Credit Note SUP-CR-9 R151 Supplies Co Sep 23, 2026 — -CAD 12.00 -CAD 112",
+  "label": "View Note",
+  "verdict": "OK",
+  "effect": [
+   "page:document-view"
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "SCN-1001 Supplier Credit Note SUP-CR-9 R151 Supplies Co Sep 23, 2026 — -CAD 12.00 -CAD 112",
+  "label": "View Journal Entry",
+  "verdict": "OK",
+  "effect": [
+   "page:day-book"
+  ],
+  "errors": []
+ },
+ {
+  "report": "GST/HST/PST Summary",
+  "row": "1100 GST/HST Recoverable CAD 0.00 CAD 96.67 CAD 5.18 CAD 91.49",
+  "label": "Open Account Ledger",
+  "verdict": "OK",
+  "effect": [
+   "page:report-gl-account-ledger"
+  ],
+  "errors": []
+ }
+]

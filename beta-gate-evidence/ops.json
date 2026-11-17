@@ -1,0 +1,51 @@
+[
+ {
+  "id": "PF-01",
+  "area": "OPS",
+  "title": "API median latency under 1.5 s for dashboard, reports and tax codes (gate host, small data set)",
+  "status": "PASS",
+  "evidence": "auth/me 9ms | workspace/summary 13ms | portal/trial-balance 9ms | portal/aging 9ms | professional-output/v5980/tax-summary 23ms | professional-output/v5980/general-ledger 23ms | reports/v5600/financial 10ms | tax-codes 7ms | payroll/workspace 7ms"
+ },
+ {
+  "id": "PF-02",
+  "area": "OPS",
+  "title": "20 concurrent dashboard loads all succeed",
+  "status": "PASS",
+  "evidence": "statuses ok=20/20 in 123 ms"
+ },
+ {
+  "id": "LG-01",
+  "area": "OPS",
+  "title": "Incident log (private, outside web root) contains no passwords, session cookies, CSRF tokens or SINs",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "LG-02",
+  "area": "OPS",
+  "title": "Web access log contains no client-view tokens or invitation tokens (tokens travel in the fragment/body)",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "LG-03",
+  "area": "OPS",
+  "title": "PHP error log: warnings recorded (see evidence)",
+  "status": "INFO",
+  "evidence": "PHP Warning:  POST Content-Length of 11534510 bytes exceeds the limit of 8388608 bytes in Unknown on line 0'"
+ },
+ {
+  "id": "SP-01",
+  "area": "OPS",
+  "title": "In-app support route responds",
+  "status": "PASS",
+  "evidence": "200 {\"requests\":[],\"platformOwner\":true}"
+ },
+ {
+  "id": "SP-02",
+  "area": "OPS",
+  "title": "Public contact page offers a working contact path (form posts to /api/marketing)",
+  "status": "INFO",
+  "evidence": "no mailto"
+ }
+]

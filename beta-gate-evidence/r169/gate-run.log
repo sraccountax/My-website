@@ -1,0 +1,6 @@
+ZIP-PERMS: 0 file entries not 0644
+zip: /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R169-PRIVATE-BETA.zip
+130d231c464e78eb752bbc23a60fb2d345ebfa27e7d4d0070f1052f4c54d7eb3  /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R169-PRIVATE-BETA.zip
+tag: R169
+FILE-MANIFEST: all 418 entries OK
+PASS /?invite= goes to the app: 302 https://gate.test/app.html?invite=x

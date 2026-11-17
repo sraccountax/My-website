@@ -1,0 +1,194 @@
+=== resume 21:21
+=== 01-install
+=== 02-setup
+{
+  BC: 'company_c12c3c7dedc8d0dd638687709310b7d1',
+  QC: 'company_0d236541a2da9e66438111da8a076880',
+  ON: 'company_e0cee163c606a0d60e46eab4d3d9c526',
+  X: 'company_d3cf3af021d84998e522e521d1fad0db'
+}
+=== 02b-invite
+=== 03-acct
+expense 6000 equity 3000 bank gl 1000
+=== 04-tax
+INFO     CB-02      Cash basis: invoice issue posting recorded for review | {}
+=== 05-fx
+=== 06-sec
+INFO     XS-01      XSS payload customer stored as text (rendering checked in UI run) | 201
+=== 06b
+=== 07-cv
+=== 08-pay
+INFO     PY-01      Employee with SIN fields submitted: refused or SIN discarded | 422 sin_not_accepted Tegh does not store Social Insurance Numbers (SINs). Remove the SIN and use the Employee ID instead.
+INFO     PY-07      Payroll rate tables: year/version reported for owner verification | "effectiveFrom":"2026-01-01" "effectiveTo":"2026-06-30" "effectiveFrom":"2026-07-01" "effectiveTo":"2026-12-31"
+=== 09-backup
+=== 09b
+=== 10-ops
+INFO     LG-03      PHP error log: warnings recorded (see evidence) | PHP Warning:  POST Content-Length of 11534510 bytes exceeds the limit of 8388608 bytes in Unknown on line 0'
+INFO     SP-02      Public contact page offers a working contact path (form posts to /api/marketing) | mailto:enquiry@sraccountax.ca,mailto:enquiry@sraccountax.ca
+=== 13-r141
+FAIL     PW-01      Product page says Payroll Support Tool, Canada excluding Quebec (R142 wording), no "payrol | 
+=== 14-r142
+FAIL     WR-09      Product and Subscriptions pages say Canada, excluding Quebec; no "Canada only" | 
+=== 15-r144
+=== 16-r145
+node:fs:3097
+  binding.copyFile(
+          ^
+
+Error: ENOENT: no such file or directory, copyfile '/srv/gate/t/conv/ocr-r144.js' -> '/srv/gate/www/assets/zz-ocr-r144-compare.js'
+    at Object.copyFileSync (node:fs:3097:11)
+    at file:///srv/gate/t/16-r145.mjs:57:4 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'copyfile',
+  path: '/srv/gate/t/conv/ocr-r144.js',
+  dest: '/srv/gate/www/assets/zz-ocr-r144-compare.js'
+}
+
+Node.js v22.22.0
+=== 18-r149
+=== 19-r151
+=== 20-r151ui
+=== 21-r152
+=== 22-r153
+=== resume 21:25
+skip 01-install
+skip 02-setup
+skip 02b-invite
+skip 03-acct
+skip 04-tax
+skip 05-fx
+skip 06-sec
+skip 06b
+skip 07-cv
+skip 08-pay
+skip 09-backup
+skip 09b
+skip 10-ops
+skip 13-r141
+skip 14-r142
+skip 15-r144
+skip 16-r145
+skip 18-r149
+skip 19-r151
+skip 20-r151ui
+skip 21-r152
+=== 22-r153
+=== 23-r154
+=== 24-beta
+FAIL     BS-07      Accepting an invitation records the terms and privacy versions shown on the published Term | pages: terms undefined, privacy undefined; recorded 2026-10-21-beta.1|2026-10-21-beta.1
+FAIL     BS-09      Terms and Privacy pages: the operator, contacts, hosting, beta conditions, deletion proced | terms missing: Gate Test Operator Inc., support@gate.test, Private beta, Invitation only, Free, Sample data only, Data may be reset, No guarantee of availability, Not for real filings or payroll, 2026
+=== 25-r157
+=== 26-r158
+node:internal/modules/esm/resolve:274
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/srv/gate/t/26-r158.mjs' imported from /srv/gate/t/
+    at finalizeResolution (node:internal/modules/esm/resolve:274:11)
+    at moduleResolve (node:internal/modules/esm/resolve:859:10)
+    at defaultResolve (node:internal/modules/esm/resolve:983:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:731:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:708:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:664:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:663:21)
+    at node:internal/modules/run_main:179:35 {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///srv/gate/t/26-r158.mjs'
+}
+
+Node.js v22.22.0
+=== 27-r159
+node:internal/modules/esm/resolve:274
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/srv/gate/t/27-r159.mjs' imported from /srv/gate/t/
+    at finalizeResolution (node:internal/modules/esm/resolve:274:11)
+    at moduleResolve (node:internal/modules/esm/resolve:859:10)
+    at defaultResolve (node:internal/modules/esm/resolve:983:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:731:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:708:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:664:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:663:21)
+    at node:internal/modules/run_main:179:35 {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///srv/gate/t/27-r159.mjs'
+}
+
+Node.js v22.22.0
+=== 28-r160
+=== 29-r161
+=== 30-guided
+=== 31-r163
+FAIL     R-19       Sending the request stores it, emails the breakdown to enquiry@sraccountax.ca, and returns | mail false; row sent 3000 16500 550; draft subject "Accountant request for R163 Gate mvvhut6l (ref. acctreq_9b108735c3b57833990682d49ba2a080)"; draft ok false
+FAIL     R-29       Connect with an accountant: findings and a CAD quote, no hours or rate on the screen; send | quote "Quote to complete this work $165.00 CAD An estimate for the bookkeeping work listed, plus applicable GST/HST. It does not include tax returns (GST/HST, T2 or personal) or payroll filings. A Teg
+=== 32-r163-sec
+
+10/10 R163 security checks passed
+=== 33-sec
+
+13/13 auth/client-view/payroll security checks passed
+=== 34-mfa
+FAIL     U-01       Browser: the sign-in screen says "Check your email" with the masked address and the trust  | error: Cannot find module '/srv/gate/t/node-test-deps/jsqr/dist/jsQR.js'
+Require stack:
+- /srv/gate/t/34-mfa.mjs
+=== 35-session
+=== 36-monitor
+=== 37-audit
+=== 38-files
+victims {
+  stmt: [
+    'company_653f495de09269519feb0659ddb55f03',
+    'import_4322cb0dcc27284b7c3a8ff7dc3a4f6b'
+  ],
+  att: [
+    'company_9808000d036595403cffd4bf234c375a',
+    'invoice_25c8cb8e8c4b2454e550141d4aa8beba',
+    'invatt_e596d71ae01dbed1fbf3d5f6d79682fa'
+  ],
+  nd: [
+    'company_7ff614f625240aefca2f1d0b5f1eed66',
+    'nadoc_6cf333b77d038eb7ad18c9fa95920677'
+  ],
+  inv: [
+    'company_ea03506b652a139b57c18dbfc142ba39',
+    'invoice_01b7fd445098668d4cb75cd6bb2a4238'
+  ]
+}
+=== 39-restore
+=== 40-r165
+=== 41-r166
+FAIL     DD-01      Top bar menu (Banking) is painted in one place | locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('.tegh-top-menubar button').filter({ hasText: 'Banking' }).first()[22m
+[2m    - locator resolved to <button type="butto
+=== 42-r167
+=== 43-r168
+=== 44-r169
+=== 45-r170
+INFO     II-ACC1    Measured header-field accuracy across the fixtures (number, dates, totals, tax, currency) | 141/147 (95.9%)
+INFO     II-ACC2    Measured line-item accuracy (amount and description found) | 69/75 (92%)
+INFO     II-ACC3    Measured supplier-matching accuracy (known suppliers) | 21/21 (100%)
+INFO     II-ACC4    Per file | F01.pdf pdf_text: all right | F01b.pdf no job | F02.pdf pdf_text: all right | F03.pdf pdf_text: all right | F04.pdf ocr: all right | F05.pdf ocr: all right | F06.pdf ocr: invoiceNumber=""≠"PJ-3306"; i
+INFO     II-ACC5    Processing time per file, upload to result (seconds; includes waiting in the queue) | F11.pdf pdf_text 34s, F03.pdf pdf_text 5s, F02.pdf pdf_text 9s, F18.pdf pdf_text 47s, F01.pdf pdf_text 5s, F08.pdf pdf_text 27s, F21.pdf ocr 71s, F13.pdf pdf_text 40s, F22.pdf pdf_text 60s, F04.pdf oc
+INFO     II-ACC6    Exception rate: review classes after reading | {"blocked":3,"review":15,"ready":6}
+      Northgate Paper & Office Ltd. · NG-20418$549.08 · blockedLakeshore Courier Inc. · LC-88255$179.11 · review requiredLakeshore Courier Inc. · LC-88240$179
+=== 46-r171
+=== 47-r172
+=== 48-r174
+=== 49-r175
+201 company_b97edc0aa71dbf5e4d748f5ee449ea9c
+=== w1
+=== w2
+=== w3
+=== w4
+=== w5
+=== w6
+=== w7
+=== w8
+=== w9

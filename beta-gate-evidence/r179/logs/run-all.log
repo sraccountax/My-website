@@ -1,0 +1,162 @@
+=== resume 10:52
+=== 01-install
+=== 02-setup
+{
+  BC: 'company_0f0f46540f3b782a0bb4e0a5b70c3284',
+  QC: 'company_15f3caee95680bfe832b7fd7ff045fe7',
+  ON: 'company_da8439c6cc68612cf2615d9933cde539',
+  X: 'company_71ac3c6845e632eb56c3fbf9fee31362'
+}
+=== 02b-invite
+=== 03-acct
+expense 6000 equity 3000 bank gl 1000
+=== 04-tax
+INFO     CB-02      Cash basis: invoice issue posting recorded for review | {}
+=== 05-fx
+=== 06-sec
+INFO     XS-01      XSS payload customer stored as text (rendering checked in UI run) | 201
+=== 06b
+=== 07-cv
+=== 08-pay
+INFO     PY-01      Employee with SIN fields submitted: refused or SIN discarded | 422 sin_not_accepted Tegh does not store Social Insurance Numbers (SINs). Remove the SIN and use the Employee ID instead.
+INFO     PY-07      Payroll rate tables: year/version reported for owner verification | "effectiveFrom":"2026-01-01" "effectiveTo":"2026-06-30" "effectiveFrom":"2026-07-01" "effectiveTo":"2026-12-31"
+=== 09-backup
+=== 09b
+=== 10-ops
+INFO     LG-03      PHP error log: warnings recorded (see evidence) | PHP Warning:  POST Content-Length of 11534510 bytes exceeds the limit of 8388608 bytes in Unknown on line 0'
+INFO     SP-02      Public contact page offers a working contact path (form posts to /api/marketing) | mailto:enquiry@sraccountax.ca,mailto:enquiry@sraccountax.ca
+=== 13-r141
+FAIL     PW-01      Product page says Payroll Support Tool, Canada excluding Quebec (R142 wording), no "payrol | 
+=== 14-r142
+FAIL     WR-09      Product and Subscriptions pages say Canada, excluding Quebec; no "Canada only" | 
+=== 15-r144
+=== 16-r145
+INFO     DI-CMP     Field accuracy across the six documents, R145 reader vs the R144 reader (for information) | R145 47/47 fields; R144 31/47 fields
+FAIL     DI-SCAN    Scanned PDFs are read by OCR in this browser (the bundled PDF reader no longer needs Map.g | got ["ocr",false] want ["ocr",true]
+=== 18-r149
+=== 19-r151
+=== 20-r151ui
+=== 21-r152
+=== 22-r153
+=== 23-r154
+=== 24-beta
+FAIL     BS-07      Accepting an invitation records the terms and privacy versions shown on the published Term | pages: terms undefined, privacy undefined; recorded 2026-10-21-beta.1|2026-10-21-beta.1
+FAIL     BS-09      Terms and Privacy pages: the operator, contacts, hosting, beta conditions, deletion proced | terms missing: Gate Test Operator Inc., support@gate.test, Private beta, Invitation only, Free, Sample data only, Data may be reset, No guarantee of availability, Not for real filings or payroll, 2026
+=== 25-r157
+=== 26-r158
+node:internal/modules/esm/resolve:274
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/srv/gate/t/26-r158.mjs' imported from /srv/gate/t/
+    at finalizeResolution (node:internal/modules/esm/resolve:274:11)
+    at moduleResolve (node:internal/modules/esm/resolve:859:10)
+    at defaultResolve (node:internal/modules/esm/resolve:983:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:731:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:708:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:664:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:663:21)
+    at node:internal/modules/run_main:179:35 {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///srv/gate/t/26-r158.mjs'
+}
+
+Node.js v22.22.0
+=== 27-r159
+node:internal/modules/esm/resolve:274
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/srv/gate/t/27-r159.mjs' imported from /srv/gate/t/
+    at finalizeResolution (node:internal/modules/esm/resolve:274:11)
+    at moduleResolve (node:internal/modules/esm/resolve:859:10)
+    at defaultResolve (node:internal/modules/esm/resolve:983:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:731:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:708:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:664:36)
+    at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    at ModuleLoader.import (node:internal/modules/esm/loader:663:21)
+    at node:internal/modules/run_main:179:35 {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///srv/gate/t/27-r159.mjs'
+}
+
+Node.js v22.22.0
+=== 28-r160
+=== 29-r161
+=== 30-guided
+=== 31-r163
+FAIL     R-47       Back in Guided after Full Accounting: a "Welcome back to Guided" notice, and Guided Home o | error: page.waitForSelector: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('[data-srp-page="guided-mapping"] .r163-map-table') to be visible
+
+FAIL     R-48       The month list shows the Banking import as the March statement, February as included in it | March "March 2026 Not uploaded Upload Statement"; February "Not uploaded"; banner 0
+=== 32-r163-sec
+
+10/10 R163 security checks passed
+=== 33-sec
+
+13/13 auth/client-view/payroll security checks passed
+=== 34-mfa
+=== 35-session
+=== 36-monitor
+=== 37-audit
+=== 38-files
+victims {
+  stmt: [
+    'company_057b8bebfefc5c0954cded1321c94f8a',
+    'import_906b592727ba0d5e9efcf7d377dfa776'
+  ],
+  att: [
+    'company_a1a49c8779238befb70206b8204f5da7',
+    'invoice_68c65482e753550a743edffad30e5574',
+    'invatt_2de55e33749b22fde4efdb4afa52bafa'
+  ],
+  nd: [
+    'company_c161ce9b2d126f482e11bc0ff093b130',
+    'nadoc_1333665275386b73206d48276ca1aed7'
+  ],
+  inv: [
+    'company_f32ed10e4166a519514d4f5de2fe3ef5',
+    'invoice_0fdbd13dc8b161b44986b368efa5f96b'
+  ]
+}
+=== 39-restore
+=== 40-r165
+=== 41-r166
+FAIL     DD-01      Top bar menu (Banking) is painted in one place | locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('.tegh-top-menubar button').filter({ hasText: 'Banking' }).first()[22m
+[2m    - locator resolved to <button type="butto
+=== 42-r167
+=== 43-r168
+=== 44-r169
+=== 45-r170
+INFO     II-ACC1    Measured header-field accuracy across the fixtures (number, dates, totals, tax, currency) | 141/147 (95.9%)
+INFO     II-ACC2    Measured line-item accuracy (amount and description found) | 69/75 (92%)
+INFO     II-ACC3    Measured supplier-matching accuracy (known suppliers) | 21/21 (100%)
+INFO     II-ACC4    Per file | F01.pdf pdf_text: all right | F01b.pdf no job | F02.pdf pdf_text: all right | F03.pdf pdf_text: all right | F04.pdf ocr: all right | F05.pdf ocr: all right | F06.pdf ocr: invoiceNumber=""≠"PJ-3306"; i
+INFO     II-ACC5    Processing time per file, upload to result (seconds; includes waiting in the queue) | F11.pdf pdf_text 42s, F03.pdf pdf_text 15s, F02.pdf pdf_text 7s, F18.pdf pdf_text 53s, F01.pdf pdf_text 7s, F08.pdf pdf_text 40s, F21.pdf ocr 74s, F13.pdf pdf_text 45s, F22.pdf pdf_text 76s, F04.pdf o
+INFO     II-ACC6    Exception rate: review classes after reading | {"blocked":3,"review":15,"ready":6}
+      Northgate Paper & Office Ltd. · NG-20418$549.08 · blockedLakeshore Courier Inc. · LC-88255$179.11 · review requiredLakeshore Courier Inc. · LC-88240$179
+=== 46-r171
+=== 47-r172
+=== 48-r174
+=== 49-r175
+=== 50-r176
+=== 51-r177
+=== 52-r178
+=== 53-r179
+201 company_7299478188325b0805a64ff98f885c71
+=== w1
+=== w2
+=== w3
+=== w4
+=== w5
+=== w6
+=== w7
+=== w8
+=== w9

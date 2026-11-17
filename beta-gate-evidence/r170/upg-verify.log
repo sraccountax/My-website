@@ -1,0 +1,13 @@
+PASS     UP-01      After uploading the new release over R118: startup status not degraded, schema 46 | schema 46 degraded false warning null
+PASS     UP-02      Existing company opens (dashboard summary) | 200
+PASS     UP-03      R137 tables/columns created automatically on the first ordinary API request (no manual mig | "tax_codes,tax_code_components,document_tax_lines"
+PASS     UP-04      Ledger balances unchanged by the upgrade | "1000\t50000\n1200\t55000\n2100\t-5000\n4000\t-100000"
+PASS     UP-05      Existing company stays on its previous tax rules (legacy mode) until it adds tax codes | "legacy"
+PASS     UP-06      Post-upgrade invoice ($200, BC customer, legacy rules) posts GST $10 to 2100 | 1200	21000 | 2100	-1000 | 4000	-20000
+PASS     UP-07      Pre-upgrade invoice can be settled after upgrade | 201 balance 0
+PASS     UP-08      Existing company: Add Canadian tax codes creates 14 codes, QST accounts 2115/1115, and swi | 201 codes=14
+PASS     UP-09      All journals balance after upgrade | "0"
+PASS     UP-10      R141 migration: existing company country is Canada; province widened to VARCHAR(10) on com | Canada / widened=3
+PASS     UP-11      DEF-08 on an upgraded BC company: Manitoba starter code is GST only | GST
+PASS     UP-12      Dashboard Figures available on the upgraded company (table created on first use) | 200
+PASS     UP-13      Tegh Intelligence works on the upgraded company (brief, findings, chase list, cash) | 200 lines=4

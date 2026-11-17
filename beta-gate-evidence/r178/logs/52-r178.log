@@ -1,0 +1,8 @@
+PASS     DM-01      Platform owner: listed second under Settings › Platform Admin and as a card on Platform Ow | items: Site & Release Settings, Client Dashboard Demo, Registration & Invitations; home card true
+PASS     DM-02      The demo opens with sample figures, every panel loads, and no company figures are requeste | {"title":"Client Dashboard Demo","cash":"$48,210","tag":"Demo · sample figures","chartH":230,"over":0} | figure requests: none
+PASS     DM-03      A brand-new business: the four setup steps, empty panels, and the illustration is drawn in | {"steps":4,"cfEmpty":true,"stroke":"rgb(15, 143, 129)","pressed":"true"}
+PASS     DM-04      Buttons in the demo explain what they open in a client's account and stay on the demo | {"toast":"Demo onlyIn a client’s own account this opens the list of who owes them.","still":true}
+PASS     DM-05      Phone (390 wide): every panel loads and nothing scrolls sideways | {"states":["ready","ready","ready","ready","ready","ready","ready","ready"],"over":0}
+PASS     DM-06      A company editor: no Platform Admin entry, and opening the demo directly shows only a noti | listed false; {"dash":false,"text":"Client Dashboard DemoThe client dashboard demo is for the platform owner."}
+PASS     DM-07      Using the demo changes no row in any table | 184 tables unchanged
+PASS     DM-08      The demo does not depend on the New dashboard switch (it is off now) | switch off, demo ready true

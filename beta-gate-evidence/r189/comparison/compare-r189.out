@@ -1,0 +1,36 @@
+restored: 68 companies; r181 table: 0
+clock: pinned -3991258s → PHP 2026-11-16 (cli unshifted); DB 2026-10-01
+captured 62 companies 609 files
+after capture, r181 table: 0
+compared 592 files: 28 different, 34 missing, 0 status changes
+  DIFF screens/company_0235935639bea04e3f545a581815fb8f.Banking-Bank-Transaction-Report.txt
+  DIFF screens/company_0235935639bea04e3f545a581815fb8f.General-ledger-Day-Book.txt
+  DIFF screens/company_0235935639bea04e3f545a581815fb8f.General-ledger-GIFI-Report.txt
+  DIFF screens/company_0235935639bea04e3f545a581815fb8f.General-ledger-Journal-Entries.txt
+  DIFF screens/company_0235935639bea04e3f545a581815fb8f.My-account-Currency-Exchange-Rates.txt
+  DIFF screens/company_0235935639bea04e3f545a581815fb8f.Payables-Payable-Ageing.txt
+  DIFF screens/company_0235935639bea04e3f545a581815fb8f.Payables-Vendor-Invoices.txt
+  DIFF screens/company_0235935639bea04e3f545a581815fb8f.Receivables-Customer-Invoice-Note-Register.txt
+  DIFF screens/company_0235935639bea04e3f545a581815fb8f.Receivables-Customer-Invoices.txt
+  DIFF screens/company_0235935639bea04e3f545a581815fb8f.Receivables-Receivable-Ageing.txt
+  DIFF screens/company_0235935639bea04e3f545a581815fb8f.Reports-Balance-Sheet.txt
+  DIFF screens/company_0235935639bea04e3f545a581815fb8f.Reports-Cash-Flow.txt
+  DIFF screens/company_0235935639bea04e3f545a581815fb8f.Reports-Profit-and-Loss.txt
+  DIFF screens/company_0235935639bea04e3f545a581815fb8f.Reports-Trial-Balance.txt
+  DIFF screens/company_0373d1dcf9ff07ba8bcf10709c8caa3e.Banking-Bank-Transaction-Report.txt
+  DIFF screens/company_0373d1dcf9ff07ba8bcf10709c8caa3e.General-ledger-Day-Book.txt
+  DIFF screens/company_0373d1dcf9ff07ba8bcf10709c8caa3e.General-ledger-GIFI-Report.txt
+  DIFF screens/company_0373d1dcf9ff07ba8bcf10709c8caa3e.General-ledger-Journal-Entries.txt
+  DIFF screens/company_0373d1dcf9ff07ba8bcf10709c8caa3e.My-account-Currency-Exchange-Rates.txt
+  DIFF screens/company_0373d1dcf9ff07ba8bcf10709c8caa3e.Payables-Payable-Ageing.txt
+  MISSING screens/company_04733e0dbe583573621679fe2bc3a1ff.Banking-Bank-Transaction-Report.txt only in A
+  MISSING screens/company_04733e0dbe583573621679fe2bc3a1ff.Banking-Manage-Bank-Accounts.txt only in A
+  MISSING screens/company_04733e0dbe583573621679fe2bc3a1ff.Dashboard-home.txt only in A
+  MISSING screens/company_04733e0dbe583573621679fe2bc3a1ff.General-ledger-Day-Book.txt only in A
+  MISSING screens/company_04733e0dbe583573621679fe2bc3a1ff.General-ledger-GIFI-Report.txt only in A
+  MISSING screens/company_04733e0dbe583573621679fe2bc3a1ff.General-ledger-Journal-Entries.txt only in A
+  MISSING screens/company_04733e0dbe583573621679fe2bc3a1ff.My-account-Company-Details.txt only in A
+  MISSING screens/company_04733e0dbe583573621679fe2bc3a1ff.My-account-Currency-Exchange-Rates.txt only in A
+  MISSING screens/company_04733e0dbe583573621679fe2bc3a1ff.Payables-Payable-Ageing.txt only in A
+  MISSING screens/company_04733e0dbe583573621679fe2bc3a1ff.Payables-Vendor-Invoices.txt only in A
+COMPARE-DONE

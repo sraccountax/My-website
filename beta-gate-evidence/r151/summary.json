@@ -1,0 +1,363 @@
+{
+ "counts": {
+  "PASS": 497,
+  "INFO": 7
+ },
+ "byArea": {
+  "H-INST": {
+   "PASS": 12
+  },
+  "H-MAIL": {
+   "PASS": 19
+  },
+  "ACCT": {
+   "PASS": 63
+  },
+  "TAX": {
+   "PASS": 20,
+   "INFO": 1
+  },
+  "FX": {
+   "PASS": 5
+  },
+  "SEC": {
+   "PASS": 43,
+   "INFO": 1
+  },
+  "CVL": {
+   "PASS": 20
+  },
+  "PAY": {
+   "PASS": 7,
+   "INFO": 2
+  },
+  "REC": {
+   "PASS": 9
+  },
+  "OPS": {
+   "PASS": 5,
+   "INFO": 2
+  },
+  "UPG": {
+   "PASS": 13
+  },
+  "R141": {
+   "PASS": 38
+  },
+  "R142": {
+   "PASS": 11
+  },
+  "R144": {
+   "PASS": 35
+  },
+  "E2E": {
+   "PASS": 51
+  },
+  "R144UI": {
+   "PASS": 22
+  },
+  "R145": {
+   "PASS": 45,
+   "INFO": 1
+  },
+  "R149": {
+   "PASS": 20
+  },
+  "R151": {
+   "PASS": 40
+  },
+  "R151UI": {
+   "PASS": 19
+  }
+ },
+ "paths": [
+  "PASS api/bootstrap.php -> 403 (expect 403 404)",
+  "PASS api/schema.sql -> 403 (expect 403 404)",
+  "PASS api/config.example.php -> 403 (expect 403 404)",
+  "PASS api/accounting.php -> 403 (expect 403 404)",
+  "PASS api/tax_codes_r137.php -> 403 (expect 403 404)",
+  "PASS api/native-agent-cron.php -> 403 (expect 403 404)",
+  "PASS api/php.ini -> 403 (expect 403 404)",
+  "PASS config.example.php -> 403 (expect 403 404)",
+  "PASS RELEASE-MANIFEST.json -> 403 (expect 403 404)",
+  "PASS PACKAGE-MANIFEST.json -> 403 (expect 403 404)",
+  "PASS tegh-build.json -> 403 (expect 403 404)",
+  "PASS FILE-MANIFEST.sha256 -> 403 (expect 403 404)",
+  "PASS DEPLOYMENT-NOTES.txt -> 403 (expect 403 404)",
+  "PASS README.txt -> 403 (expect 403 404)",
+  "PASS R139-CHANGES.md -> 403 (expect 403 404)",
+  "PASS UPGRADE-SCHEMA-46-R20.md -> 403 (expect 403 404)",
+  "PASS release/ -> 403 (expect 403 404)",
+  "PASS storage/ -> 403 (expect 403 404)",
+  "PASS .htaccess -> 403 (expect 403 404)",
+  "PASS api/.htaccess -> 403 (expect 403 404)",
+  "PASS assets/ -> 403 (expect 403 404)",
+  "PASS guides/ -> 403 (expect 403 404)",
+  "PASS knowledge/ -> 403 (expect 403 404)",
+  "PASS knowledge/README.md -> 403 (expect 403 404)",
+  "PASS sample-data/ -> 403 (expect 403 404)",
+  "PASS api/payroll-catalogue/ -> 403 (expect 403 404)",
+  "PASS ../sr-accountax-private/config.php -> 404 (expect 400 403 404)",
+  "PASS api/..%2f..%2fsr-accountax-private/config.php -> 404 (expect 400 403 404)",
+  "PASS nonexistent-xyz.html -> 404 (expect 400 403 404)",
+  "PASS app.html -> 200 (expect 200)",
+  "PASS client-view.html -> 200 (expect 200)",
+  "PASS index.html -> 200 (expect 200)",
+  "PASS api/health -> 200 (expect 200)",
+  "PASS http->https redirect: 301 https://books-test.sraccountax.ca/app.html?x=1",
+  "HDR app.html: Cache-Control: no-store, no-cache, must-revalidate, max-age=0",
+  "HDR client-view.html: Cache-Control: no-store, no-cache, must-revalidate, max-age=0",
+  "HDR assets/tegh-portal-v5990.js?v=5990-r144-tegh: Cache-Control: public, max-age=31536000, immutable",
+  "PASS header Strict-Transport-Security",
+  "PASS header Content-Security-Policy",
+  "PASS header X-Frame-Options",
+  "PASS header X-Content-Type-Options",
+  "PASS header Referrer-Policy",
+  "PASS app.html has no third-party session recording",
+  "DONE asset crawl",
+  "PASS / serves the home page: 200 ",
+  "PASS /?invite= goes to the app: 302 https://gate.test/app.html?invite=x"
+ ],
+ "ui": [
+  [
+   "dark-1366",
+   "1366",
+   "768",
+   "1",
+   "dark",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "dark-1440",
+   "1440",
+   "900",
+   "1",
+   "dark",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "dark-1920",
+   "1920",
+   "1080",
+   "1",
+   "dark",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "dark-320",
+   "320",
+   "640",
+   "1",
+   "dark",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "dark-360",
+   "360",
+   "800",
+   "1",
+   "dark",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "dark-390",
+   "390",
+   "844",
+   "1",
+   "dark",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "dark-768",
+   "768",
+   "1024",
+   "1",
+   "dark",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "light-1366",
+   "1366",
+   "768",
+   "1",
+   "light",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "light-1440",
+   "1440",
+   "900",
+   "1",
+   "light",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "light-1920",
+   "1920",
+   "1080",
+   "1",
+   "light",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "light-320",
+   "320",
+   "640",
+   "1",
+   "light",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "light-360",
+   "360",
+   "800",
+   "1",
+   "light",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "light-390",
+   "390",
+   "844",
+   "1",
+   "light",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "light-768",
+   "768",
+   "1024",
+   "1",
+   "light",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "top-full-1366",
+   "1366",
+   "768",
+   "1",
+   "light",
+   "top",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "top-guided-1440",
+   "1440",
+   "900",
+   "1",
+   "dark",
+   "top",
+   "guided",
+   46,
+   0,
+   ""
+  ],
+  [
+   "top-guided-390",
+   "390",
+   "844",
+   "1",
+   "dark",
+   "top",
+   "guided",
+   46,
+   0,
+   ""
+  ],
+  [
+   "zoom125",
+   "1366",
+   "768",
+   "1.25",
+   "light",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "zoom150",
+   "1366",
+   "768",
+   "1.5",
+   "light",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ],
+  [
+   "zoom200",
+   "1366",
+   "768",
+   "2",
+   "light",
+   "side",
+   "full",
+   46,
+   0,
+   ""
+  ]
+ ]
+}

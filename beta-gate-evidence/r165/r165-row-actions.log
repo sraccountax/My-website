@@ -1,0 +1,42 @@
+NONE            Day Book | Sep 10, 2026 ▸ CI-001 Invoice R151 Clien | Show General Ledger lines | 
+OK              Day Book | Sep 10, 2026 ▸ CI-001 Invoice R151 Clien | Open source document | page:invoice-detail
+NONE            Day Book | Sep 20, 2026 ▸ CN-001 Accounting Note Cu | Show General Ledger lines | 
+OK              Day Book | Sep 20, 2026 ▸ CN-001 Accounting Note Cu | Open source document | page:document-view
+NONE            Day Book | Sep 22, 2026 ▸ DN-001 Accounting Note Cu | Show General Ledger lines | 
+OK              Day Book | Sep 22, 2026 ▸ DN-001 Accounting Note Cu | Open source document | page:document-view
+NONE            Day Book | Sep 23, 2026 ▸ SCN-001 Accounting Note V | Show General Ledger lines | 
+OK              Day Book | Sep 23, 2026 ▸ SCN-001 Accounting Note V | Open source document | page:document-view
+SKIP Audit History
+OK              Customer Invoice & Note Register | INV-1001 Invoice — R151 Client Ltd Sep 1 | Edit invoice | page:customer-document
+OK              Customer Invoice & Note Register | INV-1001 Invoice — R151 Client Ltd Sep 1 | View invoice details | page:invoice-detail
+OK              Customer Invoice & Note Register | INV-1001 Invoice — R151 Client Ltd Sep 1 | Invoice PDF | download:Tegh-invoice-INV-1001.pdf
+OK              Customer Invoice & Note Register | INV-1001 Invoice — R151 Client Ltd Sep 1 | Print invoice | newtab
+OK              Customer Invoice & Note Register | INV-1001 Invoice — R151 Client Ltd Sep 1 | Invoice Excel | download:Tegh-invoice-INV-1001.xlsx
+OK              Customer Invoice & Note Register | INV-1001 Invoice — R151 Client Ltd Sep 1 | View Day Book Entry | page:day-book
+OK              Customer Invoice & Note Register | INV-1001 Invoice — R151 Client Ltd Sep 1 | Apply Open Payment | page:customer-payments
+OK              Customer Invoice & Note Register | INV-1001 Invoice — R151 Client Ltd Sep 1 | Void | toast:This cannot be voided yetVoid the linked debit or credit note through its note r
+OK              Customer Invoice & Note Register | CN-1001 Credit Note INV-1001 R151 Client | View note | page:document-view
+OK              Customer Invoice & Note Register | CN-1001 Credit Note INV-1001 R151 Client | Open in note register | page:customer-notes
+OK              Customer Invoice & Note Register | DN-1001 Debit Note OLD-779 R151 Client L | Edit invoice | page:customer-document
+OK              Customer Invoice & Note Register | DN-1001 Debit Note OLD-779 R151 Client L | View invoice details | page:invoice-detail
+OK              Customer Invoice & Note Register | DN-1001 Debit Note OLD-779 R151 Client L | Invoice PDF | download:Tegh-invoice-DN-1001.pdf
+OK              Customer Invoice & Note Register | DN-1001 Debit Note OLD-779 R151 Client L | Print invoice | newtab
+OK              Customer Invoice & Note Register | DN-1001 Debit Note OLD-779 R151 Client L | Invoice Excel | download:Tegh-invoice-DN-1001.xlsx
+OK              Customer Invoice & Note Register | DN-1001 Debit Note OLD-779 R151 Client L | View Day Book Entry | page:day-book
+OK              Customer Invoice & Note Register | DN-1001 Debit Note OLD-779 R151 Client L | Apply Open Payment | page:customer-payments
+OK              Customer Invoice & Note Register | DN-1001 Debit Note OLD-779 R151 Client L | Void | toast:This cannot be voided yetVoid the linked debit or credit note through its note r
+OK              Vendor Invoice & Note Register | VI-1-mvj1lrjf Invoice — R151 Supplies Co | Edit vendor invoice | page:vendor-document
+OK              Vendor Invoice & Note Register | VI-1-mvj1lrjf Invoice — R151 Supplies Co | View vendor invoice | page:document-view
+OK              Vendor Invoice & Note Register | VI-1-mvj1lrjf Invoice — R151 Supplies Co | Invoice PDF | download:Tegh-bill-VI-1-mvj1lrjf.pdf
+OK              Vendor Invoice & Note Register | VI-1-mvj1lrjf Invoice — R151 Supplies Co | Print invoice | newtab
+OK              Vendor Invoice & Note Register | VI-1-mvj1lrjf Invoice — R151 Supplies Co | Invoice Excel | download:Tegh-bill-VI-1-mvj1lrjf.xlsx
+OK              Vendor Invoice & Note Register | VI-1-mvj1lrjf Invoice — R151 Supplies Co | View Day Book Entry | page:day-book
+OK              Vendor Invoice & Note Register | VI-1-mvj1lrjf Invoice — R151 Supplies Co | Apply Open Payment | page:vendor-payments
+OK              Vendor Invoice & Note Register | VI-1-mvj1lrjf Invoice — R151 Supplies Co | Void/reverse | toast:This cannot be voided yetVoid the linked debit or credit note through its note r
+OK              Vendor Invoice & Note Register | SCN-1001 Supplier Credit Note SUP-CR-9 R | View note | page:document-view
+OK              Vendor Invoice & Note Register | SCN-1001 Supplier Credit Note SUP-CR-9 R | Open in note register | page:vendor-notes
+SKIP Bank Reconciliation Summary
+SKIP Tax Code Report
+SKIP Pay Run Register
+SKIP Budget versus Actual
+SKIP Fixed Asset Register

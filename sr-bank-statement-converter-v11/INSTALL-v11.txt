@@ -1,0 +1,77 @@
+SR AccounTax Bank Statement Converter — v11 update (2026-10-06)
+================================================================
+
+v11 puts the statement reader of Tegh R152 into the website converter (free
+and Pro). It includes everything in v10 (see INSTALL-v10.txt).
+
+WHAT'S NEW
+1. More statement layouts read by column, in English and French:
+   - RBC-, BMO-, Scotia-, Desjardins-, National Bank- and Tangerine-style
+     bank accounts;
+   - Amex-style and French Visa card statements;
+   - column headings printed over two lines ("Cheques &" / "Debits");
+   - French amounts ("1 234,56"), French month names ("02 janv.");
+   - numeric dates (01/02): the day/month order is taken from the statement
+     period. When both orders fit, the row dates are left for you to set with
+     Date format instead of guessing;
+   - DR/CR columns and overdrawn (OD) balances;
+   - amounts on the line under the description, and amounts split into
+     pieces.
+
+   On the 13 synthetic test statements (one per style above, plus a PDF that
+   holds three statements):
+     v10: 2 read exactly, 2 gave no rows, 1 was refused, 8 had wrong amounts
+     v11: all 13 read exactly (every row, the net, opening and closing
+          balances), with the statement check passing.
+   The owner's three real statements (CIBC chequing, TD Visa, TD chequing)
+   give the same rows and checks as v10: 135, 21 and 254 rows, all
+   balanced. The earlier test statements (bank, card, page totals, missing
+   line, ISO dates, no headings, scanned) read the same as v10.
+
+2. A PDF that holds several statements (more months, or more accounts) is no
+   longer refused with "This PDF contains more than one account". Each
+   statement is read and checked on its own and labelled
+   "file.pdf (statement 2 of 3, account …4567)". Consecutive statements of
+   the same account are chained (closing balance → next opening balance).
+
+3. Fixed: the chain check skipped statements when statements of another
+   account came between them by date (for example January …4567,
+   January …9012, February …4567 uploaded together).
+
+4. Converter build 11.0.0. Cache versions are bumped to 20261006-11.
+
+FILES IN THIS UPDATE
+Upload them into the folder that serves bankstatementconverter.sraccountax.ca,
+keeping the same paths:
+  CHANGED  bank-statement-layout.js
+  CHANGED  bank-statement-converter-free.js
+  CHANGED  member/private/pro-converter.js
+  CHANGED  free-converter.php
+  CHANGED  member/pro-converter.php
+
+If v10 is not installed yet, also upload the v10 files (they are in this
+folder and unchanged): bank-converter.css, pdf-upsert-polyfill.js,
+pdf-worker-entry.mjs.
+
+DO NOT replace member/config.php. There is no database change, and no change
+to billing, login or usage limits. bank-converter-core.js is unchanged.
+
+INSTALL
+1. Back up the converter folder.
+2. Upload the files above, overwriting the old ones.
+3. Open the converter in a private window, or press Ctrl+F5.
+4. Check:
+   - Convert a text PDF statement. The green "Statement check passed" panel
+     appears above the totals.
+   - Convert a PDF that holds two months of one account. Both statements are
+     listed in the panel, with a line saying the closing balance carries
+     forward.
+
+LIMITS
+- Statements with no column headings use the previous reader. The panel then
+  says there is nothing to check against.
+- The layouts are synthetic copies of common styles. Real statements from
+  other banks may still need the Column layout setting or a review of rows.
+- OCR uses the bundled English model.
+- Review every row before importing. The converter makes no accounting
+  entries.

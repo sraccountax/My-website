@@ -1,0 +1,25 @@
+PASS     DS-01      Switch off: nobody gets the summary (403), and auth/me says off | owner 403 dashboard_preview_not_enabled, editor 403, auth/me off
+PASS     DS-02      Platform owner only: the platform owner gets it; a company editor does not | owner 200, editor 403
+PASS     DS-03      Everyone: a company editor gets it too | editor 200
+PASS     DS-04      The switch is validated, kept when another release setting is saved, and recorded in the c | invalid 422; after stage-only save everyone; history rows 6
+PASS     DS-05      Company isolation: a company the person does not belong to is refused, and no other compan | editor is member of other firm: 0; other firm 403 company_forbidden; own company true
+PASS     DS-06      Signed out: 401 | 401
+PASS     DS-10-BC   Figures for BC match workspace/summary, the ageing report, profit and loss and the cash fo | bank 1008300, owed 421776, profit 221406, 21 weeks, 2 months, 2 to-dos; unavailable []
+PASS     DS-10-QC   Figures for QC match workspace/summary, the ageing report, profit and loss and the cash fo | bank -7487, owed 114975, profit 50000, 21 weeks, 2 months, 1 to-dos; unavailable []
+PASS     DS-10-ON   Figures for ON match workspace/summary, the ageing report, profit and loss and the cash fo | bank 0, owed 22600, profit 10000, 21 weeks, 0 months, 0 to-dos; unavailable []
+PASS     DS-10-US   Figures for US match workspace/summary, the ageing report, profit and loss and the cash fo | bank 0, owed 314875, profit 300000, 21 weeks, 0 months, 1 to-dos; unavailable []
+PASS     DS-10-R172 Figures for R172 match workspace/summary, the ageing report, profit and loss and the cash  | bank 0, owed 56000, profit 30000, 21 weeks, 0 months, 1 to-dos; unavailable []
+PASS     DS-10-E2E  Figures for E2E match workspace/summary, the ageing report, profit and loss and the cash f | bank 28250, owed 0, profit -200663, 21 weeks, 1 months, 2 to-dos; unavailable []
+PASS     DS-11      Read-only: 15 summaries change no row in any accounting table | 184 tables unchanged
+PASS     DS-12      Speed: every company answers in under 300 ms on the server | BC 31.58, QC 38.24, ON 34.29, US 23.14, R172 25.94, E2E 26.26
+PASS     DS-13      A new company: setup steps, no forecast weeks without bank data, no expenses, nothing to d | isNew true, setup 1/4, months 0, to-dos 0
+PASS     DU-01      Platform owner sees the new dashboard across the full width; every panel loads; the figure | {"states":["ready","ready","ready","ready","ready","ready","ready","ready"],"cash":"$10,083","ar":"$4,218","ap":"$2,270","over":0,"chartH":230,"gapRight":30}
+PASS     DU-02      Switch to the classic dashboard, then back with "Try the new dashboard" | {"classic":true,"tryNew":true,"choice":"classic"} back to new: true
+PASS     DU-03      While it is owner-only, a company editor keeps the classic dashboard and is not offered th | {"newDash":false,"classic":true,"tryNew":false}
+PASS     DU-04      Phone (390 wide): panels stack, nothing scrolls sideways, every panel loads | {"states":["ready","ready","ready","ready","ready","ready","ready","ready"],"over":0,"cols":1}
+PASS     DU-05      Dark theme: the dashboard uses the app's dark colours (dark cards, light text) | {"card":"rgb(16, 33, 28)","text":"rgb(167, 187, 179)","cardLum":0.11382274509803922,"textLum":0.7143937254901961}
+PASS     DU-06      Keyboard: the money chart reads out each month with the arrow keys | OctMoney in$0Money out$0Net$0
+PASS     DU-07      A new company sees the setup steps and empty states instead of zeros and empty charts | {"steps":4,"next":"Import a bank statement","cfEmpty":"Your Monthly Money In And Out Will Show Here","charts":0,"todo":"Nothing Needs You Right Now"}
+PASS     DU-08      Site & Release Settings shows the New dashboard choice and saves it with a reason | card 1, saved everyone
+PASS     DU-09      Everyone: the company editor now sees the new dashboard | {"newDash":true,"states":["ready","ready","ready","ready","ready","ready","ready","ready"]}
+PASS     DS-99      The switch is put back to off | 200

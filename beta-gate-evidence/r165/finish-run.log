@@ -1,0 +1,21 @@
+MANIFEST-OK
+PASS     UP-01      After uploading the new release over R118: startup status not degraded, schema 46 | schema 46 degraded false warning null
+PASS     UP-02      Existing company opens (dashboard summary) | 200
+PASS     UP-03      R137 tables/columns created automatically on the first ordinary API request (no manual mig | "tax_codes,tax_code_components,document_tax_lines"
+PASS     UP-04      Ledger balances unchanged by the upgrade | "1000\t50000\n1200\t55000\n2100\t-5000\n4000\t-100000"
+PASS     UP-05      Existing company stays on its previous tax rules (legacy mode) until it adds tax codes | "legacy"
+PASS     UP-06      Post-upgrade invoice ($200, BC customer, legacy rules) posts GST $10 to 2100 | 1200	21000 | 2100	-1000 | 4000	-20000
+PASS     UP-07      Pre-upgrade invoice can be settled after upgrade | 201 balance 0
+PASS     UP-08      Existing company: Add Canadian tax codes creates 14 codes, QST accounts 2115/1115, and swi | 201 codes=14
+PASS     UP-09      All journals balance after upgrade | "0"
+PASS     UP-10      R141 migration: existing company country is Canada; province widened to VARCHAR(10) on com | Canada / widened=3
+PASS     UP-11      DEF-08 on an upgraded BC company: Manitoba starter code is GST only | GST
+PASS     UP-12      Dashboard Figures available on the upgraded company (table created on first use) | 200
+PASS     UP-13      Tegh Intelligence works on the upgraded company (brief, findings, chase list, cash) | 200 lines=4
+{'PASS': 784, 'INFO': 7, 'FAIL': 4}
+{'H-INST': {'PASS': 12}, 'H-MAIL': {'PASS': 19}, 'ACCT': {'PASS': 63}, 'TAX': {'PASS': 20, 'INFO': 1}, 'FX': {'PASS': 5}, 'SEC': {'PASS': 43, 'INFO': 1}, 'CVL': {'PASS': 20}, 'PAY': {'PASS': 7, 'INFO': 2}, 'REC': {'PASS': 9}, 'OPS': {'PASS': 5, 'INFO': 2}, 'UPG': {'PASS': 13}, 'R141': {'PASS': 37, 'FAIL': 1}, 'R142': {'PASS': 10, 'FAIL': 1}, 'R144': {'PASS': 35}, 'E2E': {'PASS': 53}, 'R145': {'PASS': 45, 'INFO': 1}, 'R149': {'PASS': 20}, 'R151': {'PASS': 40}, 'R151UI': {'PASS': 19}, 'R152': {'PASS': 31}, 'R153': {'PASS': 20}, 'R154': {'PASS': 11}, 'BETA': {'PASS': 16, 'FAIL': 2}, 'R157': {'PASS': 21}, 'R158': {'PASS': 5}, 'R159': {'PASS': 18}, 'R160': {'PASS': 9}, 'R161': {'PASS': 20}, 'GUIDED': {'PASS': 23}, 'R163': {'PASS': 46}, 'R163SEC': {'PASS': 10}, 'SEC2': {'PASS': 13}, 'MFA': {'PASS': 17}, 'SESSION': {'PASS': 14}, 'MONITOR': {'PASS': 10}, 'AUDIT': {'PASS': 7}, 'FILES': {'PASS': 11}, 'RESTORE': {'PASS': 7}}
+45 path/header PASS; 0 FAIL
+20 UI runs; 0 screens with issues
+390x844 screens with swipe traps: 0
+FINISH-RUN-DONE
+FIN-EXIT 0
