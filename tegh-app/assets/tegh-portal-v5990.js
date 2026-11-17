@@ -79,10 +79,10 @@ const TeghPortal = (() => {
   };
   const r157Icon=(name,cls='')=>`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${R157_ICON[name]||''}</svg>`;
   const R157_STEPS={
-    company:{title:'Your company',short:'Company',lead:'Name, address, fiscal year, sales tax registration and time zone. This step is complete once the company exists; you can review the details at any time.'},
+    company:{title:'Your company',short:'Company',get lead(){return indiaEdition()?'Name, address, financial year, GST registration and time zone. This step is complete once the company exists.':'Name, address, fiscal year, sales tax registration and time zone. This step is complete once the company exists; you can review the details at any time.'}},
     chart:{title:'Chart of accounts',short:'Chart of accounts',lead:'The list of general ledger accounts every transaction is posted to. Bring yours from another system, start from Tegh’s standard chart, or build it yourself.'},
-    tax:{title:'Sales tax codes',short:'Tax codes',lead:'The GST/HST, PST or QST codes on your invoices and bills, each linked to the GL accounts it posts to. Import them, start from Tegh’s Canadian codes, or create your own.'},
-    banks:{title:'Bank and card accounts',short:'Bank accounts',lead:'The chequing, savings and credit card accounts you will import statements for. Each one is linked to its own GL account.'},
+    tax:{title:'Sales tax codes',short:'Tax codes',get lead(){return indiaEdition()?'GST codes (CGST + SGST or IGST) made from the GST rate rules you approve in India Masters, each linked to its GL accounts.':'The GST/HST, PST or QST codes on your invoices and bills, each linked to the GL accounts it posts to. Import them, start from Tegh’s Canadian codes, or create your own.'}},
+    banks:{title:'Bank and card accounts',short:'Bank accounts',get lead(){return indiaEdition()?'The current, savings, cash credit and credit card accounts you will import statements for. Each one is linked to its own GL account.':'The chequing, savings and credit card accounts you will import statements for. Each one is linked to its own GL account.'}},
     imports:{title:'Bring in your data',short:'Data import',lead:'Customers, vendors, products, unpaid invoices and opening balances from your previous system. Import what you have; skip anything you will enter as you go.'},
     team:{title:'Team and invoices',short:'Team & invoices',lead:'Invite your bookkeeper or accountant and choose how your invoices look. If you work alone, mark this step complete.'}
   };
@@ -3492,20 +3492,35 @@ const TeghPortal = (() => {
   function openCompanySetup(){showPage('company-setup','Company Setup','Manual accounting setup is available here without creating a separate bookkeeping mode.',async body=>{
     const a=await auth(true),access=companyAccess(a);if(!access)throw Error('Select a company before opening Company Setup.');
     const canEdit=['owner','admin'].includes(access.role);
+    if(indiaEdition()){ // IN-7a: the India set-up cards (no Canadian tax, provinces, GIFI or tax-code report)
+      const cards=[['details','Company Details','Registrations (PAN, GSTIN, TAN, Udyam and others), address, time zone and financial year.'],['india-masters','India Masters','GST codes, statutory rules, GST registrations of parties, item HSN/SAC, employees and pay components.'],['coa','Chart of Accounts & Opening Balances','Create and maintain accounts and manual opening balances. Use Data Import for files.'],['india-home','India Home','The set-up checklist, with a link to each step.'],['currency','Currency Exchange Rates','Approved rates for foreign-currency documents; the books stay in INR.'],['dashboard','Dashboard Figures','Choose which GL accounts feed each dashboard number.'],['period','Period Locking','Review locked periods and, where permitted, close or reopen accounting periods.']];
+      body.innerHTML=`<section class="srp-card"><div class="srp-section-title"><div><small>Settings → Accounting</small><h2>Company Setup</h2><p>Set up this India company. Tax rates, sections and slabs are entered by you as statutory rules; Tegh supplies none.</p></div></div><div class="srp-option-grid srp-sites-workspace-options">${cards.map(([k,t,d])=>`<button type="button" data-company-setup="${k}"><span>${esc(t)}</span><small>${esc(d)}</small><b>→</b></button>`).join('')}</div></section>`;
+      $$('[data-company-setup]',body).forEach(button=>button.onclick=()=>({details:()=>openCompanyDetails(),'india-masters':()=>openIndiaMasters(),'india-home':()=>openIndiaHome(),dashboard:()=>openDashboardFigures(),coa:openOpeningBalances,currency:openCurrencies,period:openPeriodLocks}[button.dataset.companySetup]?.()));
+      return;
+    }
     body.innerHTML=`<section class="srp-card"><div class="srp-section-title"><div><small>Settings → Accounting</small><h2>Company Setup</h2><p>Use these controls when you want to configure the accounting structure yourself. Guided and Full Accounting continue to use the same company records and General Ledger.</p></div></div><div class="srp-option-grid srp-sites-workspace-options"><button type="button" data-company-setup="details"><span>Company Details</span><small>Fiscal dates, province, GST/HST, PST, accounting basis and payroll posting defaults.</small><b>→</b></button><button type="button" data-company-setup="sales-tax"><span>Tax Codes</span><small>Set up the taxes you charge and pay (GST, HST, PST, QST…), their rates, provinces and GL accounts.</small><b>→</b></button><button type="button" data-company-setup="coa"><span>Chart of Accounts &amp; Opening Balances</span><small>Create and maintain accounts, GIFI mapping and manual opening balances. Use Data Import for files.</small><b>→</b></button><button type="button" data-company-setup="currency"><span>Currency Exchange Rates</span><small>Maintain approved rates used for foreign source transactions while GL reporting remains in the base currency.</small><b>→</b></button><button type="button" data-company-setup="tax-report"><span>Tax Code Report</span><small>Every tax code with rates, GL accounts, region and use on documents; select codes to edit them.</small><b>→</b></button><button type="button" data-company-setup="dashboard"><span>Dashboard Figures</span><small>Choose which GL accounts feed each dashboard number (bank, receivables, payables, profit, sales tax).</small><b>→</b></button><button type="button" data-company-setup="period"><span>Period Locking</span><small>Review locked periods and, where permitted, close or reopen accounting periods.</small><b>→</b></button></div>${canEdit?'':'<p class="srp-note">Your role can review setup information. Changes remain subject to the existing company permissions on each setup screen.</p>'}</section>`;
     $$('[data-company-setup]',body).forEach(button=>button.onclick=()=>({details:openCompanyDetails,'sales-tax':()=>openTaxCodes(),'tax-report':()=>openTaxCodeReport(),dashboard:()=>openDashboardFigures(),coa:openOpeningBalances,currency:openCurrencies,period:openPeriodLocks}[button.dataset.companySetup]?.()));
   },{module:'My account',route:'company-setup'})}
 
   // IN-1: Company details in the India edition: the Indian registration details recorded at creation (read-only in IN-1;
   // editing them comes with the India onboarding in IN-2). The Canadian form below is unchanged.
-  function openIndiaCompanyDetails(targetCompanyId=companyId()){showPage('company-details','Company details','The business and registration details of this India company.',async body=>{
-    const a=await auth(true),c=(a.companies||[]).find(x=>x.id===targetCompanyId);if(!c)throw Error('The selected company is unavailable.');
-    const i=c.india||{},st=(a.indiaReference?.states||[]).find(x=>x.code===String(c.province||'').toUpperCase());
-    const fy=String(c.fiscalYearEnd||'03-31')==='03-31'?'1 April to 31 March':`Ends ${c.fiscalYearEnd}`;
-    const rows=[['Company name',c.name],['Legal name',c.legalName],['Trade name',i.tradeName],['Constitution',i.constitutionLabel],['PAN',i.panMasked],['GSTIN',i.gstin],['TAN',i.tanMasked],['CIN / LLPIN',i.cin],
-      ['Address',[c.addressLine1,c.addressLine2,c.city,i.district].filter(Boolean).join(', ')],['State or union territory',st?`${st.name} (GST state code ${st.gstCode})`:c.province],['PIN code',i.pin],
-      ['Currency','INR (Indian rupee)'],['Financial year',fy],['Start of books',c.booksStartDate?date(c.booksStartDate):''],['Accounting basis',titleCasePhrase(c.accountingBasis||'accrual')]];
-    body.innerHTML=`<section class="srp-card in1-company-details"><dl class="srp-detail-list">${rows.map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v||'—')}</dd></div>`).join('')}</dl><p class="srp-note">These details were recorded when the company was created. Editing them, GST registrations for other states and the set-up steps come in the next India release.</p></section>`;
+  function openIndiaCompanyDetails(targetCompanyId=companyId(),editMode=false){showPage('company-details','Company details','The business, registrations, address and books of this India company.',async body=>{
+    const a=await auth(true),ref=a.indiaReference||{},d=await api('india/company',{noCache:true}),F=window.TeghIndiaCompanyForm;
+    if(editMode&&d.canEdit&&F){
+      body.innerHTML=`<section class="srp-card in7-company">${F.markup(ref,{...d,state:d.state},'edit')}</section>`;
+      const form=$('[data-in7-company-form]',body);$('[data-in7-cancel]',form).onclick=()=>openIndiaCompanyDetails(targetCompanyId,false);
+      F.bind(form,ref,async data=>{try{await api('india/company',{method:'POST',json:data})}catch(error){throw Error(userFacingError(error))}authCache=null;toast('Saved','The company details were saved.','success');openIndiaCompanyDetails(targetCompanyId,false)});return}
+    const st=(ref.states||[]).find(x=>x.code===String(d.state||'').toUpperCase()),ad=d.address||{},rg=d.registrations||{};
+    const msme={micro:'Micro',small:'Small',medium:'Medium'}[rg.msmeCategory]||'';
+    const rows=[['Company name',d.name],['Legal name',d.legalName],['Trade name',d.tradeName],['Constitution',d.constitutionLabel],['Nature of business',rg.businessActivity],
+      ['PAN',d.pan],['GSTIN',d.gstin],['TAN',d.tan],['CIN / LLPIN',d.cin],['Udyam registration',rg.udyamNumber?`${rg.udyamNumber}${msme?` (${msme})`:''}`:''],['IEC',rg.iec],['EPF establishment code',rg.epfEstablishmentCode],['ESIC employer code',rg.esicEmployerCode],
+      ['Professional Tax registration (PTRC)',rg.ptRegistration],['Professional Tax enrolment (PTEC)',rg.ptEnrolment],['Shops and Establishment',rg.shopsEstablishment],['Labour Welfare Fund',rg.lwfRegistration],['LEI',rg.lei],['FSSAI',rg.fssai],
+      ['Address',[ad.building,ad.street,ad.locality,ad.landmark?`Near ${ad.landmark}`:'',ad.city,ad.district].filter(Boolean).join(', ')],['State or union territory',st?`${st.name} (GST state code ${st.gstCode})`:d.state],['PIN code',d.pin],['Country','India'],
+      ['Currency','INR (Indian rupee)'],['Time zone',String(d.timezone||'').replace(/_/g,' ')],['Financial year',`${date(d.financialYearStart)} to ${date(d.financialYearEnd)}`],['Start of books',d.booksStartDate?date(d.booksStartDate):''],['Accounting basis',titleCasePhrase(d.accountingBasis||'accrual')]];
+    body.innerHTML=`<section class="srp-card in1-company-details"><dl class="srp-detail-list">${rows.filter(([,v])=>v!==undefined).map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v||'—')}</dd></div>`).join('')}</dl>
+      ${d.canEdit?'<div class="srp-actions"><button class="srp-btn" type="button" data-in7-edit>Edit company details</button></div>':'<p class="srp-note">Only the Company Owner or an Admin changes these details.</p>'}
+      <p class="srp-note">GST registrations in other states, and the history of every registration, are kept in Settings › Company details › India Masters.</p></section>`;
+    const edit=$('[data-in7-edit]',body);if(edit)edit.onclick=()=>openIndiaCompanyDetails(targetCompanyId,true);
   },{module:'My account'})}
   // IN-2: India masters. One page, driven by the field specification the server validates with.
   // IN-3: GST Summary (India only): computed from issued customer invoices and posted vendor invoices that use GST codes.
@@ -3703,6 +3718,25 @@ const TeghPortal = (() => {
     body.innerHTML=`<section class="srp-card in6-help" data-in6-help>${T.map(([h,p])=>`<section><h3>${esc(h)}</h3><p>${esc(p)}</p></section>`).join('')}<div class="srp-actions"><button class="srp-btn secondary" type="button" data-in6-home>India Home</button></div></section>`;
     $('[data-in6-home]',body).onclick=()=>openIndiaHome();
   },{module:'My account'})}
+  // IN-7a: in an India company every customer or vendor form (full form, quick-add dialog) takes a full Indian address:
+  // flat/building, street, area, landmark, city or town, district, state, PIN. The server composes address lines 1 and 2
+  // from these parts, so invoices and statements print the whole address; the parts are kept for editing.
+  function in7EnhanceAddressForm(form){
+    if(!indiaEdition()||form.dataset.in7Address)return;const l1=form.querySelector('[name="addressLine1"]');if(!l1||!form.querySelector('[name="postalCode"]'))return;form.dataset.in7Address='1';
+    const l2=form.querySelector('[name="addressLine2"]'),city=form.querySelector('[name="city"]'),pin=form.querySelector('[name="postalCode"]'),lab=el=>el?.closest('label');
+    const relabel=(el,text)=>{const L=lab(el);if(!L)return;const node=[...L.childNodes].find(n=>n.nodeType===3&&n.textContent.trim());if(node)node.textContent=text;else L.insertBefore(document.createTextNode(text),L.firstChild)};
+    const make=(name,text,max)=>{const L=document.createElement('label');L.dataset.in7Part=name;L.append(document.createTextNode(text));const i=document.createElement('input');i.name=name;i.maxLength=max;L.append(i);return L};
+    const parts=[make('indiaBuilding','Flat, door or building',150),make('indiaStreet','Street or road',150),make('indiaLocality','Area or locality',120),make('indiaLandmark','Landmark',120)],district=make('indiaDistrict','District',100);
+    const anchor=lab(l1);if(!anchor)return;parts.forEach(p=>anchor.parentNode.insertBefore(p,anchor));[l1,l2].forEach(el=>{const L=lab(el);if(L)L.hidden=true});
+    const cityLabel=lab(city);if(cityLabel)cityLabel.after(district);else parts[3].after(district);
+    if(city)relabel(city,'City or town');if(pin){relabel(pin,'PIN code');pin.inputMode='numeric';pin.maxLength=6;pin.pattern='[1-9][0-9]{5}';pin.title='6 digits, not starting with 0'}
+    const set=a=>{if(!a)return;form.indiaBuilding.value=a.building||'';form.indiaStreet.value=a.street||'';form.indiaLocality.value=a.locality||'';form.indiaLandmark.value=a.landmark||'';form.indiaDistrict.value=a.district||''};
+    set({building:l1.value||'',locality:l2?.value||''});
+    const id=form.dataset.editingId,type=form.matches('[data-vendor-form]')||form.querySelector('[name="defaultExpenseAccountId"]')?'vendor':'customer';
+    if(id)api('india/party-address',{params:{type,id},noCache:true}).then(r=>{if(r?.address)set(r.address)}).catch(()=>{});
+  }
+  try{const scan=root=>{if(!indiaEdition())return;(root.matches?.('form')?[root]:[]).concat([...(root.querySelectorAll?.('form')||[])]).forEach(in7EnhanceAddressForm)};
+    new MutationObserver(list=>{if(!indiaEdition())return;for(const m of list)for(const n of m.addedNodes)if(n.nodeType===1)scan(n)}).observe(document.documentElement,{childList:true,subtree:true})}catch{}
   function openIndiaMasters(startTab='profiles'){if(!indiaEdition()){toast('Not available','India masters are available only in India companies.','error');return}showPage('india-masters','India masters','Registrations, classifications, records and statutory rules of this India company. Every change carries an effective date and earlier versions are kept.',async body=>{
     if(!indiaEdition())throw Error('India masters are available only in India companies.');
     const spec=await api('india/masters/spec',{noDedupe:true}),st={tab:startTab,entity:'company',entityId:'',recordType:'gst_registration',category:''},lists={},recordCache={};let rules=null;
@@ -3870,42 +3904,11 @@ const TeghPortal = (() => {
   // PIN code and the Indian starter chart of accounts (or a blank chart). The server checks every identifier again.
   function openCreateIndiaCompany(){
     showPage('company-create','Add company','Create a separate set of books for an Indian business. Tax codes, payroll and reports are set up after the company exists.',async body=>{
-      const a=await auth(true),ref=a.indiaReference||{states:[],constitutions:[]},today=todayIso(),fyStart=Number(today.slice(5,7))>=4?`${today.slice(0,4)}-04-01`:`${Number(today.slice(0,4))-1}-04-01`;
-      body.innerHTML=`<section class="srp-card in1-company"><form class="srp-form" data-in1-company-form novalidate>
-        <h2 class="full">Business</h2>
-        <label>Company name<input name="name" required maxlength="160" autocomplete="organization"></label>
-        <label>Legal name (as on PAN)<input name="legalName" maxlength="200"></label>
-        <label>Trade name (optional)<input name="tradeName" maxlength="200"></label>
-        <label>Constitution<select name="constitution" required>${ref.constitutions.map(c=>`<option value="${esc(c.code)}" ${c.code==='private_limited'?'selected':''}>${esc(c.label)}</option>`).join('')}</select></label>
-        <h2 class="full">Registration</h2>
-        <label>PAN<input name="pan" maxlength="10" autocapitalize="characters" placeholder="AAACT1234F" pattern="[A-Za-z]{5}[0-9]{4}[A-Za-z]"></label>
-        <label>GSTIN (leave blank if not registered)<input name="gstin" maxlength="15" autocapitalize="characters" placeholder="27AAACT1234F1Z5"></label>
-        <label>TAN (optional)<input name="tan" maxlength="10" autocapitalize="characters"></label>
-        <label>CIN or LLPIN (optional)<input name="cin" maxlength="21" autocapitalize="characters"></label>
-        <h2 class="full">Address</h2>
-        <label class="full">Address line 1<input name="addressLine1" maxlength="200"></label>
-        <label class="full">Address line 2<input name="addressLine2" maxlength="200"></label>
-        <label>City<input name="city" maxlength="100"></label>
-        <label>District<input name="district" maxlength="100"></label>
-        <label>State or union territory<select name="state" required><option value="">Choose</option>${ref.states.map(st=>`<option value="${esc(st.code)}" data-gst="${esc(st.gstCode)}">${esc(st.name)} (${esc(st.gstCode)})</option>`).join('')}</select></label>
-        <label>PIN code<input name="pin" maxlength="6" inputmode="numeric" pattern="[1-9][0-9]{5}"></label>
-        <h2 class="full">Books</h2>
-        <label>Currency<input value="INR (Indian rupee)" readonly aria-readonly="true"></label>
-        <label>Financial year ends<select name="fiscalYearEnd"><option value="03-31" selected>31 March</option><option value="12-31">31 December</option></select></label>
-        <label>Start of books<input type="date" name="booksStartDate" value="${esc(fyStart)}" required></label>
-        <label>Accounting basis<select name="accountingBasis"><option value="accrual" selected>Accrual</option><option value="cash">Cash</option></select></label>
-        <label class="full">Chart of accounts<select name="coaMode"><option value="default" selected>Indian starter chart (Schedule III headings; edit any account later)</option><option value="manual">Start blank and add my own accounts</option></select></label>
-        <p class="full srp-note">After the company is created, set up your tax codes, payroll components and reports under Settings. Tegh does not add tax rates for you.</p>
-        <p class="full" role="alert" data-in1-error hidden></p>
-        <div class="full srp-actions"><button type="submit" class="srp-btn" data-in1-create>Create company</button></div></form></section>`;
-      const form=$('[data-in1-company-form]',body),err=$('[data-in1-error]',form);
-      form.gstin.addEventListener('change',()=>{const g=form.gstin.value.trim().toUpperCase();form.gstin.value=g;if(/^[0-9]{2}/.test(g)){const st=ref.states.find(x=>x.gstCode===g.slice(0,2));if(st&&!form.state.value)form.state.value=st.code}if(g.length===15&&!form.pan.value)form.pan.value=g.slice(2,12)});
-      ['pan','tan','cin'].forEach(n=>form[n].addEventListener('change',()=>{form[n].value=form[n].value.trim().toUpperCase()}));
-      form.onsubmit=async e=>{e.preventDefault();err.hidden=true;if(!form.reportValidity())return;const btn=$('[data-in1-create]',form);btn.disabled=true;
-        try{const data=Object.fromEntries(new FormData(form));const r=await api('companies',{method:'POST',json:data});
-          const id=r.company?.id;if(!id)throw Error('The company was not returned.');toast('Company created',`${data.name} is ready. Next: set up tax codes and your bank account.`,'success');
-          authCache=null;try{localStorage.setItem('sr-accountax-company',id);localStorage.setItem('sr-accountax-companies',JSON.stringify([id]))}catch{}location.reload()}
-        catch(error){btn.disabled=false;err.hidden=false;err.textContent=userFacingError(error)}};
+      const a=await auth(true),ref=a.indiaReference||{states:[],constitutions:[]},F=window.TeghIndiaCompanyForm;
+      body.innerHTML=`<section class="srp-card in1-company">${F.markup(ref,{},'create')}</section>`;
+      F.bind($('[data-in7-company-form]',body),ref,async data=>{let r;try{r=await api('companies',{method:'POST',json:data})}catch(error){throw Error(userFacingError(error))}
+        const id=r.company?.id;if(!id)throw Error('The company was not returned.');toast('Company created',`${data.name} is ready. Next: work down the set-up checklist in India Home.`,'success');
+        authCache=null;try{localStorage.setItem('sr-accountax-company',id);localStorage.setItem('sr-accountax-companies',JSON.stringify([id]))}catch{}location.reload()});
     },{module:'My account'});
   }
   function openCreateCompany(options={}){if(indiaEdition()&&!options.testMode)return openCreateIndiaCompany();showPage('company-create',options.testMode?'Create Temporary Test Company':'Add company or client file',options.testMode?'Create an isolated sample company for testing through the Tegh Chrome extension.':'Create a completely separate accounting database for a business or client.',async body=>{
@@ -5825,11 +5828,11 @@ const TeghPortal = (() => {
     const editAccount=(account=null)=>{
       if(!management.canManage)return;
       const target=$('[data-bank-editor]',body),previous=$('[data-bank-account-form]',target);if(previous&&!confirmDiscard(previous))return;target.hidden=false;
-      const subtypes=[['chequing','Chequing'],['savings','Savings'],['credit_card','Credit card'],['line_of_credit','Line of credit'],['overdraft','Overdraft'],['other_bank','Other deposit account'],['other_credit','Other borrowing']];
+      const subtypes=indiaEdition()?[['current','Current account'],['savings','Savings account'],['fixed_deposit','Fixed deposit'],['cash_credit','Cash credit'],['overdraft','Overdraft'],['credit_card','Credit card'],['other_bank','Other deposit account'],['other_credit','Other borrowing']]:[['chequing','Chequing'],['savings','Savings'],['credit_card','Credit card'],['line_of_credit','Line of credit'],['overdraft','Overdraft'],['other_bank','Other deposit account'],['other_credit','Other borrowing']]; // IN-7a: Indian account kinds
       const currencies=[...new Set([currency,...(w.companyCurrencies||[]).map(x=>x.code),account?.currency].filter(Boolean))];
       target.innerHTML=`<form class="srp-form" data-bank-account-form><div class="full"><h3>${account?'Edit account':'Add bank or credit account'}</h3><p>Choose the account you use at your bank. Adding an account does not create an opening balance.</p></div><label>Account name<input name="name" maxlength="160" value="${esc(account?.name||'')}" required placeholder="Business savings"></label><label>Institution<input name="institution" maxlength="160" value="${esc(account?.institution||'')}" placeholder="Bank or card provider"></label><label>Account type<select name="accountSubtype">${subtypes.map(([value,label])=>`<option value="${value}" ${value===(account?.accountSubtype||'chequing')?'selected':''}>${label}</option>`).join('')}</select></label><label>Currency<select name="currency">${currencies.map(code=>`<option ${code===(account?.currency||currency)?'selected':''}>${esc(code)}</option>`).join('')}</select></label><label>Last four digits (optional)<input name="maskedNumber" maxlength="30" value="${esc(account?.maskedNumber||'')}" placeholder="•••• 1234" autocomplete="off"></label><label data-credit-limit>Credit limit (optional)<input name="creditLimit" type="number" min="0" step="0.01" value="${account?.creditLimitCents==null?'':(account.creditLimitCents/100).toFixed(2)}"><small>A limit is not an amount borrowed.</small></label><details class="full" ${account?'open':''}><summary>Accounting and reporting settings</summary><div class="srp-form"><label>Ledger account<select name="ledgerAccountId"></select></label><label data-new-ledger-code>New ledger code<input name="ledgerCode" maxlength="20" pattern="[A-Za-z0-9.-]+"><small>Use a different code for each bank or credit account.</small></label><label>Report classification<select name="reportingClassification"></select></label><label class="full">Terms and reporting notes<textarea name="termsNote" maxlength="2000" rows="3">${esc(account?.termsNote||'')}</textarea></label><label class="full"><input name="repayableOnDemand" type="checkbox" ${account?.repayableOnDemand?'checked':''}> Borrowing is repayable on demand</label><label class="full"><input name="integralCashManagement" type="checkbox" ${account?.integralCashManagement?'checked':''}> Overdraft is integral to daily cash management</label><label class="full"><input name="cashFlowOverdraftEligible" type="checkbox" ${account?.cashFlowOverdraftEligible?'checked':''}> Include this eligible overdraft in cash-flow cash balances</label><small class="full">Review the contract and reporting framework before selecting overdraft treatment. Used accounts keep their historical currency, ledger mapping and reporting classification.</small></div></details><div class="full srp-actions"><button class="srp-btn" type="submit">${account?'Save changes':'Add account'}</button><button class="srp-btn secondary" type="button" data-cancel-bank>Cancel</button></div><p class="full" data-bank-form-error role="alert" hidden></p></form>`;
       const form=$('[data-bank-account-form]',target);bindDirtyForm(form);
-      const family=()=>['chequing','savings','other_bank'].includes(form.accountSubtype.value)?'bank':'credit_card';
+      const family=()=>['chequing','savings','other_bank','current','fixed_deposit'].includes(form.accountSubtype.value)?'bank':'credit_card';
       const sync=initial=>{const isBank=family()==='bank',kind=isBank?'asset':'liability',current=initial?account?.ledgerAccountId:form.ledgerAccountId.value;
         const eligible=(w.accounts||[]).filter(a=>a.type===kind&&a.active!==false&&(!a.isControl||a.id===account?.ledgerAccountId)&&!accounts.some(b=>b.ledgerAccountId===a.id&&b.id!==account?.id));
         form.ledgerAccountId.innerHTML=`<option value="">Create a new ledger account</option>${eligible.map(a=>`<option value="${esc(a.id)}" ${a.id===current?'selected':''}>${esc(a.code)} · ${esc(a.name)}</option>`).join('')}`;
@@ -9252,7 +9255,7 @@ const TeghPortal = (() => {
     openOnboarding,openTeghTour,loadOnboarding,
     openReconciliation:()=>openBankReconciliation(),
     // R187.
-    openJournalEntry,openInterbankJournal,openReportsDashboard,openBankReconciliationCompletion,openBankReconciliationReport,openDocumentEditor,openDocumentView,openGifiReport,openDayBook,openIndiaMasters,openGstSummary,openGstReturns,openIndiaPayroll,openIndiaTds,openIndiaHome,openIndiaHelp,
+    openJournalEntry,openInterbankJournal,openReportsDashboard,openBankReconciliationCompletion,openBankReconciliationReport,openDocumentEditor,openDocumentView,openGifiReport,openDayBook,openIndiaMasters,openGstSummary,openGstReturns,openIndiaPayroll,openIndiaTds,openIndiaHome,openIndiaHelp,openCompanyDetails,openCompanySetup,openCustomers,
     openGuidedStatements,openGuidedMapping,openConnectAccountant,
     quickActions:quickActionService
   };

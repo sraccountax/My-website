@@ -98,7 +98,7 @@ try {
     const stale = await P(IN, 'record', {recordType: 'gst_registration', entity: 'company', effectiveFrom: '2026-12-01', replacesId: ka.id, data: {gstin: gstin('29' + PAN + '1Z'), registrationType: 'regular', status: 'active', validFrom: '2026-04-01'}});
     const old = sql(`SELECT CONCAT_WS('|',status,effective_to) FROM india_master_records WHERE id='${ka.id}'`), nw = sql(`SELECT CONCAT_WS('|',status,replaces_id) FROM india_master_records WHERE id='${ch.id}'`);
     const active = need('list', await G(IN, 'records', '?recordType=gst_registration')).records, all = need('hist', await G(IN, 'records', '?recordType=gst_registration&history=1')).records;
-    return {ok: foreign.s === 422 && foreign.b.code === 'india_gstin_pan' && badCheck.s === 422 && noDate.s === 422 && old === 'superseded|2026-10-31' && nw === `active|${ka.id}` && stale.s === 409 && active.length === 1 && all.length === 2,
+    return {ok: foreign.s === 422 && foreign.b.code === 'india_gstin_pan' && badCheck.s === 422 && noDate.s === 422 && old === 'superseded|2026-10-31' && nw === `active|${ka.id}` && stale.s === 409 && active.length === 2 && all.length === 3, // IN-7a: the GSTIN given at company creation is the first registration record
       info: JSON.stringify({foreign: foreign.b.code, badCheck: badCheck.b.code, noDate: noDate.b.code, old, nw, stale: stale.b.code, active: active.length, all: all.length})};
   });
 
@@ -160,7 +160,7 @@ try {
         const profileFields = await p.locator('[data-in2-profile] [name^=f_]').count();
         const msme = await p.locator('[data-in2-profile] [name=f_msmeCategory]').inputValue();
         await p.click('[data-in2-tab=records]'); await p.waitForSelector('[data-in2-record]', {timeout: 15000});
-        const gstRows = await p.locator('.in2-records tbody tr[data-in2-row]').count();
+        const gstRows = await p.locator('.in2-records tbody tr[data-in2-row]').count(); // the creation registration + the Karnataka one
         await p.click('[data-in2-tab=rules]'); await p.waitForSelector('[data-in2-rule-form]', {timeout: 15000});
         await p.selectOption('[data-in2-rule-form] [name=category]', 'gst_rate');
         await p.fill('[data-in2-rule-form] [name=code]', 'UI-RATE-' + tag); await p.fill('[data-in2-rule-form] [name=label]', 'Synthetic UI rate');
@@ -174,7 +174,7 @@ try {
         const db = sql(`SELECT CONCAT_WS('|',status,value_decimal*1e0) FROM statutory_rates WHERE company_id='${INCO}' AND rate_key='UI-RATE-${tag}'`);
         const text = await p.evaluate(() => document.querySelector('[data-in2-body]')?.innerText || '');
         const canadian = text.match(/GST\/HST|\bHST\b|\bPST\b|\bCRA\b|GIFI|Canada|Canadian|[Pp]rovince|\bCAD\b/g) || [];
-        return {ok: profileFields >= 7 && msme === 'medium' && gstRows === 1 && db === 'active|3' && !canadian.length && !errs.length, info: JSON.stringify({profileFields, msme, gstRows, db, canadian, errs})};
+        return {ok: profileFields >= 7 && msme === 'medium' && gstRows === 2 && db === 'active|3' && !canadian.length && !errs.length, info: JSON.stringify({profileFields, msme, gstRows, db, canadian, errs})};
       } finally { await ctx.close(); }
     });
     await t('UI-02', 'Canadian company: no India Masters item in the menus', async () => {

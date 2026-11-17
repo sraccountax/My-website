@@ -816,6 +816,7 @@ function handle_workspace(): never
 /** @return array<string,mixed> */
 function customer_record_values(array $company, array $input): array
 {
+    if (function_exists('tegh_india_party_input')) $input = tegh_india_party_input($company, $input); // IN-7a
     $name = clean_text($input['name'] ?? '', 'Customer name', 160);
     $contactName = optional_text($input['contactName'] ?? null, 160);
     $emailRaw = trim((string)($input['email'] ?? ''));
@@ -853,6 +854,7 @@ function create_customer_record(array $user, array $company, array $input, strin
 {
     require_company_permission($company, 'customers.write');
     $companyId = (string)$company['id'];
+    if (function_exists('tegh_india_party_input')) $input = tegh_india_party_input($company, $input); // IN-7a (before the transaction: first-use table)
     $values = customer_record_values($company, $input);
     $dupe=db()->prepare('SELECT id FROM customers WHERE company_id=? AND name=? LIMIT 1');$dupe->execute([$companyId,$values['name']]);
     if($dupe->fetchColumn()!==false)fail('A customer with that name already exists in this company.',409,'duplicate_customer');
@@ -868,6 +870,7 @@ function create_customer_record(array $user, array $company, array $input, strin
             'name'=>$values['name'],'contactName'=>$values['contactName'],'status'=>$values['status'],'defaultTermsDays'=>$values['termsDays'],
             'openingBalanceCents'=>$values['openingBalanceCents'],'initiatedVia'=>$source==='ask_tegh'?'Ask Tegh':($source==='import'?'Data Import':'Manual UI'),
         ]);
+        if (function_exists('tegh_india_party_address_save')) tegh_india_party_address_save($companyId, 'customer', $id, $input); // IN-7a
         if($values['status']==='on_hold')audit_event($user,$companyId,'customer.hold_placed','customer',$id,['previousStatus'=>'new','remarks'=>$values['holdRemarks']]);
         if($ownsTransaction)db()->commit();
     } catch(Throwable $e) { if($ownsTransaction&&db()->inTransaction())db()->rollBack(); throw $e; }
@@ -900,6 +903,7 @@ function handle_customers(): never
         $customer=create_customer_record($user,$company,$input);
         json_response(['customer'=>$customer],201);
     }
+    if (function_exists('tegh_india_party_input')) $input = tegh_india_party_input($company, $input); // IN-7a
     $values=customer_record_values($company,$input);
     $id=clean_text($input['customerId']??'','Customer',64);
     $existingStmt=db()->prepare('SELECT * FROM customers WHERE id=? AND company_id=? LIMIT 1');$existingStmt->execute([$id,$companyId]);$existing=$existingStmt->fetch();
@@ -923,6 +927,7 @@ function handle_customers(): never
             if($oldStatus==='on_hold')tegh_customer_hold_state($user,$company,$id,'active',null,$input['releaseRemarks']??null);
             else db()->prepare("UPDATE customers SET status='active',active=1 WHERE id=? AND company_id=?")->execute([$id,$companyId]);
         }else tegh_customer_hold_state($user,$company,$id,'inactive',null);
+        if (function_exists('tegh_india_party_address_save')) tegh_india_party_address_save($companyId, 'customer', $id, $input); // IN-7a
         audit_event($user,$companyId,'customer.updated','customer',$id,['name'=>$locked?(string)$existing['name']:$values['name'],'status'=>$values['status'],'defaultTermsDays'=>$values['termsDays']]);
         db()->commit();
     }catch(Throwable $e){if(db()->inTransaction())db()->rollBack();throw $e;}

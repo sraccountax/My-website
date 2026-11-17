@@ -279,6 +279,8 @@ require_once __DIR__ . '/report_comparison_r20.php';
     if ($route === 'payments') handle_party_payments();
     if ($route === 'currencies') handle_currencies();
     if (str_starts_with($route, 'currencies/')) handle_currencies_r181(substr($route, strlen('currencies/')));
+    if ($route === 'india/party-address') { $u = require_user(); $c = require_company($u); if (!function_exists('tegh_company_edition') || tegh_company_edition($c) !== 'IN') fail('Not found.', 404, 'india_only'); $t = ($_GET['type'] ?? '') === 'vendor' ? 'vendor' : 'customer'; require_company_permission($c, $t === 'vendor' ? 'vendors.view' : 'customers.view'); json_response(['address' => tegh_india_party_address_get((string)$c['id'], $t, clean_text($_GET['id'] ?? '', 'Record', 64))]); } // IN-7a
+    if ($route === 'india/company') { $u = require_user(); $c = require_company($u); if (!function_exists('tegh_company_edition') || tegh_company_edition($c) !== 'IN') fail('Not found.', 404, 'india_only'); if (request_method() === 'GET') json_response(tegh_india_company_details($c)); require_method('POST'); require_csrf(); json_response(tegh_india_company_update($u, $c, request_json())); } // IN-7a
     if (str_starts_with($route, 'india/gst/')) handle_india_gst(substr($route, strlen('india/gst/'))); // IN-3
     if (str_starts_with($route, 'india/tds/')) { require_once __DIR__ . '/india_tds_in6.php'; handle_india_tds(substr($route, strlen('india/tds/'))); } // IN-6
     if (str_starts_with($route, 'india/payroll/')) { require_once __DIR__ . '/india_payroll_in5.php'; handle_india_payroll(substr($route, strlen('india/payroll/'))); } // IN-5

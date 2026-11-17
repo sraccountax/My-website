@@ -557,7 +557,9 @@ function tegh_bank_profile_normalize(array $input, ?array $existing = null): arr
     $prior = $existing ? tegh_bank_profile($existing) : [];
     $subtype = (string)($input['accountSubtype'] ?? $prior['accountSubtype'] ?? (($input['accountType'] ?? 'bank') === 'bank' ? 'chequing' : 'credit_card'));
     $families = ['chequing'=>'bank','savings'=>'bank','other_bank'=>'bank','credit_card'=>'credit_card',
-        'line_of_credit'=>'credit_card','overdraft'=>'credit_card','other_credit'=>'credit_card'];
+        'line_of_credit'=>'credit_card','overdraft'=>'credit_card','other_credit'=>'credit_card',
+        // IN-7a: Indian account kinds (offered only in India companies).
+        'current'=>'bank','fixed_deposit'=>'bank','cash_credit'=>'credit_card'];
     if (!isset($families[$subtype])) fail('Choose a supported bank or credit account type.',422,'bank_subtype_invalid');
     $family = $families[$subtype];
     if (isset($input['accountType']) && (string)$input['accountType'] !== $family) fail('The account type and accounting family do not agree.',422,'bank_family_invalid');

@@ -1382,7 +1382,68 @@
   const FIRST_COMPANY_TIMEZONES=[['America/St_Johns','Newfoundland'],['America/Halifax','Atlantic'],['America/Toronto','Eastern'],['America/Winnipeg','Central'],['America/Regina','Saskatchewan'],['America/Edmonton','Mountain'],['America/Vancouver','Pacific'],['America/Whitehorse','Yukon']];
   function firstCompanyBrowserTimezone(){try{return Intl.DateTimeFormat().resolvedOptions().timeZone||''}catch{return ''}}
   function firstCompanyTimezoneOptions(){const own=firstCompanyBrowserTimezone(),pick=FIRST_COMPANY_TIMEZONES.some(([z])=>z===own)?own:'America/Toronto';return FIRST_COMPANY_TIMEZONES.map(([z,label])=>`<option value="${z}" ${z===pick?'selected':''}>${label} (${z.split('/')[1].replace('_',' ')})</option>`).join('')}
+  // IN-7a: the India company form, shared by the first-company screen (India sign-in), Add company and Company details.
+  // Every IANA time zone, financial year chosen by its start and end dates, a full Indian address, the registrations,
+  // INR only and a current or savings first bank account. Canadian sign-ins never see it.
+  const IN7_REGISTRATIONS=[['businessActivity','Nature of business','',200],['udyamNumber','Udyam registration number','UDYAM-MH-01-0000001',19],['iec','Importer-Exporter Code (IEC)','',10],['epfEstablishmentCode','EPF establishment code','MHBAN0012345000',15],['esicEmployerCode','ESIC employer code (17 digits)','',17],['ptRegistration','Professional Tax registration (PTRC)','',40],['ptEnrolment','Professional Tax enrolment (PTEC)','',40],['shopsEstablishment','Shops and Establishment registration','',40],['lwfRegistration','Labour Welfare Fund registration','',40],['lei','Legal Entity Identifier (LEI)','',20],['fssai','FSSAI licence or registration (14 digits)','',14]];
+  function in7Zones(){let z=[];try{z=Intl.supportedValuesOf('timeZone')}catch{}if(!z.length)z=['Asia/Kolkata','Asia/Dubai','Asia/Singapore','Europe/London','America/New_York','UTC'];if(!z.includes('Asia/Kolkata'))z.unshift('Asia/Kolkata');return z}
+  function in7Esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c])}
+  function in7AddYear(d){const t=new Date(d+'T00:00:00Z');if(isNaN(t))return '';t.setUTCFullYear(t.getUTCFullYear()+1);t.setUTCDate(t.getUTCDate()-1);return t.toISOString().slice(0,10)}
+  function in7CompanyFormMarkup(ref,v={},mode='create'){
+    const e=in7Esc,today=new Date().toISOString().slice(0,10),fyStart=v.financialYearStart||(Number(today.slice(5,7))>=4?`${today.slice(0,4)}-04-01`:`${Number(today.slice(0,4))-1}-04-01`),fyEnd=v.financialYearEnd||in7AddYear(fyStart),a=v.address||{},r=v.registrations||{},zone=v.timezone||'Asia/Kolkata',edit=mode==='edit';
+    const inp=(name,label,val='',extra='')=>`<label>${label}<input name="${name}" value="${e(val)}" ${extra}></label>`;
+    return `<form class="srp-form in7-company-form" data-in7-company-form data-mode="${mode}" novalidate>
+      <h2 class="full">Business</h2>
+      ${inp('name','Company name',v.name,'required maxlength="160" autocomplete="organization"')}${inp('legalName','Legal name (as on PAN)',v.legalName,'maxlength="200"')}${inp('tradeName','Trade name (optional)',v.tradeName,'maxlength="200"')}
+      <label>Constitution<select name="constitution" ${edit?'disabled':''} required>${(ref.constitutions||[]).map(c=>`<option value="${e(c.code)}" ${c.code===(v.constitution||'private_limited')?'selected':''}>${e(c.label)}</option>`).join('')}</select></label>
+      <h2 class="full">Tax and legal registrations</h2>
+      ${inp('pan','PAN',v.pan,'maxlength="10" autocapitalize="characters" placeholder="AAACT1234F"')}${inp('gstin','GSTIN (leave blank if not registered)',v.gstin,'maxlength="15" autocapitalize="characters" placeholder="27AAACT1234F1Z5"')}
+      ${edit?'':`<label>GST registration type<select name="gstRegistrationType">${(ref.gstRegistrationTypes||[{code:'regular',label:'Regular'},{code:'composition',label:'Composition'}]).map(t=>`<option value="${e(t.code)}">${e(t.label)}</option>`).join('')}</select></label>`}
+      ${inp('tan','TAN (needed to deduct TDS)',v.tan,'maxlength="10" autocapitalize="characters" placeholder="MUMA12345B"')}${inp('cin','CIN or LLPIN',v.cin,'maxlength="21" autocapitalize="characters"')}
+      <label>MSME category<select name="reg_msmeCategory"><option value="">Not MSME</option>${[['micro','Micro'],['small','Small'],['medium','Medium']].map(([c,l])=>`<option value="${c}" ${r.msmeCategory===c?'selected':''}>${l}</option>`).join('')}</select></label>
+      ${IN7_REGISTRATIONS.map(([k,l,ph,max])=>inp('reg_'+k,l+(k==='businessActivity'?'':' (optional)'),r[k],`maxlength="${max}" ${ph?`placeholder="${e(ph)}"`:''}`)).join('')}
+      <h2 class="full">Registered address</h2>
+      ${inp('building','Flat, door or building',a.building,'maxlength="150"')}${inp('street','Street or road',a.street,'maxlength="150"')}${inp('locality','Area or locality',a.locality,'maxlength="120"')}${inp('landmark','Landmark (optional)',a.landmark,'maxlength="120"')}
+      ${inp('city','City or town',a.city||v.city,'maxlength="100"')}${inp('district','District',a.district||v.district,'maxlength="100"')}
+      <label>State or union territory<select name="state" required><option value="">Choose</option>${(ref.states||[]).map(st=>`<option value="${e(st.code)}" data-gst="${e(st.gstCode)}" ${st.code===v.state?'selected':''}>${e(st.name)} (${e(st.gstCode)})</option>`).join('')}</select></label>
+      ${inp('pin','PIN code',v.pin,'maxlength="6" inputmode="numeric" pattern="[1-9][0-9]{5}"')}<label>Country<input value="India" readonly aria-readonly="true"></label>
+      <h2 class="full">Books</h2>
+      <label>Currency<input value="INR (Indian rupee)" readonly aria-readonly="true"></label>
+      <label>Time zone<select name="timezone">${in7Zones().map(z=>`<option value="${e(z)}" ${z===zone?'selected':''}>${e(z.replace(/_/g,' '))}</option>`).join('')}</select></label>
+      <label>Financial year starts<input type="date" name="financialYearStart" value="${e(fyStart)}" required ${v.fyLocked?'readonly':''}></label>
+      <label>Financial year ends<input type="date" name="financialYearEnd" value="${e(fyEnd)}" required ${v.fyLocked?'readonly':''}></label>
+      ${edit?(v.fyLocked?'<p class="full srp-note">The financial year cannot change once the company has entries.</p>':''):`<label>Start of books<input type="date" name="booksStartDate" value="${e(fyStart)}" required></label>
+      <label>Accounting basis<select name="accountingBasis"><option value="accrual" selected>Accrual</option><option value="cash">Cash</option></select></label>
+      <label>First bank account<select name="bankAccountType">${(ref.bankAccountTypes||[{code:'current',label:'Current Account'},{code:'savings',label:'Savings Account'}]).map(t=>`<option value="${e(t.code)}">${e(t.label)}</option>`).join('')}</select></label>
+      <label class="full">Chart of accounts<select name="coaMode"><option value="default" selected>Indian starter chart (Schedule III headings; edit any account later)</option><option value="manual">Start blank and add my own accounts</option></select></label>
+      <p class="full srp-note">After the company is created, set up GST codes, payroll components and TDS sections under Settings. Tegh does not add tax rates for you.</p>`}
+      <p class="full" role="alert" data-in7-error hidden></p>
+      <div class="full srp-actions"><button type="submit" class="srp-btn" data-in7-submit>${edit?'Save company details':'Create company'}</button>${edit?'<button type="button" class="srp-btn secondary" data-in7-cancel>Cancel</button>':''}</div></form>`;
+  }
+  function in7CompanyFormData(form){
+    const data={},regs={};
+    for(const [k,val] of new FormData(form)){const v=String(val).trim();if(k.startsWith('reg_'))regs[k.slice(4)]=k==='reg_udyamNumber'||k==='reg_iec'||k==='reg_epfEstablishmentCode'||k==='reg_lei'?v.toUpperCase():v;else data[k]=['pan','gstin','tan','cin'].includes(k)?v.toUpperCase():v}
+    Object.keys(regs).forEach(k=>{if(regs[k]==='')delete regs[k]});data.registrations=regs;data.currency='INR';return data;
+  }
+  function in7BindCompanyForm(form,ref,onSubmit){
+    const st=form.querySelector('[name=state]'),pan=form.querySelector('[name=pan]'),gstin=form.querySelector('[name=gstin]'),fs=form.querySelector('[name=financialYearStart]'),fe=form.querySelector('[name=financialYearEnd]'),books=form.querySelector('[name=booksStartDate]'),err=form.querySelector('[data-in7-error]');
+    gstin?.addEventListener('change',()=>{const g=gstin.value.trim().toUpperCase();gstin.value=g;if(/^[0-9]{2}/.test(g)){const s=(ref.states||[]).find(x=>x.gstCode===g.slice(0,2));if(s&&!st.value)st.value=s.code}if(g.length===15&&!pan.value)pan.value=g.slice(2,12)});
+    // Choosing the start proposes a 12-month year and the start of books; both stay editable.
+    fs?.addEventListener('change',()=>{if(!fs.readOnly&&fs.value){fe.value=in7AddYear(fs.value);if(books)books.value=fs.value}});
+    form.addEventListener('submit',async ev=>{ev.preventDefault();err.hidden=true;if(!form.reportValidity())return;if(fe.value<=fs.value){err.hidden=false;err.textContent='The financial year ends after it starts.';return}
+      const btn=form.querySelector('[data-in7-submit]');btn.disabled=true;try{await onSubmit(in7CompanyFormData(form))}catch(error){btn.disabled=false;err.hidden=false;err.textContent=String(error?.message||error||'The company could not be saved.')}});
+  }
+  window.TeghIndiaCompanyForm={markup:in7CompanyFormMarkup,bind:in7BindCompanyForm,data:in7CompanyFormData};
+  // First company of an India sign-in: the India form replaces the Canadian set-up wizard.
+  function renderIndiaFirstCompany(wizard){
+    if(document.querySelector('[data-in7-first]'))return;wizard.hidden=true;document.querySelector('[data-first-experience-choice]')?.remove();document.querySelector('[data-r157-first-steps]')?.remove();
+    const ref=lastAuth?.indiaReference||{};const holder=document.createElement('section');holder.className='sr-first-owner-setup in7-first';holder.dataset.in7First='1';
+    holder.innerHTML=`<header><span>T</span><div><small>India edition</small><h2>Set up your Indian business.</h2><p>Books are kept in Indian rupees with an Indian chart of accounts. Tax codes, payroll and TDS sections are added after the company exists.</p></div></header>${in7CompanyFormMarkup(ref,{},'create')}`;
+    wizard.parentElement?.insertBefore(holder,wizard);
+    in7BindCompanyForm(holder.querySelector('form'),ref,async data=>{const response=await window.fetch(`/api/index.php?route=companies&v=${BUILD}`,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':lastAuth?.csrfToken||''},body:JSON.stringify(data),credentials:'same-origin',cache:'no-store'});const body=await response.json().catch(()=>({}));if(!response.ok)throw Error(body.error||'The company could not be created.');const id=body.company?.id;try{if(id){localStorage.setItem('sr-accountax-company',id);localStorage.setItem('sr-accountax-companies',JSON.stringify([id]))}}catch{}location.reload()});
+  }
   function installFirstCompanyOnboarding(){
+    if(lastAuth?.edition==='IN')return; // IN-7a: the India form has no Canadian onboarding bar or time zones
     if(!document.querySelector('[data-r157-first-steps]')){const wizard=document.querySelector('.company-create,.company-wizard');if(wizard?.parentElement){const bar=document.createElement('nav');bar.className='r157-first-steps';bar.dataset.r157FirstSteps='1';bar.setAttribute('aria-label','Onboarding steps');
       bar.innerHTML=`<p><b>Onboarding · Step 1 of 6</b> Create your company. The next steps open as soon as it exists.</p><label class="r157-first-tz">Company time zone <select data-r157-tz>${firstCompanyTimezoneOptions()}</select></label><ol>${['Company','Chart of accounts','Tax codes','Bank accounts','Data import','Team & invoices'].map((label,i)=>`<li class="${i===0?'active':'locked'}"><span>${i+1}</span>${label}</li>`).join('')}</ol>`;
       wizard.parentElement.insertBefore(bar,wizard.parentElement.firstChild)}}
@@ -1401,7 +1462,7 @@
     form.onsubmit=async event=>{event.preventDefault();if(!form.reportValidity())return;const button=form.querySelector('button[type="submit"]');button.disabled=true;error.hidden=true;const data=Object.fromEntries(new FormData(form));try{const response=await window.fetch(`/api/index.php?route=companies&v=${BUILD}`,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':lastAuth?.csrfToken||''},body:JSON.stringify({name:data.name,legalName:data.legalName||data.name,businessType:data.businessType,province:data.province,currency:'CAD',accountingBasis:'accrual',moduleMode:data.employees==='yes'?'both':'accounting',payrollPostingMode:'draft',fiscalYearEndDate:data.fiscalYearEndDate,booksStartDate:data.booksStartDate,taxRegistered:tax.checked,taxNumber:tax.checked?data.taxNumber:null,coaMode:'manual',timezone:data.timezone||'',onboarding:true}),credentials:'same-origin',cache:'no-store'});const body=await response.json().catch(()=>({}));if(!response.ok)throw Error(body.error||'The company could not be created.');button.textContent='Company created · Opening Guided Bookkeeping…'}catch(err){error.textContent=friendlyError(err,'companies').message||'The company could not be created.';error.hidden=false;button.disabled=false}};
   }
   function installFirstCompanyExperience(forceChoice=false){
-    const wizard=document.querySelector('.company-create,.company-wizard');if(!wizard)return;const mode=forceChoice?'':firstCompanyExperienceMode();if(mode==='owner'){renderFirstOwnerCompanySetup(wizard);return}if(mode==='accountant'){wizard.hidden=false;return}
+    const wizard=document.querySelector('.company-create,.company-wizard');if(!wizard)return;if(lastAuth?.edition==='IN'){renderIndiaFirstCompany(wizard);return}const mode=forceChoice?'':firstCompanyExperienceMode();if(mode==='owner'){renderFirstOwnerCompanySetup(wizard);return}if(mode==='accountant'){wizard.hidden=false;return}
     if(document.querySelector('[data-first-experience-choice]'))return;wizard.hidden=true;const choice=document.createElement('section');choice.className='sr-first-experience-choice';choice.dataset.firstExperienceChoice='1';choice.innerHTML=`<header><span>T</span><div><small>Welcome to Tegh</small><h2>How would you like to keep your books?</h2><p>Choose the experience that best matches how you work. You can change it later.</p></div></header><div class="sr-first-experience-options"><button type="button" data-mode="owner"><b>Guided</b><span>Simple bookkeeping with Tegh guidance. Best for business owners and users who do not want to manage accounting structure directly.</span><em>Start Guided →</em></button><button type="button" data-mode="accountant"><b>Full Accounting</b><span>Complete professional accounting workspace for bookkeepers, accountants and advanced users.</span><em>Open Full Accounting →</em></button></div>`;wizard.parentElement?.insertBefore(choice,wizard);choice.querySelectorAll('[data-mode]').forEach(button=>button.onclick=()=>{const selected=button.dataset.mode;setFirstCompanyExperienceMode(selected);choice.remove();if(selected==='owner')renderFirstOwnerCompanySetup(wizard);else wizard.hidden=false});
   }
 

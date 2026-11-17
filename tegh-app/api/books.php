@@ -187,6 +187,7 @@ function handle_currencies(): never
 /** @return array<string,mixed> */
 function vendor_record_values(array $company, array $input): array
 {
+    if (function_exists('tegh_india_party_input')) $input = tegh_india_party_input($company, $input); // IN-7a
     $companyId=(string)$company['id'];
     $name=clean_text($input['name']??'','Vendor name',200);
     $contactName=optional_text($input['contactName']??null,160);
@@ -211,6 +212,7 @@ function vendor_record_values(array $company, array $input): array
 /** Shared vendor-create service used by the manual UI, imports and Ask Tegh. */
 function create_vendor_record(array $user, array $company, array $input, string $source = 'manual'): array
 {
+    if (function_exists('tegh_india_party_input')) $input = tegh_india_party_input($company, $input); // IN-7a (before the transaction: first-use table)
     require_company_permission($company,'vendors.write');$companyId=(string)$company['id'];$v=vendor_record_values($company,$input);
     $dupe=db()->prepare('SELECT id FROM vendors WHERE company_id=? AND name=? LIMIT 1');$dupe->execute([$companyId,$v['name']]);if($dupe->fetchColumn()!==false)fail('A vendor with that name already exists in this company.',409,'duplicate_vendor');
     $id=new_id('vendor');$ownsTransaction=!db()->inTransaction();if($ownsTransaction)db()->beginTransaction();
@@ -219,6 +221,7 @@ function create_vendor_record(array $user, array $company, array $input, string 
         db()->prepare('INSERT INTO vendors (id,company_id,name,contact_name,email,phone,address,address_line1,address_line2,city,province,postal_code,country,default_terms_days,default_expense_account_id,default_currency,notes,status,active) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
           ->execute([$id,$companyId,$v['name'],$v['contactName'],$v['email'],$v['phone'],$v['address'],$v['addressLine1'],$v['addressLine2'],$v['city'],$v['province'],$v['postalCode'],$v['country'],$v['termsDays'],$v['accountId'],$v['currency'],$v['notes'],$v['status'],$active]);
         $opening=null;if($v['openingBalanceCents']!==0)$opening=post_party_opening_balance($user,$company,'vendor',$id,$v['name'],$v['openingBalanceCents'],(string)$v['openingBalanceDate'],$source);
+        if (function_exists('tegh_india_party_address_save')) tegh_india_party_address_save($companyId, 'vendor', $id, $input); // IN-7a
         audit_event($user,$companyId,'vendor.created','vendor',$id,['name'=>$v['name'],'currency'=>$v['currency'],'defaultTermsDays'=>$v['termsDays'],'status'=>$v['status'],'openingBalanceCents'=>$v['openingBalanceCents'],'initiatedVia'=>$source==='ask_tegh'?'Ask Tegh':($source==='import'?'Data Import':'Manual UI')]);if($ownsTransaction)db()->commit();
     }catch(Throwable $e){if($ownsTransaction&&db()->inTransaction())db()->rollBack();throw $e;}
     return ['id'=>$id,'name'=>$v['name'],'currency'=>$v['currency'],'status'=>$v['status'],'defaultTermsDays'=>$v['termsDays'],'openingBalance'=>$opening];
@@ -234,6 +237,7 @@ function handle_vendors(): never
         audit_event($user,$companyId,'vendor.'.$result,'vendor',$id,['name'=>(string)$vendor['name']]);json_response(['vendor'=>['id'=>$id,'status'=>$result]]);
     }
     if(request_method()==='POST'){json_response(['vendor'=>create_vendor_record($user,$company,$input)],201);}
+    if (function_exists('tegh_india_party_input')) $input = tegh_india_party_input($company, $input); // IN-7a
     $v=vendor_record_values($company,$input);$id=clean_text($input['vendorId']??'','Vendor',64);$existingStmt=db()->prepare('SELECT * FROM vendors WHERE id=? AND company_id=? LIMIT 1');$existingStmt->execute([$id,$companyId]);$existing=$existingStmt->fetch();if(!$existing)fail('Vendor not found.',404,'vendor_not_found');
     $used=db()->prepare('SELECT COUNT(*) FROM bills WHERE vendor_id=? AND company_id=?');$used->execute([$id,$companyId]);$locked=(int)$used->fetchColumn()>0;
     if($locked&&(string)$existing['name']!==$v['name'])fail('Vendor name is locked after vendor-invoice use. Contact details, terms, notes and status can still be updated.',409,'vendor_legal_fields_locked');
@@ -241,6 +245,7 @@ function handle_vendors(): never
     $active=$v['status']==='inactive'?0:1;
     db()->prepare('UPDATE vendors SET name=?,contact_name=?,email=?,phone=?,address=?,address_line1=?,address_line2=?,city=?,province=?,postal_code=?,country=?,default_terms_days=?,default_expense_account_id=?,default_currency=?,notes=?,status=?,active=? WHERE id=? AND company_id=?')
       ->execute([$locked?(string)$existing['name']:$v['name'],$v['contactName'],$v['email'],$v['phone'],$v['address'],$v['addressLine1'],$v['addressLine2'],$v['city'],$v['province'],$v['postalCode'],$v['country'],$v['termsDays'],$v['accountId'],$v['currency'],$v['notes'],$v['status'],$active,$id,$companyId]);
+    if (function_exists('tegh_india_party_address_save')) tegh_india_party_address_save($companyId, 'vendor', $id, $input); // IN-7a
     audit_event($user,$companyId,'vendor.updated','vendor',$id,['name'=>$locked?(string)$existing['name']:$v['name'],'currency'=>$v['currency'],'defaultTermsDays'=>$v['termsDays'],'status'=>$v['status']]);json_response(['vendor'=>['id'=>$id,'status'=>$v['status']]],200);
 }
 

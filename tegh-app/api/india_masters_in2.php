@@ -49,6 +49,15 @@ function in2_specs(): array
                 'incomeTaxRegime' => ['Income-tax regime', 'ref', ['ref' => 'rule:it_regime']],
                 'taxAuditApplicable' => ['Tax audit applicable', 'bool', []],
                 'accountingStandard' => ['Accounting standard', 'ref', ['ref' => 'rule:accounting_standard']],
+                // IN-7a: registrations asked for at company set-up.
+                'epfEstablishmentCode' => ['EPF establishment code', 'text', ['pattern' => 'epf']],
+                'esicEmployerCode' => ['ESIC employer code', 'text', ['pattern' => 'esic']],
+                'ptRegistration' => ['Professional Tax registration (employer, PTRC)', 'text', ['pattern' => 'regno']],
+                'ptEnrolment' => ['Professional Tax enrolment (business, PTEC)', 'text', ['pattern' => 'regno']],
+                'shopsEstablishment' => ['Shops and Establishment registration', 'text', ['pattern' => 'regno']],
+                'lwfRegistration' => ['Labour Welfare Fund registration', 'text', ['pattern' => 'regno']],
+                'lei' => ['Legal Entity Identifier (LEI)', 'text', ['pattern' => 'lei']],
+                'fssai' => ['FSSAI licence or registration', 'text', ['pattern' => 'fssai']],
             ]],
             'customer' => ['label' => 'Customer', 'fields' => in2_party_fields()],
             'vendor' => ['label' => 'Vendor', 'fields' => in2_party_fields() + [
@@ -259,7 +268,12 @@ function in2_pattern_problem(string $pattern, string $v): ?string
         'swift' => ['/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/', 'A SWIFT/BIC has 8 or 11 characters.'], 'upi' => ['/^[A-Za-z0-9._-]{2,64}@[A-Za-z]{2,64}$/', 'A UPI ID looks like name@bank.'],
         'pin' => ['/^[1-9][0-9]{5}$/', 'A PIN code has 6 digits and does not start with 0.'], 'fy' => ['/^20[0-9]{2}-[0-9]{2}$/', 'Write the financial year as 2026-27.'],
         'transporterid' => ['/^[0-9A-Z]{15}$/', 'A transporter ID (GSTIN or TRANSIN) has 15 characters.'], 'vehicle' => ['/^[A-Z]{2}[0-9A-Z]{4,9}$/', 'Write the vehicle number without spaces, for example MH12AB1234.'],
-        'portcode' => ['/^[A-Z0-9]{6}$/', 'A port code has 6 characters.']];
+        'portcode' => ['/^[A-Z0-9]{6}$/', 'A port code has 6 characters.'],
+        'epf' => ['/^[A-Z]{5}[0-9]{7}([0-9]{3})?$/', 'An EPF establishment code has 5 letters and 7 digits, with an optional 3-digit extension (for example MHBAN0012345000).'],
+        'esic' => ['/^[0-9]{17}$/', 'An ESIC employer code has 17 digits.'],
+        'lei' => ['/^[A-Z0-9]{18}[0-9]{2}$/', 'An LEI has 20 characters: 18 letters or digits and 2 check digits.'],
+        'fssai' => ['/^[0-9]{14}$/', 'An FSSAI licence or registration number has 14 digits.'],
+        'regno' => ['/^[A-Za-z0-9][A-Za-z0-9\/. -]{2,39}$/', 'Enter the number as shown on the certificate (3 to 40 letters, digits, / . - or spaces).']];
     if ($pattern === 'gstin') return tegh_india_gstin_problem($v);
     if (!isset($rx[$pattern])) return null;
     return preg_match($rx[$pattern][0], $v) ? null : $rx[$pattern][1];
