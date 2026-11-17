@@ -12,10 +12,16 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R190 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R191 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R190 (R118–R190 change notes are
-included). R190 is the private beta package (it replaces R189): the India edition gains GST on invoices (codes
+This package contains every release through R191 (R118–R191 change notes are
+included). R191 is the private beta package (it replaces R190): India company set-up. The first company of an India
+sign-in uses the India form (no Canadian wizard); every time zone; financial year start and end dates; registrations
+(PAN, GSTIN, TAN, Udyam, IEC, EPF, ESIC, PT, Shops and Establishment, LWF, LEI, FSSAI); INR only; a current or savings
+first account; editable company details; a full Indian address on the company, customers and vendors, printed on
+invoices. India edition only (Off by default); Canada unchanged. First use adds two columns to the India profile table
+and one India table (Schema stays 46). See R191-CHANGES.md.
+R190 (replaced R189): the India edition gains GST on invoices (codes
 from approved rate rules, place of supply, CGST/SGST/UTGST or IGST checks), GST returns (GSTR-1 and GSTR-3B working
 reports, registers, GST ledger check, return periods with ARN, GSTR-2B import and reconciliation), user-defined
 payroll (salary structures, pay runs, payslips, registers), TDS on vendor invoices and TCS on customer invoices
