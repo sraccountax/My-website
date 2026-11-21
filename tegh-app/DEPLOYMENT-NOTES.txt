@@ -12,10 +12,15 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R191 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R192 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R191 (R118–R191 change notes are
-included). R191 is the private beta package (it replaces R190): India company set-up. The first company of an India
+This package contains every release through R192 (R118–R192 change notes are
+included). R192 is the private beta package (it replaces R191): fixes from a functional and UI audit of both
+editions. India: registrations saved with a time-zone change read back at once; financial-year wording and dates; no
+Canadian payroll notice on India payroll; Canada-only screens closed in India; recurring documents refuse GST/HST/PST;
+expenses show GST and no PST; data import checks Indian states. Both editions: Match and Post readable on phones; report
+scope line spacing; labelled role lists. No migration; Schema stays 46. See R192-CHANGES.md.
+R191 (replaced R190): India company set-up. The first company of an India
 sign-in uses the India form (no Canadian wizard); every time zone; financial year start and end dates; registrations
 (PAN, GSTIN, TAN, Udyam, IEC, EPF, ESIC, PT, Shops and Establishment, LWF, LEI, FSSAI); INR only; a current or savings
 first account; editable company details; a full Indian address on the company, customers and vendors, printed on
