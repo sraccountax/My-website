@@ -151,7 +151,7 @@
   "area": "E2E",
   "title": "Link: bank line posted against the payment's own journal entry; payment linked",
   "status": "PASS",
-  "evidence": "posted|journal_36e20339d437a91e7f986c238ebd894a / btx_599410ba1c41be440054bf12b827cf84|journal_36e20339d437a91e7f986c238ebd894a"
+  "evidence": "posted|journal_830e380f52c4360bfb4ff4458641eb1a / btx_be9e107aefa233c4ecd7de610c9924da|journal_830e380f52c4360bfb4ff4458641eb1a"
  },
  {
   "id": "W11-03a",
@@ -172,7 +172,7 @@
   "area": "E2E",
   "title": "Link: bank line posted against the payment's own journal entry; payment linked",
   "status": "PASS",
-  "evidence": "posted|journal_ffb75bdea3e5606fa2c218a372b7cbcc / btx_6dca114f1969954e444a585b3ef67698|journal_ffb75bdea3e5606fa2c218a372b7cbcc"
+  "evidence": "posted|journal_6f8ea4c605fafbc50eba32f8989e5e48 / btx_570b07ee81de1e74c7f23664d0af06da|journal_6f8ea4c605fafbc50eba32f8989e5e48"
  },
  {
   "id": "W11-03b",

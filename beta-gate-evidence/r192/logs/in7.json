@@ -11,21 +11,21 @@
   "area": "IN7",
   "title": "Create: INR books, the chosen time zone and financial year (1 April 2026 to 31 March 2027), the full address composed into lines 1 and 2, registrations in the India Masters company profile, the GSTIN as a GST registration record, and a savings account (no chequing)",
   "status": "PASS",
-  "evidence": "{\"c\":\"INR|Asia/Kolkata|03-31|2027-03-31|2026-04-01|Flat 4B, Lotus Towers, 12 MG Road|Ashok Nagar, Near Brigade Junction, Bengaluru Urban district|Bengaluru|560001|KA\",\"fy\":\"2026-04-01\",\"p\":{\"businessActivity\":\"Software services\",\"udyamNumber\":\"UDYAM-KA-03-0608712\",\"msmeCategory\":\"small\",\"epfEstablishmentCode\":\"KABNG6087123\",\"esicEmployerCode\":\"53006087000000123\",\"ptRegistration\":\"PTRC\\\\/6087\",\"shopsEstablishment\":\"SE-BLR-6087\"},\"g\":[\"29AAACS6087K1ZS\",\"regular\"],\"bank\":\"Savings Account|Bank - Savings Account|savings\"}"
+  "evidence": "{\"c\":\"INR|Asia/Kolkata|03-31|2027-03-31|2026-04-01|Flat 4B, Lotus Towers, 12 MG Road|Ashok Nagar, Near Brigade Junction, Bengaluru Urban district|Bengaluru|560001|KA\",\"fy\":\"2026-04-01\",\"p\":{\"businessActivity\":\"Software services\",\"udyamNumber\":\"UDYAM-KA-03-0958912\",\"msmeCategory\":\"small\",\"epfEstablishmentCode\":\"KABNG9589123\",\"esicEmployerCode\":\"53009589000000123\",\"ptRegistration\":\"PTRC\\\\/9589\",\"shopsEstablishment\":\"SE-BLR-9589\"},\"g\":[\"29AAACS9589K1ZF\",\"regular\"],\"bank\":\"Savings Account|Bank - Savings Account|savings\"}"
  },
  {
   "id": "IN7-03",
   "area": "IN7",
   "title": "Company details: the Owner reads PAN and TAN in full and edits address, time zone and registrations (a new profile version); the financial year changes while there are no entries and is locked after the first journal",
   "status": "PASS",
-  "evidence": "{\"pan\":true,\"landmark\":\"Trinity Metro\",\"regs\":{\"businessActivity\":\"Software services\",\"iec\":\"AAACS6087K\",\"udyamNumber\":\"UDYAM-KA-03-0608712\",\"msmeCategory\":\"small\",\"epfEstablishmentCode\":\"KABNG6087123\",\"esicEmployerCode\":\"53006087000000123\",\"ptRegistration\":\"PTRC/6087\",\"shopsEstablishment\":\"SE-BLR-6087\",\"fssai\":\"16087000000099\"},\"tz\":\"Asia/Dubai\",\"fyOk\":200,\"fyLocked\":[409,\"india_fy_locked\"]}"
+  "evidence": "{\"pan\":true,\"landmark\":\"Trinity Metro\",\"regs\":{\"businessActivity\":\"Software services\",\"iec\":\"AAACS9589K\",\"udyamNumber\":\"UDYAM-KA-03-0958912\",\"msmeCategory\":\"small\",\"epfEstablishmentCode\":\"KABNG9589123\",\"esicEmployerCode\":\"53009589000000123\",\"ptRegistration\":\"PTRC/9589\",\"shopsEstablishment\":\"SE-BLR-9589\",\"fssai\":\"19589000000099\"},\"tz\":\"Asia/Dubai\",\"fyOk\":200,\"fyLocked\":[409,\"india_fy_locked\"]}"
  },
  {
   "id": "IN7-04",
   "area": "IN7",
   "title": "Customer and vendor with a full Indian address: lines 1 and 2 are composed, the parts are kept for editing, a bad PIN is refused, and the invoice carries the whole address",
   "status": "PASS",
-  "evidence": "{\"bad\":[422,\"india_pin_invalid\"],\"lines\":\"Shop 3, Sai Plaza, FC Road|Shivajinagar, Near Fergusson College|Pune|411001\",\"parts\":{\"building\":\"Shop 3, Sai Plaza\",\"street\":\"FC Road\",\"locality\":\"Shivajinagar\",\"landmark\":\"Fergusson College\",\"district\":\"Pune\"},\"upd\":200,\"lines2\":\"Shop 3, Sai Plaza, FC Road|Shivajinagar|411005\",\"vlines\":\"Unit 7, Wagle Estate|Wagle Industrial Area\",\"snap\":\"{\\\"name\\\":\\\"IN7 Customer mwqrd83b\\\",\\\"email\\\":null,\\\"phone\\\":null,\\\"billingAddress\\\":\\\"Shop 3, Sai Plaza, FC Road, Shivajinagar, Pune, 411005, India\\\",\\\"province\\\":\\\"MH\\\"}\"}"
+  "evidence": "{\"bad\":[422,\"india_pin_invalid\"],\"lines\":\"Shop 3, Sai Plaza, FC Road|Shivajinagar, Near Fergusson College|Pune|411001\",\"parts\":{\"building\":\"Shop 3, Sai Plaza\",\"street\":\"FC Road\",\"locality\":\"Shivajinagar\",\"landmark\":\"Fergusson College\",\"district\":\"Pune\"},\"upd\":200,\"lines2\":\"Shop 3, Sai Plaza, FC Road|Shivajinagar|411005\",\"vlines\":\"Unit 7, Wagle Estate|Wagle Industrial Area\",\"snap\":\"{\\\"name\\\":\\\"IN7 Customer mwqvtzil\\\",\\\"email\\\":null,\\\"phone\\\":null,\\\"billingAddress\\\":\\\"Shop 3, Sai Plaza, FC Road, Shivajinagar, Pune, 411005, India\\\",\\\"province\\\":\\\"MH\\\"}\"}"
  },
  {
   "id": "IN7-05",
@@ -46,6 +46,6 @@
   "area": "IN7",
   "title": "In the app: Company details shows the registrations and edits in place; the customer form shows flat/building, street, area, landmark, city or town, district and PIN code; Company Setup shows India cards only",
   "status": "PASS",
-  "evidence": "{\"det\":\"Company name\\nIN7 Setup mwqrd83b\\nLegal name\\nIN7 Setup Private Limited\\nTrade name\\n—\\nConstitution\\nPrivate limited company\\nNature of business\\nSoftware services\\nPAN\\nAAACS6087K\\nGSTIN\\n29AAACS6087K1ZS\\nTAN\\nBLR\",\"lei\":true,\"labels\":\"Customer Name•|Contact Name|Email Address|Phone|Flat, Door or Building|Street or Road|Area or Locality|Landmark|City or Town|District|PIN Code|Country\\nAfghanistan\\nAlbania\\nAlgeria\\nAndorra\\nAngola\\nAnguilla\\nAntarctica\\nAntigua and Barbuda\\nArgentina\\nArmenia\\nAruba\\nAustralia\\nAustria\\nAzerbaijan\\nBahamas\\nBahrain\\nBangladesh\\nBarbados\\nBelarus\\nBel"
+  "evidence": "{\"det\":\"Company name\\nIN7 Setup mwqvtzil\\nLegal name\\nIN7 Setup Private Limited\\nTrade name\\n—\\nConstitution\\nPrivate limited company\\nNature of business\\nSoftware services\\nPAN\\nAAACS9589K\\nGSTIN\\n29AAACS9589K1ZF\\nTAN\\nBLR\",\"lei\":true,\"labels\":\"Customer Name•|Contact Name|Email Address|Phone|Flat, Door or Building|Street or Road|Area or Locality|Landmark|City or Town|District|PIN Code|Country\\nAfghanistan\\nAlbania\\nAlgeria\\nAndorra\\nAngola\\nAnguilla\\nAntarctica\\nAntigua and Barbuda\\nArgentina\\nArmenia\\nAruba\\nAustralia\\nAustria\\nAzerbaijan\\nBahamas\\nBahrain\\nBangladesh\\nBarbados\\nBelarus\\nBel"
  }
 ]

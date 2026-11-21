@@ -4,14 +4,14 @@
   "area": "IN3",
   "title": "Canada is unaffected: a Canadian company gets 404 on every GST route and gains no GST codes or accounts",
   "status": "PASS",
-  "evidence": "{\"codes\":[[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"]],\"before\":\"14|45\",\"after\":\"14|45\",\"rows\":\"0\"}"
+  "evidence": "{\"codes\":[[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"]],\"before\":\"14|46\",\"after\":\"14|46\",\"rows\":\"0\"}"
  },
  {
   "id": "IN3-02",
   "area": "IN3",
   "title": "GST codes come only from an approved rule: a draft rule and an Editor are refused; the approved 18% rule makes GST18 (CGST 9 + SGST 9) and IGST18 with their GL accounts; repeating changes nothing",
   "status": "PASS",
-  "evidence": "{\"draft\":[409,\"india_gst_rule_not_approved\"],\"editor\":403,\"made\":[{\"id\":\"taxcode_61077055ee58de67f83aa52de4bc9f34\",\"code\":\"GST18\",\"supply\":\"intra\",\"created\":true},{\"id\":\"taxcode_972dd260dadca3013d4b7585fe2894e5\",\"code\":\"IGST18\",\"supply\":\"inter\",\"created\":true}],\"again\":[false,false],\"g\":\"CGST:9000,SGST:9000\",\"i\":\"IGST:18000\",\"accts\":\"1451/asset,1452/asset,1454/asset,2401/liability,2402/liability,2404/liability\"}"
+  "evidence": "{\"draft\":[409,\"india_gst_rule_not_approved\"],\"editor\":403,\"made\":[{\"id\":\"taxcode_fe1f48505207a2d1ac631d1302e77f48\",\"code\":\"GST18\",\"supply\":\"intra\",\"created\":true},{\"id\":\"taxcode_c6539ea3796e40717fb4b6e3d46f1728\",\"code\":\"IGST18\",\"supply\":\"inter\",\"created\":true}],\"again\":[false,false],\"g\":\"CGST:9000,SGST:9000\",\"i\":\"IGST:18000\",\"accts\":\"1451/asset,1452/asset,1454/asset,2401/liability,2402/liability,2404/liability\"}"
  },
  {
   "id": "IN3-03",

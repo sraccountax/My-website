@@ -18,14 +18,14 @@
   "area": "IN5",
   "title": "September draft: Asha (full month) gross ₹33,000, EPF ₹1,800 on the ₹15,000 ceiling, no ESIC above ₹21,000, PT ₹200, TDS ₹1,500, net ₹29,500; Ravi (joined 11 September, 20 of 30 days) prorated; Meera has no structure and is skipped",
   "status": "PASS",
-  "evidence": "{\"e1\":{\"g\":3300000,\"d\":350000,\"n\":2950000,\"c\":[[\"Basic\",2000000],[\"House Rent Allowance\",800000],[\"Special Allowance\",500000],[\"EPF (employee)\",180000],[\"EPF (employer)\",180000],[\"ESIC (employee)\",0],[\"ESIC (employer)\",0],[\"Professional Tax\",20000],[\"Income tax (TDS)\",150000]]},\"e2\":{\"days\":20000,\"g\":1320000,\"n\":1194100,\"c\":[[\"Basic\",800000],[\"House Rent Allowance\",320000],[\"Special Allowance\",200000],[\"EPF (employee)\",96000],[\"EPF (employer)\",96000],[\"ESIC (employee)\",9900],[\"ESIC (employer)\",42900],[\"Professional Tax\",20000],[\"Income tax (TDS)\",0]]},\"skipped\":[\"inrec_e92a30da4868745f325b9909"
+  "evidence": "{\"e1\":{\"g\":3300000,\"d\":350000,\"n\":2950000,\"c\":[[\"Basic\",2000000],[\"House Rent Allowance\",800000],[\"Special Allowance\",500000],[\"EPF (employee)\",180000],[\"EPF (employer)\",180000],[\"ESIC (employee)\",0],[\"ESIC (employer)\",0],[\"Professional Tax\",20000],[\"Income tax (TDS)\",150000]]},\"e2\":{\"days\":20000,\"g\":1320000,\"n\":1194100,\"c\":[[\"Basic\",800000],[\"House Rent Allowance\",320000],[\"Special Allowance\",200000],[\"EPF (employee)\",96000],[\"EPF (employer)\",96000],[\"ESIC (employee)\",9900],[\"ESIC (employer)\",42900],[\"Professional Tax\",20000],[\"Income tax (TDS)\",0]]},\"skipped\":[\"inrec_cce524ddcabd1e206e94cc07"
  },
  {
   "id": "IN5-04",
   "area": "IN5",
   "title": "Recalculating the draft with 27 paid days for Asha (3 days loss of pay) prorates her fixed pay; the EPF ceiling still applies; bad paid days are refused",
   "status": "PASS",
-  "evidence": "{\"bad\":[422,\"india_payroll_paid_days\"],\"e1\":{\"g\":2970000,\"n\":2620000},\"run\":{\"id\":\"inpayrun_047ba16bfdaea6c8816af11f5a09b95f\",\"period\":\"2026-09\",\"payDate\":\"2026-09-30\",\"status\":\"draft\",\"grossCents\":4290000,\"deductionsCents\":475900,\"employerCents\":318900,\"netCents\":3814100,\"journalEntryId\":null,\"reversalJournalEntryId\":null,\"reversalReason\":null,\"inputs\":{\"inrec_5ef91e246945881163bf08b22212f566\":{\"paidDays\":27,\"entered\":{\"inrec_ae2d03615b202cad03fb2d170c21a9fc\":150000}}}}}"
+  "evidence": "{\"bad\":[422,\"india_payroll_paid_days\"],\"e1\":{\"g\":2970000,\"n\":2620000},\"run\":{\"id\":\"inpayrun_f782561fd3bf8a07a352f3d8472b033b\",\"period\":\"2026-09\",\"payDate\":\"2026-09-30\",\"status\":\"draft\",\"grossCents\":4290000,\"deductionsCents\":475900,\"employerCents\":318900,\"netCents\":3814100,\"journalEntryId\":null,\"reversalJournalEntryId\":null,\"reversalReason\":null,\"inputs\":{\"inrec_8c8080b2a92d258db12f8d78e8afed60\":{\"paidDays\":27,\"entered\":{\"inrec_a54649f7a855c2cfe7828d2f6c018676\":150000}}}}}"
  },
  {
   "id": "IN5-05",
@@ -60,13 +60,13 @@
   "area": "IN5",
   "title": "India payroll screens: the Payroll menu offers Pay Runs, Salary Structures and Payroll Registers (no Canadian payroll items); the September run lists both employees; a payslip shows earnings, deductions and net pay; the register agrees with the liabilities",
   "status": "PASS",
-  "evidence": "{\"nav\":\"ACTIVE BOOKIN5 Payroll mwqrckvm|DashboardDB|BankingBK|Upload Statement|Match and Post|Reconcile Account|Bank Accounts|Transactions Report|Bank General Ledger|Bank Reconciliation|ReceivablesAR|Create Customer|Products|Customer Invoices|Payments|Collection Drafts|Customers|Invoice Register|Customer Le\",\"rows\":2,\"slip\":\"Payslip · September 2026 Asha Synthetic (A001-mwqrckvm) · Paid days 30 of 30 · Pay date 30-09-2026 Earnings Basic monthly amount ₹20,000.00 House Rent Allowance\",\"comps\":9,\"ties\":\"1\",\"canadian\":[],\"errs\":[]}"
+  "evidence": "{\"nav\":\"ACTIVE BOOKIN5 Payroll mwqvt8tv|DashboardDB|BankingBK|Upload Statement|Match and Post|Reconcile Account|Bank Accounts|Transactions Report|Bank General Ledger|Bank Reconciliation|ReceivablesAR|Create Customer|Products|Customer Invoices|Payments|Collection Drafts|Customers|Invoice Register|Customer Le\",\"rows\":2,\"slip\":\"Payslip · September 2026 Asha Synthetic (A001-mwqvt8tv) · Paid days 30 of 30 · Pay date 30-09-2026 Earnings Basic monthly amount ₹20,000.00 House Rent Allowance\",\"comps\":9,\"ties\":\"1\",\"canadian\":[],\"errs\":[]}"
  },
  {
   "id": "UI-02",
   "area": "IN5",
   "title": "Canadian company: the India payroll items are not in the menus and the page is refused; the Canadian payroll items are still there",
   "status": "PASS",
-  "evidence": "{\"nav\":\"ACTIVE BOOKR182 Ontario mwqr129f (Restored copy)|DashboardDB|Banking4BK|Upload Statement|Match and Post|Reconcile Account|Bank Accounts|Transactions Report|Bank General Ledger|Bank Reconciliation|ReceivablesAR|Create Customer|Products|Customer Invoices|Payments|Collection Drafts|Customers|Invoice Re\",\"toast\":\"Not availableThis payroll is available only in India companies.\"}"
+  "evidence": "{\"nav\":\"ACTIVE BOOKGolden Lynx Bakery mwqu965f|DashboardDB|BankingBK|Upload Statement|Match and Post|Reconcile Account|Bank Accounts|Transactions Report|Bank General Ledger|Bank Reconciliation|ReceivablesAR|Create Customer|Products|Customer Invoices|Payments|Collection Drafts|Customers|Invoice Register|Cust\",\"toast\":\"Not availableThis payroll is available only in India companies.\"}"
  }
 ]

@@ -4,7 +4,7 @@
   "area": "R192",
   "title": "India company details: registrations saved in the same save as a time-zone change are read back at once (the version is dated in the new zone, not the old one)",
   "status": "PASS",
-  "evidence": "{\"lwf\":\"LWF-QRDL1G\",\"read\":\"LWF-QRDL1G\",\"reply\":\"LWF-QRDL1G\",\"tz\":\"Pacific/Pago_Pago\"}"
+  "evidence": "{\"lwf\":\"LWF-QVUEZ2\",\"read\":\"LWF-QVUEZ2\",\"reply\":\"LWF-QVUEZ2\",\"tz\":\"Pacific/Pago_Pago\"}"
  },
  {
   "id": "R192-02",
@@ -44,8 +44,8 @@
  {
   "id": "UI-03",
   "area": "R192",
-  "title": "Phone (390 px), both editions: Match and Post shows dates and amounts in full (the table scrolls sideways instead of cutting them off); report scope line reads \"<title> · <period>\"",
+  "title": "Phone (390 px), both editions: Match and Post shows dates, amounts and column headings in full (the table scrolls sideways instead of cutting them off); report scope line reads \"<title> · <period>\"",
   "status": "PASS",
-  "evidence": "{\"CA\":{\"rows\":5,\"clipped\":[],\"wrapScroll\":true,\"scope\":\"Expense register · Jan 1, 2026 to Nov 21, 2026\",\"errs\":[]},\"IN\":{\"rows\":1,\"clipped\":[],\"wrapScroll\":true,\"scope\":\"Expense register · 01-04-2026 to 22-11-2026\",\"errs\":[]}}"
+  "evidence": "{\"CA\":{\"rows\":5,\"clipped\":[],\"headClipped\":[],\"wrapScroll\":true,\"scope\":\"Expense register · Jan 1, 2026 to Nov 21, 2026\",\"errs\":[]},\"IN\":{\"rows\":1,\"clipped\":[],\"headClipped\":[],\"wrapScroll\":true,\"scope\":\"Expense register · 01-04-2026 to 22-11-2026\",\"errs\":[]}}"
  }
 ]

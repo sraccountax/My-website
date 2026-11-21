@@ -11,35 +11,35 @@
   "area": "IN6",
   "title": "Limits: ₹25,000 and then ₹20,000 are below the single-invoice limit (₹30,000) and the year (₹45,000) is below ₹1,00,000, so nothing is due; recording is refused",
   "status": "PASS",
-  "evidence": "{\"p1\":[false,\"Below the limits of section G194C-mwqrcw2m: this document 25,000.00 (limit 30,00\"],\"p2\":\"Below the limits of section G194C-mwqrcw2m: this document 20,000.00 (limit 30,000.00), the year 45,000.00 (limit 100,000\",\"r\":[422,\"india_tds_not_due\"]}"
+  "evidence": "{\"p1\":[false,\"Below the limits of section G194C-mwqvtmc1: this document 25,000.00 (limit 30,00\"],\"p2\":\"Below the limits of section G194C-mwqvtmc1: this document 20,000.00 (limit 30,000.00), the year 45,000.00 (limit 100,000\",\"r\":[422,\"india_tds_not_due\"]}"
  },
  {
   "id": "IN6-03",
   "area": "IN6",
   "title": "The ₹60,000 invoice crosses both limits: the two earlier invoices are added (base ₹1,05,000), TDS 1% = ₹1,050; payables fall by ₹1,050 and TDS Payable 2330 is credited; the invoice balance is ₹58,950",
   "status": "PASS",
-  "evidence": "{\"base\":10500000,\"amt\":105000,\"catch\":[\"C-1-mwqrcw2m\",\"C-2-mwqrcw2m\"],\"ed\":[201,null],\"bal\":5895000,\"gl\":105000,\"again\":\"india_tds_exists\"}"
+  "evidence": "{\"base\":10500000,\"amt\":105000,\"catch\":[\"C-1-mwqvtmc1\",\"C-2-mwqvtmc1\"],\"ed\":[201,null],\"bal\":5895000,\"gl\":105000,\"again\":\"india_tds_exists\"}"
  },
  {
   "id": "IN6-04",
   "area": "IN6",
   "title": "No PAN: refused until the approved \"<section>-NOPAN\" rule (synthetic 20%) exists; then ₹40,000 × 20% = ₹8,000",
   "status": "PASS",
-  "evidence": "{\"before\":[422,\"The vendor has no PAN. Add the PAN to its India profile, or add and approve the \"],\"after\":[800000,\"no PAN (G194C-mwqrcw2m-NOPAN)\"],\"bal\":3200000}"
+  "evidence": "{\"before\":[422,\"The vendor has no PAN. Add the PAN to its India profile, or add and approve the \"],\"after\":[800000,\"no PAN (G194C-mwqvtmc1-NOPAN)\"],\"bal\":3200000}"
  },
  {
   "id": "IN6-05",
   "area": "IN6",
   "title": "Lower deduction certificate (0.5%, limit ₹50,000): ₹40,000 × 0.5% = ₹200, and the rate source names the certificate",
   "status": "PASS",
-  "evidence": "{\"amt\":20000,\"rate\":500,\"src\":\"certificate CERT8510\"}"
+  "evidence": "{\"amt\":20000,\"rate\":500,\"src\":\"certificate CERT1505\"}"
  },
  {
   "id": "IN6-06",
   "area": "IN6",
   "title": "TDS register for September: 3 entries, total ₹9,250 (1,050 + 8,000 + 200), quarter 2026-27 Q2, PAN of each deductee; it equals the TDS Payable credits",
   "status": "PASS",
-  "evidence": "{\"n\":3,\"total\":925000,\"posted\":925000,\"q\":[\"2026-27 Q2\",\"2026-27 Q2\",\"2026-27 Q2\"],\"pans\":[\"AAAFA8510B\",\"AAAFC8510D\",null]}"
+  "evidence": "{\"n\":3,\"total\":925000,\"posted\":925000,\"q\":[\"2026-27 Q2\",\"2026-27 Q2\",\"2026-27 Q2\"],\"pans\":[\"AAAFA1505B\",null,\"AAAFC1505D\"]}"
  },
  {
   "id": "IN6-07",

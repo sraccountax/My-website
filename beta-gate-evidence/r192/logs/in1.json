@@ -18,7 +18,7 @@
   "area": "IN1",
   "title": "India company: wrong PAN, wrong GSTIN check character and a GSTIN from another state are refused; a valid one creates INR books, April-March year, Asia/Kolkata",
   "status": "PASS",
-  "evidence": "{\"badPan\":\"india_pan_invalid\",\"badCheck\":\"india_gstin_invalid\",\"otherState\":\"india_gstin_state\",\"row\":\"IN|India|INR|MH|03-31|2027-03-31|2026-04-01|Asia/Kolkata|accounting|none\",\"prof\":\"private_limited|AAACT5103F|27AAACT5103F1ZR|27|400001\",\"gstin\":\"27AAACT5103F1ZR\"}"
+  "evidence": "{\"badPan\":\"india_pan_invalid\",\"badCheck\":\"india_gstin_invalid\",\"otherState\":\"india_gstin_state\",\"row\":\"IN|India|INR|MH|03-31|2027-03-31|2026-04-01|Asia/Kolkata|accounting|none\",\"prof\":\"private_limited|AAACT7625F|27AAACT7625F1ZC|27|400001\",\"gstin\":\"27AAACT7625F1ZC\"}"
  },
  {
   "id": "IN-04",
@@ -46,7 +46,7 @@
   "area": "IN1",
   "title": "Sign-in screen: with the switch on \"Platform owner only\" the Edition choice appears only on the ?edition=in link; India sign-in opens the India company",
   "status": "PASS",
-  "evidence": "{\"plain\":0,\"company\":\"ModulesSRCompany booksIN1 Traders mwqr9jdzINR · AccrualITIN1 Traders mwqr9jdzFull Accounting⌄Select Companies1 available · same base currency requiredIN1 Traders mwqr9jdzCompany Owner · INRUse onlyVie\",\"errs\":[]}"
+  "evidence": "{\"plain\":0,\"company\":\"ModulesSRCompany booksIN1 Traders mwqvq341INR · AccrualITIN1 Traders mwqvq341Full Accounting⌄Select Companies1 available · same base currency requiredIN1 Traders mwqvq341Company Owner · INRUse onlyVie\",\"errs\":[]}"
  },
  {
   "id": "UI-02",

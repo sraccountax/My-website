@@ -4,7 +4,7 @@
   "area": "IN2",
   "title": "Canada is unaffected: a Canadian company gets 404 on every India master route and gains no India rows",
   "status": "PASS",
-  "evidence": "{\"codes\":[[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"]],\"before\":\"14|45\",\"after\":\"14|45\",\"rows\":\"0\"}"
+  "evidence": "{\"codes\":[[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"]],\"before\":\"14|46\",\"after\":\"14|46\",\"rows\":\"0\"}"
  },
  {
   "id": "IN2-02",
@@ -32,14 +32,14 @@
   "area": "IN2",
   "title": "Vendor profile and company isolation: PAN validated; a record of another company is not found; an India vendor gets PAN, MSME and TDS section",
   "status": "PASS",
-  "evidence": "{\"cross\":[404,\"india_entity_missing\"],\"badPan\":\"india_field_invalid\",\"ok\":201,\"data\":{\"pan\":\"AAAPZ4624Q\",\"msme\":true,\"udyamNumber\":\"UDYAM-KA-02-0000002\",\"msmeCategory\":\"micro\",\"agreedPaymentDays\":30,\"relatedParty\":false,\"tdsSection\":\"GATE-SEC-mwqrb2ko\",\"jobWorker\":false,\"transporter\":false}}"
+  "evidence": "{\"cross\":[404,\"india_entity_missing\"],\"badPan\":\"india_field_invalid\",\"ok\":201,\"data\":{\"pan\":\"AAAPZ8602Q\",\"msme\":true,\"udyamNumber\":\"UDYAM-KA-02-0000002\",\"msmeCategory\":\"micro\",\"agreedPaymentDays\":30,\"relatedParty\":false,\"tdsSection\":\"GATE-SEC-mwqvrnf6\",\"jobWorker\":false,\"transporter\":false}}"
  },
  {
   "id": "IN2-06",
   "area": "IN2",
   "title": "GST registrations: another PAN is refused for the company; a second state is added; a change with a later date supersedes the old row (end date the day before) and keeps it",
   "status": "PASS",
-  "evidence": "{\"foreign\":\"india_gstin_pan\",\"badCheck\":\"india_field_invalid\",\"noDate\":\"india_field_required\",\"old\":\"superseded|2026-10-31\",\"nw\":\"active|inrec_37cb193efd580740003541f94b5573ad\",\"stale\":\"india_record_stale\",\"active\":2,\"all\":3}"
+  "evidence": "{\"foreign\":\"india_gstin_pan\",\"badCheck\":\"india_field_invalid\",\"noDate\":\"india_field_required\",\"old\":\"superseded|2026-10-31\",\"nw\":\"active|inrec_41854cf223ca6e125f6252e0e3488157\",\"stale\":\"india_record_stale\",\"active\":2,\"all\":3}"
  },
  {
   "id": "IN2-07",

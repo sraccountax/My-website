@@ -11,7 +11,7 @@
   "area": "IN4",
   "title": "GSTR-1 sections: B2B (2 invoices, GSTIN and place), B2C large above the approved limit, export with payment, B2C small by place and rate, credit note in CDNR",
   "status": "PASS",
-  "evidence": "{\"b2b\":[\"27AAACB8495P1ZV|27|1000000|0|90000|90000\",\"29AAACK8495T1ZA|29|2000000|360000|0|0\"],\"b2cl\":[[20000000,3600000,23600000]],\"exp\":[[\"WPAY\",5000000,900000]],\"b2cs\":[\"27|18000|100000|0|9000|9000\",\"29|18000|500000|90000|0|0\"],\"cdnr\":[[\"C\",-100000,-9000,\"INV-1001\"]]}"
+  "evidence": "{\"b2b\":[\"27AAACB6501P1ZK|27|1000000|0|90000|90000\",\"29AAACK6501T1ZZ|29|2000000|360000|0|0\"],\"b2cl\":[[20000000,3600000,23600000]],\"exp\":[[\"WPAY\",5000000,900000]],\"b2cs\":[\"27|18000|100000|0|9000|9000\",\"29|18000|500000|90000|0|0\"],\"cdnr\":[[\"C\",-100000,-9000,\"INV-1001\"]]}"
  },
  {
   "id": "IN4-03",
@@ -46,7 +46,7 @@
   "area": "IN4",
   "title": "Registers: the purchase (ITC) register lists both vendor invoices with supplier GSTIN and tax by head; the sales register nets the credit note",
   "status": "PASS",
-  "evidence": "{\"rows\":[\"24AAAFV8495Q1Z9|inter|3000000|540000|0|0\",\"27AAAFM8495R1ZA|intra|1000000|0|90000|90000\"],\"sales\":{\"taxableCents\":28500000,\"igstCents\":4950000,\"cgstCents\":90000,\"sgstCents\":90000,\"cessCents\":0,\"notClaimedCents\":0}}"
+  "evidence": "{\"rows\":[\"24AAAFV6501Q1ZY|inter|3000000|540000|0|0\",\"27AAAFM6501R1ZZ|intra|1000000|0|90000|90000\"],\"sales\":{\"taxableCents\":28500000,\"igstCents\":4950000,\"cgstCents\":90000,\"sgstCents\":90000,\"cessCents\":0,\"notClaimedCents\":0}}"
  },
  {
   "id": "IN4-08",
@@ -60,7 +60,7 @@
   "area": "IN4",
   "title": "Return periods: an Editor prepares GSTR-3B but cannot mark it filed; the Owner marks it filed with an ARN; a later September invoice flags it as changed; reopening needs a reason; every step is audited",
   "status": "PASS",
-  "evidence": "{\"prep\":200,\"edFile\":403,\"badArn\":\"india_gst_arn\",\"filed\":200,\"before\":{\"status\":\"filed\",\"arn\":\"AA2709260000001\",\"filedOn\":\"2026-10-01\",\"changedSince\":false,\"updatedAt\":\"2026-10-01 16:47:28\"},\"rePrep\":\"india_gst_return_filed\",\"after\":true,\"noReason\":422,\"reopen\":200,\"audit\":\"india.gst_return_filed,india.gst_return_prepared,india.gst_return_reopened\"}"
+  "evidence": "{\"prep\":200,\"edFile\":403,\"badArn\":\"india_gst_arn\",\"filed\":200,\"before\":{\"status\":\"filed\",\"arn\":\"AA2709260000001\",\"filedOn\":\"2026-10-01\",\"changedSince\":false,\"updatedAt\":\"2026-10-01 16:48:58\"},\"rePrep\":\"india_gst_return_filed\",\"after\":true,\"noReason\":422,\"reopen\":200,\"audit\":\"india.gst_return_filed,india.gst_return_prepared,india.gst_return_reopened\"}"
  },
  {
   "id": "IN4-10",
@@ -74,7 +74,7 @@
   "area": "IN4",
   "title": "GSTR-2B reconciliation: the Surat invoice matches though written differently; the Mumbai invoice is a mismatch (supplier shows ₹50 more CGST); a supplier invoice not in the books is \"only in 2B\"",
   "status": "PASS",
-  "evidence": "{\"imp\":{\"id\":\"gstr2b_4694064a2f75966f475526b737773b9d\",\"period\":\"2026-09\",\"documents\":3},\"counts\":{\"matched\":1,\"mismatch\":1,\"only2b\":1,\"onlyBooks\":0,\"noGstin\":0},\"mm\":{\"cgstCents\":5000},\"replaced\":\"active,replaced\"}"
+  "evidence": "{\"imp\":{\"id\":\"gstr2b_732a9b54d6a2e6bd647001331aa8c6da\",\"period\":\"2026-09\",\"documents\":3},\"counts\":{\"matched\":1,\"mismatch\":1,\"only2b\":1,\"onlyBooks\":0,\"noGstin\":0},\"mm\":{\"cgstCents\":5000},\"replaced\":\"active,replaced\"}"
  },
  {
   "id": "UI-01",
