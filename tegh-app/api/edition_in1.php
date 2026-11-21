@@ -442,7 +442,9 @@ function tegh_india_company_update(array $user, array $company, array $input): a
             ->execute([$pan !== '' ? $pan : null, $gstin !== '' ? $gstin : null, TEGH_INDIA_STATES[$state][1], $tan !== '' ? $tan : null, $cin !== '' ? $cin : null, $tradeName, $address['district'] ?: null, $pin !== '' ? $pin : null,
                 json_encode(array_intersect_key($address, array_flip(['building', 'street', 'locality', 'landmark', 'city', 'district']))), $fyStart !== '' ? $fyStart : null, $companyId]);
         if ($registrations !== null) {
-            require_once __DIR__ . '/india_masters_in2.php'; $today = canadian_today();
+            require_once __DIR__ . '/india_masters_in2.php';
+            // Dated in the company's (possibly new) time zone, the zone every later read uses; the request's zone is the old one.
+            $today = (new DateTimeImmutable('now', new DateTimeZone($timezone)))->format('Y-m-d');
             $prev = db()->prepare("SELECT data_json FROM india_entity_profiles WHERE company_id=? AND entity_type='company' AND entity_id=? AND effective_from<=? ORDER BY effective_from DESC LIMIT 1"); $prev->execute([$companyId, $companyId, $today]);
             // Fields the set-up form does not show (regime, tax audit, accounting standard) are kept.
             $data = array_merge(array_diff_key(json_decode((string)($prev->fetchColumn() ?: '{}'), true) ?: [], array_flip(['businessActivity', 'iec', 'udyamNumber', 'msmeCategory', 'epfEstablishmentCode', 'esicEmployerCode', 'ptRegistration', 'ptEnrolment', 'shopsEstablishment', 'lwfRegistration', 'lei', 'fssai'])), $registrations);
@@ -453,6 +455,7 @@ function tegh_india_company_update(array $user, array $company, array $input): a
         audit_event($user, $companyId, 'india.company_updated', 'company', $companyId, ['before' => $before, 'after' => ['name' => $name, 'legalName' => $legalName, 'state' => $state, 'gstin' => $gstin ?: null, 'tan' => $tan !== '', 'cin' => $cin ?: null, 'timezone' => $timezone, 'financialYear' => [$fyStart, $fyEndDate], 'address' => array_intersect_key($address, array_flip(['building', 'street', 'locality', 'landmark', 'city', 'district'])), 'registrations' => $registrations === null ? null : array_keys($registrations)]]);
         db()->commit();
     } catch (Throwable $e) { if (db()->inTransaction()) db()->rollBack(); throw $e; }
+    $GLOBALS['tegh_accounting_timezone'] = $timezone; // the reply is read in the new zone
     return ['ok' => true, 'india' => tegh_india_profile_public($companyId)];
 }
 

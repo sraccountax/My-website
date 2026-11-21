@@ -1301,6 +1301,8 @@ function handle_advanced_recurring_invoices(): never
     $message = mb_substr(trim((string)($input['message'] ?? '')), 0, 1000);
     $issueAutomatically = !empty($input['issueAutomatically']);
     $lines = advanced_validate_recurring_invoice_lines($input['lines'] ?? null);
+    // R192: recurring documents do not apply India GST codes, so an India company cannot mark a line taxable.
+    if (($company['edition'] ?? '') === 'IN' && array_filter($lines, static fn($l) => $l[3] === 1)) fail('GST is not added to recurring invoices in an India company. Create a GST invoice from Customer Invoices, with its GST code.', 422, 'india_recurring_gst');
     $profileId = new_id('recinvoice');
     db()->beginTransaction();
     try {
@@ -1474,6 +1476,7 @@ function handle_advanced_recurring_bills(): never
     if ($foreignAmountCents <= 0) fail('Recurring vendor invoice amount must be positive.');
     $applyGstHst = !empty($input['applyGstHst']);
     $applyPst = !empty($input['applyPst']);
+    if (($company['edition'] ?? '') === 'IN' && ($applyGstHst || $applyPst)) fail('GST is not added to recurring vendor invoices in an India company. Record a GST vendor invoice from Vendor Invoices, with its GST code.', 422, 'india_recurring_gst');
     if ($applyGstHst && !(bool)$company['tax_registered']) fail('GST/HST is not enabled in this company tax setup.', 409, 'gst_hst_not_configured');
     if ($applyPst && (!(bool)($company['pst_registered'] ?? false) || company_pst_rate_mpct($company) <= 0)) fail('PST is not enabled in this company tax setup.', 409, 'pst_not_configured');
     $taxEntryMode = (string)($input['taxEntryMode'] ?? (($applyGstHst || $applyPst) ? 'exclusive' : 'none'));

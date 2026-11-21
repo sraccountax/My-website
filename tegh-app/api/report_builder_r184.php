@@ -50,6 +50,14 @@ function tegh_rb_require_available(array $user): void
  */
 function tegh_rb_sources(): array
 {
+    // R192: an India company's customers and vendors have a state, not a province.
+    $sources = tegh_rb_sources_base();
+    if (($GLOBALS['tegh_company_edition'] ?? '') === 'IN') foreach ($sources as &$src) if (isset($src['fields']['province'])) $src['fields']['province'][0] = 'State';
+    return $sources;
+}
+
+function tegh_rb_sources_base(): array
+{
     $party = static fn(string $alias, string $label) => [$label, "COALESCE($alias.name,'(none)')", 'text', 'dim'];
     return [
         'gl' => [

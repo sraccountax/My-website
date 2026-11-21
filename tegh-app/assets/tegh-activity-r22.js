@@ -357,7 +357,7 @@
     $$('.r17-report-identity-block,.r20-report-identity,.srp-report-period-caption',work).forEach(n=>{
       if(n.dataset.r22Identity)return;n.dataset.r22Identity='1';n.classList.add('r22-document-identity');
       const help=guidance(s);
-      if(help&&!['report-bank-general-ledger','report-bank-transactions'].includes(s.page.dataset.srpPage)){const copy=document.createElement('p');copy.className='r22-recorded-scope';copy.textContent=n.textContent.replace(/\s+/g,' ').trim();
+      if(help&&!['report-bank-general-ledger','report-bank-transactions'].includes(s.page.dataset.srpPage)){const copy=document.createElement('p');copy.className='r22-recorded-scope';copy.textContent=[...n.childNodes].map(x=>x.textContent.replace(/\s+/g,' ').trim()).filter(Boolean).join(' · '); // R192: title and period were run together
         const prior=$('.r22-recorded-scope',help);prior?.remove();help.append(copy);}
     });
   }

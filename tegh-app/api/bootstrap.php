@@ -1071,6 +1071,7 @@ function require_company(array $user): array
     // R157: the company's accounting date follows its time zone (Toronto when none is set).
     tegh_set_accounting_timezone((string)($company['timezone'] ?? ''));
     $GLOBALS['tegh_company_currency'] = (string)($company['currency'] ?? 'CAD'); // R181: base currency for server-written text
+    $GLOBALS['tegh_company_edition'] = (string)($company['edition'] ?? ''); // R192: edition of the open company, for server-written labels
     if ((string)($_SERVER['HTTP_X_SR_TEST_RUN'] ?? '') === '1') {
         $isCurrentTest = !empty($company['test_mode'])
             && ($company['test_expires_at'] === null || strtotime((string)$company['test_expires_at'].' UTC') > time());
