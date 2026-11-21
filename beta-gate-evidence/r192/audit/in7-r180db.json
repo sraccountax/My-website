@@ -1,0 +1,51 @@
+[
+ {
+  "id": "IN7-01",
+  "area": "IN7",
+  "title": "Refusals: an unknown time zone, a financial year ending before it starts or longer than 18 months, a non-INR currency, a bad Udyam number, an unknown registration",
+  "status": "PASS",
+  "evidence": "[[422,\"india_timezone_invalid\"],[422,\"india_fy_invalid\"],[422,\"india_fy_invalid\"],[422,\"india_currency_inr\"],[422,\"india_field_invalid\"],[422,\"india_field_unknown\"]]"
+ },
+ {
+  "id": "IN7-02",
+  "area": "IN7",
+  "title": "Create: INR books, the chosen time zone and financial year (1 April 2026 to 31 March 2027), the full address composed into lines 1 and 2, registrations in the India Masters company profile, the GSTIN as a GST registration record, and a savings account (no chequing)",
+  "status": "PASS",
+  "evidence": "{\"c\":\"INR|Asia/Kolkata|03-31|2027-03-31|2026-04-01|Flat 4B, Lotus Towers, 12 MG Road|Ashok Nagar, Near Brigade Junction, Bengaluru Urban district|Bengaluru|560001|KA\",\"fy\":\"2026-04-01\",\"p\":{\"businessActivity\":\"Software services\",\"udyamNumber\":\"UDYAM-KA-03-0477112\",\"msmeCategory\":\"small\",\"epfEstablishmentCode\":\"KABNG4771123\",\"esicEmployerCode\":\"53004771000000123\",\"ptRegistration\":\"PTRC\\\\/4771\",\"shopsEstablishment\":\"SE-BLR-4771\"},\"g\":[\"29AAACS4771K1ZX\",\"regular\"],\"bank\":\"Savings Account|Bank - Savings Account|savings\"}"
+ },
+ {
+  "id": "IN7-03",
+  "area": "IN7",
+  "title": "Company details: the Owner reads PAN and TAN in full and edits address, time zone and registrations (a new profile version); the financial year changes while there are no entries and is locked after the first journal",
+  "status": "PASS",
+  "evidence": "{\"pan\":true,\"landmark\":\"Trinity Metro\",\"regs\":{\"businessActivity\":\"Software services\",\"iec\":\"AAACS4771K\",\"udyamNumber\":\"UDYAM-KA-03-0477112\",\"msmeCategory\":\"small\",\"epfEstablishmentCode\":\"KABNG4771123\",\"esicEmployerCode\":\"53004771000000123\",\"ptRegistration\":\"PTRC/4771\",\"shopsEstablishment\":\"SE-BLR-4771\",\"fssai\":\"14771000000099\"},\"tz\":\"Asia/Dubai\",\"fyOk\":200,\"fyLocked\":[409,\"india_fy_locked\"]}"
+ },
+ {
+  "id": "IN7-04",
+  "area": "IN7",
+  "title": "Customer and vendor with a full Indian address: lines 1 and 2 are composed, the parts are kept for editing, a bad PIN is refused, and the invoice carries the whole address",
+  "status": "PASS",
+  "evidence": "{\"bad\":[422,\"india_pin_invalid\"],\"lines\":\"Shop 3, Sai Plaza, FC Road|Shivajinagar, Near Fergusson College|Pune|411001\",\"parts\":{\"building\":\"Shop 3, Sai Plaza\",\"street\":\"FC Road\",\"locality\":\"Shivajinagar\",\"landmark\":\"Fergusson College\",\"district\":\"Pune\"},\"upd\":200,\"lines2\":\"Shop 3, Sai Plaza, FC Road|Shivajinagar|411005\",\"vlines\":\"Unit 7, Wagle Estate|Wagle Industrial Area\",\"snap\":\"{\\\"name\\\":\\\"IN7 Customer mwqtziwr\\\",\\\"email\\\":null,\\\"phone\\\":null,\\\"billingAddress\\\":\\\"Shop 3, Sai Plaza, FC Road, Shivajinagar, Pune, 411005, India\\\",\\\"province\\\":\\\"MH\\\"}\"}"
+ },
+ {
+  "id": "IN7-05",
+  "area": "IN7",
+  "title": "Canada is unaffected: a Canadian company gets 404 on the India company and address routes, India address fields sent to a Canadian customer are ignored, and the Canadian chequing account type still works",
+  "status": "PASS",
+  "evidence": "{\"r1\":404,\"r2\":404,\"lines\":\"1 King St|Suite 2\",\"rows\":\"0\"}"
+ },
+ {
+  "id": "UI-01",
+  "area": "IN7",
+  "title": "First company of an India sign-in: the India form replaces the Canadian wizard (every time zone with Asia/Kolkata chosen, financial year start and end date pickers, registrations, Indian address, INR, current or savings account, no provinces, HST or chequing); creating it opens the new India company",
+  "status": "PASS",
+  "evidence": "{\"zones\":419,\"zone\":\"Asia/Kolkata\",\"types\":{\"fs\":\"date\",\"fe\":\"date\"},\"bank\":[\"Current Account\",\"Savings Account\"],\"states\":37,\"canadian\":[],\"wizardHidden\":true,\"autoEnd\":\"2027-03-31\",\"made\":\"INR|IN|Asia/Kolkata|2027-03-31\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-02",
+  "area": "IN7",
+  "title": "In the app: Company details shows the registrations and edits in place; the customer form shows flat/building, street, area, landmark, city or town, district and PIN code; Company Setup shows India cards only",
+  "status": "PASS",
+  "evidence": "{\"det\":\"Company name\\nIN7 Setup mwqtziwr\\nLegal name\\nIN7 Setup Private Limited\\nTrade name\\n—\\nConstitution\\nPrivate limited company\\nNature of business\\nSoftware services\\nPAN\\nAAACS4771K\\nGSTIN\\n29AAACS4771K1ZX\\nTAN\\nBLR\",\"lei\":true,\"labels\":\"Customer Name•|Contact Name|Email Address|Phone|Flat, Door or Building|Street or Road|Area or Locality|Landmark|City or Town|District|PIN Code|Country\\nAfghanistan\\nAlbania\\nAlgeria\\nAndorra\\nAngola\\nAnguilla\\nAntarctica\\nAntigua and Barbuda\\nArgentina\\nArmenia\\nAruba\\nAustralia\\nAustria\\nAzerbaijan\\nBahamas\\nBahrain\\nBangladesh\\nBarbados\\nBelarus\\nBel"
+ }
+]

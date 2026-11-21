@@ -1,0 +1,9 @@
+final-in-1440 IN screens 118 forms 12 with issues 8 {"company":"company_3d13efc0cb8ddef9ff013adee74cda5f"}
+   receivables:create-customer        foreign-wording canada
+   payables:create-vendor             foreign-wording canada
+   fn:openSiteReleaseSettings         foreign-wording canada
+   fn:openTaxCodes                    foreign-wording canadian
+   fn:openTaxCodeReport               foreign-wording canadian
+   fn:openRates                       foreign-wording canadian
+   fn:openGifiReport                  foreign-wording gifi,canadian
+   fn:openGifiMapping                 foreign-wording gifi,canadian

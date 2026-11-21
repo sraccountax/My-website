@@ -1,0 +1,5 @@
+final-ca-1440 CA screens 115 forms 14 with issues 4 {"company":"company_04733e0dbe583573621679fe2bc3a1ff"}
+   fn:openTaxCodes                    foreign-wording cgst,sgst
+   fn:openTaxCodeReport [Add Tax Code] foreign-wording cgst,sgst
+   fn:openUsers                       foreign-wording tds
+   report:Tax Code Report [Add Tax Code] foreign-wording cgst,sgst
