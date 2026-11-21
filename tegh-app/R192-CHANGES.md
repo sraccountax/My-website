@@ -66,7 +66,7 @@ In an India company:
 - Tegh Assist's Create Customer form.
 
 ## 2. Both editions
-- **Match and Post on a phone:** the table was squeezed to the screen width, so dates, amounts and descriptions were cut off ("-$1,149…"). On screens up to 820 px it now keeps readable column widths and scrolls sideways inside its frame. Desktop is unchanged.
+- **Match and Post on a phone:** the table was squeezed to the screen width, so dates, amounts and descriptions were cut off ("-$1,149…"). On screens up to 820 px it now keeps readable column widths and scrolls sideways inside its frame. The Status column is wide enough for its heading. Desktop is unchanged.
 - **Report scope line:** the line beside a report read "Expense registerJan 1, 2026 to Nov 21, 2026". It now reads "Expense register · Jan 1, 2026 to Nov 21, 2026".
 - **Match and Post Actions menu:** on a phone, the table now scrolls sideways. Scrolling it closed an open Actions menu, even when the scroll had just brought the button into view. The menu now moves with its button and closes only when the button leaves the screen. This was found by the R186 phone test in the first R192 gate.
 - **Users:** each member's role list has an accessible name ("Role of …").

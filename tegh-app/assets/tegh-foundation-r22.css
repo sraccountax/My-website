@@ -8579,9 +8579,9 @@ html[data-tegh-activity-shell="r22"] .r17-quick-list button{grid-template-column
 /* R192: on a phone the Match and Post table kept the screen width, so dates, amounts and descriptions were cut off.
    It keeps a readable width and scrolls sideways inside its own frame instead. */
 @media (max-width: 820px){
-  html[data-tegh-shell] .r28-bank-scroll > table.r28-bank-table.r22-stacked-table{min-width:660px!important;max-width:none!important;width:660px!important}
+  html[data-tegh-shell] .r28-bank-scroll > table.r28-bank-table.r22-stacked-table{min-width:676px!important;max-width:none!important;width:676px!important}
   html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page.srp-page.srp-page .r28-banking-workspace .r15-recon-table.r28-bank-table col.date-col{width:118px!important}
   html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page.srp-page.srp-page .r28-banking-workspace .r15-recon-table.r28-bank-table col.amount-col{width:124px!important}
   html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page.srp-page.srp-page .r28-banking-workspace .r15-recon-table.r28-bank-table col.ref-col{width:86px!important}
-  html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page.srp-page.srp-page .r28-banking-workspace .r15-recon-table.r28-bank-table col:last-child{width:96px!important}
+  html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page.srp-page.srp-page .r28-banking-workspace .r15-recon-table.r28-bank-table col:last-child{width:112px!important}
 }

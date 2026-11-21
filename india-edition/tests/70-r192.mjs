@@ -130,7 +130,7 @@ try {
       } finally { await ctx.close(); }
     });
 
-    await t('UI-03', 'Phone (390 px), both editions: Match and Post shows dates and amounts in full (the table scrolls sideways instead of cutting them off); report scope line reads "<title> · <period>"', async () => {
+    await t('UI-03', 'Phone (390 px), both editions: Match and Post shows dates, amounts and column headings in full (the table scrolls sideways instead of cutting them off); report scope line reads "<title> · <period>"', async () => {
       const out = {};
       for (const [ed, co] of [['CA', CACO], ['IN', INCO]]) {
         const {ctx, p, errs} = await open(ed, co, {width: 390, height: 844});
@@ -138,14 +138,15 @@ try {
           await go(p, 'menu|banking:match-and-post-transactions');
           const m = await p.evaluate(() => { const t = document.querySelector('.r28-bank-scroll table'); if (!t) return {none: true}; const cells = [...t.querySelectorAll('tbody tr td')].filter(td => /\d/.test(td.textContent) && td.offsetParent !== null);
             const clipped = cells.filter(td => td.scrollWidth > td.clientWidth + 2 && /[$₹]|\d{4}/.test(td.textContent)).map(td => td.textContent.trim().slice(0, 20));
-            return {rows: t.querySelectorAll('tbody tr').length, clipped: clipped.slice(0, 4), wrapScroll: t.parentElement.scrollWidth > t.parentElement.clientWidth}; });
+            const headClipped = [...t.querySelectorAll('thead th')].filter(th => th.offsetParent !== null && th.textContent.trim().length > 2 && th.scrollWidth > th.clientWidth + 2).map(th => th.textContent.trim());
+            return {rows: t.querySelectorAll('tbody tr').length, clipped: clipped.slice(0, 4), headClipped, wrapScroll: t.parentElement.scrollWidth > t.parentElement.clientWidth}; });
           await p.screenshot({path: `/srv/gate/ev/shots/r192-${ed.toLowerCase()}-match-post-390.png`});
           await go(p, 'report|Expense Register');
           const scope = await p.evaluate(() => document.querySelector('.r22-recorded-scope')?.textContent || '');
           out[ed] = {...m, scope, errs};
         } finally { await ctx.close(); }
       }
-      const ok = ['CA', 'IN'].every(e => !out[e].none && !out[e].clipped.length && (out[e].rows <= 1 || out[e].wrapScroll) && (!out[e].scope || / · /.test(out[e].scope)) && !out[e].errs.length);
+      const ok = ['CA', 'IN'].every(e => !out[e].none && !out[e].clipped.length && !out[e].headClipped.length && (out[e].rows <= 1 || out[e].wrapScroll) && (!out[e].scope || / · /.test(out[e].scope)) && !out[e].errs.length);
       return {ok, info: JSON.stringify(out)};
     });
   } finally { await browser.close(); }
