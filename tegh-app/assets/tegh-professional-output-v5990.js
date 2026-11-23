@@ -317,6 +317,22 @@
     const old=q('.srp-table-wrap,.sra-table-wrap',body);if(old)old.before(host);else body.append(host);return host;
   }
   function showOutputError(page,c,error){window.TeghRegistersR23?.invalidate(page);c.error=error;page.dataset.teghReportSurface='error';const host=reportHost(page);host.innerHTML=`<div class="srp-notice danger" role="alert"><b>Complete report unavailable</b><p>${esc(error.message)}</p><button type="button" class="srp-btn secondary" data-tegh-report-retry>Retry report</button></div>`;q('[data-tegh-report-retry]',host).onclick=()=>setReportContext(page,{route:c.route,params:c.params,preserveInteractive:c.preserveInteractive});renderOutputToolbar(page,c);
+    // R193: a report over the complete-row limit on a large company (for example the Day Book's default "All time", or
+    // the fiscal year to date) offers its latest month instead, so the page is not left on an error. The period fields
+    // change to that month and the complete report for it is requested; nothing is truncated.
+    const limitStart=c.params?.start,limitEnd=c.params?.end;
+    if(error?.code==='report_incomplete_over_limit'&&/^\d{4}-\d{2}-\d{2}$/.test(String(limitStart||''))&&/^\d{4}-\d{2}-\d{2}$/.test(String(limitEnd||''))){
+      const monthStart=String(limitEnd).slice(0,8)+'01';
+      if(monthStart>String(limitStart)){
+        const label=new Date(monthStart+'T12:00:00').toLocaleDateString(undefined,{month:'long',year:'numeric'});
+        const button=document.createElement('button');button.type='button';button.className='srp-btn';button.dataset.teghReportLatestMonth='';button.textContent=`Show ${label} only`;
+        q('[data-tegh-report-retry]',host).before(button);
+        button.onclick=()=>{const startField=q('input[name=start]',page),endField=q('input[name=end]',page),preset=q('select[name=preset]',page);
+          if(preset&&[...preset.options].some(o=>o.value==='custom'))preset.value='custom';
+          if(startField)startField.value=monthStart;if(endField)endField.value=String(limitEnd);
+          setReportContext(page,{route:c.route,params:{...c.params,start:monthStart,end:String(limitEnd)},preserveInteractive:c.preserveInteractive})};
+      }
+    }
     // Older workspace tables are not shown as the current authoritative report after failure.
     // R193: the preview totals beside them are hidden too. On a large company the preview holds only part of the ledger,
     // so its totals (for example debits that differ from credits) must not stand in for the refused complete report.
