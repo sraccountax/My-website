@@ -76,6 +76,8 @@ There is a new stylesheet, `tegh-dark-r193.css`. It is loaded last and applies o
 
 **Text that was unreadable now has at least 3:1 contrast:** labels, Journal Entry tabs, page headings, eyebrows, links, chart legends, zero amounts and the note in the budget editor.
 
+**Both themes:** the release label in the sidebar footer ("Version 5.9.9") used the muted colour of light surfaces and had 2.7:1 contrast on the dark sidebar; it now has 7:1 (`tegh-foundation-r22.css`).
+
 **Not changed:** the invoice template preview stays white (it shows the printed page).
 
 ## 5. Release token

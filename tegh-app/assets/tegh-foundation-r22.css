@@ -8585,3 +8585,5 @@ html[data-tegh-activity-shell="r22"] .r17-quick-list button{grid-template-column
   html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page.srp-page.srp-page .r28-banking-workspace .r15-recon-table.r28-bank-table col.ref-col{width:86px!important}
   html[data-tegh-design][data-tegh-shell] body .app .stage .srp-page.srp-page.srp-page .r28-banking-workspace .r15-recon-table.r28-bank-table col:last-child{width:112px!important}
 }
+/* R193: the release label in the sidebar footer used the muted text colour of light surfaces (2.7:1 on the dark sidebar). */
+html body .sidebar .side-foot .srp-sites-release small{color:#a9bdb6!important}
