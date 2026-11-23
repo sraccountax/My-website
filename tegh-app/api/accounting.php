@@ -757,7 +757,23 @@ function workspace_data(array $user, array $company): array
         }
     } catch (Throwable $ignored) {}
 
+    // R193: each invoice keeps the template snapshot it was issued with. Sending a full copy with every invoice made the
+    // workspace grow with the invoice count (6,000 invoices: 3.4 MB of identical copies, and a template logo would be
+    // copied into every one), so a large company's workspace could exhaust the PHP memory limit. Each distinct snapshot
+    // is now sent once in invoiceTemplateSnapshots and the invoice names it in templateSnapshotRef; the browser puts the
+    // snapshot back on each invoice as soon as the response is read, so screens see the same data as before.
+    $invoiceTemplateSnapshots = [];
+    foreach ($invoices as &$workspaceInvoice) {
+        if (!isset($workspaceInvoice['templateSnapshot']) || !is_array($workspaceInvoice['templateSnapshot'])) continue;
+        $snapshotRef = substr(hash('sha256', json_encode($workspaceInvoice['templateSnapshot'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)), 0, 24);
+        $invoiceTemplateSnapshots[$snapshotRef] ??= $workspaceInvoice['templateSnapshot'];
+        $workspaceInvoice['templateSnapshotRef'] = $snapshotRef;
+        unset($workspaceInvoice['templateSnapshot']);
+    }
+    unset($workspaceInvoice);
+
     return [
+        'invoiceTemplateSnapshots' => (object)$invoiceTemplateSnapshots,
         'mode' => 'persistent',
         'organization' => [
             'id' => $companyId, 'name' => (string)$company['name'], 'legalName' => (string)$company['legal_name'],
@@ -806,6 +822,11 @@ function handle_workspace(): never
     // A slow reporting query must return control to the startup gate instead
     // of leaving the browser behind a permanent full-screen loader.
     @set_time_limit(45);
+    // R193: the workspace of a large company (thousands of invoices) is built and encoded in one response; on the 128 MB
+    // default it could run out of memory. Raise the limit for this request only, where the host allows it, and never lower it.
+    $memoryLimit = (string)ini_get('memory_limit');
+    $memoryBytes = (static function (string $v): int { $v = trim($v); if ($v === '-1') return -1; $n = (int)$v; return match (strtolower(substr($v, -1))) { 'g' => $n * 1073741824, 'm' => $n * 1048576, 'k' => $n * 1024, default => $n }; })($memoryLimit);
+    if ($memoryBytes !== -1 && $memoryBytes < 268435456) @ini_set('memory_limit', '256M');
     try { db()->exec('SET SESSION MAX_EXECUTION_TIME = 30000'); } catch (Throwable $ignored) {}
     try { db()->exec('SET SESSION max_statement_time = 30'); } catch (Throwable $ignored) {}
     $user = require_user();

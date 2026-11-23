@@ -871,6 +871,8 @@
     }
   }
 
+  /* R193: the workspace sends each invoice template snapshot once (invoiceTemplateSnapshots) and each invoice names it (templateSnapshotRef); put the snapshot back on every invoice so screens read invoice.templateSnapshot as before. */function teghRehydrateWorkspaceR193(b){try{const map=b&&b.invoiceTemplateSnapshots;if(map&&Array.isArray(b.invoices))for(const i of b.invoices)if(i&&i.templateSnapshotRef&&!i.templateSnapshot&&map[i.templateSnapshotRef])i.templateSnapshot=map[i.templateSnapshotRef]}catch(_){}return b}
+  window.teghRehydrateWorkspaceR193 = teghRehydrateWorkspaceR193;
   async function request(route, options = {}, timeoutMs = timeoutFor(route), extraParams = null) {
     const url = new URL('/api/index.php', window.location.origin);
     url.searchParams.set('route', route);
@@ -891,7 +893,7 @@
       const text = await response.text();
       let body = {};
       if (text) {
-        try { body = JSON.parse(text); }
+        try { body = teghRehydrateWorkspaceR193(JSON.parse(text)); }
         catch (_) {
           const error = new Error('The server returned an unreadable response. Please retry.');
           error.internalMessage = `The server returned an unreadable response: ${text.slice(0, 180).replace(/\s+/g, ' ')}`;
