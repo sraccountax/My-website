@@ -1413,7 +1413,17 @@ function r170_list(array $company, array $filters): array
     r170_require_schema();
     require_company_permission($company, 'bills.view');
     $companyId = (string)$company['id'];
-    r170_expire_leases($companyId);
+    // R194: expiring leases is housekeeping on a read. A worker claiming or finishing a job at the same moment can
+    // deadlock with it (seen as an HTTP 500 on the job list); retry once, then list without it. The next list or
+    // claim expires the leases.
+    for ($try = 0; $try < 2; $try++) {
+        try { r170_expire_leases($companyId); break; }
+        catch (PDOException $e) {
+            $code = (int)($e->errorInfo[1] ?? 0);
+            if (!in_array($code, [1205, 1213], true) && (string)$e->getCode() !== '40001') throw $e;
+            if ($try === 0) usleep(150000);
+        }
+    }
     $where = ['j.company_id=?'];
     $params = [$companyId];
     $state = (string)($filters['state'] ?? '');

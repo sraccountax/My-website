@@ -8587,3 +8587,18 @@ html[data-tegh-activity-shell="r22"] .r17-quick-list button{grid-template-column
 }
 /* R193: the release label in the sidebar footer used the muted text colour of light surfaces (2.7:1 on the dark sidebar). */
 html body .sidebar .side-foot .srp-sites-release small{color:#a9bdb6!important}
+/* R194: the Tegh mark on the sign-in and first-company screens shows the T (it held the retired letters, hidden). */
+.auth-shell .brand-mark{background:var(--tegh-mark) center/cover no-repeat!important;border:0!important;box-shadow:0 8px 18px rgba(3,18,29,.25)}
+.auth-shell .brand-mark>*{visibility:hidden}
+/* R194: Sign out on the first-company screen. */
+.sr-first-signout{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:6px 12px;margin:0 0 14px;font:500 13px/1.3 Arial,sans-serif;color:#36514a}
+.sr-first-signout>span{min-width:0;overflow-wrap:anywhere}
+.sr-first-signout b{font-weight:700;color:#132b25}
+.sr-first-signout-button{min-height:36px;padding:0 14px;border:1px solid #9fb4ad;border-radius:10px;background:#fff;color:#132b25;font:700 13px Arial,sans-serif;cursor:pointer}
+.sr-first-signout-button:hover,.sr-first-signout-button:focus-visible{background:#eef5f2;border-color:#36514a}
+.sr-first-signout-button:disabled{opacity:.6;cursor:wait}
+.sr-first-signout small{flex-basis:100%;text-align:right;color:#a3261b}
+html[data-tegh-theme="dark"] .sr-first-signout{color:#a7bbb3}
+html[data-tegh-theme="dark"] .sr-first-signout b{color:#edf7f3}
+html[data-tegh-theme="dark"] .sr-first-signout-button{background:#22382f;border-color:#3a5a51;color:#edf7f3}
+html[data-tegh-theme="dark"] .sr-first-signout small{color:#ffb4a8}

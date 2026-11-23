@@ -12,10 +12,14 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R193 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R194 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R193 (R118–R193 change notes are
-included). R193 is the private beta package (it replaces R192): fixes from an audit with large companies in both
+This package contains every release through R194 (R118–R194 change notes are
+included). R194 is the private beta package (it replaces R193): the Tegh mark on the sign-in and
+first-company screens shows the T; the first-company screen (Canadian choice and form, India form) has Sign out; the
+Invoice Intelligence job list no longer answers HTTP 500 when expiring leases deadlocks with a worker. No migration;
+Schema stays 46. See R194-CHANGES.md.
+R193 (replaced R192): fixes from an audit with large companies in both
 editions, both bookkeeping modes, light and dark themes and side and top navigation. Both editions: customer and
 vendor balances, ageing and party balance reports agree with the GL after credit notes, refunds and amounts paid beyond
 an invoice (and, India, TDS); the workspace of a large company sends each invoice template once (it could run out of

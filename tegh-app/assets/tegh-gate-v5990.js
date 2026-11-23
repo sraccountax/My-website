@@ -3,7 +3,7 @@
 
   const VERSION = '5.9.9';
   const BUILD = '5990';
-  const ASSET_REVISION = '5990-r193-audit';
+  const ASSET_REVISION = '5990-r194-first-signout';
   const AUTH_CACHE_MS = 60000;
   const POST_COMMIT_SESSION_GRACE_MS = 45000;
   const RECOVERY_MARKER_KEY = 'tegh-session-recovery-v5990';
@@ -1463,6 +1463,28 @@
     const holder=document.createElement('div');holder.innerHTML=ownerCompanySetupMarkup();const setup=holder.firstElementChild;wizard.parentElement?.insertBefore(setup,wizard);const form=setup.querySelector('[data-first-owner-company-form]'),tax=form.taxRegistered,taxWrap=setup.querySelector('[data-first-tax-number]'),error=setup.querySelector('[data-first-owner-error]');tax.onchange=()=>{taxWrap.hidden=!tax.checked;form.taxNumber.required=tax.checked};setup.querySelector('[data-change-first-mode]').onclick=()=>{try{localStorage.removeItem(firstCompanyExperienceKey())}catch{}setup.remove();installFirstCompanyExperience(true)};
     form.onsubmit=async event=>{event.preventDefault();if(!form.reportValidity())return;const button=form.querySelector('button[type="submit"]');button.disabled=true;error.hidden=true;const data=Object.fromEntries(new FormData(form));try{const response=await window.fetch(`/api/index.php?route=companies&v=${BUILD}`,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':lastAuth?.csrfToken||''},body:JSON.stringify({name:data.name,legalName:data.legalName||data.name,businessType:data.businessType,province:data.province,currency:'CAD',accountingBasis:'accrual',moduleMode:data.employees==='yes'?'both':'accounting',payrollPostingMode:'draft',fiscalYearEndDate:data.fiscalYearEndDate,booksStartDate:data.booksStartDate,taxRegistered:tax.checked,taxNumber:tax.checked?data.taxNumber:null,coaMode:'manual',timezone:data.timezone||'',onboarding:true}),credentials:'same-origin',cache:'no-store'});const body=await response.json().catch(()=>({}));if(!response.ok)throw Error(body.error||'The company could not be created.');button.textContent='Company created · Opening Guided Bookkeeping…'}catch(err){error.textContent=friendlyError(err,'companies').message||'The company could not be created.';error.hidden=false;button.disabled=false}};
   }
+  // R194: the first-company screen (Canadian wizard, Guided/Full choice or the India form) offers Sign out, so a person
+  // who does not want to create a company now can leave. The logout response returns this gate to sign-in.
+  function installFirstCompanySignOut(){
+    if(document.querySelector('[data-first-signout]'))return;
+    const wizard=document.querySelector('.company-create,.company-wizard');if(!wizard)return;
+    const host=wizard.closest('.auth-panel')||wizard.parentElement;if(!host)return;
+    const bar=document.createElement('div');bar.className='sr-first-signout';bar.dataset.firstSignout='1';
+    const who=String(lastAuth?.user?.email||'').trim();
+    bar.innerHTML=`<span>${who?`Signed in as <b></b>`:''}</span><button type="button" class="sr-first-signout-button" data-first-signout-button>Sign out</button><small role="alert" data-first-signout-error hidden></small>`;
+    if(who)bar.querySelector('b').textContent=who;
+    host.insertBefore(bar,host.firstChild);
+    const button=bar.querySelector('[data-first-signout-button]'),error=bar.querySelector('[data-first-signout-error]');
+    button.onclick=async()=>{
+      button.disabled=true;button.textContent='Signing out…';error.hidden=true;
+      try{
+        const response=await window.fetch(`/api/index.php?route=auth/logout&v=${BUILD}`,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':lastAuth?.csrfToken||''},body:'{}',credentials:'same-origin',cache:'no-store'});
+        if(!response.ok&&response.status!==401)throw Error('Sign out could not be confirmed. Please try again.');
+        try{window.localStorage.removeItem('sr-accountax-company')}catch{}
+        if(response.status===401)window.location.replace('/app.html?signed-out=1');
+      }catch(e){button.disabled=false;button.textContent='Sign out';error.textContent=e?.message||'Sign out could not be confirmed. Please try again.';error.hidden=false}
+    };
+  }
   function installFirstCompanyExperience(forceChoice=false){
     const wizard=document.querySelector('.company-create,.company-wizard');if(!wizard)return;if(lastAuth?.edition==='IN'){renderIndiaFirstCompany(wizard);return}const mode=forceChoice?'':firstCompanyExperienceMode();if(mode==='owner'){renderFirstOwnerCompanySetup(wizard);return}if(mode==='accountant'){wizard.hidden=false;return}
     if(document.querySelector('[data-first-experience-choice]'))return;wizard.hidden=true;const choice=document.createElement('section');choice.className='sr-first-experience-choice';choice.dataset.firstExperienceChoice='1';choice.innerHTML=`<header><span>T</span><div><small>Welcome to Tegh</small><h2>How would you like to keep your books?</h2><p>Choose the experience that best matches how you work. You can change it later.</p></div></header><div class="sr-first-experience-options"><button type="button" data-mode="owner"><b>Guided</b><span>Simple bookkeeping with Tegh guidance. Best for business owners and users who do not want to manage accounting structure directly.</span><em>Start Guided →</em></button><button type="button" data-mode="accountant"><b>Full Accounting</b><span>Complete professional accounting workspace for bookkeepers, accountants and advanced users.</span><em>Open Full Accounting →</em></button></div>`;wizard.parentElement?.insertBefore(choice,wizard);choice.querySelectorAll('[data-mode]').forEach(button=>button.onclick=()=>{const selected=button.dataset.mode;setFirstCompanyExperienceMode(selected);choice.remove();if(selected==='owner')renderFirstOwnerCompanySetup(wizard);else wizard.hidden=false});
@@ -1502,6 +1524,7 @@
       document.documentElement.dataset.srFirstCompany = '1';
       installFirstCompanyExperience();
       installFirstCompanyOnboarding();
+      installFirstCompanySignOut();
       lastWorkspace = null;
       cacheExpiresAt = 0;
       markCanonicalInterfaceReady('first-company');
