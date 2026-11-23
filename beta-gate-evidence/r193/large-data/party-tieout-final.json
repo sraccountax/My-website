@@ -1,0 +1,2853 @@
+{
+ "today": "2026-10-03",
+ "companies": 90,
+ "mismatches": [
+  {
+   "ed": "CA",
+   "id": "company_1d74fcffe620bf22134f69dec4d13abb",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": [
+      "\"code\":\"subledger_control_mapping_unavailable\""
+     ]
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": [
+      "\"code\":\"subledger_control_mapping_unavailable\""
+     ]
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": [
+      "\"code\":\"subledger_control_mapping_unavailable\""
+     ]
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": [
+      "\"code\":\"subledger_control_mapping_unavailable\""
+     ]
+    }
+   }
+  }
+ ],
+ "all": [
+  {
+   "ed": "CA",
+   "id": "company_02581ab0b114cde4010a921d1ad3ef2f",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_13b5fdfcd5545661f0acf90149b168c2",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_142180283d8dfefe3148b9f5ba2c7e13",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_151c1e2ac4436f8e597aa43fe47943dc",
+   "basis": "accrual",
+   "arParty": 40000,
+   "arGl": 40000,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 40000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 40000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_157052641cec391723ac7e9a1e19c82a",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_190104550ed03d861e28e05df9c0dfdd",
+   "basis": "accrual",
+   "arParty": 105000,
+   "arGl": 105000,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 105000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 105000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_1d74fcffe620bf22134f69dec4d13abb",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": [
+      "\"code\":\"subledger_control_mapping_unavailable\""
+     ]
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": [
+      "\"code\":\"subledger_control_mapping_unavailable\""
+     ]
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": [
+      "\"code\":\"subledger_control_mapping_unavailable\""
+     ]
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": [
+      "\"code\":\"subledger_control_mapping_unavailable\""
+     ]
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_21475015207872590976957e84bf49a5",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 42700,
+   "apGl": 42700,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 42700,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 42700,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_261b5bcde168fc35fee5762980423afe",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 67846,
+   "apGl": 67846,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 67846,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 67846,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_2ce542a1f337430970b8a998d799ccb4",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_34a2dbd12735018ceda4ea53f0319e97",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_39df6a3a7f1e7807043ebe0daffa29d4",
+   "basis": "accrual",
+   "arParty": 452000,
+   "arGl": 452000,
+   "apParty": 904000,
+   "apGl": 904000,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 452000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 904000,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 452000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 904000,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_3da72a398c31914187d9b26edc7e5ed6",
+   "basis": "accrual",
+   "arParty": 10000,
+   "arGl": 10000,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 10000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 10000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_3df15f980ffe4e3e4821d3eeb1e7b26e",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_3f0ca311121a9cf53f6f9b75fa40b598",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_40c711879654691ef1ef85d09442d10d",
+   "basis": "accrual",
+   "arParty": 421776,
+   "arGl": 421776,
+   "apParty": 226975,
+   "apGl": 226975,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 421776,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 226975,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 421776,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 226975,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_4129fc1cea3f723c4f029a8c90f116ef",
+   "basis": "cash",
+   "arParty": 56500,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 56500,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 56500,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_47cb3140009d59f2838abcfd5b173c29",
+   "basis": "accrual",
+   "arParty": 500000,
+   "arGl": 500000,
+   "apParty": 10170000,
+   "apGl": 10170000,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 500000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 10170000,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 500000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 10170000,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_47e97cfd246953283719034edaf97064",
+   "basis": "accrual",
+   "arParty": 25000,
+   "arGl": 25000,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 25000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 25000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_52c46a2f4d5508673d6c658d2179ceb7",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_57e5947066c13924446bfa6afa176bc3",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_5c83de205b37cfa96cc712027e5a979d",
+   "basis": "accrual",
+   "arParty": 321776,
+   "arGl": 321776,
+   "apParty": 226975,
+   "apGl": 226975,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 321776,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 226975,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 321776,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 226975,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_5ebc9e25525a9b03aa9f2e80e50de8e8",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_5ff16c70b767e3ce40fe9720a03eca81",
+   "basis": "accrual",
+   "arParty": 114975,
+   "arGl": 114975,
+   "apParty": 57488,
+   "apGl": 57488,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 114975,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 57488,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 114975,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 57488,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_6867985930a032baf8795cf11881bab1",
+   "basis": "accrual",
+   "arParty": 406800,
+   "arGl": 406800,
+   "apParty": 79100,
+   "apGl": 79100,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 406800,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 79100,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 406800,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 79100,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_6877ea7a0eebc25b5ae7eeade5e2532d",
+   "basis": "accrual",
+   "arParty": 406800,
+   "arGl": 406800,
+   "apParty": 79100,
+   "apGl": 79100,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 406800,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 79100,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 406800,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 79100,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_6924268d54d412241816588217857699",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_704ad52b57aadaba9cce7b36b59a1b5d",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_709f5b94da874021658e7d95cf549975",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_7b4b4885388f19784c6daa4d29b6bf9a",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_7ec002ab1ff49684ac85800540a6763b",
+   "basis": "accrual",
+   "arParty": 314875,
+   "arGl": 314875,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 314875,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 314875,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_84ed29aa01bfbc95e0e6ff5d196ac219",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_87de70c4750dee777d4dff7ed3546dc3",
+   "basis": "accrual",
+   "arParty": 153290,
+   "arGl": 153290,
+   "apParty": 265953,
+   "apGl": 265953,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 153290,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 265953,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 153290,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 265953,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_87eeb110b9dc166f23ba7104a548726c",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_8c3bca2bb134f21ec13edeac255568b8",
+   "basis": "accrual",
+   "arParty": 424600,
+   "arGl": 424600,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 424600,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 424600,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_8d3cbb3b1bf5ab1e749cda44e36f550a",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_910aa848751cb0a35b839d979d77a62d",
+   "basis": "accrual",
+   "arParty": 113000,
+   "arGl": 113000,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 113000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 113000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_953d73db6695d62367457779a983dfe2",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_a3bd67fa2fcb01fa40ac446d14ae33a0",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_a9553556e8a0dff4fdbd9c59dd0d6733",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_a99037e3a5f3bb2083780b0fedfdd898",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_b1a52433bde961c1639f2711e4101e93",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_b3c4d5f9f8dee6cf38a341dede449735",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_b41e96a7d5d0fda7a306f8826da2fdae",
+   "basis": "accrual",
+   "arParty": 2443994644,
+   "arGl": 2443994644,
+   "apParty": 198769034,
+   "apGl": 198769034,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 2443994644,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 198769034,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 2443994644,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 198769034,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_b480805c3cbacd24a78de5a5a24d1106",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_b9010bee215358dff83a983fa133f326",
+   "basis": "accrual",
+   "arParty": 35000,
+   "arGl": 35000,
+   "apParty": 12345,
+   "apGl": 12345,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 35000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 12345,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 35000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 12345,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_ba283545b5358146dbf2f18597601081",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_bca3bd4365fbe2fdd80c4791c9dea1bf",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_bcca193d9c4bc4744bd659273b7fe3ca",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_bda4bdc0d93631f514f0951feb37630b",
+   "basis": "cash",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": [
+      "\"code\":\"subledger_control_mapping_unavailable\""
+     ]
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": [
+      "\"code\":\"subledger_control_mapping_unavailable\""
+     ]
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": [
+      "\"code\":\"subledger_control_mapping_unavailable\""
+     ]
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": [
+      "\"code\":\"subledger_control_mapping_unavailable\""
+     ]
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_bf8e4a340b3b14fd0e6cac092f7c098c",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_bfb8b603f089500659c35ee375e3cef5",
+   "basis": "cash",
+   "arParty": 22600,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 22600,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 22600,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_c1901f67d3618aa3725a3b2a8eababb1",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_c20099658f984f60a8a07314b0c86727",
+   "basis": "accrual",
+   "arParty": 40000,
+   "arGl": 40000,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 40000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 40000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_c2fe868cb832c57429b56b56fb30cd20",
+   "basis": "accrual",
+   "arParty": 100000,
+   "arGl": 100000,
+   "apParty": 20000,
+   "apGl": 20000,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 100000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 20000,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 100000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 20000,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_c91a08d96dc208087dae8d454c33e606",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 67846,
+   "apGl": 67846,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 67846,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 67846,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_cafc38d531e7be4dea98c8c316e2afc2",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_d1a1eb527c732b22936eae3a9a950fd9",
+   "basis": "accrual",
+   "arParty": 424600,
+   "arGl": 424600,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 424600,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 424600,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_d43575261b7e7ba2ff1e18fdf590a46e",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_d4b9901b67f22a15970a22a96dfcb24d",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_dbc26dc00f180f62b5603349f641330c",
+   "basis": "cash",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 44399,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 44399,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 44399,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_def644ec3ed26a9b86adfc5b891b6059",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_e10066b579c2474b7208aeefad7f5042",
+   "basis": "accrual",
+   "arParty": 1067511,
+   "arGl": 1067511,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 1067511,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 1067511,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_e15530553ffb8b0b87754c3488b7c917",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_e3ff22f526fb334c2e2178fb3a40f360",
+   "basis": "accrual",
+   "arParty": 20500,
+   "arGl": 20500,
+   "apParty": 11200,
+   "apGl": 11200,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 20500,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 11200,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 20500,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 11200,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_e4d00e43f2b56350b6aa06b0fc7cb6ee",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_e9f3be7bad63b85b75cdd80a7fe6f235",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_ead599ba3ce0bf6baca1f2efb5fa6713",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_ee4e63dc049063098c532bc0a58c2b2a",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_ef603f841ba98262ca875cbfc73ad4c2",
+   "basis": "accrual",
+   "arParty": 22600,
+   "arGl": 22600,
+   "apParty": 11300,
+   "apGl": 11300,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 22600,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 11300,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 22600,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 11300,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_f02e33c62dcddaa284a3bd0435535f01",
+   "basis": "accrual",
+   "arParty": 26352000,
+   "arGl": 26352000,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 26352000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 26352000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_f2158f48b06c5ad7030ba9fa6019d8ba",
+   "basis": "accrual",
+   "arParty": 30000,
+   "arGl": 30000,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 30000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 30000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_f2534f842ab37139becdd589cfd5e55a",
+   "basis": "accrual",
+   "arParty": 56000,
+   "arGl": 56000,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 56000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 56000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_f77cae00be97d0152c626ff68475b51c",
+   "basis": "accrual",
+   "arParty": 364900,
+   "arGl": 364900,
+   "apParty": 146900,
+   "apGl": 146900,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 364900,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 146900,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 364900,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 146900,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_f7ec83d1c9202408f99d25e2c99f223a",
+   "basis": "accrual",
+   "arParty": 147345,
+   "arGl": 147345,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 147345,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 147345,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "CA",
+   "id": "company_fb374bc936a17f1565cf36bf853e781b",
+   "basis": "accrual",
+   "arParty": 749841037,
+   "arGl": 749841037,
+   "apParty": 62345716,
+   "apGl": 62345716,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 749841037,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 62345716,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 749841037,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 62345716,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "IN",
+   "id": "company_2f5fa2e39b074825c18182bd61c06501",
+   "basis": "accrual",
+   "arParty": 678172308,
+   "arGl": 678172308,
+   "apParty": 57173220,
+   "apGl": 57173220,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 678172308,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 57173220,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 678172308,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 57173220,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "IN",
+   "id": "company_355f3516969a56c9b1c25fc23faa332f",
+   "basis": "accrual",
+   "arParty": 160752707,
+   "arGl": 160752707,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 160752707,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 160752707,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "IN",
+   "id": "company_4d4376261494f1a2e1a42c342253e12c",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "IN",
+   "id": "company_64005f8adc0e2638fbe9779c4f79147a",
+   "basis": "accrual",
+   "arParty": 33989000,
+   "arGl": 33989000,
+   "apParty": 4720000,
+   "apGl": 4720000,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 33989000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 4720000,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 33989000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 4720000,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "IN",
+   "id": "company_6a9ac8f705d9a27554fbf92221fba972",
+   "basis": "accrual",
+   "arParty": 5000000,
+   "arGl": 5000000,
+   "apParty": 17680000,
+   "apGl": 17680000,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 5000000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 17680000,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 5000000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 17680000,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "IN",
+   "id": "company_84915f48f7ba9d21706eeefd3d5273dc",
+   "basis": "accrual",
+   "arParty": 100000,
+   "arGl": 100000,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 100000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 100000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "IN",
+   "id": "company_92d7f834d48bbe312dd19bea8894b06f",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "IN",
+   "id": "company_9c5803cd24c1bb09a32cc4e34514235b",
+   "basis": "accrual",
+   "arParty": 1225526298,
+   "arGl": 1225526298,
+   "apParty": 96089080,
+   "apGl": 96089080,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 1225526298,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 96089080,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 1225526298,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 96089080,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "IN",
+   "id": "company_b7d47dc85ec4b0874adcbcf9aec42ce4",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "IN",
+   "id": "company_c6af90a5c037a4d82d7094eaa1d641c7",
+   "basis": "accrual",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 0,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "IN",
+   "id": "company_cad5fb486fc91e91d1833a04c1b62e20",
+   "basis": "accrual",
+   "arParty": 1362511312,
+   "arGl": 1362511312,
+   "apParty": 103103735,
+   "apGl": 103103735,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 1362511312,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 103103735,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 1362511312,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 103103735,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "IN",
+   "id": "company_d5d2f75ab9aef8810ada6d93887f1419",
+   "basis": "accrual",
+   "arParty": 3044000,
+   "arGl": 3044000,
+   "apParty": 826000,
+   "apGl": 826000,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 3044000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 826000,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 3044000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 826000,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "IN",
+   "id": "company_d869aab7db2fbfb2d1ae2cdec1247aa8",
+   "basis": "accrual",
+   "arParty": 65046234823,
+   "arGl": 65046234823,
+   "apParty": 5298373370,
+   "apGl": 5298373370,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 65046234823,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 5298373370,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 65046234823,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 5298373370,
+     "ex": []
+    }
+   }
+  },
+  {
+   "ed": "IN",
+   "id": "company_f4792d0e366b214b7e936fa992d5e797",
+   "basis": "accrual",
+   "arParty": 5000000,
+   "arGl": 5000000,
+   "apParty": 17680000,
+   "apGl": 17680000,
+   "rep": {
+    "ar-ageing": {
+     "s": 200,
+     "total": 5000000,
+     "ex": []
+    },
+    "ap-ageing": {
+     "s": 200,
+     "total": 17680000,
+     "ex": []
+    },
+    "customer-balances": {
+     "s": 200,
+     "total": 5000000,
+     "ex": []
+    },
+    "vendor-balances": {
+     "s": 200,
+     "total": 17680000,
+     "ex": []
+    }
+   }
+  }
+ ]
+}

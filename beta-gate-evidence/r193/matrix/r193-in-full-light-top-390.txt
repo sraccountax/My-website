@@ -1,0 +1,13 @@
+r193-in-full-light-top-390 IN full light top screens 118 forms 12 with issues 12 {"mode":"full-accounting","theme":"light","nav":"top","company":"company_d869aab7db2fbfb2d1ae2cdec1247aa8"}
+   receivables:create-customer        foreign-wording canada
+   general-ledger:general-ledger-account-report api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted
+   fn:openBookkeepingModeSettings     foreign-wording canadian
+   fn:openSiteReleaseSettings         foreign-wording canada
+   fn:openTaxCodes                    foreign-wording canadian
+   fn:openTaxCodeReport               foreign-wording canadian
+   fn:openRates                       foreign-wording canadian
+   fn:openGifiReport                  foreign-wording gifi,canadian
+   fn:openGifiMapping                 foreign-wording gifi,canadian
+   fn:openRequestedDownloads          api 500 /api/index.php?route=workspace&v=5990
+   report:Product Activity            api 413 /api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-04-01&end=2026-11-23
+   report:Audit History               api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted

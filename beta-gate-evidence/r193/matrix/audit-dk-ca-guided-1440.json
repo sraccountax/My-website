@@ -1,0 +1,153 @@
+{
+"tag": "dk-ca-guided-1440",
+"edition": "CA",
+"company": "company_b41e96a7d5d0fda7a306f8826da2fdae",
+"W": "1440",
+"H": "900",
+"MODE": "guided",
+"THEME": "dark",
+"NAV": "side",
+"state": {
+"mode": "guided",
+"theme": "dark",
+"nav": "side",
+"company": "company_b41e96a7d5d0fda7a306f8826da2fdae"
+},
+"setupErrs": [],
+"screens": [
+{
+"id": "fn:openTaxCodes",
+"label": "openTaxCodes",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording cgst,sgst"
+]
+},
+{
+"id": "fn:openTaxCodeReport",
+"label": "openTaxCodeReport",
+"h1": "Tax Code Report",
+"issues": [],
+"form": {
+"opened": "Add Tax Code",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording cgst,sgst"
+]
+}
+},
+{
+"id": "fn:openUsers",
+"label": "openUsers",
+"h1": "Account & Access",
+"issues": [
+"foreign-wording tds"
+]
+},
+{
+"id": "fn:openInvoiceTemplates",
+"label": "openInvoiceTemplates",
+"h1": "Invoice Templates",
+"issues": [
+"light-panel srp-template-preview,srp-template-preview,srp-template-preview,srp-template-preview"
+],
+"form": {
+"opened": "Add Template",
+"h1": "Invoice Templates",
+"issues": []
+}
+},
+{
+"id": "fn:openImportedTransactions",
+"label": "openImportedTransactions",
+"h1": "Bank Transactions",
+"issues": [
+"low-contrast Select visible 1.8"
+]
+},
+{
+"id": "fn:openExpenseVouchers",
+"label": "openExpenseVouchers",
+"h1": "New Expense Voucher",
+"issues": [
+"low-contrast Journal 2.0,Interbank Transfer 2.0,Import 2.0,Recurring 2.0"
+]
+},
+{
+"id": "report:General Ledger Detail",
+"label": "General Ledger Detail",
+"h1": "General Ledger Detail",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-01-01&end=2026-11-23"
+]
+},
+{
+"id": "report:Audit History",
+"label": "Audit History",
+"h1": "Audit History",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted"
+]
+},
+{
+"id": "report:Tax Code Report",
+"label": "Tax Code Report",
+"h1": "Tax Code Report",
+"issues": [],
+"form": {
+"opened": "Add Tax Code",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording cgst,sgst"
+]
+}
+},
+{
+"id": "report:Budget versus Actual",
+"label": "Budget versus Actual",
+"h1": "Budgets",
+"issues": [],
+"form": {
+"opened": "Create Budget",
+"h1": "Budgets",
+"issues": [
+"low-contrast Budget workspace 2.6,Budget line 1.3,Account\u2022 1.3,Analytic dimension Optio 1.3"
+],
+"details": [
+{
+"text": "Budget workspace",
+"path": "aside.sra-budget-drawer > div.sra-budget-drawer-head > div > span",
+"fg": "rgb(15, 118, 110)",
+"bg": "rgb(27,45,40)",
+"bgOwner": "section.sra-embedded.r22-fill-path > main.sra-body.r22-fill-path > section.sra-budget-workspace.r22-fill-path > aside.sra-budget-drawer",
+"ratio": 2.64
+},
+{
+"text": "Budget line",
+"path": "form.sra-budget-editor > div.sra-budget-lines > fieldset.sra-budget-row > legend",
+"fg": "rgb(207, 224, 217)",
+"bg": "rgb(243,248,246)",
+"bgOwner": "aside.sra-budget-drawer > form.sra-budget-editor > div.sra-budget-lines > fieldset.sra-budget-row",
+"ratio": 1.28
+},
+{
+"text": "Account\u2022",
+"path": "div.sra-budget-lines > fieldset.sra-budget-row > label > span",
+"fg": "rgb(207, 224, 217)",
+"bg": "rgb(243,248,246)",
+"bgOwner": "aside.sra-budget-drawer > form.sra-budget-editor > div.sra-budget-lines > fieldset.sra-budget-row",
+"ratio": 1.28
+},
+{
+"text": "Analytic dimension Optional",
+"path": "div.sra-budget-lines > fieldset.sra-budget-row > label > span",
+"fg": "rgb(207, 224, 217)",
+"bg": "rgb(243,248,246)",
+"bgOwner": "aside.sra-budget-drawer > form.sra-budget-editor > div.sra-budget-lines > fieldset.sra-budget-row",
+"ratio": 1.28
+}
+]
+}
+}
+]
+}

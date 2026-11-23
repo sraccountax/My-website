@@ -1,0 +1,388 @@
+{
+"tag": "r193-ca-full-dark-side-1440",
+"edition": "CA",
+"company": "company_b41e96a7d5d0fda7a306f8826da2fdae",
+"W": "1440",
+"H": "900",
+"MODE": "full",
+"THEME": "dark",
+"NAV": "side",
+"state": {
+"mode": "full-accounting",
+"theme": "dark",
+"nav": "side",
+"company": "company_b41e96a7d5d0fda7a306f8826da2fdae"
+},
+"setupErrs": [],
+"screens": [
+{
+"id": "banking:upload-statement",
+"label": "Upload Statement",
+"h1": "Upload Statement",
+"issues": [
+"low-contrast Upload Statement 1.1"
+]
+},
+{
+"id": "banking:match-and-post-transactions",
+"label": "Match and Post",
+"h1": "Match And Post Transactions",
+"issues": [
+"low-contrast + Add Transaction 1.1,Actions \u25be 1.1,Actions \u25be 1.1,Actions \u25be 1.1"
+],
+"form": {
+"opened": "+ Add Transaction",
+"h1": "Match And Post Transactions",
+"issues": [
+"low-contrast Banking 2.0,Add bank transaction 1.1,For transactions you kno 2.0",
+"light-panel r182-modal-head"
+]
+}
+},
+{
+"id": "banking:bank-transaction-report",
+"label": "Transactions Report",
+"h1": "Bank Transaction Report",
+"issues": [
+"low-contrast Excel (.Xlsx) 1.1,CSV (.CSV) 1.1,PDF 1.1,Print Report 1.1"
+]
+},
+{
+"id": "receivables:customer-invoices",
+"label": "Customer Invoices",
+"h1": "New Customer Document",
+"issues": [
+"low-contrast Document TypeInvoiceCred 2.1,$0.00 2.2,$0.00 2.2"
+]
+},
+{
+"id": "payables:vendor-invoices",
+"label": "Vendor Invoices",
+"h1": "New Vendor Document",
+"issues": [
+"low-contrast Document TypeVendor invo 2.1,$0.00 2.2,$0.00 2.2,Recurring schedule 1.9"
+]
+},
+{
+"id": "payables:invoice-intelligence",
+"label": "Invoice Intelligence",
+"h1": "Invoice Intelligence",
+"issues": [
+"low-contrast Check Vendors 2.7"
+]
+},
+{
+"id": "general-ledger:journal-entry",
+"label": "Journal Entry",
+"h1": "Journal Entry",
+"issues": [
+"low-contrast Journal 2.7,Expense Voucher 2.8,Interbank Transfer 2.8,Import 2.8"
+]
+},
+{
+"id": "general-ledger:general-ledger-account-report",
+"label": "General Ledger",
+"h1": "General Ledger Account Report",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted"
+]
+},
+{
+"id": "payroll:cra-remittance",
+"label": "Remittance Records",
+"h1": "Payroll Remittance Records",
+"issues": [
+"low-contrast Payroll Remittance Recor 1.1"
+]
+},
+{
+"id": "advanced-accounting:budgets",
+"label": "Budgets",
+"h1": "Budgets",
+"issues": [],
+"form": {
+"opened": "Create Budget",
+"h1": "Budgets",
+"issues": [
+"low-contrast Create Budget 1.1,Plan exact amounts by GL 2.0,Budget name\u2022 1.5,Start date\u2022 1.5"
+]
+}
+},
+{
+"id": "fn:openDashboard",
+"label": "openDashboard",
+"h1": "Good Morning, Gate",
+"issues": [
+"low-contrast Money in 2.8,Money out 2.8,Profit 2.8"
+]
+},
+{
+"id": "fn:openReportsDashboard",
+"label": "openReportsDashboard",
+"h1": "Professional Reports",
+"issues": [
+"low-contrast Search reports 2.1,Report category 2.1"
+]
+},
+{
+"id": "fn:openMonthEndClose",
+"label": "openMonthEndClose",
+"h1": "Month-End Review & Lock",
+"issues": [
+"low-contrast Confirmation needed 2.0,I confirm that the avail 1.4"
+]
+},
+{
+"id": "fn:openAccount",
+"label": "openAccount",
+"h1": "Account & Access",
+"issues": [
+"low-contrast Deletion not approved 1.0"
+]
+},
+{
+"id": "fn:openBookkeepingModeSettings",
+"label": "openBookkeepingModeSettings",
+"h1": "Bookkeeping Mode",
+"issues": [
+"low-contrast For accounting professio 1.7,Complete professional ac 1.9"
+]
+},
+{
+"id": "fn:openTaxCodes",
+"label": "openTaxCodes",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording cgst,sgst",
+"low-contrast Start from a Canadian Ex 2.1"
+]
+},
+{
+"id": "fn:openTaxCodeReport",
+"label": "openTaxCodeReport",
+"h1": "Tax Code Report",
+"issues": [
+"low-contrast StatusAllActiveInactive 2.1,Edit 2.8,Edit 2.6,Edit 2.8"
+],
+"form": {
+"opened": "Add Tax Code",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording cgst,sgst",
+"low-contrast Start from a Canadian Ex 2.1"
+]
+}
+},
+{
+"id": "fn:openDashboardFigures",
+"label": "openDashboardFigures",
+"h1": "Dashboard Figures",
+"issues": [
+"low-contrast Automatic (Standard Calc 2.1,My GL Accounts 2.1,Automatic (Standard Calc 2.1,My GL Accounts 2.1"
+]
+},
+{
+"id": "fn:openUsers",
+"label": "openUsers",
+"h1": "Account & Access",
+"issues": [
+"foreign-wording tds",
+"low-contrast Accepted 1.0,Accepted 1.0,Accepted 1.0,Accepted 1.0"
+]
+},
+{
+"id": "fn:openRates",
+"label": "openRates",
+"h1": "Payroll Updates",
+"issues": [
+"low-contrast No CRA check has been re 1.9,CRA source \u2197 2.8,CRA source \u2197 2.6",
+"light-panel srp-rate-result"
+]
+},
+{
+"id": "fn:openFaq",
+"label": "openFaq",
+"h1": "Help Centre",
+"issues": [
+"low-contrast Popular 2.0,Popular 2.0,Popular 2.0"
+]
+},
+{
+"id": "fn:openIntegrity",
+"label": "openIntegrity",
+"h1": "Audit History",
+"issues": [
+"low-contrast PeriodLast 90 daysFiscal 2.1,From 2.1,To 2.1,ActivityAllTransactionsP 2.1"
+]
+},
+{
+"id": "fn:openAuditHistory",
+"label": "openAuditHistory",
+"h1": "Audit History",
+"issues": [
+"low-contrast PeriodLast 90 daysFiscal 2.1,From 2.1,To 2.1,ActivityAllTransactionsP 2.1"
+]
+},
+{
+"id": "fn:openGifiMapping",
+"label": "openGifiMapping",
+"h1": "GIFI Mapping",
+"issues": [
+"low-contrast Balance Sheet \u00b7 Asset 2.0,Balance Sheet \u00b7 Asset 2.0,Balance Sheet \u00b7 Asset 2.0,Balance Sheet \u00b7 Asset 2.0"
+]
+},
+{
+"id": "fn:openInvoiceTemplates",
+"label": "openInvoiceTemplates",
+"h1": "Invoice Templates",
+"issues": [
+"light-panel srp-template-preview,srp-template-preview,srp-template-preview,srp-template-preview"
+],
+"form": {
+"opened": "Add Template",
+"h1": "Invoice Templates",
+"issues": []
+}
+},
+{
+"id": "fn:openImportedTransactions",
+"label": "openImportedTransactions",
+"h1": "Bank Transactions",
+"issues": [
+"low-contrast Actions apply only to el 1.9",
+"light-panel srp-bank-bulk"
+]
+},
+{
+"id": "fn:openInsights",
+"label": "openInsights",
+"h1": "Tegh Intelligence",
+"issues": [
+"low-contrast Tegh Intelligence 1.1"
+]
+},
+{
+"id": "fn:openExpenseVouchers",
+"label": "openExpenseVouchers",
+"h1": "Journal Entry",
+"issues": [
+"low-contrast Journal Entry 1.1"
+]
+},
+{
+"id": "fn:openManualJournals",
+"label": "openManualJournals",
+"h1": "Journal Entry",
+"issues": [
+"low-contrast Journal 2.7,Expense Voucher 2.8,Interbank Transfer 2.8,Import 2.8"
+]
+},
+{
+"id": "fn:openAdvancedReconciliation",
+"label": "openAdvancedReconciliation",
+"h1": "Journal Entry",
+"issues": [
+"low-contrast Journal 2.7,Expense Voucher 2.8,Interbank Transfer 2.8,Import 2.8"
+]
+},
+{
+"id": "fn:openAgentCenter",
+"label": "openAgentCenter",
+"h1": "Tegh Assist",
+"issues": [
+"low-contrast Tegh Assist 1.1,Needs attention 1.1"
+]
+},
+{
+"id": "fn:openConnectAccountant",
+"label": "openConnectAccountant",
+"h1": "Tegh Assist",
+"issues": [
+"low-contrast Needs attention 1.1"
+]
+},
+{
+"id": "fn:openAccountingNotes",
+"label": "openAccountingNotes",
+"h1": "Customer Credit & Debit Notes",
+"issues": [],
+"form": {
+"opened": "New Note",
+"h1": "New Customer Document",
+"issues": [
+"low-contrast Document TypeInvoiceCred 2.1,$0.00 2.2,$0.00 2.2"
+]
+}
+},
+{
+"id": "report:Tegh Intelligence",
+"label": "Tegh Intelligence",
+"h1": "Tegh Intelligence",
+"issues": [
+"low-contrast Tegh Intelligence 1.1"
+]
+},
+{
+"id": "report:General Ledger Detail",
+"label": "General Ledger Detail",
+"h1": "General Ledger Detail",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-01-01&end=2026-11-23"
+]
+},
+{
+"id": "report:Audit History",
+"label": "Audit History",
+"h1": "Audit History",
+"issues": [
+"low-contrast PeriodLast 90 daysFiscal 2.1,From 2.1,To 2.1,ActivityAllTransactionsP 2.1",
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted"
+]
+},
+{
+"id": "report:Vendor Balances",
+"label": "Vendor Balances",
+"h1": "Vendor Balances",
+"issues": [
+"low-contrast Vendor Balances 1.1"
+]
+},
+{
+"id": "report:Bank Transaction Report",
+"label": "Bank Transaction Report",
+"h1": "Bank Transaction Report",
+"issues": [
+"low-contrast Excel (.Xlsx) 1.1,CSV (.CSV) 1.1,PDF 1.1,Print Report 1.1"
+]
+},
+{
+"id": "report:Tax Code Report",
+"label": "Tax Code Report",
+"h1": "Tax Code Report",
+"issues": [
+"low-contrast StatusAllActiveInactive 2.1,Edit 2.8,Edit 2.6,Edit 2.8"
+],
+"form": {
+"opened": "Add Tax Code",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording cgst,sgst",
+"low-contrast Start from a Canadian Ex 2.1"
+]
+}
+},
+{
+"id": "report:Budget versus Actual",
+"label": "Budget versus Actual",
+"h1": "Budgets",
+"issues": [],
+"form": {
+"opened": "Create Budget",
+"h1": "Budgets",
+"issues": [
+"low-contrast Create Budget 1.1,Plan exact amounts by GL 2.0,Budget name\u2022 1.5,Start date\u2022 1.5"
+]
+}
+}
+]
+}

@@ -1,0 +1,12 @@
+Volume Deccan India company_d869aab7db2fbfb2d1ae2cdec1247aa8
+gst codes 457 ms
+parties 400 100 2125 ms
+invoices 6000 123722 ms
+bills 2000 161736 ms
+credit notes 120 [] 173156 ms
+tds 150 [] {"2050":9222762,"2330":-9222762} 176747 ms
+payments 4186 1015 288241 ms
+journals 300 293695 ms
+payroll 40 employees 6 runs [] 296382 ms
+bank import 3000 3000 201 334848 ms
+{"name":"Volume Deccan India","id":"company_d869aab7db2fbfb2d1ae2cdec1247aa8","edition":"IN","accounts":{"ar":"1200","ap":"2050","bank":"1000"},"learnt":{"sale-intra":{"ar":"1200","rev":"4100","cgst":"2401","sgst":"2402"},"sale-inter":{"ar":"1200","rev":"4100","igst":"2404"},"buy-intra-6100":{"exp":"6100","cgst":"1451","sgst":"1452","ap":"2050"},"buy-inter-6100":{"exp":"6100","igst":"1454","ap":"2050"},"buy-inter-6200":{"exp":"6200","igst":"1454","ap":"2050"},"buy-inter-6400":{"exp":"6400","igst":"1454","ap":"2050"},"buy-intra-6500":{"exp":"6500","cgst":"1451","sgst":"1452","ap":"2050"},"buy-inter-6300":{"exp":"6300","igst":"1454","ap":"2050"},"buy-intra-6300":{"exp":"6300","cgst":"1451","sgst":"1452","ap":"2050"},"buy-inter-6500":{"exp":"6500","igst":"1454","ap":"2050"}},"counts":{"customers":400,"vendors":100,"invoices":6000,"bills":2000,"creditNotes":120,"tds":150,"customerPayments":4186,"vendorPayments":1015,"journals":300,"employees":40,"payrollRuns":6,"bankLines":3000,"bankImported":3000},"problems":{"creditNotes":[],"tds":[],"payroll":[]},"gl":{"1000":112048371178,"1200":65046234823,"1451":195742606,"1452":195742606,"1454":1031728534,"2050":-5298373370,"2300":-1351560000,"2310":-46920000,"2320":-42120000,"2330":-9222762,"2401":-3714918322,"2402":-3714918322,"2404":-17346633571,"4100":-157521971400,"6000":1398480000,"6010":42120000,"6100":1800924800,"6200":1820924600,"6300":1883793600,"6400":1769422400,"6500":1776014800,"6800":37137800}}

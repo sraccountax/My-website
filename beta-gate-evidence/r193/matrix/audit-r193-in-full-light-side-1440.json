@@ -1,0 +1,107 @@
+{
+"tag": "r193-in-full-light-side-1440",
+"edition": "IN",
+"company": "company_d869aab7db2fbfb2d1ae2cdec1247aa8",
+"W": "1440",
+"H": "900",
+"MODE": "full",
+"THEME": "light",
+"NAV": "side",
+"state": {
+"mode": "full-accounting",
+"theme": "light",
+"nav": "side",
+"company": "company_d869aab7db2fbfb2d1ae2cdec1247aa8"
+},
+"setupErrs": [],
+"screens": [
+{
+"id": "receivables:create-customer",
+"label": "Create Customer",
+"h1": "New Customer",
+"issues": [
+"foreign-wording canada"
+]
+},
+{
+"id": "general-ledger:general-ledger-account-report",
+"label": "General Ledger",
+"h1": "General Ledger Account Report",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted"
+]
+},
+{
+"id": "fn:openBookkeepingModeSettings",
+"label": "openBookkeepingModeSettings",
+"h1": "Bookkeeping Mode",
+"issues": [
+"foreign-wording canadian"
+]
+},
+{
+"id": "fn:openSiteReleaseSettings",
+"label": "openSiteReleaseSettings",
+"h1": "Site & Release Settings",
+"issues": [
+"foreign-wording canada"
+]
+},
+{
+"id": "fn:openTaxCodes",
+"label": "openTaxCodes",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording canadian"
+]
+},
+{
+"id": "fn:openTaxCodeReport",
+"label": "openTaxCodeReport",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording canadian"
+]
+},
+{
+"id": "fn:openRates",
+"label": "openRates",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording canadian"
+]
+},
+{
+"id": "fn:openGifiReport",
+"label": "openGifiReport",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording gifi,canadian"
+]
+},
+{
+"id": "fn:openGifiMapping",
+"label": "openGifiMapping",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording gifi,canadian"
+]
+},
+{
+"id": "report:General Ledger Detail",
+"label": "General Ledger Detail",
+"h1": "General Ledger Detail",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-04-01&end=2026-11-23"
+]
+},
+{
+"id": "report:Audit History",
+"label": "Audit History",
+"h1": "Audit History",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted"
+]
+}
+]
+}

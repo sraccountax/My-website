@@ -1,0 +1,408 @@
+{
+"tag": "r193-in-full-dark-side-390",
+"edition": "IN",
+"company": "company_d869aab7db2fbfb2d1ae2cdec1247aa8",
+"W": "390",
+"H": "844",
+"MODE": "full",
+"THEME": "dark",
+"NAV": "side",
+"state": {
+"mode": "full-accounting",
+"theme": "dark",
+"nav": "side",
+"company": "company_d869aab7db2fbfb2d1ae2cdec1247aa8"
+},
+"setupErrs": [],
+"screens": [
+{
+"id": "banking:upload-statement",
+"label": "Upload Statement",
+"h1": "Upload Statement",
+"issues": [
+"low-contrast Upload Statement 1.1"
+]
+},
+{
+"id": "banking:match-and-post-transactions",
+"label": "Match and Post",
+"h1": "Match And Post Transactions",
+"issues": [
+"low-contrast Match And Post Transacti 1.1"
+]
+},
+{
+"id": "banking:bank-transaction-report",
+"label": "Transactions Report",
+"h1": "Bank Transaction Report",
+"issues": [
+"low-contrast Excel (.Xlsx) 1.1,CSV (.CSV) 1.1,PDF 1.1,Print Report 1.1"
+]
+},
+{
+"id": "receivables:create-customer",
+"label": "Create Customer",
+"h1": "New Customer",
+"issues": [
+"foreign-wording canada"
+]
+},
+{
+"id": "receivables:customer-invoices",
+"label": "Customer Invoices",
+"h1": "New Customer Document",
+"issues": [
+"low-contrast Document TypeInvoiceCred 2.1,\u20b90.00 2.2,\u20b90.00 2.2"
+]
+},
+{
+"id": "payables:create-vendor",
+"label": "Create Vendor",
+"h1": "New Vendor",
+"issues": [
+"foreign-wording canada"
+]
+},
+{
+"id": "payables:products-and-services",
+"label": "Products",
+"h1": "Products & Services",
+"issues": [
+"low-contrast Products & Services 1.1"
+]
+},
+{
+"id": "payables:vendor-invoices",
+"label": "Vendor Invoices",
+"h1": "New Vendor Document",
+"issues": [
+"low-contrast Document TypeVendor invo 2.1,\u20b90.00 2.2,\u20b90.00 2.2,Recurring schedule 1.9"
+]
+},
+{
+"id": "payables:invoice-intelligence",
+"label": "Invoice Intelligence",
+"h1": "Invoice Intelligence",
+"issues": [
+"low-contrast Check Vendors 2.7"
+]
+},
+{
+"id": "general-ledger:journal-entry",
+"label": "Journal Entry",
+"h1": "Journal Entry",
+"issues": [
+"low-contrast Journal 2.7,Expense Voucher 2.8,Interbank Transfer 2.8,Import 2.8"
+]
+},
+{
+"id": "general-ledger:general-ledger-account-report",
+"label": "General Ledger",
+"h1": "General Ledger Account Report",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted"
+]
+},
+{
+"id": "advanced-accounting:budgets",
+"label": "Budgets",
+"h1": "Budgets",
+"issues": [],
+"form": {
+"opened": "Create Budget",
+"h1": "Budgets",
+"issues": [
+"low-contrast Create Budget 1.1,Plan exact amounts by GL 2.0,Budget name\u2022 1.5,Start date\u2022 1.5",
+"light-panel sra-budget-editor-actions"
+]
+}
+},
+{
+"id": "fn:openDashboard",
+"label": "openDashboard",
+"h1": "Good Morning, Gate",
+"issues": [
+"low-contrast Money in 2.8,Money out 2.8,Profit 2.8"
+]
+},
+{
+"id": "fn:openReportsDashboard",
+"label": "openReportsDashboard",
+"h1": "Professional Reports",
+"issues": [
+"low-contrast Search reports 2.1,Report category 2.1"
+]
+},
+{
+"id": "fn:openMonthEndClose",
+"label": "openMonthEndClose",
+"h1": "Month-End Review & Lock",
+"issues": [
+"low-contrast Confirmation needed 2.0,I confirm that the avail 1.4"
+]
+},
+{
+"id": "fn:openAccount",
+"label": "openAccount",
+"h1": "Account & Access",
+"issues": [
+"low-contrast Deletion not approved 1.0"
+]
+},
+{
+"id": "fn:openBookkeepingModeSettings",
+"label": "openBookkeepingModeSettings",
+"h1": "Bookkeeping Mode",
+"issues": [
+"foreign-wording canadian",
+"low-contrast For accounting professio 1.7,Complete professional ac 1.9"
+]
+},
+{
+"id": "fn:openSiteReleaseSettings",
+"label": "openSiteReleaseSettings",
+"h1": "Site & Release Settings",
+"issues": [
+"foreign-wording canada"
+]
+},
+{
+"id": "fn:openTaxCodes",
+"label": "openTaxCodes",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording canadian"
+]
+},
+{
+"id": "fn:openTaxCodeReport",
+"label": "openTaxCodeReport",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording canadian"
+]
+},
+{
+"id": "fn:openDashboardFigures",
+"label": "openDashboardFigures",
+"h1": "Dashboard Figures",
+"issues": [
+"low-contrast Dashboard Figures 1.1"
+]
+},
+{
+"id": "fn:openUsers",
+"label": "openUsers",
+"h1": "Account & Access",
+"issues": [
+"low-contrast Accepted 1.0,Accepted 1.0,Accepted 1.0,Accepted 1.0"
+]
+},
+{
+"id": "fn:openRates",
+"label": "openRates",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording canadian"
+]
+},
+{
+"id": "fn:openFaq",
+"label": "openFaq",
+"h1": "Help Centre",
+"issues": [
+"low-contrast Popular 2.0,Popular 2.0,Popular 2.0"
+]
+},
+{
+"id": "fn:openIntegrity",
+"label": "openIntegrity",
+"h1": "Audit History",
+"issues": [
+"low-contrast PeriodLast 90 daysFinanc 2.1,From 2.1,To 2.1,ActivityAllTransactionsP 2.1",
+"light-panel srp-integrity-item,srp-integrity-item,srp-integrity-item"
+]
+},
+{
+"id": "fn:openAuditHistory",
+"label": "openAuditHistory",
+"h1": "Audit History",
+"issues": [
+"low-contrast PeriodLast 90 daysFinanc 2.1,From 2.1,To 2.1,ActivityAllTransactionsP 2.1",
+"light-panel srp-integrity-item,srp-integrity-item,srp-integrity-item"
+]
+},
+{
+"id": "fn:openGifiReport",
+"label": "openGifiReport",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording gifi,canadian"
+]
+},
+{
+"id": "fn:openGifiMapping",
+"label": "openGifiMapping",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording gifi,canadian"
+]
+},
+{
+"id": "fn:openInvoiceTemplates",
+"label": "openInvoiceTemplates",
+"h1": "Invoice Templates",
+"issues": [
+"light-panel srp-template-preview,srp-template-preview,srp-template-preview,srp-template-preview"
+],
+"form": {
+"opened": "Add Template",
+"h1": "Invoice Templates",
+"issues": []
+}
+},
+{
+"id": "fn:openImportedTransactions",
+"label": "openImportedTransactions",
+"h1": "Bank Transactions",
+"issues": [
+"low-contrast Actions apply only to el 1.9,29-09-2026 1.1,ATM withdrawal 2988 1.1,Current Account 1.1",
+"light-panel srp-bank-bulk"
+]
+},
+{
+"id": "fn:openInsights",
+"label": "openInsights",
+"h1": "Tegh Intelligence",
+"issues": [
+"low-contrast Tegh Intelligence 1.1"
+]
+},
+{
+"id": "fn:openExpenseVouchers",
+"label": "openExpenseVouchers",
+"h1": "New Expense Voucher",
+"issues": [
+"low-contrast Expense Voucher 2.7"
+]
+},
+{
+"id": "fn:openManualJournals",
+"label": "openManualJournals",
+"h1": "Journal Entry",
+"issues": [
+"low-contrast Journal 2.7,Expense Voucher 2.8,Interbank Transfer 2.8,Import 2.8"
+]
+},
+{
+"id": "fn:openAdvancedReconciliation",
+"label": "openAdvancedReconciliation",
+"h1": "Journal Entry",
+"issues": [
+"low-contrast Journal 2.7,Expense Voucher 2.8,Interbank Transfer 2.8,Import 2.8"
+]
+},
+{
+"id": "fn:openInventoryReport",
+"label": "openInventoryReport",
+"h1": "Product Activity",
+"issues": [
+"low-contrast Product Activity 1.1"
+]
+},
+{
+"id": "fn:openAgentCenter",
+"label": "openAgentCenter",
+"h1": "Tegh Assist",
+"issues": [
+"low-contrast Tegh Assist 1.1"
+]
+},
+{
+"id": "fn:openConnectAccountant",
+"label": "openConnectAccountant",
+"h1": "Tegh Assist",
+"issues": [
+"low-contrast Needs attention 1.1"
+]
+},
+{
+"id": "fn:openAccountingNotes",
+"label": "openAccountingNotes",
+"h1": "Customer Credit & Debit Notes",
+"issues": [],
+"form": {
+"opened": "New Note",
+"h1": "New Customer Document",
+"issues": [
+"low-contrast Document TypeInvoiceCred 2.1,\u20b90.00 2.2,\u20b90.00 2.2"
+]
+}
+},
+{
+"id": "fn:openIndiaHome",
+"label": "openIndiaHome",
+"h1": "India Home",
+"issues": [
+"low-contrast India Home 1.1"
+]
+},
+{
+"id": "report:Tegh Intelligence",
+"label": "Tegh Intelligence",
+"h1": "Tegh Intelligence",
+"issues": [
+"low-contrast Tegh Intelligence 1.1"
+]
+},
+{
+"id": "report:General Ledger Detail",
+"label": "General Ledger Detail",
+"h1": "General Ledger Detail",
+"issues": [
+"foreign-wording gifi",
+"low-contrast General Ledger Detail 1.1"
+]
+},
+{
+"id": "report:Product Activity",
+"label": "Product Activity",
+"h1": "Product Activity",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-04-01&end=2026-11-23"
+]
+},
+{
+"id": "report:Audit History",
+"label": "Audit History",
+"h1": "Audit History",
+"issues": [
+"low-contrast PeriodLast 90 daysFinanc 2.1,From 2.1,To 2.1,ActivityAllTransactionsP 2.1",
+"light-panel srp-integrity-item,srp-integrity-item,srp-integrity-item",
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted"
+]
+},
+{
+"id": "report:Bank Transaction Report",
+"label": "Bank Transaction Report",
+"h1": "Bank Transaction Report",
+"issues": [
+"low-contrast Excel (.Xlsx) 1.1,CSV (.CSV) 1.1,PDF 1.1,Print Report 1.1"
+]
+},
+{
+"id": "report:Budget versus Actual",
+"label": "Budget versus Actual",
+"h1": "Budgets",
+"issues": [],
+"form": {
+"opened": "Create Budget",
+"h1": "Budgets",
+"issues": [
+"low-contrast Create Budget 1.1,Plan exact amounts by GL 2.0,Budget name\u2022 1.5,Start date\u2022 1.5",
+"light-panel sra-budget-editor-actions"
+]
+}
+}
+]
+}

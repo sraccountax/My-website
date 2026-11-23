@@ -1,0 +1,51 @@
+[
+ {
+  "id": "VIN-01",
+  "area": "R193IN",
+  "title": "Trial Balance after 6000 GST invoices, 2000 purchase invoices, 120 credit notes, 5201 payments, 150 TDS entries, 6 payroll runs and 300 journals equals the independently summed figures for every account; debits equal credits",
+  "status": "PASS",
+  "evidence": "22 accounts, debits ₹1,89,04,66,377.47 = credits ₹1,89,04,66,377.47"
+ },
+ {
+  "id": "VIN-02",
+  "area": "R193IN",
+  "title": "Customer and vendor balances (400 customers, 100 vendors) add up to the receivables and payables control accounts",
+  "status": "PASS",
+  "evidence": "customers ₹65,04,62,348.23 vs 1200 ₹65,04,62,348.23; vendors ₹5,29,83,733.70 vs 2050 ₹5,29,83,733.70"
+ },
+ {
+  "id": "VIN-03",
+  "area": "R193IN",
+  "title": "Profit and Loss net profit equals income less expenses summed independently",
+  "status": "PASS",
+  "evidence": "app ₹1,46,99,31,534.00 expected ₹1,46,99,31,534.00"
+ },
+ {
+  "id": "VIN-04",
+  "area": "R193IN",
+  "title": "GSTR-3B 3.1(a) output CGST, SGST and IGST for April to September equal the output GST summed from the invoices and credit notes",
+  "status": "PASS",
+  "evidence": "app {\"cgst\":3714918322,\"sgst\":3714918322,\"igst\":17346633571} expected {\"cgst\":3714918322,\"sgst\":3714918322,\"igst\":17346633571}"
+ },
+ {
+  "id": "VIN-05",
+  "area": "R193IN",
+  "title": "The GST ledger agrees with the GL in every month (no differences), and its September closing input credit equals the input GST summed from the purchase invoices",
+  "status": "PASS",
+  "evidence": "differences: none; input closing {\"1451\":195742606,\"1452\":195742606,\"1454\":1031728534} expected {\"1451\":195742606,\"1452\":195742606,\"1454\":1031728534}"
+ },
+ {
+  "id": "VIN-06",
+  "area": "R193IN",
+  "title": "Payroll registers for 6 posted runs: gross less deductions equals net pay, and gross plus employer contributions equals the payroll expense in the GL",
+  "status": "PASS",
+  "evidence": "{\"gross\":1398480000,\"ded\":46920000,\"er\":42120000,\"net\":1351560000}; payroll expense GL ₹1,44,06,000.00"
+ },
+ {
+  "id": "VIN-07",
+  "area": "R193IN",
+  "title": "Each of these reports answers in under 10 seconds on the large company",
+  "status": "PASS",
+  "evidence": "trial balance 437 ms; receivables 660 ms; payables 265 ms; profit and loss 91 ms; GSTR-3B 2026-04 604 ms; GST ledger 2026-04 729 ms; GSTR-3B 2026-05 445 ms; GST ledger 2026-05 819 ms; GSTR-3B 2026-06 445 ms; GST ledger 2026-06 630 ms; GSTR-3B 2026-07 418 ms; GST ledger 2026-07 617 ms; GSTR-3B 2026-08 431 ms; GST ledger 2026-08 811 ms; GSTR-3B 2026-09 404 ms; GST ledger 2026-09 588 ms; payroll registers 28 ms"
+ }
+]

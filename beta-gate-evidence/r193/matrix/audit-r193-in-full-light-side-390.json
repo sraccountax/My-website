@@ -1,0 +1,266 @@
+{
+"tag": "r193-in-full-light-side-390",
+"edition": "IN",
+"company": "company_d869aab7db2fbfb2d1ae2cdec1247aa8",
+"W": "390",
+"H": "844",
+"MODE": "full",
+"THEME": "light",
+"NAV": "side",
+"state": {
+"mode": "full-accounting",
+"theme": "light",
+"nav": "side",
+"company": "company_d869aab7db2fbfb2d1ae2cdec1247aa8"
+},
+"setupErrs": [],
+"screens": [
+{
+"id": "banking:manage-bank-accounts",
+"label": "Bank Accounts",
+"h1": "Manage Bank Accounts",
+"issues": [],
+"form": {
+"opened": "Add Bank Account",
+"h1": "Manage Bank Accounts",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "receivables:create-customer",
+"label": "Create Customer",
+"h1": "New Customer",
+"issues": [
+"foreign-wording canada"
+]
+},
+{
+"id": "receivables:products-and-services",
+"label": "Products",
+"h1": "Products & services",
+"issues": [],
+"form": {
+"opened": "New Item",
+"h1": "New Product or Service",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "payables:create-vendor",
+"label": "Create Vendor",
+"h1": "New Vendor",
+"issues": [
+"foreign-wording canada"
+]
+},
+{
+"id": "payables:products-and-services",
+"label": "Products",
+"h1": "Products & services",
+"issues": [],
+"form": {
+"opened": "New Item",
+"h1": "New Product or Service",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "general-ledger:general-ledger-account-report",
+"label": "General Ledger",
+"h1": "General Ledger Account Report",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted"
+]
+},
+{
+"id": "advanced-accounting:budgets",
+"label": "Budgets",
+"h1": "Budgets",
+"issues": [],
+"form": {
+"opened": "Create Budget",
+"h1": "Budgets",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "advanced-accounting:fixed-assets",
+"label": "Fixed Assets",
+"h1": "Fixed Assets",
+"issues": [],
+"form": {
+"opened": "Add Asset Schedule",
+"h1": "Add Asset Schedule",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "advanced-accounting:analytics",
+"label": "Analytics",
+"h1": "Analytics",
+"issues": [],
+"form": {
+"opened": "New Analytic Account",
+"h1": "New Analytic Account",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "fn:openBookkeepingModeSettings",
+"label": "openBookkeepingModeSettings",
+"h1": "Bookkeeping Mode",
+"issues": [
+"foreign-wording canadian"
+]
+},
+{
+"id": "fn:openSiteReleaseSettings",
+"label": "openSiteReleaseSettings",
+"h1": "Site & Release Settings",
+"issues": [
+"foreign-wording canada"
+]
+},
+{
+"id": "fn:openTaxCodes",
+"label": "openTaxCodes",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording canadian"
+]
+},
+{
+"id": "fn:openTaxCodeReport",
+"label": "openTaxCodeReport",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording canadian"
+]
+},
+{
+"id": "fn:openRates",
+"label": "openRates",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording canadian"
+]
+},
+{
+"id": "fn:openGifiReport",
+"label": "openGifiReport",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording gifi,canadian"
+]
+},
+{
+"id": "fn:openGifiMapping",
+"label": "openGifiMapping",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording gifi,canadian"
+]
+},
+{
+"id": "fn:openInvoiceTemplates",
+"label": "openInvoiceTemplates",
+"h1": "Invoice Templates",
+"issues": [],
+"form": {
+"opened": "Add Template",
+"h1": "Invoice Templates",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "fn:openCommandCentre",
+"label": "openCommandCentre",
+"h1": "Tegh Assist",
+"issues": [],
+"form": {
+"opened": "Create CustomerOpens Create Customer.",
+"h1": "Tegh Assist",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "fn:openAccountingNotes",
+"label": "openAccountingNotes",
+"h1": "Customer Credit & Debit Notes",
+"issues": [],
+"form": {
+"opened": "New Note",
+"h1": "New Customer Document",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "report:General Ledger Detail",
+"label": "General Ledger Detail",
+"h1": "General Ledger Detail",
+"issues": [
+"foreign-wording gifi"
+]
+},
+{
+"id": "report:Product Activity",
+"label": "Product Activity",
+"h1": "Product Activity",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-04-01&end=2026-11-23"
+]
+},
+{
+"id": "report:Audit History",
+"label": "Audit History",
+"h1": "Audit History",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted"
+]
+},
+{
+"id": "report:Budget versus Actual",
+"label": "Budget versus Actual",
+"h1": "Budgets",
+"issues": [],
+"form": {
+"opened": "Create Budget",
+"h1": "Budgets",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "report:Fixed Asset Register",
+"label": "Fixed Asset Register",
+"h1": "Fixed Assets",
+"issues": [],
+"form": {
+"opened": "Add Asset Schedule",
+"h1": "Add Asset Schedule",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+}
+]
+}
