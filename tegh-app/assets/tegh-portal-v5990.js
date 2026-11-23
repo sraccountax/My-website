@@ -2371,7 +2371,11 @@ const TeghPortal = (() => {
     'aged-ar':()=>openAgeing('receivable','Dashboard'),'aged-ap':()=>openAgeing('payable','Dashboard'),bills:()=>openBills(),
     pl:(opts={})=>openFinancialReport('profit-loss',opts.start?{start:opts.start,end:opts.end}:{}),tax:()=>openWorkspaceReport('tax-summary','Dashboard'),
     'new-invoice':()=>openCustomerInvoice(),'new-bill':()=>invokeQuickAction('nav.vendor_invoice_create',{source:'dashboard'}),'new-expense':()=>invokeQuickAction('nav.expense_vouchers',{source:'dashboard'}),
-    'opening-balances':()=>openOpeningBalances()
+    'opening-balances':()=>openOpeningBalances(),
+    // R195: India set-up steps of the dashboard.
+    'india-registrations':()=>openCompanyDetails(),'chart-of-accounts':()=>openChartOfAccounts(),'bank-accounts':()=>openFinancialAccounts(),
+    'india-gst':(opts={})=>openIndiaMasters(opts.tab==='gst'?'gst':'rules'),'india-tds':()=>openIndiaMasters('rules'),
+    'india-payroll':(opts={})=>opts.tab==='structures'?openIndiaPayroll('structures'):openIndiaMasters('records')
   };
   // R178: Client Dashboard Demo (platform owner). The new dashboard with built-in sample figures, to show a client
   // what they will see. It never calls the server for figures and never opens or changes a company.

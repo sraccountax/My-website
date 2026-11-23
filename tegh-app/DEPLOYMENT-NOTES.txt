@@ -12,10 +12,14 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R194 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R195 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R194 (R118–R194 change notes are
-included). R194 is the private beta package (it replaces R193): the Tegh mark on the sign-in and
+This package contains every release through R195 (R118–R195 change notes are
+included). R195 is the private beta package (it replaces R194): India only, the dashboard's "Get your books
+going" lists the India set-up steps (PAN, GSTIN and TAN; chart of accounts; bank accounts; GST rates and codes; TDS
+sections and payroll, optional; opening balances; bank statement; first invoice), each opening its page. Canadian
+companies keep their steps. No migration; Schema stays 46. See R195-CHANGES.md.
+R194 (replaced R193): the Tegh mark on the sign-in and
 first-company screens shows the T; the first-company screen (Canadian choice and form, India form) has Sign out; the
 Invoice Intelligence job list no longer answers HTTP 500 when expiring leases deadlocks with a worker. No migration;
 Schema stays 46. See R194-CHANGES.md.

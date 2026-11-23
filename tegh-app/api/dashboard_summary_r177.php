@@ -78,6 +78,30 @@ function r177_dashboard_summary(array $user, array $company): array
         ['id' => 'opening-balances', 'title' => 'Add opening balances', 'done' => !empty($base['openingBalanceStatus']['posted'])],
         ['id' => 'first-invoice', 'title' => 'Send your first invoice', 'done' => $invoiceCount > 0],
     ];
+    // R195 (India only): an India company sets up its registrations, chart of accounts, bank accounts, GST, TDS and payroll
+    // before bookkeeping. The steps follow the India Home checklist (in6_checklist) and open the page that sets each up.
+    // Optional steps (TDS, payroll) are shown but not counted. Canadian companies keep the four steps above.
+    if (($company['edition'] ?? '') === 'IN') {
+        require_once __DIR__ . '/india_tds_in6.php';
+        $chk = [];
+        try { foreach (in6_checklist($company)['items'] as $item) $chk[$item['key']] = (bool)$item['done']; } catch (Throwable) { $chk = []; }
+        $accountsChanged = (int)tegh_ins_col("SELECT COUNT(*) FROM audit_log WHERE company_id=? AND (action LIKE 'account.%' OR action LIKE 'accounts.%' OR action LIKE 'coa_%' OR action LIKE 'opening_trial_balance.%')", [$cid]) > 0;
+        $bankAccounts = (int)tegh_ins_col("SELECT COUNT(*) FROM bank_accounts WHERE company_id=? AND active=1 AND account_type='bank'", [$cid]);
+        $openingPosted = !empty($base['openingBalanceStatus']['posted']);
+        $gstRules = !empty($chk['gst_rate']); $gstCodes = !empty($chk['gst_codes']);
+        $steps = [
+            ['id' => 'company', 'title' => 'Create your company', 'done' => true],
+            ['id' => 'india-registrations', 'title' => 'Add PAN, GSTIN and TAN', 'done' => !empty($chk['pan'])],
+            ['id' => 'chart-of-accounts', 'title' => 'Review the chart of accounts', 'done' => $accountsChanged || $openingPosted],
+            ['id' => 'bank-accounts', 'title' => 'Add your bank accounts', 'done' => $bankAccounts > 0],
+            ['id' => 'india-gst', 'title' => 'Approve GST rates and create GST codes', 'done' => $gstRules && $gstCodes, 'tab' => $gstRules ? 'gst' : 'rules'],
+            ['id' => 'india-tds', 'title' => 'Approve TDS sections', 'done' => !empty($chk['tds_sections']), 'optional' => true],
+            ['id' => 'india-payroll', 'title' => 'Set up payroll', 'done' => !empty($chk['components']) && !empty($chk['structures']), 'optional' => true, 'tab' => !empty($chk['components']) ? 'structures' : 'records'],
+            ['id' => 'opening-balances', 'title' => 'Add opening balances', 'done' => $openingPosted],
+            ['id' => 'bank-import', 'title' => 'Import a bank statement', 'done' => (int)($evidence['bankTransactions'] ?? 0) > 0],
+            ['id' => 'first-invoice', 'title' => 'Send your first invoice', 'done' => $invoiceCount > 0],
+        ];
+    }
     $isNew = (int)($evidence['bankTransactions'] ?? 0) === 0 && (int)($evidence['documents'] ?? 0) === 0;
 
     // Cash: past weeks from the ledger, next weeks from the forecast. Both use the bank ledger accounts.
@@ -243,7 +267,7 @@ function r177_dashboard_summary(array $user, array $company): array
     return [
         'contractVersion' => 1,
         'company' => ['id' => $cid, 'name' => (string)$company['name'], 'currency' => (string)$company['currency'], 'asOf' => $today, 'isNew' => $isNew, 'accountingBasis' => (string)$company['accounting_basis']],
-        'setup' => ['done' => count(array_filter($steps, static fn(array $x): bool => $x['done'])), 'total' => count($steps), 'steps' => $steps],
+        'setup' => ['done' => count(array_filter($steps, static fn(array $x): bool => $x['done'] && empty($x['optional']))), 'total' => count(array_filter($steps, static fn(array $x): bool => empty($x['optional']))), 'steps' => $steps],
         'headline' => [
             'bankBalanceCents' => (int)$s['bankBalanceCents'],
             'bankAccounts' => array_values(array_filter($base['bankAccounts'], static fn(array $a): bool => $a['accountType'] === 'bank')),

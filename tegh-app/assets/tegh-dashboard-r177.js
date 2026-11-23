@@ -249,14 +249,22 @@
       el('h2', '', main, 'Get your books going');
       el('p', 'r177-note', main, setup.done + ' of ' + setup.total + ' steps done. You can stop and come back at any time.');
       const ol = el('ol', 'r177-steps', main);
-      const detail = { 'bank-import': ['CSV, OFX or PDF from your bank. Tegh suggests a category for each line.', 'Import statement'], 'opening-balances': ['What the business had and owed on the day your books start. Your accountant can do this for you.', 'Add balances'], 'first-invoice': ['Tegh adds the sales tax and tracks who has paid.', 'Create invoice'], company: ['Done.', ''] };
-      const next = setup.steps.find(s => !s.done);
+      const detail = { 'bank-import': ['CSV, OFX or PDF from your bank. Tegh suggests a category for each line.', 'Import statement'], 'opening-balances': ['What the business had and owed on the day your books start. Your accountant can do this for you.', 'Add balances'], 'first-invoice': ['Tegh adds the sales tax and tracks who has paid.', 'Create invoice'], company: ['Done.', ''],
+        // R195: India set-up steps (sent only for an India company).
+        'india-registrations': ['Company PAN, GSTIN (if registered for GST) and TAN (needed to deduct TDS), in Company details.', 'Add registrations'],
+        'chart-of-accounts': ['Tegh created an Indian chart of accounts. Rename, add or deactivate accounts before you post.', 'Review accounts'],
+        'bank-accounts': ['Each current or savings account, cash and cards, each linked to its ledger account.', 'Add bank accounts'],
+        'india-gst': ['Approve the GST rates you use (India Masters, Statutory rules), then create the GST codes from them.', 'Set up GST'],
+        'india-tds': ['Approve the TDS and TCS sections you deduct or collect. Needs your TAN.', 'Set up TDS'],
+        'india-payroll': ['Employees, pay components and salary structures; EPF, ESIC and Professional Tax rules as they apply.', 'Set up payroll'] };
+      if (setup.steps.some(s => s.id === 'india-gst')) detail['first-invoice'] = ['Tegh adds the GST (CGST and SGST, or IGST) and tracks who has paid.', 'Create invoice'];
+      const next = setup.steps.find(s => !s.done && !s.optional) || setup.steps.find(s => !s.done);
       setup.steps.forEach((s, i) => {
         const li = el('li', 'r177-step sk-in' + (s.done ? ' is-done' : '') + (s === next ? ' is-next' : ''), ol);
         const n = el('span', 'n', li); if (s.done) n.insertAdjacentHTML('beforeend', svgIcon('check', 16)); else n.textContent = String(i + 1);
-        const t = el('span', 't', li); el('b', '', t, s.title); el('small', '', t, s.done ? 'Done.' : (detail[s.id] || [''])[0]);
+        const t = el('span', 't', li); el('b', '', t, s.title + (s.optional ? ' (optional)' : '')); el('small', '', t, s.done ? 'Done.' : (detail[s.id] || [''])[0]);
         const label = (detail[s.id] || [])[1];
-        if (!s.done && label) { const b = el('button', s === next ? 'r177-btn primary' : 'r177-btn', li, label); b.type = 'button'; b.onclick = () => go(s.id === 'first-invoice' ? 'new-invoice' : s.id); }
+        if (!s.done && label) { const b = el('button', s === next ? 'r177-btn primary' : 'r177-btn', li, label); b.type = 'button'; b.onclick = () => go(s.id === 'first-invoice' ? 'new-invoice' : s.id, s.tab ? { tab: s.tab } : undefined); }
       });
       const art = el('div', 'r177-hero-chart', host);
       art.style.cssText = 'flex:1 1 260px;justify-content:center;align-items:center';
