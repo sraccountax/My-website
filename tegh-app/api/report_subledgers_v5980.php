@@ -51,6 +51,9 @@ function tegh_subledger_sources_5980(array $company, bool $ar): array
          LEFT JOIN journal_entries je ON je.id=o.journal_entry_id AND je.company_id=o.company_id
          WHERE o.company_id=? AND o.party_type=? ORDER BY o.effective_date,o.id', [$cid,$partyType]
     );
+    // R193: what each payment's own entry posted to the control account (credit for receivables, debit for payables).
+    $controlSign = $ar ? 'jl.credit_cents-jl.debit_cents' : 'jl.debit_cents-jl.credit_cents';
+    try { $controlAccountId = (string)(tegh_report_control_account_5980($company,$ar)['id'] ?? ''); } catch (Throwable) { $controlAccountId = ''; }
     $payments = tegh_report_query_5980(
         "SELECT pp.id,pp.party_id partyId,pp.document_id documentId,pp.payment_date paymentDate,pp.flow_kind flowKind,
                 pp.reference,pp.memo,pp.amount_cents amountCents,pp.applied_cents appliedCents,
@@ -58,14 +61,15 @@ function tegh_subledger_sources_5980(array $company, bool $ar): array
                 je.source_type journalSourceType,pp.bank_transaction_id bankTransactionId,
                 rje.id reversalJournalId,rje.entry_date reversalDate,rje.status reversalStatus,
                 aje.id applicationJournalId,aje.entry_date applicationDate,aje.status applicationStatus,
-                arje.id applicationReversalJournalId,arje.entry_date applicationReversalDate,arje.status applicationReversalStatus
+                arje.id applicationReversalJournalId,arje.entry_date applicationReversalDate,arje.status applicationReversalStatus,
+                (SELECT SUM($controlSign) FROM journal_lines jl WHERE jl.journal_entry_id=pp.journal_entry_id AND jl.account_id=?) controlCents
          FROM party_payments pp
          LEFT JOIN journal_entries je ON je.id=pp.journal_entry_id AND je.company_id=pp.company_id
          LEFT JOIN journal_entries rje ON rje.id=pp.reversal_journal_entry_id AND rje.company_id=pp.company_id
          LEFT JOIN journal_entries aje ON aje.company_id=pp.company_id AND aje.source_type=? AND aje.source_id=pp.id
          LEFT JOIN journal_entries arje ON arje.company_id=pp.company_id AND arje.source_type=? AND arje.source_id=pp.id
          WHERE pp.company_id=? AND pp.payment_type=? ORDER BY pp.payment_date,pp.id",
-        [$partyType.'_advance_application',$partyType.'_advance_application_reversal',$cid,$partyType]
+        [$controlAccountId,$partyType.'_advance_application',$partyType.'_advance_application_reversal',$cid,$partyType]
     );
     $applications = tegh_report_query_5980(
         "SELECT pa.id,pa.payment_id paymentId,pa.document_type documentType,pa.document_id documentId,
@@ -110,7 +114,19 @@ function tegh_subledger_sources_5980(array $company, bool $ar): array
          ORDER BY s.settlement_date,s.id",
         [$cid,$documentType,$ar?'customer_credit':'vendor_credit',$ar?'customer_debit':'vendor_debit']
     ) : [];
-    return compact('parties','documents','openings','payments','applications','audit','notes','noteSettlements');
+    // R193 (India edition only): TDS deducted from a vendor invoice reduces what is owed on it (the GL debits payables);
+    // a reversed deduction restores it on the reversal date. TCS is billed on its own invoice, which is a document above.
+    $tds = (!$ar && (string)($company['edition'] ?? '') === 'IN' && schema_table_exists('india_tds_entries')) ? tegh_report_query_5980(
+        "SELECT e.id,e.party_id partyId,e.document_id documentId,e.deduction_date deductionDate,e.amount_cents amountCents,e.section_key section,
+                e.status,e.journal_entry_id journalId,je.status journalStatus,
+                e.reversal_journal_entry_id reversalJournalId,rje.entry_date reversalDate,rje.status reversalStatus
+         FROM india_tds_entries e
+         LEFT JOIN journal_entries je ON je.id=e.journal_entry_id AND je.company_id=e.company_id
+         LEFT JOIN journal_entries rje ON rje.id=e.reversal_journal_entry_id AND rje.company_id=e.company_id
+         WHERE e.company_id=? AND e.kind='tds' AND e.document_type='bill' AND e.journal_entry_id IS NOT NULL
+         ORDER BY e.deduction_date,e.id", [$cid]
+    ) : [];
+    return compact('parties','documents','openings','payments','applications','audit','notes','noteSettlements','tds');
 }
 
 function tegh_subledger_date_5980(mixed $value, string $reference): string
@@ -219,6 +235,15 @@ function tegh_subledger_events_5980(array $source, string $basis, bool $ar): arr
     // Reducing notes create a party credit on their posting date. A later
     // application transfers it to an invoice; a refund clears it with cash.
     // The customer debit invoice is already included among issued documents.
+    foreach ($source['tds']??[] as $t) {
+        $key='document:'.(string)$t['documentId'];
+        if (!isset($items[$key])) { $exceptions[]=['code'=>'tds_document_outside_scope','reference'=>(string)$t['id'],'message'=>'A TDS deduction points to a vendor invoice that is not in this report.']; continue; }
+        if ((string)$t['journalStatus']!=='posted') continue;
+        $amount=tegh_report_integer_5980($t['amountCents'],'TDS amount');
+        $add($key,tegh_subledger_date_5980($t['deductionDate'],(string)$t['id']),-$amount,'TDS deducted','TDS u/s '.(string)$t['section'],(string)$t['journalId'],27);
+        if ((string)$t['status']==='reversed' && (string)($t['reversalStatus']??'')==='posted')
+            $add($key,tegh_subledger_date_5980($t['reversalDate'],(string)$t['id']),$amount,'TDS reversed','TDS u/s '.(string)$t['section'],(string)$t['reversalJournalId'],37);
+    }
     foreach ($source['notes']??[] as $note) {
         if ((string)$note['noteKind']==='customer_debit') continue;
         $id=(string)$note['id'];
@@ -290,6 +315,21 @@ function tegh_subledger_events_5980(array $source, string $basis, bool $ar): arr
             }
         }
     }
+    // R193: an amount received (paid) beyond what was applied to its document is held as a credit with the party. The GL
+    // control account takes the whole payment, so the excess is shown as its own unapplied credit. It is measured from the
+    // payment's own control-account posting, so exchange differences are not counted as excess.
+    $addExcess = static function(array $p,string $id,string $date,int $carrying) use (&$add,&$putItem,&$current): void {
+        $excess=($p['controlCents']??null)!==null?tegh_report_integer_5980($p['controlCents'])-$carrying:0;
+        if ($excess<=0) return;
+        $excessKey='excess:'.$id;
+        $putItem($excessKey,['partyId'=>(string)$p['partyId'],'documentId'=>null,'number'=>(string)$p['reference'],
+            'documentDate'=>$date,'effectiveDate'=>$date,'dueDate'=>$date,'description'=>'Amount beyond the document · unapplied credit',
+            'kind'=>'Unapplied advance / credit','affectsControl'=>true,'isOpening'=>false]);
+        $add($excessKey,$date,-$excess,'Payment beyond document',(string)$p['reference'],$p['journalId'],21);
+        if (($p['status']??'')==='posted') $current=tegh_report_add_5980($current,-$excess);
+        elseif (($p['status']??'')==='reversed' && ($p['reversalStatus']??'')==='posted')
+            $add($excessKey,tegh_subledger_date_5980($p['reversalDate']??null,$id),$excess,'Payment reversal',(string)$p['reference'],$p['reversalJournalId'],31);
+    };
     foreach ($source['payments'] as $p) {
         $id=(string)$p['id']; $date=tegh_subledger_date_5980($p['paymentDate'],$id);
         if (($p['journalStatus']??'')==='reversed') continue; // soft void, restated just like GL
@@ -345,6 +385,7 @@ function tegh_subledger_events_5980(array $source, string $basis, bool $ar): arr
             $byId=[];$reversals=[];foreach($normalized as $application){if(($application['reversalOfId']??null)!==null)$reversals[(string)$application['reversalOfId']][]=$application;else $byId[(string)$application['id']]=$application;}
             foreach($byId as $applicationId=>$application){$applicationDoc='document:'.(string)$application['documentId'];if(!isset($items[$applicationDoc])){$exceptions[]=['code'=>'payment_document_outside_scope','reference'=>$applicationId,'message'=>'A retained application points to an unavailable document.'];continue;}$applicationDate=tegh_subledger_date_5980($application['applicationDate'],$applicationId);$paymentPart=tegh_report_integer_5980($application['paymentCarryingCents']);$documentPart=tegh_report_integer_5980($application['documentCarryingCents']);if($wasOriginallyOpen)$add($advanceKey,$applicationDate,$paymentPart,'Advance released to document',(string)$p['reference'],$application['recognitionJournalId']??null,25);$add($applicationDoc,$applicationDate,-$documentPart,$wasOriginallyOpen?'Advance applied':'Payment',(string)$p['reference'],$application['recognitionJournalId']??$p['journalId'],26);foreach($reversals[$applicationId]??[] as $reversal){$reversalDate=tegh_subledger_date_5980($reversal['applicationDate'],(string)$reversal['id']);if($wasOriginallyOpen)$add($advanceKey,$reversalDate,-$paymentPart,'Advance release reversed',(string)$p['reference'],$reversal['recognitionJournalId']??null,31);$add($applicationDoc,$reversalDate,$documentPart,'Payment application reversed',(string)$p['reference'],$reversal['recognitionJournalId']??null,32);}}
             if(($p['status']??'')==='reversed'){if(($p['reversalStatus']??'')!=='posted')fail('A reversed payment has no active dated reversal journal.',409,'report_reversal_evidence_missing',false);$revDate=tegh_subledger_date_5980($p['reversalDate']??null,$id);if($wasOriginallyOpen)$add($advanceKey,$revDate,$actual,'Payment reversal',(string)$p['reference'],$p['reversalJournalId'],40);}
+            if(!$wasOriginallyOpen)$addExcess($p,$id,$date,$carrying);
             continue;
         }
         $advanceKey='advance:'.$id;
@@ -361,6 +402,7 @@ function tegh_subledger_events_5980(array $source, string $basis, bool $ar): arr
             }
         } else {
             $add($docKey,$date,-$carrying,'Payment',(string)$p['reference'],$p['journalId'],20);
+            $addExcess($p,$id,$date,$carrying);
         }
         if (($p['status']??'')==='reversed') {
             if (($p['reversalStatus']??'')!=='posted') fail('A reversed payment has no active dated reversal journal. No timestamp was substituted for its accounting date.',409,'report_reversal_evidence_missing',false);

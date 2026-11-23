@@ -656,37 +656,101 @@ function portal_trial_balance(array $company): never
         }
         // The payment register is the authoritative source for both payments
         // entered before a statement import and payments created by a direct
-        // invoice/bill match. Use applied_cents rather than the bank amount so
-        // foreign-exchange differences do not distort the party subledger.
+        // invoice/bill match.
+        // R193: each payment counts what its own journal entry posted to the receivables (payables) control account, and
+        // its reversal entry the opposite on the reversal date. This is the applied amount for an ordinary receipt or
+        // payment (so foreign-exchange differences still do not distort the party subledger), and it also covers an
+        // amount received beyond the invoice (held on account until applied or refunded) and refunds, which move the
+        // balance the other way. The applied amount is used only when the entry has no line on the control account.
+        $controlId = null;
+        $controlStmt = db()->prepare("SELECT a.id FROM company_system_accounts cs JOIN accounts a ON a.id=cs.account_id AND a.company_id=cs.company_id
+            WHERE cs.company_id=? AND cs.status='active' AND cs.system_key IN (?,?) ORDER BY cs.system_key LIMIT 1");
+        $controlStmt->execute([$companyId,$receivable?'accounts_receivable':'accounts_payable',$receivable?'ar_control':'ap_control']);
+        $controlId = $controlStmt->fetchColumn() ?: null;
+        if ($controlId === null) {
+            $codeStmt = db()->prepare('SELECT id FROM accounts WHERE company_id=? AND code=? LIMIT 1');
+            $codeStmt->execute([$companyId,$receivable?'1200':'2050']);
+            $controlId = $codeStmt->fetchColumn() ?: null;
+        }
+        $sign = $receivable ? 'jl.credit_cents-jl.debit_cents' : 'jl.debit_cents-jl.credit_cents';
         $registeredBankTransactions = [];
-        $paymentStmt = db()->prepare("SELECT pp.party_id,pp.payment_date,pp.applied_cents,pp.bank_transaction_id,
-                pp.status,pp.reversed_at,rje.entry_date AS reversal_date
+        $paymentStmt = db()->prepare("SELECT pp.party_id,pp.payment_date,pp.applied_cents,pp.amount_cents,pp.bank_transaction_id,pp.flow_kind,
+                pp.status,pp.reversed_at,rje.entry_date AS reversal_date,
+                (SELECT SUM($sign) FROM journal_lines jl JOIN journal_entries je ON je.id=jl.journal_entry_id AND je.status='posted' WHERE jl.journal_entry_id=pp.journal_entry_id AND jl.account_id=?) AS control_cents,
+                (SELECT SUM($sign) FROM journal_lines jl WHERE jl.journal_entry_id=pp.reversal_journal_entry_id AND jl.account_id=?) AS reversal_control_cents
             FROM party_payments pp
             LEFT JOIN journal_entries rje ON rje.id=pp.reversal_journal_entry_id
             WHERE pp.company_id=? AND pp.payment_type=? AND pp.payment_date<=?
             ORDER BY pp.payment_date,pp.created_at,pp.id");
-        $paymentStmt->execute([$companyId,$receivable?'customer':'vendor',$end]);
-        foreach ($paymentStmt->fetchAll() as $payment) {
-            $partyId = (string)$payment['party_id'];
-            $amount = abs((int)$payment['applied_cents']);
-            if (!isset($balances[$partyId]) || $amount <= 0) continue;
-            $opening = (string)$payment['payment_date'] < $start;
-            $field = $receivable
+        $paymentStmt->execute([$controlId,$controlId,$companyId,$receivable?'customer':'vendor',$end]);
+        // A positive amount reduces the party balance (credit for a customer, debit for a vendor); a negative one raises it.
+        $applyToParty = static function (array &$row, int $signed, bool $opening) use ($receivable): void {
+            if ($signed === 0) return;
+            $reduce = $signed > 0;
+            $field = ($receivable === $reduce)
                 ? ($opening?'openingCreditCents':'periodCreditCents')
                 : ($opening?'openingDebitCents':'periodDebitCents');
-            $balances[$partyId][$field] += $amount;
+            $row[$field] += abs($signed);
+        };
+        foreach ($paymentStmt->fetchAll() as $payment) {
+            $partyId = (string)$payment['party_id'];
+            if (!isset($balances[$partyId])) continue;
+            $refund = str_ends_with((string)($payment['flow_kind'] ?? ''), '_refund');
+            $signed = $payment['control_cents'] !== null
+                ? (int)$payment['control_cents']
+                : ($refund ? -abs((int)$payment['amount_cents']) : abs((int)$payment['applied_cents']));
+            $applyToParty($balances[$partyId], $signed, (string)$payment['payment_date'] < $start);
             if ((string)$payment['status']==='reversed' && $payment['reversed_at']!==null) {
                 $reversalDate = (string)($payment['reversal_date'] ?: substr((string)$payment['reversed_at'],0,10));
                 if ($reversalDate <= $end) {
-                    $reversalOpening = $reversalDate < $start;
-                    $reversalField = $receivable
-                        ? ($reversalOpening?'openingDebitCents':'periodDebitCents')
-                        : ($reversalOpening?'openingCreditCents':'periodCreditCents');
-                    $balances[$partyId][$reversalField] += $amount;
+                    $reversalSigned = $payment['reversal_control_cents'] !== null ? (int)$payment['reversal_control_cents'] : -$signed;
+                    $applyToParty($balances[$partyId], $reversalSigned, $reversalDate < $start);
                 }
             }
             if ((string)$payment['status']==='posted' && $payment['bank_transaction_id'] !== null) {
                 $registeredBankTransactions[(string)$payment['bank_transaction_id']] = true;
+            }
+        }
+
+        // R193: posted credit notes reduce the party balance on their date (the GL credits receivables, or debits payables,
+        // with the note total); a voided note is added back on its void date. Debit notes are not counted here: posting
+        // one creates its own invoice or bill, which is counted above.
+        $noteStmt = db()->prepare("SELECT party_id,note_date,total_cents,status,void_date FROM accounting_notes
+            WHERE company_id=? AND note_kind=? AND status IN ('posted','void') AND journal_entry_id IS NOT NULL AND note_date<=?");
+        $noteStmt->execute([$companyId,$receivable?'customer_credit':'vendor_credit',$end]);
+        foreach ($noteStmt->fetchAll() as $note) {
+            $partyId = (string)$note['party_id'];
+            $amount = (int)$note['total_cents'];
+            if (!isset($balances[$partyId]) || $amount <= 0) continue;
+            $opening = (string)$note['note_date'] < $start;
+            $field = $receivable ? ($opening?'openingCreditCents':'periodCreditCents') : ($opening?'openingDebitCents':'periodDebitCents');
+            $balances[$partyId][$field] += $amount;
+            if ((string)$note['status']==='void' && $note['void_date']!==null && (string)$note['void_date'] <= $end) {
+                $voidOpening = (string)$note['void_date'] < $start;
+                $voidField = $receivable ? ($voidOpening?'openingDebitCents':'periodDebitCents') : ($voidOpening?'openingCreditCents':'periodCreditCents');
+                $balances[$partyId][$voidField] += $amount;
+            }
+        }
+        // R193 (India edition only): TDS deducted from a vendor invoice reduces what is owed to the vendor (the GL debits
+        // payables); a reversed deduction is added back on its reversal date. TCS is not counted here: it is billed on
+        // its own invoice, which is counted above.
+        if (!$receivable && (string)($company['edition'] ?? '') === 'IN') {
+            try {
+                $tdsStmt = db()->prepare("SELECT e.party_id,e.deduction_date,e.amount_cents,e.status,rje.entry_date AS reversal_date
+                    FROM india_tds_entries e LEFT JOIN journal_entries rje ON rje.id=e.reversal_journal_entry_id
+                    WHERE e.company_id=? AND e.kind='tds' AND e.journal_entry_id IS NOT NULL AND e.deduction_date<=?");
+                $tdsStmt->execute([$companyId,$end]);
+                $tdsRows = $tdsStmt->fetchAll();
+            } catch (PDOException) { $tdsRows = []; }
+            foreach ($tdsRows as $tds) {
+                $partyId = (string)$tds['party_id'];
+                $amount = (int)$tds['amount_cents'];
+                if (!isset($balances[$partyId]) || $amount <= 0) continue;
+                $opening = (string)$tds['deduction_date'] < $start;
+                $balances[$partyId][$opening?'openingDebitCents':'periodDebitCents'] += $amount;
+                if ((string)$tds['status']==='reversed' && $tds['reversal_date']!==null && (string)$tds['reversal_date'] <= $end) {
+                    $balances[$partyId][(string)$tds['reversal_date'] < $start?'openingCreditCents':'periodCreditCents'] += $amount;
+                }
             }
         }
 
@@ -704,13 +768,16 @@ function portal_trial_balance(array $company): never
             $transactionId = trim((string)($metadata['transactionId'] ?? ''));
             $amount = abs((int)($metadata['amountCents'] ?? 0));
             if ($transactionId !== '' && $amount > 0 && !isset($registeredBankTransactions[$transactionId])) {
-                $legacyPayments[] = [$partyId,$transactionId,$amount];
+                // R193: one match per bank line and document (a repeated audit event is the same match).
+                $legacyPayments[(string)$event['entity_id'].'|'.$transactionId] = [$partyId,$transactionId,$amount];
             }
         }
         if ($legacyPayments) {
             $transactionIds = array_values(array_unique(array_map(static fn(array $payment): string => $payment[1], $legacyPayments)));
             $placeholders = implode(',', array_fill(0,count($transactionIds),'?'));
-            $dateStmt = db()->prepare("SELECT id,transaction_date FROM bank_transactions WHERE company_id=? AND id IN ($placeholders)");
+            // R193: only bank lines that are still posted count. A match that was later unposted (the line is back in
+            // Unposted, its entry reversed) no longer reduces the balance; it was counted before.
+            $dateStmt = db()->prepare("SELECT id,transaction_date FROM bank_transactions WHERE company_id=? AND id IN ($placeholders) AND status='posted' AND journal_entry_id IS NOT NULL");
             $dateStmt->execute([$companyId,...$transactionIds]);
             $dates = [];
             foreach ($dateStmt->fetchAll() as $transaction) $dates[(string)$transaction['id']] = (string)$transaction['transaction_date'];
