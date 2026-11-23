@@ -62,7 +62,7 @@ const measure = async scope => page.evaluate(([scope, src, flags]) => {
   for (const el of root.querySelectorAll('h1,h2,h3,h4,p,span,label,td,th,a,button,li,small,strong,legend,dt,dd')) {
     if (lowContrast.length >= 4) break; if (!vis(el)) continue;
     const own = [...el.childNodes].some(n => n.nodeType === 3 && n.nodeValue.trim().length > 1); if (!own) continue;
-    const cs = getComputedStyle(el); if (parseFloat(cs.opacity) < 0.9 || el.closest('[disabled],[aria-disabled=true],.disabled,[hidden]')) continue;
+    const cs = getComputedStyle(el); if (el.closest('.r27-sr-only,.sr-only,.visually-hidden') || (cs.position === 'absolute' && el.getBoundingClientRect().width <= 1)) continue; if (parseFloat(cs.opacity) < 0.9 || el.closest('[disabled],[aria-disabled=true],.disabled,[hidden]')) continue;
     const fg = rgb(cs.color), bg = bgOf(el); if (!fg || !bg) continue;
     const L1 = lum(fg), L2 = lum(bg), ratio = (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
     if (ratio < 3) { lowContrast.push(el.textContent.trim().slice(0, 24) + ' ' + ratio.toFixed(1)); const path = n => { const out = []; for (let e = n, k = 0; e && e !== document.body && k < 4; e = e.parentElement, k++) out.unshift(e.tagName.toLowerCase() + (e.className && typeof e.className === 'string' ? '.' + e.className.trim().split(/\s+/).slice(0, 3).join('.') : '')); return out.join(' > '); }; let bo = el; while (bo && !(rgb(getComputedStyle(bo).backgroundColor)?.a > 0.5)) bo = bo.parentElement; details.push({text: el.textContent.trim().slice(0, 30), path: path(el), fg: cs.color, bg: bg ? `rgb(${bg.r},${bg.g},${bg.b})` : null, bgOwner: bo ? path(bo) : 'body', ratio: +ratio.toFixed(2)}); }

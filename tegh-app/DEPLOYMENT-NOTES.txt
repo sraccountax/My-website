@@ -12,10 +12,17 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R192 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R193 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R192 (R118–R192 change notes are
-included). R192 is the private beta package (it replaces R191): fixes from a functional and UI audit of both
+This package contains every release through R193 (R118–R193 change notes are
+included). R193 is the private beta package (it replaces R192): fixes from an audit with large companies in both
+editions, both bookkeeping modes, light and dark themes and side and top navigation. Both editions: customer and
+vendor balances, ageing and party balance reports agree with the GL after credit notes, refunds and amounts paid beyond
+an invoice (and, India, TDS); the workspace of a large company sends each invoice template once (it could run out of
+memory); a report over the complete-row limit offers its latest month and no longer shows partial preview totals; dark
+theme surfaces and text are readable. India: Guided mode is shown as not available instead of reporting a change that
+did not happen. No migration; Schema stays 46. See R193-CHANGES.md.
+R192 (replaced R191): fixes from a functional and UI audit of both
 editions. India: registrations saved with a time-zone change read back at once; financial-year wording and dates; no
 Canadian payroll notice on India payroll; Canada-only screens closed in India; recurring documents refuse GST/HST/PST;
 expenses show GST and no PST; data import checks Indian states. Both editions: Match and Post readable on phones; report

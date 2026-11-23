@@ -79,3 +79,11 @@ html[data-tegh-theme="dark"] body .srp-page-head h1 { color: #edf7f3 !important;
 html[data-tegh-theme="dark"] body .srp-sites-eyebrow { color: #54d4b6 !important; }
 html[data-tegh-theme="dark"] body :is(.srp-link, .ii-link) { color: #6fdcc6 !important; }
 html[data-tegh-theme="dark"] body .r17-chart-legend span { color: #a7bbb3 !important; }
+
+/* Second pass (re-audit after the first fixes). */
+html[data-tegh-theme="dark"] body .sra-budget-drawer-head span { color: #54d4b6 !important; }
+html[data-tegh-theme="dark"] body .sra-budget-row { background: #22382f !important; border-color: #3a5a51 !important; }
+html[data-tegh-theme="dark"] body .sra-budget-row :is(legend, label > span) { color: #cfe0d9 !important; }
+html[data-tegh-theme="dark"] body nav.srp-segmented.r187-je-tabs { background: #1b2d28 !important; border-color: #2c4740 !important; }
+html[data-tegh-theme="dark"] body .srp-bank-bulk label > span { color: #cfe0d9 !important; }
+html[data-tegh-theme="dark"] body .sra-loading { background: #1b2d28 !important; color: #cfe0d9 !important; border-color: #2c4740 !important; }
