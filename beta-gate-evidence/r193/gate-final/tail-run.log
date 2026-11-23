@@ -1,0 +1,15 @@
+=== e2e 12:02
+=== journeys 12:07
+=== matrix1 12:08
+=== matrix2 12:18
+=== trapscan 12:22
+=== upgrade 12:24
+MANIFEST-OK
+Traceback (most recent call last):
+  File "/srv/gate/t/aggregate.py", line 16, in <module>
+    paths=open(f'{ev}/paths.txt').read().splitlines()
+          ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/srv/gate/ev/paths.txt'
+390x844 screens with swipe traps: 0
+TAIL-DONE
+GATE-RESUME-DONE

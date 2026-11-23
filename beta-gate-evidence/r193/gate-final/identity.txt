@@ -1,0 +1,5 @@
+zip: /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R193-PRIVATE-BETA.zip
+a3052a778812a32dce6bb6c78ac4bc3ca46cfe9b43df53c0c39ab4b4ebdc4e4c  /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R193-PRIVATE-BETA.zip
+tag: r193b
+FILE-MANIFEST: all 448 entries OK
+note: written after the gate; reset.sh stopped at 'service apache2 reload' (no pid file) after installing this ZIP and recreating the database
