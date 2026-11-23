@@ -262,7 +262,7 @@
     const preserveInteractive=context.preserveInteractive===true||['payroll-runs','payroll-history','payroll-verification','payroll-quick-calculator'].includes(page.dataset.srpPage);
     const prepared={route,params:Object.freeze(params),companyId:company,model:null,controller:new AbortController(),promise:null,preserveInteractive};reportContexts.set(page,prepared);outputControllers.add(prepared.controller);
     page.dataset.teghOutputReady='1';markReportLayout(page,prepared);ensureReportSlot(page);renderOutputToolbar(page,prepared);
-    if(!prepared.preserveInteractive){const body=q('.srp-page-body',page)||page,host=reportHost(page);host.innerHTML='<div class="srp-report-loading" role="status" aria-live="polite"><b>Generating Current Report</b><span>Loading the selected filters and complete authorized rows…</span></div>';qa('.srp-table-wrap,.sra-table-wrap',body).forEach(el=>{if(!el.closest('[data-tegh-authoritative-report]')){el.hidden=true;el.dataset.teghStaleReport='1'}});}
+    if(!prepared.preserveInteractive){const body=q('.srp-page-body',page)||page,host=reportHost(page);host.innerHTML='<div class="srp-report-loading" role="status" aria-live="polite"><b>Generating Current Report</b><span>Loading the selected filters and complete authorized rows…</span></div>';qa('.srp-table-wrap,.sra-table-wrap,.srp-report-toolbar .srp-kpis',body).forEach(el=>{if(!el.closest('[data-tegh-authoritative-report]')){el.hidden=true;el.dataset.teghStaleReport='1'}});}
     if(context.model&&(context.useProvidedModel===true||!route)){
       const supplied=context.model,reference=supplied.verifiedOutput?.reference||`SCREEN-${safeName(supplied.title||route||'report').toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
       const model={contractVersion:'3.0',definitionKey:route||String(context.route||'screen-report'),definitionVersion:'screen-dataset-v1',companyId:company,completeness:{complete:true,truncated:false},...supplied,rowCount:Array.isArray(supplied.rows)?supplied.rows.length:Number(supplied.rowCount||0),verifiedOutput:{generatedAt:new Date().toISOString(),statement:'Prepared from the complete server response loaded on this screen. Not an audit opinion.',...(supplied.verifiedOutput||{}),reference}};
@@ -318,7 +318,9 @@
   }
   function showOutputError(page,c,error){window.TeghRegistersR23?.invalidate(page);c.error=error;page.dataset.teghReportSurface='error';const host=reportHost(page);host.innerHTML=`<div class="srp-notice danger" role="alert"><b>Complete report unavailable</b><p>${esc(error.message)}</p><button type="button" class="srp-btn secondary" data-tegh-report-retry>Retry report</button></div>`;q('[data-tegh-report-retry]',host).onclick=()=>setReportContext(page,{route:c.route,params:c.params,preserveInteractive:c.preserveInteractive});renderOutputToolbar(page,c);
     // Older workspace tables are not shown as the current authoritative report after failure.
-    if(!c.preserveInteractive)qa('.srp-table-wrap,.sra-table-wrap',q('.srp-page-body',page)||page).forEach(el=>{if(!el.closest('[data-tegh-authoritative-report]')){el.hidden=true;el.dataset.teghStaleReport='1'}});
+    // R193: the preview totals beside them are hidden too. On a large company the preview holds only part of the ledger,
+    // so its totals (for example debits that differ from credits) must not stand in for the refused complete report.
+    if(!c.preserveInteractive)qa('.srp-table-wrap,.sra-table-wrap,.srp-report-toolbar .srp-kpis',q('.srp-page-body',page)||page).forEach(el=>{if(!el.closest('[data-tegh-authoritative-report]')){el.hidden=true;el.dataset.teghStaleReport='1'}});
   }
   function markInteractiveReport(page){
     const body=q('.srp-page-body',page)||page;
@@ -407,7 +409,8 @@
   }
   function prepareSurface(page){
     if(!replacesLegacyTables(page))return false;
-    qa('.srp-table-wrap,.sra-table-wrap',q('.srp-page-body',page)||page).forEach(el=>{if(!el.closest('[data-tegh-authoritative-report]')){el.hidden=true;el.dataset.teghStaleReport='1'}});
+    // R193: with the preview table, its totals: the preview holds at most the latest 250 ledger lines.
+    qa('.srp-table-wrap,.sra-table-wrap,.srp-report-toolbar .srp-kpis',q('.srp-page-body',page)||page).forEach(el=>{if(!el.closest('[data-tegh-authoritative-report]')){el.hidden=true;el.dataset.teghStaleReport='1'}});
     return true;
   }
   function enhanceReportOutput(page){if(!page||page.dataset.teghOutputSuspended==='1')return;let c=reportContexts.get(page);if(!c){if(interactiveReportPages.has(page.dataset.srpPage))return;const context=page.teghReportContext||{route:reportRoutes[page.dataset.srpPage],params:{}};if(outputDefinition(page,context)){setReportContext(page,context);return}}if(c)renderOutputToolbar(page,c)}

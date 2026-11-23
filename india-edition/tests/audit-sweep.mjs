@@ -57,7 +57,7 @@ const measure = async scope => page.evaluate(([scope, src, flags]) => {
   // R193: text contrast against its effective background (WCAG ratio below 3 is flagged), and large light panels in the dark theme.
   const rgb = c => { const m = (c || '').match(/rgba?\(([^)]+)\)/); if (!m) return null; const v = m[1].split(',').map(x => parseFloat(x)); return {r: v[0], g: v[1], b: v[2], a: v.length > 3 ? v[3] : 1}; };
   const lum = c => { const f = x => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
-  const bgOf = el => { let e = el; while (e) { const c = rgb(getComputedStyle(e).backgroundColor); if (c && c.a > 0.5 && !/gradient|url/.test(getComputedStyle(e).backgroundImage)) return c; if (e !== el && /gradient|url/.test(getComputedStyle(e).backgroundImage)) return null; e = e.parentElement; } return rgb(getComputedStyle(document.body).backgroundColor); };
+  const bgOf = el => { let e = el; while (e) { const cs = getComputedStyle(e); if (/gradient|url/.test(cs.backgroundImage)) return null; const c = rgb(cs.backgroundColor); if (c && c.a > 0.5) return c; e = e.parentElement; } return rgb(getComputedStyle(document.body).backgroundColor); };
   const lowContrast = [];
   for (const el of root.querySelectorAll('h1,h2,h3,h4,p,span,label,td,th,a,button,li,small,strong,legend,dt,dd')) {
     if (lowContrast.length >= 4) break; if (!vis(el)) continue;
