@@ -47,6 +47,7 @@ const measure = async scope => page.evaluate(([scope, src, flags]) => {
   const txt = root.innerText || '';
   const bad = (txt.match(/\bundefined\b|\bNaN\b|\[object Object\]|\bInfinity\b|\bnull\b(?! *(?:island|value))/g) || []).slice(0, 4);
   const foreign = [...new Set((txt.match(new RegExp(src, flags)) || []).map(x => x.toLowerCase()))].slice(0, 8);
+  const foreignAt = [...txt.matchAll(new RegExp(src, flags))].slice(0, 3).map(m => txt.slice(Math.max(0, m.index - 70), m.index + 50).replace(/\s+/g, ' '));
   const over = [...root.querySelectorAll('button,input,select,textarea,h1,h2,label,.srp-card')].filter(e => { if (!vis(e)) return false; const r = e.getBoundingClientRect(); if (r.width === 0) return false; let p = e.parentElement; while (p) { const s = getComputedStyle(p); if (/(auto|scroll|hidden)/.test(s.overflowX) && p !== document.body && p !== de) return false; p = p.parentElement; } return r.right > innerWidth + 2 || r.left < -2; }).map(e => (e.tagName + ':' + (e.textContent || e.name || '').trim().slice(0, 24)));
   const h1 = [...document.querySelectorAll('h1,h2')].find(vis);
   const toast = [...document.querySelectorAll('.srp-toast.error,[data-toast-type=error],.srp-toast-error,.srp-alert-error,.error-banner')].filter(vis).map(t => t.textContent.trim().slice(0, 100));
@@ -72,7 +73,7 @@ const measure = async scope => page.evaluate(([scope, src, flags]) => {
     if (lightPanels.length >= 4) break; if (!vis(el)) continue; const r = el.getBoundingClientRect(); if (r.width < 200 || r.height < 80) continue;
     const c = rgb(getComputedStyle(el).backgroundColor); if (c && c.a > 0.5 && lum(c) > 0.75) { lightPanels.push((el.className || el.tagName).toString().split(' ')[0].slice(0, 30)); details.push({panel: (el.tagName.toLowerCase() + '.' + String(el.className).trim().split(/\s+/).join('.')).slice(0, 120), bg: getComputedStyle(el).backgroundColor}); }
   }
-  return {h1: h1?.textContent?.trim().slice(0, 60) || '', sw: de.scrollWidth, cw: de.clientWidth, bad, foreign, over: over.slice(0, 5), toast, unlabelled, clipped, lowContrast, lightPanels, details};
+  return {foreignAt, h1: h1?.textContent?.trim().slice(0, 60) || '', sw: de.scrollWidth, cw: de.clientWidth, bad, foreign, over: over.slice(0, 5), toast, unlabelled, clipped, lowContrast, lightPanels, details};
 }, [scope, FOREIGN.source, FOREIGN.flags]);
 const issuesOf = m => { const i = []; if (m.sw > m.cw + 2) i.push('page-hscroll ' + m.sw + '>' + m.cw); if (m.over.length) i.push('off-screen ' + m.over.join(',')); if (m.bad.length) i.push('text ' + m.bad.join(',')); if (!m.h1) i.push('no heading');
   if (m.toast.length) i.push('error-toast ' + m.toast.join(';')); if (m.foreign.length) i.push('foreign-wording ' + m.foreign.join(',')); if (m.clipped.length) i.push('clipped ' + m.clipped.join(',')); if (m.unlabelled) i.push(m.unlabelled + ' unlabelled'); if (m.lowContrast?.length) i.push('low-contrast ' + m.lowContrast.join(',')); if (m.lightPanels?.length) i.push('light-panel ' + m.lightPanels.join(',')); return i; };
@@ -88,10 +89,11 @@ for (const f of PAGES) acts.push(['fn:' + f, f]);
 for (const r of await page.evaluate(() => window.TeghPortal.listReports?.() || [])) acts.push(['report:' + r, r]);
 const out = {tag, edition: ED, company: CO, W, H, MODE, THEME, NAV, state, setupErrs, screens: []};
 for (const [id, label] of acts) {
+  if (process.env.ONLY && !new RegExp(process.env.ONLY).test(id)) continue;
   ev.length = 0;
   await page.evaluate(id => id.startsWith('fn:') ? TeghPortal[id.slice(3)]?.() : id.startsWith('report:') ? TeghPortal.openReport(id.slice(7)) : TeghPortal.invokeMenuAction('', id), id).catch(e => ev.push('invoke ' + e.message.slice(0, 80)));
   await page.waitForTimeout(2200);
-  const m = await measure('page'); const s = {id, label, h1: m.h1, issues: [...issuesOf(m), ...ev], ...(m.details?.length ? {details: m.details} : {})};
+  const m = await measure('page'); const s = {id, label, h1: m.h1, issues: [...issuesOf(m), ...ev], ...(m.details?.length ? {details: m.details} : {}), ...(m.foreign.length ? {foreignAt: m.foreignAt} : {})};
   if (FORMS === '1') {
     // Open the first New/Add/Create button of the page (never Save, Post, Delete or a submit button).
     const opened = await page.evaluate(() => {
@@ -101,7 +103,7 @@ for (const [id, label] of acts) {
     }).catch(() => '');
     if (opened) {
       ev.length = 0; await page.waitForTimeout(1800);
-      const f = await measure('dialog'); s.form = {opened, h1: f.h1, issues: [...issuesOf(f).filter(x => x !== 'no heading'), ...ev], ...(f.details?.length ? {details: f.details} : {})};
+      const f = await measure('dialog'); s.form = {opened, h1: f.h1, issues: [...issuesOf(f).filter(x => x !== 'no heading'), ...ev], ...(f.details?.length ? {details: f.details} : {}), ...(f.foreign.length ? {foreignAt: f.foreignAt} : {})};
       if (s.form.issues.length) await page.screenshot({path: `/srv/gate/ev/shots/${tag}-${id.replace(/[^a-z0-9]+/gi, '_')}-form.png`});
       await page.keyboard.press('Escape').catch(() => {}); await page.waitForTimeout(400);
       await page.evaluate(() => { const c = [...document.querySelectorAll('dialog[open] button,[role=dialog] button,.srp-modal button')].find(b => /^(cancel|close|×)$/i.test(b.textContent.trim())); c?.click(); }).catch(() => {});

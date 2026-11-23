@@ -1,0 +1,12 @@
+r193b-in-full-dark-top-1440 IN full dark top screens 118 forms 10 with issues 11 {"mode":"full-accounting","theme":"dark","nav":"top","company":"company_0a8f18e07aa190bd7bdb8e402a64e608"}
+   receivables:create-customer        foreign-wording canada
+   payables:create-vendor             foreign-wording canada
+   payroll:pay-runs                   api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted
+   fn:openSiteReleaseSettings         foreign-wording canada
+   fn:openTaxCodes                    foreign-wording canadian
+   fn:openTaxCodeReport               foreign-wording canadian
+   fn:openRates                       foreign-wording canadian
+   fn:openGifiReport                  foreign-wording gifi,canadian
+   fn:openGifiMapping                 foreign-wording gifi,canadian
+   fn:openInvoiceTemplates            light-panel srp-template-preview,srp-template-preview,srp-template-preview,srp-template-preview
+   report:General Ledger Detail       api 413 /api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-04-01&end=2026-11-23

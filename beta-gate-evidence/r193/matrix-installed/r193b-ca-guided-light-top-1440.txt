@@ -1,0 +1,7 @@
+r193b-ca-guided-light-top-1440 CA guided light top screens 72 forms 8 with issues 6 {"mode":"guided","theme":"light","nav":"top","company":"company_76bdcd0793b4cbccd3d6e18d66c4433b"}
+   fn:openTaxCodes                    foreign-wording cgst,sgst
+   fn:openTaxCodeReport [Add Tax Code] foreign-wording cgst,sgst
+   fn:openUsers                       foreign-wording tds
+   report:General Ledger Detail       api 413 /api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-01-01&end=2026-11-23
+   report:Receivable Ageing           api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted
+   report:Tax Code Report [Add Tax Code] foreign-wording cgst,sgst
