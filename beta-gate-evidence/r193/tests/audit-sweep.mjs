@@ -43,7 +43,7 @@ const FOREIGN = IN
   : /\b(GSTIN|PAN|TDS|TCS|Udyam|GSTR-?\d\w*|CGST|SGST|IGST|UTGST|HSN|EPF|ESIC|lakh|crore|financial year|PIN code|India Masters|India Home)\b/g;
 const measure = async scope => page.evaluate(([scope, src, flags]) => {
   const de = document.documentElement; const vis = el => el && el.offsetParent !== null && getComputedStyle(el).visibility !== 'hidden';
-  const root = scope === 'dialog' ? ([...document.querySelectorAll('dialog[open],[role=dialog],.srp-modal,.srp-drawer')].filter(vis).pop() || document.body) : (document.querySelector('.srp-page,.stage,main') || document.body);
+  const root = scope === 'dialog' ? ([...document.querySelectorAll('dialog[open],[role=dialog],.srp-modal,.srp-drawer')].filter(vis).filter(e => !e.closest('.sidebar,.srp-sidebar,.app-sidebar') && !e.querySelector('.sidebar,.srp-sidebar,[data-srp-nav]')).pop() || document.body) : (document.querySelector('.srp-page,.stage,main') || document.body);
   const txt = root.innerText || '';
   const bad = (txt.match(/\bundefined\b|\bNaN\b|\[object Object\]|\bInfinity\b|\bnull\b(?! *(?:island|value))/g) || []).slice(0, 4);
   const foreign = [...new Set((txt.match(new RegExp(src, flags)) || []).map(x => x.toLowerCase()))].slice(0, 8);
@@ -58,21 +58,21 @@ const measure = async scope => page.evaluate(([scope, src, flags]) => {
   const rgb = c => { const m = (c || '').match(/rgba?\(([^)]+)\)/); if (!m) return null; const v = m[1].split(',').map(x => parseFloat(x)); return {r: v[0], g: v[1], b: v[2], a: v.length > 3 ? v[3] : 1}; };
   const lum = c => { const f = x => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
   const bgOf = el => { let e = el; while (e) { const cs = getComputedStyle(e); if (/gradient|url/.test(cs.backgroundImage)) return null; const c = rgb(cs.backgroundColor); if (c && c.a > 0.5) return c; e = e.parentElement; } return rgb(getComputedStyle(document.body).backgroundColor); };
-  const lowContrast = [];
+  const lowContrast = [], details = [];
   for (const el of root.querySelectorAll('h1,h2,h3,h4,p,span,label,td,th,a,button,li,small,strong,legend,dt,dd')) {
     if (lowContrast.length >= 4) break; if (!vis(el)) continue;
     const own = [...el.childNodes].some(n => n.nodeType === 3 && n.nodeValue.trim().length > 1); if (!own) continue;
     const cs = getComputedStyle(el); if (parseFloat(cs.opacity) < 0.9 || el.closest('[disabled],[aria-disabled=true],.disabled,[hidden]')) continue;
     const fg = rgb(cs.color), bg = bgOf(el); if (!fg || !bg) continue;
     const L1 = lum(fg), L2 = lum(bg), ratio = (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
-    if (ratio < 3) lowContrast.push(el.textContent.trim().slice(0, 24) + ' ' + ratio.toFixed(1));
+    if (ratio < 3) { lowContrast.push(el.textContent.trim().slice(0, 24) + ' ' + ratio.toFixed(1)); const path = n => { const out = []; for (let e = n, k = 0; e && e !== document.body && k < 4; e = e.parentElement, k++) out.unshift(e.tagName.toLowerCase() + (e.className && typeof e.className === 'string' ? '.' + e.className.trim().split(/\s+/).slice(0, 3).join('.') : '')); return out.join(' > '); }; let bo = el; while (bo && !(rgb(getComputedStyle(bo).backgroundColor)?.a > 0.5)) bo = bo.parentElement; details.push({text: el.textContent.trim().slice(0, 30), path: path(el), fg: cs.color, bg: bg ? `rgb(${bg.r},${bg.g},${bg.b})` : null, bgOwner: bo ? path(bo) : 'body', ratio: +ratio.toFixed(2)}); }
   }
   const dark = document.documentElement.dataset.teghTheme === 'dark'; const lightPanels = [];
   if (dark) for (const el of root.querySelectorAll('div,section,article,table,form,aside,header,dialog')) {
     if (lightPanels.length >= 4) break; if (!vis(el)) continue; const r = el.getBoundingClientRect(); if (r.width < 200 || r.height < 80) continue;
-    const c = rgb(getComputedStyle(el).backgroundColor); if (c && c.a > 0.5 && lum(c) > 0.75) lightPanels.push((el.className || el.tagName).toString().split(' ')[0].slice(0, 30));
+    const c = rgb(getComputedStyle(el).backgroundColor); if (c && c.a > 0.5 && lum(c) > 0.75) { lightPanels.push((el.className || el.tagName).toString().split(' ')[0].slice(0, 30)); details.push({panel: (el.tagName.toLowerCase() + '.' + String(el.className).trim().split(/\s+/).join('.')).slice(0, 120), bg: getComputedStyle(el).backgroundColor}); }
   }
-  return {h1: h1?.textContent?.trim().slice(0, 60) || '', sw: de.scrollWidth, cw: de.clientWidth, bad, foreign, over: over.slice(0, 5), toast, unlabelled, clipped, lowContrast, lightPanels};
+  return {h1: h1?.textContent?.trim().slice(0, 60) || '', sw: de.scrollWidth, cw: de.clientWidth, bad, foreign, over: over.slice(0, 5), toast, unlabelled, clipped, lowContrast, lightPanels, details};
 }, [scope, FOREIGN.source, FOREIGN.flags]);
 const issuesOf = m => { const i = []; if (m.sw > m.cw + 2) i.push('page-hscroll ' + m.sw + '>' + m.cw); if (m.over.length) i.push('off-screen ' + m.over.join(',')); if (m.bad.length) i.push('text ' + m.bad.join(',')); if (!m.h1) i.push('no heading');
   if (m.toast.length) i.push('error-toast ' + m.toast.join(';')); if (m.foreign.length) i.push('foreign-wording ' + m.foreign.join(',')); if (m.clipped.length) i.push('clipped ' + m.clipped.join(',')); if (m.unlabelled) i.push(m.unlabelled + ' unlabelled'); if (m.lowContrast?.length) i.push('low-contrast ' + m.lowContrast.join(',')); if (m.lightPanels?.length) i.push('light-panel ' + m.lightPanels.join(',')); return i; };
@@ -91,7 +91,7 @@ for (const [id, label] of acts) {
   ev.length = 0;
   await page.evaluate(id => id.startsWith('fn:') ? TeghPortal[id.slice(3)]?.() : id.startsWith('report:') ? TeghPortal.openReport(id.slice(7)) : TeghPortal.invokeMenuAction('', id), id).catch(e => ev.push('invoke ' + e.message.slice(0, 80)));
   await page.waitForTimeout(2200);
-  const m = await measure('page'); const s = {id, label, h1: m.h1, issues: [...issuesOf(m), ...ev]};
+  const m = await measure('page'); const s = {id, label, h1: m.h1, issues: [...issuesOf(m), ...ev], ...(m.details?.length ? {details: m.details} : {})};
   if (FORMS === '1') {
     // Open the first New/Add/Create button of the page (never Save, Post, Delete or a submit button).
     const opened = await page.evaluate(() => {
@@ -101,7 +101,7 @@ for (const [id, label] of acts) {
     }).catch(() => '');
     if (opened) {
       ev.length = 0; await page.waitForTimeout(1800);
-      const f = await measure('dialog'); s.form = {opened, h1: f.h1, issues: [...issuesOf(f).filter(x => x !== 'no heading'), ...ev]};
+      const f = await measure('dialog'); s.form = {opened, h1: f.h1, issues: [...issuesOf(f).filter(x => x !== 'no heading'), ...ev], ...(f.details?.length ? {details: f.details} : {})};
       if (s.form.issues.length) await page.screenshot({path: `/srv/gate/ev/shots/${tag}-${id.replace(/[^a-z0-9]+/gi, '_')}-form.png`});
       await page.keyboard.press('Escape').catch(() => {}); await page.waitForTimeout(400);
       await page.evaluate(() => { const c = [...document.querySelectorAll('dialog[open] button,[role=dialog] button,.srp-modal button')].find(b => /^(cancel|close|×)$/i.test(b.textContent.trim())); c?.click(); }).catch(() => {});
