@@ -74,7 +74,7 @@ There is a new stylesheet, `tegh-dark-r193.css`. It is loaded last and applies o
 - the Actions and download menus;
 - the loading placeholder.
 
-**Text that was unreadable now has at least 3:1 contrast:** labels, Journal Entry tabs, page headings, eyebrows, links, chart legends and zero amounts.
+**Text that was unreadable now has at least 3:1 contrast:** labels, Journal Entry tabs, page headings, eyebrows, links, chart legends, zero amounts and the note in the budget editor.
 
 **Not changed:** the invoice template preview stays white (it shows the printed page).
 

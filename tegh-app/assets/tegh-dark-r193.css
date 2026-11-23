@@ -87,3 +87,5 @@ html[data-tegh-theme="dark"] body .sra-budget-row :is(legend, label > span) { co
 html[data-tegh-theme="dark"] body nav.srp-segmented.r187-je-tabs { background: #1b2d28 !important; border-color: #2c4740 !important; }
 html[data-tegh-theme="dark"] body .srp-bank-bulk label > span { color: #cfe0d9 !important; }
 html[data-tegh-theme="dark"] body .sra-loading { background: #1b2d28 !important; color: #cfe0d9 !important; border-color: #2c4740 !important; }
+/* Third pass (large-data matrix): the note beside Add line in the budget editor. */
+html[data-tegh-theme="dark"] body .sra-budget-editor-actions > span { color: #a7bbb3 !important; }
