@@ -12,10 +12,15 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R197 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R198 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R197 (R118–R197 change notes are
-included). R197 is the private beta package (it replaces R196): India only, Payroll Set-up has pay heads (Basic Pay,
+This package contains every release through R198 (R118–R198 change notes are
+included). R198 is the private beta package (it replaces R197): India only, Settings › Tax Set-up replaces GST Set-up.
+GST rates (standard and the company's own, with headings), TDS sections (common sections with suggested rates and
+limits, own sections, 20% for vendors without a PAN) and TCS sections are confirmed once; then each vendor and customer
+gets its PAN and section, and each product and service its HSN/SAC and GST rate, from a date. No migration; Schema
+stays 46. See R198-CHANGES.md.
+R197 (replaced R196): India only, Payroll Set-up has pay heads (Basic Pay,
 Dearness Pay, Dearness Allowance, Cell Phone, Travel and Medical allowances; EPF, ESIC, PT, CPF, GPF, Insurance, TDS,
 Loan Recovery) plus the company's own allowances and deductions, which can be renamed. Each employee has a pay table
 with an effective date: every head is an amount (monthly, annual, semi-monthly or bi-weekly) or a percentage of Basic,

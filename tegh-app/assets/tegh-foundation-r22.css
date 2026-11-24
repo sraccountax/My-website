@@ -8678,3 +8678,33 @@ html[data-tegh-theme="dark"] .r197-head{background:#1b2d28;border-color:#2c4740}
 html[data-tegh-theme="dark"] :is(.r197-total){border-color:#2c4740}
 html[data-tegh-theme="dark"] .r197-net{border-color:#edf7f3}
 html[data-tegh-theme="dark"] .r197-row{border-color:#2c4740}
+/* R198: Tax Set-up (GST rates, TDS and TCS sections, vendors, customers, products and services). */
+[data-r198-card] h3 small{font-weight:400;color:#5d706a;font-size:14px}
+[data-r198-card] h4{margin:14px 0 6px;color:#132b25}
+.r198-own{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.r198-own .r197-head>b{min-width:56px}
+.r198-sections td,.r198-parties td,.r198-items td{vertical-align:middle}
+.r198-sections input:not([type=checkbox]),.r198-parties input,.r198-items input,.r198-parties select,.r198-items select{width:auto;max-width:100%;min-width:0;padding:4px 8px;border:1px solid #b9cac4;border-radius:6px;font:inherit;background:#fff;color:#132b25}
+.r198-sections input[data-f=label],.r198-label input{min-width:180px}
+.r198-sections tr.is-set{background:#f1f8f5}
+.r198-sections em{font-style:normal;font-size:12px;font-weight:700;color:#087965}
+.r198-label{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.r198-label .srp-btn,.r198-act .srp-btn{min-height:32px;padding:0 10px}
+.r198-act{display:flex;gap:6px;flex-wrap:nowrap}
+.r198-filter{display:inline-flex;align-items:center;gap:8px;margin:0 0 8px}
+.r198-filter input{width:220px;max-width:60vw}
+.r198-parties tr.is-editing,.r198-items tr.is-editing{background:#f1f8f5}
+@media (max-width:760px){
+  .r198-sections input[data-f=label],.r198-label input{min-width:140px}
+  .r198-parties select,.r198-items select{max-width:160px}
+}
+html[data-tegh-theme="dark"] :is([data-r198-card] h4){color:#edf7f3}
+html[data-tegh-theme="dark"] [data-r198-card] h3 small{color:#a7bbb3}
+html[data-tegh-theme="dark"] :is(.r198-sections input:not([type=checkbox]),.r198-parties input,.r198-items input,.r198-parties select,.r198-items select){background:#22382f;border-color:#3a5a51;color:#edf7f3}
+html[data-tegh-theme="dark"] :is(.r198-sections tr.is-set,.r198-parties tr.is-editing,.r198-items tr.is-editing){background:#17362e}
+html[data-tegh-theme="dark"] .r198-sections em{color:#7fe3c6}
+.r198-sections em{display:block;margin-top:2px;font-weight:600}
+.r198-sections td:nth-child(4){white-space:nowrap}
+.r198-sections td:nth-child(2){min-width:96px;max-width:150px}
+.r198-sections input[data-f=rate]{width:64px}
+.r198-sections input[data-f=single],.r198-sections input[data-f=yearly]{width:96px}

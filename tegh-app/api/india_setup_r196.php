@@ -89,7 +89,8 @@ function r196_confirm_rule(array $user, array $company, array $r, string $source
     $have = r196_rule($companyId, $jur, $r['category'], $r['code']);
     $same = static fn(array $h): bool => ($h['value_decimal'] === null ? null : (float)$h['value_decimal']) === ($r['ratePercent'] === '' ? null : (float)$r['ratePercent'])
         && ($h['value_cents'] === null ? null : (int)$h['value_cents']) === ($r['amountCents'] === '' ? null : (int)$r['amountCents'])
-        && ($h['threshold_max_cents'] === null ? null : (int)$h['threshold_max_cents']) === ($r['thresholdMaxCents'] === '' ? null : (int)$r['thresholdMaxCents']);
+        && ($h['threshold_max_cents'] === null ? null : (int)$h['threshold_max_cents']) === ($r['thresholdMaxCents'] === '' ? null : (int)$r['thresholdMaxCents'])
+        && ($h['threshold_min_cents'] === null ? null : (int)$h['threshold_min_cents']) === (($r['thresholdMinCents'] ?? '') === '' ? null : (int)$r['thresholdMinCents']);
     if ($have && $same($have)) {
         if ((string)$have['status'] === 'draft') in2_rule_approve($user, $company, ['id' => $have['id']]);
         return ['id' => (string)$have['id'], 'code' => $r['code'], 'status' => 'unchanged'];
@@ -107,13 +108,13 @@ function r196_confirm_rule(array $user, array $company, array $r, string $source
 function r196_gst_state(array $company): array
 {
     $companyId = (string)$company['id'];
-    $q = db()->prepare("SELECT id, rate_key, value_decimal, effective_from, status FROM statutory_rates WHERE company_id=? AND jurisdiction='IN' AND person_type='gst_rate' AND status IN ('active','draft') ORDER BY value_decimal, effective_from");
+    $q = db()->prepare("SELECT id, rate_key, label, value_decimal, effective_from, status FROM statutory_rates WHERE company_id=? AND jurisdiction='IN' AND person_type='gst_rate' AND status IN ('active','draft') ORDER BY value_decimal, effective_from");
     $q->execute([$companyId]); $rules = $q->fetchAll(PDO::FETCH_ASSOC);
     $codes = function_exists('in3_codes_list') ? in3_codes_list($companyId) : [];
     $have = [];
     foreach ($rules as $r) {
         $rate = rtrim(rtrim((string)$r['value_decimal'], '0'), '.') ?: '0';
-        $have[$rate] = ['rate' => $rate, 'ruleCode' => (string)$r['rate_key'], 'status' => (string)$r['status'], 'effectiveFrom' => (string)$r['effective_from'],
+        $have[$rate] = ['rate' => $rate, 'ruleCode' => (string)$r['rate_key'], 'label' => (string)$r['label'], 'fixed' => in_array($rate, array_column(R196_GST_SUGGESTIONS, 'rate'), true), 'status' => (string)$r['status'], 'effectiveFrom' => (string)$r['effective_from'],
             'codes' => array_values(array_map(static fn($c) => $c['code'], array_filter($codes, static fn($c) => ($c['ruleKey'] ?? $c['rule_key'] ?? '') === $r['rate_key'])))];
     }
     $b2cl = in3_rule_in_force($companyId, 'IN', 'gst_return_limit', 'B2CL', canadian_today());
@@ -127,15 +128,20 @@ function r196_gst_apply(array $user, array $company, array $in): array
     r196_require_rules_role($company, 'GST');
     if (empty($in['confirmed'])) fail('Tick "I have checked these rates" to confirm them.', 422, 'india_setup_confirm');
     $from = safe_date((string)($in['effectiveFrom'] ?? r196_default_from($company)), 'Effective from');
-    $rates = [];
-    foreach ((array)($in['rates'] ?? []) as $r) { $p = r196_percent($r, 'A GST rate'); $rates[$p] = $p; }
+    // R198: a rate may come with a heading ({rate, label}); the usual slabs keep "GST n%".
+    $rates = []; $labels = [];
+    foreach ((array)($in['rates'] ?? []) as $r) {
+        $p = r196_percent(is_array($r) ? ($r['rate'] ?? '') : $r, 'A GST rate'); $rates[$p] = $p;
+        $l = is_array($r) ? trim((string)($r['label'] ?? '')) : '';
+        if ($l !== '' && !in_array($p, array_column(R196_GST_SUGGESTIONS, 'rate'), true)) $labels[$p] = in2_text($l, 'Heading of GST ' . $p . '%', 120);
+    }
     if (!$rates) fail('Tick at least one GST rate.', 422, 'india_setup_no_rates');
     foreach ($rates as $p) if (((int)round((float)$p * 1000)) % 2 !== 0) fail('GST ' . $p . '% cannot be split equally into CGST and SGST. Enter it in India Masters instead.', 422, 'india_gst_rate_split');
     if (!in3_schema_ready()) fail('Try again: the GST tables are being prepared.', 409, 'india_gst_schema_busy');
     $source = 'Confirmed by ' . (string)$user['email'] . ' in GST set-up (suggested by Tegh)';
     $out = [];
     foreach ($rates as $p) {
-        $rule = r196_confirm_rule($user, $company, ['category' => 'gst_rate', 'code' => 'GST' . $p, 'label' => 'GST ' . $p . '%', 'state' => '', 'effectiveFrom' => $from, 'ratePercent' => $p, 'amountCents' => '', 'thresholdMaxCents' => ''], $source);
+        $rule = r196_confirm_rule($user, $company, ['category' => 'gst_rate', 'code' => 'GST' . $p, 'label' => $labels[$p] ?? (r196_rule((string)$company['id'], 'IN', 'gst_rate', 'GST' . $p)['label'] ?? 'GST ' . $p . '%'), 'state' => '', 'effectiveFrom' => $from, 'ratePercent' => $p, 'amountCents' => '', 'thresholdMaxCents' => ''], $source);
         $codes = in3_codes_create($user, $company, ['ruleId' => $rule['id']]);
         $out[] = ['rate' => $p, 'rule' => $rule, 'codes' => array_map(static fn($c) => $c['code'], $codes['codes'])];
     }
@@ -515,6 +521,7 @@ function handle_india_setup(string $action): never
     if ($method === 'GET') {
         if ($action === 'gst') { require_company_permission($company, 'company.view'); in3_schema_ready(); json_response(r196_gst_state($company)); }
         if ($action === 'payroll') { require_company_permission($company, 'payroll.view'); json_response(r196_payroll_state($company)); }
+        if ($action === 'tax') { require_company_permission($company, 'company.view'); require_once __DIR__ . '/india_tax_setup_r198.php'; json_response(r198_state($company)); }
         fail('Not found.', 404, 'route_not_found');
     }
     require_method('POST'); require_csrf(); $in = request_json();
@@ -524,5 +531,12 @@ function handle_india_setup(string $action): never
     if ($action === 'head') json_response(r197_head_save($user, $company, $in), 201);
     if ($action === 'head-remove') json_response(r197_head_remove($user, $company, $in));
     if ($action === 'preview') json_response(r197_preview($company, $in));
+    if (in_array($action, ['sections', 'tax-label', 'party', 'item'], true)) {
+        require_once __DIR__ . '/india_tax_setup_r198.php'; // R198 Tax Set-up
+        if ($action === 'sections') json_response(r198_sections_apply($user, $company, $in));
+        if ($action === 'tax-label') json_response(r198_label_save($user, $company, $in));
+        if ($action === 'party') json_response(r198_party_save($user, $company, $in));
+        json_response(r198_item_save($user, $company, $in));
+    }
     fail('Not found.', 404, 'route_not_found');
 }

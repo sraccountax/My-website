@@ -251,6 +251,8 @@
     table.classList.add('sr-table-enhanced');
     const scroll = table.closest('.table-scroll');
     enhanceScrollableContainer(scroll);
+    // R198: a table whose checkboxes are form choices, not a row selection, opts out of the selection bar.
+    if (table.hasAttribute('data-no-select-bar')) return;
 
     const getRows = () => Array.from(table.querySelectorAll('tbody tr')).filter((row) => row.querySelector('input[type="checkbox"]'));
     const rows = getRows();

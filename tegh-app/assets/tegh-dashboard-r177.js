@@ -255,8 +255,8 @@
         'chart-of-accounts': ['Tegh created an Indian chart of accounts. Rename, add or deactivate accounts before you post.', 'Review accounts'],
         'bank-accounts': ['Each current or savings account, cash and cards, each linked to its ledger account.', 'Add bank accounts'],
         'india-gst': ['Tick the GST rates you charge. Tegh creates the GST codes (CGST + SGST, and IGST).', 'Set up GST'],
-        'india-tds': ['Approve the TDS and TCS sections you deduct or collect. Needs your TAN.', 'Set up TDS'],
-        'india-payroll': ['Tick EPF, ESIC and Professional Tax, then add employees with their monthly salary.', 'Set up payroll'] };
+        'india-tds': ['Tick the TDS sections you deduct (Tegh suggests rates and limits), then give each vendor its PAN and section. Needs your TAN.', 'Set up TDS'],
+        'india-payroll': ['Tick EPF, ESIC and Professional Tax, check the pay heads, then add employees with their pay.', 'Set up payroll'] };
       if (setup.steps.some(s => s.id === 'india-gst')) detail['first-invoice'] = ['Tegh adds the GST (CGST and SGST, or IGST) and tracks who has paid.', 'Create invoice'];
       const next = setup.steps.find(s => !s.done && !s.optional) || setup.steps.find(s => !s.done);
       setup.steps.forEach((s, i) => {
