@@ -17,7 +17,7 @@ changed=subprocess.check_output(['git','diff','--name-only',BASE,'HEAD','--','.'
 r198Files=sorted({f.removeprefix('tegh-app/') for f in changed if f and os.path.exists(f.removeprefix('tegh-app/'))}|{'RELEASE-MANIFEST.json','PACKAGE-MANIFEST.json','tegh-build.json','FILE-MANIFEST.sha256'})
 REV=('R198 (private beta package, replaces R197): India only, Settings › Tax Set-up replaces GST Set-up: GST rates (standard and own, '
      'with headings), TDS sections with suggested rates and limits (and 20% without a PAN), TCS sections, then PAN and section per vendor and '
-     'customer and HSN/SAC and GST rate per product or service, each from a date. ')
+     'customer and HSN/SAC and GST rate per product or service, each from a date. '
      'Schema stays 46. ')
 for name in ['RELEASE-MANIFEST.json','PACKAGE-MANIFEST.json','tegh-build.json']:
     d=json.load(open(name))
