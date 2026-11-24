@@ -1,0 +1,72 @@
+[
+ {
+  "id": "IN-01",
+  "area": "IN1",
+  "title": "Switch Off: the sign-in screen offers no edition, and choosing India at sign-in is refused; Canada sign-in is unchanged",
+  "status": "PASS",
+  "evidence": "{\"pub\":\"off\",\"india\":[403,\"india_edition_unavailable\"],\"canada\":\"CA\"}"
+ },
+ {
+  "id": "IN-02",
+  "area": "IN1",
+  "title": "Switch \"Platform owner only\": the platform owner signs in to India; another person choosing India is refused",
+  "status": "PASS",
+  "evidence": "{\"edition\":\"IN\",\"companies\":0,\"states\":36,\"editor\":\"refused\"}"
+ },
+ {
+  "id": "IN-03",
+  "area": "IN1",
+  "title": "India company: wrong PAN, wrong GSTIN check character and a GSTIN from another state are refused; a valid one creates INR books, April-March year, Asia/Kolkata",
+  "status": "PASS",
+  "evidence": "{\"badPan\":\"india_pan_invalid\",\"badCheck\":\"india_gstin_invalid\",\"otherState\":\"india_gstin_state\",\"row\":\"IN|India|INR|MH|03-31|2027-03-31|2026-04-01|Asia/Kolkata|accounting|none\",\"prof\":\"private_limited|AAACT2996F|27AAACT2996F1Z4|27|400001\",\"gstin\":\"27AAACT2996F1Z4\"}"
+ },
+ {
+  "id": "IN-04",
+  "area": "IN1",
+  "title": "India company set-up has nothing Canadian: no GST/HST, PST, QST or Canadian payroll accounts, no GIFI codes, no tax codes, no Canadian payroll rates; bank account is an INR current account",
+  "status": "PASS",
+  "evidence": "{\"codes\":\"1000,1010,1070,1200,1300,1310,1400,1500,1590,1600,2050,2200,2300,2500,2600,2700,3000,3100,3200,4000,4100,4500,4600,5000,5100,6000,6100,6200,6300,6400,6500,6600,6700,6800,6810,6850,6900,9999\",\"counts\":{\"gifi\":\"0\",\"taxCodes\":\"0\",\"levy\":\"0\",\"statutory\":\"0\"},\"bank\":\"Current Account|INR|bank\"}"
+ },
+ {
+  "id": "IN-05",
+  "area": "IN1",
+  "title": "Editions never mix: India sign-in cannot open a Canadian company; Canada sign-in cannot open the India company and does not list it",
+  "status": "PASS",
+  "evidence": "{\"indiaOpensCanada\":[403,\"edition_mismatch\"],\"canadaOpensIndia\":[403,\"edition_mismatch\"],\"canadaListsIndia\":false,\"indiaList\":1}"
+ },
+ {
+  "id": "IN-06",
+  "area": "IN1",
+  "title": "The accounting core works in the India company: a ₹2,500 journal posts at once, a ₹25,000 journal also posts at once (no approval limit, the same as Canada), and the trial balance balances",
+  "status": "PASS",
+  "evidence": "{\"small\":[201,\"posted\"],\"large\":[201,\"posted\"],\"tb\":\"0\"}"
+ },
+ {
+  "id": "UI-01",
+  "area": "IN1",
+  "title": "Sign-in screen: with the switch on \"Platform owner only\" the Edition choice appears only on the ?edition=in link; India sign-in opens the India company",
+  "status": "PASS",
+  "evidence": "{\"plain\":0,\"company\":\"ModulesSRCompany booksIN1 Traders mwulmz3gINR · AccrualITIN1 Traders mwulmz3gFull Accounting⌄Select Companies1 available · same base currency requiredIN1 Traders mwulmz3gCompany Owner · INRUse onlyVie\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-02",
+  "area": "IN1",
+  "title": "India menus have no Canadian payroll items (IN-5 adds India payroll), GIFI, Tax Code Report, GST/HST/PST Summary or CRA items; Bank Transfers and the guided mode are not offered",
+  "status": "PASS",
+  "evidence": "{\"bad\":[],\"navCount\":9,\"errs\":[]}"
+ },
+ {
+  "id": "UI-03",
+  "area": "IN1",
+  "title": "Money and dates in the India edition: ₹ with Indian digit grouping and DD-MM-YYYY",
+  "status": "PASS",
+  "evidence": "{\"sample\":\"l Journal\\tOffice rent April\\t2 accounts\\t₹2,500.00\\t₹2,500\",\"date\":true,\"errs\":[]}"
+ },
+ {
+  "id": "UI-04",
+  "area": "IN1",
+  "title": "No Canadian wording, $ amounts or CAD on the India screens (Dashboard, chart, customers, invoices, Match and Post, journals, P&L, Balance Sheet, Trial Balance, Day Book, company details, add company)",
+  "status": "PASS",
+  "evidence": "{\"found\":{},\"errs\":[]}"
+ }
+]

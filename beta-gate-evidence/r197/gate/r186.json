@@ -1,0 +1,149 @@
+[
+ {
+  "id": "UP-01",
+  "area": "R186",
+  "title": "Posted to an account: Unpost takes the entry out of every figure, keeps it in the Day Book and returns the line to Unposted",
+  "status": "PASS",
+  "evidence": "{\"kind\":\"account\",\"s\":200,\"before\":{\"bank\":-120000,\"exp\":120000,\"j\":1},\"after\":{\"bank\":0,\"exp\":0,\"j\":1,\"st\":\"pending|-\",\"tb\":0,\"jstatus\":\"reversed\",\"audit\":\"Posted to the wrong place in this test\"}}"
+ },
+ {
+  "id": "UP-02",
+  "area": "R186",
+  "title": "An unposted line posts again; a retried request with the same key changes nothing more; a pending line cannot be unposted",
+  "status": "PASS",
+  "evidence": "{\"u1\":200,\"reposted\":true,\"a\":200,\"b\":{\"unposted\":true,\"transactionId\":\"btx_1aa59c138764b19bbeccec89e1bd2b13\",\"kind\":\"account\",\"replay\":true,\"journalEntriesVoided\":0,\"reversalEntries\":0,\"message\":\"The line is back in Unposted. The original entry is kept in the Day Book and the audit history.\"},\"again\":409}"
+ },
+ {
+  "id": "UP-03",
+  "area": "R186",
+  "title": "Receipt of an invoice paid in full: an Admin cannot unpost or void the linked line; the Company Owner corrects it with a reversing journal entry on the statement date and the invoice is open for its full amount again",
+  "status": "PASS",
+  "evidence": "{\"posted\":\"paid|0\",\"adminBlockers\":[\"This line is linked to customer invoice INV-1001, so it cannot be unposted. Lines linked to a customer invoice or vendor bill cannot be edited, deleted or unposted. The Company Owner can correct it with a journal entry (Match and Post, Actions › Correct with journal entry).\"],\"adminStatus\":409,\"voidBlockers\":[\"This line is linked to customer invoice INV-1001, so it cannot be voided. Lines linked to a customer invoice or vendor bill cannot be edited, deleted or unposted. The Company Owner can correct it with a journal entry (Match and Post, Actions › Correct"
+ },
+ {
+  "id": "UP-04",
+  "area": "R186",
+  "title": "Receipt of an invoice paid in part: an Admin cannot unpost or void the linked line; the Company Owner corrects it with a reversing journal entry on the statement date and the invoice is open for its full amount again",
+  "status": "PASS",
+  "evidence": "{\"posted\":\"sent|50000\",\"adminBlockers\":[\"This line is linked to customer invoice INV-1002, so it cannot be unposted. Lines linked to a customer invoice or vendor bill cannot be edited, deleted or unposted. The Company Owner can correct it with a journal entry (Match and Post, Actions › Correct with journal entry).\"],\"adminStatus\":409,\"voidBlockers\":[\"This line is linked to customer invoice INV-1002, so it cannot be voided. Lines linked to a customer invoice or vendor bill cannot be edited, deleted or unposted. The Company Owner can correct it with a journal entry (Match and Post, Actions › Cor"
+ },
+ {
+  "id": "UP-05",
+  "area": "R186",
+  "title": "Payment of a bill: an Admin cannot unpost the linked line; the Company Owner corrects it, reopening the bill and Accounts Payable",
+  "status": "PASS",
+  "evidence": "{\"paid\":\"paid|0\",\"admin\":[409,\"This line is linked to vendor bill B-mwulihyz, so it cannot be unposted. Lines linked to a customer invoice or vendor bill cannot be edited, deleted or unposted. The Company Owner can correct it with a journal entry (Match and Post, Actions › Correct with journal entry).\"],\"ownerCorrection\":true,\"s\":200,\"bill\":\"open|20000\",\"ap\":[-20000,-20000]}"
+ },
+ {
+  "id": "UP-06",
+  "area": "R186",
+  "title": "On-account customer receipt (no invoice): anyone allowed may unpost it; once applied to an invoice it is linked, an Admin is refused, and the Owner must first unapply the allocation",
+  "status": "PASS",
+  "evidence": "{\"free\":false,\"k1\":\"on_account\",\"s\":200,\"back\":true,\"apply\":200,\"adminBlockers\":[\"This line is linked to customer invoice INV-1003, so it cannot be unposted. Lines linked to a customer invoice or vendor bill cannot be edited, deleted or unposted. The Company Owner can correct it with a journal entry (Match and Post, Actions › Correct with journal entry).\",\"After this line was posted, its receipt was applied to another invoice or bill. Unapply that allocation first (Payments), then unpost.\"],\"ownerBlockers\":[\"After this line was posted, its receipt was applied to another invoice or bill. Unappl"
+ },
+ {
+  "id": "UP-07",
+  "area": "R186",
+  "title": "Matched to an invoice receipt entered earlier in Payments: an Admin is refused; the Owner's correction removes only the link, and the receipt and the paid invoice stay as they are",
+  "status": "PASS",
+  "evidence": "{\"admin\":409,\"linkKept\":true,\"kind\":\"matched_payment\",\"ownerCorrection\":true,\"s\":200,\"pay\":\"posted|-\",\"inv\":\"paid|0\"}"
+ },
+ {
+  "id": "UP-13",
+  "area": "R186",
+  "title": "Edit and Delete are refused, even for the Owner, for an unposted line that is linked to an invoice (link made directly in the test database); the line is unchanged",
+  "status": "PASS",
+  "evidence": "{\"edit\":[409,\"bank_transaction_linked_document\",\"This line is linked to customer invoice INV-1005, so it cannot be edited. Lines linked to a customer invoice or vendor bill cannot be edited, deleted or unposted. The Company Owner can correct it with a journal entry (Match and Post, Actions › Correct with journal entry).\"],\"del\":[409,\"bank_transaction_linked_document\"],\"before\":\"2026-09-17|9900|Cheque deposit mwulihyz|pending\",\"after\":\"2026-09-17|9900|Cheque deposit mwulihyz|pending\",\"deleteOnceUnlinked\":200}"
+ },
+ {
+  "id": "UP-08",
+  "area": "R186",
+  "title": "After all of the above, the receivable ageing total equals the Accounts Receivable balance and the trial balance balances",
+  "status": "PASS",
+  "evidence": "{\"ageing\":50000,\"gl1200\":50000,\"tb\":0}"
+ },
+ {
+  "id": "UP-09",
+  "area": "R186",
+  "title": "No approval limit (R189): a 15,000.00 line is unposted at once by the owner; nothing waits for a second owner",
+  "status": "PASS",
+  "evidence": "{\"dual\":false,\"limit\":null,\"r1\":[200,null],\"st\":\"pending|-\"}"
+ },
+ {
+  "id": "UP-10",
+  "area": "R186",
+  "title": "A line in a closed period cannot be unposted; it stays posted and the books do not change",
+  "status": "PASS",
+  "evidence": "{\"blockers\":[\"This transaction falls in a closed period (2026-08-20). Reopen the period first, or post a correcting entry in the current period instead.\"],\"s\":409,\"reopen\":200}"
+ },
+ {
+  "id": "UP-11",
+  "area": "R186",
+  "title": "An Editor and a Viewer cannot unpost (as with Void); the line is unchanged",
+  "status": "PASS",
+  "evidence": "{\"editor\":403,\"viewer\":403,\"viewerPreview\":200}"
+ },
+ {
+  "id": "UP-12",
+  "area": "R186",
+  "title": "Preview changes nothing",
+  "status": "PASS",
+  "evidence": "26,0,132400,posted|journal_adb42f0bbeadc8a4de80df45eb8c855a,72 / 26,0,132400,posted|journal_adb42f0bbeadc8a4de80df45eb8c855a,72"
+ },
+ {
+  "id": "UI-01",
+  "area": "R186",
+  "title": "Match and Post (1440 px): each line has one Actions dropdown, visible on every row without selecting it; it offers Unpost on posted lines and Edit/Delete on unposted ones; Unpost returns the line to Unposted",
+  "status": "PASS",
+  "evidence": "{\"buttons\":[[\"posted\",true,false,false,false,false],[\"pending\",false,true,true,false,false],[\"pending\",false,true,true,false,false],[\"posted\",false,false,false,true,false],[\"posted\",false,false,false,true,false],[\"pending\",false,true,true,false,false],[\"posted\",false,false,false,true,false],[\"pending\",false,true,true,false,false],[\"pending\",false,true,true,false,false],[\"posted\",true,false,false,false,false],[\"posted\",true,false,false,false,false],[\"posted\",true,false,false,false,false],[\"pending\",false,true,true,false,false],[\"pending\",false,true,true,false,false]],\"hiddenBefore\":\"1\",\"shownAf"
+ },
+ {
+  "id": "UI-02",
+  "area": "R186",
+  "title": "Match and Post: Actions › Edit changes the date, direction and amount of an unposted line; the audit history keeps the old values",
+  "status": "PASS",
+  "evidence": "{\"menu\":[\"Edit\",\"Delete\"],\"row\":\"2026-09-24|1234|1234|UI edited line x|checked against receipt|pending\",\"audit\":\"-1000\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-03",
+  "area": "R186",
+  "title": "Match and Post: a ticked line keeps its Actions; Delete removes the unposted line after confirmation; nothing in the ledger changes",
+  "status": "PASS",
+  "evidence": "{\"shownWhenTicked\":\"1\",\"left\":\"0\",\"journals\":[27,27],\"errs\":[]}"
+ },
+ {
+  "id": "UI-04",
+  "area": "R186",
+  "title": "Match and Post at 390 px: Actions stays inside its row, its menu opens on screen, and the page has no sideways scroll",
+  "status": "PASS",
+  "evidence": "{\"inside\":[true,true,true,true,true,true,true,true,true,true,true,true,true],\"menuOnScreen\":true,\"overflow\":0,\"errs\":[]}"
+ },
+ {
+  "id": "UI-06",
+  "area": "R186",
+  "title": "Match and Post: a line linked to an invoice offers no Edit, Delete or Unpost and says why; the Company Owner is offered Correct with journal entry, which reopens the invoice and returns the line to Unposted",
+  "status": "PASS",
+  "evidence": "{\"found\":1,\"items\":[\"Correct with Journal Entry\"],\"note\":\"Linked to a customer invoice or vendor bill. It cannot be edited, deleted or unposted.\",\"noteVisible\":true,\"title\":\"Correct with a journal entry?\",\"submit\":\"Record correction\",\"effects\":[\"Company Owner correction of a line linked to customer invoice INV-1001. A reversing journal entry is recorded; nothing is deleted.\",\"The customer receipt recorded from this line is reversed on 2026-09-12.\",\"Invoice INV-1001 (R186 Customer mwulihyz) is open again for $500.00 more.\",\"The line returns to Unposted in Match and Post, so you can post it agai"
+ },
+ {
+  "id": "UI-07",
+  "area": "R186",
+  "title": "Match and Post: a matched line offers Unmatch in its Actions menu (Owner and Admin); an Editor sees a note instead; Unmatch removes the match and the line then offers Edit and Delete; the books do not change",
+  "status": "PASS",
+  "evidence": "{\"before\":\"matched\",\"after\":[\"Edit\",\"Delete\"],\"st\":\"pending|-\",\"audit\":\"1\",\"editorApi\":403,\"found\":1,\"visibleUnselected\":\"1\",\"items\":[\"Unmatch\"],\"title\":\"Unmatch this line?\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-08",
+  "area": "R186",
+  "title": "Match and Post: an Editor sees a matched line with a note that only the Owner or an Admin can unmatch it, and no Unmatch button",
+  "status": "PASS",
+  "evidence": "{\"found\":1,\"items\":[],\"note\":\"Matched to an entry in the books. Only the Company Owner or an Admin can unmatch it.\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-05",
+  "area": "R186",
+  "title": "The old Review Transactions page is retired: the dashboard To Do link and every review link open Match and Post; a link to one line opens Match and Post with that line selected",
+  "status": "PASS",
+  "evidence": "{\"todoShown\":true,\"todoTitle\":\"Match And Post Transactions\",\"plainTitle\":\"Match And Post Transactions\",\"oldRows\":0,\"focusTitle\":\"Match And Post Transactions\",\"focused\":true,\"errs\":[]}"
+ }
+]

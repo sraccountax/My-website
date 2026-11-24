@@ -1,0 +1,100 @@
+[
+ {
+  "id": "SP-01",
+  "area": "SESSION",
+  "title": "A fresh owner session may change a member role without re-entering the password (recent sign-in)",
+  "status": "PASS",
+  "evidence": "status 200 "
+ },
+ {
+  "id": "SP-02",
+  "area": "SESSION",
+  "title": "After the sign-in is older than 15 minutes, a member change without the password is refused (403 recent_authentication_required) and nothing changes",
+  "status": "PASS",
+  "evidence": "status 403 code recent_authentication_required; role still editor"
+ },
+ {
+  "id": "SP-03",
+  "area": "SESSION",
+  "title": "With an old sign-in, a wrong password is refused and the right password allows the change",
+  "status": "PASS",
+  "evidence": "wrong 401 password_confirmation_invalid; right 200"
+ },
+ {
+  "id": "SP-04",
+  "area": "SESSION",
+  "title": "A member's existing sessions end after role change",
+  "status": "PASS",
+  "evidence": "action 200 ; session alive before true, after false; rows 0"
+ },
+ {
+  "id": "SP-05",
+  "area": "SESSION",
+  "title": "A member's existing sessions end after suspension",
+  "status": "PASS",
+  "evidence": "action 200 ; session alive before true, after false; rows 0"
+ },
+ {
+  "id": "SP-06",
+  "area": "SESSION",
+  "title": "A member's existing sessions end after removal",
+  "status": "PASS",
+  "evidence": "action 200 ; session alive before true, after false; rows 0"
+ },
+ {
+  "id": "SP-07",
+  "area": "SESSION",
+  "title": "Platform-owner admin user actions need a recent sign-in; MFA reset ends the target's sessions and is audited",
+  "status": "PASS",
+  "evidence": "no-password 403; with password 200; mfa rows 0; audit 1; member session alive false"
+ },
+ {
+  "id": "SP-08",
+  "area": "SESSION",
+  "title": "Approving or rejecting a company deletion request needs a recent sign-in",
+  "status": "PASS",
+  "evidence": "status 403 code recent_authentication_required"
+ },
+ {
+  "id": "SP-09",
+  "area": "SESSION",
+  "title": "Changing the password ends the user's other sessions",
+  "status": "PASS",
+  "evidence": "change 200 ; other session alive false; own true"
+ },
+ {
+  "id": "SP-10",
+  "area": "SESSION",
+  "title": "Reset request returns the identical status and body for an existing and a non-existing address",
+  "status": "PASS",
+  "evidence": "distinct bodies 1; statuses 200"
+ },
+ {
+  "id": "SP-11",
+  "area": "SESSION",
+  "title": "Reset request timing does not reveal whether the address exists (median difference under 250 ms)",
+  "status": "PASS",
+  "evidence": "median existing 756 ms; non-existing 755 ms"
+ },
+ {
+  "id": "SP-12",
+  "area": "SESSION",
+  "title": "The reset email is still delivered for the existing address (sent after the response)",
+  "status": "PASS",
+  "evidence": "requests 4; email captured true"
+ },
+ {
+  "id": "SP-13",
+  "area": "SESSION",
+  "title": "Forwarded IP headers are ignored unless a trusted proxy is configured (rate-limit bucket follows the real peer)",
+  "status": "PASS",
+  "evidence": "distinct IP buckets for spoofed + plain requests: 1"
+ },
+ {
+  "id": "SP-14",
+  "area": "SESSION",
+  "title": "Portal: with an old sign-in, \"Reset two-step verification\" opens a password dialog; Cancel changes nothing, the right password completes it",
+  "status": "PASS",
+  "evidence": "after cancel MFA rows 1; after password 0; dialogs left 0; page errors 0 "
+ }
+]

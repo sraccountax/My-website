@@ -1,0 +1,121 @@
+[
+ {
+  "id": "E-01",
+  "area": "MFA",
+  "title": "Every sign-in asks for a second step: the password alone gives an unverified session, a 6-digit code is emailed to a masked address, and only the email method is offered without an authenticator",
+  "status": "PASS",
+  "evidence": "login 200; methods [\"email\"]; hint r******@gate.test; code emailed true; app before code 403 mfa_verification_required"
+ },
+ {
+  "id": "E-02",
+  "area": "MFA",
+  "title": "The emailed code opens the session; it works once and only for the sign-in that asked for it",
+  "status": "PASS",
+  "evidence": "code in another sign-in 422; own sign-in 200; app after 200; reuse 422"
+ },
+ {
+  "id": "E-03",
+  "area": "MFA",
+  "title": "Wrong codes: five wrong entries withdraw the code (the right code then fails); a new code can be requested and works",
+  "status": "PASS",
+  "evidence": "wrong 422,422,422,422,422; right code after 5 wrong 422; resend 200; new code 200"
+ },
+ {
+  "id": "E-04",
+  "area": "MFA",
+  "title": "An expired code (over 10 minutes) is refused",
+  "status": "PASS",
+  "evidence": "expired code 422"
+ },
+ {
+  "id": "E-05",
+  "area": "MFA",
+  "title": "Resending within 30 seconds in the same sign-in waits; a second sign-in gets its own code at once; at most 10 codes per 15 minutes",
+  "status": "PASS",
+  "evidence": "resend at once 429 mfa_email_wait; second sign-in code true; 11th code mfa_email_rate_limited"
+ },
+ {
+  "id": "E-06",
+  "area": "MFA",
+  "title": "The code is stored only as a keyed hash",
+  "status": "PASS",
+  "evidence": "stored d3200822553a… (plain code present false)"
+ },
+ {
+  "id": "T-01",
+  "area": "MFA",
+  "title": "\"Trust this device\": after a code with the box ticked, that browser signs in without a code; the cookie is HttpOnly, Secure, SameSite=Strict, 30 days; other browsers still get a code",
+  "status": "PASS",
+  "evidence": "verify 200; flags HttpOnly,Secure,SameSite=Strict; max-age 2592000s; trusted browser asked false; other browser asked true"
+ },
+ {
+  "id": "T-02",
+  "area": "MFA",
+  "title": "A trust token does not work from another browser (user agent), for another account, after expiry, or when tampered with",
+  "status": "PASS",
+  "evidence": "asked for a code: other browser true, other account true, tampered true, expired true"
+ },
+ {
+  "id": "T-03",
+  "area": "MFA",
+  "title": "Trust is withdrawn by a password change, an administrator MFA reset and \"Forget trusted devices\" (password needed)",
+  "status": "PASS",
+  "evidence": "password change 200, asked after true; admin reset 200, asked true; forget without password 401, with 200, asked true"
+ },
+ {
+  "id": "A-01",
+  "area": "MFA",
+  "title": "The authenticator app is optional: setup needs the password and returns a QR-ready otpauth link; a correct code turns it on and returns 10 recovery codes",
+  "status": "PASS",
+  "evidence": "before: enrolled false, methods [\"email\"]; setup without password 401; otpauth ok true; recovery codes 10"
+ },
+ {
+  "id": "A-02",
+  "area": "MFA",
+  "title": "With an authenticator, sign-in offers email, authenticator and recovery; the authenticator code works once (replay refused)",
+  "status": "PASS",
+  "evidence": "methods [\"email\",\"totp\",\"recovery\"]; totp 200; replay 422"
+ },
+ {
+  "id": "A-03",
+  "area": "MFA",
+  "title": "A recovery code works once and ends the account's other sessions and trusted devices",
+  "status": "PASS",
+  "evidence": "recovery 200; other session 401; reuse 422; trusted device asked again true"
+ },
+ {
+  "id": "A-04",
+  "area": "MFA",
+  "title": "The person can remove the authenticator (password needed); sign-in then offers the emailed code only",
+  "status": "PASS",
+  "evidence": "without password 401; remove 200; methods after [\"email\"]"
+ },
+ {
+  "id": "A-05",
+  "area": "MFA",
+  "title": "The authenticator secret is stored encrypted (the base32 key is not in the database)",
+  "status": "PASS",
+  "evidence": "cipher 32 bytes; plain key present false"
+ },
+ {
+  "id": "G-01",
+  "area": "MFA",
+  "title": "Before the second step only sign-in routes answer; accounting, admin and settings routes are refused",
+  "status": "PASS",
+  "evidence": "companies 403, workspace 403, admin/users 403, auth/mfa/devices 403, platform/invitations 403; me 200 (verified false); status 200"
+ },
+ {
+  "id": "G-02",
+  "area": "MFA",
+  "title": "With only the password, adding an authenticator cannot replace the emailed code (setup, removal, recovery codes and trusted devices need a verified session)",
+  "status": "PASS",
+  "evidence": "setup 403, confirm 403, remove 403, recovery codes 403, devices 403; app still blocked 403; authenticator rows 0"
+ },
+ {
+  "id": "U-01",
+  "area": "MFA",
+  "title": "Browser: the sign-in screen says \"Check your email\" with the masked address and the trust box; Account & Access shows a QR code for the optional authenticator",
+  "status": "PASS",
+  "evidence": "title \"Check your email\"; hint r******@gate.test; trust box true; trusted-device cookie set true; QR on screen 200x200px, decodes to the setup link with this key true; key VFG6 3G7K…; page errors 0 "
+ }
+]
