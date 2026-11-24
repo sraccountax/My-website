@@ -20,7 +20,8 @@ tick the rates you charge and confirm once; Tegh saves and approves the rules an
 tick EPF, ESIC and Professional Tax and confirm once, then add employees with three monthly amounts. Tegh suggests the
 usual rates and limits; the person can edit them and nothing is used until confirmed. Also fixed: Save structure, Pay
 Runs (calculate, post, reverse), TDS record and reverse, GSTR-2B import and GST return periods were refused from the
-India screens ("not valid JSON"). No migration; Schema stays 46. See R196-CHANGES.md.
+India screens ("not valid JSON"). Both editions: companies created at the same moment no longer fail
+on a database deadlock (the creation is retried). No migration; Schema stays 46. See R196-CHANGES.md.
 R195 (replaced R194): India only, the dashboard's "Get your books
 going" lists the India set-up steps (PAN, GSTIN and TAN; chart of accounts; bank accounts; GST rates and codes; TDS
 sections and payroll, optional; opening balances; bank statement; first invoice), each opening its page. Canadian

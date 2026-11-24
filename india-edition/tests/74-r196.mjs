@@ -18,6 +18,17 @@ sql(`CREATE TEMPORARY TABLE r196u AS SELECT * FROM users WHERE email='otherowner
 let browser, CO = '', api;
 try {
   need('india mode', await setRelease('indiaEdition', 'everyone'));
+  await t('R196-02', 'Companies created at the same moment (16 at once, 3 rounds): every one is created (a deadlock between two new companies is retried), each with one creation entry in the audit trail', async () => {
+    const stamp = Date.now().toString(36), st = {};
+    for (let r = 0; r < 3; r++) {
+      const res = await Promise.all(Array.from({length: 16}, (_, i) => o.call('companies', {method: 'POST', company: false, json: {name: `R196 Race ${stamp} ${r}-${i}`, province: 'ON', country: 'Canada', businessType: 'corporation', currency: 'CAD', accountingBasis: 'accrual', moduleMode: 'accounting', fiscalYearEnd: '12-31'}})));
+      for (const x of res) st[x.s] = (st[x.s] || 0) + 1;
+    }
+    const made = Number(sql(`SELECT COUNT(*) FROM companies WHERE name LIKE 'R196 Race ${stamp} %'`));
+    const audits = Number(sql(`SELECT COUNT(*) FROM audit_log a JOIN companies c ON c.id=a.company_id WHERE c.name LIKE 'R196 Race ${stamp} %' AND a.action='company.created'`));
+    return {ok: st[201] === 48 && made === 48 && audits === 48, info: JSON.stringify({statuses: st, made, audits})};
+  });
+
   browser = await chromium.launch({executablePath: '/opt/pw-browsers/chromium', args: ['--no-proxy-server', '--host-resolver-rules=MAP gate.test 127.0.0.1']});
   const ctx = await browser.newContext({viewport: {width: 1440, height: 900}, ignoreHTTPSErrors: true});
   const p = await ctx.newPage(); const errs = [];

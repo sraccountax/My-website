@@ -82,16 +82,25 @@ Several India screens sent their data in a form the server refused ("The request
 
 All now work from the screens. Suite `74-r196` calculates a pay run and saves a structure from the screens.
 
-## 4. Other changes
+## 4. Both editions: creating companies at the same moment
+**The problem:** two companies created at the same moment could deadlock in the database. The first audit entry of a new company locks a range of the audit log that the other new company also needs. One of the two then failed with "The server could not complete this request" and was not created.
+- **In the R196 gate:** this stopped the R161 large-company seed (two seeds run in parallel).
+- **Reproduced:** 2 failures in 80 companies created 16 at a time.
+
+**Now:** a deadlock or lock timeout during company creation retries the whole creation, up to three attempts, from a clean state. Nothing is half-created: the failed attempt is rolled back.
+
+**Result:** 160 of 160 created 16 at a time, with no error. Every company has one "company created" audit entry and its full chart of accounts. Suite `74-r196` (R196-02) creates 48 companies 16 at a time.
+
+## 5. Other changes
 - **Dashboard:** "Get your books going" opens the new screens for GST and payroll.
 - **India Home:** the checklist's GST and payroll items open the new screens.
 - **Payroll page:** with no employees, it offers Payroll Set-up instead of pointing to India Masters.
 - **Menus:** "GST Set-up" is under Settings, next to Company details; "Payroll Set-up" is first in the Payroll menu. Both are India only.
 
-## 5. Release token
+## 6. Release token
 `5990-r196-easy-setup` (app.html, .htaccess, the gate and preflight scripts).
 
-## 6. Tests
+## 7. Tests
 **`74-r196`:** a new gate suite, using a new user and India company:
 - GST Set-up from the screen, checked rule by rule and code by code;
 - API refusals: unconfirmed, a changed figure from the same date, a Canadian company;
@@ -102,6 +111,7 @@ All now work from the screens. Suite `74-r196` calculates a pay run and saves a 
   - Professional Tax ₹200;
   - net ₹28,000 and ₹11,622;
 - Save structure from the screen;
-- both screens at 390 px.
+- both screens at 390 px;
+- 48 companies created 16 at a time.
 
 **`73-r195`:** now expects the dashboard's GST and payroll steps to open the new screens.

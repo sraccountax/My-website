@@ -162,6 +162,9 @@ function handle_companies(): never
     // R153: address and short name (columns added on first use, before the transaction).
     $profile = function_exists('r153_profile_input') ? r153_profile_input($input) : [];
     if ($profile) r153_schema_ready();
+    // R196: creating two companies at the same moment can deadlock in InnoDB (the first audit entry of a new company locks
+    // an index gap that the other new company's insert needs). The whole creation is retried, from a clean state.
+    for ($createAttempt = 1; ; $createAttempt++) {
     $accountIds = [];
     $accountTypesByCode = [];
     db()->beginTransaction();
@@ -248,11 +251,15 @@ function handle_companies(): never
         // Canadian starter tax codes only for Canadian companies (R141).
         if ($coaMode === 'default' && $isCanada && function_exists('tax_codes_seed_canada')) tax_codes_seed_canada($user, $companyId);
         db()->commit();
+        break;
     } catch (Throwable $error) {
         if (db()->inTransaction()) {
             db()->rollBack();
         }
+        $lockConflict = $error instanceof PDOException && (in_array((int)($error->errorInfo[1] ?? 0), [1205, 1213], true) || (string)$error->getCode() === '40001');
+        if ($lockConflict && $createAttempt < 3) { usleep(120000 * $createAttempt); continue; }
         throw $error;
+    }
     }
     // R157: a company created through the app's company forms starts with onboarding (outside the transaction:
     // the onboarding table is created on first use).
