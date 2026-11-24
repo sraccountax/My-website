@@ -1,0 +1,72 @@
+[
+ {
+  "id": "MO-01",
+  "area": "MONITOR",
+  "title": "No backup status recorded: the sweep raises \"no successful backup\" and emails the operator",
+  "status": "PASS",
+  "evidence": "cron rc 2: 2026-11-24T15:20:54+00:00 monitor ALERT backup_missing lastBackup=none failedLogins=0 recipient=set; new alert emails 1"
+ },
+ {
+  "id": "MO-02",
+  "area": "MONITOR",
+  "title": "A repeat inside the throttle window sends no second email and is counted for the next one (flood prevention)",
+  "status": "PASS",
+  "evidence": "new emails 0; suppressed count 2"
+ },
+ {
+  "id": "MO-03",
+  "area": "MONITOR",
+  "title": "A successful run of the real backup script records success; the next sweep raises no backup alert",
+  "status": "PASS",
+  "evidence": "backup rc 0; status {\"lastRunStatus\":\"ok\",\"lastRunAt\":\"2026-11-24T15:21:09Z\",\"lastRunMessage\":\"backup complete\",\"lastSuccessAt\":\"2026-11-24T15:21:09Z\"}; sweep: 2026-11-24T15:21:09+00:00 monitor ok lastBackup=2026-11-24T15:21:09+00:00 failedLogins=0 recipient=set"
+ },
+ {
+  "id": "MO-04",
+  "area": "MONITOR",
+  "title": "A failed backup run is recorded (last success kept) and raises \"the last backup failed\"",
+  "status": "PASS",
+  "evidence": "backup rc 1; status failed, last success 2026-11-24T15:21:09Z; sweep: 2026-11-24T15:21:09+00:00 monitor ALERT backup_failed lastBackup=2026-11-24T15:21:09+00:00 failedLogins=0 recipient=set"
+ },
+ {
+  "id": "MO-05",
+  "area": "MONITOR",
+  "title": "Retention: local copies older than 14 days are deleted and the deletion is verified; younger copies stay",
+  "status": "PASS",
+  "evidence": "rc 0; 15-day copy present false; 13-day copy present true; retention: 3 local copies kept (limit 14 days)"
+ },
+ {
+  "id": "MO-06",
+  "area": "MONITOR",
+  "title": "A burst of failed sign-ins against many accounts from one source raises \"suspicious sign-in activity\" with counts only",
+  "status": "PASS",
+  "evidence": "sweep: 2026-11-24T15:21:22+00:00 monitor ALERT auth_suspicious lastBackup=2026-11-24T15:21:22+00:00 failedLogins=36 recipient=set; emails 1"
+ },
+ {
+  "id": "MO-07",
+  "area": "MONITOR",
+  "title": "A serious server error raises an alert after the response; the email has the request reference but not the error text",
+  "status": "PASS",
+  "evidence": "php rc 0 ; emails 1; leaked text false"
+ },
+ {
+  "id": "MO-08",
+  "area": "MONITOR",
+  "title": "No alert email body contains email addresses of the people involved, hashes, tokens or amounts",
+  "status": "PASS",
+  "evidence": "alert emails checked 5; patterns found none"
+ },
+ {
+  "id": "MO-09",
+  "area": "MONITOR",
+  "title": "The monitoring script and its state are not reachable over the web",
+  "status": "PASS",
+  "evidence": "monitor-cron.php 403; monitor-state.json 403; monitoring_r164.php 403"
+ },
+ {
+  "id": "MO-10",
+  "area": "MONITOR",
+  "title": "A change to a security setting in the private config file is audited (setting names only, no values) and alerted",
+  "status": "PASS",
+  "evidence": "sweep: 2026-11-24T15:21:22+00:00 monitor ALERT security_config lastBackup=2026-11-24T15:21:22+00:00 failedLogins=0 recipient=set; audit rows +1; metadata {\"changedSettings\":[\"app.session_hours\"],\"detectedBy\":\"monitoring sweep\",\"note\":\"Edited in the private configuration file; the editor is not known to the applic; emails 1"
+ }
+]

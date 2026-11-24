@@ -1,0 +1,51 @@
+[
+ {
+  "id": "R196-02",
+  "area": "R196",
+  "title": "Companies created at the same moment (16 at once, 3 rounds): every one is created (a deadlock between two new companies is retried), each with one creation entry in the audit trail",
+  "status": "PASS",
+  "evidence": "{\"statuses\":{\"201\":48},\"made\":48,\"audits\":48}"
+ },
+ {
+  "id": "UI-01",
+  "area": "R196",
+  "title": "GST Set-up: suggested rates 5% and 18% ticked; nothing is saved until the rates are confirmed; after confirming, each rate is an approved rule (source names the person) with its GST and IGST codes, and the B2C (large) limit rule is saved",
+  "status": "PASS",
+  "evidence": "{\"ticked\":[\"5\",\"18\"],\"refused\":\"Tick \\\"I have checked these rates\\\" to confirm them.\",\"before\":0,\"rules\":\"B2CL:active:src,GST18:active:src,GST5:active:src\",\"codes\":\"GST18,GST5,IGST18,IGST5\",\"comp\":\"CGST=9000,SGST=9000\",\"errs\":[]}"
+ },
+ {
+  "id": "R196-01",
+  "area": "R196",
+  "title": "GST set-up API: unconfirmed is refused; repeating the same rates changes nothing; the same rate code with a different figure from the same date is refused (409); a Canadian company gets 404",
+  "status": "PASS",
+  "evidence": "{\"un\":422,\"again\":200,\"statuses\":[\"unchanged\",\"unchanged\"],\"n0\":3,\"n1\":3,\"payroll\":200,\"conflict\":[409,\"india_setup_rule_conflict\"],\"ca\":404}"
+ },
+ {
+  "id": "UI-02",
+  "area": "R196",
+  "title": "Payroll Set-up: EPF, ESIC and Professional Tax confirmed on one screen create the statutory heads; two employees are added through the pay table (Basic Pay, Travel and Cell Phone allowances; gross shown before saving), and ticking ESIC after an employee exists adds it to that employee",
+  "status": "PASS",
+  "evidence": "{\"g1\":\"₹30,000.00\",\"g2\":\"₹13,000.00\",\"rows\":[\"E001 Asha Rao 01-04-2026 01-04-2026 ₹30,000.00 ₹2,000.00 ₹28,000.00 Edit\",\"E002 Bala K 01-04-2026 01-04-2026 ₹13,000.00 ₹1,378.00 ₹11,622.00 Edit\"],\"comps\":[\"Basic Pay\",\"CPF\",\"Cell Phone Allowance\",\"Dearness Allowance\",\"Dearness Pay\",\"EPF (employee)\",\"EPF (employer)\",\"ESIC (employee)\",\"ESIC (employer)\",\"GPF\",\"Income tax (TDS)\",\"Insurance\",\"Loan Recovery\",\"Medical Allowance\",\"Professional Tax\",\"Travel Allowance\"],\"errs\":[]}"
+ },
+ {
+  "id": "UI-03",
+  "area": "R196",
+  "title": "Pay Runs from the screen (September 2026): EPF 12% of Basic capped at ₹15,000, ESIC only up to ₹21,000 gross (₹98 and ₹423 for ₹13,000), Professional Tax ₹200; net ₹28,000 and ₹11,622",
+  "status": "PASS",
+  "evidence": "{\"run\":\"inpayrun_b9cf34214072b4e6960373d223cf6d36\",\"a\":{\"net\":28000,\"c\":{\"Basic Pay\":20000,\"Cell Phone Allowance\":2000,\"Travel Allowance\":8000,\"EPF (employee)\":1800,\"ESIC (employee)\":0,\"Professional Tax\":200,\"Income tax (TDS)\":0,\"EPF (employer)\":1800,\"ESIC (employer)\":0}},\"b\":{\"net\":11622,\"c\":{\"Basic Pay\":9000,\"Cell Phone Allowance\":1000,\"Travel Allowance\":3000,\"EPF (employee)\":1080,\"ESIC (employee)\":98,\"Professional Tax\":200,\"Income tax (TDS)\":0,\"EPF (employer)\":1080,\"ESIC (employer)\":423}},\"errs\":[]}"
+ },
+ {
+  "id": "UI-04",
+  "area": "R196",
+  "title": "Salary Structures: Save structure from the screen saves (the request is JSON; before R196 it was refused as \"not valid JSON\")",
+  "status": "PASS",
+  "evidence": "{\"n0\":2,\"n1\":3,\"errs\":[]}"
+ },
+ {
+  "id": "UI-05",
+  "area": "R196",
+  "title": "Phone (390 px): GST Set-up and Payroll Set-up (with the employee form open) fit the screen",
+  "status": "PASS",
+  "evidence": "{\"gstOverflow\":false,\"payrollOverflow\":false,\"errs\":[]}"
+ }
+]

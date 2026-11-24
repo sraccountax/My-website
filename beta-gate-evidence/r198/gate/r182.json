@@ -1,0 +1,163 @@
+[
+ {
+  "id": "IE-00",
+  "area": "R182",
+  "title": "Setup: Ontario HST company, customer, bank; switch off by default refuses a correction",
+  "status": "PASS",
+  "evidence": "start off; ids true,true,false,true; off → 403 invoice_correction_unavailable; detail correct=undefined correction=undefined"
+ },
+ {
+  "id": "IE-01",
+  "area": "R182",
+  "title": "Unpaid invoice: 10 × 100 + HST corrected to 8 × 100: original reversed on its date, corrected entry posted, same number, AR 904",
+  "status": "PASS",
+  "evidence": "preview 113000→90400; save 200 ; INV-1002→INV-1002 total 90400 bal 90400; reversal 2026-09-10|invoice_correction_reversal|journal_c5fb1eb6c95675c5ae4a6884a2a224c2; AR Δ -22600; history 1|113000|90400|Wrong quantity on line 1; audit 1; {\"balanced\":true,\"ar\":203400,\"sub\":203400,\"ok\":true}"
+ },
+ {
+  "id": "IE-02",
+  "area": "R182",
+  "title": "Reason required; same request twice saves once; a stale revision is refused",
+  "status": "PASS",
+  "evidence": "no reason 422; first 200; repeat 200 replayed true; revisions 2; stale 409 invoice_revision_conflict"
+ },
+ {
+  "id": "IE-03",
+  "area": "R182",
+  "title": "Date moved to August: reversal on 10 Sep, corrected entry on 20 Aug; September and August figures move accordingly",
+  "status": "PASS",
+  "evidence": "save 200 ; Aug revenue Δ -50000, HST Δ -6500; Sep revenue Δ 50000"
+ },
+ {
+  "id": "IE-04",
+  "area": "R182",
+  "title": "Paid invoice corrected higher: re-opens with the difference to collect",
+  "status": "PASS",
+  "evidence": "save 200 ; sent total 84750 balance 28250 (want 28250)"
+ },
+ {
+  "id": "IE-05",
+  "area": "R182",
+  "title": "Paid invoice corrected lower: invoice stays paid at the new total; the difference is a customer credit on the payment",
+  "status": "PASS",
+  "evidence": "preview credit 22600; save 200 ; invoice paid 90400/0; payment remaining 22600 (want 22600); payment amount unchanged 113000; {\"balanced\":true,\"ar\":276850,\"sub\":276850,\"ok\":true}"
+ },
+ {
+  "id": "IE-06",
+  "area": "R182",
+  "title": "The customer credit can be applied to another invoice and refunded with the existing screens",
+  "status": "PASS",
+  "evidence": "apply 200 ; other invoice paid; refund 16950: 201 ; {\"balanced\":true,\"ar\":299450,\"sub\":299450,\"ok\":true}"
+ },
+ {
+  "id": "IE-07",
+  "area": "R182",
+  "title": "Partly paid invoice, both directions: balance follows the new total; below the paid part gives a credit",
+  "status": "PASS",
+  "evidence": "113000→101700: bal 51700; →45200: paid credit 4800 (want 4800); {\"balanced\":true,\"ar\":294650,\"sub\":294650,\"ok\":true}"
+ },
+ {
+  "id": "IE-08",
+  "area": "R182",
+  "title": "Refused: locked original period, locked new date, linked credit note, customer change on a paid invoice, date after its payment",
+  "status": "PASS",
+  "evidence": "{\"lockedOld\":\"period_locked\",\"lockedNew\":\"period_locked\",\"note\":\"invoice_correction_linked_note\",\"customer\":\"invoice_correction_customer_paid\",\"afterPayment\":\"invoice_correction_date_after_payment\"} note created 201; preview blocker \"A payment from this customer is applied to the invoice.\""
+ },
+ {
+  "id": "IE-09",
+  "area": "R182",
+  "title": "Cash-basis company: an unpaid invoice can be corrected (no entries); a paid one is refused",
+  "status": "PASS",
+  "evidence": "unpaid 200 total 22600, entries 0→0; paid 409 invoice_correction_cash_paid"
+ },
+ {
+  "id": "IE-10",
+  "area": "R182",
+  "title": "History lists each correction with who, when, reason, before and after; detail shows the count",
+  "status": "PASS",
+  "evidence": "revisions 2:90400→101700 by Gate Owner, 1:113000→90400 by Gate Owner; detail count 2 correct true"
+ },
+ {
+  "id": "IE-11",
+  "area": "R182",
+  "title": "Permissions: a viewer and an editor (no reverse permission) are refused; another company cannot reach the invoice",
+  "status": "PASS",
+  "evidence": "viewer [403,403,\"role_forbidden\",false,true]; editor [403,403,\"permission_forbidden\",false,true]; other company 404 invoice_unavailable; revisions unchanged true"
+ },
+ {
+  "id": "IE-12",
+  "area": "R182",
+  "title": "Integrity after all cases: every entry balances; AR control equals the customer ledger",
+  "status": "PASS",
+  "evidence": "{\"balanced\":true,\"ar\":339850,\"sub\":339850,\"ok\":true}; unbalanced entries 0"
+ },
+ {
+  "id": "IE-13",
+  "area": "R182",
+  "title": "Screens: Correct invoice button, editor in correction mode, review with before/after and entries, reason required, Corrected tag and History; no page errors",
+  "status": "PASS",
+  "evidence": "{\"title\":\"Correct Invoice INV-1012\",\"total\":\"Total$1,130.00$847.50 (-$282.50)\",\"entries\":2,\"need\":\"Enter the reason for this correction.\",\"onTop\":true,\"tag\":\"Corrected\",\"history\":true,\"errs\":[]} saved total 84750"
+ },
+ {
+  "id": "BK-01",
+  "area": "R182",
+  "title": "Add a bank line by hand, repeated monthly: 31 Jul → 31 Aug → 30 Sep; the same request again adds nothing; future months and zero are refused",
+  "status": "PASS",
+  "evidence": "add 201 2026-07-31,2026-08-31,2026-09-30; again replayed true,true,true; rows 2026-07-31:-250000:pending,2026-08-31:-250000:pending,2026-09-30:-250000:pending; future 422 bank_transaction_future; zero 422"
+ },
+ {
+  "id": "BK-02",
+  "area": "R182",
+  "title": "Statement import: a line matching a hand-entered one is flagged as a possible duplicate and left out; an edited description is imported as edited",
+  "status": "PASS",
+  "evidence": "flag \"May duplicate a transaction entered by hand on 2026-07-31 (\"Office ren\"; edit 200; selected 1; import 201 ; coffee as edited 1; rent imported 0"
+ },
+ {
+  "id": "BK-03",
+  "area": "R182",
+  "title": "Edit the description of an unposted line in Match and Post (amount and date unchanged)",
+  "status": "PASS",
+  "evidence": "edit 200 ; now Office rent - Main St (July)|-250000|2026-07-31"
+ },
+ {
+  "id": "BK-04",
+  "area": "R182",
+  "title": "Screens: Match and Post has Add transaction, the edit pencil and an Entered-by-hand tag; the add window buttons are usable; Bank Transaction Report has Add transaction",
+  "status": "PASS",
+  "evidence": "{\"pencils\":4,\"tags\":3,\"onTop\":true,\"locked\":\"hidden\",\"report\":1,\"errs\":[]}"
+ },
+ {
+  "id": "BK-05",
+  "area": "R182",
+  "title": "Upload Statement preview: one scroll area (page behind locked), descriptions editable in place",
+  "status": "PASS",
+  "evidence": "{\"locked\":\"hidden\",\"after\":[\"Description saved. It will be imported as edited.\",\"UI edited mwuuxkdd\"],\"errs\":[]}"
+ },
+ {
+  "id": "MD-01",
+  "area": "R182",
+  "title": "Switching mode opens that mode’s home with a review of what is and is not done; switching back works; no page errors",
+  "status": "PASS",
+  "evidence": "start full-accounting; {\"owner\":{\"page\":\"guided-bookkeeping\",\"items\":5},\"accountant\":{\"page\":\"dashboard\",\"items\":8},\"errs\":[]}"
+ },
+ {
+  "id": "CO-01",
+  "area": "R182",
+  "title": "New company page: numbered sections, live summary, time zone follows the province until chosen, no tutorial over the form, fits a phone; all field names kept",
+  "status": "PASS",
+  "evidence": "{\"390\":{\"sections\":8,\"names\":true,\"hscroll\":false,\"tutorial\":false,\"provinceNext\":true},\"1440\":{\"sections\":8,\"names\":true,\"hscroll\":false,\"tutorial\":false,\"provinceNext\":true},\"bc\":\"America/Vancouver\",\"kept\":\"UTC\",\"errs1440\":0,\"errs390\":0}"
+ },
+ {
+  "id": "CO-02",
+  "area": "R182",
+  "title": "Creating a company from the new page stores what was entered (Manitoba, Winnipeg time zone, cash basis, tax number, city)",
+  "status": "PASS",
+  "evidence": "MB|America/Winnipeg|cash|1|Winnipeg|CAD; errors 0"
+ },
+ {
+  "id": "BR-01",
+  "area": "R182",
+  "title": "Backup and restore of a company with corrections: invoices, entries and the correction history come back the same",
+  "status": "PASS",
+  "evidence": "export 200; restore 201 ; revisions/invoices/entries equal true (8 revisions); GL equal true; restored {\"balanced\":true,\"ar\":424600,\"sub\":424600,\"ok\":true}"
+ }
+]

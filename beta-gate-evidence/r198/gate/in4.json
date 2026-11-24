@@ -1,0 +1,100 @@
+[
+ {
+  "id": "IN4-01",
+  "area": "IN4",
+  "title": "Canada is unaffected: every return route answers 404 for a Canadian company, and no return rows are created",
+  "status": "PASS",
+  "evidence": "{\"r\":[[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"]],\"rows\":\"0\"}"
+ },
+ {
+  "id": "IN4-02",
+  "area": "IN4",
+  "title": "GSTR-1 sections: B2B (2 invoices, GSTIN and place), B2C large above the approved limit, export with payment, B2C small by place and rate, credit note in CDNR",
+  "status": "PASS",
+  "evidence": "{\"b2b\":[\"27AAACB6214P1ZI|27|1000000|0|90000|90000\",\"29AAACK6214T1ZX|29|2000000|360000|0|0\"],\"b2cl\":[[20000000,3600000,23600000]],\"exp\":[[\"WPAY\",5000000,900000]],\"b2cs\":[\"27|18000|100000|0|9000|9000\",\"29|18000|500000|90000|0|0\"],\"cdnr\":[[\"C\",-100000,-9000,\"INV-1001\"]]}"
+ },
+ {
+  "id": "IN4-03",
+  "area": "IN4",
+  "title": "GSTR-1 nil/exempt, HSN summary and documents issued: the untaxed line is exempt (intra, unregistered); HSN total equals all coded lines net of the note; 8 invoices with 1 cancelled",
+  "status": "PASS",
+  "evidence": "{\"nil\":[\"intra|false|300000|0|0\"],\"hsnTaxable\":28500000,\"hsnIgst\":4950000,\"docs\":[{\"document\":\"Invoices for outward supply\",\"from\":\"INV-1001\",\"to\":\"INV-1008\",\"total\":8,\"cancelled\":1,\"net\":7},{\"document\":\"Credit notes\",\"from\":\"CN-1001\",\"to\":\"CN-1001\",\"total\":1,\"cancelled\":0,\"net\":1}],\"warnings\":[\"Some invoice lines have no HSN/SAC code (no item, or the ite\"]}"
+ },
+ {
+  "id": "IN4-04",
+  "area": "IN4",
+  "title": "GSTR-3B: 3.1(a) taxable and tax net of the credit note, 3.1(b) export, 3.1(c) exempt, 3.2 inter-state B2C by place, 4(A)(5) input credit, 4(C) net ITC",
+  "status": "PASS",
+  "evidence": "{\"a\":{\"taxableCents\":23500000,\"igstCents\":4050000,\"cgstCents\":90000,\"sgstCents\":90000,\"cessCents\":0},\"b\":{\"taxableCents\":5000000,\"igstCents\":900000,\"cgstCents\":0,\"sgstCents\":0,\"cessCents\":0},\"c\":{\"taxableCents\":300000,\"igstCents\":0,\"cgstCents\":0,\"sgstCents\":0,\"cessCents\":0},\"t32\":[{\"placeOfSupply\":\"29\",\"taxableCents\":20500000,\"igstCents\":3690000}],\"A5\":{\"igstCents\":540000,\"cgstCents\":90000,\"sgstCents\":90000,\"cessCents\":0},\"C\":{\"igstCents\":540000,\"cgstCents\":90000,\"sgstCents\":90000,\"cessCents\":0}}"
+ },
+ {
+  "id": "IN4-05",
+  "area": "IN4",
+  "title": "GSTR-3B payment: IGST credit is used against IGST first; CGST and SGST credit pay their own heads; cash payable IGST 4,410,000, CGST 0, SGST 0",
+  "status": "PASS",
+  "evidence": "[{\"head\":\"IGST\",\"liabilityCents\":4950000,\"paidByIgstCents\":540000,\"paidByCgstCents\":0,\"paidBySgstCents\":0,\"paidByCessCents\":0,\"cashCents\":4410000,\"creditLeftCents\":0},{\"head\":\"CGST\",\"liabilityCents\":90000,\"paidByIgstCents\":0,\"paidByCgstCents\":90000,\"paidBySgstCents\":0,\"paidByCessCents\":0,\"cashCents\":0,\"creditLeftCents\":0},{\"head\":\"SGST/UTGST\",\"liabilityCents\":90000,\"paidByIgstCents\":0,\"paidByCgstCents\":0,\"paidBySgstCents\":90000,\"paidByCessCents\":0,\"cashCents\":0,\"creditLeftCents\":0},{\"head\":\"CESS\",\"liabilityCents\":0,\"paidByIgstCents\":0,\"paidByCgstCents\":0,\"paidBySgstCents\":0,\"paidByCessCents\":0"
+ },
+ {
+  "id": "IN4-06",
+  "area": "IN4",
+  "title": "Set-off order (unit check of the computation, hand-worked): IGST credit beyond IGST tax pays CGST then SGST; CGST credit pays IGST but never SGST; SGST credit never pays CGST",
+  "status": "PASS",
+  "evidence": "[[{\"head\":\"IGST\",\"liabilityCents\":100,\"paidByIgstCents\":100,\"paidByCgstCents\":0,\"paidBySgstCents\":0,\"paidByCessCents\":0,\"cashCents\":0,\"creditLeftCents\":0},{\"head\":\"CGST\",\"liabilityCents\":300,\"paidByIgstCents\":300,\"paidByCgstCents\":0,\"paidBySgstCents\":0,\"paidByCessCents\":0,\"cashCents\":0,\"creditLeftCents\":0},{\"head\":\"SGST/UTGST\",\"liabilityCents\":300,\"paidByIgstCents\":100,\"paidByCgstCents\":0,\"paidBySgstCents\":0,\"paidByCessCents\":0,\"cashCents\":200,\"creditLeftCents\":0},{\"head\":\"CESS\",\"liabilityCents\":0,\"paidByIgstCents\":0,\"paidByCgstCents\":0,\"paidBySgstCents\":0,\"paidByCessCents\":0,\"cashCents\":0,\"cr"
+ },
+ {
+  "id": "IN4-07",
+  "area": "IN4",
+  "title": "Registers: the purchase (ITC) register lists both vendor invoices with supplier GSTIN and tax by head; the sales register nets the credit note",
+  "status": "PASS",
+  "evidence": "{\"rows\":[\"24AAAFV6214Q1ZW|inter|3000000|540000|0|0\",\"27AAAFM6214R1ZX|intra|1000000|0|90000|90000\"],\"sales\":{\"taxableCents\":28500000,\"igstCents\":4950000,\"cgstCents\":90000,\"sgstCents\":90000,\"cessCents\":0,\"notClaimedCents\":0}}"
+ },
+ {
+  "id": "IN4-08",
+  "area": "IN4",
+  "title": "GST ledger check: for every GST account the movement posted by documents equals the report figure (output 2401/2402/2404, input 1451/1452/1454)",
+  "status": "PASS",
+  "evidence": "[[\"2401\",90000,90000,0],[\"2402\",90000,90000,0],[\"2404\",4950000,4950000,0],[\"1451\",90000,90000,0],[\"1452\",90000,90000,0],[\"1454\",540000,540000,0]]"
+ },
+ {
+  "id": "IN4-09",
+  "area": "IN4",
+  "title": "Return periods: an Editor prepares GSTR-3B but cannot mark it filed; the Owner marks it filed with an ARN; a later September invoice flags it as changed; reopening needs a reason; every step is audited",
+  "status": "PASS",
+  "evidence": "{\"prep\":200,\"edFile\":403,\"badArn\":\"india_gst_arn\",\"filed\":200,\"before\":{\"status\":\"filed\",\"arn\":\"AA2709260000001\",\"filedOn\":\"2026-10-01\",\"changedSince\":false,\"updatedAt\":\"2026-10-01 16:41:35\"},\"rePrep\":\"india_gst_return_filed\",\"after\":true,\"noReason\":422,\"reopen\":200,\"audit\":\"india.gst_return_filed,india.gst_return_prepared,india.gst_return_reopened\"}"
+ },
+ {
+  "id": "IN4-10",
+  "area": "IN4",
+  "title": "GSTR-2B import refuses bad files: not JSON, no docdata, a bad supplier GSTIN, a bad amount, another company's GSTIN, another period; an Editor may import",
+  "status": "PASS",
+  "evidence": "{\"codes\":[[422,\"india_2b_not_json\"],[422,\"india_2b_shape\"],[422,\"india_2b_gstin\"],[422,\"india_2b_value\"],[422,\"india_2b_gstin_other\"],[422,\"india_2b_period\"]],\"ed\":201,\"rows\":\"1\"}"
+ },
+ {
+  "id": "IN4-11",
+  "area": "IN4",
+  "title": "GSTR-2B reconciliation: the Surat invoice matches though written differently; the Mumbai invoice is a mismatch (supplier shows ₹50 more CGST); a supplier invoice not in the books is \"only in 2B\"",
+  "status": "PASS",
+  "evidence": "{\"imp\":{\"id\":\"gstr2b_c4a7b59168bccab788433d572186fabf\",\"period\":\"2026-09\",\"documents\":3},\"counts\":{\"matched\":1,\"mismatch\":1,\"only2b\":1,\"onlyBooks\":0,\"noGstin\":0},\"mm\":{\"cgstCents\":5000},\"replaced\":\"active,replaced\"}"
+ },
+ {
+  "id": "UI-01",
+  "area": "IN4",
+  "title": "GST Returns page (India): GSTR-1 tables show the B2B, B2C and export rows; GSTR-3B shows the payment table; the ledger check says the accounts agree; no Canadian wording",
+  "status": "PASS",
+  "evidence": "{\"b2b\":3,\"b2cs\":2,\"exp\":1,\"csv\":\"﻿\\\"Invoice\\\",\\\"Date\\\",\\\"Party\\\",\\\"GSTIN\\\",\\\"Place of supply\\\",\\\"Invoice value\\\",\\\"Rate\\\",\\\"Taxa\",\"pay\":\"IGST ₹49,500.00 ₹5,400.00 ₹0.00 ₹0.00 ₹0.00 ₹44,100.00 ₹0.00\",\"ties\":\"1\",\"months\":12,\"sep\":\"Prepared ARN AA2709260000001 · 01-10-2026 Changed since it was prepared Prepare \",\"canadian\":[],\"errs\":[]}"
+ },
+ {
+  "id": "UI-02",
+  "area": "IN4",
+  "title": "GSTR-2B tab: the reconciliation lists matched, differing and missing documents with counts",
+  "status": "PASS",
+  "evidence": "{\"counts\":\"Matched 1 · Amounts differ 1 · Only in GSTR-2B 1 · Only in books 0\",\"rows\":3,\"errs\":[]}"
+ },
+ {
+  "id": "UI-03",
+  "area": "IN4",
+  "title": "Canadian company: no GST Returns in the menus, and opening the page is refused",
+  "status": "PASS",
+  "evidence": "{\"menu\":false,\"toast\":\"Not availableGST returns are available only in India companies.\"}"
+ }
+]
