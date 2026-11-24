@@ -94,7 +94,7 @@ function r177_dashboard_summary(array $user, array $company): array
             ['id' => 'india-registrations', 'title' => 'Add PAN, GSTIN and TAN', 'done' => !empty($chk['pan'])],
             ['id' => 'chart-of-accounts', 'title' => 'Review the chart of accounts', 'done' => $accountsChanged || $openingPosted],
             ['id' => 'bank-accounts', 'title' => 'Add your bank accounts', 'done' => $bankAccounts > 0],
-            ['id' => 'india-gst', 'title' => 'Approve GST rates and create GST codes', 'done' => $gstRules && $gstCodes, 'tab' => $gstRules ? 'gst' : 'rules'],
+            ['id' => 'india-gst', 'title' => 'Set up GST rates and codes', 'done' => $gstRules && $gstCodes, 'tab' => $gstRules ? 'gst' : 'rules'],
             ['id' => 'india-tds', 'title' => 'Approve TDS sections', 'done' => !empty($chk['tds_sections']), 'optional' => true],
             ['id' => 'india-payroll', 'title' => 'Set up payroll', 'done' => !empty($chk['components']) && !empty($chk['structures']), 'optional' => true, 'tab' => !empty($chk['components']) ? 'structures' : 'records'],
             ['id' => 'opening-balances', 'title' => 'Add opening balances', 'done' => $openingPosted],

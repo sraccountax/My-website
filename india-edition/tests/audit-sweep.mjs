@@ -84,7 +84,7 @@ const PAGES = ['openDashboard','openReportsDashboard','openMonthEndClose','openA
   'openTaxCodes','openTaxCodeReport','openDashboardFigures','openBackup','openUsers','openRates','openSupport','openFaq','openIntegrity','openAuditHistory','openOpeningBalances','openDataImport','openGifiReport','openGifiMapping',
   'openInvoiceTemplates','openVoidRegister','openImportedTransactions','openInsights','openBankTransfers','openExpenseVouchers','openManualJournals','openAdvancedReconciliation','openFlexibleCashForecast','openInventoryReport',
   'openRequestedDownloads','openModulesAccess','openCommandCentre','openAgentCenter','openConnectAccountant','openClientViewLinks','openAccountingNotes','openFinancialAnalyst',
-  ...(IN ? ['openIndiaMasters','openGstSummary','openGstReturns','openIndiaPayroll','openIndiaTds','openIndiaHome','openIndiaHelp'] : [])];
+  ...(IN ? ['openIndiaGstSetup','openIndiaPayrollSetup','openIndiaMasters','openGstSummary','openGstReturns','openIndiaPayroll','openIndiaTds','openIndiaHome','openIndiaHelp'] : [])];
 for (const f of PAGES) acts.push(['fn:' + f, f]);
 for (const r of await page.evaluate(() => window.TeghPortal.listReports?.() || [])) acts.push(['report:' + r, r]);
 const out = {tag, edition: ED, company: CO, W, H, MODE, THEME, NAV, state, setupErrs, screens: []};

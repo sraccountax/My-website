@@ -254,9 +254,9 @@
         'india-registrations': ['Company PAN, GSTIN (if registered for GST) and TAN (needed to deduct TDS), in Company details.', 'Add registrations'],
         'chart-of-accounts': ['Tegh created an Indian chart of accounts. Rename, add or deactivate accounts before you post.', 'Review accounts'],
         'bank-accounts': ['Each current or savings account, cash and cards, each linked to its ledger account.', 'Add bank accounts'],
-        'india-gst': ['Approve the GST rates you use (India Masters, Statutory rules), then create the GST codes from them.', 'Set up GST'],
+        'india-gst': ['Tick the GST rates you charge. Tegh creates the GST codes (CGST + SGST, and IGST).', 'Set up GST'],
         'india-tds': ['Approve the TDS and TCS sections you deduct or collect. Needs your TAN.', 'Set up TDS'],
-        'india-payroll': ['Employees, pay components and salary structures; EPF, ESIC and Professional Tax rules as they apply.', 'Set up payroll'] };
+        'india-payroll': ['Tick EPF, ESIC and Professional Tax, then add employees with their monthly salary.', 'Set up payroll'] };
       if (setup.steps.some(s => s.id === 'india-gst')) detail['first-invoice'] = ['Tegh adds the GST (CGST and SGST, or IGST) and tracks who has paid.', 'Create invoice'];
       const next = setup.steps.find(s => !s.done && !s.optional) || setup.steps.find(s => !s.done);
       setup.steps.forEach((s, i) => {

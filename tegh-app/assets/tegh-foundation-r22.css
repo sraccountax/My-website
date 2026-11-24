@@ -8602,3 +8602,42 @@ html[data-tegh-theme="dark"] .sr-first-signout{color:#a7bbb3}
 html[data-tegh-theme="dark"] .sr-first-signout b{color:#edf7f3}
 html[data-tegh-theme="dark"] .sr-first-signout-button{background:#22382f;border-color:#3a5a51;color:#edf7f3}
 html[data-tegh-theme="dark"] .sr-first-signout small{color:#ffb4a8}
+/* R196: India GST and payroll set-up screens. */
+.r196-setup h3{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.r196-step{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#e6efeb;color:#174238;font:700 14px Arial,sans-serif}
+.r196-step.is-done{background:#16a085;color:#fff}
+.r196-form{display:grid;gap:16px;max-width:820px}
+.r196-form fieldset{border:0;margin:0;padding:0;display:grid;gap:10px}
+.r196-form legend{font-weight:700;margin-bottom:8px;color:#132b25}
+.r196-options{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.r196-option{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1px solid #d6e1dd;border-radius:12px;background:#fff;cursor:pointer}
+.r196-option>input{margin-top:3px;flex:none;width:18px;height:18px}
+.r196-option>span{display:grid;gap:3px;min-width:0}
+.r196-option small{color:#5d706a;line-height:1.5}
+.r196-option small input{width:auto;min-width:0;padding:2px 6px;border:1px solid #b9cac4;border-radius:6px;font:inherit;color:#132b25;background:#fff}
+.r196-option.is-set{background:#f1f8f5;border-color:#9fd3c0}
+.r196-option em{font-style:normal;font-size:12px;font-weight:700;color:#087965}
+.r196-inline{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.r196-inline input{width:auto}
+.r196-confirm{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:#fff8e6;border:1px solid #f0d9a0;font-weight:600;color:#132b25}
+.r196-confirm input{margin-top:3px;width:18px;height:18px;flex:none}
+.r196-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.r196-grid label{display:grid;gap:6px;font-weight:600;color:#132b25}
+.r196-checks{display:flex;flex-wrap:wrap;gap:16px}
+.r196-checks label{display:flex;gap:6px;align-items:center}
+.r196-gross{margin:0;font-weight:700;color:#087965;min-height:1.2em}
+.r196-summary{margin:0 0 10px;padding-left:20px;line-height:1.7}
+.r196-employee{margin-top:16px;padding:16px;border:1px solid #d6e1dd;border-radius:14px;background:#fbfdfc}
+.r196-employee h3{margin:0}
+.r196-more{margin-top:12px}
+.r196-more summary{cursor:pointer;font-weight:600;color:#087965}
+html[data-tegh-theme="dark"] .r196-step{background:#22382f;color:#cfe0d9}
+html[data-tegh-theme="dark"] .r196-step.is-done{background:#16a085;color:#fff}
+html[data-tegh-theme="dark"] :is(.r196-form legend,.r196-grid label,.r196-confirm){color:#edf7f3}
+html[data-tegh-theme="dark"] .r196-option{background:#1b2d28;border-color:#2c4740;color:#edf7f3}
+html[data-tegh-theme="dark"] .r196-option.is-set{background:#17362e;border-color:#2f6b5a}
+html[data-tegh-theme="dark"] .r196-option small{color:#a7bbb3}
+html[data-tegh-theme="dark"] .r196-option small input{background:#22382f;border-color:#3a5a51;color:#edf7f3}
+html[data-tegh-theme="dark"] .r196-option em,html[data-tegh-theme="dark"] .r196-gross,html[data-tegh-theme="dark"] .r196-more summary{color:#7fe3c6}
+html[data-tegh-theme="dark"] .r196-confirm{background:#3a2a1c;border-color:#6b4a2b}
+html[data-tegh-theme="dark"] .r196-employee{background:#1b2d28;border-color:#2c4740}
