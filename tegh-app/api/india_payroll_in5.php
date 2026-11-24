@@ -111,6 +111,93 @@ function in5_structure(string $companyId, string $employeeId, string $date): ?ar
     return ['id' => $r['id'], 'effectiveFrom' => $r['effective_from'], 'lines' => json_decode((string)$r['lines_json'], true) ?: []];
 }
 
+/** Pay bases a person can enter an amount in; the structure keeps the monthly amount (pay runs are monthly). */
+const IN5_PAY_BASES = ['monthly' => [1, 1], 'annual' => [1, 12], 'semi_monthly' => [2, 1], 'bi_weekly' => [26, 12]];
+
+/**
+ * Validate the lines of a salary structure against the pay components in force on a date.
+ * A line may carry a mode (R197): "amount" (a monthly amount, with the amount and basis as entered), "percent" (a percentage
+ * of other lines, or of gross pay for a deduction or employer contribution), "rule" (the component's statutory rule, on the
+ * listed lines when given) or "entered" (an amount entered in each pay run). Lines without a mode follow their component.
+ */
+function in5_structure_lines(array $components, array $input): array
+{
+    $lines = [];
+    foreach ($input as $l) {
+        if (!is_array($l)) continue;
+        $cid = (string)($l['componentId'] ?? '');
+        if (!isset($components[$cid])) fail('A pay component in the structure is not an active pay component on the effective date.', 422, 'india_payroll_component');
+        if (isset($lines[$cid])) fail('A pay component appears twice in the structure.', 422, 'india_payroll_component_twice');
+        $c = $components[$cid]; $name = (string)($c['name'] ?? 'A pay component'); $calc = (string)($c['calculation'] ?? '');
+        $mode = (string)($l['mode'] ?? '');
+        if (!in_array($mode, ['', 'amount', 'percent', 'rule', 'entered'], true)) fail('Choose how ' . $name . ' is worked out.', 422, 'india_payroll_mode');
+        if ($mode === 'rule' && $calc !== 'rule') fail($name . ' has no statutory rule; enter an amount or a percentage.', 422, 'india_payroll_mode');
+        $line = ['componentId' => $cid, 'amountCents' => null];
+        if ($mode === 'amount' || ($mode === '' && $calc === 'fixed')) {
+            $raw = $l['amountCents'] ?? null;
+            if (!is_int($raw) && !(is_string($raw) && preg_match('/^[0-9]{1,13}$/', $raw))) fail('Enter the monthly amount of ' . $name . '.', 422, 'india_payroll_amount');
+            $line['amountCents'] = (int)$raw;
+            if (is_array($l['entered'] ?? null)) {
+                $e = $l['entered']; $basis = (string)($e['basis'] ?? 'monthly');
+                if (!isset(IN5_PAY_BASES[$basis])) fail('Choose monthly, annual, semi-monthly or bi-weekly for ' . $name . '.', 422, 'india_payroll_basis');
+                $ec = $e['amountCents'] ?? null;
+                if (!is_int($ec) && !(is_string($ec) && preg_match('/^[0-9]{1,13}$/', $ec))) fail('Enter the amount of ' . $name . '.', 422, 'india_payroll_amount');
+                [$mul, $div] = IN5_PAY_BASES[$basis];
+                if ((int)round((int)$ec * $mul / $div) !== $line['amountCents']) fail('The monthly amount of ' . $name . ' does not match the amount entered.', 422, 'india_payroll_amount');
+                $line['entered'] = ['amountCents' => (int)$ec, 'basis' => $basis];
+            }
+        }
+        $of = null;
+        if ($mode === 'percent' || (($mode === 'rule' || ($mode === '' && $calc === 'rule')) && isset($l['percentOf']))) {
+            $of = array_values(array_unique(array_map('strval', (array)($l['percentOf'] ?? []))));
+            if (!$of) fail('Choose what ' . $name . ' is a percentage of.', 422, 'india_payroll_base_missing');
+        }
+        if ($mode === 'percent') {
+            $p = trim((string)($l['percent'] ?? ''));
+            if (!preg_match('/^[0-9]{1,4}(\.[0-9]{1,4})?$/', $p) || (float)$p <= 0 || (float)$p > 1000) fail('Enter the percentage of ' . $name . ' (more than 0, at most 1000).', 422, 'india_payroll_percent');
+            $line['percent'] = rtrim(rtrim(number_format((float)$p, 4, '.', ''), '0'), '.');
+        }
+        if ($of !== null) $line['percentOf'] = $of;
+        if ($mode !== '') $line['mode'] = $mode;
+        $lines[$cid] = $line;
+    }
+    if (!$lines) fail('Add at least one pay component to the structure.', 422, 'india_payroll_structure_empty');
+    $isEarning = static fn(array $c): bool => in_array((string)($c['kind'] ?? ''), ['earning', 'reimbursement'], true);
+    // Bases must be in the structure; gross pay is a base only for deductions and employer contributions.
+    $deps = [];
+    foreach ($lines as $cid => $line) {
+        $c = $components[$cid]; $mode = (string)($line['mode'] ?? ''); $calc = (string)($c['calculation'] ?? '');
+        $d = [];
+        if (isset($line['percentOf'])) {
+            // A head the employee is not paid counts as zero in the base (EPF on Basic + DA with no DA is EPF on Basic),
+            // but at least one head of the base must be paid.
+            $present = array_values(array_filter($line['percentOf'], static fn($b) => $b === 'gross' || $b === $cid || isset($lines[$b])));
+            if (!$present) fail(($c['name'] ?? 'A component') . ' is a percentage of ' . implode(' + ', array_map(static fn($b) => (string)($components[$b]['name'] ?? 'a component'), $line['percentOf'])) . ', none of which is in this structure.', 422, 'india_payroll_base_missing');
+            foreach ($present as $b) {
+                if ($b === 'gross') { if ($isEarning($c)) fail(($c['name'] ?? 'An earning') . ' cannot be a percentage of gross pay: gross pay includes it.', 422, 'india_payroll_gross_base'); foreach ($lines as $o => $_) if ($o !== $cid && $isEarning($components[$o])) $d[] = $o; continue; }
+                if ($b === $cid) fail(($c['name'] ?? 'A component') . ' cannot be a percentage of itself.', 422, 'india_payroll_cycle');
+                if (!isset($lines[$b])) fail(($c['name'] ?? 'A component') . ' is a percentage of ' . ($components[$b]['name'] ?? 'a component') . ', which is not in this structure.', 422, 'india_payroll_base_missing');
+                $d[] = $b;
+            }
+        } elseif ($mode === '' && in_array($calc, ['percent', 'rule'], true)) {
+            $b = (string)($c['baseComponent'] ?? '');
+            if ($calc === 'percent' && !isset($lines[$b])) fail(($c['name'] ?? 'A component') . ' is a percent of another component that is not in this structure.', 422, 'india_payroll_base_missing');
+            if ($b !== '' && isset($lines[$b])) $d[] = $b;
+            if ($calc === 'rule' && $b === '') foreach ($lines as $o => $_) if ($o !== $cid && $isEarning($components[$o])) $d[] = $o;
+        }
+        $deps[$cid] = $d;
+    }
+    // No component may depend on itself through others.
+    $state = [];
+    $visit = static function (string $n) use (&$visit, &$state, $deps, $components): void {
+        if (($state[$n] ?? 0) === 2) return;
+        if (($state[$n] ?? 0) === 1) fail('These pay components depend on each other: ' . ($components[$n]['name'] ?? $n) . '. Change one of them to an amount.', 422, 'india_payroll_cycle');
+        $state[$n] = 1; foreach ($deps[$n] ?? [] as $m) $visit($m); $state[$n] = 2;
+    };
+    foreach (array_keys($lines) as $n) $visit($n);
+    return $lines;
+}
+
 function in5_structure_save(array $user, array $company, array $input): array
 {
     require_company_permission($company, 'payroll.manage');
@@ -120,27 +207,7 @@ function in5_structure_save(array $user, array $company, array $input): array
     $employees = in5_records($companyId, 'employee', $from);
     if (!isset($employees[$employeeId])) fail('Choose an employee who is active (India Masters › Records › Employee) on the effective date.', 422, 'india_payroll_employee');
     $components = in5_records($companyId, 'pay_component', $from);
-    $lines = [];
-    foreach ((array)($input['lines'] ?? []) as $l) {
-        if (!is_array($l)) continue;
-        $cid = (string)($l['componentId'] ?? '');
-        if (!isset($components[$cid])) fail('A pay component in the structure is not an active pay component on the effective date.', 422, 'india_payroll_component');
-        if (isset($lines[$cid])) fail('A pay component appears twice in the structure.', 422, 'india_payroll_component_twice');
-        $c = $components[$cid];
-        $amount = null;
-        if (($c['calculation'] ?? '') === 'fixed') {
-            $raw = $l['amountCents'] ?? null;
-            if (!is_int($raw) && !(is_string($raw) && preg_match('/^[0-9]{1,13}$/', $raw))) fail('Enter the monthly amount of ' . ($c['name'] ?? 'the fixed component') . '.', 422, 'india_payroll_amount');
-            $amount = (int)$raw;
-        }
-        $lines[$cid] = ['componentId' => $cid, 'amountCents' => $amount];
-    }
-    if (!$lines) fail('Add at least one pay component to the structure.', 422, 'india_payroll_structure_empty');
-    // Percent components need their base component in the same structure.
-    foreach ($lines as $cid => $_) {
-        $c = $components[$cid];
-        if (($c['calculation'] ?? '') === 'percent' && !isset($lines[(string)($c['baseComponent'] ?? '')])) fail(($c['name'] ?? 'A component') . ' is a percent of another component that is not in this structure.', 422, 'india_payroll_base_missing');
-    }
+    $lines = in5_structure_lines($components, (array)($input['lines'] ?? []));
     in5_schema_ready();
     $id = new_id('salstruct');
     $q = db()->prepare('SELECT id FROM india_salary_structures WHERE company_id=? AND employee_id=? AND effective_from=?'); $q->execute([$companyId, $employeeId, $from]);
@@ -211,7 +278,7 @@ function in5_calculate_employee(string $companyId, array $employee, array $struc
 {
     $days = (int)date('t', strtotime($from));
     $lines = [];
-    foreach ($structure['lines'] as $l) { $cid = (string)$l['componentId']; if (isset($components[$cid])) $lines[$cid] = ['component' => $components[$cid], 'amount' => $l['amountCents']]; }
+    foreach ($structure['lines'] as $l) { $cid = (string)$l['componentId']; if (isset($components[$cid])) $lines[$cid] = ['component' => $components[$cid], 'amount' => $l['amountCents'], 'line' => $l]; }
     $value = []; $note = [];
     $pending = array_keys($lines);
     $gross = static function () use (&$value, $lines): int { $g = 0; foreach ($value as $cid => $v) if (in_array($lines[$cid]['component']['kind'] ?? '', ['earning', 'reimbursement'], true)) $g += $v; return $g; };
@@ -220,15 +287,32 @@ function in5_calculate_employee(string $companyId, array $employee, array $struc
         $progress = false;
         foreach ($pending as $i => $cid) {
             $c = $lines[$cid]['component']; $calc = (string)($c['calculation'] ?? '');
+            // R197: the structure line may choose how the component is worked out for this employee.
+            $ln = $lines[$cid]['line'] ?? []; $mode = (string)($ln['mode'] ?? '');
+            if ($mode === 'amount') $calc = 'fixed'; elseif ($mode === 'percent') $calc = 'percent_of'; elseif ($mode === 'entered') $calc = 'entered'; elseif ($mode === 'rule') $calc = 'rule';
+            $baseOf = null; $baseLabel = '';
+            if (isset($ln['percentOf']) && in_array($calc, ['percent_of', 'rule'], true)) {
+                $sum = 0; $ready = true; $labels = [];
+                foreach ((array)$ln['percentOf'] as $b) {
+                    if ($b === 'gross') { foreach ($pending as $p) if ($p !== $cid && in_array($lines[$p]['component']['kind'] ?? '', ['earning', 'reimbursement'], true)) $ready = false; if ($ready) $sum += $gross(); $labels[] = 'gross pay'; continue; }
+                    if (!isset($lines[$b])) continue; // not paid to this employee: counts as zero
+                    if (!isset($value[$b])) { $ready = false; continue; }
+                    $sum += $value[$b]; $labels[] = (string)($lines[$b]['component']['name'] ?? 'base');
+                }
+                if (!$ready) continue;
+                $baseOf = $sum; $baseLabel = implode(' + ', $labels);
+            }
             if ($calc === 'fixed') { $value[$cid] = (int)round((int)$lines[$cid]['amount'] * $paidDaysMilli / ($days * 1000)); $note[$cid] = $paidDaysMilli === $days * 1000 ? 'monthly amount' : 'prorated ' . rtrim(rtrim(number_format($paidDaysMilli / 1000, 3, '.', ''), '0'), '.') . '/' . $days . ' days'; }
             elseif ($calc === 'entered') { $v = $entered[$cid] ?? 0; if (!is_int($v) && !(is_string($v) && preg_match('/^[0-9]{1,13}$/', $v))) fail('Enter ' . ($c['name'] ?? 'the amount') . ' as a whole number of paise.', 422, 'india_payroll_entered'); $value[$cid] = (int)$v; $note[$cid] = 'entered for this pay run'; }
+            elseif ($calc === 'percent_of') { $value[$cid] = (int)round($baseOf * (float)$ln['percent'] / 100); $note[$cid] = rtrim(rtrim(number_format((float)$ln['percent'], 4, '.', ''), '0'), '.') . '% of ' . $baseLabel; }
             elseif ($calc === 'percent') {
                 $base = (string)($c['baseComponent'] ?? '');
                 if (!isset($value[$base])) continue;
                 $value[$cid] = (int)round($value[$base] * (float)($c['percent'] ?? 0) / 100); $note[$cid] = (float)($c['percent'] ?? 0) . '% of ' . ($lines[$base]['component']['name'] ?? 'base');
             } elseif ($calc === 'rule') {
                 $base = (string)($c['baseComponent'] ?? '');
-                if ($base !== '') { if (!isset($value[$base])) continue; $b = $value[$base]; }
+                if ($baseOf !== null) $b = $baseOf;
+                elseif ($base !== '') { if (!isset($value[$base])) continue; $b = $value[$base]; }
                 else {
                     // Without a base component the rule applies to gross pay, once every earning is known.
                     $waiting = false; foreach ($pending as $p) if ($p !== $cid && in_array($lines[$p]['component']['kind'] ?? '', ['earning', 'reimbursement'], true)) $waiting = true;

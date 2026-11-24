@@ -12,10 +12,16 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R196 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R197 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R196 (R118–R196 change notes are
-included). R196 is the private beta package (it replaces R195): India only, short set-up screens. GST Set-up:
+This package contains every release through R197 (R118–R197 change notes are
+included). R197 is the private beta package (it replaces R196): India only, Payroll Set-up has pay heads (Basic Pay,
+Dearness Pay, Dearness Allowance, Cell Phone, Travel and Medical allowances; EPF, ESIC, PT, CPF, GPF, Insurance, TDS,
+Loan Recovery) plus the company's own allowances and deductions, which can be renamed. Each employee has a pay table
+with an effective date: every head is an amount (monthly, annual, semi-monthly or bi-weekly) or a percentage of Basic,
+DP, DA, their sums, or gross (deductions only); gross, deductions and net are shown as they are typed. Pay runs stay
+monthly; older salary structures calculate as before. No migration; Schema stays 46. See R197-CHANGES.md.
+R196 (replaced R195): India only, short set-up screens. GST Set-up:
 tick the rates you charge and confirm once; Tegh saves and approves the rules and creates the GST codes. Payroll Set-up:
 tick EPF, ESIC and Professional Tax and confirm once, then add employees with three monthly amounts. Tegh suggests the
 usual rates and limits; the person can edit them and nothing is used until confirmed. Also fixed: Save structure, Pay

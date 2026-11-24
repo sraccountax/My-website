@@ -3615,7 +3615,7 @@ const TeghPortal = (() => {
     await draw();
   },{module:'Reports'})}
   // R196: short India set-up screens. GST: tick the rates you charge, confirm once; Tegh saves and approves the rules and
-  // creates the GST codes. Payroll: tick EPF, ESIC and Professional Tax, confirm once; then add employees with three amounts.
+  // creates the GST codes. Payroll: tick EPF, ESIC and Professional Tax, confirm once; pay heads; then add employees with a pay table (R197).
   // Everything goes through India Masters and India Payroll, which keep every advanced option.
   function r196Rupees(v){const t=String(v??'').replace(/[,\s₹]/g,'');return t}
   function openIndiaGstSetup(){if(!indiaEdition()){toast('Not available','GST set-up is available only in India companies.','error');return}showPage('india-gst-setup','GST Set-up','Tick the GST rates you charge or pay. Tegh creates the GST codes for each one and picks CGST + SGST or IGST on every invoice.',async body=>{
@@ -3654,66 +3654,120 @@ const TeghPortal = (() => {
     };
     await draw();
   },{module:'My account'})}
-  function openIndiaPayrollSetup(){if(!indiaEdition()){toast('Not available','Payroll set-up is available only in India companies.','error');return}showPage('india-payroll-setup','Payroll Set-up','Tick the deductions that apply, then add your employees. Tegh works out EPF, ESIC and Professional Tax in each pay run.',async body=>{
-    const st={editing:null,changeRules:false};
+  function openIndiaPayrollSetup(){if(!indiaEdition()){toast('Not available','Payroll set-up is available only in India companies.','error');return}showPage('india-payroll-setup','Payroll Set-up','Set your pay heads once, then each employee\'s pay. Tegh works out every head in each monthly pay run.',async body=>{
+    // R197: pay heads (fixed and your own) and each employee's pay as amounts (monthly, annual, semi-monthly, bi-weekly) or
+    // percentages of Basic Pay, Dearness Pay, Dearness Allowance or gross pay, with a live monthly preview.
+    const st={editing:null,changeRules:false,adding:null};
+    const inr=v=>Number(v||0).toLocaleString('en-IN'),m=c=>money(Number(c||0),'INR');
+    const BASIS={monthly:'Monthly',annual:'Annual',semi_monthly:'Semi-monthly',bi_weekly:'Bi-weekly'};
     const draw=async()=>{
       body.innerHTML='<section class="srp-card r196-setup"><p class="srp-note">Loading…</p></section>';
       let s;try{s=await api('india/setup/payroll',{noCache:true})}catch(error){body.innerHTML=`<section class="srp-card"><p class="srp-note" role="alert">${esc(userFacingError(error))}</p></section>`;return}
       const sg=s.suggestions,epf=s.epf.employee,epfEr=s.epf.employer,esic=s.esic.employee,esicEr=s.esic.employer,pt=s.pt;
-      const inr=v=>Number(v||0).toLocaleString('en-IN');const summary=[epf?`EPF: employee ${esc(epf.ratePercent)}% and employer ${esc(epfEr?.ratePercent??'')}% of Basic, Basic counted up to ₹${esc(inr(epf.limitRupees))}`:'',esic?`ESIC: employee ${esc(esic.ratePercent)}% and employer ${esc(esicEr?.ratePercent??'')}% of gross, when gross is ₹${esc(inr(esic.limitRupees))} or less`:'',pt?`Professional Tax: ₹${esc(inr(pt.amountRupees))} a month`:''].filter(Boolean);
+      const summary=[epf?`EPF: employee ${esc(epf.ratePercent)}% and employer ${esc(epfEr?.ratePercent??'')}%, on wages up to ₹${esc(inr(epf.limitRupees))}`:'',esic?`ESIC: employee ${esc(esic.ratePercent)}% and employer ${esc(esicEr?.ratePercent??'')}% of gross, when gross is ₹${esc(inr(esic.limitRupees))} or less`:'',pt?`Professional Tax: ₹${esc(inr(pt.amountRupees))} a month`:''].filter(Boolean);
       const rulesForm=`<form class="r196-form" data-r196-payroll novalidate>
-          <fieldset><legend>Deductions that apply</legend>
-            <label class="r196-option"><input type="checkbox" name="epf"${epf||!s.done?' checked':''}><span><b>EPF (Provident Fund)</b><small>Employee <input name="epfEe" value="${esc(epf?.ratePercent??sg.epf.employeePercent)}" size="4" inputmode="decimal" aria-label="EPF employee percent">% and employer <input name="epfEr" value="${esc(epfEr?.ratePercent??sg.epf.employerPercent)}" size="4" inputmode="decimal" aria-label="EPF employer percent">% of Basic, counting Basic up to ₹<input name="epfCap" value="${esc(String(epf?.limitRupees??sg.epf.ceilingRupees))}" size="7" inputmode="numeric" aria-label="EPF wage ceiling in rupees"></small></span></label>
+          <fieldset><legend>Statutory deductions that apply</legend>
+            <label class="r196-option"><input type="checkbox" name="epf"${epf||!s.done?' checked':''}><span><b>EPF (Provident Fund)</b><small>Employee <input name="epfEe" value="${esc(epf?.ratePercent??sg.epf.employeePercent)}" size="4" inputmode="decimal" aria-label="EPF employee percent">% and employer <input name="epfEr" value="${esc(epfEr?.ratePercent??sg.epf.employerPercent)}" size="4" inputmode="decimal" aria-label="EPF employer percent">% of PF wages, counting wages up to ₹<input name="epfCap" value="${esc(String(epf?.limitRupees??sg.epf.ceilingRupees))}" size="7" inputmode="numeric" aria-label="EPF wage ceiling in rupees"></small></span></label>
             <label class="r196-option"><input type="checkbox" name="esic"${esic||!s.done?' checked':''}><span><b>ESIC (State Insurance)</b><small>Employee <input name="esicEe" value="${esc(esic?.ratePercent??sg.esic.employeePercent)}" size="4" inputmode="decimal" aria-label="ESIC employee percent">% and employer <input name="esicEr" value="${esc(esicEr?.ratePercent??sg.esic.employerPercent)}" size="4" inputmode="decimal" aria-label="ESIC employer percent">% of gross pay, only when gross is ₹<input name="esicLimit" value="${esc(String(esic?.limitRupees??sg.esic.limitRupees))}" size="7" inputmode="numeric" aria-label="ESIC wage limit in rupees"> or less</small></span></label>
             <label class="r196-option"><input type="checkbox" name="pt"${pt?' checked':''}><span><b>Professional Tax (${esc(s.stateName)})</b><small>₹<input name="ptAmount" value="${esc(String(pt?.amountRupees??sg.pt.amountRupees))}" size="6" inputmode="numeric" aria-label="Professional Tax per month in rupees"> a month for each employee it applies to. Check your state's slab.</small></span></label>
           </fieldset>
           <label class="r196-inline">From <input type="date" name="effectiveFrom" value="${esc(s.effectiveFrom)}" required></label>
-          <p class="srp-note">Tegh also adds Basic, HRA, Special allowance and Income tax (TDS, entered in each pay run).</p>
           <label class="r196-confirm"><input type="checkbox" name="confirmed"> I have checked these rates and limits apply to my company.</label>
           <p class="srp-note" data-r196-error role="alert" hidden></p>
-          <div class="srp-actions"><button class="srp-btn" type="submit"${s.canSetUp?'':' disabled'}>Save payroll set-up</button>${s.done?'<button class="srp-btn secondary" type="button" data-r196-cancel-rules>Cancel</button>':''}</div>
-          ${s.canSetUp?'':'<p class="srp-note">Only the Company Owner or an Admin sets up payroll, because it approves EPF, ESIC and Professional Tax rates.</p>'}
+          <div class="srp-actions"><button class="srp-btn" type="submit"${s.canSetUp?'':' disabled'}>Save</button>${s.done?'<button class="srp-btn secondary" type="button" data-r196-cancel-rules>Cancel</button>':''}</div>
+          ${s.canSetUp?'':'<p class="srp-note">Only the Company Owner or an Admin sets these, because they approve EPF, ESIC and Professional Tax rates.</p>'}
         </form>`;
-      const gross=e=>Number(e.basic||0)+Number(e.hra||0)+Number(e.special||0);
-      const ed=st.editing,isNew=ed==='new',emp=isNew?{name:'',dateOfJoining:todayIso(),pan:'',basic:'',hra:'',special:'',epf:!!epf,esic:!!esic,pt:!!pt}:s.employees.find(x=>x.id===ed);
-      const empForm=emp?`<form class="r196-form r196-employee" data-r196-employee novalidate><h3>${isNew?'Add employee':'Edit '+esc(emp.name)}</h3>
-          <div class="r196-grid"><label>Name<input name="name" value="${esc(emp.name)}" required autocomplete="off"></label><label>Date of joining<input type="date" name="dateOfJoining" value="${esc(emp.dateOfJoining)}" required></label><label>PAN <small>(optional)</small><input name="pan" value="${esc(emp.pan||'')}" maxlength="10" autocapitalize="characters" placeholder="ABCDE1234F"></label></div>
-          <div class="r196-grid"><label>Basic (₹ a month)<input name="basic" value="${esc(String(emp.basic||''))}" inputmode="numeric" required></label><label>HRA (₹ a month)<input name="hra" value="${esc(String(emp.hra||''))}" inputmode="numeric"></label><label>Special allowance (₹ a month)<input name="special" value="${esc(String(emp.special||''))}" inputmode="numeric"></label></div>
-          <p class="r196-gross" data-r196-gross></p>
-          <div class="r196-checks">${epf?`<label><input type="checkbox" name="epf"${emp.epf?' checked':''}> EPF</label>`:''}${esic?`<label><input type="checkbox" name="esic"${emp.esic?' checked':''}> ESIC</label>`:''}${pt?`<label><input type="checkbox" name="pt"${emp.pt?' checked':''}> Professional Tax</label>`:''}</div>
-          ${isNew?'':`<label class="r196-inline">New salary from <input type="date" name="salaryFrom" value="${esc(todayIso().slice(0,8)+'01')}"></label><small class="srp-note">Earlier months keep the earlier salary.</small>`}
+      const heads=s.heads||[],earn=heads.filter(h=>['earning','reimbursement'].includes(h.kind)),ded=heads.filter(h=>h.kind==='deduction'),emp=heads.filter(h=>h.kind==='employer_contribution');
+      const statKey=h=>({'EPF-EE':'epf','ESIC-EE':'esic'})[h.rule]||(String(h.rule||'').startsWith('PT-')?'pt':'');
+      const headRow=h=>`<li class="r197-head" data-r197-head="${esc(h.id)}">${h.editable?`<input value="${esc(h.name)}" aria-label="Heading of ${esc(h.name)}" maxlength="80" data-r197-head-name><button type="button" class="srp-btn secondary" data-r197-rename="${esc(h.id)}">Rename</button><button type="button" class="srp-btn secondary" data-r197-remove="${esc(h.id)}">Remove</button>`:`<span>${esc(h.name)}</span><small>${h.calculation==='rule'?'Statutory':h.key?'Standard':'From India Masters'}</small>`}</li>`;
+      const addRow=kind=>st.adding===kind?`<li class="r197-head r197-head-new"><input placeholder="${kind==='earning'?'e.g. House Rent Allowance':'e.g. Canteen'}" aria-label="New ${kind==='earning'?'allowance':'deduction'} heading" maxlength="80" data-r197-new-name><button type="button" class="srp-btn" data-r197-add-save="${kind}">Add</button><button type="button" class="srp-btn secondary" data-r197-add-cancel>Cancel</button></li>`:'';
+      const headsCard=`<section class="srp-card r196-setup"><h3><span class="r196-step${heads.length?' is-done':''}">2</span> Pay heads</h3>
+          <div class="r197-heads"><div><h4>Earnings <small>(make up gross pay)</small></h4><ul>${earn.map(headRow).join('')}${addRow('earning')}</ul>${st.adding==='earning'?'':'<button type="button" class="srp-btn secondary" data-r197-add="earning"'+(s.canManage?'':' disabled')+'>+ Add allowance</button>'}</div>
+            <div><h4>Deductions</h4><ul>${ded.map(headRow).join('')}${addRow('deduction')}</ul>${st.adding==='deduction'?'':'<button type="button" class="srp-btn secondary" data-r197-add="deduction"'+(s.canManage?'':' disabled')+'>+ Add deduction</button>'}</div></div>
+          ${emp.length?`<p class="srp-note">Paid by the company, not deducted: ${esc(emp.map(h=>h.name).join(', '))}.</p>`:''}<p class="srp-note" data-r197-head-error role="alert" hidden></p></section>`;
+      // Employee pay table.
+      const ofOpts=(h,sel,wages)=>{const opts=s.of.filter(o=>wages?['basic','basic_da','basic_dp_da'].includes(o.key):(o.key!=='gross'||!['earning','reimbursement'].includes(h.kind)));return opts.map(o=>`<option value="${esc(o.key)}"${o.key===sel?' selected':''}>${esc(o.label)}</option>`).join('')};
+      const modes=h=>[...(h.calculation==='rule'?[['rule','As per rule']]:[]),...(h.calculation==='entered'?[['entered','Enter each month']]:[]),...(h.calculation==='percent'?[['default','As set in India Masters']]:[]),['amount','Amount'],['percent','% of']];
+      const ed=st.editing,isNew=ed==='new',e=isNew?{name:'',dateOfJoining:todayIso(),pan:'',epf:!!epf,esic:!!esic,pt:!!pt,rows:[]}:s.employees.find(x=>x.id===ed);
+      const rowFor=(h,rows)=>{const r=rows.find(x=>x.componentId===h.id);if(r)return r;const d=modes(h)[0][0];return{componentId:h.id,mode:d,basis:'monthly',of:h.rule==='EPF-EE'?'basic_da':(h.key==='basic'?'':'basic')}};
+      const payRow=(h,r)=>{const sk=statKey(h),hide=sk&&!e[sk];return `<div class="r197-row" data-r197-row="${esc(h.id)}" data-kind="${esc(h.kind)}"${hide?' hidden':''}${sk?` data-stat="${sk}"`:''}>
+          <span class="r197-name">${esc(h.name)}</span>
+          <select data-f="mode" aria-label="How ${esc(h.name)} is worked out">${modes(h).map(([v,l])=>`<option value="${v}"${v===r.mode?' selected':''}>${l}</option>`).join('')}</select>
+          <input data-f="value" inputmode="decimal" aria-label="${esc(h.name)} amount or percent" value="${esc(r.mode==='percent'?(r.percent||''):(r.amount||''))}" placeholder="${r.mode==='percent'?'%':'₹'}">
+          <select data-f="basis" aria-label="${esc(h.name)} amount is">${Object.entries(BASIS).map(([v,l])=>`<option value="${v}"${v===(r.basis||'monthly')?' selected':''}>${l}</option>`).join('')}</select>
+          <select data-f="of" aria-label="${esc(h.name)} is a percentage of">${ofOpts(h,r.of||(h.rule==='EPF-EE'?'basic_da':'basic'),r.mode==='rule'&&h.rule==='EPF-EE')}</select>
+          <output data-r197-amount>—</output></div>`};
+      const empForm=e?`<form class="r196-form r196-employee r197-employee" data-r196-employee novalidate><h3>${isNew?'Add employee':'Edit '+esc(e.name)}</h3>
+          <div class="r196-grid"><label>Name<input name="name" value="${esc(e.name)}" required autocomplete="off"></label><label>Date of joining<input type="date" name="dateOfJoining" value="${esc(e.dateOfJoining)}" required></label>${isNew?'':`<label>Date of leaving <small>(if left)</small><input type="date" name="dateOfLeaving" value="${esc(e.dateOfLeaving||'')}"></label>`}<label>PAN <small>(optional)</small><input name="pan" value="${esc(e.pan||'')}" maxlength="10" autocapitalize="characters" placeholder="ABCDE1234F"></label><label>Pay from<input type="date" name="salaryFrom" value="${esc(isNew?e.dateOfJoining:todayIso().slice(0,8)+'01')}"></label></div>
+          <div class="r196-checks">${epf?`<label><input type="checkbox" name="epf"${e.epf?' checked':''}> EPF</label>`:''}${esic?`<label><input type="checkbox" name="esic"${e.esic?' checked':''}> ESIC</label>`:''}${pt?`<label><input type="checkbox" name="pt"${e.pt?' checked':''}> Professional Tax</label>`:''}
+            ${s.employees.length?`<label class="r197-copy">Copy pay from <select name="copyFrom"><option value="">—</option>${s.employees.filter(x=>x.id!==ed).map(x=>`<option value="${esc(x.id)}">${esc(x.employeeCode+' · '+x.name)}</option>`).join('')}</select></label>`:''}</div>
+          <p class="srp-note">Enter an amount (monthly, annual, semi-monthly or bi-weekly) or a percentage. Leave a head empty if it does not apply. A change applies to the whole month it falls in.</p>
+          <div class="r197-table" data-r197-table><div class="r197-row r197-th"><span>Pay head</span><span>How</span><span>Amount or %</span><span>Per / of</span><span>Monthly</span></div>
+            <h4>Earnings</h4>${earn.map(h=>payRow(h,rowFor(h,e.rows))).join('')}<div class="r197-total"><span>Gross pay</span><output data-r197-gross>—</output></div>
+            <h4>Deductions</h4>${ded.map(h=>payRow(h,rowFor(h,e.rows))).join('')}<div class="r197-total"><span>Total deductions</span><output data-r197-ded>—</output></div>
+            <div class="r197-total r197-net"><span>Net pay</span><output data-r197-net>—</output></div><p class="srp-note" data-r197-er></p></div>
           <p class="srp-note" data-r196-emp-error role="alert" hidden></p>
           <div class="srp-actions"><button class="srp-btn" type="submit">${isNew?'Add employee':'Save'}</button><button class="srp-btn secondary" type="button" data-r196-cancel>Cancel</button></div></form>`:'';
-      body.innerHTML=`<section class="srp-card r196-setup">
-          <h3><span class="r196-step${s.done?' is-done':''}">1</span> Deductions</h3>
-          ${s.done&&!st.changeRules?`<ul class="r196-summary">${summary.length?summary.map(x=>`<li>${x}</li>`).join(''):'<li>No EPF, ESIC or Professional Tax.</li>'}</ul><div class="srp-actions"><button class="srp-btn secondary" type="button" data-r196-change-rules${s.canSetUp?'':' disabled'}>Change</button></div>`:rulesForm}
-        </section>
-        <section class="srp-card r196-setup"${s.done?'':' aria-disabled="true"'}>
-          <h3><span class="r196-step${s.employees.length?' is-done':''}">2</span> Employees</h3>
-          ${!s.done?'<p class="srp-note">Save step 1 first.</p>':`${s.employees.length?`<div class="srp-table-wrap"><table class="srp-table r196-employees"><thead><tr><th>Code</th><th>Name</th><th>Joined</th><th class="num">Monthly gross</th><th>Deductions</th><th></th></tr></thead><tbody>${s.employees.map(e=>`<tr><td>${esc(e.employeeCode)}</td><td>${esc(e.name)}</td><td>${esc(date(e.dateOfJoining))}</td><td class="num">${esc(money(gross(e)*100,'INR'))}</td><td>${esc([e.epf?'EPF':'',e.esic?'ESIC':'',e.pt?'PT':''].filter(Boolean).join(', ')||'None')}</td><td><button type="button" class="srp-btn secondary" data-r196-edit="${esc(e.id)}"${s.canManage?'':' disabled'}>Edit</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="srp-note">No employees yet.</p>'}
-            ${empForm||`<div class="srp-actions"><button class="srp-btn${s.employees.length?' secondary':''}" type="button" data-r196-add${s.canManage?'':' disabled'}>Add employee</button></div>`}`}
-        </section>
-        <section class="srp-card r196-setup"><h3><span class="r196-step">3</span> Pay</h3><p class="srp-note">Each month, open Pay Runs, choose the month and calculate. Enter Income tax (TDS) and unpaid days there.</p>
+      const list=s.employees.length?`<div class="srp-table-wrap"><table class="srp-table r196-employees"><thead><tr><th>Code</th><th>Name</th><th>Joined</th><th>Pay from</th><th class="num">Gross</th><th class="num">Deductions</th><th class="num">Net (a month)</th><th></th></tr></thead><tbody>${s.employees.map(x=>`<tr><td>${esc(x.employeeCode)}</td><td>${esc(x.name)}${x.dateOfLeaving?` <small>(left ${esc(date(x.dateOfLeaving))})</small>`:''}</td><td>${esc(date(x.dateOfJoining))}</td><td>${esc(x.salaryFrom?date(x.salaryFrom):'—')}</td><td class="num">${x.month?esc(m(x.month.grossCents)):'—'}</td><td class="num">${x.month?esc(m(x.month.deductionsCents)):'—'}</td><td class="num">${x.month?esc(m(x.month.netCents)):(x.problem?'<span class="srp-status warning">Check pay</span>':'—')}</td><td><button type="button" class="srp-btn secondary" data-r196-edit="${esc(x.id)}"${s.canManage?'':' disabled'}>Edit</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="srp-note">No employees yet.</p>';
+      body.innerHTML=`<section class="srp-card r196-setup"><h3><span class="r196-step${s.done?' is-done':''}">1</span> Statutory deductions</h3>
+          ${s.done&&!st.changeRules?`<ul class="r196-summary">${summary.length?summary.map(x=>`<li>${x}</li>`).join(''):'<li>No EPF, ESIC or Professional Tax.</li>'}</ul><div class="srp-actions"><button class="srp-btn secondary" type="button" data-r196-change-rules${s.canSetUp?'':' disabled'}>Change</button></div>`:rulesForm}</section>
+        ${s.done?headsCard:''}
+        <section class="srp-card r196-setup"><h3><span class="r196-step${s.employees.length?' is-done':''}">3</span> Employees</h3>
+          ${!s.done?'<p class="srp-note">Save step 1 first.</p>':`${list}${empForm||`<div class="srp-actions"><button class="srp-btn${s.employees.length?' secondary':''}" type="button" data-r196-add${s.canManage?'':' disabled'}>Add employee</button></div>`}`}</section>
+        <section class="srp-card r196-setup"><h3><span class="r196-step">4</span> Pay</h3><p class="srp-note">Each month, open Pay Runs, choose the month and calculate. Enter Income tax (TDS) and unpaid days there.</p>
           <div class="srp-actions"><button class="srp-btn${s.employees.length?'':' secondary'}" type="button" data-r196-runs${s.employees.length?'':' disabled'}>Open Pay Runs</button><button class="srp-btn secondary" type="button" data-r196-masters>More options (India Masters)</button></div></section>`;
       $('[data-r196-runs]',body).onclick=()=>openIndiaPayroll('runs');$('[data-r196-masters]',body).onclick=()=>openIndiaMasters('records');
       $('[data-r196-change-rules]',body)?.addEventListener('click',()=>{st.changeRules=true;draw()});$('[data-r196-cancel-rules]',body)?.addEventListener('click',()=>{st.changeRules=false;draw()});
       $('[data-r196-add]',body)?.addEventListener('click',()=>{st.editing='new';draw()});$$('[data-r196-edit]',body).forEach(b=>b.onclick=()=>{st.editing=b.dataset.r196Edit;draw()});
+      // Pay heads.
+      const headErr=$('[data-r197-head-error]',body),headCall=async(route,payload)=>{headErr&&(headErr.hidden=true);try{await api(route,{method:'POST',json:payload});st.adding=null;await draw()}catch(error){if(headErr){headErr.textContent=userFacingError(error);headErr.hidden=false}}};
+      $$('[data-r197-add]',body).forEach(b=>b.onclick=()=>{st.adding=b.dataset.r197Add;draw().then(()=>$('[data-r197-new-name]',body)?.focus())});
+      $('[data-r197-add-cancel]',body)?.addEventListener('click',()=>{st.adding=null;draw()});
+      $$('[data-r197-add-save]',body).forEach(b=>b.onclick=()=>headCall('india/setup/head',{name:$('[data-r197-new-name]',body).value,kind:b.dataset.r197AddSave}));
+      $('[data-r197-new-name]',body)?.addEventListener('keydown',ev=>{if(ev.key==='Enter'){ev.preventDefault();$('[data-r197-add-save]',body).click()}});
+      $$('[data-r197-rename]',body).forEach(b=>b.onclick=()=>headCall('india/setup/head',{id:b.dataset.r197Rename,name:b.closest('[data-r197-head]').querySelector('[data-r197-head-name]').value}));
+      $$('[data-r197-remove]',body).forEach(b=>b.onclick=()=>headCall('india/setup/head-remove',{id:b.dataset.r197Remove}));
+      // Statutory form.
       const rf=$('[data-r196-payroll]',body);
-      if(rf){const err=$('[data-r196-error]',rf);rf.onsubmit=async e=>{e.preventDefault();err.hidden=true;
+      if(rf){const err=$('[data-r196-error]',rf);rf.onsubmit=async ev=>{ev.preventDefault();err.hidden=true;
         if(!rf.confirmed.checked){err.textContent='Tick "I have checked these rates and limits" to confirm them.';err.hidden=false;return}
         const button=rf.querySelector('button[type=submit]');button.disabled=true;
         try{const r=await api('india/setup/payroll',{method:'POST',json:{effectiveFrom:rf.effectiveFrom.value,confirmed:true,
             epf:{on:rf.epf.checked,employeePercent:rf.epfEe.value,employerPercent:rf.epfEr.value,ceilingRupees:r196Rupees(rf.epfCap.value)},esic:{on:rf.esic.checked,employeePercent:rf.esicEe.value,employerPercent:rf.esicEr.value,limitRupees:r196Rupees(rf.esicLimit.value)},pt:{on:rf.pt.checked,amountRupees:r196Rupees(rf.ptAmount.value)}}});
-          st.changeRules=false;invalidateWorkspaceState();toast('Payroll set up',r.employeesUpdated?`${r.employeesUpdated} employee${r.employeesUpdated===1?'':'s'} updated with the new deductions.`:'Now add your employees.','success');await draw()}
+          st.changeRules=false;invalidateWorkspaceState();toast('Payroll set up',r.employeesUpdated?`${r.employeesUpdated} employee${r.employeesUpdated===1?'':'s'} updated with the new deductions.`:'Now check the pay heads and add your employees.','success');await draw()}
         catch(error){err.textContent=userFacingError(error);err.hidden=false;button.disabled=false}}}
+      // Employee form.
       const ef=$('[data-r196-employee]',body);
-      if(ef){const err=$('[data-r196-emp-error]',ef),g=$('[data-r196-gross]',ef);const upd=()=>{const n=k=>Number(r196Rupees(ef[k].value))||0;const t=n('basic')+n('hra')+n('special');g.textContent=t?`Monthly gross ₹${t.toLocaleString('en-IN')}`:''};['basic','hra','special'].forEach(k=>ef[k].addEventListener('input',upd));upd();
-        $('[data-r196-cancel]',ef).onclick=()=>{st.editing=null;draw()};ef.name.focus();
-        ef.onsubmit=async e=>{e.preventDefault();err.hidden=true;const button=ef.querySelector('button[type=submit]');button.disabled=true;
-          try{await api('india/setup/employee',{method:'POST',json:{id:isNew?'':emp.id,name:ef.name.value,dateOfJoining:ef.dateOfJoining.value,pan:ef.pan.value.trim().toUpperCase(),basic:r196Rupees(ef.basic.value),hra:r196Rupees(ef.hra.value)||'0',special:r196Rupees(ef.special.value)||'0',
-              epf:!!ef.epf?.checked,esic:!!ef.esic?.checked,pt:!!ef.pt?.checked,salaryFrom:ef.salaryFrom?.value||''}});
+      if(ef){
+        const err=$('[data-r196-emp-error]',ef),flags=()=>({epf:!!ef.epf?.checked,esic:!!ef.esic?.checked,pt:!!ef.pt?.checked});
+        // A new employee is paid from the joining date unless Pay from is changed.
+        if(isNew){let own=false;ef.salaryFrom.addEventListener('input',()=>{own=true});const follow=()=>{if(!own)ef.salaryFrom.value=ef.dateOfJoining.value};ef.dateOfJoining.addEventListener('input',follow);ef.dateOfJoining.addEventListener('change',follow)}
+        const syncRow=row=>{const mode=$('[data-f=mode]',row).value,h=heads.find(x=>x.id===row.dataset.r197Row),val=$('[data-f=value]',row),basis=$('[data-f=basis]',row),of=$('[data-f=of]',row);
+          val.hidden=!['amount','percent'].includes(mode);basis.hidden=mode!=='amount';of.hidden=!(mode==='percent'||(mode==='rule'&&h.rule==='EPF-EE'));val.placeholder=mode==='percent'?'%':'₹';
+          if(mode==='rule'&&h.rule==='EPF-EE'&&!['basic','basic_da','basic_dp_da'].includes(of.value))of.value='basic_da'};
+        const rows=()=>$$('[data-r197-row]',ef).filter(r=>!r.hidden).map(r=>{const mode=$('[data-f=mode]',r).value,v=$('[data-f=value]',r).value.trim();return{componentId:r.dataset.r197Row,mode,amount:mode==='amount'?r196Rupees(v):'',basis:$('[data-f=basis]',r).value,percent:mode==='percent'?v.replace('%',''):'',of:(mode==='percent'||mode==='rule')&&!$('[data-f=of]',r).hidden?$('[data-f=of]',r).value:''}});
+        let timer=0,seq=0;
+        const pnote=$('[data-r197-er]',ef);
+        const preview=()=>{clearTimeout(timer);timer=setTimeout(async()=>{const my=++seq;const out=$$('[data-r197-amount]',ef);
+          // Nothing to work out until an earning has a value.
+          if(!rows().some(r=>['earning','reimbursement'].includes(heads.find(h=>h.id===r.componentId)?.kind)&&(r.amount||r.percent))){out.forEach(o=>o.textContent='—');['gross','ded','net'].forEach(k=>$(`[data-r197-${k}]`,ef).textContent='—');pnote.textContent='';return}
+          try{const r=await api('india/setup/preview',{method:'POST',json:{...flags(),salaryFrom:ef.salaryFrom.value,rows:rows()}});if(my!==seq)return;
+            const by=new Map(r.components.map(c=>[c.componentId,c]));$$('[data-r197-row]',ef).forEach(row=>{const c=by.get(row.dataset.r197Row);$('[data-r197-amount]',row).textContent=c?m(c.amountCents):'—';$('[data-r197-amount]',row).title=c?.basis||''});
+            $('[data-r197-gross]',ef).textContent=m(r.grossCents);$('[data-r197-ded]',ef).textContent=m(r.deductionsCents);$('[data-r197-net]',ef).textContent=m(r.netCents);
+            const er=r.components.filter(c=>c.kind==='employer_contribution');pnote.textContent=er.length?'Paid by the company: '+er.map(c=>`${c.name} ${m(c.amountCents)}`).join(', ')+'.':''}
+          catch(error){if(my!==seq)return;out.forEach(o=>o.textContent='—');['gross','ded','net'].forEach(k=>$(`[data-r197-${k}]`,ef).textContent='—');pnote.textContent='Preview: '+userFacingError(error)}},350)};
+        $$('[data-r197-row]',ef).forEach(r=>{syncRow(r);$('[data-f=mode]',r).addEventListener('change',()=>{syncRow(r);preview()})});
+        ef.addEventListener('input',ev=>{if(ev.target.closest('[data-r197-table]')||ev.target.name==='salaryFrom')preview()});
+        ef.addEventListener('change',ev=>{const n=ev.target.name;if(['epf','esic','pt'].includes(n)){$$(`[data-stat="${n}"]`,ef).forEach(r=>r.hidden=!ev.target.checked);preview()}else if(ev.target.closest('[data-r197-table]'))preview()});
+        ef.copyFrom?.addEventListener('change',()=>{const src=s.employees.find(x=>x.id===ef.copyFrom.value);if(!src)return;
+          $$('[data-r197-row]',ef).forEach(row=>{const h=heads.find(x=>x.id===row.dataset.r197Row),r=rowFor(h,src.rows);$('[data-f=mode]',row).value=r.mode;$('[data-f=value]',row).value=r.mode==='percent'?(r.percent||''):(r.amount||'');$('[data-f=basis]',row).value=r.basis||'monthly';if(r.of)$('[data-f=of]',row).value=r.of;syncRow(row)});
+          ['epf','esic','pt'].forEach(k=>{if(ef[k]){ef[k].checked=!!src[k];$$(`[data-stat="${k}"]`,ef).forEach(r=>r.hidden=!src[k])}});preview()});
+        $('[data-r196-cancel]',ef).onclick=()=>{st.editing=null;draw()};ef.name.focus();preview();
+        ef.onsubmit=async ev=>{ev.preventDefault();err.hidden=true;const button=ef.querySelector('button[type=submit]');button.disabled=true;
+          try{await api('india/setup/employee',{method:'POST',json:{id:isNew?'':e.id,name:ef.name.value,dateOfJoining:ef.dateOfJoining.value,dateOfLeaving:ef.dateOfLeaving?.value||'',pan:ef.pan.value.trim().toUpperCase(),salaryFrom:ef.salaryFrom.value,...flags(),rows:rows()}});
             toast(isNew?'Employee added':'Employee saved',isNew?`${ef.name.value} is ready for the next pay run.`:'','success');st.editing=null;await draw()}
-          catch(error){err.textContent=userFacingError(error);err.hidden=false;button.disabled=false}}}
+          catch(error){err.textContent=userFacingError(error);err.hidden=false;button.disabled=false}};
+      }
     };
     await draw();
   },{module:'Payroll'})}
