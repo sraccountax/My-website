@@ -1,0 +1,950 @@
+{
+ "tag": "grp-IN-full-light-side-1440",
+ "edition": "IN",
+ "company": "company_bb0d88db7cfd5bef838a90b543f56774",
+ "W": "1440",
+ "H": "900",
+ "MODE": "full",
+ "THEME": "light",
+ "NAV": "side",
+ "state": {
+  "mode": "full-accounting",
+  "theme": "light",
+  "nav": "side",
+  "company": "company_bb0d88db7cfd5bef838a90b543f56774"
+ },
+ "setupErrs": [],
+ "screens": [
+  {
+   "id": "banking:upload-statement",
+   "label": "Upload Statement",
+   "h1": "Upload StatementBeta",
+   "issues": []
+  },
+  {
+   "id": "banking:match-and-post-transactions",
+   "label": "Match and Post",
+   "h1": "Match And Post Transactions",
+   "issues": [],
+   "form": {
+    "opened": "+ Add Transaction",
+    "h1": "Match And Post Transactions",
+    "issues": []
+   }
+  },
+  {
+   "id": "banking:reconcile-bank-account",
+   "label": "Reconcile Account",
+   "h1": "Reconcile Bank Account",
+   "issues": []
+  },
+  {
+   "id": "banking:manage-bank-accounts",
+   "label": "Bank Accounts",
+   "h1": "Manage Bank Accounts",
+   "issues": [],
+   "form": {
+    "opened": "Add Bank Account",
+    "h1": "Manage Bank Accounts",
+    "issues": []
+   }
+  },
+  {
+   "id": "banking:bank-transaction-report",
+   "label": "Transactions Report",
+   "h1": "Bank Transaction Report",
+   "issues": []
+  },
+  {
+   "id": "banking:bank-general-ledger-report",
+   "label": "Bank General Ledger",
+   "h1": "Bank General Ledger Report",
+   "issues": []
+  },
+  {
+   "id": "banking:bank-reconciliation-report",
+   "label": "Bank Reconciliation",
+   "h1": "Bank Reconciliation Report",
+   "issues": []
+  },
+  {
+   "id": "receivables:create-customer",
+   "label": "Create Customer",
+   "h1": "New Customer",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "cean Territory Brunei Bulgaria Burkina Faso Burundi Cambodia Cameroon Canada Cape Verde Caribbean NL Cayman Islands Cent"
+   ]
+  },
+  {
+   "id": "receivables:products-and-services",
+   "label": "Products",
+   "h1": "Products & services",
+   "issues": [],
+   "form": {
+    "opened": "New Item",
+    "h1": "New Product or Service",
+    "issues": []
+   }
+  },
+  {
+   "id": "receivables:customer-invoices",
+   "label": "Customer Invoices",
+   "h1": "New Customer Document",
+   "issues": []
+  },
+  {
+   "id": "receivables:customer-payments",
+   "label": "Payments",
+   "h1": "Customer Payments",
+   "issues": []
+  },
+  {
+   "id": "receivables:collection-drafts",
+   "label": "Collection Drafts",
+   "h1": "Collection Drafts",
+   "issues": []
+  },
+  {
+   "id": "receivables:customers",
+   "label": "Customers",
+   "h1": "Customers",
+   "issues": []
+  },
+  {
+   "id": "receivables:customer-invoice-note-register",
+   "label": "Invoice Register",
+   "h1": "Customer Invoice & Note Register",
+   "issues": []
+  },
+  {
+   "id": "receivables:customer-ledgers",
+   "label": "Customer Ledgers",
+   "h1": "Customer Ledgers",
+   "issues": []
+  },
+  {
+   "id": "receivables:receivable-ageing",
+   "label": "Receivable Ageing",
+   "h1": "Receivable Ageing",
+   "issues": []
+  },
+  {
+   "id": "receivables:period-trial-balance",
+   "label": "AR Trial Balance",
+   "h1": "Customer Trial Balance",
+   "issues": []
+  },
+  {
+   "id": "payables:create-vendor",
+   "label": "Create Vendor",
+   "h1": "New Vendor",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "cean Territory Brunei Bulgaria Burkina Faso Burundi Cambodia Cameroon Canada Cape Verde Caribbean NL Cayman Islands Cent"
+   ]
+  },
+  {
+   "id": "payables:products-and-services",
+   "label": "Products",
+   "h1": "Products & services",
+   "issues": [],
+   "form": {
+    "opened": "New Item",
+    "h1": "New Product or Service",
+    "issues": []
+   }
+  },
+  {
+   "id": "payables:vendor-invoices",
+   "label": "Vendor Invoices",
+   "h1": "New Vendor Document",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "ave. Choose a File Vendor• Choose vendor Aurora Group Holdings Inc. (Canada) + Add New Vendor… Vendor invoice number• V"
+   ]
+  },
+  {
+   "id": "payables:invoice-intelligence",
+   "label": "Invoice Intelligence",
+   "h1": "Invoice Intelligence",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    " Supplier All suppliers + Add new vendor… Aurora Group Holdings Inc. (Canada) Search Possible Duplicates Only Apply No i"
+   ]
+  },
+  {
+   "id": "payables:vendor-payments",
+   "label": "Payments",
+   "h1": "New Vendor Payment",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "— money in Vendor Invoice or Open Payment Aurora Group Holdings Inc. (Canada) · AGH-EXP-st7vi · $4,000.00 open Open paym",
+    "ED INVOICE Payment Summary AGH-EXP-st7vi Aurora Group Holdings Inc. (Canada) Invoice outstanding $4,000.00 open Paymen"
+   ]
+  },
+  {
+   "id": "payables:tds-and-tcs",
+   "label": "TDS and TCS",
+   "h1": "TDS And TCS",
+   "issues": []
+  },
+  {
+   "id": "payables:document-intake",
+   "label": "Document Intake",
+   "h1": "Document IntakeBeta",
+   "issues": []
+  },
+  {
+   "id": "payables:vendors",
+   "label": "Vendors",
+   "h1": "Vendors",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    " Terms (Days) ⌄ ⋮⋮ Status ⌄ Actions ⋮ Aurora Group Holdings Inc. (Canada) — — — 1 Bay St, Toronto, Canada 30 Active",
+    "tions ⋮ Aurora Group Holdings Inc. (Canada) — — — 1 Bay St, Toronto, Canada 30 Active Actions 1–1 of 1 First Previou"
+   ]
+  },
+  {
+   "id": "payables:vendor-invoice-note-register",
+   "label": "Invoice Register",
+   "h1": "Vendor Invoice & Note Register",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "tus ⌄ Actions ⋮ AGH-EXP-st7vi Invoice — Aurora Group Holdings Inc. (Canada) 15-09-2026 31-12-2026 USD 0.00 USD 10,000."
+   ]
+  },
+  {
+   "id": "payables:vendor-ledgers",
+   "label": "Vendor Ledgers",
+   "h1": "Vendor Ledgers",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    " Download ▾ Vendor Email Reference Action Aurora Group Holdings Inc. (Canada) — — Actions"
+   ]
+  },
+  {
+   "id": "payables:payable-ageing",
+   "label": "Payable Ageing",
+   "h1": "Payable Ageing",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "ad ▾ Vendor All vendors + Add new vendor… Aurora Group Holdings Inc. (Canada) As Of More Filters (3) Apply Payable agei",
+    "tstanding ⌄ Actions ⋮ Current / Credits Aurora Group Holdings Inc. (Canada) AGH-EXP-st7vi Issued document 15-09-2026 1"
+   ]
+  },
+  {
+   "id": "payables:period-trial-balance",
+   "label": "AP Trial Balance",
+   "h1": "Vendor Trial Balance",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "Debit ⌄ ⋮⋮ Closing Credit ⌄ Actions ⋮ Aurora Group Holdings Inc. (Canada) INR 0.00 INR 3,36,400.00 INR 0.00 INR 0.00"
+   ]
+  },
+  {
+   "id": "general-ledger:journal-entry",
+   "label": "Journal Entry",
+   "h1": "Journal Entry",
+   "issues": []
+  },
+  {
+   "id": "general-ledger:day-book",
+   "label": "Day Book",
+   "h1": "Day Book",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "Credit Status 15-09-2026 ▸ VI-001 Bill Aurora Group Holdings Inc. (Canada)Vendor Aurora Group Holdings Inc. (Canada) ",
+    "Aurora Group Holdings Inc. (Canada)Vendor Aurora Group Holdings Inc. (Canada) · Invoice AGH-EXP-st7vi · 2026-09-15 · Leg",
+    " ⋮ 01-10-2026 ▸ BP-001 Vendor Payment Aurora Group Holdings Inc. (Canada)Vendor payment · Aurora Group Holdings Inc."
+   ]
+  },
+  {
+   "id": "general-ledger:general-ledger-account-report",
+   "label": "General Ledger",
+   "h1": "General Ledger Account Report",
+   "issues": []
+  },
+  {
+   "id": "general-ledger:period-trial-balance",
+   "label": "Trial Balance",
+   "h1": "Trial Balance",
+   "issues": []
+  },
+  {
+   "id": "payroll:payroll-set-up",
+   "label": "Payroll Set-up",
+   "h1": "Payroll Set-up",
+   "issues": []
+  },
+  {
+   "id": "payroll:pay-runs",
+   "label": "Pay Runs",
+   "h1": "Payroll",
+   "issues": []
+  },
+  {
+   "id": "payroll:salary-structures",
+   "label": "Salary Structures",
+   "h1": "Payroll",
+   "issues": []
+  },
+  {
+   "id": "payroll:payroll-registers",
+   "label": "Payroll Registers",
+   "h1": "Payroll",
+   "issues": []
+  },
+  {
+   "id": "advanced-accounting:budgets",
+   "label": "Budgets",
+   "h1": "Budgets",
+   "issues": [],
+   "form": {
+    "opened": "Create Budget",
+    "h1": "Budgets",
+    "issues": []
+   }
+  },
+  {
+   "id": "advanced-accounting:fixed-assets",
+   "label": "Fixed Assets",
+   "h1": "Fixed Assets",
+   "issues": [],
+   "form": {
+    "opened": "Add Asset Schedule",
+    "h1": "Add Asset Schedule",
+    "issues": []
+   }
+  },
+  {
+   "id": "advanced-accounting:recurring-transactions",
+   "label": "Recurring",
+   "h1": "Recurring Transactions",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "ew Recurring Vendor Invoice Name• Vendor• Aurora Group Holdings Inc. (Canada) + Add new vendor… Frequency Monthly Quarte"
+   ]
+  },
+  {
+   "id": "advanced-accounting:analytics",
+   "label": "Analytics",
+   "h1": "Analytics",
+   "issues": [],
+   "form": {
+    "opened": "New Analytic Account",
+    "h1": "New Analytic Account",
+    "issues": []
+   }
+  },
+  {
+   "id": "advanced-accounting:collections",
+   "label": "Collections",
+   "h1": "Collections",
+   "issues": []
+  },
+  {
+   "id": "fn:openDashboard",
+   "label": "openDashboard",
+   "h1": "Good Afternoon, Gate",
+   "issues": [],
+   "form": {
+    "opened": "Create Invoice →",
+    "h1": "New Customer Document",
+    "issues": []
+   }
+  },
+  {
+   "id": "fn:openReportsDashboard",
+   "label": "openReportsDashboard",
+   "h1": "Professional Reports",
+   "issues": []
+  },
+  {
+   "id": "fn:openMonthEndClose",
+   "label": "openMonthEndClose",
+   "h1": "Month-End Review & Lock",
+   "issues": []
+  },
+  {
+   "id": "fn:openAccount",
+   "label": "openAccount",
+   "h1": "Account & Access",
+   "issues": []
+  },
+  {
+   "id": "fn:openCompanySetup",
+   "label": "openCompanySetup",
+   "h1": "Company Setup",
+   "issues": []
+  },
+  {
+   "id": "fn:openCompanyDetails",
+   "label": "openCompanyDetails",
+   "h1": "Company Details",
+   "issues": []
+  },
+  {
+   "id": "fn:openBookkeepingModeSettings",
+   "label": "openBookkeepingModeSettings",
+   "h1": "Bookkeeping Mode",
+   "issues": []
+  },
+  {
+   "id": "fn:openSiteReleaseSettings",
+   "label": "openSiteReleaseSettings",
+   "h1": "Site & Release Settings",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "a company's books in a currency other than CAD (for a company outside Canada), use every current ISO currency on documen",
+    " Try it yourself first Everyone Every user creating a company outside Canada Reason for This Change • (kept in the chang",
+    "ooks in INR with an Indian chart of accounts, states and formats; the Canada edition does not change. While this is Off,"
+   ]
+  },
+  {
+   "id": "fn:openTeghPreferences",
+   "label": "openTeghPreferences",
+   "h1": "Appearance",
+   "issues": []
+  },
+  {
+   "id": "fn:openWorkspacePreferences",
+   "label": "openWorkspacePreferences",
+   "h1": "Dashboard & Reconciliation",
+   "issues": []
+  },
+  {
+   "id": "fn:openTaxCodes",
+   "label": "openTaxCodes",
+   "h1": "Tax Codes",
+   "issues": [
+    "foreign-wording canadian"
+   ],
+   "foreignAt": [
+    "⌄ Private beta · sample data only Create ▾ Tax Codes Tax Codes Is For Canadian Companies In an India company, GST codes"
+   ]
+  },
+  {
+   "id": "fn:openTaxCodeReport",
+   "label": "openTaxCodeReport",
+   "h1": "Tax Codes",
+   "issues": [
+    "foreign-wording canadian"
+   ],
+   "foreignAt": [
+    "ate beta · sample data only Create ▾ Tax Codes Tax Code Report Is For Canadian Companies In an India company, GST codes"
+   ]
+  },
+  {
+   "id": "fn:openDashboardFigures",
+   "label": "openDashboardFigures",
+   "h1": "Dashboard Figures",
+   "issues": []
+  },
+  {
+   "id": "fn:openBackup",
+   "label": "openBackup",
+   "h1": "Backup & Restore",
+   "issues": []
+  },
+  {
+   "id": "fn:openUsers",
+   "label": "openUsers",
+   "h1": "Account & Access",
+   "issues": []
+  },
+  {
+   "id": "fn:openRates",
+   "label": "openRates",
+   "h1": "Tax Codes",
+   "issues": [
+    "foreign-wording canadian"
+   ],
+   "foreignAt": [
+    "ate beta · sample data only Create ▾ Tax Codes Payroll Updates Is For Canadian Companies In an India company, GST codes"
+   ]
+  },
+  {
+   "id": "fn:openSupport",
+   "label": "openSupport",
+   "h1": "Support Centre",
+   "issues": []
+  },
+  {
+   "id": "fn:openFaq",
+   "label": "openFaq",
+   "h1": "Help Centre",
+   "issues": []
+  },
+  {
+   "id": "fn:openIntegrity",
+   "label": "openIntegrity",
+   "h1": "Audit History",
+   "issues": []
+  },
+  {
+   "id": "fn:openAuditHistory",
+   "label": "openAuditHistory",
+   "h1": "Audit History",
+   "issues": []
+  },
+  {
+   "id": "fn:openOpeningBalances",
+   "label": "openOpeningBalances",
+   "h1": "Opening Trial Balance",
+   "issues": []
+  },
+  {
+   "id": "fn:openDataImport",
+   "label": "openDataImport",
+   "h1": "Data Import",
+   "issues": []
+  },
+  {
+   "id": "fn:openGifiReport",
+   "label": "openGifiReport",
+   "h1": "Tax Codes",
+   "issues": [
+    "foreign-wording gifi,canadian"
+   ],
+   "foreignAt": [
+    "rora India st7vi ⌄ Private beta · sample data only Create ▾ Tax Codes GIFI Report Is For Canadian Companies In an India",
+    "Private beta · sample data only Create ▾ Tax Codes GIFI Report Is For Canadian Companies In an India company, GST codes"
+   ]
+  },
+  {
+   "id": "fn:openGifiMapping",
+   "label": "openGifiMapping",
+   "h1": "Tax Codes",
+   "issues": [
+    "foreign-wording gifi,canadian"
+   ],
+   "foreignAt": [
+    "rora India st7vi ⌄ Private beta · sample data only Create ▾ Tax Codes GIFI Mapping Is For Canadian Companies In an Indi",
+    "rivate beta · sample data only Create ▾ Tax Codes GIFI Mapping Is For Canadian Companies In an India company, GST codes"
+   ]
+  },
+  {
+   "id": "fn:openInvoiceTemplates",
+   "label": "openInvoiceTemplates",
+   "h1": "Invoice Templates",
+   "issues": [],
+   "form": {
+    "opened": "Add Template",
+    "h1": "Invoice Templates",
+    "issues": []
+   }
+  },
+  {
+   "id": "fn:openVoidRegister",
+   "label": "openVoidRegister",
+   "h1": "Day Book",
+   "issues": []
+  },
+  {
+   "id": "fn:openImportedTransactions",
+   "label": "openImportedTransactions",
+   "h1": "Bank Transactions",
+   "issues": []
+  },
+  {
+   "id": "fn:openInsights",
+   "label": "openInsights",
+   "h1": "Tegh Intelligence",
+   "issues": []
+  },
+  {
+   "id": "fn:openBankTransfers",
+   "label": "openBankTransfers",
+   "h1": "Transfers",
+   "issues": []
+  },
+  {
+   "id": "fn:openExpenseVouchers",
+   "label": "openExpenseVouchers",
+   "h1": "New Expense Voucher",
+   "issues": []
+  },
+  {
+   "id": "fn:openManualJournals",
+   "label": "openManualJournals",
+   "h1": "Journal Entry",
+   "issues": []
+  },
+  {
+   "id": "fn:openAdvancedReconciliation",
+   "label": "openAdvancedReconciliation",
+   "h1": "Journal Entry",
+   "issues": []
+  },
+  {
+   "id": "fn:openFlexibleCashForecast",
+   "label": "openFlexibleCashForecast",
+   "h1": "Cash Forecast",
+   "issues": []
+  },
+  {
+   "id": "fn:openInventoryReport",
+   "label": "openInventoryReport",
+   "h1": "Product Activity",
+   "issues": []
+  },
+  {
+   "id": "fn:openRequestedDownloads",
+   "label": "openRequestedDownloads",
+   "h1": "Requested Downloads",
+   "issues": []
+  },
+  {
+   "id": "fn:openModulesAccess",
+   "label": "openModulesAccess",
+   "h1": "Included Native Features",
+   "issues": []
+  },
+  {
+   "id": "fn:openCommandCentre",
+   "label": "openCommandCentre",
+   "h1": "Tegh Assist",
+   "issues": [],
+   "form": {
+    "opened": "Create CustomerOpens Create Customer.",
+    "h1": "Tegh Assist",
+    "issues": []
+   }
+  },
+  {
+   "id": "fn:openAgentCenter",
+   "label": "openAgentCenter",
+   "h1": "Tegh Assist",
+   "issues": []
+  },
+  {
+   "id": "fn:openConnectAccountant",
+   "label": "openConnectAccountant",
+   "h1": "Tegh Assist",
+   "issues": []
+  },
+  {
+   "id": "fn:openClientViewLinks",
+   "label": "openClientViewLinks",
+   "h1": "Client Dashboard",
+   "issues": []
+  },
+  {
+   "id": "fn:openAccountingNotes",
+   "label": "openAccountingNotes",
+   "h1": "Customer Credit & Debit Notes",
+   "issues": [],
+   "form": {
+    "opened": "New Note",
+    "h1": "New Customer Document",
+    "issues": []
+   }
+  },
+  {
+   "id": "fn:openFinancialAnalyst",
+   "label": "openFinancialAnalyst",
+   "h1": "Financial Analyst",
+   "issues": []
+  },
+  {
+   "id": "fn:openIndiaGstSetup",
+   "label": "openIndiaGstSetup",
+   "h1": "Tax Set-up",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "then. Vendors Name PAN TDS Section From Aurora Group Holdings Inc. (Canada) — — — Edit 5 Products And Services HSN (g"
+   ]
+  },
+  {
+   "id": "fn:openIndiaPayrollSetup",
+   "label": "openIndiaPayrollSetup",
+   "h1": "Payroll Set-up",
+   "issues": []
+  },
+  {
+   "id": "fn:openIndiaMasters",
+   "label": "openIndiaMasters",
+   "h1": "India Masters",
+   "issues": []
+  },
+  {
+   "id": "fn:openGstSummary",
+   "label": "openGstSummary",
+   "h1": "GST Summary",
+   "issues": []
+  },
+  {
+   "id": "fn:openGstReturns",
+   "label": "openGstReturns",
+   "h1": "GST Returns",
+   "issues": []
+  },
+  {
+   "id": "fn:openIndiaPayroll",
+   "label": "openIndiaPayroll",
+   "h1": "Payroll",
+   "issues": []
+  },
+  {
+   "id": "fn:openIndiaTds",
+   "label": "openIndiaTds",
+   "h1": "TDS And TCS",
+   "issues": []
+  },
+  {
+   "id": "fn:openIndiaHome",
+   "label": "openIndiaHome",
+   "h1": "India Home",
+   "issues": []
+  },
+  {
+   "id": "fn:openIndiaHelp",
+   "label": "openIndiaHelp",
+   "h1": "India Help",
+   "issues": []
+  },
+  {
+   "id": "report:Tegh Intelligence",
+   "label": "Tegh Intelligence",
+   "h1": "Tegh Intelligence",
+   "issues": []
+  },
+  {
+   "id": "report:Financial Analyst",
+   "label": "Financial Analyst",
+   "h1": "Financial Analyst",
+   "issues": []
+  },
+  {
+   "id": "report:Cash Forecast",
+   "label": "Cash Forecast",
+   "h1": "Cash Forecast",
+   "issues": []
+  },
+  {
+   "id": "report:Profit and Loss",
+   "label": "Profit and Loss",
+   "h1": "Profit And Loss",
+   "issues": []
+  },
+  {
+   "id": "report:Balance Sheet",
+   "label": "Balance Sheet",
+   "h1": "Balance Sheet",
+   "issues": []
+  },
+  {
+   "id": "report:Trial Balance",
+   "label": "Trial Balance",
+   "h1": "Trial Balance",
+   "issues": []
+  },
+  {
+   "id": "report:Cash Flow",
+   "label": "Cash Flow",
+   "h1": "Cash Flow Statement",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "assification 01-10-2026 Vendor payment · Aurora Group Holdings Inc. (Canada) · Vendor Invoice AGH-EXP-st7vi · SWIFT OUT",
+    "g Activities 01-10-2026 Vendor payment · Aurora Group Holdings Inc. (Canada) · Vendor Invoice AGH-EXP-st7vi · SWIFT OUT"
+   ]
+  },
+  {
+   "id": "report:General Ledger Account Report",
+   "label": "General Ledger Account Report",
+   "h1": "General Ledger Account Report",
+   "issues": []
+  },
+  {
+   "id": "report:General Ledger Detail",
+   "label": "General Ledger Detail",
+   "h1": "General Ledger Detail",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "01-10-2026 BP-001 BP-001 Vendor payment · Aurora Group Holdings Inc. (Canada) · Vendor Invoice AGH-EXP-st7vi · SWIFT OUT",
+    "AGH-EXP-st7vi · SWIFT OUT 1 1016 USD EEFC Aurora Group Holdings Inc. (Canada) · Vendor invoice AGH-EXP-st7vi · Aurora Gr",
+    "(Canada) · Vendor invoice AGH-EXP-st7vi · Aurora Group Holdings Inc. (Canada) INR 0.00 INR 5,09,400.00 -INR 5,09,400.00 "
+   ]
+  },
+  {
+   "id": "report:Product Activity",
+   "label": "Product Activity",
+   "h1": "Product Activity",
+   "issues": []
+  },
+  {
+   "id": "report:Day Book",
+   "label": "Day Book",
+   "h1": "Day Book",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "Credit Status 15-09-2026 ▸ VI-001 Bill Aurora Group Holdings Inc. (Canada)Vendor Aurora Group Holdings Inc. (Canada) ",
+    "Aurora Group Holdings Inc. (Canada)Vendor Aurora Group Holdings Inc. (Canada) · Invoice AGH-EXP-st7vi · 2026-09-15 · Leg",
+    " ⋮ 01-10-2026 ▸ BP-001 Vendor Payment Aurora Group Holdings Inc. (Canada)Vendor payment · Aurora Group Holdings Inc."
+   ]
+  },
+  {
+   "id": "report:Audit History",
+   "label": "Audit History",
+   "h1": "Audit History",
+   "issues": []
+  },
+  {
+   "id": "report:Receivable Ageing",
+   "label": "Receivable Ageing",
+   "h1": "Receivable Ageing",
+   "issues": []
+  },
+  {
+   "id": "report:Customer Balances",
+   "label": "Customer Balances",
+   "h1": "Customer Balances",
+   "issues": []
+  },
+  {
+   "id": "report:Customer Invoice & Note Register",
+   "label": "Customer Invoice & Note Register",
+   "h1": "Customer Invoice & Note Register",
+   "issues": []
+  },
+  {
+   "id": "report:Payable Ageing",
+   "label": "Payable Ageing",
+   "h1": "Payable Ageing",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "ad ▾ Vendor All vendors + Add new vendor… Aurora Group Holdings Inc. (Canada) As Of More Filters (3) Apply Payable agei",
+    "tstanding ⌄ Actions ⋮ Current / Credits Aurora Group Holdings Inc. (Canada) AGH-EXP-st7vi Issued document 15-09-2026 1"
+   ]
+  },
+  {
+   "id": "report:Vendor Balances",
+   "label": "Vendor Balances",
+   "h1": "Vendor Balances",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "ts ⌄ ⋮⋮ Net As-of Balance ⌄ Actions ⋮ Aurora Group Holdings Inc. (Canada) 1 INR 3,36,400.00 INR 0.00 INR 3,36,400.00"
+   ]
+  },
+  {
+   "id": "report:Vendor Invoice & Note Register",
+   "label": "Vendor Invoice & Note Register",
+   "h1": "Vendor Invoice & Note Register",
+   "issues": [
+    "foreign-wording canada"
+   ],
+   "foreignAt": [
+    "tus ⌄ Actions ⋮ AGH-EXP-st7vi Invoice — Aurora Group Holdings Inc. (Canada) 15-09-2026 31-12-2026 USD 0.00 USD 10,000."
+   ]
+  },
+  {
+   "id": "report:Expense Register",
+   "label": "Expense Register",
+   "h1": "Expense Register",
+   "issues": []
+  },
+  {
+   "id": "report:Bank Reconciliation Summary",
+   "label": "Bank Reconciliation Summary",
+   "h1": "Bank Reconciliation Report",
+   "issues": []
+  },
+  {
+   "id": "report:Bank Transaction Report",
+   "label": "Bank Transaction Report",
+   "h1": "Bank Transaction Report",
+   "issues": []
+  },
+  {
+   "id": "report:Bank General Ledger Report",
+   "label": "Bank General Ledger Report",
+   "h1": "Bank General Ledger Report",
+   "issues": []
+  },
+  {
+   "id": "report:TDS and TCS Register",
+   "label": "TDS and TCS Register",
+   "h1": "TDS And TCS",
+   "issues": []
+  },
+  {
+   "id": "report:GST Returns",
+   "label": "GST Returns",
+   "h1": "GST Returns",
+   "issues": []
+  },
+  {
+   "id": "report:GST Summary",
+   "label": "GST Summary",
+   "h1": "GST Summary",
+   "issues": []
+  },
+  {
+   "id": "report:Currency Exposure",
+   "label": "Currency Exposure",
+   "h1": "Currency Exposure",
+   "issues": []
+  },
+  {
+   "id": "report:Budget versus Actual",
+   "label": "Budget versus Actual",
+   "h1": "Budgets",
+   "issues": [],
+   "form": {
+    "opened": "Create Budget",
+    "h1": "Budgets",
+    "issues": []
+   }
+  },
+  {
+   "id": "report:Fixed Asset Register",
+   "label": "Fixed Asset Register",
+   "h1": "Fixed Assets",
+   "issues": [],
+   "form": {
+    "opened": "Add Asset Schedule",
+    "h1": "Add Asset Schedule",
+    "issues": []
+   }
+  }
+ ]
+}

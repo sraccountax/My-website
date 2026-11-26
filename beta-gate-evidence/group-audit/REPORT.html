@@ -1,0 +1,262 @@
+<title>Tegh Group Audit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column (max 72rem) with a sticky section index on wide screens; findings as a ledger-style table. */
+:root{
+  --bg:#f7f5f7; --panel:#ffffff; --ink:#1d1520; --muted:#665a66; --line:#e4dde3;
+  --brand:#6f3e56; --brand-soft:#f6ebf1; --brass:#9a7330;
+  --crit:#b42318; --crit-bg:#fdeceb; --high:#b54708; --high-bg:#fdf0e4; --med:#8a6a00; --med-bg:#fbf5dc; --low:#475467; --low-bg:#eef1f5; --ok:#1d6b45; --ok-bg:#e6f4ec;
+  --display:"Schibsted Grotesk",ui-sans-serif,system-ui,sans-serif; --body:"Inter",ui-sans-serif,system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141015; --panel:#1d171e; --ink:#f1eaf0; --muted:#b5a8b4; --line:#362b36; --brand:#e3a9c6; --brand-soft:#2c1c27; --brass:#e0b56a;
+  --crit:#ff9b92; --crit-bg:#3a1714; --high:#ffb672; --high-bg:#3a2210; --med:#e8cf6a; --med-bg:#332b0c; --low:#c3cbd8; --low-bg:#232a33; --ok:#7fd8a6; --ok-bg:#132a1e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141015; --panel:#1d171e; --ink:#f1eaf0; --muted:#b5a8b4; --line:#362b36; --brand:#e3a9c6; --brand-soft:#2c1c27; --brass:#e0b56a;
+  --crit:#ff9b92; --crit-bg:#3a1714; --high:#ffb672; --high-bg:#3a2210; --med:#e8cf6a; --med-bg:#332b0c; --low:#c3cbd8; --low-bg:#232a33; --ok:#7fd8a6; --ok-bg:#132a1e; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.6 var(--body);margin:0}
+.wrap{max-width:72rem;margin:0 auto;padding-block:2.5rem 4rem;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2rem,4.5vw,3.1rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.65rem;font-weight:700;margin-top:3.2rem;padding-top:1.4rem;border-top:1px solid var(--line)}
+h3{font-size:1.12rem;font-weight:700;margin-top:1.8rem}
+p,li{max-width:68ch}
+.eyebrow{font:600 .74rem/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--brass)}
+.lede{font-size:1.08rem;color:var(--muted);margin-top:.9rem}
+.meta{display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;margin-top:1.1rem;font:400 .82rem/1.4 var(--mono);color:var(--muted)}
+.verdict{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem;margin-top:2rem}
+.v{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.2rem;display:flex;flex-direction:column;gap:.45rem;min-width:0}
+.v b{font-family:var(--display);font-size:1.05rem}
+.v p{margin:0;color:var(--muted);font-size:.92rem}
+.tally{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.2rem}
+.chip{display:inline-flex;align-items:center;gap:.35rem;font:600 .72rem/1 var(--mono);letter-spacing:.04em;padding:.32rem .55rem;border-radius:999px;white-space:nowrap}
+.chip::before{content:"";width:.5rem;height:.5rem;border-radius:50%;background:currentColor}
+.crit{color:var(--crit);background:var(--crit-bg)}.high{color:var(--high);background:var(--high-bg)}.med{color:var(--med);background:var(--med-bg)}.low{color:var(--low);background:var(--low-bg)}.ok{color:var(--ok);background:var(--ok-bg)}
+.tablewrap{overflow-x:auto;margin-top:1rem;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;vertical-align:top;padding:.7rem .85rem;border-bottom:1px solid var(--line)}
+th{font:600 .72rem/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td.id{font:600 .8rem/1.4 var(--mono);white-space:nowrap}
+td .ev{display:block;margin-top:.35rem;font:400 .78rem/1.5 var(--mono);color:var(--muted)}
+.num{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:.85rem;white-space:nowrap}
+.flows td:nth-child(4){text-align:right}
+.findings td:nth-child(3){min-width:17rem}.findings td:nth-child(4){min-width:15rem}
+.note{background:var(--brand-soft);border-radius:10px;padding:1rem 1.2rem;margin-top:1.2rem;font-size:.93rem}
+.note p{margin:.2rem 0}
+.passes{columns:2 18rem;gap:2rem;padding-left:1.1rem;margin-top:.8rem}
+.passes li{break-inside:avoid;margin-bottom:.45rem}
+/* Theme viewer */
+.viewer{margin-top:1.2rem;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:.8rem 1.4rem;align-items:center;padding:.85rem 1rem;border-bottom:1px solid var(--line)}
+.seg{display:flex;flex-wrap:wrap;gap:.3rem}
+.seg button{font:500 .84rem/1 var(--body);color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:7px;padding:.48rem .7rem;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.seg button:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.seglabel{font:600 .7rem/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stage{background:var(--bg);display:flex;justify-content:center;padding:1rem}
+.stage img{display:block;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 8px 28px rgba(0,0,0,.08);max-height:78vh;width:auto;max-width:100%}
+.caption{padding:.7rem 1rem;font-size:.86rem;color:var(--muted);border-top:1px solid var(--line)}
+.palettes{display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));gap:1rem;margin-top:1.2rem}
+.pal{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1.1rem 1.2rem;display:flex;flex-direction:column;gap:.7rem;min-width:0}
+.pal header{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+.sw{display:grid;grid-template-columns:repeat(6,1fr);gap:.35rem}
+.sw span{aspect-ratio:1/1;border-radius:6px;border:1px solid rgba(0,0,0,.08);max-width:100%}
+.swl{display:grid;grid-template-columns:repeat(6,1fr);gap:.35rem;font:400 .62rem/1.2 var(--mono);color:var(--muted);word-break:break-all}
+.pal ul{margin:0;padding-left:1.1rem;font-size:.9rem}
+.pal ul li{margin-bottom:.25rem}
+.compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(20rem,1fr));gap:1rem;margin-top:1rem}
+.compare figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.compare img{display:block;width:100%;height:auto}
+.compare figcaption{padding:.6rem .8rem;font-size:.85rem;color:var(--muted)}
+ol.road{padding-left:1.2rem}ol.road li{margin-bottom:.6rem}
+code{font:400 .85em var(--mono);background:var(--brand-soft);padding:.1em .35em;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Bookkeeping and design audit · Tegh R198 · local test server</div>
+  <h1>Running a multinational group on Tegh</h1>
+  <p class="lede">A 15-year group bookkeeper's test of every menu with a four-company group that trades with itself every month, followed by a design review of the teal theme with three proposed colour schemes shown on the real screens.</p>
+  <div class="meta"><span>Build 5990 · R198</span><span>Synthetic data only</span><span>Not run on IONOS or books-test</span><span>Test server clock: 3 Oct 2026</span></div>
+</header>
+
+<section class="verdict" aria-label="Verdict">
+  <div class="v"><span class="eyebrow">Single-company books</span><b>Solid</b><p>Tax by province, credit notes, rounding, duplicate bills, foreign exchange (when the payment carries the bank rate), access by company: all correct. Ledgers stayed balanced in every company.</p></div>
+  <div class="v"><span class="eyebrow">Group bookkeeping</span><b>Not ready</b><p>No intercompany links, no matching, no eliminations, no translation of the India company, no group close. A group bookkeeper would run consolidation in a spreadsheet.</p></div>
+  <div class="v"><span class="eyebrow">Look and feel</span><b>Blends in</b><p>The brand colour is Tailwind's stock teal-700, sits almost on top of the "paid" green, and is spread over 2,548 hard-coded colours.</p></div>
+</section>
+<div class="tally" style="margin-top:1rem" id="tally"></div>
+
+<h2 id="group">The test group</h2>
+<p>Four companies created for the test, all owned by one person, with the intercompany activity a group bookkeeper sees every month. The India company was created from an India-edition sign-in; the three Canadian ones from a Canada-edition sign-in.</p>
+<div class="tablewrap"><table class="flows">
+<thead><tr><th>Company</th><th>Role</th><th>Books</th><th>Intercompany activity tested</th></tr></thead>
+<tbody>
+<tr><td><b>Aurora Group Holdings</b></td><td>Parent · Ontario</td><td class="num">CAD</td><td>Bills management fees, lends $500,000, charges 6% interest, sells a licence abroad</td></tr>
+<tr><td><b>Aurora West Branch</b></td><td>Branch · British Columbia</td><td class="num">CAD</td><td>3 × $25,000 monthly fee bills, the loan and its interest, part and over-payments</td></tr>
+<tr><td><b>Aurora Québec</b></td><td>Subsidiary · Quebec</td><td class="num">CAD</td><td>212.5 h of IT support + licences at cost, a 25 h credit note, vendor credit</td></tr>
+<tr><td><b>Aurora India</b></td><td>Associate · Karnataka</td><td class="num">INR</td><td>US$10,000 licence bill from the parent, US$6,000 paid at a new rate</td></tr>
+</tbody></table></div>
+<p>Complexity added on top: a 60-line invoice with fractional quantities, 2.5 h × $133.33, French and symbol characters in names, a duplicate supplier bill number, an editor limited to the branch, July closed in the parent only, and a deliberate keying error of $450 on the branch side of the September interest.</p>
+
+<h2 id="findings">Findings</h2>
+<p>Ranked by what they cost a group bookkeeper. Each row says how it was found. "Group test" rows come from the scripted test with the IDs shown; "Screen sweep" rows from opening every menu and form in the browser.</p>
+<div class="tablewrap"><table class="findings">
+<thead><tr><th>ID</th><th>Severity</th><th>What happens</th><th>Recommendation</th></tr></thead>
+<tbody id="findings-body"></tbody></table></div>
+
+<h3>What worked</h3>
+<ul class="passes" id="passes"></ul>
+
+<h2 id="sweep">Every menu, both editions, both themes</h2>
+<p id="sweep-intro">Each sweep signs in, sets the mode, theme and navigation through the real Preferences page, then opens every menu item, every report and every settings page, and the first "New/Add/Create" form on each. It records script errors, failed requests, sideways overflow, controls off screen, "undefined" or NaN text, missing headings and wording from the other edition.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Edition</th><th>Mode</th><th>Theme</th><th>Navigation</th><th>Width</th><th>Screens</th><th>Forms</th><th>With issues</th></tr></thead>
+<tbody id="sweep-body"></tbody></table></div>
+<div id="sweep-notes"></div>
+
+<h2 id="theme">The theme, reviewed as a UI designer</h2>
+<p>Tegh's identity today is a dark green sidebar, a teal action colour and a champagne-gold accent, with a separate navy-and-teal sign-in page.</p>
+<div class="compare">
+  <figure><img src="img/current-dashboard.webp" alt="Current Tegh dashboard with teal sidebar and teal accents" loading="lazy" width="1440" height="900"><figcaption>Today: the dashboard. Note the cash figure: the balance is −$491,648, but the minus sign has wrapped onto its own line.</figcaption></figure>
+  <figure><img src="img/current-signin.webp" alt="Current Tegh sign-in page in navy and teal" loading="lazy" width="1440" height="900"><figcaption>Today: the sign-in page uses navy, not the app's green, so the product has two first impressions.</figcaption></figure>
+</div>
+<div class="tablewrap"><table>
+<thead><tr><th>Measured</th><th>Result</th><th>Why it matters</th></tr></thead>
+<tbody>
+<tr><td>Brand colour</td><td class="num">#0f766e</td><td>This is exactly Tailwind's default <code>teal-700</code>. Most accounting tools already use green, teal or blue, so Tegh reads as one more of them.</td></tr>
+<tr><td>Brand vs "paid/success" green</td><td class="num">ΔE 4.5</td><td>Perceptual distance (OKLab ×100). Under about 15 people cannot tell two colours apart at a glance, so a Paid chip and a primary button look the same.</td></tr>
+<tr><td>Different hex colours in the CSS</td><td class="num">2,548</td><td>5,433 literal colour uses across 30 stylesheets. Changing a few tokens does not re-theme the product; most colours are typed in place.</td></tr>
+<tr><td>Core tokens defined more than once</td><td class="num">accent ×3 · muted ×7 · danger ×6 · success ×5</td><td>The same token name means different colours on different screens, which is why some pages look slightly off-brand.</td></tr>
+<tr><td>Contrast today</td><td class="num">5.5:1 button · 4.8:1 muted text</td><td>Passes WCAG AA. Any new palette must keep at least this.</td></tr>
+</tbody></table></div>
+
+<h3>Three proposals, rendered on the real app</h3>
+<p>Each proposal was applied to the running app by remapping every brand colour in the stylesheets in the browser (OKLCH, keeping each colour's lightness so contrast stays as designed). Status colours for paid, overdue and errors were left alone. Nothing in the product was changed.</p>
+<div class="viewer" id="viewer">
+  <div class="bar">
+    <span class="seglabel">Scheme</span><div class="seg" id="pal-seg" role="group" aria-label="Colour scheme"></div>
+    <span class="seglabel">Screen</span><div class="seg" id="scr-seg" role="group" aria-label="Screen"></div>
+  </div>
+  <div class="stage"><img id="view-img" alt="" src="img/aubergine-dashboard.webp" width="1440" height="900"></div>
+  <div class="caption" id="view-cap"></div>
+</div>
+
+<div class="palettes" id="palettes"></div>
+
+<h3>Recommendation</h3>
+<div class="note">
+  <p><b>Choose Aubergine &amp; Brass.</b> It is the only one of the three that is unusual among accounting products, keeps every contrast pair above today's, and sits far from the status colours (ΔE 19.7 from success, 12.7 from danger). Brass ties to the existing champagne accent, so the logo and marketing pages carry over with a colour change rather than a redesign.</p>
+  <p><b>Ink &amp; Marigold</b> is the stronger fallback if the brand should feel more "professional tool" than "boutique". Avoid <b>Terracotta &amp; Slate</b> unless the warning and error colours are redesigned with it: it lands ΔE 5.6 from warning orange.</p>
+</div>
+
+<h2 id="roadmap">What to do next</h2>
+<h3>Group bookkeeping</h3>
+<ol class="road">
+  <li><b>Fix the three defects first.</b> Show the minus sign on the dashboard cash figure; stop defaulting provincial HST on bills from suppliers outside Canada; refuse India fields on a Canada-edition company request instead of creating a Canadian company.</li>
+  <li><b>Mark related parties.</b> Let a customer or vendor be linked to another company in the same group, with a due-to/due-from account on each side.</li>
+  <li><b>Mirror documents.</b> An invoice to a linked customer creates a draft bill in the other company (same number, date, amount, currency); a payment does the same. The other side approves the draft.</li>
+  <li><b>Intercompany reconciliation report.</b> Pairs each company's due-to/due-from and IC revenue/expense, as at a date, and shows differences like the $450 interest error.</li>
+  <li><b>Consolidation workspace.</b> Eliminates matched IC balances and IC revenue/expense, translates other base currencies (closing rate for the balance sheet, average for P&amp;L, difference to a translation reserve), and treats an associate by the equity method.</li>
+  <li><b>Group close and one sign-in for the whole group.</b> Close a period for every selected company at once; show Canadian and India companies in one switcher, each still following its own edition.</li>
+  <li><b>India cross-border.</b> Section 195 TDS for payments to non-residents, and GST reverse charge on imported services (GSTR-3B already says these boxes are not computed).</li>
+</ol>
+<h3>Theme</h3>
+<ol class="road">
+  <li><b>Consolidate tokens before changing colours.</b> One tokens file with semantic names (<code>--brand</code>, <code>--brand-strong</code>, <code>--surface</code>, <code>--ink-muted</code>, <code>--status-paid</code>, <code>--status-overdue</code> …), each defined once per theme.</li>
+  <li><b>Replace literal colours with tokens</b>, starting with the 25 most used (842 of the 5,433 uses), and add a lint rule that rejects new hex values outside the tokens file.</li>
+  <li><b>Separate status from brand.</b> Paid/positive stays green, overdue red, due-soon amber, each with an icon and a word so colour is never the only signal.</li>
+  <li><b>Apply the chosen scheme</b> to the app, sign-in, documents (invoice templates keep the customer's own colours) and marketing site, then recolour the mark.</li>
+  <li><b>Tidy the number display</b>: show the currency once per report instead of in every cell, show zero months as a dash, never wrap a minus sign away from its figure.</li>
+</ol>
+
+<h2 id="method">How this was tested, and its limits</h2>
+<ul>
+  <li><b>Where:</b> the local gate host running the R198 package, with a faked clock of 3 October 2026. Nothing was run against IONOS or books-test, and no existing company was changed.</li>
+  <li><b>Group test:</b> a script that creates the four companies through the same API the browser uses, posts every transaction, then reads the ledgers directly to check balances. Three harness mistakes were corrected along the way (wrong field names, the payment date after the test clock, a rates call made before the currency was added); the results above are from one clean final run on a fresh group.</li>
+  <li><b>Screen sweep:</b> Playwright in Chromium, signed in as the group owner, through the real Preferences page.</li>
+  <li><b>Theme mock-ups:</b> generated, not designed by hand. Some colours inside images and charts are not remapped, and a production version would tune each token rather than shift hues. In the Ink &amp; Marigold sign-in, the small line above the headline turned ink on ink; a designed version would set it in marigold. The contrast and distance figures are computed from the exact colours shown.</li>
+  <li><b>Not covered:</b> payroll across companies, bank feeds from real banks, and PDF documents from the group (each was exercised in earlier audits on single companies).</li>
+</ul>
+</div>
+
+<script>
+window.SWEEPS=[{"ed": "Canada", "mode": "Full", "theme": "Light", "nav": "Side", "w": 1440, "screens": 115, "forms": 14, "bad": 4, "setup": []}, {"ed": "Canada", "mode": "Full", "theme": "Dark", "nav": "Top", "w": 1440, "screens": 115, "forms": 14, "bad": 9, "setup": []}, {"ed": "Canada", "mode": "Guided", "theme": "Light", "nav": "Side", "w": 390, "screens": 72, "forms": 8, "bad": 4, "setup": []}, {"ed": "India", "mode": "Full", "theme": "Light", "nav": "Side", "w": 1440, "screens": 121, "forms": 13, "bad": 0, "setup": []}, {"ed": "India", "mode": "Full", "theme": "Dark", "nav": "Side", "w": 390, "screens": 121, "forms": 13, "bad": 5, "setup": []}];
+window.SWEEP_NOTES = '<div class="note"><p><b>544 screens and 62 forms opened.</b> No script errors, no failed requests, no sideways overflow on desktop or phone, no "undefined" or NaN text, and every page had a heading.</p><p><b>What the issues are:</b> India wording on Canadian Tax Codes and Users (G-15); dark-theme contrast on Financial Analyst, Tegh Intelligence and the payments notes (G-18). On India screens, 25 "Canada" mentions were checked by hand and are not leaks: 17 are the test vendor’s own name, two are the country list, and the rest are Tegh’s deliberate "this page is for Canadian companies" notices. The invoice-template previews stay light in the dark theme on purpose (they show the paper).</p></div>';
+const FINDINGS = [
+ ['G-1','high','Group test IC-08','<b>Consolidated statements keep every intercompany balance.</b> The consolidated view adds companies line by line. In the three Canadian companies, $113,722.90 of intercompany fees and interest stays in group revenue and $113,272.90 in group expense; the loan appears as an asset of $507,500 and a liability of $507,050.','Add eliminations (see roadmap): matched IC balances and IC revenue/expense removed, with the unmatched difference shown.'],
+ ['G-2','high','Group test IC-03','<b>No link between the two sides of an intercompany charge.</b> Each management fee had to be entered twice: an invoice in the parent and a bill in the branch. Payments are not mirrored either, so the parent still shows the branch\'s paid fee as open.','Related-party flag on customers/vendors and mirror documents.'],
+ ['G-3','high','Group test IC-04','<b>A $450 intercompany difference goes unnoticed.</b> The branch keyed September interest as $2,050 instead of $2,500. Loan to branch $507,500.00 vs loan from parent $507,050.00. No report or check flags it.','Intercompany reconciliation report as at a date.'],
+ ['G-4','high','API probe in the parent','<b>Bills from suppliers outside Canada default to Ontario HST 13%.</b> A US$1,000 bill from a US vendor with no tax code chosen got the ON code, $177.45 of HST was put to the recoverable account (an input tax credit that does not exist) and the payable was $1,542.45 instead of $1,365.00. Sales are right: a taxable invoice to a German customer got no tax.','Default to no tax (or "outside Canada") when the vendor\'s country is not Canada; flag any HST on a foreign bill.'],
+ ['G-5','high','Screenshot, dashboard 1440 px','<b>A negative cash balance shows without its minus sign.</b> The parent\'s Cash At Bank is −$491,648, but on desktop the minus wraps onto its own line above "$491,648", so an overdrawn bank reads as $491,648 in hand. The phone layout shows "−$491,648" correctly.','Keep the sign with the number (no-wrap) and colour negative cash as a warning.'],
+ ['G-18','high','Screen sweep, Canada · dark · top navigation','<b>In the dark theme the Financial Analyst hides its two main figures.</b> Opening cash (−$491,648.00) and projected closing cash (−$371,211.59) are dark text on a dark card; the two warning cards beside them stay light with 1.9:1 text. Tegh Intelligence (2.1:1) and Vendor Payments notes (2.8:1) are also below the 4.5:1 minimum. <a href="img/sweep-dark-analyst.webp">Screenshot</a>','Give the analyst cards and the warning/critical panels dark-theme tokens; add these screens to the dark-theme contrast test.'],
+ ['G-6','high','Group test IC-09','<b>The India associate cannot be consolidated.</b> Companies with different base currencies are refused, and there is no translation or equity-method view.','Translation at closing/average rates with a translation reserve; equity method for associates.'],
+ ['G-7','med','Group test ED-02','<b>One sign-in cannot see the whole group.</b> The company switcher of a Canada sign-in lists only Canadian companies; the India company needs a separate sign-in with the India edition.','One switcher for every company the person belongs to, each opening in its own edition.'],
+ ['G-8','med','Group test ED-01','<b>An India company request from a Canada sign-in becomes a Canadian company.</b> PAN, GSTIN and state were dropped without an error, and the company was created with CAD books and Canadian tax codes. In the first attempt a bill in that company then picked up Ontario HST.','Refuse India fields on a Canada-edition request (422) and say to sign in with the India edition.'],
+ ['G-9','med','Group test IC-10','<b>No group period close.</b> With July closed in the parent, the branch could still post its side of a July intercompany entry while the parent refused its side.','Close a period for a set of companies at once.'],
+ ['G-10','med','Group test IC-06','<b>Foreign-exchange gains need the bank rate typed on every payment.</b> Canadian companies use the "current rate" policy, and dated rates are refused until the setting is changed. A USD receipt without a rate books no gain; with the bank rate it booked the correct $162.00 (CAD side) and ₹4,800 loss (India side).','Ask for the payment-day rate on foreign payments, or turn on dated rates by default for companies that hold foreign currency.'],
+ ['G-11','med','Group test IC-07','<b>India: payments to the Canadian parent get no section 195 TDS, and no reverse-charge GST.</b> The TDS preview says "no section on this vendor"; GSTR-3B notes the reverse-charge boxes are not computed.','Add s.195 for non-resident vendors (with a reminder for Form 15CA/CB) and reverse charge on imported services.'],
+ ['G-12','low','Group test IC-06','<b>No zero-rated or exempt tax code in the Canadian starter set.</b> An export of services had to be entered as non-taxable, which keeps it off the zero-rated line of the GST/HST return.','Add "Zero-rated" and "Exempt" starter codes.'],
+ ['G-13','low','Screenshot, dashboard','<b>The USD bank shows a CAD figure next to "USD Operating".</b> "USD Operating $8,352.00" is the CAD value of US$6,000.','Show "US$6,000.00 (C$8,352.00)".'],
+ ['G-14','low','Screenshot, Profit and Loss','<b>Reports repeat the currency in every cell.</b> "CAD 0.00" fills the months before the company started trading.','State the currency once in the header and show zero as a dash.'],
+ ['G-15','low','Screen sweep (Canada)','<b>India wording on Canadian screens.</b> The Tax Codes help mentions "CGST and SGST". The Users page of a Canada sign-in lists the person\'s India companies with role pickers, although the switcher hides them.','Edition-specific help; decide whether Users should show every company (useful for groups) and match the switcher.'],
+ ['G-16','low','Screenshots, phone and desktop','<b>Labels cut off.</b> On a phone the header shows "Aur…" and "Full Acc"; on desktop the sidebar shows "Advanced Accou".','Wrap or abbreviate deliberately (e.g. company short name).'],
+ ['G-17','low','Group test CX-03','<b>A $10 overpayment of a supplier bill is refused.</b> "Payment cannot exceed the document balance". Customer overpayments are allowed and kept as a credit.','Allow the excess as a supplier prepayment, as on the customer side.'],
+];
+const PASSES = [
+ 'Ontario parent billing the BC branch got GST 5% only (no PST on management services).',
+ 'Quebec subsidiary: GST 5% only from an Ontario supplier; 212.5 h × $160 + 14 × $87.35 = $35,222.90 exactly.',
+ 'Credit note and the matching vendor credit posted on both sides.',
+ '2.5 h × $133.33 = $333.33; a 60-line invoice totalled exactly the sum of its lines.',
+ 'Duplicate supplier invoice number from the same vendor refused (409).',
+ 'French and symbol characters in names stored and shown unchanged.',
+ 'An editor added to the branch could read the branch only (parent and Quebec 403).',
+ 'Realised FX with the bank rate: $162.00 gain in CAD; ₹4,800 loss in INR.',
+ 'Parent refused a July entry after closing July (period locked).',
+ 'No unbalanced journal in any of the four companies.',
+];
+const SEV = {crit:'Critical', high:'High', med:'Medium', low:'Low'};
+document.getElementById('findings-body').innerHTML = FINDINGS.map(([id,s,src,what,rec]) => `<tr><td class="id">${id}</td><td><span class="chip ${s}">${SEV[s]}</span></td><td>${what}<span class="ev">${src}</span></td><td>${rec}</td></tr>`).join('');
+document.getElementById('passes').innerHTML = PASSES.map(p => `<li>${p}</li>`).join('');
+const count = s => FINDINGS.filter(f => f[1] === s).length;
+document.getElementById('tally').innerHTML = `<span class="chip high">${count('high')} high</span><span class="chip med">${count('med')} medium</span><span class="chip low">${count('low')} low</span><span class="chip ok">${PASSES.length} checks passed</span>`;
+
+const SWEEPS = window.SWEEPS || [];
+document.getElementById('sweep-body').innerHTML = SWEEPS.map(r => `<tr><td>${r.ed}</td><td>${r.mode}</td><td>${r.theme}</td><td>${r.nav}</td><td class="num">${r.w} px</td><td class="num">${r.screens}</td><td class="num">${r.forms}</td><td class="num">${r.bad}</td></tr>`).join('');
+document.getElementById('sweep-notes').innerHTML = window.SWEEP_NOTES || '';
+
+const PALS = {
+ current:{name:'Today', note:'Teal and green with champagne gold.', sw:['#0b2b24','#0f766e','#0b5d56','#d4b56a','#e6f4f0','#f3f6f5']},
+ aubergine:{name:'Aubergine & Brass', rec:true, note:'Deep wine sidebar, aubergine actions, brass highlights, warm paper.', sw:['#37192b','#8d506e','#6f3e56','#dcb16c','#f9ecf3','#f7f4f6'],
+  facts:['Button text 5.99:1, links 5.51:1, sidebar text 10.47:1, muted text 4.96:1','ΔE 19.7 from paid green, 12.7 from danger red','Unusual among accounting tools; brass carries the current gold over','Dark theme: wine-black surfaces, rose accents']},
+ marigold:{name:'Ink & Marigold', note:'Ink-black actions, marigold for highlights and the active item.', sw:['#202530','#333c55','#333c55','#f2b100','#f5f0e5','#f6f5f3'],
+  facts:['Button text 10.95:1, sidebar text 10.28:1, muted text 4.91:1','ΔE 20.3 from paid green, 25.2 from danger','Very legible and calm; marigold must never be used for warnings','Feels like a pen and a highlighter on a ledger']},
+ terracotta:{name:'Terracotta & Slate', note:'Slate sidebar, terracotta actions, sky-blue accent.', sw:['#162735','#994f31','#793d25','#90bfe1','#faeee7','#f7f5f3'],
+  facts:['Button text 5.97:1, sidebar text 10.23:1','ΔE only 5.6 from warning orange and 8.1 from danger: actions look like alerts','Warm and distinctive, but needs new status colours to work','Not recommended as is']},
+};
+const SCREENS = [['dashboard','Dashboard'],['signin','Sign-in'],['report','Profit and Loss'],['invoices','Customer invoices'],['india-tax','India Tax Set-up'],['dark-dashboard','Dark dashboard'],['dark-invoices','Dark invoices'],['phone','Phone']];
+let pal = 'aubergine', scr = 'dashboard';
+const palSeg = document.getElementById('pal-seg'), scrSeg = document.getElementById('scr-seg');
+palSeg.innerHTML = Object.entries(PALS).map(([k,p]) => `<button type="button" id="pal-${k}" data-k="${k}">${p.name}</button>`).join('');
+scrSeg.innerHTML = SCREENS.map(([k,l]) => `<button type="button" id="scr-${k}" data-k="${k}">${l}</button>`).join('');
+function render(){
+  palSeg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === pal));
+  scrSeg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === scr));
+  const img = document.getElementById('view-img'); const phone = scr === 'phone';
+  img.src = `img/${pal}-${scr}.webp`; img.width = phone ? 390 : 1440; img.height = phone ? 844 : 900;
+  img.alt = `${PALS[pal].name}: ${SCREENS.find(s => s[0] === scr)[1]}`;
+  document.getElementById('view-cap').textContent = `${PALS[pal].name}. ${PALS[pal].note}`;
+}
+palSeg.addEventListener('click', e => { const b = e.target.closest('button'); if (b) { pal = b.dataset.k; render(); } });
+scrSeg.addEventListener('click', e => { const b = e.target.closest('button'); if (b) { scr = b.dataset.k; render(); } });
+render();
+document.getElementById('palettes').innerHTML = ['aubergine','marigold','terracotta'].map(k => { const p = PALS[k]; return `<article class="pal"><header><h3 style="margin:0">${p.name}</h3>${p.rec ? '<span class="chip ok">Recommended</span>' : k === 'terracotta' ? '<span class="chip high">Status clash</span>' : '<span class="chip low">Alternative</span>'}</header>
+ <div class="sw">${p.sw.map(c => `<span style="background:${c}" title="${c}"></span>`).join('')}</div>
+ <div class="swl">${['Sidebar','Action','Strong','Accent','Tint','Canvas'].map((l,i) => `<span>${l}<br>${p.sw[i]}</span>`).join('')}</div>
+ <p style="margin:0;color:var(--muted);font-size:.9rem">${p.note}</p><ul>${p.facts.map(f => `<li>${f}</li>`).join('')}</ul></article>`; }).join('');
+</script>
