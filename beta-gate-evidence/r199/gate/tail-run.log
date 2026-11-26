@@ -1,0 +1,14 @@
+=== e2e 19:35
+=== journeys 19:40
+=== matrix1 19:41
+=== matrix2 19:51
+=== trapscan 19:55
+=== upgrade 19:56
+MANIFEST-OK
+{'PASS': 778, 'FAIL': 9, 'INFO': 7}
+{'H-INST': {'PASS': 12}, 'H-MAIL': {'PASS': 19}, 'ACCT': {'PASS': 62, 'FAIL': 1}, 'TAX': {'PASS': 20, 'INFO': 1}, 'FX': {'PASS': 5}, 'SEC': {'PASS': 43, 'INFO': 1}, 'CVL': {'PASS': 20}, 'PAY': {'PASS': 7, 'INFO': 2}, 'REC': {'PASS': 9}, 'OPS': {'PASS': 5, 'INFO': 2}, 'UPG': {'PASS': 12, 'FAIL': 1}, 'R141': {'PASS': 37, 'FAIL': 1}, 'R142': {'PASS': 10, 'FAIL': 1}, 'R144': {'PASS': 35}, 'E2E': {'PASS': 51, 'FAIL': 2}, 'R144UI': {'PASS': 22}, 'R145': {'PASS': 44, 'INFO': 1, 'FAIL': 1}, 'R149': {'PASS': 20}, 'R151': {'PASS': 40}, 'R151UI': {'PASS': 19}, 'R152': {'PASS': 31}, 'R153': {'PASS': 20}, 'R154': {'PASS': 11}, 'BETA': {'PASS': 16, 'FAIL': 2}, 'R157': {'PASS': 21}, 'R160': {'PASS': 9}, 'R161': {'PASS': 20}, 'GUIDED': {'PASS': 23}, 'R163': {'PASS': 46}, 'R163SEC': {'PASS': 10}, 'SEC2': {'PASS': 13}, 'MFA': {'PASS': 17}, 'SESSION': {'PASS': 14}, 'MONITOR': {'PASS': 10}, 'AUDIT': {'PASS': 7}, 'FILES': {'PASS': 11}, 'RESTORE': {'PASS': 7}}
+45 path/header PASS; 0 FAIL
+20 UI runs; 0 screens with issues
+390x844 screens with swipe traps: 0
+TAIL-DONE
+GATE-RESUME-DONE

@@ -25,6 +25,7 @@ const unbalanced = co => Number(sql(`SELECT COUNT(*) FROM (SELECT je.id FROM jou
 let browser, CO = '', IN = '';
 try {
   need('india on', await setRelease('indiaEdition', 'everyone'));
+  need('new dashboard on', await setRelease('newDashboard', 'everyone'));
   // Canadian company (Ontario), owned by owner@gate.test, with the test user as Admin.
   CO = need('company', await o.call('companies', {method: 'POST', company: false, json: {businessType: 'corporation', country: 'Canada', province: 'ON', taxRegistered: true, taxNumber: '744444444RT0001', moduleMode: 'accounting', fiscalYearEnd: '12-31', booksStartDate: '2026-01-01', chartTemplate: 'default', currency: 'CAD', name: 'R199 Holdings ' + tag, accountingBasis: 'accrual'}})).company.id;
   o.cid = CO;
@@ -176,6 +177,7 @@ try {
 } finally {
   if (browser) await browser.close().catch(() => {});
   await setRelease('indiaEdition', start.indiaEdition || 'off').catch(() => {});
+  await setRelease('newDashboard', start.newDashboard || 'off').catch(() => {});
   try { sql(`UPDATE users SET active=0 WHERE id='${UID}'`); } catch {}
   save('r199.json');
 }
