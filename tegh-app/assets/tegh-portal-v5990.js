@@ -3682,16 +3682,16 @@ const TeghPortal = (() => {
       </section>
       <section class="srp-card" data-r200-card="reconciliation"><h2>Intercompany reconciliation</h2>
         <p>What each company says the other owes it, as at a date. The two should cancel out; any difference is listed so it can be found.</p>
-        <form class="srp-form r200-inline" data-r200-recon><label>As at<input type="date" name="asOf" value="${esc(st.asOf)}" max="${esc(today)}"></label><button type="submit" class="srp-btn">Reconcile</button></form>
+        <form class="srp-form r200-inline" data-r200-recon data-srp-custom-safety="1"><label>As at<input type="date" name="asOf" value="${esc(st.asOf)}" max="${esc(today)}"></label><button type="submit" class="srp-btn">Reconcile</button></form>
         <div data-r200-recon-out></div></section>
       <section class="srp-card" data-r200-card="consolidation"><h2>Consolidation worksheet</h2>
         <p>Companies with the same base currency, side by side, with intercompany amounts eliminated. A difference that does not eliminate is shown on its own line.</p>
-        <form class="srp-form r200-inline" data-r200-consol><fieldset class="r200-checks"><legend>Companies</legend>${companies.map(c=>`<label><input type="checkbox" name="company" value="${esc(c.id)}" ${st.chosen.has(c.id)?'checked':''}> ${esc(c.name)} <small>${esc(c.currency)}</small></label>`).join('')}</fieldset>
+        <form class="srp-form r200-inline" data-r200-consol data-srp-custom-safety="1"><fieldset class="r200-checks" data-preserve-case><legend>Companies</legend>${companies.map(c=>`<label data-preserve-case><input type="checkbox" name="company" value="${esc(c.id)}" ${st.chosen.has(c.id)?'checked':''}> ${esc(c.name)} <small>${esc(c.currency)}</small></label>`).join('')}</fieldset>
           <label>From<input type="date" name="from" value="${esc(st.from)}"></label><label>To<input type="date" name="to" value="${esc(st.to)}"></label><button type="submit" class="srp-btn">Show worksheet</button></form>
         <div data-r200-consol-out></div></section>
       <section class="srp-card" data-r200-card="close"><h2>Close the group</h2>
         <p>Close a period for several companies at once. Tegh checks every company first; if one cannot be closed, none is.</p>
-        <form class="srp-form r200-inline" data-r200-close><fieldset class="r200-checks"><legend>Companies</legend>${companies.filter(c=>['owner','admin'].includes(c.role)).map(c=>`<label><input type="checkbox" name="company" value="${esc(c.id)}" ${st.chosen.has(c.id)?'checked':''}> ${esc(c.name)}</label>`).join('')||'<span class="r200-muted">You are not the Owner or an Admin of any company.</span>'}</fieldset>
+        <form class="srp-form r200-inline" data-r200-close data-srp-custom-safety="1"><fieldset class="r200-checks"><legend>Companies</legend>${companies.filter(c=>['owner','admin'].includes(c.role)).map(c=>`<label data-preserve-case><input type="checkbox" name="company" value="${esc(c.id)}" ${st.chosen.has(c.id)?'checked':''}> ${esc(c.name)}</label>`).join('')||'<span class="r200-muted">You are not the Owner or an Admin of any company.</span>'}</fieldset>
           <label>Close through<input type="date" name="through" max="${esc(today)}" required></label><button type="submit" class="srp-btn">Close these companies</button></form>
         <div data-r200-close-out></div></section>`;
       bind();
@@ -3739,7 +3739,7 @@ const TeghPortal = (() => {
         const t=r.totals;
         out.innerHTML=`<nav class="srp-segmented r200-tabs"><button type="button" data-r200-sheet="profitLoss" ${st.sheet==='profitLoss'?'aria-pressed="true" class="active"':''}>Profit and loss</button><button type="button" data-r200-sheet="balanceSheet" ${st.sheet==='balanceSheet'?'aria-pressed="true" class="active"':''}>Balance sheet</button></nav>
           <p class="r200-muted">${esc(date(r.start))} to ${esc(date(r.end))} · ${esc(cur)} · ${r.pairs} link${r.pairs===1?'':'s'} between these companies</p>
-          <div class="r200-scroll"><table class="srp-table r200-table r200-sheet" data-no-select-bar><thead><tr><th>Code</th><th>Account</th>${cos.map(c=>`<th class="r200-num">${esc(c.name)}</th>`).join('')}<th class="r200-num">Eliminations</th><th class="r200-num">Consolidated</th></tr></thead><tbody>${body2||`<tr><td colspan="${cos.length+4}" class="r200-muted">No amounts.</td></tr>`}</tbody></table></div>
+          <div class="r200-scroll"><table class="srp-table r200-table r200-sheet" data-no-select-bar><thead><tr><th>Code</th><th>Account</th>${cos.map(c=>`<th class="r200-num" data-preserve-case>${esc(c.name)}</th>`).join('')}<th class="r200-num">Eliminations</th><th class="r200-num">Consolidated</th></tr></thead><tbody>${body2||`<tr><td colspan="${cos.length+4}" class="r200-muted">No amounts.</td></tr>`}</tbody></table></div>
           ${st.sheet==='profitLoss'?`<p><b>Group net income ${fmt(t.netIncomeCents,cur)}</b> (income ${fmt(t.incomeCents,cur)}, expenses ${fmt(t.expenseCents,cur)} after eliminations).</p>`:''}
           ${t.plDifferenceCents||t.bsDifferenceCents?`<p class="r200-error">Intercompany amounts do not agree: ${t.plDifferenceCents?`income and expense differ by ${fmt(t.plDifferenceCents,cur)}`:''}${t.plDifferenceCents&&t.bsDifferenceCents?'; ':''}${t.bsDifferenceCents?`balances differ by ${fmt(t.bsDifferenceCents,cur)}`:''}. See the reconciliation above.</p>`:'<p class="r200-ok">All intercompany amounts eliminate.</p>'}`;
         out.querySelectorAll('[data-r200-sheet]').forEach(b=>b.addEventListener('click',()=>{st.sheet=b.dataset.r200Sheet;showSheet()}));

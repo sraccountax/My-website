@@ -12,10 +12,16 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R199 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R200 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R199 (R118–R199 change notes are
-included). R199 is the private beta package (it replaces R198): fixes from the group bookkeeping
+This package contains every release through R200 (R118–R200 change notes are
+included). R200 is the private beta package (it replaces R199): Settings › Group & Intercompany.
+Link two companies (the customer and vendor each uses for the other, the expense account and the accounts between
+them); create the other company's draft vendor invoice from an intercompany invoice; reconcile what each side says
+is owed as at a date; a consolidation worksheet with eliminations (differences shown on their own line); close a
+period for several companies at once. Three tables are created on first use; no migration; Schema stays 46.
+See R200-CHANGES.md.
+R199 (replaced R198): fixes from the group bookkeeping
 audit, Canada and India. A negative bank balance keeps its minus sign on the dashboard; bills from vendors outside
 Canada no longer assume the home province's HST; India details on a Canada-edition company request are refused;
 Zero-rated and Exempt starter tax codes; foreign payments prefill the payment-day rate; an overpayment can be kept as an

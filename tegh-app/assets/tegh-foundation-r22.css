@@ -8733,3 +8733,4 @@ html[data-tegh-design="living-ledger"] body:not(.sr-sidebar-collapsed) .sidebar 
 .r200-table tr.r200-pairhead td{background:var(--tegh-surface-mist,#f3f6f5)}
 .r200-tabs{display:inline-flex;gap:4px;margin:6px 0}
 @media (max-width:760px){.r200-act .srp-btn{margin:4px 0 0}.r200-inline>label{flex:1 1 100%}}
+.r200-checks label,.r200-table td,.r200-sheet th{text-transform:none}
