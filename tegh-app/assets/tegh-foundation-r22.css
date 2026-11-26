@@ -8710,3 +8710,26 @@ html[data-tegh-theme="dark"] .r198-sections em{color:#7fe3c6}
 .r198-sections input[data-f=single],.r198-sections input[data-f=yearly]{width:96px}
 /* R199 (group audit G-16): long sidebar group names ("Advanced Accounting") wrap to a second line instead of being cut. */
 html[data-tegh-design="living-ledger"] body:not(.sr-sidebar-collapsed) .sidebar .srp-nav-parent :is(.nav-copy,.nav-copy b){white-space:normal;line-height:1.2;overflow-wrap:anywhere}
+/* R200: Group & Intercompany page. */
+.r200-muted{color:var(--tegh-muted,#5d706a)}
+.r200-error{color:#a8281e;font-weight:600}
+.r200-ok{color:#1d6b45;font-weight:600}
+.r200-chip{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.78rem;line-height:1.5;background:#eef2f1;color:#23332e;margin:1px 2px 1px 0}
+.r200-chip.is-good{background:#e6f4ec;color:#1d6b45}.r200-chip.is-warn{background:#fdf3e1;color:#8a5200}.r200-chip.is-bad{background:#fdecea;color:#a8281e}
+.r200-table td,.r200-table th{vertical-align:top}
+.r200-num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.r200-act{white-space:nowrap}.r200-act .srp-btn{margin-left:6px}
+.r200-companies,.r200-sides{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.r200-side{border:1px solid var(--tegh-border,#d6e1dd);border-radius:10px;padding:10px 14px;display:grid;gap:8px;min-width:0}
+.r200-side legend{font-weight:700;padding:0 4px}
+.r200-inline{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.r200-checks{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 16px;flex:1 1 100%}
+.r200-checks legend{font-weight:600;margin-bottom:4px}
+.r200-checks label{display:inline-flex;gap:6px;align-items:center;font-weight:500}
+.r200-scroll{overflow-x:auto;max-width:100%}
+.r200-sheet tr.r200-group th{background:var(--tegh-surface-mist,#f3f6f5);text-align:left}
+.r200-sheet tr.r200-elim td:nth-last-child(2){color:#8a5200}
+.r200-sheet tr.r200-diff td{background:#fdecea;color:#a8281e;font-weight:600}
+.r200-table tr.r200-pairhead td{background:var(--tegh-surface-mist,#f3f6f5)}
+.r200-tabs{display:inline-flex;gap:4px;margin:6px 0}
+@media (max-width:760px){.r200-act .srp-btn{margin:4px 0 0}.r200-inline>label{flex:1 1 100%}}

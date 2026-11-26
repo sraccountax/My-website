@@ -100,3 +100,13 @@ html[data-tegh-theme="dark"] body .tegh-fa-kpis article.is-critical { background
 html[data-tegh-theme="dark"] body .tegh-fa-kpis article.is-critical b { color: #ff9b91 !important; }
 html[data-tegh-theme="dark"] body .r144-whatif, html[data-tegh-theme="dark"] body .r144-whatif small { color: #cfe0d9 !important; }
 html[data-tegh-theme="dark"] body .srp-guidance-list { color: #cfe0d9 !important; }
+/* R200: Group & Intercompany page in the dark theme. */
+html[data-tegh-theme="dark"] body .r200-chip { background: #22382f !important; color: #cfe0d9 !important; }
+html[data-tegh-theme="dark"] body .r200-chip.is-good { background: rgba(127,216,166,.12) !important; color: #7fd8a6 !important; }
+html[data-tegh-theme="dark"] body .r200-chip.is-warn { background: rgba(242,184,102,.12) !important; color: #f2c76b !important; }
+html[data-tegh-theme="dark"] body .r200-chip.is-bad { background: rgba(255,155,145,.12) !important; color: #ff9b91 !important; }
+html[data-tegh-theme="dark"] body :is(.r200-sheet tr.r200-group th, .r200-table tr.r200-pairhead td) { background: #1b2d28 !important; color: #edf7f3 !important; }
+html[data-tegh-theme="dark"] body .r200-sheet tr.r200-diff td { background: #321a19 !important; color: #ff9b91 !important; }
+html[data-tegh-theme="dark"] body .r200-error { color: #ff9b91 !important; }
+html[data-tegh-theme="dark"] body .r200-ok { color: #7fd8a6 !important; }
+html[data-tegh-theme="dark"] body .r200-muted { color: #a7bbb3 !important; }
