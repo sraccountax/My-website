@@ -1,0 +1,58 @@
+[
+ {
+  "id": "R197-01",
+  "area": "R197",
+  "title": "Payroll set-up creates the fixed pay heads (Basic Pay, Dearness Pay, Dearness Allowance, Cell Phone, Travel and Medical Allowances; EPF, ESIC, Professional Tax, CPF, GPF, Insurance, Income tax (TDS), Loan Recovery; EPF and ESIC employer); own heads are added and renamed; a standard head cannot be renamed or removed; duplicate headings are refused",
+  "status": "PASS",
+  "evidence": "{\"names0\":[\"Basic Pay\",\"Dearness Pay\",\"Dearness Allowance\",\"Cell Phone Allowance\",\"Travel Allowance\",\"Medical Allowance\",\"EPF (employee)\",\"ESIC (employee)\",\"Professional Tax\",\"CPF\",\"GPF\",\"Insurance\",\"Income tax (TDS)\",\"Loan Recovery\",\"EPF (employer)\",\"ESIC (employer)\"],\"a1\":201,\"a2\":201,\"dup\":[409,\"india_setup_head_exists\"],\"std\":[409,\"india_setup_head_exists\"],\"ren\":201,\"renStd\":409,\"remStd\":409}"
+ },
+ {
+  "id": "R197-02",
+  "area": "R197",
+  "title": "Ten employees with pay tables (amounts monthly, annual, semi-monthly and bi-weekly; DA, DP, HRA-style, CPF, GPF and Insurance as percentages of Basic, DP, DA or gross; EPF on Basic + DA or Basic, or an amount); the preview equals the saved month; refusals for a percentage of gross on an earning and for a loop",
+  "status": "PASS",
+  "evidence": "{\"bad1\":[422,\"india_payroll_gross_base\"],\"bad2\":[422,\"india_payroll_cycle\"],\"bad3\":[422,\"india_payroll_basis\"],\"mism\":[],\"codes\":10}"
+ },
+ {
+  "id": "R197-03",
+  "area": "R197",
+  "title": "Changes during the year: Asha's loan stops from October, Gita's pay is revised from September, Indu's Basic Pay rises from December (saved after earlier runs), and a renamed head keeps its new name; each new pay applies from its month",
+  "status": "PASS",
+  "evidence": "{\"res\":[201,201],\"gita\":\"2026-09-01\",\"asha\":\"2026-10-01\"}"
+ },
+ {
+  "id": "R197-04",
+  "area": "R197",
+  "title": "Ten monthly payrolls (April 2026 to January 2027) for ten employees: every head of every employee in every month equals the figures worked out independently (proration for joining, leaving and unpaid days; percentages of prorated bases; EPF ceiling; ESIC limit on gross; amounts entered annually, semi-monthly or bi-weekly; TDS entered each month; revisions from their month)",
+  "status": "PASS",
+  "evidence": "{\"counts\":[9,9,10,10,10,10,10,10,9,9],\"mismatches\":0,\"first\":[]}"
+ },
+ {
+  "id": "R197-05",
+  "area": "R197",
+  "title": "Each of the ten runs posts one balanced journal: Salaries Payable equals total net pay, Payroll Deductions Payable equals total deductions, Employer Contributions Payable equals total employer contributions",
+  "status": "PASS",
+  "evidence": "{\"runs\":10,\"bad\":[]}"
+ },
+ {
+  "id": "R197-06",
+  "area": "R197",
+  "title": "Registers for the ten months: totals equal the sum of the runs; the renamed head appears under its new name; Farid stops after November and Esha starts in June",
+  "status": "PASS",
+  "evidence": "{\"reg\":{\"grossCents\":346083086,\"deductionsCents\":44352600,\"employerCents\":15451500,\"netCents\":301730486},\"sum\":{\"g\":346083086,\"n\":301730486,\"d\":44352600,\"e\":15451500},\"farid\":\"2026-11\",\"esha\":\"2026-06\"}"
+ },
+ {
+  "id": "UI-01",
+  "area": "R197",
+  "title": "Payroll Set-up lists the pay heads and the ten employees with their monthly gross, deductions and net; editing an employee shows the pay as entered (amount and basis, or percentage and base) and the preview",
+  "status": "PASS",
+  "evidence": "{\"rows\":10,\"own\":[\"Night Shift Allowance\",\"Canteen\"],\"basic\":[\"amount\",\"25000\",\"semi_monthly\",\"₹50,000.00\"],\"da\":[\"percent\",\"46\",\"basic_dp\",\"₹25,300.00\"],\"net\":\"₹69,270.00\",\"want\":6927000,\"errs\":[]}"
+ },
+ {
+  "id": "UI-02",
+  "area": "R197",
+  "title": "Pay Runs: the posted January 2027 run opens with a payslip per employee showing each head",
+  "status": "PASS",
+  "evidence": "{\"slips\":9,\"sample\":\"Payslip · January 2027\\n\\nAsha Rao (E001) · Paid days 31 of 31 · Pay date 31-01-2027\\n\\nEarnings\\nBasic Pay\\n\\nmonthly amount\\n\\t₹30,000.00\\nDearness Allowance\\n\\n50% of Basic Pay\\n\\t₹15,000.00\\nTravel Allowance\\n\\nmo\",\"errs\":[]}"
+ }
+]

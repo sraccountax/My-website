@@ -1,0 +1,163 @@
+[
+ {
+  "id": "GL-01",
+  "area": "R187",
+  "title": "Customer invoice: every General Ledger line of its entry names the invoice number and the customer",
+  "status": "PASS",
+  "evidence": "{\"num\":\"INV-1001\",\"memos\":\"Invoice INV-1001 � R187 Customer mwy14e5p || Invoice INV-1001 � R187 Customer mwy14e5p\"}"
+ },
+ {
+  "id": "GL-02",
+  "area": "R187",
+  "title": "Vendor invoice: every General Ledger line of its entry names the vendor invoice number and the vendor",
+  "status": "PASS",
+  "evidence": "Vendor invoice net � Vendor invoice R187-B-mwy14e5p � R187 Vendor mwy14e5p || Accounts payable � Vendor invoice R187-B-mwy14e5p � R187 Vendor mwy14e5p"
+ },
+ {
+  "id": "GL-03",
+  "area": "R187",
+  "title": "Customer credit note: every General Ledger line names the credit note number and the customer",
+  "status": "PASS",
+  "evidence": "{\"create\":201,\"post\":200,\"num\":\"CN-1001\",\"memos\":\"Credit note � Credit note CN-1001 � R187 Customer mwy14e5p || Accounts receivable � Credit note CN-1001 � R187 Customer mwy14e5p\"}"
+ },
+ {
+  "id": "GL-04",
+  "area": "R187",
+  "title": "Entries already in the books keep their stored line memos (nothing is rewritten); a manual journal's own line memos are unchanged",
+  "status": "PASS",
+  "evidence": "Accrued fee || Accrued liability"
+ },
+ {
+  "id": "JE-01",
+  "area": "R187",
+  "title": "Journal Entry › Interbank transfer (server): one entry, debit the receiving bank and credit the paying bank; refused for a non-bank account, the same account twice or unequal lines",
+  "status": "PASS",
+  "evidence": "{\"bad1\":[422,\"interbank_journal_accounts\"],\"bad2\":[422,\"interbank_journal_same_account\"],\"memo\":\"Interbank transfer � Move to savings mwy14e5p\"}"
+ },
+ {
+  "id": "JE-02",
+  "area": "R187",
+  "title": "The statement line in each bank links to that transfer journal entry (Match and Post › Interbank transfer finds it); nothing new is posted",
+  "status": "PASS",
+  "evidence": "{\"candidates\":[\"pending_pair\",\"journal\"],\"a1\":200,\"second\":\"transfer\",\"a2\":[200,null],\"out\":\"posted|journal_bd233038f8c6e1e2ac3b2bca386b2487\",\"into\":\"posted|journal_bd233038f8c6e1e2ac3b2bca386b2487\"}"
+ },
+ {
+  "id": "RC-01",
+  "area": "R187",
+  "title": "A manual journal entry posted to the bank GL and an unposted bank line of the same amount are found by Reconcile Account; matching them posts nothing and clears both from the reconciling items",
+  "status": "PASS",
+  "evidence": "{\"suggested\":[{\"bankTransactionId\":\"btx_12c3ae2bc29c923c539cde69b3631829\",\"journalEntryId\":\"journal_f857fd62395ed6624544080df3399e4b\",\"amountCents\":-1750,\"daysApart\":1,\"bank\":{\"date\":\"2026-09-11\",\"description\":\"Service charge mwy14e5p\",\"reference\":\"\"},\"book\":{\"date\":\"2026-09-10\",\"description\":\"Bank fee by journal mwy14e5p\",\"reference\":\"GJ-003\",\"sourceType\":\"manual_journal\"}}],\"match\":201,\"inUnposted\":false,\"inBookOnly\":false,\"unexplained\":[0,0]}"
+ },
+ {
+  "id": "RC-02",
+  "area": "R187",
+  "title": "The book balance on Reconcile Account is the live General Ledger balance: a journal entry posted to the bank GL changes it at once",
+  "status": "PASS",
+  "evidence": "{\"b0\":-26750,\"b1\":-23450,\"gl\":-23450}"
+ },
+ {
+  "id": "MP-01",
+  "area": "R187",
+  "title": "Interbank transfer of two unposted lines (chequing out, savings in): one entry covers both; each bank moves by the amount; trial balance balances",
+  "status": "PASS",
+  "evidence": "{\"pair\":true,\"r\":[200,null,null],\"out\":\"posted|journal_0c2becca8153cf8c176e9af2b1284600\",\"into\":\"posted|journal_0c2becca8153cf8c176e9af2b1284600\"}"
+ },
+ {
+  "id": "MP-02",
+  "area": "R187",
+  "title": "Interbank transfer to the clearing account: the line posts to 1070 Interbank Transfer Clearing with no tax",
+  "status": "PASS",
+  "evidence": "{\"r\":200,\"clearing\":900}"
+ },
+ {
+  "id": "UI-01",
+  "area": "R187",
+  "title": "Menus: General ledger has one \"Journal Entry\" (no separate Journal Entries or Expense Vouchers); Banking has no Bank Transfers; GIFI Report is under Reports › Tax Reports and not under General ledger",
+  "status": "PASS",
+  "evidence": "{\"journalEntry\":\"Journal Entry\",\"tabs\":[\"journal\",\"expense voucher\",\"interbank transfer\",\"import\",\"recurring\"],\"oldJournalEntries\":null,\"oldExpense\":null,\"bankTransfers\":null,\"glGifi\":null,\"reportsGifi\":\"GIFI Report\",\"taxGroup\":\"Tax Reports 3 reports GIFI Report GIFI-mapped Schedule 100 Balance Sheet and Schedule 125 Income Statement figures from the General Ledger, ready for the T2 return. → Tax Code Report Every tax code with its taxes, rates, GL accounts, region, status and use on documents. Select codes to edit them. → GST/HST/PST Summary GST/HST and PST control balances and net tax positi"
+ },
+ {
+  "id": "UI-02",
+  "area": "R187",
+  "title": "Journal Entry › Interbank transfer (screen): choosing From, To and the amount shows the entry; Post transfer records one entry moving the money",
+  "status": "PASS",
+  "evidence": "{\"preview\":\"AccountDebitCreditR187 Savings$60.00—Business Chequing—$60.00\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-03",
+  "area": "R187",
+  "title": "Match and Post › Post as Interbank transfer: the other side waiting in the savings account is found, and linking posts one entry for both lines",
+  "status": "PASS",
+  "evidence": "{\"found\":\"The other side of this transfer is already in TeghLink to it so the transfer is recorded once. Nothing new is posted for a recorded transfer.Unposted line in R187 Savings: Sep 20, 2026 · UI transfer in mwy14e5p · $77.00No, this is a separate transfer (post a new entry)\",\"errs\":[],\"out\":\"posted|journal_2bbc43f244e57a5eec4f9a4fca8ec99c\",\"into\":\"posted|journal_2bbc43f244e57a5eec4f9a4fca8ec99c\"}"
+ },
+ {
+  "id": "UI-04",
+  "area": "R187",
+  "title": "Reconcile Account lists a book entry that matches a bank line and matches it with one click",
+  "status": "PASS",
+  "evidence": "{\"text\":\"Sep 24, 2026 · Cheque 1044 cleared mwy14e5pSep 22, 2026 · GJ-006 · Cheque 1044 mwy14e5p · 2 days apart-$81.50Match\",\"group\":\"matched\",\"book\":\"1\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-05",
+  "area": "R187",
+  "title": "Bank Reconciliation Report with no completed reconciliation says to complete one in Reconcile Account, and its button opens Reconcile Account",
+  "status": "PASS",
+  "evidence": "{\"text\":\"No completed bank reconciliation to show. This report lists reconciliations after they are completed. Complete one in Banking › Activity › Reconcile Account; it then appears here. If you have completed some, widen the dates or clear the filters. Open Reconcile\",\"after\":\"Reconcile Bank Account\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-06",
+  "area": "R187",
+  "title": "Cancelling an edit of a customer invoice or a vendor invoice stays on that document (not the register)",
+  "status": "PASS",
+  "evidence": "{\"invoice\":{\"title\":\"INV-1001 Overdue\",\"url\":\"#tegh=invoice-detail%3Ainvoice_c8d0acf659ed329e8b6796daa3e9e03c&co=company_e3de091748639fcf6a976f9bc1a163c5\"},\"bill\":{\"title\":\"Vendor Invoice\",\"url\":\"#tegh=document-view%3Abill%3Abill_a482f62a031a77b4b43ed55bf6d29085&co=company_e3de091748639fcf6a976f9bc1a163c5\"},\"errs\":[]}"
+ },
+ {
+  "id": "UI-07",
+  "area": "R187",
+  "title": "Day Book has one Download menu; its PDF and Excel choices download a real PDF and a real Excel workbook",
+  "status": "PASS",
+  "evidence": "{\"menus\":1,\"options\":[\"PDF\",\"Excel\",\"CSV\",\"Print\"],\"pdf\":{\"name\":\"Tegh-Day-Book.pdf\",\"bytes\":10671,\"head\":\"%PDF-\"},\"xlsx\":{\"name\":\"Tegh-Day-Book.xlsx\",\"bytes\":29196,\"head\":\"PK\\u0003\\u0004\\u0014\"},\"errs\":[]}"
+ },
+ {
+  "id": "UI-08",
+  "area": "R187",
+  "title": "Bank Reconciliation Report has one Download menu with the formats (no separate export buttons), and its Excel choice downloads a workbook",
+  "status": "PASS",
+  "evidence": "{\"oldButtons\":0,\"menus\":1,\"options\":[\"Excel · Visible Columns\",\"Excel · All Columns\",\"CSV · Visible Columns\",\"CSV · All Columns\",\"Print or Save as PDF\"],\"xlsx\":{\"name\":\"tegh-report-bank-reconciliation-all-columns.xlsx\",\"bytes\":11728,\"head\":\"PK\\u0003\\u0004\\u0014\"},\"errs\":[]}"
+ },
+ {
+  "id": "UI-09",
+  "area": "R187",
+  "title": "\"+ Add new vendor…\" in the vendor drop-down of a new vendor invoice creates the vendor and selects it",
+  "status": "PASS",
+  "evidence": "{\"found\":1,\"addOptions\":[\"+ Add New Vendor…\"],\"id\":\"vendor_8f1221738fdcbb89d0ef38289468fb1b\",\"selected\":\"vendor_8f1221738fdcbb89d0ef38289468fb1b\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-10",
+  "area": "R187",
+  "title": "\"+ Add new customer…\" in the customer drop-down of a new customer invoice creates the customer and selects it",
+  "status": "PASS",
+  "evidence": "{\"found\":1,\"addOptions\":[\"+ Add New Customer…\"],\"id\":\"customer_5306d28ac2a6b6154212211b7b4574a3\",\"selected\":\"customer_5306d28ac2a6b6154212211b7b4574a3\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-11",
+  "area": "R187",
+  "title": "\"+ Add new GL account…\" in Match and Post's account drop-down: the form suggests a free code, creates the account and selects it; Cancel leaves the drop-down as it was",
+  "status": "PASS",
+  "evidence": "{\"option\":\"+ Add new GL account…\",\"afterCancel\":\"\",\"types\":[\"Asset\",\"Liability\",\"Equity\",\"Income\",\"Expense\"],\"code\":\"7030\",\"row\":\"account_3761589c761f5a31bd670a4670fde5ec|7030|expense\",\"selected\":\"account_3761589c761f5a31bd670a4670fde5ec\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-13",
+  "area": "R187",
+  "title": "Journal Entry: each line's account drop-down offers an add-account option (its own \"+ Create New Account…\" or \"+ Add new GL account…\")",
+  "status": "PASS",
+  "evidence": "{\"lines\":2,\"withAdd\":2,\"errs\":[]}"
+ },
+ {
+  "id": "UI-12",
+  "area": "R187",
+  "title": "A Viewer sees no \"+ Add new\" options",
+  "status": "PASS",
+  "evidence": "{\"selects\":3,\"addOptions\":0}"
+ }
+]

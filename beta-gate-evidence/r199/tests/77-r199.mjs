@@ -156,11 +156,11 @@ try {
     await approve(); await approve(); await p.waitForTimeout(3000);
     const toasts = await p.evaluate(() => [...document.querySelectorAll('.tegh-toast,.srp-toast,[role=status],[role=alert]')].map(t => t.textContent.trim().slice(0, 160)).filter(Boolean));
     const vals = await form.evaluate(f => Object.fromEntries([...new FormData(f)].map(([k, v]) => [k, String(v).slice(0, 40)])));
-    const pays = sql(`SELECT GROUP_CONCAT(CONCAT(IFNULL(document_id,'advance'),':',foreign_amount_cents) ORDER BY created_at SEPARATOR ' ') FROM party_payments WHERE company_id='${CO}' AND reference='Wire R199'`);
+    const pays = sql(`SELECT GROUP_CONCAT(CONCAT(IFNULL(document_id,'zz-advance'),':',foreign_amount_cents) ORDER BY IFNULL(document_id,'zz-advance') SEPARATOR ' ') FROM party_payments WHERE company_id='${CO}' AND reference='Wire R199'`);
     const fx = Number(sql(`SELECT IFNULL(SUM(jl.debit_cents-jl.credit_cents),0) FROM journal_lines jl JOIN journal_entries je ON je.id=jl.journal_entry_id JOIN accounts a ON a.id=jl.account_id WHERE je.company_id='${CO}' AND a.code='6850'`)) - g0;
     await ctx.close();
-    const ok = pre.rate === '1.392000' && /recorded at 1\.365000/.test(pre.hint) && dialogs.some(d => /US?D? ?1,000\.00 open|USD 1,000\.00 open/.test(d) && /10\.00 as an advance/.test(d)) && pays === `${usInv.id}:100000 advance:1000` && fx === -2700 && unbalanced(CO) === 0;
-    return {ok, info: JSON.stringify({pre, toasts, vals, invalid, btns, dialogs: dialogs.map(d => d.slice(0, 140)), pays, fx, errs})};
+    const ok = pre.rate === '1.392000' && /recorded at 1\.365000/.test(pre.hint) && dialogs.some(d => /US?D? ?1,000\.00 open|USD 1,000\.00 open/.test(d) && /10\.00 as an advance/.test(d)) && pays === `${usInv.id}:100000 zz-advance:1000` && fx === -2700 && unbalanced(CO) === 0;
+    return {ok, info: JSON.stringify({pays, fx, unbalanced: unbalanced(CO), rate: pre.rate, hintOk: /recorded at 1\.365000/.test(pre.hint), dialogs: dialogs.map(d => d.slice(0, 160)), errs, toasts})};
   });
 
   await t('UI-05', 'Registers: amounts in the table\'s currency show without the code and zero as a dash; the footer total keeps the code; the Tax Codes help no longer mentions CGST/SGST', async () => {

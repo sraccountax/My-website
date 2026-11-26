@@ -1,0 +1,51 @@
+[
+ {
+  "id": "R193-01",
+  "area": "R193",
+  "title": "Canada: customer balances, Receivable Ageing and Customer Balances equal the receivables control account after an invoice corrected lower once paid (the difference stays as a customer credit), part of that credit refunded, and a posted credit note",
+  "status": "PASS",
+  "evidence": "{\"gl\":32600,\"party\":32600,\"reports\":{\"ar-ageing\":{\"s\":200,\"total\":32600,\"ex\":[]},\"customer-balances\":{\"s\":200,\"total\":32600,\"ex\":[]}}}"
+ },
+ {
+  "id": "R193-02",
+  "area": "R193",
+  "title": "India: vendor balances, Payable Ageing and Vendor Balances equal the payables control account after TDS is deducted from a vendor invoice (the TDS reduces what is owed to the vendor)",
+  "status": "PASS",
+  "evidence": "{\"gl\":5940000,\"party\":5940000,\"reports\":{\"ap-ageing\":{\"s\":200,\"total\":5940000,\"ex\":[]},\"vendor-balances\":{\"s\":200,\"total\":5940000,\"ex\":[]}}}"
+ },
+ {
+  "id": "R193-03",
+  "area": "R193",
+  "title": "Workspace: each distinct invoice template snapshot is sent once (invoiceTemplateSnapshots) and every invoice names it; no invoice carries its own copy",
+  "status": "PASS",
+  "evidence": "{\"invoices\":2,\"snapshots\":1,\"refs\":2,\"inline\":0}"
+ },
+ {
+  "id": "UI-01",
+  "area": "R193",
+  "title": "Browser: the invoice template snapshot is restored on every invoice the portal reads (Customer Invoices opens without errors)",
+  "status": "PASS",
+  "evidence": "{\"n\":2,\"ok\":true,\"errs\":[]}"
+ },
+ {
+  "id": "UI-02",
+  "area": "R193",
+  "title": "India: choosing Guided mode is refused with a message (India companies use Full Accounting) and the mode stays Full Accounting; the Bookkeeping Mode page shows Guided as not available; a Canadian company still switches to Guided",
+  "status": "PASS",
+  "evidence": "{\"switched\":false,\"toast\":\"Guided mode is not available for India companiesIndia companies use Full Accounting. Guided mode will be offered once India guided screens are ready.\",\"mode\":\"full-accounting\",\"guidedDisabled\":true,\"note\":\"India companies use Full Accounting. Guided mode will be offered once India guided screens are ready.\",\"caSwitched\":true,\"caMode\":\"guided\"}"
+ },
+ {
+  "id": "UI-03",
+  "area": "R193",
+  "title": "Large company: a report over the complete-row limit (General Ledger Detail, fiscal year to date) shows no preview totals and offers its latest month; choosing it shows that month in full with debits equal to credits",
+  "status": "PASS",
+  "evidence": "{\"refused\":true,\"previewTotals\":0,\"offer\":\"Show November 2026 Only\",\"after\":{\"refused\":false,\"start\":\"2026-11-01\",\"end\":\"2026-11-26\",\"text\":\"riod 6800 Bank Charges and Interest – – 19,129.90 Total 6800 · Bank Charges and Interest – – 19,129.90 1–14 of 14 First Previous Page 1 of 1 Next Last Rows 25 50 100 250 DEBIT CAD 0.00 CREDIT CAD 0.00\"}}"
+ },
+ {
+  "id": "UI-04",
+  "area": "R193",
+  "title": "Dark theme: the Add bank transaction dialog header and the Users status pills are dark surfaces with readable text, Journal Entry tabs are readable (contrast at least 3:1); in the light theme the dialog header stays white",
+  "status": "PASS",
+  "evidence": "{\"dark\":{\"headBg\":\"rgb(27, 45, 40)\",\"headText\":13.217309088546601},\"tabs\":[5.94,7.16,7.16,7.16,7.16],\"pills\":[7.44,8.3,8.3,9.15,8.3,8.3],\"darkErrs\":[],\"light\":{\"headBg\":\"rgb(255, 255, 255)\",\"headText\":15.000487489497152},\"lightErrs\":[]}"
+ }
+]

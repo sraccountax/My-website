@@ -1,0 +1,72 @@
+[
+ {
+  "id": "R199-01",
+  "area": "R199",
+  "title": "A US vendor's USD bill with no tax code gets no tax (no Ontario HST, no input tax credit); an Ontario vendor still gets HST 13%; a code chosen on the foreign bill is still used (line and single-amount bills)",
+  "status": "PASS",
+  "evidence": "201,201,201,201 [\"USD|136500|0|0|136500|-\",\"CAD|100000|13000|0|113000|ON\",\"USD|136500|17745|0|154245|ON\",\"USD|136500|0|0|136500|-\"]"
+ },
+ {
+  "id": "R199-02",
+  "area": "R199",
+  "title": "India details (PAN, GSTIN, constitution) on a Canada-edition company request are refused with a clear message; no company is created",
+  "status": "PASS",
+  "evidence": "422 india_company_needs_india_edition \"PAN, GSTIN and constitution are India details. Sign in with the India edition to create an India company.\" companies 0->0"
+ },
+ {
+  "id": "R199-03",
+  "area": "R199",
+  "title": "New Canadian companies get \"Zero-rated\" and \"Exempt\" starter codes; a services export on Zero-rated posts no tax and stays balanced",
+  "status": "PASS",
+  "evidence": "codes Exempt � no GST/HST / Zero-rated � 0% GST/HST; invoice 250000|0|250000"
+ },
+ {
+  "id": "R199-04",
+  "area": "R199",
+  "title": "A payment above the open balance is refused with the balance and the excess named (code payment_exceeds_balance)",
+  "status": "PASS",
+  "evidence": "422 payment_exceeds_balance \"Payment cannot exceed the document balance of 1,000.00. Record 10.00 as an advance to the customer instead.\""
+ },
+ {
+  "id": "R199-05",
+  "area": "R199",
+  "title": "The Users page offers only the signed-in edition's companies (Canada sign-in: no India companies; India sign-in: India only)",
+  "status": "PASS",
+  "evidence": "Canada sign-in 130 companies (CA); India sign-in 15 (IN)"
+ },
+ {
+  "id": "UI-01",
+  "area": "R199",
+  "title": "Dashboard at 1440 px: the negative bank balance shows \"−$…\" on one line in the critical tone; the USD bank is labelled as shown in CAD; no clipped sidebar or header label",
+  "status": "PASS",
+  "evidence": "{\"c\":{\"text\":\"−$25,000\",\"lines\":1,\"color\":\"rgb(168, 40, 30)\",\"chips\":\"▼ Down $25,000.00 since Aug 13 | Business Chequing −$25,000.00 · USD Operating $0.00 (USD account, in CAD)\"},\"cl\":[],\"errs\":[]}"
+ },
+ {
+  "id": "UI-02",
+  "area": "R199",
+  "title": "Dashboard at 390 px: the company name and mode are on their own header row (not cut off); the cash figure keeps its minus sign on one line",
+  "status": "PASS",
+  "evidence": "{\"c\":\"−$25,000\",\"cl\":[],\"head\":{\"h\":104,\"triggerW\":370,\"inside\":true,\"contentTop\":104,\"over\":false},\"errs\":[]}"
+ },
+ {
+  "id": "UI-03",
+  "area": "R199",
+  "title": "Dark theme: Financial Analyst figures and warning/critical cards are readable (every figure at least 4.5:1 against its card)",
+  "status": "PASS",
+  "evidence": "{\"res\":[{\"text\":\"-$25,000.00\",\"ratio\":13.22},{\"text\":\"-$27,902.45\",\"ratio\":13.22},{\"text\":\"-$27,902.45\",\"ratio\":9.37},{\"text\":\"Oct 1, 2026\",\"ratio\":7.98},{\"text\":\"0\",\"ratio\":13.22},{\"text\":\"0\",\"ratio\":13.22},{\"text\":\"0\",\"ratio\":13.22}],\"errs\":[]}"
+ },
+ {
+  "id": "UI-04",
+  "area": "R199",
+  "title": "Customer payment form: for a USD invoice the rate is prefilled with the company's rate for the payment day (1.392000, not the invoice's 1.365000) with a note naming the invoice rate; paying US$1,010.00 on a US$1,000.00 invoice offers to keep US$10.00 as an advance, and accepting records both (FX gain $27.00 on the invoice)",
+  "status": "FAIL",
+  "evidence": "{\"pre\":{\"rate\":\"1.392000\",\"hint\":\"INV-1002 was recorded at 1.365000. Enter the rate your bank used on the payment date; the difference posts to foreign exchange gain or loss.\"},\"toasts\":[\"Customer Receipt PostedINV-1002 is paid and USD 10.00 is kept as an advance that can be applied later.\"],\"vals\":{\"bankTransactionId\":\"\",\"flowKind\":\"customer_receipt\",\"documentId\":\"invoice_4e122abd50aea670d9bde7287411cafe\",\"partyId\":\"customer_9aef0d6332c3747990af2b55638d538\",\"paymentDate\":\"2026-11-26\",\"reference\":\"\",\"amount\":\"2500.00\",\"paymentAccountId\":\"account_aefe4ad210de80ae1410c6e4b830d47e\",\"memo\":\"\",\"cur"
+ },
+ {
+  "id": "UI-05",
+  "area": "R199",
+  "title": "Registers: amounts in the table's currency show without the code and zero as a dash; the footer total keeps the code; the Tax Codes help no longer mentions CGST/SGST",
+  "status": "PASS",
+  "evidence": "{\"cells\":[\"–\",\"–\",\"–\",\"–\",\"–\",\"–\",\"–\",\"–\",\"3,865.00\",\"–\",\"3,865.00\",\"–\"],\"foot\":[\"CAD 3,865.00\",\"CAD 5,068.00\",\"-CAD 1,203.00\",\"CAD 0.00\",\"CAD 0.00\",\"CAD 0.00\",\"-CAD 1,203.00\"],\"help\":true,\"errs\":[]}"
+ }
+]

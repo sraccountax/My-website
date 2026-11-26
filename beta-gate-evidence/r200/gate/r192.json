@@ -1,0 +1,51 @@
+[
+ {
+  "id": "R192-01",
+  "area": "R192",
+  "title": "India company details: registrations saved in the same save as a time-zone change are read back at once (the version is dated in the new zone, not the old one)",
+  "status": "PASS",
+  "evidence": "{\"lwf\":\"LWF-Y1BCW4\",\"read\":\"LWF-Y1BCW4\",\"reply\":\"LWF-Y1BCW4\",\"tz\":\"Pacific/Pago_Pago\"}"
+ },
+ {
+  "id": "R192-02",
+  "area": "R192",
+  "title": "Recurring documents: an India company cannot mark a recurring invoice line taxable or apply GST/HST or PST to a recurring vendor invoice (422 india_recurring_gst); the same requests are not refused for that reason in a Canadian company",
+  "status": "PASS",
+  "evidence": "{\"in\":[422,\"india_recurring_gst\",422,\"india_recurring_gst\"],\"ca\":[201,null,201,null],\"noIn\":\"0\"}"
+ },
+ {
+  "id": "R192-03",
+  "area": "R192",
+  "title": "Data import: in an India company a customer state is checked against Indian states and union territories (MH accepted, BC refused under \"State\") and an imported customer with no country is in India; in a Canadian company BC is accepted and MH refused under \"Province\"",
+  "status": "PASS",
+  "evidence": "{\"inIss\":[[3,\"State\",\"State or union territory is invalid.\"]],\"caIss\":[[2,\"Province\",\"Province/territory is invalid.\"]],\"keys\":1,\"commit\":201,\"country\":\"India|MH\"}"
+ },
+ {
+  "id": "R192-04",
+  "area": "R192",
+  "title": "Reports: the India expense register has a GST column and no PST column or total; the Canadian one keeps GST/HST and PST; the report builder calls the customer region \"State\" in India and \"Province\" in Canada (when the builder is on)",
+  "status": "PASS",
+  "evidence": "{\"ci\":[\"Date\",\"Expense\",\"Vendor\",\"General Ledger Code\",\"Account\",\"Tax Treatment\",\"Subtotal\",\"GST\",\"Total\",\"Status\"],\"ti\":[\"subtotalCents\",\"gstHstCents\",\"totalCents\"],\"cc\":[\"Date\",\"Expense\",\"Vendor\",\"General Ledger Code\",\"Account\",\"Tax Treatment\",\"Subtotal\",\"GST/HST\",\"PST\",\"Total\",\"Status\"],\"tc\":[\"subtotalCents\",\"gstHstCents\",\"pstCents\",\"totalCents\"],\"builder\":[\"off:403\",\"off:403\"]}"
+ },
+ {
+  "id": "UI-01",
+  "area": "R192",
+  "title": "India company in the browser: period lists say \"Financial year to date\" with DD-MM-YYYY dates; payroll pages show no Canadian Payroll Support notice and make no Canadian payroll call; Tax codes and GIFI open the Canada-only page; the expense page and expense register show GST and no PST",
+  "status": "PASS",
+  "evidence": "{\"fy\":\"Financial year to date (01-04-2026 to 27-11-2026)\",\"payApi\":[],\"tax\":\"Tax Codes\\nTax Codes Is For Canadian Companies\\n\\nIn an India company, GST codes an\",\"heads\":[\"Date\",\"Transaction\",\"Vendor\",\"Status\",\"Subtotal\",\"GST\",\"Total\",\"Accounting\",\"Actions\"],\"bad\":[],\"errs\":[]}"
+ },
+ {
+  "id": "UI-02",
+  "area": "R192",
+  "title": "Canadian company in the browser is unchanged: \"Fiscal year to date\", the Payroll Support notice on payroll pages, the Tax codes page itself, and GST/HST and PST columns on expenses",
+  "status": "PASS",
+  "evidence": "{\"opts\":[\"Fiscal year to date (2026-01-01 to 2026-11-26)\",\"Previous fiscal year (2025-01-01 to 2025-12-31)\"],\"notice\":true,\"tax\":\"Tax Codes\\nSettings → Accounting → Company Setup · Tax Code R\",\"heads\":[\"Date\",\"Transaction\",\"Vendor\",\"Status\",\"Subtotal\",\"GST/HST\",\"PST\",\"Total\",\"Accounting\",\"Actions\"],\"errs\":[]}"
+ },
+ {
+  "id": "UI-03",
+  "area": "R192",
+  "title": "Phone (390 px), both editions: Match and Post shows dates, amounts and column headings in full (the table scrolls sideways instead of cutting them off); report scope line reads \"<title> · <period>\"",
+  "status": "PASS",
+  "evidence": "{\"CA\":{\"rows\":5,\"clipped\":[],\"headClipped\":[],\"wrapScroll\":true,\"scope\":\"Expense register · Jan 1, 2026 to Nov 26, 2026\",\"errs\":[]},\"IN\":{\"rows\":1,\"clipped\":[],\"headClipped\":[],\"wrapScroll\":true,\"scope\":\"Expense register · 01-04-2026 to 27-11-2026\",\"errs\":[]}}"
+ }
+]
