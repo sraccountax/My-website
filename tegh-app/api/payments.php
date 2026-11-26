@@ -388,7 +388,12 @@ function post_party_payment(array $user, array $company, array $input): never
         }
         $documentDate = $unapplied ? null : (string)($type === 'customer' ? $document['issue_date'] : $document['bill_date']);
         $isAdvancePayment = $unapplied || $paymentDate < $documentDate;
-        if (!$unapplied && $foreignAmount > (int)$document['foreign_balance_cents']) fail('Payment cannot exceed the document balance.');
+        if (!$unapplied && $foreignAmount > (int)$document['foreign_balance_cents']) {
+            // R199 (group audit G-17): say how much is open and how much is extra, so the form can offer to record the
+            // extra as an advance (an unapplied payment to the same party) in a second step.
+            $openF = (int)$document['foreign_balance_cents'];
+            fail('Payment cannot exceed the document balance of ' . number_format($openF / 100, 2) . '. Record ' . number_format(($foreignAmount - $openF) / 100, 2) . ' as an advance to the ' . ($type === 'customer' ? 'customer' : 'vendor') . ' instead.', 422, 'payment_exceeds_balance');
+        }
 
         $account = company_account($companyId, $paymentAccountId);
         if (!$account) fail('Choose an active payment account.');

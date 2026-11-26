@@ -219,11 +219,15 @@ html[data-tegh-theme="dark"] .r177-dash .tc { --tc-surface: var(--d-card); }
 .r177-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
 .r177-hero { border-radius: 20px; padding: 24px 26px; border-color: var(--d-hero-line); background: var(--d-hero); }
 .r177-hero > .sk-region > .sk-content, .r177-hero > .sk-region > .sk-layer { display: flex; flex-wrap: wrap; gap: 26px; align-items: stretch; }
-.r177-hero-main { flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.r177-hero-main { flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 10px; container-type: inline-size; }
 .r177-hero-chart { flex: 999 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .r177-dash .r177-card .tc-kpi-label { display: none; }
 .r177-hero .tc-spark { display: none; }
 .r177-hero .tc-kpi-value { font-size: clamp(36px, 4.6vw, 54px); line-height: 1.05; letter-spacing: -.02em; }
+/* R199: a figure never wraps (a minus sign may not sit on its own line); the hero figure shrinks to fit its column; a negative bank balance shows in the critical tone. */
+.tc-kpi-value { white-space: nowrap; }
+@supports (font-size: 1cqi) { .r177-hero .tc-kpi-value { font-size: clamp(26px, 12.5cqi, 54px); } }
+.r177-hero .r177-negative .tc-kpi-value { color: var(--d-crit); }
 .r177-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .r177-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; border-radius: 999px; padding: 3px 10px; color: var(--d-ink-2); background: var(--d-chip); }
 .r177-note { margin: 0; font-size: 14px; color: var(--d-ink-2); max-width: 52ch; }

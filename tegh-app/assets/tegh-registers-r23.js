@@ -27,7 +27,7 @@
   };
   const currency=(m,r,c)=>m.foreignColumns?.includes(c.key)?r[m.rowCurrencyKey||'currency']||m.currency:m.rowCurrencyKey&&!m.foreignColumns?r[m.rowCurrencyKey]||m.currency:m.currency;
   function display(m,r,c){const v=r[c.key];if(v===null||v===undefined){if(c.key==='varianceBps'&&r.priorCents===0&&typeof r.amountCents==='number'&&r.amountCents!==0)return 'N/A';return '—';}
-    if(c.type==='money'){if(!Number.isSafeInteger(Number(v)))return 'Unavailable';try{return new Intl.NumberFormat(r23Locale(),{style:'currency',currency:currency(m,r,c)||'CAD',currencyDisplay:'code'}).format(Number(v)/100);}catch{return `${Number(v)/100} ${currency(m,r,c)||''}`;}}
+    if(c.type==='money'){if(!Number.isSafeInteger(Number(v)))return 'Unavailable';const cellCur=currency(m,r,c)||'CAD';if(m.currency&&cellCur===m.currency&&!c.withCode){const n=Number(v)/100;if(n===0)return '–';return new Intl.NumberFormat(r23Locale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);}try{return new Intl.NumberFormat(r23Locale(),{style:'currency',currency:cellCur,currencyDisplay:'code'}).format(Number(v)/100);}catch{return `${Number(v)/100} ${currency(m,r,c)||''}`;}}
     if(c.type==='date'){const d=new Date(String(v).slice(0,10)+'T12:00:00Z');return Number.isNaN(d.getTime())?String(v):(r23India()?`${String(d.getUTCDate()).padStart(2,'0')}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${d.getUTCFullYear()}`:new Intl.DateTimeFormat('en-CA',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}).format(d));}
     if(c.type==='rate_bps'){const n=Number(v);return Number.isFinite(n)?(n/100).toFixed(2)+'%':'Unavailable';}return String(v);
   }
@@ -205,7 +205,7 @@
   }
   function selectionChanged(s){renderSelectionActions(s);const n=$('[data-r23-selection]',s.host);if(n)n.textContent=s.selected.size?`${s.selected.size} selected across filtered pages`:'';const all=$('[data-r23-select-page]',s.host),pageRows=s.pageRows||[];if(all){const count=pageRows.filter(e=>s.selected.has(e.id)).length;all.checked=!!pageRows.length&&count===pageRows.length;all.indeterminate=count>0&&count<pageRows.length;}}
   function totalsBlock(s,entries){const filteredView=entries.length!==s.m.rowCount,wrap=el('footer','r23-totals r27-totals-line');wrap.setAttribute('aria-label',filteredView?'Source report totals before column filters':'Report totals');if(filteredView)wrap.append(el('small','r23-muted','Source totals · before column filters'));const t=s.m.totals||{};
-    for(const [k,v]of Object.entries(t)){if(v===null||typeof v==='object')continue;const pair=el('span','r27-total');pair.append(el('small','',k.replace(/Cents$/,'').replace(/([A-Z])/g,' $1').trim()),el('b','',/Cents$/.test(k)?display(s.m,{[k]:v},{key:k,type:'money'}):String(v)));wrap.append(pair);}
+    for(const [k,v]of Object.entries(t)){if(v===null||typeof v==='object')continue;const pair=el('span','r27-total');pair.append(el('small','',k.replace(/Cents$/,'').replace(/([A-Z])/g,' $1').trim()),el('b','',/Cents$/.test(k)?display(s.m,{[k]:v},{key:k,type:'money',withCode:true}):String(v)));wrap.append(pair);}
     if(!wrap.children.length)wrap.append(el('span','r23-muted',`${s.m.rowCount.toLocaleString(r23Locale())} records`));return wrap;
   }
   function dayBookMoney(s,cents){const value=Number(cents)||0;try{return new Intl.NumberFormat(r23Locale(),{style:'currency',currency:s.m.currency||'CAD',currencyDisplay:'narrowSymbol'}).format(value/100);}catch{return (value/100).toFixed(2);}}

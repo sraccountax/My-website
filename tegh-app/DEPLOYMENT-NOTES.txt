@@ -12,10 +12,16 @@ Do not use a testing config/database or copy audit/runtime files to a host.
 Preserve the existing host private config, storage, audit/deletion register and backups.
 No automated deployment or migration has been performed by this package builder.
 
-TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R198 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
+TEGH 5.9.9 / BUILD 5990 / SCHEMA 46 — R199 PRIVATE BETA DEPLOYMENT (invitation-only, sample data only)
 
-This package contains every release through R198 (R118–R198 change notes are
-included). R198 is the private beta package (it replaces R197): India only, Settings › Tax Set-up replaces GST Set-up.
+This package contains every release through R199 (R118–R199 change notes are
+included). R199 is the private beta package (it replaces R198): fixes from the group bookkeeping
+audit, Canada and India. A negative bank balance keeps its minus sign on the dashboard; bills from vendors outside
+Canada no longer assume the home province's HST; India details on a Canada-edition company request are refused;
+Zero-rated and Exempt starter tax codes; foreign payments prefill the payment-day rate; an overpayment can be kept as an
+advance; registers state the currency once; dark-theme, phone-header and wording fixes. No migration; Schema stays 46.
+See R199-CHANGES.md.
+R198 (replaced R197): India only, Settings › Tax Set-up replaces GST Set-up.
 GST rates (standard and the company's own, with headings), TDS sections (common sections with suggested rates and
 limits, own sections, 20% for vendors without a PAN) and TCS sections are confirmed once; then each vendor and customer
 gets its PAN and section, and each product and service its HSN/SAC and GST rate, from a date. No migration; Schema

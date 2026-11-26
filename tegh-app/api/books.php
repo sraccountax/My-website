@@ -334,7 +334,7 @@ function bill_input_values(array $company, array $input): array
     if(function_exists('r151_bill_has_lines_input')&&r151_bill_has_lines_input($input))return r151_bill_input_values($company,$input);
     $companyId=(string)$company['id'];
     $vendorId=clean_text($input['vendorId']??'', 'Vendor',64);
-    $stmt=db()->prepare('SELECT id,name,default_expense_account_id,default_currency,default_terms_days FROM vendors WHERE id=? AND company_id=? AND active=1');
+    $stmt=db()->prepare('SELECT id,name,default_expense_account_id,default_currency,default_terms_days,country FROM vendors WHERE id=? AND company_id=? AND active=1');
     $stmt->execute([$vendorId,$companyId]);$vendor=$stmt->fetch();if(!$vendor)fail('Choose an active vendor.');
     $productServiceId=trim((string)($input['productServiceId']??''));$productService=null;
     if($productServiceId!==''){
@@ -367,7 +367,9 @@ function bill_input_values(array $company, array $input): array
         // recoverable (posted to its purchase GL) or becomes part of the cost.
         $code=null;
         if(array_key_exists('taxCodeId',$input)&&$input['taxCodeId']!==null){$wanted=trim((string)$input['taxCodeId']);if($wanted!==''){$code=tax_code_get($companyId,$wanted);if(!$code)fail('The selected tax code is no longer active. Choose another.',422,'tax_code_unavailable');}}
-        elseif(($input['taxEntryMode']??'none')!=='none')$code=tax_code_home($company);
+        // R199: a Canadian company's home tax (for example Ontario HST) is not assumed on a bill from a vendor located
+        // outside Canada; that vendor charges no GST/HST, so no input tax credit is claimed unless a code is chosen.
+        elseif(($input['taxEntryMode']??'none')!=='none'&&!r199_vendor_outside_home($company,$vendor))$code=tax_code_home($company);
         $indiaGst=function_exists('in3_purchase_context')?in3_purchase_context($company,$input,$vendor,$billDate):null; // IN-3
         if($indiaGst!==null)$code=in3_line_code($company,$indiaGst,$code,($input['taxCodeId']??null)!==null,(string)($productServiceId??''));
         $mode=(string)($input['taxEntryMode']??'exclusive');if(!in_array($mode,['exclusive','inclusive','none'],true))fail('Choose a valid tax entry mode.');

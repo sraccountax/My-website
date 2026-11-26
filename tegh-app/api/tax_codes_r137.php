@@ -143,6 +143,14 @@ function tax_code_for_purchases(array $company, ?array $code): ?array
 }
 
 /** R141: the company's own region code (home province, or country/state outside Canada). */
+// R199: true when the vendor's country is set and differs from a Canadian company's country (India edition excluded).
+function r199_vendor_outside_home(array $company,array $vendor):bool{
+    if(strtoupper((string)($company['edition']??'CA'))==='IN')return false;
+    $vc=strtolower(trim((string)($vendor['country']??'')));$cc=strtolower(trim((string)($company['country']??'Canada')));
+    if($vc===''||$cc==='')return false;
+    return $vc!==$cc;
+}
+
 function tax_code_home(array $company): ?array
 {
     $companyId = (string)$company['id'];
@@ -516,6 +524,10 @@ function tax_codes_seed_canada(array $user, string $companyId): array
             $add($prov, $label, $prov, $components, $note);
         }
         $add('GST', 'GST only — 5% (no provincial tax)', null, [['GST', 5000, '2100', '1100']], 'Use for suppliers or sales where only GST applies, for example a BC supplier who charged no PST.');
+        // R199 (group audit G-12): zero-rated and exempt supplies get their own codes, so an export of services or a
+        // supply with no GST/HST is not entered as "not taxable" and can be told apart in the tax reports.
+        $add('ZERO', 'Zero-rated — 0% GST/HST', null, [['Zero-rated', 0, '2100', '1100']], 'Use for zero-rated supplies, for example services exported to a customer outside Canada or basic groceries. No GST/HST is charged, and input tax credits can still be claimed.');
+        $add('EXEMPT', 'Exempt — no GST/HST', null, [['Exempt', 0, '2100', '1100']], 'Use for exempt supplies, for example most financial services or long-term residential rent. No GST/HST is charged, and no input tax credits can be claimed on related costs.');
         if ($created) db()->prepare("UPDATE companies SET tax_setup_mode='codes' WHERE id=?")->execute([$companyId]);
         if ($created) audit_event($user, $companyId, 'tax_code.canada_starter_created', 'company', $companyId, ['created' => $created, 'skipped' => $skipped]);
         if ($own) db()->commit();

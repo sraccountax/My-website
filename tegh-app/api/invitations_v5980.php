@@ -5,9 +5,10 @@ require_once __DIR__.'/invitations_r160.php';
 /** One invitation, one email, many explicitly authorized company-role assignments. */
 function tegh_invitation_company_choices(array $user): array
 {
+    // R199: only companies of the signed-in edition are offered, as in the company switcher.
     $platform=platform_role_for_user((string)$user['id'])==='platform_owner';
-    if($platform){$s=db()->query("SELECT id,name,'platform_owner' AS inviter_role FROM companies WHERE active=1 ORDER BY name,id");}
-    else{$s=db()->prepare("SELECT c.id,c.name,cm.role AS inviter_role FROM companies c JOIN company_members cm ON cm.company_id=c.id WHERE cm.user_id=? AND cm.status='active' AND c.active=1 ORDER BY c.name,c.id");$s->execute([$user['id']]);}
+    if($platform){$ef=function_exists('tegh_edition_company_filter')?tegh_edition_company_filter('c'):'';$s=db()->query("SELECT c.id,c.name,'platform_owner' AS inviter_role FROM companies c WHERE c.active=1".$ef." ORDER BY c.name,c.id");}
+    else{$ef=function_exists('tegh_edition_company_filter')?tegh_edition_company_filter('c'):'';$s=db()->prepare("SELECT c.id,c.name,cm.role AS inviter_role FROM companies c JOIN company_members cm ON cm.company_id=c.id WHERE cm.user_id=? AND cm.status='active' AND c.active=1".$ef." ORDER BY c.name,c.id");$s->execute([$user['id']]);}
     $rows=[];foreach($s->fetchAll() as $r)if($platform||company_role_can((string)$r['inviter_role'],'users.invite'))$rows[]=['id'=>(string)$r['id'],'name'=>(string)$r['name']];return $rows;
 }
 function tegh_invitation_operation_key(mixed $key): string

@@ -231,7 +231,7 @@ function r151_bill_input_values(array $company, array $input): array
     if (!r151_schema_ready()) fail('Itemized vendor invoices are unavailable on this database.', 503, 'bill_lines_unavailable');
     $companyId = (string)$company['id'];
     $vendorId = clean_text($input['vendorId'] ?? '', 'Vendor', 64);
-    $stmt = db()->prepare('SELECT id,name,default_expense_account_id,default_currency,default_terms_days FROM vendors WHERE id=? AND company_id=? AND active=1');
+    $stmt = db()->prepare('SELECT id,name,default_expense_account_id,default_currency,default_terms_days,country FROM vendors WHERE id=? AND company_id=? AND active=1');
     $stmt->execute([$vendorId, $companyId]);
     $vendor = $stmt->fetch();
     if (!$vendor) fail('Choose an active vendor.');
@@ -253,7 +253,8 @@ function r151_bill_input_values(array $company, array $input): array
     $raw = $input['lines'];
     if (!is_array($raw) || !array_is_list($raw) || count($raw) < 1 || count($raw) > 100) fail('Send between 1 and 100 vendor invoice lines.', 422, 'bill_lines_invalid');
     $codesMode = function_exists('tax_setup_mode') && tax_setup_mode($company) === 'codes';
-    $defaultCode = $codesMode ? tax_code_home($company) : null;
+    // R199: no home tax assumed for a vendor outside Canada (see r199_vendor_outside_home in tax_codes_r137.php).
+    $defaultCode = $codesMode && !r199_vendor_outside_home($company, (array)$vendor) ? tax_code_home($company) : null;
     $indiaGst = $codesMode && function_exists('in3_purchase_context') ? in3_purchase_context($company, $input, $vendor, $billDate) : null; // IN-3
     $prepared = [];
     $productStmt = db()->prepare('SELECT id,kind,name FROM products_services WHERE id=? AND company_id=? AND active=1');
@@ -487,7 +488,7 @@ function r151_note_prepare_unlinked(array $company, array $input): array
     if ((string)$company['accounting_basis'] !== 'accrual') fail('Notes currently require accrual accounting. Cash-basis note settlement is not enabled.', 409, 'note_cash_basis_unavailable');
     $customer = $spec['source'] === 'invoice';
     $partyId = clean_text($input['partyId'] ?? '', $customer ? 'Customer' : 'Vendor', 64);
-    $q = db()->prepare($customer ? 'SELECT id,name,province,country FROM customers WHERE id=? AND company_id=? AND active=1' : 'SELECT id,name FROM vendors WHERE id=? AND company_id=? AND active=1');
+    $q = db()->prepare($customer ? 'SELECT id,name,province,country FROM customers WHERE id=? AND company_id=? AND active=1' : 'SELECT id,name,country FROM vendors WHERE id=? AND company_id=? AND active=1');
     $q->execute([$partyId, $companyId]);
     $party = $q->fetch();
     if (!$party) fail($customer ? 'Choose an active customer.' : 'Choose an active vendor.', 422, 'note_party_invalid');
@@ -506,7 +507,7 @@ function r151_note_prepare_unlinked(array $company, array $input): array
     $accounts = r151_note_line_accounts($companyId, $customer, $raw, true);
     $codesMode = function_exists('tax_setup_mode') && tax_setup_mode($company) === 'codes';
     $defaultCode = null;
-    if ($codesMode) $defaultCode = $customer ? tax_code_auto_region($company, $companyId, (string)($party['province'] ?? ''), $party) : tax_code_home($company);
+    if ($codesMode) $defaultCode = $customer ? tax_code_auto_region($company, $companyId, (string)($party['province'] ?? ''), $party) : (r199_vendor_outside_home($company, (array)$party) ? null : tax_code_home($company));
     $prepared = [];
     foreach ($raw as $i => $line) {
         if (!is_array($line)) fail('Each note line must be an object.', 422, 'note_lines_invalid');

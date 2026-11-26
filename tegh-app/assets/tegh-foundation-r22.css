@@ -8708,3 +8708,5 @@ html[data-tegh-theme="dark"] .r198-sections em{color:#7fe3c6}
 .r198-sections td:nth-child(2){min-width:96px;max-width:150px}
 .r198-sections input[data-f=rate]{width:64px}
 .r198-sections input[data-f=single],.r198-sections input[data-f=yearly]{width:96px}
+/* R199 (group audit G-16): long sidebar group names ("Advanced Accounting") wrap to a second line instead of being cut. */
+html[data-tegh-design="living-ledger"] body:not(.sr-sidebar-collapsed) .sidebar .srp-nav-parent :is(.nav-copy,.nav-copy b){white-space:normal;line-height:1.2;overflow-wrap:anywhere}

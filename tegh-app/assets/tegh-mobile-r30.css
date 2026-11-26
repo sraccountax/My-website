@@ -1481,3 +1481,16 @@ html:has(#root > .auth-shell) .auth-shell {
     color: #294b40 !important;
   }
 }
+
+/* R199 (group audit G-16): on phones the company selector had 42-52 px between the beta notice and five header
+   buttons, so the company name showed as "Aur..." and the mode as "Full Acc". It now takes its own full-width row
+   under the header buttons; the header height variable grows so the page content starts below it. */
+@media (max-width: 480px) {
+  :root { --r30-mobile-header: 104px; }
+  html[data-tegh-viewport="r17"] { --r17-header: 104px; }
+  html[data-tegh-shell] .topbar { flex-wrap: wrap !important; align-content: center !important; row-gap: 6px !important; padding-block: 6px !important; }
+  html[data-tegh-shell] .topbar > .book-context { order: 9; flex: 1 0 100% !important; width: 100% !important; max-width: none !important; }
+  html[data-tegh-shell] .topbar > .book-context :is(.srp-company-switcher, .srp-company-trigger) { width: 100% !important; max-width: none !important; min-height: 38px; }
+  html[data-tegh-shell] .topbar .srp-company-trigger b { max-width: none !important; }
+  html[data-tegh-shell] .topbar .srp-company-trigger :is(b, small) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}

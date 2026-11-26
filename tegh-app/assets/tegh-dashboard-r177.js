@@ -143,14 +143,16 @@
         if (d.company.isNew) return renderSetup(host, d.setup);
         const h = d.headline, main = el('div', 'r177-hero-main', host);
         el('h2', 'r177-label', main, 'Cash at bank');
-        keep(C().kpi(el('div', '', main), { label: 'Cash at bank', value: dollars(h.bankBalanceCents), format: money.whole }));
+        keep(C().kpi(el('div', h.bankBalanceCents < 0 ? 'r177-negative' : '', main), { label: 'Cash at bank', value: dollars(h.bankBalanceCents), format: money.whole }));
         const chips = el('div', 'r177-chips sk-in', main);
         const weeks = d.cash ? d.cash.weeks : [], past = weeks.filter(w => !w.forecast);
         if (past.length > 1) {
           const ch = past[past.length - 1].balanceCents - past[0].balanceCents;
           el('span', 'r177-chip ' + (ch >= 0 ? 'r177-tone-good' : 'r177-tone-crit'), chips, (ch >= 0 ? '▲ Up ' : '▼ Down ') + money.cents(Math.abs(ch)) + ' since ' + dayMonth(past[0].weekEnding));
         }
-        if (h.bankAccounts.length > 1) el('span', 'r177-chip', chips, h.bankAccounts.map(a => a.name + ' ' + money.cents(a.bookBalanceCents)).join(' · '));
+        // R199 (G-13): an account held in another currency says its balance is shown in the company's currency.
+        const bankLabel = a => a.name + ' ' + money.cents(a.bookBalanceCents) + (a.currency && a.currency !== d.company.currency ? ' (' + a.currency + ' account, in ' + d.company.currency + ')' : '');
+        if (h.bankAccounts.length > 1 || h.bankAccounts.some(a => a.currency && a.currency !== d.company.currency)) el('span', 'r177-chip', chips, h.bankAccounts.map(bankLabel).join(' · '));
         if (d.cash) {
           const p = el('p', 'r177-note sk-in', main);
           p.append('Lowest expected balance ', Object.assign(document.createElement('b'), { textContent: money.cents(d.cash.minimumProjectedCents) }), ' on ' + longDate(d.cash.minimumProjectedDate) + '.');

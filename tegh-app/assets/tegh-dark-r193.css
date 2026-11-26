@@ -89,3 +89,14 @@ html[data-tegh-theme="dark"] body .srp-bank-bulk label > span { color: #cfe0d9 !
 html[data-tegh-theme="dark"] body .sra-loading { background: #1b2d28 !important; color: #cfe0d9 !important; border-color: #2c4740 !important; }
 /* Third pass (large-data matrix): the note beside Add line in the budget editor. */
 html[data-tegh-theme="dark"] body .sra-budget-editor-actions > span { color: #a7bbb3 !important; }
+/* R199 (group audit G-18): Financial Analyst figures were dark text on a dark card, and its warning/critical cards
+   stayed light; the Tegh Intelligence "what if" label and the payment guidance list were below 4.5:1. */
+html[data-tegh-theme="dark"] body .tegh-fa-kpis article { background: #1b2d28 !important; border-color: #2c4740 !important; }
+html[data-tegh-theme="dark"] body .tegh-fa-kpis b { color: #edf7f3 !important; }
+html[data-tegh-theme="dark"] body .tegh-fa-kpis :is(small, span) { color: #a7bbb3 !important; }
+html[data-tegh-theme="dark"] body .tegh-fa-kpis article.is-warning { background: #2e2614 !important; border-color: #7a5d1c !important; }
+html[data-tegh-theme="dark"] body .tegh-fa-kpis article.is-warning b { color: #f2c76b !important; }
+html[data-tegh-theme="dark"] body .tegh-fa-kpis article.is-critical { background: #321a19 !important; border-color: #7a3632 !important; }
+html[data-tegh-theme="dark"] body .tegh-fa-kpis article.is-critical b { color: #ff9b91 !important; }
+html[data-tegh-theme="dark"] body .r144-whatif, html[data-tegh-theme="dark"] body .r144-whatif small { color: #cfe0d9 !important; }
+html[data-tegh-theme="dark"] body .srp-guidance-list { color: #cfe0d9 !important; }

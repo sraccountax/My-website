@@ -88,6 +88,13 @@ function handle_companies(): never
     require_csrf();
     $input = request_json();
     if (function_exists('tegh_session_edition') && tegh_session_edition() === 'IN') tegh_india_company_create($user, $input); // IN-1
+    // R199: India-only details (PAN, GSTIN, constitution) on a Canada-edition sign-in are refused, not dropped: the
+    // company would otherwise be created with CAD books and Canadian tax codes.
+    if (function_exists('tegh_session_edition') && tegh_session_edition() !== 'IN') {
+        foreach (['pan', 'gstin', 'constitution'] as $inField) {
+            if (trim((string)($input[$inField] ?? '')) !== '') fail('PAN, GSTIN and constitution are India details. Sign in with the India edition to create an India company.', 422, 'india_company_needs_india_edition');
+        }
+    }
     $name = clean_text($input['name'] ?? '', 'Company name', 160);
     $legalName = clean_text($input['legalName'] ?? $name, 'Legal name', 200);
     $businessType = (string)($input['businessType'] ?? 'corporation');
