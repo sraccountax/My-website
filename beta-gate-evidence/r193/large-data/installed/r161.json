@@ -1,0 +1,142 @@
+[
+ {
+  "id": "C-01",
+  "area": "R161",
+  "title": "160 bills, invoices and expenses saved at the same moment in one company (16 at a time): every save succeeds, with no duplicate or skipped voucher number and every entry balanced",
+  "status": "PASS",
+  "evidence": "{\"W\":16,\"N\":160,\"status\":{\"bill 201\":80,\"exp 201\":40,\"inv 201\":40},\"vouchers\":160,\"duplicateSerials\":0,\"duplicateNumbers\":0,\"serialGaps\":0,\"unbalanced\":0}"
+ },
+ {
+  "id": "S-01",
+  "area": "R161",
+  "title": "Seeding through the API: Northwind (400 customers, 150 vendors, 5,000 invoices, 2,000 bills, payments, 400 journals, 3,000 imported bank lines) and Lakeshore (150, 60, 1,500, 600, payments, 150, 1,000) complete without an error",
+  "status": "PASS",
+  "evidence": "{\"name\":\"Volume Northwind Ltd\",\"id\":\"company_143c6f994b53ce34f767e5d6b70fa560\",\"counts\":{\"customers\":400,\"vendors\":150,\"invoices\":5000,\"bills\":2000,\"customerPayments\":3698,\"vendorPayments\":1192,\"journals\":400,\"bankLines\":3000,\"bankImported\":3000},\"gl\":{\"1000\":5359682006,\"1100\":58748287,\"1200\":2443994644,\"2050\":-198769034,\"2100\":-797230993,\"3000\":-83200000,\"4000\":-7237047800,\"6100\":72760600,\"6200\":77345100,\"6300\":72559700,\"6400\":77524100,\"6500\":77051900,\"6700\":74668500,\"6800\":1912990},\"arOpen\":2443994644,\"apOpen\":198769034,\"openInvoices\":1769,\"seconds\":200} | {\"name\":\"Volume Lakeshore Inc\",\"id\""
+ },
+ {
+  "id": "B-01",
+  "area": "R161",
+  "title": "Northwind in the browser: Profit and Loss shows the net income summed independently (67,832,249.10)",
+  "status": "PASS",
+  "evidence": "1609 ms; net shown true; errors none"
+ },
+ {
+  "id": "B-02",
+  "area": "R161",
+  "title": "Northwind: Receivable Ageing lists the open invoices and totals 24,439,946.44",
+  "status": "PASS",
+  "evidence": "2323 ms; 1769 rows; total shown true"
+ },
+ {
+  "id": "B-03",
+  "area": "R161",
+  "title": "Northwind: the customer invoice register opens with 5000 invoices in time, and the search narrows it to one client",
+  "status": "PASS",
+  "evidence": "4999 ms; 5000 rows shown; after search \"Client 0007\": 13; scrolled to the last row true; errors none"
+ },
+ {
+  "id": "B-04",
+  "area": "R161",
+  "title": "Northwind: the period Trial Balance screen shows equal debit and credit totals of the independently summed amount",
+  "status": "PASS",
+  "evidence": "1708 ms; 83,162,478.27 shown 4 times"
+ },
+ {
+  "id": "B-05",
+  "area": "R161",
+  "title": "Both companies selected: Profit and Loss shows the combined net income 88,960,100.44",
+  "status": "PASS",
+  "evidence": "1608 ms; combined shown true; Northwind alone shown false"
+ },
+ {
+  "id": "B-06",
+  "area": "R161",
+  "title": "Both companies: Receivable Ageing totals 31,938,356.81 and labels each line with its company",
+  "status": "PASS",
+  "evidence": "2408 ms; 2296 rows; total shown true; company labels , VN"
+ },
+ {
+  "id": "B-07",
+  "area": "R161",
+  "title": "Both companies: the all-time Day Book (over 25,000 lines) says it is too large to show complete and to narrow the filters; one month of the Day Book loads with lines from both companies",
+  "status": "PASS",
+  "evidence": "all time: clear \"exceeds 25,000 rows\" message (21726 ms); September 2026: 2013 lines in 2232 ms; errors none"
+ },
+ {
+  "id": "B-08",
+  "area": "R161",
+  "title": "Guided mode with 3000 bank lines waiting: Home shows the count, the To Do opens Match and Post with every line in time, and no amount is covered by the scrollbar",
+  "status": "PASS",
+  "evidence": "home 1680 ms, count shown true; Match and Post \"3000 entries\" in 1917 ms; amounts under the scrollbar 0; stale-workspace message false; errors none"
+ },
+ {
+  "id": "M-01",
+  "area": "R161",
+  "title": "After the browser checks, no request is still running (a long-running request would hold up the host backup)",
+  "status": "PASS",
+  "evidence": "none"
+ },
+ {
+  "id": "V-021",
+  "area": "R161",
+  "title": "Lakeshore: Trial Balance after 1500 invoices, 600 bills, 1483 payments and 150 journals equals the independently summed figures for every account, and debits equal credits",
+  "status": "FAIL",
+  "evidence": "403 in 12 ms; 0 accounts; debits $0.00 credits $0.00; differences: 1000: app $0.00 expected $17,084,379.65; 1100: app $0.00 expected $169,445.77; 1200: app $0.00 expected $7,498,410.37; 2050: app $0.00 expected -$623,457.16; 2100: app $0.00 expected -$2,457,927.29; 3000: app $0.00 expected -$543,000.00; 4000: app $0.00 expected -$22,438,209.00; 6100: app $0.00 expected $230,145.00; 6200: app $0.00 expected $224,498.00; 6300: app $0.00 expected $198,510.00; 6400: app $0.00 expected $211,481.00; 6500: app $0.00 expected $219,878.00; 6700: app $0.00 expected $218,917.00; 6800: app $0.00 expected "
+ },
+ {
+  "id": "V-022",
+  "area": "R161",
+  "title": "Lakeshore: customer and vendor balances (0 customers, 0 vendors) add up to the open receivables and payables, which equal the GL control accounts",
+  "status": "FAIL",
+  "evidence": "AR $0.00 (expected $7,498,410.37, GL 1200 $0.00) in 9 ms; AP $0.00 (expected $623,457.16, GL 2050 $0.00) in 9 ms"
+ },
+ {
+  "id": "V-023",
+  "area": "R161",
+  "title": "Lakeshore: Profit and Loss net income equals revenue less expenses summed independently; Balance Sheet and P&L each load in under 10 seconds",
+  "status": "FAIL",
+  "evidence": "net income not found expected $21,127,851.34; balance sheet 403 in 10 ms; P&L 403 in 8 ms"
+ },
+ {
+  "id": "V-024",
+  "area": "R161",
+  "title": "Lakeshore: the Trial Balance and party balances each answer in under 10 seconds",
+  "status": "PASS",
+  "evidence": "GL 12 ms, receivables 9 ms, payables 9 ms"
+ },
+ {
+  "id": "V-011",
+  "area": "R161",
+  "title": "Northwind: Trial Balance after 5000 invoices, 2000 bills, 4890 payments and 400 journals equals the independently summed figures for every account, and debits equal credits",
+  "status": "PASS",
+  "evidence": "200 in 1078 ms; 14 accounts; debits $83,162,478.27 credits $83,162,478.27; all equal"
+ },
+ {
+  "id": "V-012",
+  "area": "R161",
+  "title": "Northwind: customer and vendor balances (400 customers, 150 vendors) add up to the open receivables and payables, which equal the GL control accounts",
+  "status": "PASS",
+  "evidence": "AR $24,439,946.44 (expected $24,439,946.44, GL 1200 $24,439,946.44) in 691 ms; AP $1,987,690.34 (expected $1,987,690.34, GL 2050 $1,987,690.34) in 335 ms"
+ },
+ {
+  "id": "V-013",
+  "area": "R161",
+  "title": "Northwind: Profit and Loss net income equals revenue less expenses summed independently; Balance Sheet and P&L each load in under 10 seconds",
+  "status": "PASS",
+  "evidence": "net income $67,832,249.10 expected $67,832,249.10; balance sheet 200 in 355 ms; P&L 200 in 63 ms"
+ },
+ {
+  "id": "V-014",
+  "area": "R161",
+  "title": "Northwind: the Trial Balance and party balances each answer in under 10 seconds",
+  "status": "PASS",
+  "evidence": "GL 1078 ms, receivables 691 ms, payables 335 ms"
+ },
+ {
+  "id": "P-01",
+  "area": "R161",
+  "title": "Northwind: the complete output of all 22 report definitions (registers, ledgers, Bank General Ledger, ageing, trial balances, tax) answers in under 10 seconds each",
+  "status": "PASS",
+  "evidence": "general-ledger 200 813 ms; gl-account-ledger 200 1390 ms; audit-history 200 41 ms; tax-summary 200 168 ms; currency-exposure 200 216 ms; reconciliation-summary 200 23 ms; ar-ageing 200 1083 ms; ap-ageing 200 666 ms; customer-balances 200 1026 ms; vendor-balances 200 408 ms; ar-trial-balance 200 954 ms; ap-trial-balance 200 598 ms; customer-directory 200 37 ms; vendor-directory 200 27 ms; invoice-register 200 388 ms; bill-register 200 135 ms; expense-register 200 28 ms; bank-transactions 200 209 ms; bank-general-ledger 200 1234 ms; payroll-runs 200 341 ms; payroll-remittances 200 38 ms; tax-map"
+ }
+]

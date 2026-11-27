@@ -1,0 +1,114 @@
+[
+ {
+  "id": "RB-00",
+  "area": "R184",
+  "title": "Switch off by default: the Report Builder is refused (403) and nothing is created",
+  "status": "PASS",
+  "evidence": "403 report_builder_off; save 403; table before 0, after 0"
+ },
+ {
+  "id": "RB-01",
+  "area": "R184",
+  "title": "Sales invoices by customer, months side by side: every cell, the Total column and the grand totals match the invoices entered",
+  "status": "PASS",
+  "evidence": "columns Customer | Jul 2026 | Aug 2026 | Sep 2026 | Total; Maple 113000,67800,0,180800; Birch 0,50850,226000,276850; totals {\"c0_m0\":113000,\"c1_m0\":118650,\"c2_m0\":226000,\"t_m0\":457650}"
+ },
+ {
+  "id": "RB-02",
+  "area": "R184",
+  "title": "Change and % change columns between months; open balance after the payment; two values side by side",
+  "status": "PASS",
+  "evidence": "columns Customer | Jul 2026 · Total | Jul 2026 · Open balance | Aug 2026 · Total | Change · Total | Aug 2026 · Open balance | Change · Open balance | Sep 2026 · Total | Change · Total | Sep 2026 · Open balance | Change · Open balance | Whole period · Total | Whole period · Open balance; Maple change -45200,-67800; Birch change 50850,175150; balances M 180800 B 226000; % Maple -40,-100; % Birch from zero null"
+ },
+ {
+  "id": "RB-03",
+  "area": "R184",
+  "title": "General Ledger: debits and credits by account for the quarter equal the Trial Balance for every account, and debits equal credits",
+  "status": "PASS",
+  "evidence": "accounts 8; builder D/C 590100/590100; TB 590100/590100; same per account true"
+ },
+ {
+  "id": "RB-04",
+  "area": "R184",
+  "title": "Sales tax lines: tax charged on sales 526.50 and paid on purchases 91.00, side by side by \"Sales or purchases\"",
+  "status": "PASS",
+  "evidence": "columns Tax code | Purchases (tax paid) · Tax | Purchases (tax paid) · Taxable amount | Sales (tax charged) · Tax | Sales (tax charged) · Taxable amount | All · Tax | All · Taxable amount; ON {\"d0\":\"ON\",\"c0_m0\":9100,\"c0_m1\":70000,\"c1_m0\":52650,\"c1_m1\":405000,\"t_m0\":61750,\"t_m1\":475000,\"id\":\"g0\"}"
+ },
+ {
+  "id": "RB-05",
+  "area": "R184",
+  "title": "List with filter and sort: bills over 300.00 lists B-1 only; the bank lines give money in 508.50 and out 25.00",
+  "status": "PASS",
+  "evidence": "list [{\"id\":\"l0\",\"number\":\"B-1\",\"date\":\"2026-07-20\",\"vendor\":\"R184 Paper Co mwy1139n\",\"total\":56500}]; bank {\"c0_m0\":50850,\"c0_m1\":2500,\"c0_m2\":2}"
+ },
+ {
+  "id": "RB-06",
+  "area": "R184",
+  "title": "Two row fields give a subtotal per first field; filters \"is one of\" and \"contains\"; quarter and financial-year columns",
+  "status": "PASS",
+  "evidence": "subtotals [[\"Subtotal: R184 Birch mwy1139n\",245000,31850],[\"Subtotal: R184 Maple mwy1139n\",160000,20800]]; filtered [{\"d0\":\"Project\",\"c0_m0\":200000,\"id\":\"g0\"}]; quarter Status | Q1 2026 | Q2 2026 | Q3 2026 | Q4 2026 | Total {\"c0_m0\":0,\"c1_m0\":0,\"c2_m0\":457650,\"c3_m0\":0,\"t_m0\":457650}; fy  | FY 2026 | Total"
+ },
+ {
+  "id": "RB-07",
+  "area": "R184",
+  "title": "Refused safely: an unknown field, a field name with SQL in it, an unknown setting, a 61-column report, a wrong-type filter",
+  "status": "PASS",
+  "evidence": "422:report_builder_field_invalid, 422:report_builder_field_invalid, 422:report_builder_spec_invalid, 422:report_builder_too_many_columns, 422:report_builder_filter_invalid"
+ },
+ {
+  "id": "RB-08",
+  "area": "R184",
+  "title": "Saving: a report saves once even if the request is sent twice; the same key with a different report is refused; it reopens and runs for a new period",
+  "status": "PASS",
+  "evidence": "replay true; conflict 409 idempotency_payload_conflict; rows 1; list Sales by customer and month; saved run Customer | Aug 2026 | Total 118650; audit 1; books unchanged true"
+ },
+ {
+  "id": "RB-09",
+  "area": "R184",
+  "title": "Editing: only its creator can change a report, and a stale revision is refused; renaming works",
+  "status": "PASS",
+  "evidence": "renamed Sales by customer (Q3) r2; stale 409 report_builder_revision_conflict"
+ },
+ {
+  "id": "RB-10",
+  "area": "R184",
+  "title": "Sharing in a company with several users: a viewer sees a shared report (not a private one), can run it but not change or delete it; an admin can delete it; another firm cannot reach it",
+  "status": "PASS",
+  "evidence": "viewer sees R184 shared mwy1139n; viewer run shared 200 \"R184 shared mwy1139n\"; private 404; edit 403; delete 403; other firm 404; other firm with BC header 403; admin delete 200; afterwards 404"
+ },
+ {
+  "id": "RB-11",
+  "area": "R184",
+  "title": "Values for filter pick-lists come only from this company; every run is sealed and audited; reports never change the books",
+  "status": "PASS",
+  "evidence": "values R184 Birch mwy1139n,R184 Maple mwy1139n; sealed runs audited 12; books 8/590100 → 8/590100"
+ },
+ {
+  "id": "RB-12",
+  "area": "R184",
+  "title": "Browser: Reports › Report Builder builds sales by customer and month with the right totals; a figure opens the lines behind it; Excel, CSV and PDF download; save, reopen and delete from the page",
+  "status": "PASS",
+  "evidence": "{\"menu\":true,\"head\":[\"Customer\",\"Jul 2026\",\"Aug 2026\",\"Sep 2026\",\"Total\"],\"foot\":[\"Total\",\"$1,130.00\",\"$1,186.50\",\"$2,260.00\",\"$4,576.50\"],\"rowNames\":[\"R184 Birch mwy1139n\",\"R184 Maple mwy1139n\"],\"drill\":{\"meta\":\"1 line · Customer is R184 Birch mwy1139n · 2026-09-01 to 2026-09-30\",\"rows\":[\"INV-1004 2026-09-05 R184 Birch mwy1139n Sent $2,260.00 $2,260.00\"]},\"xlsx\":{\"name\":\"Tegh-Sales-invoices.xlsx\",\"size\":11945,\"text\":\"\"},\"csv\":{\"name\":\"Tegh-Sales-invoices.csv\",\"size\":223,\"ok\":true},\"pdf\":{\"name\":\"Tegh-Sales-invoices.pdf\",\"size\":5391,\"text\":\"\"},\"reopened\":\"Browser saved mwy1139n\",\"deleted\":\"1\","
+ },
+ {
+  "id": "RB-13",
+  "area": "R184",
+  "title": "Browser: hidden in Guided and when switched off; at phone width (390) the page has no sideways scroll and the result comes into view",
+  "status": "PASS",
+  "evidence": "{\"sideways\":false,\"inView\":true,\"catalogueOn\":\"listed\",\"catalogueOff\":\"not listed\",\"offOpens\":\"not opened\",\"catalogueGuided\":\"not listed\",\"guided\":\"not opened\",\"errs\":[]}"
+ },
+ {
+  "id": "RB-14",
+  "area": "R184",
+  "title": "Browser: Site & Release Settings has a Report Builder card; choosing \"Platform owner only\" there saves the switch",
+  "status": "PASS",
+  "evidence": "{\"card\":\"Report Builder\",\"stored\":\"owner\",\"status\":\"\",\"errs\":[]}"
+ },
+ {
+  "id": "RB-15",
+  "area": "R184",
+  "title": "Backup and restore: the company copy keeps its saved report, which runs to the same totals; the original is untouched",
+  "status": "PASS",
+  "evidence": "export 200; restore 201 ; saved before \"Sales by customer (Q3)|private\" after \"Sales by customer (Q3)|private\"; restored report total 457650; original \"Sales by customer (Q3)|private\""
+ }
+]

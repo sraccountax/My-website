@@ -1,0 +1,37 @@
+[
+ {
+  "id": "BT-01",
+  "area": "R183",
+  "title": "Bank Transaction Report: lines in date order (hand-entered lines among the statement lines) with a running Balance after each line",
+  "status": "PASS",
+  "evidence": "rows [[\"2026-09-03\",150000],[\"2026-09-05\",175000],[\"2026-09-10\",163000],[\"2026-09-15\",83000],[\"2026-09-20\",81500]]"
+ },
+ {
+  "id": "BT-02",
+  "area": "R183",
+  "title": "Balance does not change with a search filter, and carries the earlier lines when the period starts later",
+  "status": "PASS",
+  "evidence": "search \"hand\" [[\"2026-09-05\",175000],[\"2026-09-15\",83000]]; from 12 Sep [[\"2026-09-15\",83000],[\"2026-09-20\",81500]]"
+ },
+ {
+  "id": "BT-03",
+  "area": "R183",
+  "title": "Screen: Balance column shown; Download (Excel, CSV, PDF) beside Generate Report gives the full filtered report",
+  "status": "PASS",
+  "evidence": "{\"balanceHeader\":true,\"besideGenerate\":true,\"xlsx\":{\"name\":\"Tegh-Bank-Transaction-Report.xlsx\",\"size\":15527,\"text\":\"\"},\"csv\":{\"name\":\"Tegh-Bank-Transaction-Report.csv\",\"size\":627,\"balance\":true},\"pdf\":{\"name\":\"Tegh-Bank-Transaction-Report.pdf\",\"size\":5957,\"text\":\"\"},\"errs\":[]}"
+ },
+ {
+  "id": "BT-04",
+  "area": "R183",
+  "title": "When the full report cannot be prepared, Download says why with a support reference and still gives the lines shown as CSV",
+  "status": "PASS",
+  "evidence": "The full report could not be prepared The server could not complete this request. No accounting changes were confirmed. Support reference: r183testreference You can download the 5 lines shown on this ; CSV lines incl. header 6"
+ },
+ {
+  "id": "BT-05",
+  "area": "R183",
+  "title": "Match and Post: date order by default; header click sorts (amount up, down) and back to date; + Add transaction beside Post/Match; ✎ on the description’s first line",
+  "status": "PASS",
+  "evidence": "{\"dates\":[\"Sep 3, 2026\",\"Sep 5, 2026\",\"Sep 10, 2026\",\"Sep 15, 2026\",\"Sep 20, 2026\"],\"up\":[-800,-120,-15,250,1500],\"down\":[1500,250,-15,-120,-800],\"back\":[\"Sep 3, 2026\",\"Sep 5, 2026\",\"Sep 10, 2026\",\"Sep 15, 2026\",\"Sep 20, 2026\"],\"add\":true,\"pencil\":[true,true,true,true,true],\"errs\":[]}"
+ }
+]

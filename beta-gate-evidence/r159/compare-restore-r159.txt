@@ -1,0 +1,23 @@
+== quiet backup (R158 tegh-backup.sh, unchanged in R159) on the R159 installation
+2026-10-07T17:31:58Z backup start -> /srv/gate/backups/q/tegh-20261007-173158
+2026-10-07T17:31:58Z changes paused (maintenance flag)
+2026-10-07T17:31:58Z no request running (waited 0s)
+2026-10-07T17:32:09Z changes resumed
+consistent snapshot: db 676K, files 26, tables 169, content fingerprints 169, companies with postings 20
+2026-10-07T17:32:09Z backup done
+
+== restore into the designated restore-test installation (R159 ZIP installed there)
+PASS  restore target is designated (/srv/rst/sr-accountax-private/.tegh-restore-target) and is not the live database (tegh_gate) or storage (/srv/gate/sr-accountax-private/storage)
+PASS  backup files match SHA256SUMS
+PASS  database restored into tegh_restore_test
+PASS  upload folder restored into /srv/rst/sr-accountax-private/storage
+PASS  all 26 uploaded files restored with the same SHA-256
+PASS  row counts of 169 tables equal the backup checks
+PASS  content of all 169 tables equals the backup, value for value
+PASS  posted debits/credits of 20 companies equal the backup checks
+PASS  every restored company's posted entries balance
+
+RESTORE VERIFIED: /srv/gate/backups/q/tegh-20261007-173158
+
+== compare-restore.mjs https://gate.test https://gate.test:9443
+companies 34: trial balance loaded and identical 34 (130 account rows), different or not loaded 0; uploaded files compared 8, different 0

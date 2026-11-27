@@ -1,0 +1,86 @@
+[
+ {
+  "id": "IN6-01",
+  "area": "IN6",
+  "title": "Canada is unaffected: every TDS/TCS route answers 404 for a Canadian company",
+  "status": "PASS",
+  "evidence": "[[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"]]"
+ },
+ {
+  "id": "IN6-02",
+  "area": "IN6",
+  "title": "Limits: ₹25,000 and then ₹20,000 are below the single-invoice limit (₹30,000) and the year (₹45,000) is below ₹1,00,000, so nothing is due; recording is refused",
+  "status": "PASS",
+  "evidence": "{\"p1\":[false,\"Below the limits of section G194C-mwxy4csy: this document 25,000.00 (limit 30,00\"],\"p2\":\"Below the limits of section G194C-mwxy4csy: this document 20,000.00 (limit 30,000.00), the year 45,000.00 (limit 100,000\",\"r\":[422,\"india_tds_not_due\"]}"
+ },
+ {
+  "id": "IN6-03",
+  "area": "IN6",
+  "title": "The ₹60,000 invoice crosses both limits: the two earlier invoices are added (base ₹1,05,000), TDS 1% = ₹1,050; payables fall by ₹1,050 and TDS Payable 2330 is credited; the invoice balance is ₹58,950",
+  "status": "PASS",
+  "evidence": "{\"base\":10500000,\"amt\":105000,\"catch\":[\"C-1-mwxy4csy\",\"C-2-mwxy4csy\"],\"ed\":[201,null],\"bal\":5895000,\"gl\":105000,\"again\":\"india_tds_exists\"}"
+ },
+ {
+  "id": "IN6-04",
+  "area": "IN6",
+  "title": "No PAN: refused until the approved \"<section>-NOPAN\" rule (synthetic 20%) exists; then ₹40,000 × 20% = ₹8,000",
+  "status": "PASS",
+  "evidence": "{\"before\":[422,\"The vendor has no PAN. Add the PAN to its India profile, or add and approve the \"],\"after\":[800000,\"no PAN (G194C-mwxy4csy-NOPAN)\"],\"bal\":3200000}"
+ },
+ {
+  "id": "IN6-05",
+  "area": "IN6",
+  "title": "Lower deduction certificate (0.5%, limit ₹50,000): ₹40,000 × 0.5% = ₹200, and the rate source names the certificate",
+  "status": "PASS",
+  "evidence": "{\"amt\":20000,\"rate\":500,\"src\":\"certificate CERT2834\"}"
+ },
+ {
+  "id": "IN6-06",
+  "area": "IN6",
+  "title": "TDS register for September: 3 entries, total ₹9,250 (1,050 + 8,000 + 200), quarter 2026-27 Q2, PAN of each deductee; it equals the TDS Payable credits",
+  "status": "PASS",
+  "evidence": "{\"n\":3,\"total\":925000,\"posted\":925000,\"q\":[\"2026-27 Q2\",\"2026-27 Q2\",\"2026-27 Q2\"],\"pans\":[\"AAAFA2834B\",null,\"AAAFC2834D\"]}"
+ },
+ {
+  "id": "IN6-07",
+  "area": "IN6",
+  "title": "The vendor invoice with TDS cannot be voided until the TDS is reversed; reversal needs the Owner and a reason; the balance returns to ₹60,000 and the register drops to ₹8,200",
+  "status": "PASS",
+  "evidence": "{\"blocked\":true,\"ed\":403,\"noReason\":422,\"bal\":6000000,\"reg\":[820000,820000],\"after\":[]}"
+ },
+ {
+  "id": "IN6-08",
+  "area": "IN6",
+  "title": "TCS: a ₹50,000 customer invoice gets a separate receivable \"TCS-<invoice>\" of ₹500 (1%), TCS Payable 2340 is credited; GST reports leave the TCS document out; the invoice cannot be voided until the TCS document is voided",
+  "status": "PASS",
+  "evidence": "{\"amt\":50000,\"doc\":\"TCS-INV-1001|sent|50000|50000\",\"docsIssued\":{\"document\":\"Invoices for outward supply\",\"from\":\"INV-1001\",\"to\":\"INV-1001\",\"total\":1,\"cancelled\":0,\"net\":1},\"blocked\":true,\"void\":200,\"reg\":[0,0,0]}"
+ },
+ {
+  "id": "IN6-09",
+  "area": "IN6",
+  "title": "India dashboard and setup checklist: the checklist lists company, GST, payroll and TDS items with what is done; TDS Payable shows ₹8,200",
+  "status": "PASS",
+  "evidence": "{\"done\":{\"pan\":true,\"gstin\":true,\"tan\":false,\"gst_rate\":false,\"gst_codes\":false,\"b2cl\":false,\"party_gst\":false,\"hsn\":false,\"employees\":false,\"components\":false,\"structures\":false,\"pay_rules\":false,\"tds_sections\":true,\"vendor_sections\":true},\"tds\":820000,\"n\":\"4/14\"}"
+ },
+ {
+  "id": "IN6-10",
+  "area": "IN6",
+  "title": "Backup and restore of the India company: the copy has the same trial balance, the TDS entries keep their documents (register ₹8,200, tying to TDS Payable), and the GST and TDS tables come across",
+  "status": "PASS",
+  "evidence": "{\"restore\":201,\"tb\":true,\"reg\":[200,820000,true],\"docsOk\":\"3\"}"
+ },
+ {
+  "id": "UI-01",
+  "area": "IN6",
+  "title": "TDS and TCS page: the register lists the deductions with PAN and quarter; India Home shows the checklist and figures; India Help opens; no Canadian wording",
+  "status": "PASS",
+  "evidence": "{\"rows\":2,\"ties\":\"1\",\"items\":14,\"topics\":6,\"canadian\":[],\"errs\":[]}"
+ },
+ {
+  "id": "UI-02",
+  "area": "IN6",
+  "title": "Canadian company: no India Home, India Help or TDS and TCS items in the menus, and the pages are refused",
+  "status": "PASS",
+  "evidence": "{\"toast\":\"Not availableTDS and TCS are available only in India companies.\"}"
+ }
+]

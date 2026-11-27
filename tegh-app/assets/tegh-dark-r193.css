@@ -1,0 +1,102 @@
+/* R193: dark theme fixes found by the dark-theme audit of every screen (Canada and India, full and guided modes, side and
+   top navigation, 1440 px and 390 px). Every rule applies only when the dark theme is on; the light theme is unchanged.
+   Surfaces and text use the dark theme's own colours: page #10211c, raised surface #1b2d28, line #2c4740,
+   text #edf7f3, secondary text #a7bbb3, accent #54d4b6. */
+
+/* Components whose stylesheet falls back to white when these are not defined (Add bank transaction, Actions menus). */
+html[data-tegh-theme="dark"] {
+  --surface: #1b2d28;
+  --surface-2: #22382f;
+  --line: #2c4740;
+  --ink: #edf7f3;
+}
+
+/* Panels that stayed white or near-white. */
+html[data-tegh-theme="dark"] body :is(
+  .r182-modal-head, .r182-modal-foot,
+  .sra-budget-drawer, .sra-budget-editor-actions,
+  .srp-rate-result, .srp-integrity-item, .srp-success-note.srp-opening-posted,
+  .srp-bank-bulk, .tegh-attestation-check,
+  .srp-faq-popular button, .srp-gifi-map-row,
+  .r183-download-menu
+) {
+  background: #1b2d28 !important;
+  color: #edf7f3 !important;
+  border-color: #2c4740 !important;
+}
+html[data-tegh-theme="dark"] body .tegh-experience-options button.active {
+  background: #17362e !important;
+  border-color: #54d4b6 !important;
+  color: #edf7f3 !important;
+}
+html[data-tegh-theme="dark"] body .tegh-experience-options button > span { color: #54d4b6 !important; }
+html[data-tegh-theme="dark"] body .tegh-experience-options button > small { color: #a7bbb3 !important; }
+
+/* Headings and body text inside those panels. */
+html[data-tegh-theme="dark"] body :is(.r182-modal-head, .sra-budget-drawer-head) :is(h1, h2, h3) { color: #edf7f3 !important; }
+html[data-tegh-theme="dark"] body :is(.r182-modal-head, .sra-budget-drawer-head, .srp-rate-result, .srp-bank-bulk) :is(p, small),
+html[data-tegh-theme="dark"] body .srp-faq-popular button small,
+html[data-tegh-theme="dark"] body .srp-gifi-map-row small { color: #a7bbb3 !important; }
+html[data-tegh-theme="dark"] body .sra-budget-editor :is(label, label > span, legend) { color: #cfe0d9 !important; }
+html[data-tegh-theme="dark"] body .tegh-attestation-check span { color: #edf7f3 !important; }
+
+/* Secondary buttons and row action buttons that kept a white face with light text. */
+html[data-tegh-theme="dark"] body :is(.r183-add-tx.srp-btn.secondary, .r186-actions-btn, .r183-download-menu button) {
+  background: #22382f !important;
+  color: #edf7f3 !important;
+  border-color: #3a5a51 !important;
+}
+html[data-tegh-theme="dark"] body .r183-download-menu button:is(:hover, :focus-visible) { background: #2c4740 !important; }
+
+/* Imported transactions stacked as cards on a phone. */
+html[data-tegh-theme="dark"] body .tegh-bank-transactions-table.r22-stacked-table tbody tr { background: #1b2d28 !important; }
+html[data-tegh-theme="dark"] body .tegh-bank-transactions-table.r22-stacked-table tbody td { color: #edf7f3 !important; }
+
+/* Status pills (Users, Account) that kept a pale background with light text. */
+html[data-tegh-theme="dark"] body td > .srp-status {
+  background: #22382f !important;
+  color: #cfe0d9 !important;
+  border-color: #3a5a51 !important;
+}
+html[data-tegh-theme="dark"] body td > .srp-status.accepted { background: #12392f !important; color: #7fe3c6 !important; }
+html[data-tegh-theme="dark"] body .srp-status.warning { background: #3a2a1c !important; color: #ffc48a !important; border-color: #6b4a2b !important; }
+
+/* Form labels and filter labels drawn in a dark grey on the dark page. */
+html[data-tegh-theme="dark"] body :is(
+  .r151-type, .srp-audit-filters label, .srp-register-head .srp-actions label,
+  .r137-starter label, .r141-dash-card label.srp-check
+) { color: #cfe0d9 !important; }
+html[data-tegh-theme="dark"] body .r151-recurring > legend { color: #7fe3c6 !important; }
+html[data-tegh-theme="dark"] body .r151-grid td.num { color: #a7bbb3 !important; }
+
+/* Journal Entry tabs: inactive labels too dark, active label dark on the accent. */
+html[data-tegh-theme="dark"] body .r187-je-tabs > button { color: #a7bbb3 !important; }
+html[data-tegh-theme="dark"] body .r187-je-tabs > button.active { color: #ffffff !important; }
+html[data-tegh-theme="dark"] body .tegh-agent-tabs > button > span { color: #edf7f3 !important; }
+
+/* Page headings, eyebrows, links and chart legends drawn in light-theme colours. */
+html[data-tegh-theme="dark"] body .srp-page-head h1 { color: #edf7f3 !important; }
+html[data-tegh-theme="dark"] body .srp-sites-eyebrow { color: #54d4b6 !important; }
+html[data-tegh-theme="dark"] body :is(.srp-link, .ii-link) { color: #6fdcc6 !important; }
+html[data-tegh-theme="dark"] body .r17-chart-legend span { color: #a7bbb3 !important; }
+
+/* Second pass (re-audit after the first fixes). */
+html[data-tegh-theme="dark"] body .sra-budget-drawer-head span { color: #54d4b6 !important; }
+html[data-tegh-theme="dark"] body .sra-budget-row { background: #22382f !important; border-color: #3a5a51 !important; }
+html[data-tegh-theme="dark"] body .sra-budget-row :is(legend, label > span) { color: #cfe0d9 !important; }
+html[data-tegh-theme="dark"] body nav.srp-segmented.r187-je-tabs { background: #1b2d28 !important; border-color: #2c4740 !important; }
+html[data-tegh-theme="dark"] body .srp-bank-bulk label > span { color: #cfe0d9 !important; }
+html[data-tegh-theme="dark"] body .sra-loading { background: #1b2d28 !important; color: #cfe0d9 !important; border-color: #2c4740 !important; }
+/* Third pass (large-data matrix): the note beside Add line in the budget editor. */
+html[data-tegh-theme="dark"] body .sra-budget-editor-actions > span { color: #a7bbb3 !important; }
+/* R199 (group audit G-18): Financial Analyst figures were dark text on a dark card, and its warning/critical cards
+   stayed light; the Tegh Intelligence "what if" label and the payment guidance list were below 4.5:1. */
+html[data-tegh-theme="dark"] body .tegh-fa-kpis article { background: #1b2d28 !important; border-color: #2c4740 !important; }
+html[data-tegh-theme="dark"] body .tegh-fa-kpis b { color: #edf7f3 !important; }
+html[data-tegh-theme="dark"] body .tegh-fa-kpis :is(small, span) { color: #a7bbb3 !important; }
+html[data-tegh-theme="dark"] body .tegh-fa-kpis article.is-warning { background: #2e2614 !important; border-color: #7a5d1c !important; }
+html[data-tegh-theme="dark"] body .tegh-fa-kpis article.is-warning b { color: #f2c76b !important; }
+html[data-tegh-theme="dark"] body .tegh-fa-kpis article.is-critical { background: #321a19 !important; border-color: #7a3632 !important; }
+html[data-tegh-theme="dark"] body .tegh-fa-kpis article.is-critical b { color: #ff9b91 !important; }
+html[data-tegh-theme="dark"] body .r144-whatif, html[data-tegh-theme="dark"] body .r144-whatif small { color: #cfe0d9 !important; }
+html[data-tegh-theme="dark"] body .srp-guidance-list { color: #cfe0d9 !important; }

@@ -1,0 +1,7 @@
+r193-ca-full-light-side-1440 CA full light side screens 115 forms 13 with issues 6 {"mode":"full-accounting","theme":"light","nav":"side","company":"company_b41e96a7d5d0fda7a306f8826da2fdae"}
+   general-ledger:general-ledger-account-report api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted
+   fn:openTaxCodes                    foreign-wording cgst,sgst
+   fn:openUsers                       foreign-wording tds
+   report:General Ledger Detail       api 413 /api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-01-01&end=2026-11-23
+   report:Audit History               api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted
+   report:Tax Code Report [Add Tax Code] foreign-wording cgst,sgst

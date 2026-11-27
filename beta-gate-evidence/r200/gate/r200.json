@@ -1,0 +1,51 @@
+[
+ {
+  "id": "R200-01",
+  "area": "R200",
+  "title": "Linking two companies: a vendor from the wrong company is refused (422); a person who is only an Editor in one of them cannot link them (403); the Owner links P–W and P–Q; linking the same two companies again is refused (409); the list shows each side's customer, vendor and accounts",
+  "status": "PASS",
+  "evidence": "wrong 422 group_party_invalid; editor 403 group_pair_role; P–W 201; P–Q 201; again 409 group_pair_exists; listed 2, P–W accounts 4"
+ },
+ {
+  "id": "R200-02",
+  "area": "R200",
+  "title": "Mirror: each intercompany invoice creates a draft vendor invoice in the partner (same number and date, partner's GST code, expense account from the link, $26,250 / $10,500); a second mirror of the same invoice is refused (409); an invoice to an outside customer is not intercompany (422); the branch posts one draft",
+  "status": "PASS",
+  "evidence": "mirrors 201,201,201; again 409; outside 422 group_invoice_not_intercompany; bills INV-1001|2026-07-31|draft|2625000|R200 Parent Inc.|6550|GST ; INV-1002|2026-08-31|draft|2625000|R200 Parent Inc.|6550|GST ; INV-1003|2026-08-31|draft|1050000|R200 Parent Inc.|6550|GST; post 200/200; docs INV-1001:open INV-1002:draft INV-1003:open"
+ },
+ {
+  "id": "R200-03",
+  "area": "R200",
+  "title": "Reconciliation as at 30 Sep 2026: P says W owes $153,000.00 (2 × $26,250 + loan $100,500); W says it owes $126,700.00 ($26,250 posted bill + loan $100,450); difference $26,300.00 with one draft not posted. After W posts the draft the difference is $50.00 (the interest booked $500 vs $450). P–Q agrees.",
+  "status": "PASS",
+  "evidence": "before: P 15300000 W -12670000 diff 2630000 drafts 1; P–Q agrees true; after posting: diff 5000 drafts 0"
+ },
+ {
+  "id": "R200-04",
+  "area": "R200",
+  "title": "Consolidation worksheet P + W + Q (1 Jan–30 Sep 2026): intercompany income $60,500 (fees $60,000 + interest $500) and expense $60,450 are eliminated; the $50 left over is on its own line and group net income is unchanged; receivables, payables and the loan eliminate with the $50 shown; the outside invoice stays; one company is refused (422)",
+  "status": "PASS",
+  "evidence": "one company 422 group_consolidation_companies; {\"fees\":true,\"interestIn\":true,\"feesExp\":true,\"interestEx\":true,\"plDiff\":true,\"net\":true,\"ar\":true,\"ap\":true,\"loanP\":true,\"loanW\":true,\"bsDiff\":true}; net 505000 before 505000"
+ },
+ {
+  "id": "R200-05",
+  "area": "R200",
+  "title": "Group close: with W included, where the person is only an Editor, nothing is closed (409, every reason listed); P and Q close together through 30 Sep 2026; a September entry in P is then refused; W is still open",
+  "status": "PASS",
+  "evidence": "blocked 409 \"No company was closed. R200 Branch mwy1hu7c: your role cannot close periods.\"; locks after refusal 0; close 200 2; late P entry 409 period_locked; W entry 201"
+ },
+ {
+  "id": "UI-01",
+  "area": "R200",
+  "title": "Settings › Group & Intercompany at 1440 px: the two links, P's intercompany invoices with their partner status, the reconciliation (P–W differs by $50.00, P–Q agrees) and the consolidation worksheet (difference line, net income) on screen; no page errors",
+  "status": "PASS",
+  "evidence": "{\"inMenu\":null,\"pairs\":2,\"docs\":[\"INV-1001Jul 31, 2026R200 Branch mwy1hu7c$26,250.00 Posted\",\"INV-1002Aug 31, 2026R200 Branch mwy1hu7c$26,250.00 Posted\",\"INV-1003Aug 31, 2026R200 Subsidiary mwy1hu7c$10,500.00 Posted\"],\"recon\":\"Company\\tSays the Other Owes It\\tMade Up Of\\nR200 Parent mwy1hu7c ↔ R200 Branch mwy1hu7c Difference $50.00\\nR200 Parent mwy1hu7c\\t$153,000.00\\tReceivable from the partner (customer) $52,500.00\\nPayable to th\",\"sheet\":\"Profit and Loss\\nBalance Sheet\\n\\nJan 1, 2026 to Sep 30, 2026 · CAD · 2 links between these companies\\n\\nCode\\tAccount\\tR200 Branch mwy1hu7c\\tR200 Parent m"
+ },
+ {
+  "id": "UI-02",
+  "area": "R200",
+  "title": "The page at 390 px and in the dark theme: no sideways scroll of the page (the worksheet scrolls inside its own box); text readable on the cards",
+  "status": "PASS",
+  "evidence": "{\"over\":false,\"light\":[],\"errs\":[]}"
+ }
+]

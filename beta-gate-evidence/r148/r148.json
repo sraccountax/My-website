@@ -1,0 +1,100 @@
+[
+ {
+  "id": "IN-01",
+  "area": "R148",
+  "title": "Plain app.html: two tabs (Sign in selected, Create account) and the sign-in form",
+  "status": "PASS",
+  "evidence": "Sign in*,Create account | sr-login-form"
+ },
+ {
+  "id": "IN-02",
+  "area": "R148",
+  "title": "Create account tab without an invitation (invite-only beta): explanation, the email subject, and a paste box",
+  "status": "PASS",
+  "evidence": "Sign in,Create account* |  Create your account Tegh is in an invitation-only beta. Accounts are created from the invitation email sent by a Tegh a"
+ },
+ {
+  "id": "IN-03",
+  "area": "R148",
+  "title": "\"Join Beta\" (app.html?register=1) opens the Create account tab",
+  "status": "PASS",
+  "evidence": "Sign in,Create account* | sr-invite-needed"
+ },
+ {
+  "id": "IN-04",
+  "area": "R148",
+  "title": "Invitation link opens Create account with both tabs, the invited email, company and role, and a name suggestion",
+  "status": "PASS",
+  "evidence": "Sign in,Create account* | newperson-muqq9yfg@gate.test | R144 Insights Inc — Viewer | suggested \"Newperson Muqq9yfg\" | url hash cleared true"
+ },
+ {
+  "id": "IN-05",
+  "area": "R148",
+  "title": "Switching to Sign in and back keeps the invitation (no second lookup needed)",
+  "status": "PASS",
+  "evidence": "sr-login-form → invite form for newperson-muqq9yfg@gate.test"
+ },
+ {
+  "id": "IN-06",
+  "area": "R148",
+  "title": "Keyboard: arrow keys move between the two tabs",
+  "status": "PASS",
+  "evidence": "sr-login-form (sr-choose-login) → sr-invite-form"
+ },
+ {
+  "id": "IN-07",
+  "area": "R148",
+  "title": "Creating the account with a typed name opens Tegh signed in; the name and company membership are stored",
+  "status": "PASS",
+  "evidence": "Priya Example-Test|invitation|terms | role viewer"
+ },
+ {
+  "id": "IN-08",
+  "area": "R148",
+  "title": "A pasted invitation link (whole emailed URL) opens the invitation in the Create account tab",
+  "status": "PASS",
+  "evidence": "pasted-muqq9yfg@gate.test"
+ },
+ {
+  "id": "IN-09",
+  "area": "R148",
+  "title": "Pasting text that is not an invitation link gives a plain message and stays on the tab",
+  "status": "PASS",
+  "evidence": "That doesn’t look like a Tegh invitation link. Copy the whole link from the “Set up your Tegh account” email and paste i"
+ },
+ {
+  "id": "IN-10",
+  "area": "R148",
+  "title": "An already-used invitation link shows \"expired or already used\" in the Create account tab, with Sign in available",
+  "status": "PASS",
+  "evidence": "This invitation link has expired or has already been used. | Sign in,Create account*"
+ },
+ {
+  "id": "IN-11",
+  "area": "R148",
+  "title": "Invitation for someone who already has an account: \"Accept your invitation\" with current password only (no name, no confirm)",
+  "status": "PASS",
+  "evidence": "{\"name\":false,\"confirm\":false,\"btn\":\"Accept invitation\",\"forgot\":true}"
+ },
+ {
+  "id": "IN-12",
+  "area": "R148",
+  "title": "Phone (390×844): both tabs and the invitation form fit without sideways scrolling",
+  "status": "PASS",
+  "evidence": "{\"sw\":390,\"cw\":390} Sign in,Create account*"
+ },
+ {
+  "id": "IN-13",
+  "area": "R148",
+  "title": "Server: a name with < > is refused; an empty name falls back to the email-derived name",
+  "status": "PASS",
+  "evidence": "[422,200,\"Srv Muqq9yfg\",\"Srv Muqq9yfg\"]"
+ },
+ {
+  "id": "IN-JS",
+  "area": "R148",
+  "title": "No JavaScript errors",
+  "status": "PASS",
+  "evidence": ""
+ }
+]

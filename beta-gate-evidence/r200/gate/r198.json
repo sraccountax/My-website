@@ -1,0 +1,72 @@
+[
+ {
+  "id": "R198-01",
+  "area": "R198",
+  "title": "Tax Set-up lists the standard TDS sections with suggested rates and limits (194C individual 1% and others 2%, ₹30,000 / ₹1,00,000; 194J 10%; 194H 2%; 194I rent 10% and 2%, ₹50,000 a month) and nothing is saved before confirming; a Canadian company gets 404",
+  "status": "PASS",
+  "evidence": "{\"sug\":{\"194C-IND\":[\"1\",30000,100000],\"194C\":[\"2\",30000,100000],\"194J\":[\"10\",50000,50000],\"194J-TECH\":[\"2\",50000,50000],\"194H\":[\"2\",20000,20000],\"194I\":[\"10\",50000,null],\"194I-PM\":[\"2\",50000,null]},\"unconfirmed\":[422,\"india_setup_confirm\"],\"n\":0,\"ca\":404}"
+ },
+ {
+  "id": "R198-02",
+  "area": "R198",
+  "title": "Confirming TDS sections saves and approves each one (standard heading kept), with a \"<section>-NOPAN\" rule at 20% for parties without a PAN; an own section (194A) keeps its heading; repeating changes nothing; a different figure from the same date is refused (409); a later date adds a version",
+  "status": "PASS",
+  "evidence": "{\"rules\":\"194A=10:1000000:1000000:active,194A-NOPAN=20:1000000:1000000:active,194C-IND=1:3000000:10000000:active,194C-IND-NOPAN=20:3000000:10000000:active,194I=10:5000000:-:active,194I-NOPAN=20:5000000:-:active,194J=10:5000000:5000000:active,194J-NOPAN=20:5000000:5000000:active\",\"labels\":\"194A|Interest other than bank interest;194C-IND|Contractors: individual or HUF\",\"again\":[\"unchanged\",\"unchanged\",\"unchanged\",\"unchanged\"],\"conflict\":[409,\"india_setup_rule_conflict\"]}"
+ },
+ {
+  "id": "R198-03",
+  "area": "R198",
+  "title": "Headings: the own section 194A is renamed (and its no-PAN rule follows); a standard section and a standard GST rate cannot be renamed (409); an own GST rate (12%) is created with its heading and renamed, its codes GST12 and IGST12 created",
+  "status": "PASS",
+  "evidence": "{\"l\":\"Interest (not from a bank)|Interest (not from a bank): party without PAN (206AA)\",\"fixed\":409,\"fixedGst\":409,\"g12\":{\"rate\":\"12\",\"ruleCode\":\"GST12\",\"label\":\"GST 12% (works contracts)\",\"fixed\":false,\"status\":\"active\",\"effectiveFrom\":\"2026-04-01\",\"codes\":[\"IGST12\",\"GST12\"]}}"
+ },
+ {
+  "id": "R198-04",
+  "area": "R198",
+  "title": "Vendors: PAN and TDS section are set from the Tax Set-up list (from 1 April 2026); other India details already on the vendor are kept; a wrong PAN and an unknown section are refused",
+  "status": "PASS",
+  "evidence": "{\"v1\":{\"id\":\"vendor_7e951c80bb1c3470fd2af16188f9e785\",\"name\":\"R198 Contractor mwy1gh0q\",\"pan\":\"ABCPK1234F\",\"section\":\"194C-IND\",\"effectiveFrom\":\"2026-04-01\"},\"prof\":{\"pan\":\"ABCPK1234F\",\"msme\":true,\"msmeCategory\":\"micro\",\"relatedParty\":false,\"tdsSection\":\"194C-IND\",\"jobWorker\":false,\"transporter\":false},\"badPan\":[422,\"india_field_invalid\"],\"badSec\":[422,\"india_reference_missing\"]}"
+ },
+ {
+  "id": "R198-05",
+  "area": "R198",
+  "title": "TDS on vendor invoices uses what was set up (worked out by hand): contractor 1% — ₹25,000 and ₹20,000 are under both limits; ₹60,000 crosses both, so the base is ₹1,05,000 and TDS ₹1,050; consultant without a PAN 20% of ₹60,000 = ₹12,000; rent ₹45,000 under the ₹50,000 monthly limit = nil, ₹55,000 at 10% = ₹5,500",
+  "status": "PASS",
+  "evidence": "{\"got\":{\"b1\":[0,2500000,0],\"b2\":[0,2000000,0],\"b3\":[105000,10500000,1000],\"b4\":[1200000,6000000,20000],\"b5\":[0,4500000,0],\"b6\":[550000,5500000,10000]},\"src\":\"no PAN (194J-NOPAN)\",\"bal\":5895000,\"posted\":105000}"
+ },
+ {
+  "id": "R198-06",
+  "area": "R198",
+  "title": "Products and services: HSN/SAC and GST rate set from the list; an invoice line for that service with no tax code takes it (12%: CGST 6% + SGST 6% within Karnataka); a wrong HSN/SAC is refused",
+  "status": "PASS",
+  "evidence": "{\"tax\":\"CGST:60000,SGST:60000\",\"it\":{\"id\":\"item_e9fe4bb4648d090f2cece2738c92d012\",\"name\":\"R198 Works contract mwy1gh0q\",\"kind\":\"service\",\"hsnSac\":\"995411\",\"gstRate\":\"GST12\",\"effectiveFrom\":\"2026-04-01\"},\"bad\":[422,\"india_field_invalid\"]}"
+ },
+ {
+  "id": "R198-07",
+  "area": "R198",
+  "title": "TCS: an own section (206C(1) scrap, 1%) is saved with its heading; a customer is given it; an Editor can set a vendor's PAN but cannot confirm sections (403)",
+  "status": "PASS",
+  "evidence": "{\"tcs\":[{\"code\":\"206C(1)-SCRAP\",\"label\":\"Sale of scrap\",\"ratePercent\":\"1\",\"singleRupees\":null,\"yearlyRupees\":null,\"effectiveFrom\":\"2026-04-01\",\"status\":\"active\",\"fixed\":false,\"noPanPercent\":null}],\"c\":{\"id\":\"customer_8a0f1b825727b692d92a03b5b9b84223\",\"name\":\"R198 Buyer mwy1gh0q\",\"pan\":\"ABCPM1111Q\",\"section\":\"206C(1)-SCRAP\",\"effectiveFrom\":\"2026-04-01\"},\"edParty\":200,\"edSec\":[403,\"india_setup_role\"]}"
+ },
+ {
+  "id": "UI-01",
+  "area": "R198",
+  "title": "Tax Set-up (Settings › Tax Set-up) shows GST rates, TDS sections (7 standard rows plus the own 194A row), TCS sections, vendors and customers, products and services; ticking 194H and saving from the screen saves the approved rule; an own GST rate (28%, with a heading) is added from the screen",
+  "status": "PASS",
+  "evidence": "{\"nav\":null,\"cards\":[\"gst\",\"tds\",\"tcs\",\"parties\",\"items\"],\"tdsRows\":[\"194C-IND\",\"194C\",\"194J\",\"194J-TECH\",\"194H\",\"194I\",\"194I-PM\",\"194A\"],\"h\":\"2:2000000:2000000:active\",\"g28\":\"GST 28% (old slab)\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-02",
+  "area": "R198",
+  "title": "From the screen: the own section heading is renamed; a vendor gets a PAN from 1 November 2026 (a new version, the earlier one kept); a product's GST rate changes to 18% from 1 November 2026 (invoices before that date keep 12%)",
+  "status": "PASS",
+  "evidence": "{\"label\":\"Interest from others\",\"vers\":\"2026-04-01=-,2026-10-01=ABCPN2222R,2026-11-01=ABCPN2222R\",\"iv\":\"2026-04-01=GST12,2026-11-01=GST18\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-03",
+  "area": "R198",
+  "title": "Phone (390 px) and dark theme: Tax Set-up fits the screen (no sideways scroll of the page; wide tables scroll inside their box)",
+  "status": "PASS",
+  "evidence": "{\"over\":false,\"dark\":{\"theme\":\"dark\",\"light\":[],\"input\":\"rgb(23, 44, 37)\"},\"errs\":[]}"
+ }
+]

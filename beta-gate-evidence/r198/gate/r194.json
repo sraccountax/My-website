@@ -1,0 +1,37 @@
+[
+ {
+  "id": "UI-01",
+  "area": "R194",
+  "title": "Canada, no company: the Tegh mark shows the T and the Guided/Full choice offers Sign out (\"Signed in as\" the email) at 1440 px and 390 px; Sign out ends the session (auth/me 401) and returns to sign-in",
+  "status": "PASS",
+  "evidence": "{\"390\":{\"mark\":true,\"bar\":true,\"text\":\"Signed in as r194-first-mwuvbtmk@gate.test Sign out\",\"inView\":true,\"screen\":\"choice\",\"overflow\":false,\"me\":401,\"errs\":[]},\"1440\":{\"mark\":true,\"bar\":true,\"text\":\"Signed in as r194-first-mwuvbtmk@gate.test Sign out\",\"inView\":true,\"screen\":\"choice\",\"overflow\":false,\"me\":401,\"errs\":[]}}"
+ },
+ {
+  "id": "UI-02",
+  "area": "R194",
+  "title": "Canada, no company: after choosing Full Accounting the Canadian company form keeps Sign out, and Sign out from it ends the session",
+  "status": "PASS",
+  "evidence": "{\"got\":{\"mark\":true,\"bar\":true,\"text\":\"Signed in as r194-first-mwuvbtmk@gate.test Sign out\",\"inView\":true,\"screen\":\"canadian-form\",\"overflow\":false,\"me\":401},\"errs\":[]}"
+ },
+ {
+  "id": "UI-03",
+  "area": "R194",
+  "title": "India, no India company: the India company form offers Sign out at 1440 px and 390 px, and Sign out ends the session",
+  "status": "PASS",
+  "evidence": "{\"390\":{\"mark\":true,\"bar\":true,\"text\":\"Signed in as r194-first-mwuvbtmk@gate.test Sign out\",\"inView\":true,\"screen\":\"india\",\"overflow\":false,\"me\":401,\"errs\":[]},\"1440\":{\"mark\":true,\"bar\":true,\"text\":\"Signed in as r194-first-mwuvbtmk@gate.test Sign out\",\"inView\":true,\"screen\":\"india\",\"overflow\":false,\"me\":401,\"errs\":[]}}"
+ },
+ {
+  "id": "R194-01",
+  "area": "R194",
+  "title": "Signing out created no company for the user",
+  "status": "PASS",
+  "evidence": "memberships 0"
+ },
+ {
+  "id": "R194-02",
+  "area": "R194",
+  "title": "Invoice Intelligence job list answers and expires a lease that has run out (job back in the queue)",
+  "status": "PASS",
+  "evidence": "list 200 (26 jobs); job after list queued|-; restored to review_required"
+ }
+]

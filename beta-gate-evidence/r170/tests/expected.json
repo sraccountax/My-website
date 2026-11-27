@@ -1,0 +1,1182 @@
+{
+ "F01.pdf": [
+  {
+   "supplier": "northgate",
+   "supplierName": "Northgate Paper & Office Ltd.",
+   "invoiceNumber": "NG-20418",
+   "invoiceDate": "2026-09-14",
+   "dueDate": "2026-10-14",
+   "currency": "CAD",
+   "subtotalCents": 48591,
+   "taxCents": 6317,
+   "totalCents": 54908,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 6317
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Copy paper, letter, 10-ream case",
+     "quantity": "4",
+     "unitPriceCents": 5299,
+     "amountCents": 21196,
+     "itemCode": "CP-1001"
+    },
+    {
+     "description": "Black toner cartridge 26A",
+     "quantity": "2",
+     "unitPriceCents": 11450,
+     "amountCents": 22900,
+     "itemCode": "TN-26A"
+    },
+    {
+     "description": "Ballpoint pens, blue, box of 12",
+     "quantity": "5",
+     "unitPriceCents": 899,
+     "amountCents": 4495,
+     "itemCode": "PN-012"
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": "PO-7781"
+  }
+ ],
+ "F01b.pdf": [
+  {
+   "supplier": "northgate",
+   "supplierName": "Northgate Paper & Office Ltd.",
+   "invoiceNumber": "NG-20418",
+   "invoiceDate": "2026-09-14",
+   "dueDate": "2026-10-14",
+   "currency": "CAD",
+   "subtotalCents": 48591,
+   "taxCents": 6317,
+   "totalCents": 54908,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 6317
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Copy paper, letter, 10-ream case",
+     "quantity": "4",
+     "unitPriceCents": 5299,
+     "amountCents": 21196,
+     "itemCode": "CP-1001"
+    },
+    {
+     "description": "Black toner cartridge 26A",
+     "quantity": "2",
+     "unitPriceCents": 11450,
+     "amountCents": 22900,
+     "itemCode": "TN-26A"
+    },
+    {
+     "description": "Ballpoint pens, blue, box of 12",
+     "quantity": "5",
+     "unitPriceCents": 899,
+     "amountCents": 4495,
+     "itemCode": "PN-012"
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": "PO-7781"
+  }
+ ],
+ "F02.pdf": [
+  {
+   "supplier": "cedarline",
+   "supplierName": "Cedarline Equipment Rentals Ltd.",
+   "invoiceNumber": "CER-005512",
+   "invoiceDate": "2026-09-03",
+   "dueDate": "2026-09-18",
+   "currency": "CAD",
+   "subtotalCents": 206000,
+   "taxCents": 24720,
+   "totalCents": 230720,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "GST",
+     "amountCents": 10300
+    },
+    {
+     "label": "PST",
+     "amountCents": 14420
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Scaffold frame section rental, week 1",
+     "quantity": "2",
+     "unitPriceCents": 1850,
+     "amountCents": 3700,
+     "itemCode": "SC-100"
+    },
+    {
+     "description": "Scaffold frame section rental, week 2",
+     "quantity": "3",
+     "unitPriceCents": 1975,
+     "amountCents": 5925,
+     "itemCode": "SC-101"
+    },
+    {
+     "description": "Scaffold frame section rental, week 3",
+     "quantity": "4",
+     "unitPriceCents": 2100,
+     "amountCents": 8400,
+     "itemCode": "SC-102"
+    },
+    {
+     "description": "Scaffold frame section rental, week 4",
+     "quantity": "2",
+     "unitPriceCents": 2225,
+     "amountCents": 4450,
+     "itemCode": "SC-103"
+    },
+    {
+     "description": "Scaffold frame section rental, week 5",
+     "quantity": "3",
+     "unitPriceCents": 2350,
+     "amountCents": 7050,
+     "itemCode": "SC-104"
+    },
+    {
+     "description": "Scaffold frame section rental, week 6",
+     "quantity": "4",
+     "unitPriceCents": 2475,
+     "amountCents": 9900,
+     "itemCode": "SC-105"
+    },
+    {
+     "description": "Scaffold frame section rental, week 7",
+     "quantity": "2",
+     "unitPriceCents": 2600,
+     "amountCents": 5200,
+     "itemCode": "SC-106"
+    },
+    {
+     "description": "Scaffold frame section rental, week 8",
+     "quantity": "3",
+     "unitPriceCents": 2725,
+     "amountCents": 8175,
+     "itemCode": "SC-107"
+    },
+    {
+     "description": "Scaffold frame section rental, week 9",
+     "quantity": "4",
+     "unitPriceCents": 2850,
+     "amountCents": 11400,
+     "itemCode": "SC-108"
+    },
+    {
+     "description": "Scaffold frame section rental, week 10",
+     "quantity": "2",
+     "unitPriceCents": 2975,
+     "amountCents": 5950,
+     "itemCode": "SC-109"
+    },
+    {
+     "description": "Scaffold frame section rental, week 11",
+     "quantity": "3",
+     "unitPriceCents": 3100,
+     "amountCents": 9300,
+     "itemCode": "SC-110"
+    },
+    {
+     "description": "Scaffold frame section rental, week 12",
+     "quantity": "4",
+     "unitPriceCents": 3225,
+     "amountCents": 12900,
+     "itemCode": "SC-111"
+    },
+    {
+     "description": "Scaffold frame section rental, week 13",
+     "quantity": "2",
+     "unitPriceCents": 3350,
+     "amountCents": 6700,
+     "itemCode": "SC-112"
+    },
+    {
+     "description": "Scaffold frame section rental, week 14",
+     "quantity": "3",
+     "unitPriceCents": 3475,
+     "amountCents": 10425,
+     "itemCode": "SC-113"
+    },
+    {
+     "description": "Scaffold frame section rental, week 15",
+     "quantity": "4",
+     "unitPriceCents": 3600,
+     "amountCents": 14400,
+     "itemCode": "SC-114"
+    },
+    {
+     "description": "Scaffold frame section rental, week 16",
+     "quantity": "2",
+     "unitPriceCents": 3725,
+     "amountCents": 7450,
+     "itemCode": "SC-115"
+    },
+    {
+     "description": "Scaffold frame section rental, week 17",
+     "quantity": "3",
+     "unitPriceCents": 3850,
+     "amountCents": 11550,
+     "itemCode": "SC-116"
+    },
+    {
+     "description": "Scaffold frame section rental, week 18",
+     "quantity": "4",
+     "unitPriceCents": 3975,
+     "amountCents": 15900,
+     "itemCode": "SC-117"
+    },
+    {
+     "description": "Scaffold frame section rental, week 19",
+     "quantity": "2",
+     "unitPriceCents": 4100,
+     "amountCents": 8200,
+     "itemCode": "SC-118"
+    },
+    {
+     "description": "Scaffold frame section rental, week 20",
+     "quantity": "3",
+     "unitPriceCents": 4225,
+     "amountCents": 12675,
+     "itemCode": "SC-119"
+    },
+    {
+     "description": "Scaffold frame section rental, week 21",
+     "quantity": "4",
+     "unitPriceCents": 4350,
+     "amountCents": 17400,
+     "itemCode": "SC-120"
+    },
+    {
+     "description": "Scaffold frame section rental, week 22",
+     "quantity": "2",
+     "unitPriceCents": 4475,
+     "amountCents": 8950,
+     "itemCode": "SC-121"
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F03.pdf": [
+  {
+   "supplier": "saintremi",
+   "supplierName": "Fournitures Saint-Rémi Inc.",
+   "invoiceNumber": "FSR-2026-0917",
+   "invoiceDate": "2026-09-17",
+   "dueDate": "2026-10-17",
+   "currency": "CAD",
+   "subtotalCents": 82470,
+   "taxCents": 12350,
+   "totalCents": 94820,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "TPS",
+     "amountCents": 4124
+    },
+    {
+     "label": "TVQ",
+     "amountCents": 8226
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Chaises de bureau ergonomiques",
+     "quantity": "3",
+     "unitPriceCents": 18990,
+     "amountCents": 56970,
+     "itemCode": ""
+    },
+    {
+     "description": "Lampes de bureau à DEL",
+     "quantity": "6",
+     "unitPriceCents": 4250,
+     "amountCents": 25500,
+     "itemCode": ""
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F04.pdf": [
+  {
+   "supplier": "lakeshore",
+   "supplierName": "Lakeshore Courier Inc.",
+   "invoiceNumber": "LC-88231",
+   "invoiceDate": "2026-09-20",
+   "dueDate": "2026-10-05",
+   "currency": "CAD",
+   "subtotalCents": 15850,
+   "taxCents": 2061,
+   "totalCents": 17911,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 2061
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Same-day delivery, Kingsfield to Port Delling",
+     "quantity": "3",
+     "unitPriceCents": 4800,
+     "amountCents": 14400,
+     "itemCode": ""
+    },
+    {
+     "description": "Fuel surcharge",
+     "quantity": "1",
+     "unitPriceCents": 1450,
+     "amountCents": 1450,
+     "itemCode": ""
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F05.pdf": [
+  {
+   "supplier": "lakeshore",
+   "supplierName": "Lakeshore Courier Inc.",
+   "invoiceNumber": "LC-88240",
+   "invoiceDate": "2026-09-27",
+   "dueDate": "2026-10-12",
+   "currency": "CAD",
+   "subtotalCents": 15850,
+   "taxCents": 2061,
+   "totalCents": 17911,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 2061
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Same-day delivery, Kingsfield to Port Delling",
+     "quantity": "3",
+     "unitPriceCents": 4800,
+     "amountCents": 14400,
+     "itemCode": ""
+    },
+    {
+     "description": "Fuel surcharge",
+     "quantity": "1",
+     "unitPriceCents": 1450,
+     "amountCents": 1450,
+     "itemCode": ""
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F06.pdf": [
+  {
+   "supplier": "pinecrest",
+   "supplierName": "Pinecrest Janitorial Co.",
+   "invoiceNumber": "PJ-3306",
+   "invoiceDate": "2026-09-30",
+   "dueDate": "2026-10-30",
+   "currency": "CAD",
+   "subtotalCents": 76500,
+   "taxCents": 9945,
+   "totalCents": 86445,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 9945
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Office cleaning, September",
+     "quantity": "1",
+     "unitPriceCents": 64000,
+     "amountCents": 64000,
+     "itemCode": ""
+    },
+    {
+     "description": "Window washing",
+     "quantity": "1",
+     "unitPriceCents": 12500,
+     "amountCents": 12500,
+     "itemCode": ""
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F07.pdf": [
+  {
+   "supplier": "northgate",
+   "supplierName": "Northgate Paper & Office Ltd.",
+   "invoiceNumber": "NG-20431",
+   "invoiceDate": "2026-09-21",
+   "dueDate": "2026-10-21",
+   "currency": "CAD",
+   "subtotalCents": 7523,
+   "taxCents": 978,
+   "totalCents": 8501,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 978
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Sticky notes, 3x3, 24 pack",
+     "quantity": "2",
+     "unitPriceCents": 2199,
+     "amountCents": 4398,
+     "itemCode": "SN-33"
+    },
+    {
+     "description": "File folders, letter, box of 100",
+     "quantity": "1",
+     "unitPriceCents": 3125,
+     "amountCents": 3125,
+     "itemCode": "FF-100"
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  },
+  {
+   "supplier": "lakeshore",
+   "supplierName": "Lakeshore Courier Inc.",
+   "invoiceNumber": "LC-88255",
+   "invoiceDate": "2026-09-28",
+   "dueDate": "2026-10-13",
+   "currency": "CAD",
+   "subtotalCents": 15850,
+   "taxCents": 2061,
+   "totalCents": 17911,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 2061
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Same-day delivery, Kingsfield to Port Delling",
+     "quantity": "3",
+     "unitPriceCents": 4800,
+     "amountCents": 14400,
+     "itemCode": ""
+    },
+    {
+     "description": "Fuel surcharge",
+     "quantity": "1",
+     "unitPriceCents": 1450,
+     "amountCents": 1450,
+     "itemCode": ""
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  },
+  {
+   "supplier": "northgate",
+   "supplierName": "Northgate Paper & Office Ltd.",
+   "invoiceNumber": "NG-20447",
+   "invoiceDate": "2026-09-28",
+   "dueDate": "2026-10-28",
+   "currency": "CAD",
+   "subtotalCents": 4797,
+   "taxCents": 624,
+   "totalCents": 5421,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 624
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Whiteboard markers, assorted, 12",
+     "quantity": "3",
+     "unitPriceCents": 1599,
+     "amountCents": 4797,
+     "itemCode": "WB-12"
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F08.pdf": [
+  {
+   "supplier": "northgate",
+   "supplierName": "Northgate Paper & Office Ltd.",
+   "invoiceNumber": "CN-00412",
+   "invoiceDate": "2026-09-25",
+   "dueDate": "",
+   "currency": "CAD",
+   "subtotalCents": 11450,
+   "taxCents": 1489,
+   "totalCents": 12939,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "credit_note",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 1489
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Return: black toner cartridge 26A (damaged)",
+     "quantity": "1",
+     "unitPriceCents": 11450,
+     "amountCents": 11450,
+     "itemCode": "TN-26A"
+    }
+   ],
+   "originalInvoiceNumber": "NG-20418",
+   "poNumber": ""
+  }
+ ],
+ "F09.pdf": [
+  {
+   "supplier": "pinecrest",
+   "supplierName": "Pinecrest Janitorial Co.",
+   "invoiceNumber": "PJ-3315",
+   "invoiceDate": "2026-10-02",
+   "dueDate": "",
+   "currency": "CAD",
+   "subtotalCents": 36160,
+   "taxCents": 4160,
+   "totalCents": 36160,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 4160
+    }
+   ],
+   "inclusive": true,
+   "lines": [
+    {
+     "description": "Carpet deep clean, boardroom",
+     "quantity": "1",
+     "unitPriceCents": 33900,
+     "amountCents": 33900,
+     "itemCode": ""
+    },
+    {
+     "description": "Supplies",
+     "quantity": "1",
+     "unitPriceCents": 2260,
+     "amountCents": 2260,
+     "itemCode": ""
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F10.pdf": [
+  {
+   "supplier": "redwood",
+   "supplierName": "Redwood Analytics LLC",
+   "invoiceNumber": "RA-2026-114",
+   "invoiceDate": "2026-09-18",
+   "dueDate": "2026-10-18",
+   "currency": "USD",
+   "subtotalCents": 139900,
+   "taxCents": 0,
+   "totalCents": 139900,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Dashboard analytics subscription, September",
+     "quantity": "1",
+     "unitPriceCents": 129900,
+     "amountCents": 129900,
+     "itemCode": ""
+    },
+    {
+     "description": "Additional user seats",
+     "quantity": "4",
+     "unitPriceCents": 2500,
+     "amountCents": 10000,
+     "itemCode": ""
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F11.pdf": [
+  {
+   "supplier": "harbourview",
+   "supplierName": "Harbourview IT Services Inc.",
+   "invoiceNumber": "",
+   "invoiceDate": "2026-09-26",
+   "dueDate": "2026-10-26",
+   "currency": "CAD",
+   "subtotalCents": 110000,
+   "taxCents": 14300,
+   "totalCents": 124300,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 14300
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Managed IT services, September",
+     "quantity": "1",
+     "unitPriceCents": 95000,
+     "amountCents": 95000,
+     "itemCode": ""
+    },
+    {
+     "description": "Laptop setup",
+     "quantity": "2",
+     "unitPriceCents": 7500,
+     "amountCents": 15000,
+     "itemCode": ""
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F12.pdf": [
+  {
+   "supplier": "harbourview",
+   "supplierName": "Harbourview IT Services Inc.",
+   "invoiceNumber": "HIT-60218",
+   "invoiceDate": "",
+   "dueDate": "",
+   "currency": "CAD",
+   "subtotalCents": 48000,
+   "taxCents": 6240,
+   "totalCents": 54240,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 6240
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Firewall licence renewal",
+     "quantity": "1",
+     "unitPriceCents": 48000,
+     "amountCents": 48000,
+     "itemCode": ""
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F13.pdf": [
+  {
+   "supplier": "northgate",
+   "supplierName": "Northgate Paper & Office Ltd.",
+   "invoiceNumber": "NG-20460",
+   "invoiceDate": "2026-10-01",
+   "dueDate": "2026-10-31",
+   "currency": "CAD",
+   "subtotalCents": 11394,
+   "taxCents": 1481,
+   "totalCents": 13875,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 1481
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Desk organisers",
+     "quantity": "6",
+     "unitPriceCents": 1899,
+     "amountCents": 11394,
+     "itemCode": "DO-6"
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F14.pdf": [
+  {
+   "supplier": "lakeshore",
+   "supplierName": "Lakeshore Courier Inc.",
+   "invoiceNumber": "LC-88270",
+   "invoiceDate": "2026-10-02",
+   "dueDate": "2026-10-17",
+   "currency": "CAD",
+   "subtotalCents": 3009,
+   "taxCents": 391,
+   "totalCents": 3400,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 391
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Envelope courier A",
+     "quantity": "1",
+     "unitPriceCents": 1003,
+     "amountCents": 1003,
+     "itemCode": ""
+    },
+    {
+     "description": "Envelope courier B",
+     "quantity": "1",
+     "unitPriceCents": 1003,
+     "amountCents": 1003,
+     "itemCode": ""
+    },
+    {
+     "description": "Envelope courier C",
+     "quantity": "1",
+     "unitPriceCents": 1003,
+     "amountCents": 1003,
+     "itemCode": ""
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F15.pdf": [
+  {
+   "supplier": "unknown",
+   "supplierName": "Quillstone Print Studio",
+   "invoiceNumber": "QPS-0042",
+   "invoiceDate": "2026-09-29",
+   "dueDate": "2026-10-29",
+   "currency": "CAD",
+   "subtotalCents": 12800,
+   "taxCents": 1664,
+   "totalCents": 14464,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 1664
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Business cards, 500",
+     "quantity": "2",
+     "unitPriceCents": 6400,
+     "amountCents": 12800,
+     "itemCode": ""
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F16.pdf": [
+  {
+   "supplier": "northgate",
+   "supplierName": "Northgate Paper & Office Ltd.",
+   "invoiceNumber": "NG-20475",
+   "invoiceDate": "2026-10-02",
+   "dueDate": "2026-11-01",
+   "currency": "CAD",
+   "subtotalCents": 48720,
+   "taxCents": 6574,
+   "totalCents": 57144,
+   "discountCents": 0,
+   "freightCents": 1850,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 6574
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Monitor arm, dual",
+     "quantity": "2",
+     "unitPriceCents": 14900,
+     "amountCents": 26820,
+     "itemCode": "MA-2"
+    },
+    {
+     "description": "USB-C dock",
+     "quantity": "1",
+     "unitPriceCents": 21900,
+     "amountCents": 21900,
+     "itemCode": "UD-1"
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F17.pdf": [
+  {
+   "supplier": "northgate",
+   "supplierName": "Northgate Paper & Office Ltd.",
+   "docClass": "statement",
+   "invoiceNumber": "",
+   "lines": []
+  }
+ ],
+ "F18.pdf": [
+  {
+   "supplier": "harbourview",
+   "supplierName": "Harbourview IT Services Inc.",
+   "invoiceNumber": "HIT-60231",
+   "invoiceDate": "2026-10-01",
+   "dueDate": "2026-10-31",
+   "currency": "CAD",
+   "subtotalCents": 4500,
+   "taxCents": 585,
+   "totalCents": 5085,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 585
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Backup storage, 1 TB",
+     "quantity": "1",
+     "unitPriceCents": 4500,
+     "amountCents": 4500,
+     "itemCode": ""
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F19.pdf": [],
+ "F20.pdf": [
+  {
+   "supplier": "cedarline",
+   "supplierName": "Cedarline Equipment Rentals Ltd.",
+   "invoiceNumber": "CER-005530",
+   "invoiceDate": "2026-09-24",
+   "dueDate": "2026-10-09",
+   "currency": "CAD",
+   "subtotalCents": 158775,
+   "taxCents": 19053,
+   "totalCents": 177828,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "GST",
+     "amountCents": 7939
+    },
+    {
+     "label": "PST",
+     "amountCents": 11114
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Scaffold frame section rental, week 1",
+     "quantity": "2",
+     "unitPriceCents": 1850,
+     "amountCents": 3700,
+     "itemCode": "SC-100"
+    },
+    {
+     "description": "Scaffold frame section rental, week 2",
+     "quantity": "3",
+     "unitPriceCents": 1975,
+     "amountCents": 5925,
+     "itemCode": "SC-101"
+    },
+    {
+     "description": "Scaffold frame section rental, week 3",
+     "quantity": "4",
+     "unitPriceCents": 2100,
+     "amountCents": 8400,
+     "itemCode": "SC-102"
+    },
+    {
+     "description": "Scaffold frame section rental, week 4",
+     "quantity": "2",
+     "unitPriceCents": 2225,
+     "amountCents": 4450,
+     "itemCode": "SC-103"
+    },
+    {
+     "description": "Scaffold frame section rental, week 5",
+     "quantity": "3",
+     "unitPriceCents": 2350,
+     "amountCents": 7050,
+     "itemCode": "SC-104"
+    },
+    {
+     "description": "Scaffold frame section rental, week 6",
+     "quantity": "4",
+     "unitPriceCents": 2475,
+     "amountCents": 9900,
+     "itemCode": "SC-105"
+    },
+    {
+     "description": "Scaffold frame section rental, week 7",
+     "quantity": "2",
+     "unitPriceCents": 2600,
+     "amountCents": 5200,
+     "itemCode": "SC-106"
+    },
+    {
+     "description": "Scaffold frame section rental, week 8",
+     "quantity": "3",
+     "unitPriceCents": 2725,
+     "amountCents": 8175,
+     "itemCode": "SC-107"
+    },
+    {
+     "description": "Scaffold frame section rental, week 9",
+     "quantity": "4",
+     "unitPriceCents": 2850,
+     "amountCents": 11400,
+     "itemCode": "SC-108"
+    },
+    {
+     "description": "Scaffold frame section rental, week 10",
+     "quantity": "2",
+     "unitPriceCents": 2975,
+     "amountCents": 5950,
+     "itemCode": "SC-109"
+    },
+    {
+     "description": "Scaffold frame section rental, week 11",
+     "quantity": "3",
+     "unitPriceCents": 3100,
+     "amountCents": 9300,
+     "itemCode": "SC-110"
+    },
+    {
+     "description": "Scaffold frame section rental, week 12",
+     "quantity": "4",
+     "unitPriceCents": 3225,
+     "amountCents": 12900,
+     "itemCode": "SC-111"
+    },
+    {
+     "description": "Scaffold frame section rental, week 13",
+     "quantity": "2",
+     "unitPriceCents": 3350,
+     "amountCents": 6700,
+     "itemCode": "SC-112"
+    },
+    {
+     "description": "Scaffold frame section rental, week 14",
+     "quantity": "3",
+     "unitPriceCents": 3475,
+     "amountCents": 10425,
+     "itemCode": "SC-113"
+    },
+    {
+     "description": "Scaffold frame section rental, week 15",
+     "quantity": "4",
+     "unitPriceCents": 3600,
+     "amountCents": 14400,
+     "itemCode": "SC-114"
+    },
+    {
+     "description": "Scaffold frame section rental, week 16",
+     "quantity": "2",
+     "unitPriceCents": 3725,
+     "amountCents": 7450,
+     "itemCode": "SC-115"
+    },
+    {
+     "description": "Scaffold frame section rental, week 17",
+     "quantity": "3",
+     "unitPriceCents": 3850,
+     "amountCents": 11550,
+     "itemCode": "SC-116"
+    },
+    {
+     "description": "Scaffold frame section rental, week 18",
+     "quantity": "4",
+     "unitPriceCents": 3975,
+     "amountCents": 15900,
+     "itemCode": "SC-117"
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F21.pdf": [
+  {
+   "supplier": "pinecrest",
+   "supplierName": "Pinecrest Janitorial Co.",
+   "invoiceNumber": "PJ-3321",
+   "invoiceDate": "2026-10-01",
+   "dueDate": "2026-10-31",
+   "currency": "CAD",
+   "subtotalCents": 76500,
+   "taxCents": 9945,
+   "totalCents": 86445,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 9945
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Office cleaning, September",
+     "quantity": "1",
+     "unitPriceCents": 64000,
+     "amountCents": 64000,
+     "itemCode": ""
+    },
+    {
+     "description": "Window washing",
+     "quantity": "1",
+     "unitPriceCents": 12500,
+     "amountCents": 12500,
+     "itemCode": ""
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ],
+ "F22.pdf": [
+  {
+   "supplier": "pinecrest",
+   "supplierName": "Pinecrest Janitorial Co.",
+   "invoiceNumber": "PJ-3330",
+   "invoiceDate": "2026-10-03",
+   "dueDate": "2026-11-02",
+   "currency": "CAD",
+   "subtotalCents": 22000,
+   "taxCents": 2860,
+   "totalCents": 24860,
+   "discountCents": 0,
+   "freightCents": 0,
+   "docClass": "invoice",
+   "taxes": [
+    {
+     "label": "HST",
+     "amountCents": 2860
+    }
+   ],
+   "inclusive": false,
+   "lines": [
+    {
+     "description": "Floor waxing, lobby",
+     "quantity": "1",
+     "unitPriceCents": 22000,
+     "amountCents": 22000,
+     "itemCode": ""
+    }
+   ],
+   "originalInvoiceNumber": "",
+   "poNumber": ""
+  }
+ ]
+}

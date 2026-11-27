@@ -1,0 +1,79 @@
+[
+ {
+  "id": "WR-01",
+  "area": "R142",
+  "title": "Ontario company, BC starter code note (exact owner-approved text)",
+  "status": "PASS",
+  "evidence": "\"GST only. Charge British Columbia PST only if you are registered with British Columbia. Businesses outside British Columbia may have to register if they sell to customers there. Check with the province. Once registered, edit this code and add PST 7%.\""
+ },
+ {
+  "id": "WR-02",
+  "area": "R142",
+  "title": "Ontario company, QC starter code note (exact text)",
+  "status": "PASS",
+  "evidence": "\"GST only. Charge Quebec QST only if you are registered with Quebec. Businesses outside Quebec may have to register if they sell to customers there. Check with the province. Once registered, edit this code and add QST 9.975%.\""
+ },
+ {
+  "id": "WR-03",
+  "area": "R142",
+  "title": "Ontario company, BC and QC starter codes still GST only",
+  "status": "PASS",
+  "evidence": "[\"GST\",\"GST\"]"
+ },
+ {
+  "id": "WR-04",
+  "area": "R142",
+  "title": "Sales tax guide carries the six approved sentences",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "WR-05",
+  "area": "R142",
+  "title": "Old guide sentences removed (\"works out GST/HST from the customer's province\", \"Some items are zero-rated or exempt\")",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "WR-06",
+  "area": "R142",
+  "title": "Product Activity note: specific identification, no LIFO, count-based steps, no \"yet\"",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "WR-07",
+  "area": "R142",
+  "title": "Ask Tegh Product Activity answer matches (no \"does not track yet\")",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "WR-08",
+  "area": "R142",
+  "title": "Payroll notice (both bundles) says outside Quebec; old \"provinces and territories\" claim gone",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "WR-09",
+  "area": "R142",
+  "title": "Product and Subscriptions pages say Canada, excluding Quebec; no \"Canada only\"",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "WR-10",
+  "area": "R142",
+  "title": "The claim matches the code: a Quebec employee is refused",
+  "status": "PASS",
+  "evidence": "422 quebec_payroll_unsupported"
+ },
+ {
+  "id": "WR-11",
+  "area": "R142",
+  "title": "Payroll workspace lists the loaded CRA T4127 tables (label from date)",
+  "status": "PASS",
+  "evidence": "\"CRA T4127 — January 2026|2026-01-01 ; CRA T4127 — July 2026|2026-07-01\""
+ }
+]

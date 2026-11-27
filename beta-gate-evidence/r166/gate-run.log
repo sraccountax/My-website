@@ -1,0 +1,14 @@
+ZIP-PERMS: 0 file entries not 0644
+zip: /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R166-PRIVATE-BETA.zip
+0675874a9ac3a9c185312adffe8a357e3ab0d8bb4357bf34c89ee774dda32b78  /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R166-PRIVATE-BETA.zip
+tag: R166
+FILE-MANIFEST: all 415 entries OK
+PASS /?invite= goes to the app: 302 https://gate.test/app.html?invite=x
+FAIL     PW-01      Product page says Payroll Support Tool, Canada excluding Quebec (R142 wording), no "payrol | 
+FAIL     WR-09      Product and Subscriptions pages say Canada, excluding Quebec; no "Canada only" | 
+FAIL     BS-07      Accepting an invitation records the terms and privacy versions shown on the published Term | pages: terms undefined, privacy undefined; recorded 2026-10-21-beta.1|2026-10-21-beta.1
+FAIL     BS-09      Terms and Privacy pages: the operator, contacts, hosting, beta conditions, deletion proced | terms missing: Gate Test Operator Inc., support@gate.test, Private beta, Invitation only, Free, Sample data only, Data may be reset, No guarantee of availability, Not for real filings or payroll, 2026
+FAIL     B-03       Northwind: the customer invoice register opens with 5000 invoices in time, and the search  | 15562 ms; 5000 rows shown; after search "Client 0007": 13; scrolled to the last row true; errors none
+{'PASS': 770, 'INFO': 7, 'FAIL': 5}
+{'H-INST': {'PASS': 12}, 'H-MAIL': {'PASS': 19}, 'ACCT': {'PASS': 63}, 'TAX': {'PASS': 20, 'INFO': 1}, 'FX': {'PASS': 5}, 'SEC': {'PASS': 43, 'INFO': 1}, 'CVL': {'PASS': 20}, 'PAY': {'PASS': 7, 'INFO': 2}, 'REC': {'PASS': 9}, 'OPS': {'PASS': 5, 'INFO': 2}, 'R141': {'PASS': 37, 'FAIL': 1}, 'R142': {'PASS': 10, 'FAIL': 1}, 'R144': {'PASS': 35}, 'E2E': {'PASS': 53}, 'R145': {'PASS': 45, 'INFO': 1}, 'R149': {'PASS': 20}, 'R151': {'PASS': 40}, 'R151UI': {'PASS': 19}, 'R152': {'PASS': 31}, 'R153': {'PASS': 20}, 'R154': {'PASS': 11}, 'BETA': {'PASS': 16, 'FAIL': 2}, 'R157': {'PASS': 21}, 'R158': {'PASS': 5}, 'R159': {'PASS': 18}, 'R160': {'PASS': 9}, 'R161': {'PASS': 19, 'FAIL': 1}, 'GUIDED': {'PASS': 23}, 'R163': {'PASS': 46}, 'R163SEC': {'PASS': 10}, 'SEC2': {'PASS': 13}, 'MFA': {'PASS': 17}, 'SESSION': {'PASS': 14}, 'MONITOR': {'PASS': 10}, 'AUDIT': {'PASS': 7}, 'FILES': {'PASS': 11}, 'RESTORE': {'PASS': 7}}
+GATE-RUN-DONE

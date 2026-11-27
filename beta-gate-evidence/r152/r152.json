@@ -1,0 +1,219 @@
+[
+ {
+  "id": "ST-G",
+  "area": "R152",
+  "title": "Statement G — RBC-style (DD Mon, \"Cheques & Debits\", two pages): every row, the net, opening and closing balances, first/last dates; balances agree",
+  "status": "PASS",
+  "evidence": "got [16,-98181,842210,744029,\"2026-01-02\",\"2026-01-31\",true,false,true] want [16,-98181,842210,744029,\"2026-01-02\",\"2026-01-31\",true,false,true]"
+ },
+ {
+  "id": "ST-H",
+  "area": "R152",
+  "title": "Statement H — BMO-style (headings on two lines, \"Closing totals\"): every row, the net, opening and closing balances, first/last dates; balances agree",
+  "status": "PASS",
+  "evidence": "got [16,-98181,1200000,1101819,\"2026-01-02\",\"2026-01-31\",true,false,true] want [16,-98181,1200000,1101819,\"2026-01-02\",\"2026-01-31\",true,false,true]"
+ },
+ {
+  "id": "ST-I",
+  "area": "R152",
+  "title": "Statement I — Scotia-style (MM/DD, \"Balance forward\", overdrawn balances): every row, the net, opening and closing balances, first/last dates; balances agree",
+  "status": "PASS",
+  "evidence": "got [8,-312316,300000,-12316,\"2026-01-02\",\"2026-01-30\",true,false,true] want [8,-312316,300000,-12316,\"2026-01-02\",\"2026-01-30\",true,false,true]"
+ },
+ {
+  "id": "ST-J",
+  "area": "R152",
+  "title": "Statement J — Desjardins-style French (code column, \"02 janv.\", French amounts): every row, the net, opening and closing balances, first/last dates; balances agree",
+  "status": "PASS",
+  "evidence": "got [13,984957,1534212,2519169,\"2026-01-02\",\"2026-01-30\",true,false,true] want [13,984957,1534212,2519169,\"2026-01-02\",\"2026-01-30\",true,false,true]"
+ },
+ {
+  "id": "ST-K",
+  "area": "R152",
+  "title": "Statement K — National Bank-style French (DD/MM numeric dates, \"Solde précédent\"): every row, the net, opening and closing balances, first/last dates; balances agree",
+  "status": "PASS",
+  "evidence": "got [13,984957,2000000,2984957,\"2026-01-02\",\"2026-01-30\",true,false,true] want [13,984957,2000000,2984957,\"2026-01-02\",\"2026-01-30\",true,false,true]"
+ },
+ {
+  "id": "ST-L",
+  "area": "R152",
+  "title": "Statement L — Tangerine-style (signed amounts, full dates): every row, the net, opening and closing balances, first/last dates; balances agree",
+  "status": "PASS",
+  "evidence": "got [16,-98181,450000,351819,\"2026-01-02\",\"2026-01-31\",true,false,true] want [16,-98181,450000,351819,\"2026-01-02\",\"2026-01-31\",true,false,true]"
+ },
+ {
+  "id": "ST-M",
+  "area": "R152",
+  "title": "Statement M — Amex-style card (Dec→Jan, negative credits): every row, the net, opening and closing balances, first/last dates; balances agree",
+  "status": "PASS",
+  "evidence": "got [10,-9663,-212560,-222223,\"2026-01-02\",\"2026-01-28\",true,true,true] want [10,-9663,-212560,-222223,\"2026-01-02\",\"2026-01-28\",true,true,true]"
+ },
+ {
+  "id": "ST-N",
+  "area": "R152",
+  "title": "Statement N — French Visa (two date columns, \"CR\" credits): every row, the net, opening and closing balances, first/last dates; balances agree",
+  "status": "PASS",
+  "evidence": "got [10,-9663,-98765,-108428,\"2026-01-02\",\"2026-01-28\",true,true,true] want [10,-9663,-98765,-108428,\"2026-01-02\",\"2026-01-28\",true,true,true]"
+ },
+ {
+  "id": "ST-P",
+  "area": "R152",
+  "title": "Statement P — card with MM/DD dates across December→January: every row, the net, opening and closing balances, first/last dates; balances agree",
+  "status": "PASS",
+  "evidence": "got [6,-62238,-54321,-116559,\"2025-12-08\",\"2026-01-04\",true,true,true] want [6,-62238,-54321,-116559,\"2025-12-08\",\"2026-01-04\",true,true,true]"
+ },
+ {
+  "id": "ST-Q",
+  "area": "R152",
+  "title": "Statement Q — credit union (DR/CR column, OD balances): every row, the net, opening and closing balances, first/last dates; balances agree",
+  "status": "PASS",
+  "evidence": "got [6,11750,50000,61750,\"2026-01-03\",\"2026-01-29\",true,false,true] want [6,11750,50000,61750,\"2026-01-03\",\"2026-01-29\",true,false,true]"
+ },
+ {
+  "id": "ST-R",
+  "area": "R152",
+  "title": "Statement R — two-line rows (amount on the line under the description): every row, the net, opening and closing balances, first/last dates; balances agree",
+  "status": "PASS",
+  "evidence": "got [10,-7543,500000,492457,\"2026-01-02\",\"2026-01-21\",true,false,true] want [10,-7543,500000,492457,\"2026-01-02\",\"2026-01-21\",true,false,true]"
+ },
+ {
+  "id": "ST-S",
+  "area": "R152",
+  "title": "Statement S — French with thousands split into separate text pieces: every row, the net, opening and closing balances, first/last dates; balances agree",
+  "status": "PASS",
+  "evidence": "got [13,984957,2500000,3484957,\"2026-01-02\",\"2026-01-30\",true,false,true] want [13,984957,2500000,3484957,\"2026-01-02\",\"2026-01-30\",true,false,true]"
+ },
+ {
+  "id": "ST-O1",
+  "area": "R152",
+  "title": "A PDF with three statements (Jan and Feb for …4567, Jan for …9012): all three are listed; for account …4567 both months are read together and each starts at the previous closing balance",
+  "status": "PASS",
+  "evidence": "got [[\"4567\",\"4567\",\"9012\"],\"acct:4567\",20,842210,636629,true,true,\"4567\"] | 2 statements from this PDF are read together. Opening balance $8,422.10, with these rows, comes to the closing balance of $6,366.29 printed "
+ },
+ {
+  "id": "ST-O2",
+  "area": "R152",
+  "title": "The third statement in that PDF can be chosen on its own: 2 rows for account …9012 with its own balances",
+  "status": "PASS",
+  "evidence": "[2,25000,100000,125000,true,\"9012\"]"
+ },
+ {
+  "id": "ST-AMB",
+  "area": "R152",
+  "title": "Numeric dates that read correctly both ways inside the statement period (01/02 and 02/01 in Jan–Feb) are not guessed; choosing day/month reads them",
+  "status": "PASS",
+  "evidence": "{\"amb\":true,\"undated\":2,\"dates\":[\"2026-02-01\",\"2026-01-02\"],\"reconciled\":true}"
+ },
+ {
+  "id": "ST-REG",
+  "area": "R152",
+  "title": "The R145 statements (bank, card, page totals, missing line, ISO dates, no headings) read exactly as before",
+  "status": "PASS",
+  "evidence": "[[\"A\",12,12,true,true,1],[\"B\",10,10,true,true,1],[\"C\",9,9,true,true,1],[\"D\",11,11,false,false,1],[\"E\",4,4,true,true,1],[\"F\",3,3,null,null,1]]"
+ },
+ {
+  "id": "ST-UI",
+  "area": "R152",
+  "title": "Converter screen: a PDF with three statements says so, lists them under \"Statement in this PDF\", and reading statement 3 shows its 2 rows",
+  "status": "PASS",
+  "evidence": "This PDF holds 3 statements; choose which to read under Statement in this PDF. 16 dated ro | options 4: All 2 statements for account …4567, read together / Statement 1: Jan 1, 2026 – Jan 31, 2026 · account …4567 · 16 rows · balances agree / Statement 2: Feb 1, 2026 – Feb 28, 2026 · account …4567 · 4 row | rows after choosing 3: 2"
+ },
+ {
+  "id": "IN-01",
+  "area": "R152",
+  "title": "Vendor invoice (EN): the 4 lines are read as a table — description (wrapped line joined, item codes left out), quantity, unit price, amount, each checked — and they add up to the subtotal",
+  "status": "PASS",
+  "evidence": "[[\"Copy paper, letter, 10 reams\",\"3\",5499,16497,true],[\"Toner cartridge HP 26A (high yield, black)\",\"2\",18950,37900,true],[\"Desk organizer\",\"1\",2345,2345,true],[\"Delivery\",\"1\",1500,1500,true]] | The 4 lines add up to the subtotal ✓"
+ },
+ {
+  "id": "IN-02",
+  "area": "R152",
+  "title": "Verifying it on the screen (vendor preselected by name) stores the reader's own candidate for learning — not the document text — and starts the supplier memory",
+  "status": "PASS",
+  "evidence": "state ready; extracted candidate 915 chars, no document text; memory AA-9999-9999|1"
+ },
+ {
+  "id": "IN-03",
+  "area": "R152",
+  "title": "Coding suggestions come from this vendor's earlier invoices: paper → 6400 and toner → 6300 by wording; the organizer and delivery get the vendor's most used account 6400",
+  "status": "PASS",
+  "evidence": "[2,true,[[0,\"6400\",\"line_match\"],[1,\"6300\",\"line_match\"],[2,\"6400\",\"vendor_default\"],[3,\"6400\",\"vendor_default\"]]] | Most used on 2 earlier invoices from this vendor"
+ },
+ {
+  "id": "IN-04",
+  "area": "R152",
+  "title": "\"Open in Vendor Invoice Form\" fills the vendor invoice form with the 4 lines and their suggested accounts, compares its total with the document total (a wrong tax code shows up); saving the draft links the document to the new vendor invoice",
+  "status": "PASS",
+  "evidence": "form lines 4; check before: The document shows a total of $611.54 with tax of $29.12. This form comes to $663.96 — the lines agree, so check the tax code on each line. | after GST: Matches the document total of $611.54 ✓ | saved NW-2026-0142|draft|58242|61154|16497@6400,37900@6300,2345@6400,1500@6400"
+ },
+ {
+  "id": "IN-05",
+  "area": "R152",
+  "title": "The same invoice sent again (a different file) is flagged as a duplicate of the saved vendor invoice, by supplier and number",
+  "status": "PASS",
+  "evidence": "This May Be A DuplicateVendor invoice NW-2026-0142 · 2026-03-03 · 611.54 · Draft — same supplier and numberI checked: this is a different invoice.Needed before a draft or the vendor invoice form can b"
+ },
+ {
+  "id": "IN-06",
+  "area": "R152",
+  "title": "The suggested account is preselected on its draft form, and a draft or workflow from the duplicate is refused until \"this is a different invoice\" is confirmed",
+  "status": "PASS",
+  "evidence": "preselected 6400; \"Suggested: Most used on 3 earlier invoices from this vendor.\"; without confirmation 409 native_document_possible_duplicate; with 200"
+ },
+ {
+  "id": "IN-07",
+  "area": "R152",
+  "title": "French invoice with 03/04/2026: the date is not guessed (two readings offered); its lines (Qté, Prix unitaire, Montant) are read and checked",
+  "status": "PASS",
+  "evidence": "{\"alts\":[{\"dateOrder\":\"mdy\",\"documentDate\":\"2026-03-04\"},{\"dateOrder\":\"dmy\",\"documentDate\":\"2026-04-03\"}],\"lines\":[5100,5950,3275],\"total\":16471}"
+ },
+ {
+  "id": "IN-08",
+  "area": "R152",
+  "title": "Choosing \"April 3, 2026\" and verifying teaches the supplier memory day/month order for this supplier",
+  "status": "PASS",
+  "evidence": "memory date order dmy"
+ },
+ {
+  "id": "IN-09",
+  "area": "R152",
+  "title": "The next invoice from that supplier (05/06/2026) is read as June 5, 2026 from supplier memory, and the screen says why",
+  "status": "PASS",
+  "evidence": "2026-06-05 | Supplier Memory AppliedDate read as day/month/year, as confirmed on earlier invoices from this supplier.From what you confirmed on earlier i"
+ },
+ {
+  "id": "IN-10",
+  "area": "R152",
+  "title": "A supplier whose invoice number sits under an unusual label (\"Our reference\"): once the number is corrected by hand, the next invoice's number is found by the learned pattern",
+  "status": "PASS",
+  "evidence": "first read \"\", learned AA/99-9999, next read \"HF/77-2096\""
+ },
+ {
+  "id": "IN-11",
+  "area": "R152",
+  "title": "Privacy: the memory lookup sends only the extracted identity (name, email, business number, address) and no request carries the document text",
+  "status": "PASS",
+  "evidence": "14 requests; memory keys partyName,partyEmail,businessIdentifier,address; document text sent: false"
+ },
+ {
+  "id": "IN-12",
+  "area": "R152",
+  "title": "Company isolation: another company cannot read this company's coding suggestions or supplier memory",
+  "status": "PASS",
+  "evidence": "coding 404; memory 200 null"
+ },
+ {
+  "id": "IN-13",
+  "area": "R152",
+  "title": "Backup export includes the supplier memory",
+  "status": "PASS",
+  "evidence": "200, 164955 bytes zipped, supplier memory present: true"
+ },
+ {
+  "id": "IN-JS",
+  "area": "R152",
+  "title": "No page errors during the R152 journeys",
+  "status": "PASS",
+  "evidence": ""
+ }
+]

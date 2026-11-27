@@ -1,0 +1,4 @@
+zip: /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R196-PRIVATE-BETA.zip
+d8085d629078510fbb3ec6a6b1238a361196ab5868df6d9434c5f9139caa9617  /srv/gate/Tegh-5_9_9-Build-5990-Schema-46-Sites-R117-Hotfix-R196-PRIVATE-BETA.zip
+tag: r196b
+FILE-MANIFEST: all 452 entries OK

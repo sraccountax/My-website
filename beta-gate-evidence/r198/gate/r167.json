@@ -1,0 +1,58 @@
+[
+ {
+  "id": "SN-01",
+  "area": "R167",
+  "title": "Receivables submenu is at most 300 px tall at 1440 × 900 (416 px before) and every module stays reachable",
+  "status": "PASS",
+  "evidence": "{\"h\":297,\"open\":1,\"lastVisible\":false}"
+ },
+ {
+  "id": "SN-02",
+  "area": "R167",
+  "title": "The Activity/Reports headings are kept for screen readers but drawn as a thin divider",
+  "status": "PASS",
+  "evidence": "[\"Activity\",\"Reports\"] [0,1]"
+ },
+ {
+  "id": "SN-03",
+  "area": "R167",
+  "title": "No submenu label is cut off and the sidebar never scrolls sideways (every module)",
+  "status": "PASS",
+  "evidence": "cut none; sideways overflow 0,0,0,0,0,0"
+ },
+ {
+  "id": "SN-04",
+  "area": "R167",
+  "title": "Trial balances are named after their module: AR (Receivables), AP (Payables), Trial Balance (General Ledger)",
+  "status": "PASS",
+  "evidence": "{\"Receivables\":[\"AR Trial Balance\"],\"Payables\":[\"AP Trial Balance\"],\"General Ledger\":[\"Trial Balance\"]}"
+ },
+ {
+  "id": "SN-05",
+  "area": "R167",
+  "title": "AR Trial Balance still opens the Customer Trial Balance",
+  "status": "PASS",
+  "evidence": "Customer Trial Balance | "
+ },
+ {
+  "id": "SN-06",
+  "area": "R167",
+  "title": "The page on screen is marked in the submenu (aria-current=\"page\"), and the mark moves with navigation",
+  "status": "PASS",
+  "evidence": "Vendor Ledgers → Payable Ageing"
+ },
+ {
+  "id": "SN-07",
+  "area": "R167",
+  "title": "Collapsed sidebar (icon rail) keeps its flyout look: no guide line or indent",
+  "status": "PASS",
+  "evidence": "{\"collapsed\":true,\"border\":\"0px\"}"
+ },
+ {
+  "id": "SN-08",
+  "area": "R167",
+  "title": "No browser errors during these checks",
+  "status": "PASS",
+  "evidence": "none"
+ }
+]

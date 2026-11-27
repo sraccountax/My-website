@@ -1,0 +1,3 @@
+PASS     SR-01      Settings › Platform Admin at 1440 wide lists Site & Release Settings first and opens the p | first item: Site & Release Settings; opens: Site & Release Settings; overflow 0; errors 0
+PASS     SR-02      Settings › Platform Admin at 390 wide lists Site & Release Settings first and opens the pa | first item: Site & Release Settings; opens: Site & Release Settings; overflow 0; errors 0
+PASS     SR-03      The Settings search finds Site & Release Settings | 18 result(s): Site & Release SettingsPlatform Admin ·  | Add Company or Client FileCompany detail | Agent CenterAdvanced settings · Review a | Company DetailsCompany details · Company | Dashboard & Re

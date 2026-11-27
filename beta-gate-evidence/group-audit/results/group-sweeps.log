@@ -1,0 +1,85 @@
+=== full light side CA company_0ae2588c63f656fe28d1a72dd7beb4ca 1440 900
+grp-CA-full-light-side-1440 CA full light side screens 115 forms 14 with issues 4 {"mode":"full-accounting","theme":"light","nav":"side","company":"company_0ae2588c63f656fe28d1a72dd7beb4ca"}
+   fn:openTaxCodes                    foreign-wording cgst,sgst
+   fn:openTaxCodeReport [Add Tax Code] foreign-wording cgst,sgst
+   fn:openUsers                       foreign-wording tds
+   report:Tax Code Report [Add Tax Code] foreign-wording cgst,sgst
+=== full dark top CA company_0ae2588c63f656fe28d1a72dd7beb4ca 1440 900
+grp-CA-full-dark-top-1440 CA full dark top screens 115 forms 14 with issues 10 {"mode":"full-accounting","theme":"dark","nav":"top","company":"company_0ae2588c63f656fe28d1a72dd7beb4ca"}
+   payables:vendor-payments           low-contrast Pending imported bank li 2.8,Already posted to the GL 2.8,Before the statement arr 2.8
+   fn:openTaxCodes                    foreign-wording cgst,sgst
+   fn:openTaxCodeReport [Add Tax Code] foreign-wording cgst,sgst
+   fn:openUsers                       foreign-wording tds
+   fn:openInvoiceTemplates            light-panel srp-template-preview,srp-template-preview,srp-template-preview,srp-template-preview
+   fn:openInsights                    low-contrast What If You Add a Monthl 2.1
+   fn:openFinancialAnalyst            low-contrast Minimum projected cash 1.9,Oct 20, 2026 1.9,First negative date 1.9 | light-panel is-warning,is-critical
+   report:Tegh Intelligence           low-contrast What If You Add a Monthl 2.1
+   report:Financial Analyst           low-contrast Minimum projected cash 1.9,Oct 20, 2026 1.9,First negative date 1.9 | light-panel is-warning,is-critical
+   report:Tax Code Report [Add Tax Code] foreign-wording cgst,sgst
+=== guided light side CA company_0ae2588c63f656fe28d1a72dd7beb4ca 390 844
+grp-CA-guided-light-side-390 CA guided light side screens 72 forms 8 with issues 4 {"mode":"guided","theme":"light","nav":"side","company":"company_0ae2588c63f656fe28d1a72dd7beb4ca"}
+   fn:openTaxCodes                    foreign-wording cgst,sgst
+   fn:openTaxCodeReport [Add Tax Code] foreign-wording cgst,sgst
+   fn:openUsers                       foreign-wording tds
+   report:Tax Code Report [Add Tax Code] foreign-wording cgst,sgst
+=== full light side IN company_bb0d88db7cfd5bef838a90b543f56774 1440 900
+grp-IN-full-light-side-1440 IN full light side screens 121 forms 13 with issues 25 {"mode":"full-accounting","theme":"light","nav":"side","company":"company_bb0d88db7cfd5bef838a90b543f56774"}
+   receivables:create-customer        foreign-wording canada
+   payables:create-vendor             foreign-wording canada
+   payables:vendor-invoices           foreign-wording canada
+   payables:invoice-intelligence      foreign-wording canada
+   payables:vendor-payments           foreign-wording canada
+   payables:vendors                   foreign-wording canada
+   payables:vendor-invoice-note-register foreign-wording canada
+   payables:vendor-ledgers            foreign-wording canada
+   payables:payable-ageing            foreign-wording canada
+   payables:period-trial-balance      foreign-wording canada
+   general-ledger:day-book            foreign-wording canada
+   advanced-accounting:recurring-transactions foreign-wording canada
+   fn:openSiteReleaseSettings         foreign-wording canada
+   fn:openTaxCodes                    foreign-wording canadian
+   fn:openTaxCodeReport               foreign-wording canadian
+   fn:openRates                       foreign-wording canadian
+   fn:openGifiReport                  foreign-wording gifi,canadian
+   fn:openGifiMapping                 foreign-wording gifi,canadian
+   fn:openIndiaGstSetup               foreign-wording canada
+   report:Cash Flow                   foreign-wording canada
+   report:General Ledger Detail       foreign-wording canada
+   report:Day Book                    foreign-wording canada
+   report:Payable Ageing              foreign-wording canada
+   report:Vendor Balances             foreign-wording canada
+   report:Vendor Invoice & Note Register foreign-wording canada
+=== full dark side IN company_bb0d88db7cfd5bef838a90b543f56774 390 844
+grp-IN-full-dark-side-390 IN full dark side screens 121 forms 13 with issues 31 {"mode":"full-accounting","theme":"dark","nav":"side","company":"company_bb0d88db7cfd5bef838a90b543f56774"}
+   receivables:create-customer        foreign-wording canada
+   receivables:customer-payments      low-contrast Pending imported bank li 2.8,Already posted to the GL 2.8,Before the statement arr 2.8
+   payables:create-vendor             foreign-wording canada
+   payables:vendor-invoices           foreign-wording canada
+   payables:invoice-intelligence      foreign-wording canada
+   payables:vendor-payments           foreign-wording canada
+   payables:vendors                   foreign-wording canada
+   payables:vendor-invoice-note-register foreign-wording canada
+   payables:vendor-ledgers            foreign-wording canada
+   payables:payable-ageing            foreign-wording canada
+   payables:period-trial-balance      foreign-wording canada
+   general-ledger:day-book            foreign-wording canada
+   advanced-accounting:recurring-transactions foreign-wording canada
+   fn:openSiteReleaseSettings         foreign-wording canada
+   fn:openTaxCodes                    foreign-wording canadian
+   fn:openTaxCodeReport               foreign-wording canadian
+   fn:openRates                       foreign-wording canadian
+   fn:openGifiReport                  foreign-wording gifi,canadian
+   fn:openGifiMapping                 foreign-wording gifi,canadian
+   fn:openInvoiceTemplates            light-panel srp-template-preview,srp-template-preview,srp-template-preview,srp-template-preview
+   fn:openInsights                    low-contrast What If You Add a Monthl 2.1
+   fn:openFinancialAnalyst            low-contrast Minimum projected cash 1.9,31-12-2026 1.9,First negative date 1.9 | light-panel is-warning,is-critical
+   fn:openIndiaGstSetup               foreign-wording canada
+   report:Tegh Intelligence           low-contrast What If You Add a Monthl 2.1
+   report:Financial Analyst           low-contrast Minimum projected cash 1.9,31-12-2026 1.9,First negative date 1.9 | light-panel is-warning,is-critical
+   report:Cash Flow                   foreign-wording canada
+   report:General Ledger Detail       foreign-wording canada
+   report:Day Book                    foreign-wording canada
+   report:Payable Ageing              foreign-wording canada
+   report:Vendor Balances             foreign-wording canada
+   report:Vendor Invoice & Note Register foreign-wording canada
+SWEEPS-DONE

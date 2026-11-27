@@ -1,0 +1,37 @@
+[
+ {
+  "id": "DEL-01",
+  "area": "R158",
+  "title": "The test company is in full use: rows in the tables added since R133 (onboarding, tax codes, notes, vendor invoice lines, client viewing link, code and session)",
+  "status": "PASS",
+  "evidence": "credit note 201; 29 tables hold rows of the company; children {\"components\":\"1\",\"billLines\":\"2\",\"noteLines\":\"1\",\"viewCodes\":\"1\",\"viewSessions\":\"1\"}"
+ },
+ {
+  "id": "DEL-02",
+  "area": "R158",
+  "title": "Wrong company name, wrong password, no backup confirmation, and a non-owner are all refused; nothing is deleted",
+  "status": "FAIL",
+  "evidence": "name 409 company_name_mismatch; password 403 password_incorrect; no backup 409 company_backup_required; accountant member - ; company still there 1; rows unchanged true"
+ },
+ {
+  "id": "DEL-03",
+  "area": "R158",
+  "title": "The owner deletes the company: accepted, and no row of it is left in any table with a company_id (read from the live schema), nor its tax code components, vendor invoice lines, note lines, client sign-in codes or sessions",
+  "status": "FAIL",
+  "evidence": "503 {\"error\":\"Company deletion cannot continue because the current database structure contains an unsupported dependency. Update Tegh and try again.\",\"code\":\"company_delete_dependency_mismatch\",\"requestId; company rows 1; left behind {\"accounting_controls\":1,\"accounting_notes\":1,\"accounting_note_lines\":1,\"accounts\":45,\"ai_agent_preferences\":1,\"audit_log\":18,\"bank_accounts\":2,\"bills\":1,\"bill_lines\":2,\"client_view_links\":1,\"company_currencies\":1,\"company_members\":1,\"company_onboarding\":1,\"company_system_accounts\":1,\"customers\":1,\"document_sequences\":2,\"document_tax_lines\":2,\"employer_levy_profil"
+ },
+ {
+  "id": "DEL-04",
+  "area": "R158",
+  "title": "The deletion is logged once with the record counts from before the deletion; other companies are untouched",
+  "status": "FAIL",
+  "evidence": "log rows 0; logged onboarding undefined, tax codes undefined, client links undefined; mismatches none; another company still has 2 journal entries"
+ },
+ {
+  "id": "DEL-05",
+  "area": "R158",
+  "title": "In the browser: Account & Access › Delete on a used company, type the name and password, confirm; the company is gone and Tegh moves to another company",
+  "status": "FAIL",
+  "evidence": "page.waitForSelector: Timeout 20000ms exceeded. Call log: \u001b[2m - waiting for locator('[data-delete-account-company=\"company_4d682110410d7347c21ab15332f53af0\"]') to be visible\u001b[22m \u001b[2m - locator resolved to hidden <button role=\"menuitem\" class=\"srp-btn danger\" data-delete-account-company=\"company_4d"
+ }
+]

@@ -1,0 +1,42 @@
+r193-ca-full-dark-top-390 CA full dark top screens 115 forms 14 with issues 38 {"mode":"full-accounting","theme":"dark","nav":"top","company":"company_b41e96a7d5d0fda7a306f8826da2fdae"}
+   banking:match-and-post-transactions low-contrast + Add Transaction 1.1,Actions ▾ 1.1,Actions ▾ 1.1,Actions ▾ 1.1
+   banking:match-and-post-transactions [+ Add Transaction] low-contrast Banking 2.0,Add bank transaction 1.1,For transactions you kno 2.0 | light-panel r182-modal-head
+   banking:bank-transaction-report    low-contrast Excel (.Xlsx) 1.1,CSV (.CSV) 1.1,PDF 1.1,Print Report 1.1
+   receivables:customer-invoices      low-contrast Document TypeInvoiceCred 2.1,$0.00 2.2,$0.00 2.2
+   payables:vendor-invoices           low-contrast Document TypeVendor invo 2.1,$0.00 2.2,$0.00 2.2,Recurring schedule 1.9
+   payables:invoice-intelligence      low-contrast Check Vendors 2.7
+   general-ledger:journal-entry       low-contrast Journal 2.7,Expense Voucher 2.8,Interbank Transfer 2.8,Import 2.8
+   general-ledger:general-ledger-account-report api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted
+   advanced-accounting:budgets [Create Budget] low-contrast Create Budget 1.1,Plan exact amounts by GL 2.0,Budget name• 1.5,Start date• 1.5 | light-panel sra-budget-editor-actions
+   fn:openDashboard                   low-contrast Money in 2.8,Money out 2.8,Profit 2.8
+   fn:openReportsDashboard            low-contrast Search reports 2.1,Report category 2.1
+   fn:openMonthEndClose               low-contrast Confirmation needed 2.0,I confirm that the avail 1.4
+   fn:openAccount                     low-contrast Deletion not approved 1.0
+   fn:openBookkeepingModeSettings     low-contrast For accounting professio 1.7,Complete professional ac 1.9
+   fn:openTaxCodes                    foreign-wording cgst,sgst | low-contrast Start from a Canadian Ex 2.1
+   fn:openTaxCodeReport               low-contrast StatusAllActiveInactive 2.1,Edit 2.8,Edit 2.6,Edit 2.8
+   fn:openTaxCodeReport [Add Tax Code] foreign-wording cgst,sgst | low-contrast Start from a Canadian Ex 2.1
+   fn:openDashboardFigures            low-contrast Automatic (Standard Calc 2.1,My GL Accounts 2.1,Automatic (Standard Calc 2.1,My GL Accounts 2.1
+   fn:openUsers                       foreign-wording tds | low-contrast Accepted 1.0,Accepted 1.0,Accepted 1.0,Accepted 1.0
+   fn:openRates                       low-contrast No CRA check has been re 1.9,CRA source ↗ 2.8,CRA source ↗ 2.6 | light-panel srp-rate-result
+   fn:openFaq                         low-contrast Popular 2.0,Popular 2.0,Popular 2.0
+   fn:openIntegrity                   low-contrast PeriodLast 90 daysFiscal 2.1,From 2.1,To 2.1,ActivityAllTransactionsP 2.1 | light-panel srp-integrity-item,srp-integrity-item,srp-integrity-item
+   fn:openAuditHistory                low-contrast PeriodLast 90 daysFiscal 2.1,From 2.1,To 2.1,ActivityAllTransactionsP 2.1 | light-panel srp-integrity-item,srp-integrity-item,srp-integrity-item
+   fn:openOpeningBalances             light-panel srp-success-note
+   fn:openGifiMapping                 low-contrast Balance Sheet · Asset 2.0,Balance Sheet · Asset 2.0,Balance Sheet · Asset 2.0,Balance Sheet · Asset 2.0
+   fn:openInvoiceTemplates            light-panel srp-template-preview,srp-template-preview,srp-template-preview,srp-template-preview
+   fn:openImportedTransactions        low-contrast Actions apply only to el 1.9,Sep 29, 2026 1.1,Payroll deposit 2998 1.1,Business Chequing 1.1 | light-panel srp-bank-bulk
+   fn:openInsights                    low-contrast Tegh Intelligence 1.1
+   fn:openExpenseVouchers             low-contrast Expense Voucher 2.7
+   fn:openManualJournals              low-contrast Journal 2.7,Expense Voucher 2.8,Interbank Transfer 2.8,Import 2.8
+   fn:openAdvancedReconciliation      low-contrast Journal 2.7,Expense Voucher 2.8,Interbank Transfer 2.8,Import 2.8
+   fn:openAgentCenter                 low-contrast Tegh Assist 1.1,Needs attention 1.1
+   fn:openConnectAccountant           low-contrast Needs attention 1.1
+   fn:openAccountingNotes [New Note]  low-contrast Document TypeInvoiceCred 2.1,$0.00 2.2,$0.00 2.2
+   report:Tegh Intelligence           low-contrast Tegh Intelligence 1.1
+   report:General Ledger Detail       api 413 /api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-01-01&end=2026-11-23
+   report:Audit History               low-contrast PeriodLast 90 daysFiscal 2.1,From 2.1,To 2.1,ActivityAllTransactionsP 2.1 | light-panel srp-integrity-item,srp-integrity-item,srp-integrity-item | api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted
+   report:Bank Transaction Report     low-contrast Excel (.Xlsx) 1.1,CSV (.CSV) 1.1,PDF 1.1,Print Report 1.1
+   report:Tax Code Report             low-contrast StatusAllActiveInactive 2.1,Edit 2.8,Edit 2.6,Edit 2.8
+   report:Tax Code Report [Add Tax Code] foreign-wording cgst,sgst | low-contrast Start from a Canadian Ex 2.1
+   report:Budget versus Actual [Create Budget] low-contrast Create Budget 1.1,Plan exact amounts by GL 2.0,Budget name• 1.5,Start date• 1.5 | light-panel sra-budget-editor-actions

@@ -1,0 +1,58 @@
+[
+ {
+  "id": "V-011",
+  "area": "R161",
+  "title": "Lakeshore: Trial Balance after 1500 invoices, 600 bills, 1483 payments and 150 journals equals the independently summed figures for every account, and debits equal credits",
+  "status": "PASS",
+  "evidence": "200 in 323 ms; 14 accounts; debits $26,062,593.45 credits $26,062,593.45; all equal"
+ },
+ {
+  "id": "V-012",
+  "area": "R161",
+  "title": "Lakeshore: customer and vendor balances (150 customers, 60 vendors) add up to the open receivables and payables, which equal the GL control accounts",
+  "status": "PASS",
+  "evidence": "AR $7,498,410.37 (expected $7,498,410.37, GL 1200 $7,498,410.37) in 50 ms; AP $623,457.16 (expected $623,457.16, GL 2050 $623,457.16) in 27 ms"
+ },
+ {
+  "id": "V-013",
+  "area": "R161",
+  "title": "Lakeshore: Profit and Loss net income equals revenue less expenses summed independently; Balance Sheet and P&L each load in under 10 seconds",
+  "status": "PASS",
+  "evidence": "net income $21,127,851.34 expected $21,127,851.34; balance sheet 200 in 93 ms; P&L 200 in 32 ms"
+ },
+ {
+  "id": "V-014",
+  "area": "R161",
+  "title": "Lakeshore: the Trial Balance and party balances each answer in under 10 seconds",
+  "status": "PASS",
+  "evidence": "GL 323 ms, receivables 50 ms, payables 27 ms"
+ },
+ {
+  "id": "P-01",
+  "area": "R161",
+  "title": "Lakeshore: the complete output of all 22 report definitions (registers, ledgers, Bank General Ledger, ageing, trial balances, tax) answers in under 10 seconds each",
+  "status": "PASS",
+  "evidence": "general-ledger 200 149 ms; gl-account-ledger 200 173 ms; audit-history 200 20 ms; tax-summary 200 36 ms; currency-exposure 200 22 ms; reconciliation-summary 200 18 ms; ar-ageing 200 159 ms; ap-ageing 200 72 ms; customer-balances 200 162 ms; vendor-balances 200 75 ms; ar-trial-balance 200 141 ms; ap-trial-balance 200 77 ms; customer-directory 200 20 ms; vendor-directory 200 22 ms; invoice-register 200 86 ms; bill-register 200 48 ms; expense-register 200 21 ms; bank-transactions 200 54 ms; bank-general-ledger 200 119 ms; payroll-runs 200 23 ms; payroll-remittances 200 26 ms; tax-mapping 200 89 m"
+ },
+ {
+  "id": "C-01",
+  "area": "R161",
+  "title": "160 bills, invoices and expenses saved at the same moment in one company (16 at a time): every save succeeds, with no duplicate or skipped voucher number and every entry balanced",
+  "status": "PASS",
+  "evidence": "{\"W\":16,\"N\":160,\"status\":{\"exp 201\":40,\"bill 201\":80,\"inv 201\":40},\"vouchers\":160,\"duplicateSerials\":0,\"duplicateNumbers\":0,\"serialGaps\":0,\"unbalanced\":0}"
+ },
+ {
+  "id": "S-01",
+  "area": "R161",
+  "title": "Seeding through the API: Northwind (400 customers, 150 vendors, 5,000 invoices, 2,000 bills, payments, 400 journals, 3,000 imported bank lines) and Lakeshore (150, 60, 1,500, 600, payments, 150, 1,000) complete without an error",
+  "status": "FAIL",
+  "evidence": "Node.js v22.22.0 | {\"name\":\"Volume Lakeshore Inc\",\"id\":\"company_679978a1c4275d648bf6b68017adaf9c\",\"counts\":{\"customers\":150,\"vendors\":60,\"invoices\":1500,\"bills\":600,\"customerPayments\":1133,\"vendorPayments\":350,\"journals\":150,\"bankLines\":1000,\"bankImported\":1000},\"gl\":{\"1000\":1708437965,\"1100\":16944577,\"1200\":749841037,\"2050\":-62345716,\"2100\":-245792729,\"3000\":-54300000,\"4000\":-2243820900,\"6100\":23014500,\"6200\":22449800,\"6300\":19851000,\"6400\":21148100,\"6500\":21987800,\"6700\":21891700,\"6800\":692866},\"arOpen\":749841037,\"apOpen\":62345716,\"openInvoices\":527,\"seconds\":53}"
+ },
+ {
+  "id": "X-vol-ui.mjs",
+  "area": "R161",
+  "title": "vol-ui.mjs ran to the end",
+  "status": "FAIL",
+  "evidence": "Command failed: node vol-ui.mjs\nfile:///srv/gate/t/vol/vol-ui.mjs:18\nawait select([NW.id]);\n                 ^\n\nTypeError: Cannot read properties of undefined (reading 'id')\n    at file:///srv/gate/t/vol/vol-ui.mjs:18:18\n\nNode.js v22.22.0\n"
+ }
+]

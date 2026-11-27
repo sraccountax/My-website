@@ -1,0 +1,26 @@
+Tegh — local text reading for Document Intake (R179)
+
+This folder contains third-party software and models. They run only in the user's browser. No image or text is sent
+to any outside service.
+
+1. PaddleOCR PP-OCRv5 models
+   - Text detector: PaddlePaddle/PP-OCRv5_mobile_det (Hugging Face), revision
+     0d63e78e2b680928f6b1747d76a08db6e645efb7 → ppocrv5-mobile-det.onnx
+   - Text recogniser (Latin script, including English and French):
+     PaddlePaddle/latin_PP-OCRv5_mobile_rec (Hugging Face), revision ab2cd5cc5fa6309be2e5acdfe66eca2c2c127d57
+     → ppocrv5-mobile-rec-latin.onnx; its character list → ppocrv5-mobile-rec-latin-dict.json
+   - Copyright (c) PaddlePaddle Authors. Licensed under the Apache License, Version 2.0
+     (LICENSE-PaddleOCR-Apache-2.0.txt).
+   - Modification: the official Paddle inference files were converted to ONNX with paddle2onnx 2.1.0 (PaddlePaddle
+     3.3.1, opset 14). The weights were not changed. manifest.json lists the SHA-256 of every source file.
+
+2. PaddleOCR processing code
+   - /assets/tegh-paddle-ocr-r179.js contains a JavaScript port of PaddleOCR's pre- and post-processing
+     (DetResizeForTest, NormalizeImage, DBPostProcess, sorted_boxes, get_rotate_crop_image, resize_norm_img,
+     CTCLabelDecode). Copyright (c) PaddlePaddle Authors, Apache License 2.0. Changed from the original: written in
+     JavaScript, and OpenCV contour and pyclipper offset steps are replaced by equivalent code for rectangular boxes.
+
+3. ONNX Runtime Web 1.30.0 (ort.wasm.min.js, ort-wasm-simd-threaded.mjs, ort-wasm-simd-threaded.wasm)
+   - Copyright (c) Microsoft Corporation. Licensed under the MIT License (LICENSE-onnxruntime-MIT.txt).
+   - Third-party notices for components inside the runtime: ThirdPartyNotices-onnxruntime.txt (from the same
+     onnxruntime 1.30.0 release).

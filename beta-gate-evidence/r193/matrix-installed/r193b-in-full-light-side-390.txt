@@ -1,0 +1,21 @@
+r193b-in-full-light-side-390 IN full light side screens 118 forms 9 with issues 20 {"mode":"full-accounting","theme":"light","nav":"side","company":"company_0a8f18e07aa190bd7bdb8e402a64e608"}
+   banking:manage-bank-accounts [Add Bank Account] low-contrast Version 5.9.9 2.7
+   receivables:create-customer        foreign-wording canada
+   receivables:products-and-services [New Item] low-contrast Version 5.9.9 2.7
+   payables:create-vendor             foreign-wording canada
+   general-ledger:period-trial-balance api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted
+   advanced-accounting:budgets [Create Budget] low-contrast Version 5.9.9 2.7
+   advanced-accounting:fixed-assets [Add Asset Schedule] low-contrast Version 5.9.9 2.7
+   advanced-accounting:analytics [New Analytic Account] low-contrast Version 5.9.9 2.7
+   fn:openSiteReleaseSettings         foreign-wording canada
+   fn:openTaxCodes                    foreign-wording canadian
+   fn:openTaxCodeReport               foreign-wording canadian
+   fn:openRates                       foreign-wording canadian
+   fn:openGifiReport                  foreign-wording gifi,canadian
+   fn:openGifiMapping                 foreign-wording gifi,canadian
+   fn:openInvoiceTemplates [Add Template] low-contrast Version 5.9.9 2.7
+   fn:openCommandCentre [Create CustomerOpens Create Customer.] low-contrast Version 5.9.9 2.7
+   fn:openAccountingNotes [New Note]  low-contrast Version 5.9.9 2.7
+   report:General Ledger Detail       api 413 /api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-04-01&end=2026-11-23
+   report:Receivable Ageing           api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted
+   report:Budget versus Actual [Create Budget] low-contrast Version 5.9.9 2.7

@@ -1,0 +1,21 @@
+import {S,sql,rec,check,save,ORIGIN} from './lib.mjs';import fs from 'fs';const ids=JSON.parse(fs.readFileSync('ids.json'));const A='REC';
+const o=new S();await o.login('owner@gate.test','Gate!Owner#2026pw');o.cid=ids.BC;
+const tbOf=async cid=>{o.cid=cid;const r=await o.call('portal/trial-balance?start=2026-01-01&end=2026-09-30');return Object.fromEntries((r.b.rows||[]).map(x=>[x.code,x.closingDebitCents-x.closingCreditCents]).filter(([,v])=>v))};
+const counts=cid=>['invoices','bills','customers','vendors','journal_entries','bank_transactions','tax_codes','document_tax_lines','party_payments','accounting_notes'].map(t=>t+'='+sql(`SELECT COUNT(*) FROM ${t} WHERE company_id='${cid}'`)).join(' ');
+const src=await tbOf(ids.BC);const srcCounts=counts(ids.BC);
+o.cid=ids.BC;const res=await o.call('backup/export',{method:'POST',json:{},raw:true});const buf=Buffer.from(await res.arrayBuffer());
+fs.writeFileSync('/srv/gate/ev/bc-backup.tegh',buf);
+rec('BR-01',A,'Backup export downloads a signed .tegh archive',res.status===200&&buf.slice(0,2).toString()==='PK'?'PASS':'FAIL',res.status+' '+res.headers.get('content-type')+' bytes='+buf.length);
+const before=sql(`SELECT GROUP_CONCAT(id) FROM companies`).split(',');
+const fd=new FormData();fd.append('backup',new Blob([buf]),'bc-backup.tegh');for(const [k,v] of [['companyName','Gate BC Restored'],['confirm','RESTORE'],['confirmation','RESTORE'],['mode','new']])fd.append(k,v);
+let r=await o.call('backup/restore',{method:'POST',body:fd});
+rec('BR-02',A,'Restore into a new company succeeds',r.s<300?'PASS':'FAIL',r.s+' '+JSON.stringify(r.b).slice(0,200));
+const nid=r.b?.companyId;const isNew=!!nid&&!before.includes(nid);
+if(isNew){const dst=await tbOf(nid);check('BR-03',A,'Restored company Trial Balance equals source, account by account',dst,src);
+ check('BR-04',A,'Restored record counts equal source (documents, journals, bank lines, tax codes, tax detail, payments, notes)',counts(nid),srcCounts);
+ const ag=async cid=>{o.cid=cid;const a=await o.call('portal/aging?type=receivable&asOf=2026-09-30');const p=await o.call('portal/aging?type=payable&asOf=2026-09-30');return [(a.b.totals||[]).reduce((x,y)=>x+y,0),(p.b.totals||[]).reduce((x,y)=>x+y,0)]};
+ check('BR-05',A,'Restored AR and AP ageing totals equal source',await ag(nid),await ag(ids.BC));
+ fs.writeFileSync('/srv/gate/t/ids.json',JSON.stringify({...ids,RESTORED:nid}));}
+const bad=Buffer.from(buf);bad[Math.floor(bad.length/2)]^=0xff;const fd2=new FormData();fd2.append('backup',new Blob([bad]),'tampered.tegh');fd2.append('companyName','Tampered');
+r=await o.call('backup/restore',{method:'POST',body:fd2});rec('BR-08',A,'Tampered backup refused with a 4xx integrity message (no 500)',r.s>=400&&r.s<500?'PASS':'FAIL',r.s+' '+(r.b?.code||''));
+save('rec.json');

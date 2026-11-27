@@ -1,0 +1,10 @@
+PASS     B-01       Northwind in the browser: Profit and Loss shows the net income summed independently (67,83 | 1974 ms; net shown true; errors none
+PASS     B-02       Northwind: Receivable Ageing lists the open invoices and totals 24,439,946.44 | 2471 ms; 1769 rows; total shown true
+PASS     B-03       Northwind: the customer invoice register opens with 5000 invoices in time, and the search  | 11323 ms; 5000 rows shown; after search "Client 0007": 13; scrolled to the last row tru
+PASS     B-04       Northwind: the period Trial Balance screen shows equal debit and credit totals of the inde | 1800 ms; 83,162,478.27 shown 4 times
+PASS     B-05       Both companies selected: Profit and Loss shows the combined net income 88,960,100.44 | 1662 ms; combined shown true; Northwind alone shown false
+PASS     B-06       Both companies: Receivable Ageing totals 31,938,356.81 and labels each line with its compa | 2651 ms; 2296 rows; total shown true; company labels , VN
+PASS     B-07       Both companies: the all-time Day Book (over 25,000 lines) says it is too large to show com | all time: clear "exceeds 25,000 rows" message (22196 ms); September 2026: 2013 lines in
+PASS     B-08       Guided mode with 3000 bank lines waiting: Home shows the count, the To Do opens the review | home 1931 ms, count shown true; review queue "3000 matching" in 636 ms; amounts under t
+
+[exited with code 0]

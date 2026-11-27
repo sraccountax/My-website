@@ -1,0 +1,12 @@
+import {S, sql} from '/srv/gate/t/lib.mjs'; import fs from 'fs';
+const st = JSON.parse(fs.readFileSync('/srv/gate/t/.group-state.json','utf8'));
+const o = new S(); await o.login('owner@gate.test','Gate!Owner#2026pw'); o.cid = st.AGH;
+const acct = c => sql(`SELECT id FROM accounts WHERE company_id='${st.AGH}' AND code='${c}'`);
+const v = async (name, currency, country, province) => { const r = await o.call('vendors',{method:'POST',json:{name:name+' '+Date.now()%100000,email:'',address:'1 St',defaultTermsDays:30,currency,country,province}}); return r.b.vendor?.id||r.b.id; };
+const bill = async (vid, currency, n, extra={}) => { const r = await o.call('bills',{method:'POST',json:{vendorId:vid,number:n+Date.now()%100000,billDate:'2026-09-20',dueDate:'2026-10-20',currency,taxEntryMode:'exclusive',memo:'probe',issue:true,...(currency==='USD'?{exchangeRateMicros:1_365_000,exchangeRateTyped:true,exchangeRateConfirmed:true}:{}),lines:[{description:'Service',quantity:1,unitPriceCents:100000,accountId:acct('6700')}],...extra}}); const id=r.b?.bill?.id||r.b?.id; return [r.s, id? sql(`SELECT CONCAT_WS(' ',b.currency,b.subtotal_cents,'gst',b.gst_hst_cents,'pst',b.pst_cents,'code',IFNULL(t.code,'-')) FROM bills b LEFT JOIN tax_codes t ON t.id=b.tax_code_id WHERE b.id='${id}'`):JSON.stringify(r.b).slice(0,150), id]; };
+const usV = await v('US SaaS Inc', 'USD', 'United States', '');
+const onV = await v('Toronto Supplier', 'CAD', 'Canada', 'ON');
+const r1 = await bill(usV, 'USD', 'US-'); const r2 = await bill(onV, 'CAD', 'ON-');
+console.log('US vendor USD bill, no tax code given:', r1.slice(0,2));
+console.log('ON vendor CAD bill, no tax code given :', r2.slice(0,2));
+for (const [lab, r] of [['US', r1], ['ON', r2]]) if (r[2]) console.log(lab, 'journal:', sql(`SELECT GROUP_CONCAT(CONCAT(a.code,':',jl.debit_cents,'/',jl.credit_cents) SEPARATOR ' ') FROM journal_lines jl JOIN accounts a ON a.id=jl.account_id JOIN bills b ON b.issued_journal_entry_id=jl.journal_entry_id WHERE b.id='${r[2]}'`));

@@ -1,0 +1,11 @@
+r193b-ca-full-dark-top-1440 CA full dark top screens 115 forms 13 with issues 10 {"mode":"full-accounting","theme":"dark","nav":"top","company":"company_76bdcd0793b4cbccd3d6e18d66c4433b"}
+   general-ledger:period-trial-balance api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted
+   advanced-accounting:budgets [Create Budget] low-contrast Actuals follow each acco 2.8
+   fn:openTaxCodes                    foreign-wording cgst,sgst
+   fn:openTaxCodeReport [Add Tax Code] foreign-wording cgst,sgst
+   fn:openUsers                       foreign-wording tds
+   fn:openInvoiceTemplates            light-panel srp-template-preview,srp-template-preview,srp-template-preview,srp-template-preview
+   report:General Ledger Detail       api 413 /api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-01-01&end=2026-11-23
+   report:Receivable Ageing           api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted
+   report:Tax Code Report [Add Tax Code] foreign-wording cgst,sgst
+   report:Budget versus Actual [Create Budget] low-contrast Actuals follow each acco 2.8

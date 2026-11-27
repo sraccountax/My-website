@@ -1,0 +1,47 @@
+[
+ {
+  "route": "auth/me",
+  "median": 14,
+  "max": 17
+ },
+ {
+  "route": "workspace/summary",
+  "median": 16,
+  "max": 19
+ },
+ {
+  "route": "portal/trial-balance?start=2026-01-01&end=2026-09-30",
+  "median": 15,
+  "max": 264
+ },
+ {
+  "route": "portal/aging?type=receivable&asOf=2026-09-30",
+  "median": 11,
+  "max": 12
+ },
+ {
+  "route": "professional-output/v5980/tax-summary?start=2026-01-01&end=2026-09-30",
+  "median": 25,
+  "max": 27
+ },
+ {
+  "route": "professional-output/v5980/general-ledger?start=2026-01-01&end=2026-09-30",
+  "median": 23,
+  "max": 26
+ },
+ {
+  "route": "reports/v5600/financial?kind=profit-loss&reportKey=profit_loss&start=2026-01-01&end=2026-09-30",
+  "median": 14,
+  "max": 15
+ },
+ {
+  "route": "tax-codes",
+  "median": 11,
+  "max": 12
+ },
+ {
+  "route": "payroll/workspace",
+  "median": 12,
+  "max": 13
+ }
+]

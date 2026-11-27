@@ -1,0 +1,149 @@
+[
+ {
+  "id": "ON-01",
+  "area": "R157",
+  "title": "A company created with onboarding starts locked, with only the company step complete; its time zone is saved",
+  "status": "PASS",
+  "evidence": "201; locked true; pending chart,tax,banks,imports,team; time zone America/Vancouver; accounts besides 9999: 0"
+ },
+ {
+  "id": "ON-02",
+  "area": "R157",
+  "title": "A company created without onboarding (every company before R157, and API-created books) is never locked",
+  "status": "PASS",
+  "evidence": "new API company required false, locked false; existing company required false, locked false"
+ },
+ {
+  "id": "ON-03",
+  "area": "R157",
+  "title": "Chart of accounts from the standard template: the core accounts and two bank accounts are added; applying it twice is refused",
+  "status": "PASS",
+  "evidence": "201, 44 accounts; core codes 1000,1100,1200,2000,2100,2110,3000,4000; bank accounts bank:1000,credit_card:2000; second time 409 chart_not_empty"
+ },
+ {
+  "id": "ON-04",
+  "area": "R157",
+  "title": "Tax codes from a file: a row naming an account that is not in the chart is refused with its row number; a valid file creates each code with its taxes, rates and accounts",
+  "status": "PASS",
+  "evidence": "bad file 422: \"Row 3: GL account 2999 is not in the chart of accounts.\"; good file 201; stored BC-GST-PST/GST/5000/2100/1100/1 BC-GST-PST/PST/7000/2110/-/0 ON-HST/HST/13000/2100/1100/1"
+ },
+ {
+  "id": "ON-05",
+  "area": "R157",
+  "title": "Only an owner or admin can mark steps; the company step cannot be reopened; other steps can; the last step finishes onboarding, which then cannot be reopened",
+  "status": "PASS",
+  "evidence": "viewer 403; company step reopen 409; done 2,3,4,5; reopen tax → 4; finished true, locked false; reopen after finish 409 onboarding_finished; audit entries 7"
+ },
+ {
+  "id": "TZ-01",
+  "area": "R157",
+  "title": "The company time zone: an unknown zone is refused; Company Details saves a new one",
+  "status": "PASS",
+  "evidence": "unknown zone 422 \"Choose a time zone from the list.\"; update 200 ; stored America/Edmonton"
+ },
+ {
+  "id": "TZ-02",
+  "area": "R157",
+  "title": "The accounting date follows the company: on the same moment an invoice dated the UTC+14 company’s today is accepted there, and refused as a future date in a Toronto company when that day has not begun in Toronto or UTC",
+  "status": "PASS",
+  "evidence": "server moment 2026-10-01T16:06:46.475Z: Kiritimati 2026-10-02, Toronto 2026-10-01, UTC 2026-10-01; Kiritimati company 201; Toronto company 400 Invoice date cannot be in the future. (expected refused)"
+ },
+ {
+  "id": "QA-01",
+  "area": "R157",
+  "title": "Quick Actions chosen in one company are used in another company of the same person where none were chosen yet",
+  "status": "PASS",
+  "evidence": "company B before: default; after choosing in A: {\"version\":3,\"actionIds\":[\"report.profit_loss\",\"nav.bank_import\",\"nav.customers\"],\"source\":\"user\"}"
+ },
+ {
+  "id": "ON-06",
+  "area": "R157",
+  "title": "A new user’s first screen is onboarding step 1 (create the company) with all six steps shown; the company step asks for the time zone",
+  "status": "PASS",
+  "evidence": "1 Company | 2 Chart of accounts | 3 Tax codes | 4 Bank accounts | 5 Data import | 6 Team & invoices; time zone choices 8"
+ },
+ {
+  "id": "ON-07",
+  "area": "R157",
+  "title": "After the company is created the onboarding page opens; modules are locked (lock badges), a report opens the onboarding page instead, and a setup screen opens with a bar back to setup",
+  "status": "PASS",
+  "evidence": "first page onboarding; locked true; lock badges 8; steps 6; time zone America/Winnipeg; chart accounts 0; P&L → onboarding \"Profit and Loss opens once setup is finished. Complete the steps below\"; Tax Codes → tax-codes, bar \"Setting up · Step 2 of 6 Chart of accounts · 1 of 6 complete\"; back → onboarding"
+ },
+ {
+  "id": "ON-08",
+  "area": "R157",
+  "title": "The chart of accounts step applies the template from the page and then shows what Tegh detects",
+  "status": "PASS",
+  "evidence": "\"Tegh sees 44 accounts in this company.\"; template now disabled true"
+ },
+ {
+  "id": "ON-09",
+  "area": "R157",
+  "title": "Signing in again while onboarding is incomplete opens the onboarding page again",
+  "status": "PASS",
+  "evidence": "after sign-in: onboarding"
+ },
+ {
+  "id": "ON-10",
+  "area": "R157",
+  "title": "Settings lists Onboarding and the Tegh tour",
+  "status": "PASS",
+  "evidence": "Settings › Onboarding opens onboarding"
+ },
+ {
+  "id": "ON-11",
+  "area": "R157",
+  "title": "Marking the remaining steps complete on the page finishes onboarding and unlocks Tegh",
+  "status": "PASS",
+  "evidence": "finished card 1; locked false; lock badges 0; completed in database 1"
+ },
+ {
+  "id": "ON-12",
+  "area": "R157",
+  "title": "The Tegh Assist tour spotlights the real menus step by step and ends with the bank statement call to action, which opens Upload Statement",
+  "status": "PASS",
+  "evidence": "8 stops (8 spotlit): Home is your daily view* → Banking* → Money In* → Money Out* → Reports* → Search and Ask Tegh* → Your profile* → Settings*; final \"Start with your bank statement\"; button opens bank-imports; tour recorded 1"
+ },
+ {
+  "id": "ON-13",
+  "area": "R157",
+  "title": "Signing in after onboarding opens Home (not onboarding), nothing is locked, and the animated “start with a bank statement import” card is shown while there are no bank lines",
+  "status": "PASS",
+  "evidence": "after sign-in dashboard; locked false; bank card 1"
+ },
+ {
+  "id": "TZ-03",
+  "area": "R157",
+  "title": "In the browser a company’s “today” (new invoice date) is its own date: the UTC+14 company shows its date, the Toronto company Toronto’s",
+  "status": "PASS",
+  "evidence": "UTC+14 company 2026-10-02 (expected 2026-10-02); Toronto company 2026-10-01 (expected 2026-10-01)"
+ },
+ {
+  "id": "QA-02",
+  "area": "R157",
+  "title": "Each Home shortcut shows its keyboard keys, and Ctrl+Alt+2 opens the second shortcut from another page",
+  "status": "PASS",
+  "evidence": "keys Ctrl+Alt+1, Ctrl+Alt+2, Ctrl+Alt+3; labels Profit & loss, Trial balance, Customers; Ctrl+Alt+2 from Customers opened trial-balance-general-ledger \"Trial Balance\""
+ },
+ {
+  "id": "BE-01",
+  "area": "R157",
+  "title": "Document Intake and Upload Statement are marked Beta with a reminder to check what is read before relying on it",
+  "status": "PASS",
+  "evidence": "document-intake: badge 1, \"Beta. Document Intake reads vendor invoices and receipts in your browser. Check \"; bank-imports: badge 1, \"Beta. The statement reader (PDF converter) is in Beta. Check the imported dates,\""
+ },
+ {
+  "id": "BE-02",
+  "area": "R157",
+  "title": "A new vendor invoice has a Document Intake section marked Beta; choosing a file sends it through Document Intake, which reads it and offers “Create vendor invoice”",
+  "status": "PASS",
+  "evidence": "section above the form true, Beta 1; documents 0 → 1; now on document-intake; \"Create vendor invoice\" offered true"
+ },
+ {
+  "id": "R157-JS",
+  "area": "R157",
+  "title": "No page errors during the R157 checks",
+  "status": "PASS",
+  "evidence": ""
+ }
+]

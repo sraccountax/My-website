@@ -1,0 +1,205 @@
+[
+ {
+  "id": "FD-01",
+  "area": "R171",
+  "title": "The owner’s feed shows the company’s business activity in plain language, newest first",
+  "status": "PASS",
+  "evidence": "200; 7 posts; missing none; newest first true; first: finalized a pay run | changed Editor’s role to editor | added a new customer, <img src=x onerror=\"window.__xss=1\">Mallory mvq64jrj | added a new supplier, Lakeside Flour Co. mvq64jrj"
+ },
+ {
+  "id": "FD-02",
+  "area": "R171",
+  "title": "The issued invoice post carries the amount and opens the invoice",
+  "status": "PASS",
+  "evidence": "{\"amount\":{\"cents\":113000,\"currency\":\"CAD\"},\"link\":{\"type\":\"invoice\",\"id\":\"invoice_9b70468ab450334a534b8c6a8c6d22f9\"}}"
+ },
+ {
+  "id": "FD-03",
+  "area": "R171",
+  "title": "Who did it: shown by name with “you” marked; the editor’s supplier is the editor’s",
+  "status": "PASS",
+  "evidence": "invoice by you=true; supplier by Editor you=false"
+ },
+ {
+  "id": "FD-04",
+  "area": "R171",
+  "title": "Private details stay out: no email addresses, IP or browser fingerprints, and technical entries (layout preferences) are not posted",
+  "status": "PASS",
+  "evidence": "emails false; hashes false; interface posts 0"
+ },
+ {
+  "id": "FD-05",
+  "area": "R171",
+  "title": "Payroll: the owner sees the pay run (no amount); a viewer, who cannot see payroll, does not",
+  "status": "PASS",
+  "evidence": "owner sees \"finalized a pay run\" amount null; viewer 200 payroll posts 0; viewer payroll filter 0"
+ },
+ {
+  "id": "FD-06",
+  "area": "R171",
+  "title": "Team changes: the owner sees the member’s name; a viewer (no access to the team list) sees “a team member”",
+  "status": "PASS",
+  "evidence": "owner: changed Editor’s role to editor | viewer: changed a team member’s role to editor"
+ },
+ {
+  "id": "FD-07",
+  "area": "R171",
+  "title": "Another company’s feed cannot be read, even with its id",
+  "status": "PASS",
+  "evidence": "editor (not a member) asking for the other company: 403"
+ },
+ {
+  "id": "FD-08",
+  "area": "R171",
+  "title": "Filters: Sales shows only sales posts; “only other people” leaves out your own; an unknown filter is refused",
+  "status": "PASS",
+  "evidence": "sales 3 (sales); others 2 all others true; unknown 422"
+ },
+ {
+  "id": "FD-09",
+  "area": "R171",
+  "title": "Paging: older posts follow on without repeats; “after” returns only newer posts",
+  "status": "PASS",
+  "evidence": "page1 3, page2 3, overlap 0; after latest 0"
+ },
+ {
+  "id": "FD-10",
+  "area": "R171",
+  "title": "Reading the feed records nothing and changes nothing",
+  "status": "PASS",
+  "evidence": "audit rows 9 → 9"
+ },
+ {
+  "id": "FD-11",
+  "area": "R171",
+  "title": "Record text is returned as data: the customer name with markup comes back unchanged for the browser to escape",
+  "status": "PASS",
+  "evidence": "added a new customer, <img src=x onerror=\"window.__xss=1\">Mallory mvq64jrj"
+ },
+ {
+  "id": "FD-12",
+  "area": "R171",
+  "title": "Signed-out requests are refused",
+  "status": "PASS",
+  "evidence": "401"
+ },
+ {
+  "id": "FD-UI-1920",
+  "area": "R171",
+  "title": "Dashboard at 1920×1080, light, side navigation: the feed is open beside the page; nothing on the page is covered; no sideways scroll",
+  "status": "PASS",
+  "evidence": "{\"page\":\"dashboard\",\"mode\":\"docked\",\"pillInHeading\":true,\"box\":[1556,340,344,720],\"inView\":true,\"covered\":[],\"pageX\":0,\"posts\":7,\"applied\":{\"theme\":\"light\",\"nav\":\"side\"}}"
+ },
+ {
+  "id": "FD-UI-2560-dark",
+  "area": "R171",
+  "title": "Dashboard at 2560×1440, dark, side navigation: the feed is open beside the page; nothing on the page is covered; no sideways scroll",
+  "status": "PASS",
+  "evidence": "{\"page\":\"dashboard\",\"mode\":\"docked\",\"pillInHeading\":true,\"box\":[2196,700,344,720],\"inView\":true,\"covered\":[],\"pageX\":0,\"posts\":7,\"applied\":{\"theme\":\"dark\",\"nav\":\"side\"}}"
+ },
+ {
+  "id": "FD-UI-1440",
+  "area": "R171",
+  "title": "Dashboard at 1440×900, light, side navigation: a Company feed button in the page heading; nothing on the page is covered; no sideways scroll",
+  "status": "PASS",
+  "evidence": "{\"page\":\"dashboard\",\"mode\":\"pill\",\"pillInHeading\":true,\"box\":[1278,108,146,36],\"inView\":true,\"covered\":[],\"pageX\":0,\"posts\":7,\"applied\":{\"theme\":\"light\",\"nav\":\"side\"}}"
+ },
+ {
+  "id": "FD-UI-1366-dark",
+  "area": "R171",
+  "title": "Dashboard at 1366×768, dark, side navigation: a Company feed button in the page heading; nothing on the page is covered; no sideways scroll",
+  "status": "PASS",
+  "evidence": "{\"page\":\"dashboard\",\"mode\":\"pill\",\"pillInHeading\":true,\"box\":[1204,108,146,36],\"inView\":true,\"covered\":[],\"pageX\":0,\"posts\":7,\"applied\":{\"theme\":\"dark\",\"nav\":\"side\"}}"
+ },
+ {
+  "id": "FD-UI-1280-top",
+  "area": "R171",
+  "title": "Dashboard at 1280×720, light, top navigation: a Company feed button in the page heading; nothing on the page is covered; no sideways scroll",
+  "status": "PASS",
+  "evidence": "{\"page\":\"dashboard\",\"mode\":\"pill\",\"pillInHeading\":true,\"box\":[1118,108,146,36],\"inView\":true,\"covered\":[],\"pageX\":0,\"posts\":7,\"applied\":{\"theme\":\"light\",\"nav\":\"top\"}}"
+ },
+ {
+  "id": "FD-UI-1920-dark-top",
+  "area": "R171",
+  "title": "Dashboard at 1920×1080, dark, top navigation: the feed is open beside the page; nothing on the page is covered; no sideways scroll",
+  "status": "PASS",
+  "evidence": "{\"page\":\"dashboard\",\"mode\":\"docked\",\"pillInHeading\":true,\"box\":[1556,340,344,720],\"inView\":true,\"covered\":[],\"pageX\":0,\"posts\":7,\"applied\":{\"theme\":\"dark\",\"nav\":\"top\"}}"
+ },
+ {
+  "id": "FD-UI-1024-dark-top",
+  "area": "R171",
+  "title": "Dashboard at 1024×768, dark, top navigation: a Company feed button in the page heading; nothing on the page is covered; no sideways scroll",
+  "status": "PASS",
+  "evidence": "{\"page\":\"dashboard\",\"mode\":\"pill\",\"pillInHeading\":true,\"box\":[862,108,146,36],\"inView\":true,\"covered\":[],\"pageX\":0,\"posts\":7,\"applied\":{\"theme\":\"dark\",\"nav\":\"top\"}}"
+ },
+ {
+  "id": "FD-UI-ESC",
+  "area": "R171",
+  "title": "Names and memos are shown as text: the customer name containing markup runs nothing",
+  "status": "PASS",
+  "evidence": "E Editor added a new customer, <img src=x onerror=\"window.__xss=1\">Mallory mvq64jrj Sales·1 min ago"
+ },
+ {
+  "id": "FD-UI-MIN",
+  "area": "R171",
+  "title": "Minimise turns the window into the Company feed button in the heading; the choice is kept after a refresh; the button opens it again",
+  "status": "PASS",
+  "evidence": "after minimise pill; after refresh pill; reopened docked"
+ },
+ {
+  "id": "FD-UI-LIVE",
+  "area": "R171",
+  "title": "Another person’s new activity appears without reloading, marked New, and the button counts it while minimised",
+  "status": "PASS",
+  "evidence": "button count \"1\"; post {\"text\":\"E Editor added a new customer, Northshore Deli mvq64jrjNew Sales·just now\",\"isNew\":true}"
+ },
+ {
+  "id": "FD-UI-FLOAT",
+  "area": "R171",
+  "title": "On a narrower screen the Company feed button opens the window over the page; Escape closes it again",
+  "status": "PASS",
+  "evidence": "pill → floating ([916,260,344,520]) → pill"
+ },
+ {
+  "id": "FD-UI-OPEN",
+  "area": "R171",
+  "title": "Choosing the invoice post opens that invoice; the feed is not shown on other screens and returns on the Dashboard",
+  "status": "PASS",
+  "evidence": "#tegh=invoice-detail%3Ainvoice_9b70468ab450334a534; invoice shown true; feed hidden there true, button false; back on Dashboard docked"
+ },
+ {
+  "id": "FD-UI-KEY",
+  "area": "R171",
+  "title": "Keyboard: a post can be reached and opened with Enter; Escape minimises the window",
+  "status": "PASS",
+  "evidence": "focusable true; Escape → pill; Enter opened a record true"
+ },
+ {
+  "id": "FD-UI-GUIDED",
+  "area": "R171",
+  "title": "Guided Home shows the same feed and it covers nothing there (the Month-End Checklist shortcut stays clickable)",
+  "status": "PASS",
+  "evidence": "docked; covered []; shortcut \"Month-end Checklist\" clickable true"
+ },
+ {
+  "id": "FD-JS",
+  "area": "R171",
+  "title": "No browser errors on the desktop",
+  "status": "PASS",
+  "evidence": "none"
+ },
+ {
+  "id": "FD-PH",
+  "area": "R171",
+  "title": "Phone 390×844: a Company feed button in the page heading; it opens a full-screen sheet with the posts; minimising returns to the Dashboard; no sideways scroll",
+  "status": "PASS",
+  "evidence": "{\"pill\":{\"inHeading\":true,\"visible\":true},\"sheet\":{\"box\":[0,0,390,844],\"pageX\":0},\"closed\":true}"
+ },
+ {
+  "id": "FD-PH-JS",
+  "area": "R171",
+  "title": "No browser errors on the phone",
+  "status": "PASS",
+  "evidence": "none"
+ }
+]

@@ -1,0 +1,121 @@
+[
+ {
+  "id": "IC-01",
+  "area": "GROUP",
+  "title": "Management fee to the BC branch: tax Tegh picks by default for an Ontario seller billing a BC customer for services",
+  "status": "PASS",
+  "evidence": "tax 1,250.00 (GST/HST 1,250.00, PST 0.00); expected 1,250.00 GST only"
+ },
+ {
+  "id": "IC-02",
+  "area": "GROUP",
+  "title": "Management fees Aug and Sep (GST code), AWB records three mirror bills; group AR to AWB equals AWB AP to AGH",
+  "status": "PASS",
+  "evidence": "AGH receivable from AWB 78,750.00; AWB payable to AGH 78,750.00 (difference 0.00, caused by the default tax on the July invoice if any)"
+ },
+ {
+  "id": "IC-03",
+  "area": "GROUP",
+  "title": "Tegh links the two sides of an intercompany charge (mirror bill created or suggested in the other company)",
+  "status": "FAIL",
+  "evidence": "no intercompany link: AWB bills created automatically 0; any intercompany feature in the portal: false. Every IC charge must be keyed twice by hand."
+ },
+ {
+  "id": "IC-04",
+  "area": "GROUP",
+  "title": "Loan of $500,000 from AGH to AWB with 6% monthly interest; AWB keys September interest as $2,050 instead of $2,500 — does Tegh flag the mismatch?",
+  "status": "FAIL",
+  "evidence": "AGH 1260 507,500.00 vs AWB 2260 507,050.00: difference 450.00 is not flagged anywhere (no intercompany reconciliation, no due-to/due-from matching)"
+ },
+ {
+  "id": "IC-05",
+  "area": "GROUP",
+  "title": "IT support charge to the Quebec subsidiary with a credit note; AQC mirrors bill and vendor credit; balances agree",
+  "status": "PASS",
+  "evidence": "invoice subtotal 35,222.90 (want 35,222.90), tax 1,761.15 (QC code: GST 5% only = 1,761.15); credit note 201/200; AQC bill 36,984.05, vendor credit 201/200 ; AQC AP control 32,784.05"
+ },
+ {
+  "id": "IC-06",
+  "area": "GROUP",
+  "title": "USD invoice from the parent to the India associate (export of services), part-paid at the bank rate of the payment day: realised FX gain in CAD",
+  "status": "PASS",
+  "evidence": "currency 201 rates 409; invoice CAD 13,650.00 at 1.3650; USD bank 201 ; payment 201 ; 6850 moved -162.00 (want -162.00 = gain of $162.00)"
+ },
+ {
+  "id": "IC-07",
+  "area": "GROUP",
+  "title": "India associate books the same charge: USD bill from the Canadian parent at ₹84.10, part payment at ₹84.90 (FX loss ₹4,800); TDS s.195 and GST reverse charge on import of services",
+  "status": "PASS",
+  "evidence": "currency 201 rates 409; bill 201 INR 841,000.00; USD bank 201 ; payment 201 ; 6850 4,800.00 (want 4,800.00 loss); TDS preview 200 {\"kind\":\"tds\",\"documentId\":\"bill_dda58fe17db3bc6f38b566534654ef5b\",\"number\":\"AGH-EXP-st7vi\",\"date\":\"2026-09-15\",\"party\":\"Aurora Group Holdings Inc. (Canada)\",\"p"
+ },
+ {
+  "id": "IC-08",
+  "area": "GROUP",
+  "title": "Consolidated P&L and balance sheet (AGH + AWB + AQC, same CAD base): intercompany revenue/expense and receivable/payable eliminated?",
+  "status": "FAIL",
+  "evidence": "the consolidated view adds companies line by line (rows keyed by code+type+name) with no eliminations; IC lines left in the group totals: 4500 Management fees (IC) 119,872.90; 4510 Interest income (IC) 7,500.00; 1260 Loan to Aurora West (IC) 507,500.00; 6510 Interest expense (IC) 7,050.00; 6550 Management fees (IC) 106,222.90; 2260 Loan from Aurora Holdings (IC) 507,050.00"
+ },
+ {
+  "id": "IC-09",
+  "area": "GROUP",
+  "title": "Consolidation including the India associate (INR): currency translation",
+  "status": "FAIL",
+  "evidence": "the consolidated view refuses companies with different base currencies (\"Consolidated financial statements require the same base currency\"); there is no translation (closing rate for balance sheet, average rate for P&L, CTA) and no equity-method view for an associate"
+ },
+ {
+  "id": "IC-10",
+  "area": "GROUP",
+  "title": "Parent closes July; branch can still post a July intercompany entry (no group close) — and the parent refuses its side",
+  "status": "INFO",
+  "evidence": "close 200; parent July entry 409 period_locked (refused, correct); branch July entry 201 (accepted: one side posted, the other refused; there is no group-level close)"
+ },
+ {
+  "id": "CX-01",
+  "area": "GROUP",
+  "title": "Rounding: 2.5 h × $133.33 and 3 × $0.333…; 60-line invoice; totals equal the sum of lines; journal balanced",
+  "status": "PASS",
+  "evidence": "2.5×133.33 = 333.33 (exact 333.325, want 333.33 half-up); 60-line subtotal 4,216.65 want 4,216.65, tax 548.16; unbalanced journals 0; name kept: Société Générale d’Équipement – Montréal ✓"
+ },
+ {
+  "id": "CX-02",
+  "area": "GROUP",
+  "title": "Duplicate vendor bill number from the same vendor is refused or warned",
+  "status": "PASS",
+  "evidence": "second bill with the same number 409 {\"error\":\"That vendor invoice number already exists.\",\"code\":\"duplicate_bill_number\"}"
+ },
+ {
+  "id": "CX-03",
+  "area": "GROUP",
+  "title": "Partial, over- and cross-period payments on the IC fee: AWB pays July in two instalments and overpays August by $10",
+  "status": "INFO",
+  "evidence": "instalments 201/201; overpayment 400 {\"error\":\"Payment cannot exceed the document balance.\",\"code\":\"request_error\"}; balances 0,2625000,2625000; AGH side still shows the invoices open (payments are not mirrored)"
+ },
+ {
+  "id": "CX-04",
+  "area": "GROUP",
+  "title": "Editor invited to the BC branch only cannot read the parent or Quebec books",
+  "status": "PASS",
+  "evidence": "own branch 200; parent 403; Quebec 403"
+ },
+ {
+  "id": "CX-05",
+  "area": "GROUP",
+  "title": "Ledgers stay balanced in every group company",
+  "status": "PASS",
+  "evidence": "unbalanced entries AGH/AWB/AQC/AIN 0/0/0/0; India company edition IN"
+ },
+ {
+  "id": "ED-01",
+  "area": "GROUP",
+  "title": "Creating an India company from a Canada-edition session: India fields (PAN, GSTIN, state) are refused or used, never silently dropped",
+  "status": "FAIL",
+  "evidence": "response 201; created company edition|country|currency = CA|Canada|CAD (an India company request became a Canadian company with CAD books and Canadian tax codes, and no error)"
+ },
+ {
+  "id": "ED-02",
+  "area": "GROUP",
+  "title": "One sign-in sees the whole group (Canadian and India companies) in the company switcher",
+  "status": "FAIL",
+  "evidence": "Canada sign-in sees 4 group companies (Aurora Group Holdings st7vi, Aurora India Probe st7vi, Aurora Québec st7vi, Aurora West Branch st7vi); India sign-in sees 1 (Aurora India st7vi); switching edition needs a new sign-in"
+ }
+]

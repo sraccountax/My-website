@@ -1,0 +1,15 @@
+node:fs:560
+  return binding.open(
+                 ^
+
+Error: ENOENT: no such file or directory, open '/srv/gate/ev/ui-light-390.json'
+    at Object.openSync (node:fs:560:18)
+    at Object.readFileSync (node:fs:444:35)
+    at file:///srv/gate/t/trapscan.mjs:8:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/srv/gate/ev/ui-light-390.json'
+}
+
+Node.js v22.22.2

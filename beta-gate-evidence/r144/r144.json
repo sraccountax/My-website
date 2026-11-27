@@ -1,0 +1,247 @@
+[
+ {
+  "id": "IN-00",
+  "area": "R144",
+  "title": "Insights endpoint answers (owner)",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "IN-01",
+  "area": "R144",
+  "title": "Duplicate vendor invoice found: Northern Office Supply NO-1 / NO-2, $226.00, 7 days apart",
+  "status": "PASS",
+  "evidence": "[\"Northern Office Supply has two vendor invoices for $226.00 dated 2026-09-08 and 2026-09-01 (NO-2 and NO-1).\"]"
+ },
+ {
+  "id": "IN-02",
+  "area": "R144",
+  "title": "Duplicate customer invoice found: Coastal Rentals, two × $525.00 on 2026-09-20",
+  "status": "PASS",
+  "evidence": "[\"INV-1002 and INV-1003 are both $525.00 to Coastal Rentals on 2026-09-20.\"]"
+ },
+ {
+  "id": "IN-03",
+  "area": "R144",
+  "title": "Unusual vendor invoice: Rogers RW-09 $565.00 = 5.0× the usual $113.00 (last 4)",
+  "status": "PASS",
+  "evidence": "[\"RW-09 is $565.00, about 5× the usual $113.00 from this vendor (last 4 invoices).\"]"
+ },
+ {
+  "id": "IN-04",
+  "area": "R144",
+  "title": "Only RW-09 is flagged as unusual (RW-08 at the usual amount is not)",
+  "status": "PASS",
+  "evidence": "1"
+ },
+ {
+  "id": "IN-05",
+  "area": "R144",
+  "title": "Tax code mismatch: ON code on an invoice to a BC customer",
+  "status": "PASS",
+  "evidence": "[\"Tax code ON on INV-1004 doesn't match the customer's region\"]"
+ },
+ {
+  "id": "IN-06",
+  "area": "R144",
+  "title": "Unassigned Expense balance $75.00 flagged",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "IN-07",
+  "area": "R144",
+  "title": "Bank line waiting more than 30 days flagged (1 line, oldest 2026-08-20)",
+  "status": "PASS",
+  "evidence": "[\"1 bank line waiting more than 30 days The oldest unposted bank line is from 2026-08-20. Until they are posted or matched, the books and the bank will not agree.\"]"
+ },
+ {
+  "id": "IN-08",
+  "area": "R144",
+  "title": "No false alarms: no negative bank and no payroll findings in this company",
+  "status": "PASS",
+  "evidence": "duplicate_invoice,duplicate_bill,unusual_amount,parked_balance,tax_code_region,stale_bank_lines"
+ },
+ {
+  "id": "IN-10",
+  "area": "R144",
+  "title": "Brief: cash $4,887.00, up $4,943.50 from 30 days ago (−$56.50 on 2026-09-01)",
+  "status": "PASS",
+  "evidence": "Cash in the bank is $4,887.00, up $4,943.50 from 30 days ago."
+ },
+ {
+  "id": "IN-11",
+  "area": "R144",
+  "title": "Brief: 2 customer invoices overdue ($2,599.00), oldest 62 days late",
+  "status": "PASS",
+  "evidence": "2 customer invoices are overdue ($2,599.00); the oldest is 62 days late."
+ },
+ {
+  "id": "IN-12",
+  "area": "R144",
+  "title": "Brief: 4 vendor invoices past due ($452.00); 2 due in the next 7 days ($452.00)",
+  "status": "PASS",
+  "evidence": "4 vendor invoices are past due ($452.00). | 2 vendor invoices are due in the next 7 days ($452.00)."
+ },
+ {
+  "id": "IN-13",
+  "area": "R144",
+  "title": "Brief: GST/HST owing $167.00 (collected 260+25+25+39 − credits 52+65+52+13)",
+  "status": "PASS",
+  "evidence": "You owe about $167.00 in GST/HST (collected minus input tax credits)."
+ },
+ {
+  "id": "IN-14",
+  "area": "R144",
+  "title": "Brief: 2 bank lines waiting in Match and Post",
+  "status": "PASS",
+  "evidence": "2 bank lines are waiting in Match and Post."
+ },
+ {
+  "id": "IN-15",
+  "area": "R144",
+  "title": "Brief: profit so far this year $1,825.00 (income 3,300 − expenses 1,475)",
+  "status": "PASS",
+  "evidence": "Profit so far this year is $1,825.00."
+ },
+ {
+  "id": "IN-16",
+  "area": "R144",
+  "title": "Brief: anomaly count matches the Worth-a-look list",
+  "status": "PASS",
+  "evidence": "Tegh noticed 6 things worth a look, starting with: possible duplicate invoice to Coastal Rentals."
+ },
+ {
+  "id": "IN-20",
+  "area": "R144",
+  "title": "Who to chase first: Lakeview Dental ($2,260.00, 62 days) ahead of Coastal Rentals ($339.00, 3 days)",
+  "status": "PASS",
+  "evidence": "[[\"Lakeview Dental\",226000,62],[\"Coastal Rentals\",33900,3]]"
+ },
+ {
+  "id": "IN-21",
+  "area": "R144",
+  "title": "Cash runway: balance $4,887.00 and six months of monthly change",
+  "status": "PASS",
+  "evidence": "{\"balanceCents\":488700,\"months\":[{\"month\":\"2026-04\",\"netChangeCents\":0},{\"month\":\"2026-05\",\"netChangeCents\":0},{\"month\":\"2026-06\",\"netChangeCents\":0},{\"month\":\"2026-07\",\"netChangeCents\":0},{\"month\":\"2"
+ },
+ {
+  "id": "IN-30",
+  "area": "R144",
+  "title": "Bank suggestion for the pending Rogers line: 6300 Telephone and Internet, ON code, 67% (2 of 2 similar lines × 2/3)",
+  "status": "PASS",
+  "evidence": "{\"accountId\":\"account_f820c90fb1622a61f76a50f49efa770c\",\"accountLabel\":\"6300 · Telephone and Internet\",\"taxCode\":\"CODE:taxcode_4926fcadb6a84cf68a4fe8e4c4b1ee95\",\"taxName\":\"ON\",\"confidence\":67,\"source\":\"history\",\"reason\":\"You posted “Rogers Wireless Pad” to 6300 Telephone and Internet with the ON tax code 2 times.\"}"
+ },
+ {
+  "id": "IN-31",
+  "area": "R144",
+  "title": "No suggestion for a line with no history (no guessing)",
+  "status": "PASS",
+  "evidence": "{\"suggestions\":{}}"
+ },
+ {
+  "id": "IN-40",
+  "area": "R144",
+  "title": "\"how much did I spend on telephone this year\" → $1,000.00 (bills 4×100+500, bank 2×50)",
+  "status": "PASS",
+  "evidence": "You spent $1,000.00 on 6300 Telephone and Internet in this year."
+ },
+ {
+  "id": "IN-41",
+  "area": "R144",
+  "title": "\"what were my sales this year\" → $3,300.00",
+  "status": "PASS",
+  "evidence": "Sales (income) were $3,300.00 in this year."
+ },
+ {
+  "id": "IN-42",
+  "area": "R144",
+  "title": "\"biggest expenses this year\" → 6300 Telephone and Internet $1,000.00 first, then 6400 Office Supplies $400.00",
+  "status": "PASS",
+  "evidence": "Your biggest expense in this year was Telephone and Internet ($1,000.00). [{\"label\":\"6300 Telephone and Internet\",\"amountCents\":100000},{\"label\":\"6400 Office Supplies\",\"amountCents\":40000},{\"label\":\"6999 Unassigned Expense\",\"amountCents\":7500}]"
+ },
+ {
+  "id": "IN-43",
+  "area": "R144",
+  "title": "\"top customers this year\" → Lakeview Dental $2,000.00 before tax, then Coastal Rentals $1,300.00",
+  "status": "PASS",
+  "evidence": "Your biggest customer in this year was Lakeview Dental ($2,000.00 before tax, 1 invoice). [{\"label\":\"Lakeview Dental\",\"amountCents\":200000},{\"label\":\"Coastal Rentals\",\"amountCents\":130000}]"
+ },
+ {
+  "id": "IN-44",
+  "area": "R144",
+  "title": "\"how much did we pay rogers in september\" → vendor answer: invoices $565.00, payments $0.00 in September 2026",
+  "status": "PASS",
+  "evidence": "Rogers Wireless: vendor invoices of $565.00 and payments of $0.00 in September 2026."
+ },
+ {
+  "id": "IN-47",
+  "area": "R144",
+  "title": "\"advertising and marketing this year\" → only 6100 Advertising and Promotion, $0.00, this year (not March; \"and\" ignored)",
+  "status": "PASS",
+  "evidence": "You spent $0.00 on 6100 Advertising and Promotion in this year."
+ },
+ {
+  "id": "IN-45",
+  "area": "R144",
+  "title": "\"telephone in Q3\" → $800.00 (RW-07 100 + RW-08 100 + RW-09 500 + bank Aug 50 + Sep 50)",
+  "status": "PASS",
+  "evidence": "You spent $800.00 on 6300 Telephone and Internet in Q3 2026."
+ },
+ {
+  "id": "IN-46",
+  "area": "R144",
+  "title": "Not a books question → not answered (falls through to normal Assist)",
+  "status": "PASS",
+  "evidence": "{\"answered\":false,\"currency\":\"CAD\"}"
+ },
+ {
+  "id": "IN-50",
+  "area": "R144",
+  "title": "\"Not a problem\" keeps the finding listed as dismissed and drops it from the brief count",
+  "status": "PASS",
+  "evidence": "200"
+ },
+ {
+  "id": "IN-51",
+  "area": "R144",
+  "title": "Undo restores it",
+  "status": "PASS",
+  "evidence": ""
+ },
+ {
+  "id": "IN-52",
+  "area": "R144",
+  "title": "Dismissal recorded in the audit trail",
+  "status": "PASS",
+  "evidence": "\"2\""
+ },
+ {
+  "id": "IN-61",
+  "area": "R144",
+  "title": "Insights, questions and suggestions create no journal entries and change no bank line",
+  "status": "PASS",
+  "evidence": "[\"15\",\"pending\"]"
+ },
+ {
+  "id": "IN-62",
+  "area": "R144",
+  "title": "Company isolation: another company cannot get suggestions for this company's bank line",
+  "status": "PASS",
+  "evidence": "200 {\"suggestions\":{}}"
+ },
+ {
+  "id": "IN-63",
+  "area": "R144",
+  "title": "Dismiss refuses a bad CSRF token",
+  "status": "PASS",
+  "evidence": "403"
+ },
+ {
+  "id": "IN-64",
+  "area": "R144",
+  "title": "insights_r144.php makes no outbound calls (no curl, sockets, HTTP clients or AI provider)",
+  "status": "PASS",
+  "evidence": ""
+ }
+]

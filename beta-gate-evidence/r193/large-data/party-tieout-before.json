@@ -1,0 +1,888 @@
+{
+ "today": "2026-10-03",
+ "companies": 90,
+ "mismatches": [
+  {
+   "ed": "CA",
+   "id": "company_40c711879654691ef1ef85d09442d10d",
+   "arParty": 438926,
+   "arGl": 421776,
+   "apParty": 226975,
+   "apGl": 226975
+  },
+  {
+   "ed": "CA",
+   "id": "company_4129fc1cea3f723c4f029a8c90f116ef",
+   "arParty": 56500,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_47cb3140009d59f2838abcfd5b173c29",
+   "arParty": 2000000,
+   "arGl": 500000,
+   "apParty": 10170000,
+   "apGl": 10170000
+  },
+  {
+   "ed": "CA",
+   "id": "company_5c83de205b37cfa96cc712027e5a979d",
+   "arParty": 338926,
+   "arGl": 321776,
+   "apParty": 226975,
+   "apGl": 226975
+  },
+  {
+   "ed": "CA",
+   "id": "company_84ed29aa01bfbc95e0e6ff5d196ac219",
+   "arParty": 56500,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_87de70c4750dee777d4dff7ed3546dc3",
+   "arParty": 220440,
+   "arGl": 153290,
+   "apParty": 267199,
+   "apGl": 265953
+  },
+  {
+   "ed": "CA",
+   "id": "company_8c3bca2bb134f21ec13edeac255568b8",
+   "arParty": 429400,
+   "arGl": 424600,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_b9010bee215358dff83a983fa133f326",
+   "arParty": 40000,
+   "arGl": 35000,
+   "apParty": 12345,
+   "apGl": 12345
+  },
+  {
+   "ed": "CA",
+   "id": "company_bfb8b603f089500659c35ee375e3cef5",
+   "arParty": 22600,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_c2fe868cb832c57429b56b56fb30cd20",
+   "arParty": 0,
+   "arGl": 100000,
+   "apParty": 0,
+   "apGl": 20000
+  },
+  {
+   "ed": "CA",
+   "id": "company_d1a1eb527c732b22936eae3a9a950fd9",
+   "arParty": 429400,
+   "arGl": 424600,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_dbc26dc00f180f62b5603349f641330c",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 44399,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_f02e33c62dcddaa284a3bd0435535f01",
+   "arParty": 26340000,
+   "arGl": 26352000,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "IN",
+   "id": "company_2f5fa2e39b074825c18182bd61c06501",
+   "arParty": 678172308,
+   "arGl": 678172308,
+   "apParty": 57519498,
+   "apGl": 57173220
+  },
+  {
+   "ed": "IN",
+   "id": "company_64005f8adc0e2638fbe9779c4f79147a",
+   "arParty": 34107000,
+   "arGl": 33989000,
+   "apParty": 4720000,
+   "apGl": 4720000
+  },
+  {
+   "ed": "IN",
+   "id": "company_6a9ac8f705d9a27554fbf92221fba972",
+   "arParty": 5000000,
+   "arGl": 5000000,
+   "apParty": 18500000,
+   "apGl": 17680000
+  },
+  {
+   "ed": "IN",
+   "id": "company_9c5803cd24c1bb09a32cc4e34514235b",
+   "arParty": 1225560354,
+   "arGl": 1225526298,
+   "apParty": 96528258,
+   "apGl": 96089080
+  },
+  {
+   "ed": "IN",
+   "id": "company_cad5fb486fc91e91d1833a04c1b62e20",
+   "arParty": 1362511312,
+   "arGl": 1362511312,
+   "apParty": 103358899,
+   "apGl": 103103735
+  },
+  {
+   "ed": "IN",
+   "id": "company_d869aab7db2fbfb2d1ae2cdec1247aa8",
+   "arParty": 65047625926,
+   "arGl": 65046234823,
+   "apParty": 5307596132,
+   "apGl": 5298373370
+  },
+  {
+   "ed": "IN",
+   "id": "company_f4792d0e366b214b7e936fa992d5e797",
+   "arParty": 5000000,
+   "arGl": 5000000,
+   "apParty": 18500000,
+   "apGl": 17680000
+  }
+ ],
+ "all": [
+  {
+   "ed": "CA",
+   "id": "company_02581ab0b114cde4010a921d1ad3ef2f",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_13b5fdfcd5545661f0acf90149b168c2",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_142180283d8dfefe3148b9f5ba2c7e13",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_151c1e2ac4436f8e597aa43fe47943dc",
+   "arParty": 40000,
+   "arGl": 40000,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_157052641cec391723ac7e9a1e19c82a",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_190104550ed03d861e28e05df9c0dfdd",
+   "arParty": 105000,
+   "arGl": 105000,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_1d74fcffe620bf22134f69dec4d13abb",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_21475015207872590976957e84bf49a5",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 42700,
+   "apGl": 42700
+  },
+  {
+   "ed": "CA",
+   "id": "company_261b5bcde168fc35fee5762980423afe",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 67846,
+   "apGl": 67846
+  },
+  {
+   "ed": "CA",
+   "id": "company_2ce542a1f337430970b8a998d799ccb4",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_34a2dbd12735018ceda4ea53f0319e97",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_39df6a3a7f1e7807043ebe0daffa29d4",
+   "arParty": 452000,
+   "arGl": 452000,
+   "apParty": 904000,
+   "apGl": 904000
+  },
+  {
+   "ed": "CA",
+   "id": "company_3da72a398c31914187d9b26edc7e5ed6",
+   "arParty": 10000,
+   "arGl": 10000,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_3df15f980ffe4e3e4821d3eeb1e7b26e",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_3f0ca311121a9cf53f6f9b75fa40b598",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_40c711879654691ef1ef85d09442d10d",
+   "arParty": 438926,
+   "arGl": 421776,
+   "apParty": 226975,
+   "apGl": 226975
+  },
+  {
+   "ed": "CA",
+   "id": "company_4129fc1cea3f723c4f029a8c90f116ef",
+   "arParty": 56500,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_47cb3140009d59f2838abcfd5b173c29",
+   "arParty": 2000000,
+   "arGl": 500000,
+   "apParty": 10170000,
+   "apGl": 10170000
+  },
+  {
+   "ed": "CA",
+   "id": "company_47e97cfd246953283719034edaf97064",
+   "arParty": 25000,
+   "arGl": 25000,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_52c46a2f4d5508673d6c658d2179ceb7",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_57e5947066c13924446bfa6afa176bc3",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_5c83de205b37cfa96cc712027e5a979d",
+   "arParty": 338926,
+   "arGl": 321776,
+   "apParty": 226975,
+   "apGl": 226975
+  },
+  {
+   "ed": "CA",
+   "id": "company_5ebc9e25525a9b03aa9f2e80e50de8e8",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_5ff16c70b767e3ce40fe9720a03eca81",
+   "arParty": 114975,
+   "arGl": 114975,
+   "apParty": 57488,
+   "apGl": 57488
+  },
+  {
+   "ed": "CA",
+   "id": "company_6867985930a032baf8795cf11881bab1",
+   "arParty": 406800,
+   "arGl": 406800,
+   "apParty": 79100,
+   "apGl": 79100
+  },
+  {
+   "ed": "CA",
+   "id": "company_6877ea7a0eebc25b5ae7eeade5e2532d",
+   "arParty": 406800,
+   "arGl": 406800,
+   "apParty": 79100,
+   "apGl": 79100
+  },
+  {
+   "ed": "CA",
+   "id": "company_6924268d54d412241816588217857699",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_704ad52b57aadaba9cce7b36b59a1b5d",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_709f5b94da874021658e7d95cf549975",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_7b4b4885388f19784c6daa4d29b6bf9a",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_7ec002ab1ff49684ac85800540a6763b",
+   "arParty": 314875,
+   "arGl": 314875,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_84ed29aa01bfbc95e0e6ff5d196ac219",
+   "arParty": 56500,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_87de70c4750dee777d4dff7ed3546dc3",
+   "arParty": 220440,
+   "arGl": 153290,
+   "apParty": 267199,
+   "apGl": 265953
+  },
+  {
+   "ed": "CA",
+   "id": "company_87eeb110b9dc166f23ba7104a548726c",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_8c3bca2bb134f21ec13edeac255568b8",
+   "arParty": 429400,
+   "arGl": 424600,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_8d3cbb3b1bf5ab1e749cda44e36f550a",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_910aa848751cb0a35b839d979d77a62d",
+   "arParty": 113000,
+   "arGl": 113000,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_953d73db6695d62367457779a983dfe2",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_a3bd67fa2fcb01fa40ac446d14ae33a0",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_a9553556e8a0dff4fdbd9c59dd0d6733",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_a99037e3a5f3bb2083780b0fedfdd898",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_b1a52433bde961c1639f2711e4101e93",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_b3c4d5f9f8dee6cf38a341dede449735",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_b41e96a7d5d0fda7a306f8826da2fdae",
+   "arParty": 2443994644,
+   "arGl": 2443994644,
+   "apParty": 198769034,
+   "apGl": 198769034
+  },
+  {
+   "ed": "CA",
+   "id": "company_b480805c3cbacd24a78de5a5a24d1106",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_b9010bee215358dff83a983fa133f326",
+   "arParty": 40000,
+   "arGl": 35000,
+   "apParty": 12345,
+   "apGl": 12345
+  },
+  {
+   "ed": "CA",
+   "id": "company_ba283545b5358146dbf2f18597601081",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_bca3bd4365fbe2fdd80c4791c9dea1bf",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_bcca193d9c4bc4744bd659273b7fe3ca",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_bda4bdc0d93631f514f0951feb37630b",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_bf8e4a340b3b14fd0e6cac092f7c098c",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_bfb8b603f089500659c35ee375e3cef5",
+   "arParty": 22600,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_c1901f67d3618aa3725a3b2a8eababb1",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_c20099658f984f60a8a07314b0c86727",
+   "arParty": 40000,
+   "arGl": 40000,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_c2fe868cb832c57429b56b56fb30cd20",
+   "arParty": 0,
+   "arGl": 100000,
+   "apParty": 0,
+   "apGl": 20000
+  },
+  {
+   "ed": "CA",
+   "id": "company_c91a08d96dc208087dae8d454c33e606",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 67846,
+   "apGl": 67846
+  },
+  {
+   "ed": "CA",
+   "id": "company_cafc38d531e7be4dea98c8c316e2afc2",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_d1a1eb527c732b22936eae3a9a950fd9",
+   "arParty": 429400,
+   "arGl": 424600,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_d43575261b7e7ba2ff1e18fdf590a46e",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_d4b9901b67f22a15970a22a96dfcb24d",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_dbc26dc00f180f62b5603349f641330c",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 44399,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_def644ec3ed26a9b86adfc5b891b6059",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_e10066b579c2474b7208aeefad7f5042",
+   "arParty": 1067511,
+   "arGl": 1067511,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_e15530553ffb8b0b87754c3488b7c917",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_e3ff22f526fb334c2e2178fb3a40f360",
+   "arParty": 20500,
+   "arGl": 20500,
+   "apParty": 11200,
+   "apGl": 11200
+  },
+  {
+   "ed": "CA",
+   "id": "company_e4d00e43f2b56350b6aa06b0fc7cb6ee",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_e9f3be7bad63b85b75cdd80a7fe6f235",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_ead599ba3ce0bf6baca1f2efb5fa6713",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_ee4e63dc049063098c532bc0a58c2b2a",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_ef603f841ba98262ca875cbfc73ad4c2",
+   "arParty": 22600,
+   "arGl": 22600,
+   "apParty": 11300,
+   "apGl": 11300
+  },
+  {
+   "ed": "CA",
+   "id": "company_f02e33c62dcddaa284a3bd0435535f01",
+   "arParty": 26340000,
+   "arGl": 26352000,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_f2158f48b06c5ad7030ba9fa6019d8ba",
+   "arParty": 30000,
+   "arGl": 30000,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_f2534f842ab37139becdd589cfd5e55a",
+   "arParty": 56000,
+   "arGl": 56000,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_f77cae00be97d0152c626ff68475b51c",
+   "arParty": 364900,
+   "arGl": 364900,
+   "apParty": 146900,
+   "apGl": 146900
+  },
+  {
+   "ed": "CA",
+   "id": "company_f7ec83d1c9202408f99d25e2c99f223a",
+   "arParty": 147345,
+   "arGl": 147345,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "CA",
+   "id": "company_fb374bc936a17f1565cf36bf853e781b",
+   "arParty": 749841037,
+   "arGl": 749841037,
+   "apParty": 62345716,
+   "apGl": 62345716
+  },
+  {
+   "ed": "IN",
+   "id": "company_2f5fa2e39b074825c18182bd61c06501",
+   "arParty": 678172308,
+   "arGl": 678172308,
+   "apParty": 57519498,
+   "apGl": 57173220
+  },
+  {
+   "ed": "IN",
+   "id": "company_355f3516969a56c9b1c25fc23faa332f",
+   "arParty": 160752707,
+   "arGl": 160752707,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "IN",
+   "id": "company_4d4376261494f1a2e1a42c342253e12c",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "IN",
+   "id": "company_64005f8adc0e2638fbe9779c4f79147a",
+   "arParty": 34107000,
+   "arGl": 33989000,
+   "apParty": 4720000,
+   "apGl": 4720000
+  },
+  {
+   "ed": "IN",
+   "id": "company_6a9ac8f705d9a27554fbf92221fba972",
+   "arParty": 5000000,
+   "arGl": 5000000,
+   "apParty": 18500000,
+   "apGl": 17680000
+  },
+  {
+   "ed": "IN",
+   "id": "company_84915f48f7ba9d21706eeefd3d5273dc",
+   "arParty": 100000,
+   "arGl": 100000,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "IN",
+   "id": "company_92d7f834d48bbe312dd19bea8894b06f",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "IN",
+   "id": "company_9c5803cd24c1bb09a32cc4e34514235b",
+   "arParty": 1225560354,
+   "arGl": 1225526298,
+   "apParty": 96528258,
+   "apGl": 96089080
+  },
+  {
+   "ed": "IN",
+   "id": "company_b7d47dc85ec4b0874adcbcf9aec42ce4",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "IN",
+   "id": "company_c6af90a5c037a4d82d7094eaa1d641c7",
+   "arParty": 0,
+   "arGl": 0,
+   "apParty": 0,
+   "apGl": 0
+  },
+  {
+   "ed": "IN",
+   "id": "company_cad5fb486fc91e91d1833a04c1b62e20",
+   "arParty": 1362511312,
+   "arGl": 1362511312,
+   "apParty": 103358899,
+   "apGl": 103103735
+  },
+  {
+   "ed": "IN",
+   "id": "company_d5d2f75ab9aef8810ada6d93887f1419",
+   "arParty": 3044000,
+   "arGl": 3044000,
+   "apParty": 826000,
+   "apGl": 826000
+  },
+  {
+   "ed": "IN",
+   "id": "company_d869aab7db2fbfb2d1ae2cdec1247aa8",
+   "arParty": 65047625926,
+   "arGl": 65046234823,
+   "apParty": 5307596132,
+   "apGl": 5298373370
+  },
+  {
+   "ed": "IN",
+   "id": "company_f4792d0e366b214b7e936fa992d5e797",
+   "arParty": 5000000,
+   "arGl": 5000000,
+   "apParty": 18500000,
+   "apGl": 17680000
+  }
+ ]
+}

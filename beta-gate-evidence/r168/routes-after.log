@@ -1,0 +1,75 @@
+OK   menu Banking Upload Statement | #tegh=bank-imports&co=company_34f9733caf29d5885f202f2471f148 | bank-imports → bank-imports | Upload StatementBeta → Upload StatementBeta
+OK   menu Banking Match And Post Transactions | #tegh=bank-reconciliation&co=company_34f9733caf29d5885f202f2 | bank-reconciliation → bank-reconciliation | Match And Post Transactions → Match And Post Transactions
+OK   menu Banking Reconcile Bank Account | #tegh=bank-reconciliation-complete&co=company_34f9733caf29d5 | bank-reconciliation-complete → bank-reconciliation-complete | Reconcile Bank Account → Reconcile Bank Account
+OK   menu Banking Bank Transfers | #tegh=bank-transfers&co=company_34f9733caf29d5885f202f2471f1 | bank-transfers → bank-transfers | Transfers → Transfers
+OK   menu Banking Manage Bank Accounts | #tegh=financial-accounts&co=company_34f9733caf29d5885f202f24 | financial-accounts → financial-accounts | Manage Bank Accounts → Manage Bank Accounts
+OK   menu Banking Bank Transaction Report | #tegh=report-bank-transactions-context%3A%257B%2522returnMod | report-bank-transactions → report-bank-transactions | Bank Transaction Report → Bank Transaction Report
+OK   menu Banking Bank General Ledger Report | #tegh=report-bank-general-ledger-context%3A%257B%2522returnM | report-bank-general-ledger → report-bank-general-ledger | Bank General Ledger Report → Bank General Ledger Report
+OK   menu Banking Bank Reconciliation Report | #tegh=report-bank-reconciliation&co=company_34f9733caf29d588 | report-bank-reconciliation → report-bank-reconciliation | Bank Reconciliation Report → Bank Reconciliation Report
+OK   menu Receivables Create Customer | #tegh=customers%3Anew&co=company_34f9733caf29d5885f202f2471f | customers → customers | New Customer → New Customer
+OK   menu Receivables Products and Services | #tegh=products&co=company_34f9733caf29d5885f202f2471f148b9 | products → products | Products & services → Products & services
+OK   menu Receivables Customer Invoices | #tegh=customer-document%3Anew%3Ainvoice&co=company_34f9733ca | customer-document → customer-document | New Customer Document → New Customer Document
+OK   menu Receivables Customer Payments | #tegh=customer-payments&co=company_34f9733caf29d5885f202f247 | customer-payments → customer-payments | New Customer Receipt → New Customer Receipt
+OK   menu Receivables Collection Drafts | #tegh=collection-drafts&co=company_34f9733caf29d5885f202f247 | collection-drafts → collection-drafts | Collection Drafts → Collection Drafts
+OK   menu Receivables Customers | #tegh=customers&co=company_34f9733caf29d5885f202f2471f148b9 | customers → customers | Customers → Customers
+OK   menu Receivables Customer Invoice & Note Register | #tegh=invoices&co=company_34f9733caf29d5885f202f2471f148b9 | invoices → invoices | Customer Invoice & Note Regist → Customer Invoice & Note Regist
+OK   menu Receivables Customer Ledgers | #tegh=ledger-customer&co=company_34f9733caf29d5885f202f2471f | ledger-customer → ledger-customer | Customer Ledgers → Customer Ledgers
+OK   menu Receivables Receivable Ageing | #tegh=aging-receivable&co=company_34f9733caf29d5885f202f2471 | aging-receivable → aging-receivable | Receivable Ageing → Receivable Ageing
+OK   menu Receivables Period Trial Balance | #tegh=trial-balance-receivables&co=company_34f9733caf29d5885 | trial-balance-receivables → trial-balance-receivables | Customer Trial Balance → Customer Trial Balance
+OK   menu Payables Create Vendor | #tegh=vendors%3Anew&co=company_34f9733caf29d5885f202f2471f14 | vendors → vendors | New Vendor → New Vendor
+OK   menu Payables Products and Services | #tegh=products&co=company_34f9733caf29d5885f202f2471f148b9 | products → products | Products & services → Products & services
+OK   menu Payables Vendor Invoices | #tegh=vendor-document%3Anew%3Ainvoice&co=company_34f9733caf2 | vendor-document → vendor-document | New Vendor Document → New Vendor Document
+OK   menu Payables Vendor Payments | #tegh=vendor-payments&co=company_34f9733caf29d5885f202f2471f | vendor-payments → vendor-payments | New Vendor Payment → New Vendor Payment
+OK   menu Payables Document Intake | #tegh=document-intake&co=company_34f9733caf29d5885f202f2471f | document-intake → document-intake | Document IntakeBeta → Document IntakeBeta
+OK   menu Payables Vendors | #tegh=vendors&co=company_34f9733caf29d5885f202f2471f148b9 | vendors → vendors | Vendors → Vendors
+OK   menu Payables Vendor Invoice & Note Register | #tegh=report-bill-register&co=company_34f9733caf29d5885f202f | bills → bills | Vendor Invoice & Note Register → Vendor Invoice & Note Register
+OK   menu Payables Vendor Ledgers | #tegh=ledger-vendor&co=company_34f9733caf29d5885f202f2471f14 | ledger-vendor → ledger-vendor | Vendor Ledgers → Vendor Ledgers
+OK   menu Payables Payable Ageing | #tegh=aging-payable&co=company_34f9733caf29d5885f202f2471f14 | aging-payable → aging-payable | Payable Ageing → Payable Ageing
+OK   menu Payables Period Trial Balance | #tegh=trial-balance-payables&co=company_34f9733caf29d5885f20 | trial-balance-payables → trial-balance-payables | Vendor Trial Balance → Vendor Trial Balance
+OK   menu General ledger Journal Entries | #tegh=gl-journal-entry&co=company_34f9733caf29d5885f202f2471 | gl-journal-entry → gl-journal-entry | GL Journal Entry → GL Journal Entry
+OK   menu General ledger Expense Vouchers | #tegh=expense-vouchers&co=company_34f9733caf29d5885f202f2471 | expense-vouchers → expense-vouchers | New Expense Voucher → New Expense Voucher
+OK   menu General ledger Day Book | #tegh=day-book&co=company_34f9733caf29d5885f202f2471f148b9 | day-book → day-book | Day Book → Day Book
+OK   menu General ledger General Ledger Account Report | #tegh=report-gl-account-ledger-context%3A%257B%2522returnMod | report-gl-account-ledger → report-gl-account-ledger | General Ledger Account Report → General Ledger Account Report
+OK   menu General ledger Period Trial Balance | #tegh=trial-balance-general-ledger&co=company_34f9733caf29d5 | trial-balance-general-ledger → trial-balance-general-ledger | Trial Balance → Trial Balance
+OK   menu General ledger GIFI Report | #tegh=gifi-report&co=company_34f9733caf29d5885f202f2471f148b | gifi-report → gifi-report | GIFI Report → GIFI Report
+OK   menu Payroll Payroll & Tax Center | #tegh=payroll-tax-center&co=company_34f9733caf29d5885f202f24 | payroll-tax-center → payroll-tax-center | Payroll & Tax Center → Payroll & Tax Center
+OK   menu Payroll Quick Calculation | #tegh=payroll-quick-calculator&co=company_34f9733caf29d5885f | payroll-quick-calculator → payroll-quick-calculator | Quick Payroll Calculation → Quick Payroll Calculation
+OK   menu Payroll Employees | #tegh=payroll-employees&co=company_34f9733caf29d5885f202f247 | payroll-employees → payroll-employees | Employees → Employees
+OK   menu Payroll Pay Run Register | #tegh=payroll-runs&co=company_34f9733caf29d5885f202f2471f148 | payroll-runs → payroll-runs | Pay Run Register → Pay Run Register
+OK   menu Payroll Payroll Verification | #tegh=payroll-verification&co=company_34f9733caf29d5885f202f | payroll-verification → payroll-verification | Payroll Verification → Payroll Verification
+OK   menu Payroll CRA Remittance | #tegh=payroll-remittance&co=company_34f9733caf29d5885f202f24 | payroll-remittance → payroll-remittance | Payroll Remittance Records → Payroll Remittance Records
+OK   menu Payroll Payroll History | #tegh=payroll-history&co=company_34f9733caf29d5885f202f2471f | payroll-history → payroll-history | Payroll History & Deletion → Payroll History & Deletion
+OK   menu Advanced accounting Budgets | #tegh=advanced-budgets&co=company_34f9733caf29d5885f202f2471 | advanced-budgets → advanced-budgets | Budgets → Budgets
+OK   menu Advanced accounting Fixed Assets | #tegh=advanced-assets&co=company_34f9733caf29d5885f202f2471f | advanced-assets → advanced-assets | Fixed Assets → Fixed Assets
+OK   menu Advanced accounting Recurring Transactions | #tegh=recurring-transactions&co=company_34f9733caf29d5885f20 | recurring-transactions → recurring-transactions | Recurring Transactions → Recurring Transactions
+OK   menu Advanced accounting Analytics | #tegh=advanced-analytics&co=company_34f9733caf29d5885f202f24 | advanced-analytics → advanced-analytics | Analytics → Analytics
+OK   menu Advanced accounting Collections | #tegh=advanced-collections&co=company_34f9733caf29d5885f202f | advanced-collections → advanced-collections | Collections → Collections
+OK   report  Profit and Loss | #tegh=financial-profit-loss&co=company_34f9733caf29d5885f202 | financial-profit-loss → financial-profit-loss | Profit And Loss → Profit And Loss
+OK   report  Balance Sheet | #tegh=financial-balance-sheet&co=company_34f9733caf29d5885f2 | financial-balance-sheet → financial-balance-sheet | Balance Sheet → Balance Sheet
+OK   report  Trial Balance | #tegh=trial-balance-general-ledger&co=company_34f9733caf29d5 | trial-balance-general-ledger → trial-balance-general-ledger | Trial Balance → Trial Balance
+OK   report  Cash Flow | #tegh=cash-flow&co=company_34f9733caf29d5885f202f2471f148b9 | cash-flow → cash-flow | Cash Flow Statement → Cash Flow Statement
+OK   report  General Ledger Account Report | #tegh=report-gl-account-ledger-context%3A%257B%2522returnMod | report-gl-account-ledger → report-gl-account-ledger | General Ledger Account Report → General Ledger Account Report
+OK   report  General Ledger Detail | #tegh=report-general-ledger&co=company_34f9733caf29d5885f202 | report-general-ledger → report-general-ledger | General Ledger Detail → General Ledger Detail
+OK   report  Product Activity | #tegh=report-inventory&co=company_34f9733caf29d5885f202f2471 | report-inventory → report-inventory | Product Activity → Product Activity
+OK   report  Day Book | #tegh=day-book&co=company_34f9733caf29d5885f202f2471f148b9 | day-book → day-book | Day Book → Day Book
+OK   report  Audit History | #tegh=audit-history&co=company_34f9733caf29d5885f202f2471f14 | audit-history → audit-history | Audit History → Audit History
+OK   report  Receivable Ageing | #tegh=aging-receivable&co=company_34f9733caf29d5885f202f2471 | aging-receivable → aging-receivable | Receivable Ageing → Receivable Ageing
+OK   report  Customer Balances | #tegh=report-customer-balances&co=company_34f9733caf29d5885f | report-customer-balances → report-customer-balances | Customer Balances → Customer Balances
+OK   report  Customer Invoice & Note Register | #tegh=report-invoice-register&co=company_34f9733caf29d5885f2 | invoices → invoices | Customer Invoice & Note Regist → Customer Invoice & Note Regist
+OK   report  Payable Ageing | #tegh=aging-payable&co=company_34f9733caf29d5885f202f2471f14 | aging-payable → aging-payable | Payable Ageing → Payable Ageing
+OK   report  Vendor Balances | #tegh=report-vendor-balances&co=company_34f9733caf29d5885f20 | report-vendor-balances → report-vendor-balances | Vendor Balances → Vendor Balances
+OK   report  Vendor Invoice & Note Register | #tegh=report-bill-register&co=company_34f9733caf29d5885f202f | bills → bills | Vendor Invoice & Note Register → Vendor Invoice & Note Register
+OK   report  Expense Register | #tegh=report-expense-register&co=company_34f9733caf29d5885f2 | report-expense-register → report-expense-register | Expense Register → Expense Register
+OK   report  Bank Reconciliation Summary | #tegh=report-bank-reconciliation-reports&co=company_34f9733c | report-bank-reconciliation → report-bank-reconciliation | Bank Reconciliation Report → Bank Reconciliation Report
+OK   report  Bank Transaction Report | #tegh=report-bank-transactions-context%3A%257B%2522returnMod | report-bank-transactions → report-bank-transactions | Bank Transaction Report → Bank Transaction Report
+OK   report  Bank General Ledger Report | #tegh=report-bank-general-ledger-context%3A%257B%2522bankAcc | report-bank-general-ledger → report-bank-general-ledger | Bank General Ledger Report → Bank General Ledger Report
+OK   report  Tax Code Report | #tegh=tax-code-report&co=company_34f9733caf29d5885f202f2471f | tax-code-report → tax-code-report | Tax Code Report → Tax Code Report
+OK   report  GST/HST/PST Summary | #tegh=report-tax-summary&co=company_34f9733caf29d5885f202f24 | report-tax-summary → report-tax-summary | GST/HST Summary → GST/HST Summary
+OK   report  Pay Run Register | #tegh=payroll-runs&co=company_34f9733caf29d5885f202f2471f148 | payroll-runs → payroll-runs | Pay Run Register → Pay Run Register
+OK   report  Currency Exposure | #tegh=report-currency-exposure&co=company_34f9733caf29d5885f | report-currency-exposure → report-currency-exposure | Currency Exposure → Currency Exposure
+OK   report  Budget versus Actual | #tegh=advanced-budgets&co=company_34f9733caf29d5885f202f2471 | advanced-budgets → advanced-budgets | Budgets → Budgets
+OK   report  Fixed Asset Register | #tegh=advanced-assets&co=company_34f9733caf29d5885f202f2471f | advanced-assets → advanced-assets | Fixed Assets → Fixed Assets
+OK   report  Cash Forecast | #tegh=cash-forecast&co=company_34f9733caf29d5885f202f2471f14 | cash-forecast → cash-forecast | Cash Forecast → Cash Forecast
+OK   report  Financial Analyst | #tegh=financial-analyst&co=company_34f9733caf29d5885f202f247 | financial-analyst → financial-analyst | Financial Analyst → Financial Analyst
+OK   report  Tegh Intelligence | #tegh=insights&co=company_34f9733caf29d5885f202f2471f148b9 | insights → insights | Tegh Intelligence → Tegh Intelligence
+total 74 ok 74 errors 0

@@ -1,0 +1,51 @@
+[
+ {
+  "id": "AU-01",
+  "area": "AUDIT",
+  "title": "A role change is recorded in the company audit trail with actor, old and new role, and a hash-chained entry",
+  "status": "PASS",
+  "evidence": "change 200; audit owner@gate.test|user_r164aurolemwxx80nf|{\"email\":\"r164-audit-role-mwxx80nf@gate.test\",\"from\":\"editor\",\"to\":\"viewer\"}|1"
+ },
+ {
+  "id": "AU-02",
+  "area": "AUDIT",
+  "title": "Suspension and removal of a member are recorded with the reason",
+  "status": "PASS",
+  "evidence": "suspend 200 audited true; remove 200 audited true"
+ },
+ {
+  "id": "AU-03",
+  "area": "AUDIT",
+  "title": "Platform-owner user administration (deactivate, reactivate, MFA reset) is recorded in the platform audit log with request reference and source",
+  "status": "PASS",
+  "evidence": "statuses 200,200,200; audit owner@gate.test|user_r164auadminmwxx80nf|1|1 ; owner@gate.test|user_r164auadminmwxx80nf|1|1 ; owner@gate.test|user_r164auadminmwxx80nf|1|1"
+ },
+ {
+  "id": "AU-04",
+  "area": "AUDIT",
+  "title": "A company deletion request and the platform owner's decision are both recorded",
+  "status": "PASS",
+  "evidence": "request audited true; decision 200, audited rows 1"
+ },
+ {
+  "id": "AU-05",
+  "area": "AUDIT",
+  "title": "Changing public registration (a security setting) needs a recent sign-in and is recorded with old/new value and reason",
+  "status": "PASS",
+  "evidence": "without password 403 recent_authentication_required; change 200; restore 200; audit rows 2"
+ },
+ {
+  "id": "AU-06",
+  "area": "AUDIT",
+  "title": "MFA changes are recorded at account level (enrolment, verification, disable) without the secret or codes",
+  "status": "PASS",
+  "evidence": "MFA audit rows 59; rows containing a secret or code 0"
+ },
+ {
+  "id": "AU-07",
+  "area": "AUDIT",
+  "title": "No audit record (company or platform) contains a password, session token or reset token",
+  "status": "PASS",
+  "evidence": "findings none; session hashes in audit 0"
+ }
+]

@@ -1,0 +1,103 @@
+GIFI Report
+CAD · accrual
+Download
+▾
+Actions
+Mapping totals
+From
+To
+Refresh Report
+Schedule 100 · Balance Sheet GIFI
+38 of 38 records · CAD
+GIFI Mapping Review
+	
+⋮⋮
+Schedule
+⌄
+	
+⋮⋮
+GIFI Code
+⌄
+	
+⋮⋮
+GIFI / Account Name
+⌄
+	
+⋮⋮
+GL Accounts
+⌄
+	
+⋮⋮
+Amount (Cents Retained)
+⌄
+	
+⋮⋮
+Mapping Status
+⌄
+	Actions ⋮
+	Schedule 100	1002	Deposits in Canadian banks – Canadian currency	1000 · Business Chequing	CAD 508.50	Mapped	
+
+	Schedule 100	1001	Cash	1050 · Undeposited Funds	CAD 0.00	Mapped	
+
+	Schedule 100	1066	Taxes receivable	1100 · GST/HST Recoverable; 1110 · PST Recoverable; 1115 · QST Recoverable	CAD 6.50	Mapped	
+
+	Schedule 100	1062	Trade accounts receivable	1200 · Accounts Receivable	CAD 0.00	Mapped	
+
+	Schedule 100	1484	Prepaid expenses	1300 · Prepaid Expenses	CAD 0.00	Mapped	
+
+	Schedule 100	1740	Machinery, equipment, furniture and fixtures	1500 · Equipment	CAD 0.00	Mapped	
+
+	Schedule 100	1741	Accumulated amortization	1590 · Accumulated Depreciation	CAD 0.00	Mapped	
+
+	Schedule 100	2707	Credit card loans	2000 · Business Credit Card	CAD 0.00	Mapped	
+
+	Schedule 100	2621	Trade payables	2050 · Accounts Payable	CAD 0.00	Mapped	
+
+	Schedule 100	2680	Taxes payable	2100 · GST/HST Payable; 2110 · PST Payable; 2115 · QST Payable	CAD 65.00	Mapped	
+
+	Schedule 100	2700	Short-term debt	2200 · Loans Payable	CAD 0.00	Mapped	
+
+	Schedule 100	2624	Wages payable	2300 · Payroll Net Pay Payable	CAD 0.00	Mapped	
+
+	Schedule 100	2628	Withholding taxes payable	2310 · Payroll Income Tax Payable	CAD 0.00	Mapped	
+
+	Schedule 100	2627	Employee deductions payable	2320 · CPP/QPP Payable; 2330 · Employment Insurance Payable; 2340 · Other Payroll Deductions Payable	CAD 0.00	Mapped	
+
+	Schedule 100	2620	Amounts payable and accrued liabilities	2350 · Employer Payroll Levy Payable	CAD 0.00	Mapped	
+
+	Schedule 100	3500	Common shares	3000 · Owner Capital / Share Capital	CAD 0.00	Mapped	
+
+	Schedule 100	3600	Retained earnings/deficit	3100 · Owner Draws / Shareholder Advances; 3200 · Retained Earnings; · Current earnings through 2026-10-01	CAD 450.00	Mapped	
+
+	Schedule 125	8000	Trade sales of goods and services	4000 · Service Revenue	CAD 500.00	Mapped	
+
+	Schedule 125	8230	Other revenue	4100 · Other Revenue	CAD 0.00	Mapped	
+
+	Schedule 125	8518	Cost of sales	6000 · Cost of Sales	CAD 0.00	Mapped	
+
+	Schedule 125	8521	Advertising	6100 · Advertising and Promotion	CAD 0.00	Mapped	
+
+	Schedule 125	9150	Computer-related expenses	6200 · Software Subscriptions	CAD 0.00	Mapped	
+
+	Schedule 125	9225	Telephone and telecommunications	6300 · Telephone and Internet	CAD 50.00	Mapped	
+
+	Schedule 125	8811	Office stationery and supplies	6400 · Office Supplies	CAD 0.00	Mapped	
+
+	Schedule 125	9200	Travel expenses	6500 · Travel	CAD 0.00	Mapped	
+1–25 of 38
+First
+Previous
+Page 1 of 2
+Next
+Last
+Rows
+25
+50
+100
+250
+UNMAPPED ACCOUNTS
+2
+Schedule 125 · Income Statement GIFI
+Unmapped General Ledger Accounts
+
+GIFI review report: verify mappings and totals before using the output for a corporate tax return. CRA requires the GIFI items needed to represent the financial statements, not only totals.

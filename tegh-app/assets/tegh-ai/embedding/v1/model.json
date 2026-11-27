@@ -1,0 +1,3 @@
+{
+  "id":"tegh-native-embedding-v1","version":"1.0.0","license":"Tegh proprietary application asset","dimension":192,"seed":4510,"tokenWeight":1.0,"bigramWeight":0.65,"trigramWeight":0.35,"accountingBoostTerms":["debit","credit","payment","deposit","withdrawal","invoice","bill","rent","insurance","payroll","tax","gst","hst","pst","interest","fee","repair","office","equipment","travel","utilities","revenue","refund","interac"]
+}

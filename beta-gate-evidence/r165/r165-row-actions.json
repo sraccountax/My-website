@@ -1,0 +1,522 @@
+[
+ {
+  "report": "Day Book",
+  "row": "Sep 10, 2026 ▸ CI-001 Invoice R151 Client LtdCustomer R151 Client Ltd · Invoice INV-1001 ·",
+  "label": "Show General Ledger lines",
+  "verdict": "NONE",
+  "effect": [],
+  "rowHeight": [
+   51,
+   51
+  ],
+  "errors": []
+ },
+ {
+  "report": "Day Book",
+  "row": "Sep 10, 2026 ▸ CI-001 Invoice R151 Client LtdCustomer R151 Client Ltd · Invoice INV-1001 ·",
+  "label": "Open source document",
+  "verdict": "OK",
+  "effect": [
+   "page:invoice-detail"
+  ],
+  "rowHeight": [
+   51,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Day Book",
+  "row": "Sep 20, 2026 ▸ CN-001 Accounting Note Customer Credit CN-1001 · Original INV-1001 3 accoun",
+  "label": "Show General Ledger lines",
+  "verdict": "NONE",
+  "effect": [],
+  "rowHeight": [
+   51,
+   51
+  ],
+  "errors": []
+ },
+ {
+  "report": "Day Book",
+  "row": "Sep 20, 2026 ▸ CN-001 Accounting Note Customer Credit CN-1001 · Original INV-1001 3 accoun",
+  "label": "Open source document",
+  "verdict": "OK",
+  "effect": [
+   "page:document-view"
+  ],
+  "rowHeight": [
+   51,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Day Book",
+  "row": "Sep 22, 2026 ▸ DN-001 Accounting Note Customer Debit DN-1001 · Ref OLD-779 3 accounts $90.",
+  "label": "Show General Ledger lines",
+  "verdict": "NONE",
+  "effect": [],
+  "rowHeight": [
+   51,
+   51
+  ],
+  "errors": []
+ },
+ {
+  "report": "Day Book",
+  "row": "Sep 22, 2026 ▸ DN-001 Accounting Note Customer Debit DN-1001 · Ref OLD-779 3 accounts $90.",
+  "label": "Open source document",
+  "verdict": "OK",
+  "effect": [
+   "page:document-view"
+  ],
+  "rowHeight": [
+   51,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Day Book",
+  "row": "Sep 23, 2026 ▸ SCN-001 Accounting Note Vendor Credit SCN-1001 · Ref SUP-CR-9 3 accounts $1",
+  "label": "Show General Ledger lines",
+  "verdict": "NONE",
+  "effect": [],
+  "rowHeight": [
+   51,
+   51
+  ],
+  "errors": []
+ },
+ {
+  "report": "Day Book",
+  "row": "Sep 23, 2026 ▸ SCN-001 Accounting Note Vendor Credit SCN-1001 · Ref SUP-CR-9 3 accounts $1",
+  "label": "Open source document",
+  "verdict": "OK",
+  "effect": [
+   "page:document-view"
+  ],
+  "rowHeight": [
+   51,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Audit History",
+  "note": "no r23 table"
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "INV-1001 Invoice — R151 Client Ltd Sep 10, 2026 Oct 10, 2026 CAD 195.00 CAD 1,695.00 CAD 1",
+  "label": "Edit invoice",
+  "verdict": "OK",
+  "effect": [
+   "page:customer-document"
+  ],
+  "rowHeight": [
+   45,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "INV-1001 Invoice — R151 Client Ltd Sep 10, 2026 Oct 10, 2026 CAD 195.00 CAD 1,695.00 CAD 1",
+  "label": "View invoice details",
+  "verdict": "OK",
+  "effect": [
+   "page:invoice-detail"
+  ],
+  "rowHeight": [
+   45,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "INV-1001 Invoice — R151 Client Ltd Sep 10, 2026 Oct 10, 2026 CAD 195.00 CAD 1,695.00 CAD 1",
+  "label": "Invoice PDF",
+  "verdict": "OK",
+  "effect": [
+   "download:Tegh-invoice-INV-1001.pdf"
+  ],
+  "rowHeight": [
+   45,
+   45
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "INV-1001 Invoice — R151 Client Ltd Sep 10, 2026 Oct 10, 2026 CAD 195.00 CAD 1,695.00 CAD 1",
+  "label": "Print invoice",
+  "verdict": "OK",
+  "effect": [
+   "newtab"
+  ],
+  "rowHeight": [
+   45,
+   45
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "INV-1001 Invoice — R151 Client Ltd Sep 10, 2026 Oct 10, 2026 CAD 195.00 CAD 1,695.00 CAD 1",
+  "label": "Invoice Excel",
+  "verdict": "OK",
+  "effect": [
+   "download:Tegh-invoice-INV-1001.xlsx"
+  ],
+  "rowHeight": [
+   45,
+   45
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "INV-1001 Invoice — R151 Client Ltd Sep 10, 2026 Oct 10, 2026 CAD 195.00 CAD 1,695.00 CAD 1",
+  "label": "View Day Book Entry",
+  "verdict": "OK",
+  "effect": [
+   "page:day-book"
+  ],
+  "rowHeight": [
+   45,
+   51
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "INV-1001 Invoice — R151 Client Ltd Sep 10, 2026 Oct 10, 2026 CAD 195.00 CAD 1,695.00 CAD 1",
+  "label": "Apply Open Payment",
+  "verdict": "OK",
+  "effect": [
+   "page:customer-payments"
+  ],
+  "rowHeight": [
+   45,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "INV-1001 Invoice — R151 Client Ltd Sep 10, 2026 Oct 10, 2026 CAD 195.00 CAD 1,695.00 CAD 1",
+  "label": "Void",
+  "verdict": "OK",
+  "effect": [
+   "toast:This cannot be voided yetVoid the linked debit or credit note through its note r"
+  ],
+  "rowHeight": [
+   45,
+   45
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "CN-1001 Credit Note INV-1001 R151 Client Ltd Sep 20, 2026 — -CAD 26.00 -CAD 226.00 CAD 0.0",
+  "label": "View note",
+  "verdict": "OK",
+  "effect": [
+   "page:document-view"
+  ],
+  "rowHeight": [
+   45,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "CN-1001 Credit Note INV-1001 R151 Client Ltd Sep 20, 2026 — -CAD 26.00 -CAD 226.00 CAD 0.0",
+  "label": "Open in note register",
+  "verdict": "OK",
+  "effect": [
+   "page:customer-notes"
+  ],
+  "rowHeight": [
+   45,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "DN-1001 Debit Note OLD-779 R151 Client Ltd Sep 22, 2026 Sep 22, 2026 CAD 10.40 CAD 90.40 C",
+  "label": "Edit invoice",
+  "verdict": "OK",
+  "effect": [
+   "page:customer-document"
+  ],
+  "rowHeight": [
+   45,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "DN-1001 Debit Note OLD-779 R151 Client Ltd Sep 22, 2026 Sep 22, 2026 CAD 10.40 CAD 90.40 C",
+  "label": "View invoice details",
+  "verdict": "OK",
+  "effect": [
+   "page:invoice-detail"
+  ],
+  "rowHeight": [
+   45,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "DN-1001 Debit Note OLD-779 R151 Client Ltd Sep 22, 2026 Sep 22, 2026 CAD 10.40 CAD 90.40 C",
+  "label": "Invoice PDF",
+  "verdict": "OK",
+  "effect": [
+   "download:Tegh-invoice-DN-1001.pdf"
+  ],
+  "rowHeight": [
+   45,
+   45
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "DN-1001 Debit Note OLD-779 R151 Client Ltd Sep 22, 2026 Sep 22, 2026 CAD 10.40 CAD 90.40 C",
+  "label": "Print invoice",
+  "verdict": "OK",
+  "effect": [
+   "newtab"
+  ],
+  "rowHeight": [
+   45,
+   45
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "DN-1001 Debit Note OLD-779 R151 Client Ltd Sep 22, 2026 Sep 22, 2026 CAD 10.40 CAD 90.40 C",
+  "label": "Invoice Excel",
+  "verdict": "OK",
+  "effect": [
+   "download:Tegh-invoice-DN-1001.xlsx"
+  ],
+  "rowHeight": [
+   45,
+   45
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "DN-1001 Debit Note OLD-779 R151 Client Ltd Sep 22, 2026 Sep 22, 2026 CAD 10.40 CAD 90.40 C",
+  "label": "View Day Book Entry",
+  "verdict": "OK",
+  "effect": [
+   "page:day-book"
+  ],
+  "rowHeight": [
+   45,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "DN-1001 Debit Note OLD-779 R151 Client Ltd Sep 22, 2026 Sep 22, 2026 CAD 10.40 CAD 90.40 C",
+  "label": "Apply Open Payment",
+  "verdict": "OK",
+  "effect": [
+   "page:customer-payments"
+  ],
+  "rowHeight": [
+   45,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Customer Invoice & Note Register",
+  "row": "DN-1001 Debit Note OLD-779 R151 Client Ltd Sep 22, 2026 Sep 22, 2026 CAD 10.40 CAD 90.40 C",
+  "label": "Void",
+  "verdict": "OK",
+  "effect": [
+   "toast:This cannot be voided yetVoid the linked debit or credit note through its note r"
+  ],
+  "rowHeight": [
+   45,
+   45
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "VI-1-mvj1lrjf Invoice — R151 Supplies Co Sep 15, 2026 Nov 30, 2026 CAD 16.24 CAD 943.99 CA",
+  "label": "Edit vendor invoice",
+  "verdict": "OK",
+  "effect": [
+   "page:vendor-document"
+  ],
+  "rowHeight": [
+   45,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "VI-1-mvj1lrjf Invoice — R151 Supplies Co Sep 15, 2026 Nov 30, 2026 CAD 16.24 CAD 943.99 CA",
+  "label": "View vendor invoice",
+  "verdict": "OK",
+  "effect": [
+   "page:document-view"
+  ],
+  "rowHeight": [
+   45,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "VI-1-mvj1lrjf Invoice — R151 Supplies Co Sep 15, 2026 Nov 30, 2026 CAD 16.24 CAD 943.99 CA",
+  "label": "Invoice PDF",
+  "verdict": "OK",
+  "effect": [
+   "download:Tegh-bill-VI-1-mvj1lrjf.pdf"
+  ],
+  "rowHeight": [
+   45,
+   45
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "VI-1-mvj1lrjf Invoice — R151 Supplies Co Sep 15, 2026 Nov 30, 2026 CAD 16.24 CAD 943.99 CA",
+  "label": "Print invoice",
+  "verdict": "OK",
+  "effect": [
+   "newtab"
+  ],
+  "rowHeight": [
+   45,
+   45
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "VI-1-mvj1lrjf Invoice — R151 Supplies Co Sep 15, 2026 Nov 30, 2026 CAD 16.24 CAD 943.99 CA",
+  "label": "Invoice Excel",
+  "verdict": "OK",
+  "effect": [
+   "download:Tegh-bill-VI-1-mvj1lrjf.xlsx"
+  ],
+  "rowHeight": [
+   45,
+   45
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "VI-1-mvj1lrjf Invoice — R151 Supplies Co Sep 15, 2026 Nov 30, 2026 CAD 16.24 CAD 943.99 CA",
+  "label": "View Day Book Entry",
+  "verdict": "OK",
+  "effect": [
+   "page:day-book"
+  ],
+  "rowHeight": [
+   45,
+   51
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "VI-1-mvj1lrjf Invoice — R151 Supplies Co Sep 15, 2026 Nov 30, 2026 CAD 16.24 CAD 943.99 CA",
+  "label": "Apply Open Payment",
+  "verdict": "OK",
+  "effect": [
+   "page:vendor-payments"
+  ],
+  "rowHeight": [
+   45,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "VI-1-mvj1lrjf Invoice — R151 Supplies Co Sep 15, 2026 Nov 30, 2026 CAD 16.24 CAD 943.99 CA",
+  "label": "Void/reverse",
+  "verdict": "OK",
+  "effect": [
+   "toast:This cannot be voided yetVoid the linked debit or credit note through its note r"
+  ],
+  "rowHeight": [
+   45,
+   45
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "SCN-1001 Supplier Credit Note SUP-CR-9 R151 Supplies Co Sep 23, 2026 — -CAD 12.00 -CAD 112",
+  "label": "View note",
+  "verdict": "OK",
+  "effect": [
+   "page:document-view"
+  ],
+  "rowHeight": [
+   45,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Vendor Invoice & Note Register",
+  "row": "SCN-1001 Supplier Credit Note SUP-CR-9 R151 Supplies Co Sep 23, 2026 — -CAD 12.00 -CAD 112",
+  "label": "Open in note register",
+  "verdict": "OK",
+  "effect": [
+   "page:vendor-notes"
+  ],
+  "rowHeight": [
+   45,
+   null
+  ],
+  "errors": []
+ },
+ {
+  "report": "Bank Reconciliation Summary",
+  "note": "no r23 table"
+ },
+ {
+  "report": "Tax Code Report",
+  "note": "no r23 table"
+ },
+ {
+  "report": "Pay Run Register",
+  "note": "no r23 table"
+ },
+ {
+  "report": "Budget versus Actual",
+  "note": "no r23 table"
+ },
+ {
+  "report": "Fixed Asset Register",
+  "note": "no r23 table"
+ }
+]

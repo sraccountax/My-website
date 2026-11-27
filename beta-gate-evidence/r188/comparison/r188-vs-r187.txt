@@ -1,0 +1,11 @@
+compared 592 files: 0 different, 34 missing, 0 status changes
+  MISSING screens/company_d103f5ee73a3830785c4638f4d505d66.Banking-Bank-Transaction-Report.txt only in A
+  MISSING screens/company_d103f5ee73a3830785c4638f4d505d66.Banking-Manage-Bank-Accounts.txt only in A
+  MISSING screens/company_d103f5ee73a3830785c4638f4d505d66.Dashboard-home.txt only in A
+  MISSING screens/company_d103f5ee73a3830785c4638f4d505d66.General-ledger-Day-Book.txt only in A
+  MISSING screens/company_d103f5ee73a3830785c4638f4d505d66.General-ledger-GIFI-Report.txt only in A
+  MISSING screens/company_d103f5ee73a3830785c4638f4d505d66.General-ledger-Journal-Entries.txt only in A
+  MISSING screens/company_d103f5ee73a3830785c4638f4d505d66.My-account-Company-Details.txt only in A
+  MISSING screens/company_d103f5ee73a3830785c4638f4d505d66.My-account-Currency-Exchange-Rates.txt only in A
+  MISSING screens/company_d103f5ee73a3830785c4638f4d505d66.Payables-Payable-Ageing.txt only in A
+  MISSING screens/company_d103f5ee73a3830785c4638f4d505d66.Payables-Vendor-Invoices.txt only in A

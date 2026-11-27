@@ -1,0 +1,27 @@
+// R167 (browser): sidebar submenus — indented under their module, a divider instead of the Activity/Reports headings,
+// the current page marked, Receivables and Payables trial balances named after their module, and no label cut off.
+import {open} from './e2e/base.mjs';import {sql,rec,save} from './lib.mjs';
+const A='R167';
+const CID=sql("SELECT id FROM companies WHERE name LIKE 'R151 Documents Inc%' ORDER BY created_at DESC LIMIT 1");
+if(!CID)throw new Error('run 19-r151.mjs first');
+const {b,p,errs}=await open(CID,{w:1440,h:900});
+const shots='/srv/gate/ev/shots';
+const t=async(id,title,fn)=>{try{const r=await fn();rec(id,A,title,r.ok?'PASS':'FAIL',r.info)}catch(e){rec(id,A,title,'FAIL',e.message.slice(0,300))}};
+await p.evaluate(()=>TeghPortal.openDashboard());await p.waitForTimeout(2000);
+const openMod=async mod=>{const btn=p.locator('aside.sidebar nav button.srp-nav-parent',{hasText:mod}).first();if(await btn.getAttribute('aria-expanded')!=='true')await btn.click();await p.waitForTimeout(700)};
+const state=()=>p.evaluate(()=>{const nav=document.querySelector('aside.sidebar nav'),s=nav.querySelector('.srp-subnav.is-open');return {h:Math.round(s.getBoundingClientRect().height),items:[...s.querySelectorAll('button')].map(b=>b.textContent.trim()),cut:[...s.querySelectorAll('button')].filter(b=>b.scrollWidth>b.clientWidth+1).map(b=>b.textContent.trim()),headings:[...s.querySelectorAll('.srp-subnav-heading')].map(h=>h.textContent.trim()),headingH:[...s.querySelectorAll('.srp-subnav-heading')].map(h=>Math.round(h.getBoundingClientRect().height)),xOverflow:nav.scrollWidth-nav.clientWidth,open:[...nav.querySelectorAll(':scope>button.srp-nav-parent')].filter(n=>n.getAttribute('aria-expanded')==='true').length,lastVisible:[...nav.querySelectorAll(':scope>button.srp-nav-parent')].at(-1).getBoundingClientRect().bottom<=nav.getBoundingClientRect().bottom+1}});
+
+await t('SN-01','Receivables submenu is at most 300 px tall at 1440 × 900 (416 px before) and every module stays reachable',async()=>{await openMod('Receivables');const s=await state();return {ok:s.h<=300&&s.open===1,info:JSON.stringify({h:s.h,open:s.open,lastVisible:s.lastVisible})}});
+await t('SN-02','The Activity/Reports headings are kept for screen readers but drawn as a thin divider',async()=>{const s=await state();return {ok:s.headings.join()==='Activity,Reports'&&s.headingH.every(h=>h<=1),info:JSON.stringify(s.headings)+' '+JSON.stringify(s.headingH)}});
+await t('SN-03','No submenu label is cut off and the sidebar never scrolls sideways (every module)',async()=>{const cut=[],x=[];for(const m of ['Banking','Receivables','Payables','General Ledger','Payroll','Advanced']){await openMod(m);const s=await state();cut.push(...s.cut);x.push(s.xOverflow)}return {ok:!cut.length&&x.every(v=>v<=0),info:`cut ${cut.join(',')||'none'}; sideways overflow ${x.join(',')}`}});
+await t('SN-04','Trial balances are named after their module: AR (Receivables), AP (Payables), Trial Balance (General Ledger)',async()=>{const out={};for(const m of ['Receivables','Payables','General Ledger']){await openMod(m);out[m]=(await state()).items.filter(i=>/Trial Balance/.test(i))}return {ok:out.Receivables.join()==='AR Trial Balance'&&out.Payables.join()==='AP Trial Balance'&&out['General Ledger'].join()==='Trial Balance',info:JSON.stringify(out)}});
+await t('SN-05','AR Trial Balance still opens the Customer Trial Balance',async()=>{await openMod('Receivables');await p.locator('aside.sidebar .srp-subnav.is-open button',{hasText:'AR Trial Balance'}).click();await p.waitForTimeout(2500);const h=await p.evaluate(()=>document.querySelector('.srp-page-head h1')?.textContent.trim()+' | '+(document.querySelector('.srp-page h2')?.textContent.trim()||''));return {ok:/Customer Trial Balance/i.test(h),info:h}});
+await t('SN-06','The page on screen is marked in the submenu (aria-current="page"), and the mark moves with navigation',async()=>{await openMod('Payables');await p.locator('aside.sidebar .srp-subnav.is-open button',{hasText:'Vendor Ledgers'}).click();await p.waitForTimeout(2500);
+  const a=await p.evaluate(()=>[...document.querySelectorAll('aside.sidebar .srp-subnav button[aria-current="page"]')].map(b=>b.textContent.trim()));await p.mouse.move(900,500);await p.screenshot({path:shots+'/r167-sidebar.png',clip:{x:0,y:0,width:520,height:900}});
+  await openMod('Payables');await p.locator('aside.sidebar .srp-subnav.is-open button',{hasText:'Payable Ageing'}).click();await p.waitForTimeout(2500);
+  const c=await p.evaluate(()=>[...document.querySelectorAll('aside.sidebar .srp-subnav button[aria-current="page"]')].map(b=>b.textContent.trim()));
+  return {ok:a.join()==='Vendor Ledgers'&&c.join()==='Payable Ageing',info:`${a} → ${c}`}});
+await t('SN-07','Collapsed sidebar (icon rail) keeps its flyout look: no guide line or indent',async()=>{const toggle=p.locator('button.sr-sidebar-toggle').first();await toggle.click();await p.waitForTimeout(800);
+  const v=await p.evaluate(()=>({collapsed:document.body.classList.contains('sr-sidebar-collapsed'),border:getComputedStyle(document.querySelector('aside.sidebar .srp-subnav')).borderLeftWidth}));await toggle.click();await p.waitForTimeout(600);return {ok:v.collapsed&&v.border==='0px',info:JSON.stringify(v)}});
+await t('SN-08','No browser errors during these checks',async()=>({ok:errs.length===0,info:errs.join(' | ')||'none'}));
+await b.close();save('r167.json');

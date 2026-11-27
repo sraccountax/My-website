@@ -1,0 +1,77 @@
+{
+"tag": "r193-ca-guided-light-side-1440",
+"edition": "CA",
+"company": "company_b41e96a7d5d0fda7a306f8826da2fdae",
+"W": "1440",
+"H": "900",
+"MODE": "guided",
+"THEME": "light",
+"NAV": "side",
+"state": {
+"mode": "guided",
+"theme": "light",
+"nav": "side",
+"company": "company_b41e96a7d5d0fda7a306f8826da2fdae"
+},
+"setupErrs": [],
+"screens": [
+{
+"id": "fn:openTaxCodes",
+"label": "openTaxCodes",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording cgst,sgst"
+]
+},
+{
+"id": "fn:openTaxCodeReport",
+"label": "openTaxCodeReport",
+"h1": "Tax Code Report",
+"issues": [],
+"form": {
+"opened": "Add Tax Code",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording cgst,sgst"
+]
+}
+},
+{
+"id": "fn:openUsers",
+"label": "openUsers",
+"h1": "Account & Access",
+"issues": [
+"foreign-wording tds"
+]
+},
+{
+"id": "report:General Ledger Detail",
+"label": "General Ledger Detail",
+"h1": "General Ledger Detail",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-01-01&end=2026-11-23"
+]
+},
+{
+"id": "report:Audit History",
+"label": "Audit History",
+"h1": "Audit History",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted"
+]
+},
+{
+"id": "report:Tax Code Report",
+"label": "Tax Code Report",
+"h1": "Tax Code Report",
+"issues": [],
+"form": {
+"opened": "Add Tax Code",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording cgst,sgst"
+]
+}
+}
+]
+}

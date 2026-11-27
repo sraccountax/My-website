@@ -1,0 +1,23 @@
+[
+ {
+  "id": "SR-01",
+  "area": "R176",
+  "title": "Settings › Platform Admin at 1440 wide lists Site & Release Settings first and opens the page",
+  "status": "PASS",
+  "evidence": "first item: Site & Release Settings; opens: Site & Release Settings; overflow 0; errors 0"
+ },
+ {
+  "id": "SR-02",
+  "area": "R176",
+  "title": "Settings › Platform Admin at 390 wide lists Site & Release Settings first and opens the page",
+  "status": "PASS",
+  "evidence": "first item: Site & Release Settings; opens: Site & Release Settings; overflow 0; errors 0"
+ },
+ {
+  "id": "SR-03",
+  "area": "R176",
+  "title": "The Settings search finds Site & Release Settings",
+  "status": "PASS",
+  "evidence": "20 result(s): Site & Release SettingsPlatform Admin ·  | Add Company or Client FileCompany detail | Agent CenterAdvanced settings · Review a | Client Dashboard DemoPlatform Admin · Sh | Company DetailsCompany details · Company | Dashboard & ReconciliationPreferences ·  | Data ImportBackup and data · Check and i | Group & IntercompanyCompany details · Li | Improve Tegh AssistPlatform Admin · Test | Included native featuresIncluded native  | My AccountPreferences · Profile and sign | Recurring TransactionsAccounting setup · | Registration & InvitationsPlatform Admin | Requested DownloadsBackup a"
+ }
+]

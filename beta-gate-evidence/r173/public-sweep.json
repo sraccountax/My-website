@@ -1,0 +1,751 @@
+{
+ "out": [
+  {
+   "pg": "404.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "ask-tegh.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "company.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "contact.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "cookies.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "dpa.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "faq.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "features.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "index.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "migration.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "pricing.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "privacy.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "product.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "resources.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "security.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "solutions.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "subprocessors.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "subscriptions.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "terms.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "why-tegh.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "guides/ar-aging.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "guides/balance-sheet.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "guides/bank-reconciliation.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "guides/cash-vs-accrual.html",
+   "w": 320,
+   "probs": []
+  },
+  {
+   "pg": "404.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "ask-tegh.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "company.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "contact.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "cookies.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "dpa.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "faq.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "features.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "index.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "migration.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "pricing.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "privacy.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "product.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "resources.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "security.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "solutions.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "subprocessors.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "subscriptions.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "terms.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "why-tegh.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "guides/ar-aging.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "guides/balance-sheet.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "guides/bank-reconciliation.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "guides/cash-vs-accrual.html",
+   "w": 390,
+   "probs": []
+  },
+  {
+   "pg": "404.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "ask-tegh.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "company.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "contact.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "cookies.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "dpa.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "faq.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "features.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "index.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "migration.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "pricing.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "privacy.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "product.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "resources.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "security.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "solutions.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "subprocessors.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "subscriptions.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "terms.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "why-tegh.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "guides/ar-aging.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "guides/balance-sheet.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "guides/bank-reconciliation.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "guides/cash-vs-accrual.html",
+   "w": 768,
+   "probs": []
+  },
+  {
+   "pg": "404.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "ask-tegh.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "company.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "contact.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "cookies.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "dpa.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "faq.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "features.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "index.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "migration.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "pricing.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "privacy.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "product.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "resources.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "security.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "solutions.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "subprocessors.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "subscriptions.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "terms.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "why-tegh.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "guides/ar-aging.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "guides/balance-sheet.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "guides/bank-reconciliation.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "guides/cash-vs-accrual.html",
+   "w": 1024,
+   "probs": []
+  },
+  {
+   "pg": "404.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "ask-tegh.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "company.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "contact.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "cookies.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "dpa.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "faq.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "features.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "index.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "migration.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "pricing.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "privacy.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "product.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "resources.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "security.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "solutions.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "subprocessors.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "subscriptions.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "terms.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "why-tegh.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "guides/ar-aging.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "guides/balance-sheet.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "guides/bank-reconciliation.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "guides/cash-vs-accrual.html",
+   "w": 1440,
+   "probs": []
+  },
+  {
+   "pg": "404.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "ask-tegh.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "company.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "contact.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "cookies.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "dpa.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "faq.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "features.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "index.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "migration.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "pricing.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "privacy.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "product.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "resources.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "security.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "solutions.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "subprocessors.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "subscriptions.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "terms.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "why-tegh.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "guides/ar-aging.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "guides/balance-sheet.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "guides/bank-reconciliation.html",
+   "w": 1920,
+   "probs": []
+  },
+  {
+   "pg": "guides/cash-vs-accrual.html",
+   "w": 1920,
+   "probs": []
+  }
+ ],
+ "links": [
+  "/",
+  "/product.html",
+  "/why-tegh.html",
+  "/pricing.html",
+  "/faq.html",
+  "/app.html",
+  "/contact.html",
+  "/privacy.html",
+  "/security.html",
+  "/cookies.html",
+  "/terms.html",
+  "/dpa.html",
+  "/subprocessors.html",
+  "/guides/bank-reconciliation.html",
+  "/guides/ar-aging.html",
+  "/guides/balance-sheet.html",
+  "/guides/cash-vs-accrual.html",
+  "/features.html",
+  "/solutions.html",
+  "/subscriptions.html",
+  "/resources.html",
+  "/migration.html",
+  "/ask-tegh.html",
+  "/company.html"
+ ],
+ "bad": []
+}

@@ -1,0 +1,79 @@
+[
+ {
+  "id": "RA-01",
+  "area": "R165",
+  "title": "Vendor Invoice & Note Register: row Actions › View vendor invoice opens the invoice (lines, total, open balance from the database)",
+  "status": "PASS",
+  "evidence": "menu Edit vendor invoice, View vendor invoice, Invoice PDF, Print invoice, Invoice Excel, View Day Book Entry, Apply Open Payment, Void/reverse · {\"h2\":\"Vendor Invoice UI-VI-mvj1lufy Open\",\"lines\":2,\"total\":\"$1,226.00\",\"outstanding\":\"$1,226.00\",\"actions\":[\"PDF\",\"Print\",\"Day Book Entry\",\"Edit Dates and Notes\",\"Record Payment\",\"Open in Register\"]} · db total 122600 balance 122600"
+ },
+ {
+  "id": "RA-02",
+  "area": "R165",
+  "title": "Supplier credit note row: Actions › View note opens the note itself, not the register with the row highlighted",
+  "status": "PASS",
+  "evidence": "menu View note, Open in note register · {\"h2\":\"Supplier Credit Note SCN-1002 Posted\",\"lines\":1,\"total\":\"$12.46\",\"outstanding\":\"$0.00\",\"actions\":[\"PDF\",\"Day Book Entry\",\"Open in Note Register\"]} · db total 1246"
+ },
+ {
+  "id": "RA-03",
+  "area": "R165",
+  "title": "Customer credit note row: Actions › View note opens the note",
+  "status": "PASS",
+  "evidence": "{\"h2\":\"Customer Credit Note CN-1001 Posted\",\"lines\":1,\"total\":\"$226.00\",\"outstanding\":\"$0.00\",\"actions\":[\"PDF\",\"Day Book Entry\",\"Open in Note Register\"]}"
+ },
+ {
+  "id": "RA-04",
+  "area": "R165",
+  "title": "Clicking the note number in the register opens the note",
+  "status": "PASS",
+  "evidence": "Supplier Credit Note SCN-1002 Posted"
+ },
+ {
+  "id": "RA-05",
+  "area": "R165",
+  "title": "The note view links to its original vendor invoice, which opens",
+  "status": "PASS",
+  "evidence": "Vendor Invoice VI-1-mvj1lrjf Open"
+ },
+ {
+  "id": "RA-06",
+  "area": "R165",
+  "title": "Selecting one vendor invoice row: the selection bar's View vendor invoice opens it",
+  "status": "PASS",
+  "evidence": "Vendor Invoice UI-VI-mvj1lufy Open"
+ },
+ {
+  "id": "RA-07",
+  "area": "R165",
+  "title": "Supplier Credit & Debit Notes screen: each note has a View button that opens the note",
+  "status": "PASS",
+  "evidence": "4 View buttons · Supplier Credit Note SCN-1002 Posted"
+ },
+ {
+  "id": "RA-08",
+  "area": "R165",
+  "title": "Day Book / ledger \"open source\" for a note or a vendor invoice opens the document",
+  "status": "PASS",
+  "evidence": "Supplier Credit Note SCN-1002 Posted · Vendor Invoice UI-VI-mvj1lufy Open"
+ },
+ {
+  "id": "RA-09",
+  "area": "R165",
+  "title": "Back from the document returns to the register",
+  "status": "PASS",
+  "evidence": "bills"
+ },
+ {
+  "id": "RA-10",
+  "area": "R165",
+  "title": "Phone width: the note view fits without sideways scrolling",
+  "status": "PASS",
+  "evidence": "{\"doc\":390,\"vw\":390}"
+ },
+ {
+  "id": "RA-11",
+  "area": "R165",
+  "title": "No browser errors during these checks",
+  "status": "PASS",
+  "evidence": "none"
+ }
+]

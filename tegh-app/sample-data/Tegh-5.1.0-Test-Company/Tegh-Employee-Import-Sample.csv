@@ -1,0 +1,2 @@
+﻿Employee Number,First Name,Last Name,Email,Province of Employment,Province of Residence,Date of Birth,Hire Date,Termination Date,Pay Frequency,Pay Type,Annual Salary,Hourly Rate,Standard Hours,Vacation Rate Percent,Vacation Paid Each Pay,Federal TD1,Provincial TD1,Additional Tax,CPP Exempt,EI Exempt,Active
+EMP-QA-001,Jordan,Patel,jordan.patel@example.invalid,ON,ON,1990-01-15,2026-01-05,,Biweekly,Salary,65000.00,,80,4.00,No,16000.00,16000.00,0.00,No,No,Yes

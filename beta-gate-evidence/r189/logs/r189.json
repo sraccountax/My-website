@@ -1,0 +1,72 @@
+[
+ {
+  "id": "RL-01",
+  "area": "R189",
+  "title": "Canada: a 25,000.00 journal (above the former 10,000.00 limit) posts at once; nothing waits for approval and the trial balance balances",
+  "status": "PASS",
+  "evidence": "{\"s\":201,\"status\":\"posted\",\"approvalRequired\":false,\"audit\":\"null\",\"tb\":\"0\"}"
+ },
+ {
+  "id": "RL-02",
+  "area": "R189",
+  "title": "A 50,000.00 vendor invoice is issued and posted at once (status open, not sent for approval)",
+  "status": "PASS",
+  "evidence": "{\"s\":201,\"status\":\"open\",\"total\":5650000,\"exp\":5650000}"
+ },
+ {
+  "id": "RL-03",
+  "area": "R189",
+  "title": "A 20,000.00 customer invoice is voided directly: the preview needs no second owner and the void applies at once",
+  "status": "PASS",
+  "evidence": "{\"dual\":false,\"limit\":null,\"s\":200,\"status\":\"void\"}"
+ },
+ {
+  "id": "RL-04",
+  "area": "R189",
+  "title": "A 15,000.00 customer credit note (refused above the former limit) is now posted",
+  "status": "PASS",
+  "evidence": "{\"create\":[201,null],\"post\":[200,null],\"status\":\"posted\",\"ar\":-1500000}"
+ },
+ {
+  "id": "RL-05",
+  "area": "R189",
+  "title": "With limits switched on (test config), the journal, vendor invoice and void wait for approval; this proves the setting still works when an operator enables it",
+  "status": "PASS",
+  "evidence": "{\"journal\":[202,true],\"bill\":\"submitted_for_approval\",\"void\":[202,true],\"inv\":\"sent\",\"unpost\":[202,\"posted\"]}"
+ },
+ {
+  "id": "RL-06",
+  "area": "R189",
+  "title": "After the limits are removed, a journal that was already waiting is still approved by a second owner (its maker cannot) and posts",
+  "status": "PASS",
+  "evidence": "{\"self\":[409,\"journal_dual_control_required\"],\"ok2\":[200,\"posted\"]}"
+ },
+ {
+  "id": "RL-07",
+  "area": "R189",
+  "title": "A vendor invoice that was already waiting is still approved by a second owner and posted by that approver",
+  "status": "PASS",
+  "evidence": "{\"self\":[409,\"bill_dual_control_required\"],\"approve\":200,\"post\":[200,null],\"status\":\"open\"}"
+ },
+ {
+  "id": "RL-08",
+  "area": "R189",
+  "title": "A void that was already waiting is still approved by a second owner (its maker cannot) and the invoice is voided",
+  "status": "PASS",
+  "evidence": "{\"self\":[409,\"void_dual_control_required\"],\"ok2\":[200,null],\"status\":\"void\"}"
+ },
+ {
+  "id": "RL-09",
+  "area": "R189",
+  "title": "A bank unpost that was already waiting is still approved by a second owner (its maker cannot) and the line returns to Unposted",
+  "status": "PASS",
+  "evidence": "{\"self\":[409,\"unpost_dual_control_required\"],\"ok2\":[200,null],\"st\":\"pending\"}"
+ },
+ {
+  "id": "RL-10",
+  "area": "R189",
+  "title": "The setting is off again: a new 30,000.00 journal posts at once",
+  "status": "PASS",
+  "evidence": "{\"s\":201,\"status\":\"posted\"}"
+ }
+]

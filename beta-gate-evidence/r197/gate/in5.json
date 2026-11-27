@@ -1,0 +1,72 @@
+[
+ {
+  "id": "IN5-01",
+  "area": "IN5",
+  "title": "Canada is unaffected: every payroll route answers 404 for a Canadian company and no India payroll rows are created",
+  "status": "PASS",
+  "evidence": "{\"r\":[[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"],[404,\"india_only\"]],\"rows\":\"0\"}"
+ },
+ {
+  "id": "IN5-02",
+  "area": "IN5",
+  "title": "Salary structures: a percent component without its base and an unknown employee are refused; the Owner and an Editor save structures; a Viewer cannot",
+  "status": "PASS",
+  "evidence": "{\"noBase\":[422,\"india_payroll_base_missing\"],\"noEmp\":[422,\"india_payroll_employee\"],\"noAmt\":\"india_payroll_amount\",\"s1\":201,\"s2\":201,\"viewer\":403}"
+ },
+ {
+  "id": "IN5-03",
+  "area": "IN5",
+  "title": "September draft: Asha (full month) gross ₹33,000, EPF ₹1,800 on the ₹15,000 ceiling, no ESIC above ₹21,000, PT ₹200, TDS ₹1,500, net ₹29,500; Ravi (joined 11 September, 20 of 30 days) prorated; Meera has no structure and is skipped",
+  "status": "PASS",
+  "evidence": "{\"e1\":{\"g\":3300000,\"d\":350000,\"n\":2950000,\"c\":[[\"Basic\",2000000],[\"House Rent Allowance\",800000],[\"Special Allowance\",500000],[\"EPF (employee)\",180000],[\"EPF (employer)\",180000],[\"ESIC (employee)\",0],[\"ESIC (employer)\",0],[\"Professional Tax\",20000],[\"Income tax (TDS)\",150000]]},\"e2\":{\"days\":20000,\"g\":1320000,\"n\":1194100,\"c\":[[\"Basic\",800000],[\"House Rent Allowance\",320000],[\"Special Allowance\",200000],[\"EPF (employee)\",96000],[\"EPF (employer)\",96000],[\"ESIC (employee)\",9900],[\"ESIC (employer)\",42900],[\"Professional Tax\",20000],[\"Income tax (TDS)\",0]]},\"skipped\":[\"inrec_d6e3823976b72b143d83d33c"
+ },
+ {
+  "id": "IN5-04",
+  "area": "IN5",
+  "title": "Recalculating the draft with 27 paid days for Asha (3 days loss of pay) prorates her fixed pay; the EPF ceiling still applies; bad paid days are refused",
+  "status": "PASS",
+  "evidence": "{\"bad\":[422,\"india_payroll_paid_days\"],\"e1\":{\"g\":2970000,\"n\":2620000},\"run\":{\"id\":\"inpayrun_c7a6134443de89d3dc177e30d4a9e429\",\"period\":\"2026-09\",\"payDate\":\"2026-09-30\",\"status\":\"draft\",\"grossCents\":4290000,\"deductionsCents\":475900,\"employerCents\":318900,\"netCents\":3814100,\"journalEntryId\":null,\"reversalJournalEntryId\":null,\"reversalReason\":null,\"inputs\":{\"inrec_2b60a2c905a947739c6fc79006c1244a\":{\"paidDays\":27,\"entered\":{\"inrec_01262bd27cbdcfb4d3481064e30bed07\":150000}}}}}"
+ },
+ {
+  "id": "IN5-05",
+  "area": "IN5",
+  "title": "Posting: an Editor cannot post; the Owner posts one balanced journal (6000 Dr 42,900; 6010 Dr 3,189; 2310 Cr 4,759; 2320 Cr 3,189; 2300 Cr 38,141); a posted run cannot be recalculated",
+  "status": "PASS",
+  "evidence": "{\"ed\":403,\"status\":\"posted\",\"b\":{\"e6000\":4290000,\"e6010\":318900,\"l2310\":475900,\"l2320\":318900,\"l2300\":3814100},\"tb\":\"0\",\"again\":[409,\"india_payroll_run_posted\"],\"lines\":5}"
+ },
+ {
+  "id": "IN5-06",
+  "area": "IN5",
+  "title": "Registers: employee totals, component totals (EPF employee ₹2,760, ESIC ₹99, PT ₹400, TDS ₹1,500) and the liability check against the posted journal",
+  "status": "PASS",
+  "evidence": "{\"totals\":{\"grossCents\":4290000,\"deductionsCents\":475900,\"employerCents\":318900,\"netCents\":3814100},\"c\":{\"Basic\":2600000,\"House Rent Allowance\":1040000,\"Special Allowance\":650000,\"EPF (employee)\":276000,\"EPF (employer)\":276000,\"ESIC (employee)\":9900,\"ESIC (employer)\":42900,\"Professional Tax\":40000,\"Income tax (TDS)\":150000},\"liab\":{\"2300\":3814100,\"2310\":475900,\"2320\":318900},\"ties\":true}"
+ },
+ {
+  "id": "IN5-07",
+  "area": "IN5",
+  "title": "A missing rule is reported: an August run fails because no ESIC rule is in force before 1 September",
+  "status": "PASS",
+  "evidence": "[422,\"india_payroll_rule_missing\",\"No approved esic rate rule is in force on the pay date for this employee. Add or approve it in India Masters › Statutory\"]"
+ },
+ {
+  "id": "IN5-08",
+  "area": "IN5",
+  "title": "Reversal: needs a reason and the Owner; the reversing journal returns every payroll account to nil; the month can then be run again",
+  "status": "PASS",
+  "evidence": "{\"noReason\":422,\"ed\":403,\"status\":\"reversed\",\"b\":[0,0,0,0,0],\"again\":[201,4144100],\"audit\":\"india.pay_run_calculated,india.pay_run_posted,india.pay_run_reversed\"}"
+ },
+ {
+  "id": "UI-01",
+  "area": "IN5",
+  "title": "India payroll screens: the Payroll menu offers Pay Runs, Salary Structures and Payroll Registers (no Canadian payroll items); the September run lists both employees; a payslip shows earnings, deductions and net pay; the register agrees with the liabilities",
+  "status": "PASS",
+  "evidence": "{\"nav\":\"ACTIVE BOOKIN5 Payroll mwulpu3r|DashboardDB|BankingBK|Upload Statement|Match and Post|Reconcile Account|Bank Accounts|Transactions Report|Bank General Ledger|Bank Reconciliation|ReceivablesAR|Create Customer|Products|Customer Invoices|Payments|Collection Drafts|Customers|Invoice Register|Customer Le\",\"rows\":2,\"slip\":\"Payslip · September 2026 Asha Synthetic (A001-mwulpu3r) · Paid days 30 of 30 · Pay date 30-09-2026 Earnings Basic monthly amount ₹20,000.00 House Rent Allowance\",\"comps\":9,\"ties\":\"1\",\"canadian\":[],\"errs\":[]}"
+ },
+ {
+  "id": "UI-02",
+  "area": "IN5",
+  "title": "Canadian company: the India payroll items are not in the menus and the page is refused; the Canadian payroll items are still there",
+  "status": "PASS",
+  "evidence": "{\"nav\":\"ACTIVE BOOKBayview Trading Associates|DashboardDB|BankingBK|Upload Statement|Match and Post|Reconcile Account|Bank Accounts|Transactions Report|Bank General Ledger|Bank Reconciliation|ReceivablesAR|Create Customer|Products|Customer Invoices|Payments|Collection Drafts|Customers|Invoice Register|Custo\",\"toast\":\"Not availableThis payroll is available only in India companies.\"}"
+ }
+]

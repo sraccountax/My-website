@@ -1,0 +1,11 @@
+dk-ca-guided-1440 CA guided dark side screens 72 forms 8 with issues 10 {"mode":"guided","theme":"dark","nav":"side","company":"company_b41e96a7d5d0fda7a306f8826da2fdae"}
+   fn:openTaxCodes                    foreign-wording cgst,sgst
+   fn:openTaxCodeReport [Add Tax Code] foreign-wording cgst,sgst
+   fn:openUsers                       foreign-wording tds
+   fn:openInvoiceTemplates            light-panel srp-template-preview,srp-template-preview,srp-template-preview,srp-template-preview
+   fn:openImportedTransactions        low-contrast Select visible 1.8
+   fn:openExpenseVouchers             low-contrast Journal 2.0,Interbank Transfer 2.0,Import 2.0,Recurring 2.0
+   report:General Ledger Detail       api 413 /api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-01-01&end=2026-11-23
+   report:Audit History               api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted
+   report:Tax Code Report [Add Tax Code] foreign-wording cgst,sgst
+   report:Budget versus Actual [Create Budget] low-contrast Budget workspace 2.6,Budget line 1.3,Account• 1.3,Analytic dimension Optio 1.3

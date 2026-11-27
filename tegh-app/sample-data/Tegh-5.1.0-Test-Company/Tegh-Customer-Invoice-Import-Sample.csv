@@ -1,0 +1,2 @@
+﻿Import Invoice Reference,Invoice Number,Customer Name,Invoice Date,Due Date,Payment Terms,Custom Terms Days,Customer PO Reference,Line Number,Product Service Code,Description,Quantity,Unit Price,Income GL Code,Tax Treatment,Original Amount,Amount Previously Paid,Outstanding Amount,Notes
+TEGH-QA-CI-001,QA-INV-001,Sample Customer Inc.,2026-09-12,2026-10-12,Net 30,,QA-PO-001,1,TEGH-QA-CONSULT,Fictional QA consulting service,1,250.00,4000,GST/HST,,,,Fictional sample; import as draft

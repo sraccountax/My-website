@@ -1,0 +1,114 @@
+[
+ {
+  "id": "RT-01",
+  "area": "R172",
+  "title": "Create Vendor loads its supplier list without a failed request (a vendor’s currency field is not sent as a list filter)",
+  "status": "PASS",
+  "evidence": "failed requests: none; table rows 2"
+ },
+ {
+  "id": "RT-02",
+  "area": "R172",
+  "title": "Tegh Assist page: the question box uses the page width (was squeezed into a 190px column)",
+  "status": "PASS",
+  "evidence": "question box 748px at 1440 wide"
+ },
+ {
+  "id": "RT-03",
+  "area": "R172",
+  "title": "Account & Access: name and email fields are wide enough to type in (were about 106–132px)",
+  "status": "PASS",
+  "evidence": "field widths 349px"
+ },
+ {
+  "id": "RT-04",
+  "area": "R172",
+  "title": "GIFI codes a person chose are kept when the GIFI report opens; blank standard accounts still get the suggested code; no empty audit entries",
+  "status": "PASS",
+  "evidence": "1500 → 1774 (chosen 1774); 6810 → 8670; audit entries from two openings 1; \"updated 0\" entries 0"
+ },
+ {
+  "id": "RT-05",
+  "area": "R172",
+  "title": "Fixed asset schedule: $12,000 over 60 months is $200 a month; months in the closed period say so instead of offering Post",
+  "status": "PASS",
+  "evidence": "8 lines due at $200 (Feb–Sep); in the closed period 5 (Feb–Jun); open 3"
+ },
+ {
+  "id": "RT-06",
+  "area": "R172",
+  "title": "Posting September depreciation makes one balanced entry: Dr 6810 Depreciation Expense, Cr 1590 Accumulated Depreciation, $200",
+  "status": "PASS",
+  "evidence": "1590:0/20000,6810:20000/0"
+ },
+ {
+  "id": "RT-07",
+  "area": "R172",
+  "title": "The server still refuses depreciation in a closed period (the screen no longer offers it)",
+  "status": "PASS",
+  "evidence": "409 {\"error\":\"This date is in a locked period. Reopen the period before posting.\",\"code\":\"period_locked\"}"
+ },
+ {
+  "id": "RT-08",
+  "area": "R172",
+  "title": "Recurring invoice profile run from its Actions menu issues the invoice with BC GST and PST ($500 + $60 = $560) and moves the next date on a month",
+  "status": "PASS",
+  "evidence": "sent 50000+6000=56000; next 2026-11-01"
+ },
+ {
+  "id": "RT-09",
+  "area": "R172",
+  "title": "Budget for 6400 Office Supplies shows planned $1,200 and actual equal to the posted GL amount",
+  "status": "PASS",
+  "evidence": "Office budget mvrotado Jan 1, 2026 – Dec 31, 2026 active $1,200.00 $0.00 $1,200.00 Actions · GL $0.00"
+ },
+ {
+  "id": "RT-10",
+  "area": "R172",
+  "title": "Customer CSV import: 5 rows → 2 eligible, 2 errors (no name, bad email), 1 duplicate; only the 2 eligible customers are created",
+  "status": "PASS",
+  "evidence": "ELIGIBLE 2 WARNINGS 0 ERRORS 2 DUPLICATES 1; created: Cedar Florist mvrotado | Maple Bakery mvrotado"
+ },
+ {
+  "id": "RT-11",
+  "area": "R172",
+  "title": "The company feed shows the recurring invoice (with the customer), the new fixed asset, the depreciation and the import",
+  "status": "PASS",
+  "evidence": "missing: none"
+ },
+ {
+  "id": "RT-13",
+  "area": "R172",
+  "title": "Fixed Assets \"Export ▾\" menu (opened over the page) downloads a PDF and an Excel file; it gave nothing before",
+  "status": "PASS",
+  "evidence": "Tegh-Fixed-assets.pdf 5326 bytes; Tegh-Fixed-assets.xlsx 11657 bytes"
+ },
+ {
+  "id": "RT-14",
+  "area": "R172",
+  "title": "Profit and Loss by month at 1440 wide: the \"Actions ⋮\" table menu stays on screen and its Export… gives a PDF",
+  "status": "PASS",
+  "evidence": "button right edge 1411px; Tegh-Profit-and-Loss.pdf 13812 bytes"
+ },
+ {
+  "id": "RT-JS",
+  "area": "R172",
+  "title": "No browser errors on the desktop",
+  "status": "PASS",
+  "evidence": "none"
+ },
+ {
+  "id": "RT-12",
+  "area": "R172",
+  "title": "Phone 390×844: Invoice Intelligence filters are full width (the search box was 95px)",
+  "status": "PASS",
+  "evidence": "search box 347px"
+ },
+ {
+  "id": "RT-PH-JS",
+  "area": "R172",
+  "title": "No browser errors on the phone",
+  "status": "PASS",
+  "evidence": "none"
+ }
+]

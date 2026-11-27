@@ -1,0 +1,15 @@
+Website bank statement converter v11 (2026-10-06) — local test results
+Test sites: v10 = the installed v10 files; v11 = the same site with the five v11 files. TEST-ONLY stubs from website-converter-v10.
+
+Tegh R152 synthetic statements (expected figures from the fixture generator): results-r152-fixtures.txt
+  v10: 2 of 12 exact (L, M); v11: 12 of 12 exact, statement check passing.
+  O.pdf (three statements: Jan and Feb of …4567, Jan of …9012):
+    v10: refused ("This PDF contains more than one account").
+    v11 Pro and free: 22 rows, net -1,805.81 (= -981.81 - 1,074.00 + 250.00); three statements each balanced;
+         chain …4567 Jan → Feb carries forward. Screenshot: shot-multi-statement.png
+Earlier statements, same result in v10 and v11:
+  R145 A–F (bank, card, page totals, missing line, ISO dates, no headings): same rows, net and check state.
+  v10 chain set (Jan, Feb, Apr): 6 rows; Jan → Feb carries forward; Feb → Apr flagged as a missing statement.
+  Scanned January statement with OCR: 3 rows, check passing.
+Owner's three real statements (kept local; counts only): 135, 21 and 254 rows, check passing, in both v10 and v11.
+Fixed in v11: the chain check skipped statements of one account when another account's statements fell between them by date.

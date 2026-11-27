@@ -1,0 +1,35 @@
+=== 03-acct
+FAIL     TX-00b     DEF-08: BC company starter code for QC is GST only (not registered with Revenu Québec) | got "GST,QST" want "GST"
+PASS     TX-00c     DEF-08: BC company keeps BC PST on its home-province code | "GST,PST"
+PASS     TX-00d     After registering in Quebec, owner edits the QC code to add QST 9.975% → 2115/1115 | 200
+PASS     TX-00      Starter codes present in new BC company (R199: plus Zero-rated and Exempt) | "AB,BC,EXEMPT,GST,MB,NB,NL,NS,NT,NU,ON,PE,QC,SK,YT,ZERO"
+FAIL     AC-01      Opening balances post a balanced journal: Dr bank $10,000 / Cr equity $10,000 | PUT 200/200 POST 409 {"error":"These opening balances were already posted.","code":"opening_balance_
+=== 77-r199
+PASS     R199-01    A US vendor's USD bill with no tax code gets no tax (no Ontario HST, no input tax credit); | 201,201,201,201 ["USD|136500|0|0|136500|-","CAD
+PASS     R199-02    India details (PAN, GSTIN, constitution) on a Canada-edition company request are refused w | 422 india_company_needs_india_edition "PAN, GST
+PASS     R199-03    New Canadian companies get "Zero-rated" and "Exempt" starter codes; a services export on Z | codes Exempt � no GST/HST / Zero-rated � 0%
+PASS     R199-04    A payment above the open balance is refused with the balance and the excess named (code pa | 422 payment_exceeds_balance "Payment cannot exc
+PASS     R199-05    The Users page offers only the signed-in edition's companies (Canada sign-in: no India com | Canada sign-in 132 companies (CA); India sign-i
+PASS     UI-01      Dashboard at 1440 px: the negative bank balance shows "−$…" on one line in the critical to | {"c":{"text":"−$25,000","lines":1,"color"
+PASS     UI-02      Dashboard at 390 px: the company name and mode are on their own header row (not cut off);  | {"c":"−$25,000","cl":[],"head":{"h":104,"trig
+PASS     UI-03      Dark theme: Financial Analyst figures and warning/critical cards are readable (every figur | {"res":[{"text":"-$25,000.00","ratio":13.22},{"
+PASS     UI-04      Customer payment form: for a USD invoice the rate is prefilled with the company's rate for | {"pre":{"rate":"1.392000","hint":"INV-1002 was 
+PASS     UI-05      Registers: amounts in the table's currency show without the code and zero as a dash; the f | {"cells":["–","–","–","–","–","–","
+=== e2e
+201 company_0dfd9894944a0a9516d22e9cf9e1d620
+=== w1
+=== w2
+=== w3
+=== w4
+=== w5
+=== w6
+=== w7
+=== w8
+=== w9
+PASS W13-01 Total Expenses–––––––––350.00350.00–350.00N/ANet Profit / (Loss)Net profit / (loss)–––––––––150.00150.00–150.00N/A1–4 of
+PASS W13-02 
+PASS W13-03 665.00 / 665.00 / 0.00
+=== upgrade
+MANIFEST-OK
+PASS     UP-08      Existing company: Add Canadian tax codes creates 16 codes (R199: plus Zero-rated and Exemp | 201 codes=16
+RERUN-DONE

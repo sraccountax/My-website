@@ -1,0 +1,157 @@
+{
+"tag": "r193-ca-guided-light-side-390",
+"edition": "CA",
+"company": "company_b41e96a7d5d0fda7a306f8826da2fdae",
+"W": "390",
+"H": "844",
+"MODE": "guided",
+"THEME": "light",
+"NAV": "side",
+"state": {
+"mode": "guided",
+"theme": "light",
+"nav": "side",
+"company": "company_b41e96a7d5d0fda7a306f8826da2fdae"
+},
+"setupErrs": [],
+"screens": [
+{
+"id": "",
+"label": "Bank General Ledger",
+"h1": "Guided Home",
+"issues": [],
+"form": {
+"opened": "New Invoice",
+"h1": "New Customer Document",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "fn:openTaxCodes",
+"label": "openTaxCodes",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording cgst,sgst"
+]
+},
+{
+"id": "fn:openTaxCodeReport",
+"label": "openTaxCodeReport",
+"h1": "Tax Code Report",
+"issues": [],
+"form": {
+"opened": "Add Tax Code",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording cgst,sgst",
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "fn:openUsers",
+"label": "openUsers",
+"h1": "Account & Access",
+"issues": [
+"foreign-wording tds"
+]
+},
+{
+"id": "fn:openInvoiceTemplates",
+"label": "openInvoiceTemplates",
+"h1": "Invoice Templates",
+"issues": [],
+"form": {
+"opened": "Add Template",
+"h1": "Invoice Templates",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "fn:openCommandCentre",
+"label": "openCommandCentre",
+"h1": "Tegh Assist",
+"issues": [],
+"form": {
+"opened": "Create CustomerOpens Create Customer.",
+"h1": "Tegh Assist",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "fn:openAccountingNotes",
+"label": "openAccountingNotes",
+"h1": "Customer Credit & Debit Notes",
+"issues": [],
+"form": {
+"opened": "New Note",
+"h1": "New Customer Document",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "report:General Ledger Detail",
+"label": "General Ledger Detail",
+"h1": "General Ledger Detail",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fgeneral-ledger&v=5990&start=2026-01-01&end=2026-11-23"
+]
+},
+{
+"id": "report:Audit History",
+"label": "Audit History",
+"h1": "Audit History",
+"issues": [
+"api 413 /api/index.php?route=professional-output%2Fv5990%2Fday-book&v=5990&start=2000-01-01&end=2026-11-23&status=posted"
+]
+},
+{
+"id": "report:Tax Code Report",
+"label": "Tax Code Report",
+"h1": "Tax Code Report",
+"issues": [],
+"form": {
+"opened": "Add Tax Code",
+"h1": "Tax Codes",
+"issues": [
+"foreign-wording cgst,sgst",
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "report:Budget versus Actual",
+"label": "Budget versus Actual",
+"h1": "Budgets",
+"issues": [],
+"form": {
+"opened": "Create Budget",
+"h1": "Budgets",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+},
+{
+"id": "report:Fixed Asset Register",
+"label": "Fixed Asset Register",
+"h1": "Fixed Assets",
+"issues": [],
+"form": {
+"opened": "Add Asset Schedule",
+"h1": "Add Asset Schedule",
+"issues": [
+"low-contrast Version 5.9.9 2.7"
+]
+}
+}
+]
+}

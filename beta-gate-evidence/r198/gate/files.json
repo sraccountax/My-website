@@ -1,0 +1,79 @@
+[
+ {
+  "id": "FI-01",
+  "area": "FILES",
+  "title": "Statement source file of another company cannot be downloaded (by ID, with either company header)",
+  "status": "PASS",
+  "evidence": "import source: own-company context 404; victim company header 403; owner control 200"
+ },
+ {
+  "id": "FI-02",
+  "area": "FILES",
+  "title": "Invoice attachment of another company cannot be downloaded",
+  "status": "PASS",
+  "evidence": "invoice attachment: own-company context 404; victim company header 403; owner control 200"
+ },
+ {
+  "id": "FI-03",
+  "area": "FILES",
+  "title": "Document Intake source (OCR input) of another company cannot be downloaded",
+  "status": "PASS",
+  "evidence": "intake document: own-company context 404; victim company header 403; owner control 200"
+ },
+ {
+  "id": "FI-04",
+  "area": "FILES",
+  "title": "Invoice detail and its PDF model of another company cannot be read",
+  "status": "PASS",
+  "evidence": "invoice detail: own-company context 404; victim company header 403; owner control 200"
+ },
+ {
+  "id": "FI-05",
+  "area": "FILES",
+  "title": "Reports and exports of another company cannot be generated (trial balance, GL export, backup export)",
+  "status": "PASS",
+  "evidence": "outsider reports/v5600/financial 403, requested-downloads 403, platform/members 403; owner controls 200,200,200; backup export 403"
+ },
+ {
+  "id": "FI-06",
+  "area": "FILES",
+  "title": "Saved downloads are private to the person and company: another user's saved file ID is not found",
+  "status": "PASS",
+  "evidence": "save 201; owner same company 200; owner other company 404; outsider 403"
+ },
+ {
+  "id": "FI-07",
+  "area": "FILES",
+  "title": "Downloads are served as attachments with nosniff, a sandbox CSP and no caching",
+  "status": "PASS",
+  "evidence": "status 200; disposition attachment; filename=\"x.csv\"; nosniff nosniff; csp sandbox; default-src 'none'; cache private, no-store, max-age=0; marker visible false"
+ },
+ {
+  "id": "FI-08",
+  "area": "FILES",
+  "title": "Uploads: HTML disguised as PDF, SVG and a path-traversal file name are refused or neutralised; the stored name is random",
+  "status": "PASS",
+  "evidence": "html-as-pdf 415; svg 400; traversal name 201 stored as company_11e8afea86a6c9a162338ef0984050e9/receipts/<random>.pdf"
+ },
+ {
+  "id": "FI-09",
+  "area": "FILES",
+  "title": "Invitations: an outsider cannot list or create invitations for another company",
+  "status": "PASS",
+  "evidence": "list 200 (victim data shown false); create 422 (rows created 0); self-promotion in victim company 403; platform users 403; owner control 200"
+ },
+ {
+  "id": "FI-10",
+  "area": "FILES",
+  "title": "Company list and switching: the outsider sees only their own company and cannot select another by header",
+  "status": "PASS",
+  "evidence": "companies listed 1 (own true); workspace with victim header 403; owner control 200"
+ },
+ {
+  "id": "FI-11",
+  "area": "FILES",
+  "title": "Client viewing links and accountant connections of another company are not listed or changed",
+  "status": "PASS",
+  "evidence": "client-view links 403; accountant connection 403; owner controls 200,405"
+ }
+]

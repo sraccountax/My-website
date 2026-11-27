@@ -1,0 +1,86 @@
+[
+ {
+  "id": "AS-01",
+  "area": "SEC2",
+  "title": "The session cookie is set HttpOnly + Secure + SameSite=Strict (not stealable by JS, not sent cross-site)",
+  "status": "PASS",
+  "evidence": "session \"tegh_session=<v>; expires=Fri, 02 Oct 2026 04:49:43 GMT; Max-Age=43200; path=/; \"; csrf flags secure=true strict=true"
+ },
+ {
+  "id": "AS-02",
+  "area": "SEC2",
+  "title": "A wrong password is refused and sets no session cookie (no partial auth)",
+  "status": "PASS",
+  "evidence": "status 401; session cookie issued false"
+ },
+ {
+  "id": "AS-03",
+  "area": "SEC2",
+  "title": "An authenticated write with a forged/garbage session cookie is unauthenticated (401), not honoured",
+  "status": "PASS",
+  "evidence": "status 401"
+ },
+ {
+  "id": "AS-04",
+  "area": "SEC2",
+  "title": "Logout invalidates the session server-side: the same cookie no longer works (401)",
+  "status": "PASS",
+  "evidence": "before 200; after logout 401"
+ },
+ {
+  "id": "AS-05",
+  "area": "SEC2",
+  "title": "Session and CSRF tokens are stored hashed at rest: the raw cookie value is not found in the sessions table",
+  "status": "PASS",
+  "evidence": "raw cookie present true; rows matching raw value in sessions 0 (0 = stored hashed)"
+ },
+ {
+  "id": "CV2-01",
+  "area": "SEC2",
+  "title": "A client cannot pull a report outside the link's allowlist (shared: profit-loss; requested: balance-sheet) -> 403",
+  "status": "PASS",
+  "evidence": "signin 200; shared 200; not-shared 403; payroll 403"
+ },
+ {
+  "id": "CV2-02",
+  "area": "SEC2",
+  "title": "Five wrong 6-digit codes lock the code (429); a 6-digit code cannot be brute-forced",
+  "status": "PASS",
+  "evidence": "422,422,422,422,422,429"
+ },
+ {
+  "id": "CV2-03",
+  "area": "SEC2",
+  "title": "A client-view session cookie cannot call an authenticated company API (it is not a user session) -> 401",
+  "status": "PASS",
+  "evidence": "guided/mapping 401; workspace 401"
+ },
+ {
+  "id": "CV2-04",
+  "area": "SEC2",
+  "title": "A revoked link cannot start a sign-in (410)",
+  "status": "PASS",
+  "evidence": "start on revoked link 410"
+ },
+ {
+  "id": "PY2-01",
+  "area": "SEC2",
+  "title": "A real SIN in an employee record is refused server-side (422), even disguised across fields",
+  "status": "PASS",
+  "evidence": "explicit SIN 422/sin_not_accepted; SIN-shaped id 422/sin_not_accepted"
+ },
+ {
+  "id": "PY2-02",
+  "area": "SEC2",
+  "title": "Finalizing a pay run without the server-checked review confirmation is refused (422), not just hidden in the UI",
+  "status": "PASS",
+  "evidence": "422 payroll_review_confirmation_required"
+ },
+ {
+  "id": "PY2-03",
+  "area": "SEC2",
+  "title": "A pay run from another company cannot be finalized from this company (not found), even with review confirmed",
+  "status": "PASS",
+  "evidence": "foreign run none; finalize 404 payroll_run_not_found; its status n/a"
+ }
+]

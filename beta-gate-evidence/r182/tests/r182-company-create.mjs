@@ -1,0 +1,14 @@
+import {sql} from '../lib.mjs';
+import {open} from '../e2e/base.mjs';
+const cid = sql("SELECT id FROM companies WHERE name LIKE 'Volume Northwind%' LIMIT 1");
+const {b, p, errs} = await open(cid, {w: 1440, h: 900});
+await p.evaluate(() => TeghPortal.invokeMenuAction('My account', 'Add Company or Client File'));
+await p.waitForSelector('.r182-co-layout');
+const name = 'R182 Layout Co ' + Date.now();
+await p.fill('[name=name]', name); await p.fill('[name=legalName]', name + ' Inc.');
+await p.selectOption('[name=province]', 'MB'); await p.click('[data-r182-basis=cash]');
+await p.check('[name=taxRegistered]'); await p.fill('[name=taxNumber]', '123456789RT0001');
+await p.click('details[data-r182-sec=address] > summary'); await p.fill('[name=city]', 'Winnipeg');
+await p.click('.r182-co-actions button[type=submit]'); await p.waitForTimeout(8000);
+console.log(sql(`SELECT name,province,timezone,accounting_basis,tax_registered,city,currency FROM companies WHERE name='${name}'`));
+console.log('errors', errs); await b.close();

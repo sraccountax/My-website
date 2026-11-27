@@ -1,0 +1,23 @@
+[
+ {
+  "id": "R195-01",
+  "area": "R195",
+  "title": "Canada: a new company keeps the four Canadian set-up steps (company, bank statement, opening balances, first invoice), counted 1 of 4",
+  "status": "PASS",
+  "evidence": "200 [\"company\",\"bank-import\",\"opening-balances\",\"first-invoice\"] 1/4"
+ },
+ {
+  "id": "UI-01",
+  "area": "R195",
+  "title": "India: a new user creates an India company with the India form and the dashboard lists the India set-up steps in order, TDS and payroll marked optional and not counted",
+  "status": "PASS",
+  "evidence": "{\"ids\":[\"company\",\"india-registrations\",\"chart-of-accounts\",\"bank-accounts\",\"india-gst\",\"india-tds\",\"india-payroll\",\"opening-balances\",\"bank-import\",\"first-invoice\"],\"optional\":[\"india-tds\",\"india-payroll\"],\"done\":2,\"total\":8,\"head\":\"2 of 8 steps done. You can stop and come back at any time.\",\"next\":\"Add PAN, GSTIN and TAN\",\"errs\":[]}"
+ },
+ {
+  "id": "UI-02",
+  "area": "R195",
+  "title": "India: each set-up button opens its page (Company details, Chart of accounts, India Masters for GST and TDS, payroll set-up, Opening balances, bank statement import, new invoice)",
+  "status": "PASS",
+  "evidence": "{\"opened\":{\"Add Registrations\":\"company-details\",\"Review Accounts\":\"chart-of-accounts\",\"Set Up GST\":\"india-tax-setup\",\"Set Up TDS\":\"india-tax-setup\",\"Set Up Payroll\":\"india-payroll-setup\",\"Add Balances\":\"opening-balances\",\"Import Statement\":\"bank-imports\",\"Create Invoice\":\"customer-document\"},\"bad\":[],\"errs\":[]}"
+ }
+]

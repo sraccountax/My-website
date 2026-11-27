@@ -1,0 +1,3 @@
+﻿Date,Description,Reference,Debit,Credit,Amount,Currency
+2026-09-01,Fictional customer deposit,QA-BANK-001,,,1000.00,CAD
+2026-09-02,Fictional office-supplies purchase,QA-BANK-002,,,-125.00,CAD
