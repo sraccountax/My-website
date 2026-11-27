@@ -54,7 +54,10 @@ Three synthetic companies: Ontario parent (P), BC branch (W) and Quebec subsidia
   - P and Q are then closed together through 30 Sep 2026;
   - a September entry in P is refused, and W is still open.
 - **UI-01:**
-  - Settings › Group & Intercompany shows the two links and P's three intercompany invoices (Posted);
+  - there is no separate Group & Intercompany page or menu item (see "Revision after the gate" below);
+  - Company Details shows "Group companies" with the two links;
+  - the Invoice Register shows P's three intercompany invoices (Posted);
+  - Month-End Close holds the reconciliation, the worksheet and the group close;
   - the reconciliation shows "Difference $50.00" and "Agrees";
   - the worksheet shows the difference line and group net income;
   - no page errors, and no sideways scroll.
@@ -66,6 +69,15 @@ Two display problems were found and fixed before the gate:
 - **Stray Cancel button:** the shared form enhancer added a "Cancel" button to the worksheet and reconciliation filters. The filters now opt out.
 - **Capitalised names:** company names were title-cased ("Mwxze1gu"). Labels and column headers holding company names now keep their case.
 
+## Revision after the gate (commit after `581abe1`)
+At the user's request, there is no separate menu page for group and intercompany work. Each section now lives where that work is already done:
+- **Company Details › Group companies:** linking companies;
+- **Invoice Register:** the intercompany invoices panel, shown only when there are any;
+- **Month-End Close:** the reconciliation, the consolidation worksheet and closing the group, shown only to a person with two or more companies.
+
+The Settings menu item and `TeghPortal.openGroupIntercompany` were removed. The API and the figures are unchanged. Suite 78-r200 was updated and re-run on the gate host: 7/7 PASS. **This revision is not in the R200 ZIP above.** It goes into the next package, which gets its own full gate.
+
 ## Screenshots (`shots/`)
-- `r200-group-1440.png`: the reconciliation and the consolidation worksheet.
+- `r200-group-1440.png`: Month-End Close with the reconciliation and the consolidation worksheet.
+- `r200-invoices-1440.png`: the Invoice Register with the intercompany invoices panel.
 - `r200-group-390.png` and `r200-group-dark-390.png`: phone width and dark theme.
