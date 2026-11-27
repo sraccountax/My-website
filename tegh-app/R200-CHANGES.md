@@ -2,7 +2,12 @@
 
 R200 is R199 plus the changes below. It applies to the Canada and India editions, but a link always joins two companies of the same edition. There is no migration and Schema stays 46. Three tables are created the first time the page or its API is used: `ic_pairs`, `ic_pair_accounts` and `ic_mirrors`. Existing companies, documents and journals are unchanged.
 
-**Settings › Group & Intercompany** is a new page for anyone who keeps the books of several companies that trade with each other. It has five parts.
+For anyone who keeps the books of several companies that trade with each other. There is **no separate menu page**; each part sits where that work is already done:
+- **Company Details › Group companies:** linking companies (section 1).
+- **Invoice Register:** a panel listing invoices to a linked company, shown only when there are any (section 2).
+- **Month-End Close:** the intercompany reconciliation, the consolidation worksheet and closing the group (sections 3–5), shown only to a person with access to two or more companies.
+
+A company that is not linked to another sees no change.
 
 ## 1. Linked companies
 - **What a link holds:** two companies, plus:
@@ -50,7 +55,7 @@ R200 is R199 plus the changes below. It applies to the Canada and India editions
   - reconciliation before and after the second draft is posted;
   - the consolidation worksheet;
   - group close;
-  - the page at 1440 px, at 390 px and in the dark theme.
+  - the sections in Company Details, the Invoice Register and Month-End Close (no separate page or menu item) at 1440 px, at 390 px and in the dark theme.
 - **Group used:** three companies (Ontario parent, BC branch, Quebec subsidiary). Every figure is worked out by hand:
   - **Fees:** $25,000 + GST twice and $10,000 + GST;
   - **Loan:** $100,000, with interest booked at $500 on one side and $450 on the other;

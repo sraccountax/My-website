@@ -123,16 +123,22 @@ try {
     await p.route(/clarity\.ms|challenges\.cloudflare|googleapis|gstatic|bing\.com/, r => r.abort());
     await p.goto('https://gate.test/app.html'); await p.waitForSelector('#sr-login-form');
     await p.fill('#sr-login-form input[name=email]', EMAIL); await p.fill('#sr-login-form input[name=password]', PW); await p.click('#sr-login-form button[type=submit]');
-    await p.waitForFunction(() => window.TeghPortal?.openGroupIntercompany && document.querySelector('.sidebar,.topbar'), null, {timeout: 60000}); await p.waitForTimeout(1500);
+    await p.waitForFunction(() => window.TeghPortal?.openCompanyDetails && document.querySelector('.sidebar,.topbar'), null, {timeout: 60000}); await p.waitForTimeout(1500);
     return {ctx, p, errs};
   };
 
-  await t('UI-01', 'Settings › Group & Intercompany at 1440 px: the two links, P\'s intercompany invoices with their partner status, the reconciliation (P–W differs by $50.00, P–Q agrees) and the consolidation worksheet (difference line, net income) on screen; no page errors', async () => {
+  await t('UI-01', 'No separate menu page: Company Details shows "Group companies" with the two links; the Invoice Register shows P\'s intercompany invoices with their partner status; Month-End Close shows the reconciliation (P–W differs by $50.00, P–Q agrees), the consolidation worksheet (difference line, net income) and closing the group; no page errors', async () => {
     const {ctx, p, errs} = await session();
-    const inMenu = await p.evaluate(() => [...document.querySelectorAll('button,a')].some(b => b.textContent.trim() === 'Group & Intercompany') || null);
-    await p.evaluate(() => TeghPortal.openGroupIntercompany()); await p.waitForSelector('[data-r200-card="close"]', {timeout: 20000}); await p.waitForTimeout(800);
+    const noPage = await p.evaluate(() => typeof TeghPortal.openGroupIntercompany === 'undefined');
+    await p.evaluate(() => TeghPortal.openSettings?.()); await p.waitForTimeout(1500);
+    const noMenu = await p.evaluate(() => ![...document.querySelectorAll('button,a')].some(b => /Group & Intercompany/.test(b.textContent)));
+    await p.evaluate(() => TeghPortal.openCompanyDetails()); await p.waitForSelector('[data-r200-card="pairs"]', {timeout: 20000}); await p.waitForTimeout(800);
     const pairs = await p.$$eval('[data-r200-pair]', l => l.length);
+    const heading = await p.locator('[data-r200-card="pairs"] h2').innerText();
+    await p.evaluate(() => TeghPortal.invokeMenuAction('', 'receivables:customer-invoice-note-register')); await p.waitForSelector('[data-r200-card="documents"]', {timeout: 20000}); await p.waitForTimeout(600);
     const docs = await p.$$eval('[data-r200-card="documents"] tbody tr', l => l.map(x => x.textContent.replace(/\s+/g, ' ').trim()));
+    await p.screenshot({path: '/srv/gate/ev/shots/r200-invoices-1440.png'});
+    await p.evaluate(() => TeghPortal.openMonthEndClose()); await p.waitForSelector('[data-r200-card="close"]', {timeout: 30000}); await p.waitForTimeout(800);
     await p.locator('[data-r200-recon] input[name=asOf]').fill('2026-09-30'); await p.locator('[data-r200-recon] button[type=submit]').click(); await p.waitForSelector('[data-r200-recon-out] table', {timeout: 20000});
     const recon = await p.locator('[data-r200-recon-out]').innerText();
     const consol = p.locator('[data-r200-consol]');
@@ -140,20 +146,21 @@ try {
     await consol.locator('input[name=from]').fill('2026-01-01'); await consol.locator('input[name=to]').fill('2026-09-30'); await consol.locator('button[type=submit]').click();
     await p.waitForSelector('[data-r200-consol-out] table', {timeout: 20000});
     const sheet = await p.locator('[data-r200-consol-out]').innerText();
-    await p.screenshot({path: '/srv/gate/ev/shots/r200-group-1440.png', fullPage: true});
+    await p.locator('[data-r200-card="consolidation"]').scrollIntoViewIfNeeded();
+    await p.screenshot({path: '/srv/gate/ev/shots/r200-group-1440.png'});
     const over = await p.evaluate(() => document.documentElement.scrollWidth > innerWidth);
     await ctx.close();
-    const ok = pairs === 2 && docs.length === 3 && docs.some(d => /Posted/.test(d)) && /Difference \$50\.00/.test(recon) && /Agrees/.test(recon) && /Intercompany difference to investigate/.test(sheet) && /Group net income/.test(sheet) && !over && !errs.length;
-    return {ok, info: JSON.stringify({inMenu, pairs, docs: docs.map(d => d.slice(0, 80)), recon: recon.slice(0, 200), sheet: sheet.slice(0, 160), over, errs})};
+    const ok = noPage && noMenu && pairs === 2 && /Group companies/i.test(heading) && docs.length === 3 && docs.some(d => /Posted/.test(d)) && /Difference \$50\.00/.test(recon) && /Agrees/.test(recon) && /Intercompany difference to investigate/.test(sheet) && /Group net income/.test(sheet) && !over && !errs.length;
+    return {ok, info: JSON.stringify({noPage, noMenu, pairs, heading, docs: docs.map(d => d.slice(0, 70)), recon: recon.slice(0, 160), sheet: sheet.slice(0, 120), over, errs})};
   });
 
-  await t('UI-02', 'The page at 390 px and in the dark theme: no sideways scroll of the page (the worksheet scrolls inside its own box); text readable on the cards', async () => {
+  await t('UI-02', 'Month-End Close at 390 px and in the dark theme: no sideways scroll of the page (the worksheet scrolls in its own box); no light panels in the group sections', async () => {
     const {ctx, p, errs} = await session(390, 844);
-    await p.evaluate(() => TeghPortal.openGroupIntercompany()); await p.waitForSelector('[data-r200-card="close"]', {timeout: 20000}); await p.waitForTimeout(800);
+    await p.evaluate(() => TeghPortal.openMonthEndClose()); await p.waitForSelector('[data-r200-card="close"]', {timeout: 30000}); await p.waitForTimeout(800);
     const over = await p.evaluate(() => document.documentElement.scrollWidth > innerWidth);
     await p.screenshot({path: '/srv/gate/ev/shots/r200-group-390.png'});
     await p.evaluate(() => TeghPortal.openTeghPreferences()); await p.waitForSelector('[data-tegh-preferences]'); await p.locator('[data-tegh-preferences] input[name=theme][value=dark]').check({force: true}); await p.locator('[data-tegh-preferences] button[type=submit]').first().click(); await p.waitForTimeout(1200);
-    await p.evaluate(() => TeghPortal.openGroupIntercompany()); await p.waitForSelector('[data-r200-card="close"]', {timeout: 20000}); await p.waitForTimeout(800);
+    await p.evaluate(() => TeghPortal.openMonthEndClose()); await p.waitForSelector('[data-r200-card="close"]', {timeout: 30000}); await p.waitForTimeout(800);
     const light = await p.evaluate(() => [...document.querySelectorAll('[data-r200-card], [data-r200-card] *')].filter(e => { const b = getComputedStyle(e).backgroundColor; const m = b.match(/\d+/g); return m && m.length >= 3 && (m.length < 4 || Number(m[3]) !== 0) && Number(m[0]) > 225 && Number(m[1]) > 225 && Number(m[2]) > 225; }).map(e => e.className || e.tagName).slice(0, 5));
     await p.screenshot({path: '/srv/gate/ev/shots/r200-group-dark-390.png'});
     await p.evaluate(() => TeghPortal.openTeghPreferences()); await p.waitForSelector('[data-tegh-preferences]'); await p.locator('[data-tegh-preferences] input[name=theme][value=light]').check({force: true}); await p.locator('[data-tegh-preferences] button[type=submit]').first().click(); await p.waitForTimeout(800);
