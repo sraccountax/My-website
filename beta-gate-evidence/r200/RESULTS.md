@@ -77,6 +77,16 @@ At the user's request, there is no separate menu page for group and intercompany
 
 The Settings menu item and `TeghPortal.openGroupIntercompany` were removed. The API and the figures are unchanged. Suite 78-r200 was updated and re-run on the gate host: 7/7 PASS. **This revision is not in the R200 ZIP above.** It goes into the next package, which gets its own full gate.
 
+## Withdrawn (later commit)
+The user then chose to remove Group & Intercompany altogether to keep Tegh simple. Removed: the sections, their styles, `api/group_r200.php` and the `group/` route. Suite 78-r200 now checks that the feature is gone and was run on the gate host: **2/2 PASS.**
+- **R200-01:** every `group/` route answers 404, and no tables are created;
+- **UI-01:** with someone who has two companies signed in:
+  - there is no menu item;
+  - Company Details, the Invoice Register and Month-End Close show no group sections;
+  - there are no page errors.
+
+The full test of the feature as delivered is kept as `tests/78-r200-full.mjs`. Screenshot: `shots/r200-removed-month-end.png`.
+
 ## Screenshots (`shots/`)
 - `r200-group-1440.png`: Month-End Close with the reconciliation and the consolidation worksheet.
 - `r200-invoices-1440.png`: the Invoice Register with the intercompany invoices panel.

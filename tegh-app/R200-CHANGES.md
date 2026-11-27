@@ -1,4 +1,7 @@
-# R200: Group & Intercompany
+# R200: Group & Intercompany (withdrawn)
+
+> **Withdrawn after R200.** At the user's request, Group & Intercompany has been removed to keep Tegh simple. The next package has no group pages, sections, menu item, styles or `group/` API (every `group/` route answers 404). The rest of this file describes the R200 ZIP as delivered and is kept as a record. Data is not touched: on an install where R200 was used, the tables `ic_pairs`, `ic_pair_accounts` and `ic_mirrors` stay in place but nothing reads them, and the vendor invoices it created remain ordinary vendor invoices. The code can be restored from git history (commit `b328220`) if it is ever wanted again.
+
 
 R200 is R199 plus the changes below. It applies to the Canada and India editions, but a link always joins two companies of the same edition. There is no migration and Schema stays 46. Three tables are created the first time the page or its API is used: `ic_pairs`, `ic_pair_accounts` and `ic_mirrors`. Existing companies, documents and journals are unchanged.
 
